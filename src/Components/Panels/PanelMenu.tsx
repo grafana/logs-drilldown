@@ -28,6 +28,7 @@ import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSu
 import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { css } from '@emotion/css';
+import { VAR_JSON_FIELDS_EXPR } from '../../services/variables';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
@@ -265,7 +266,12 @@ export const getExploreLink = (sceneRef: SceneObject) => {
     }
   }
   const uninterpolatedExpr: string | undefined = queryRunner.state.queries[0].expr;
-  const expr = sceneGraph.interpolate(sceneRef, uninterpolatedExpr);
+  let expr = sceneGraph.interpolate(indexScene, uninterpolatedExpr);
+
+  // Need to interpolate twice? y tho?
+  if (expr.includes(VAR_JSON_FIELDS_EXPR)) {
+    expr = sceneGraph.interpolate(indexScene, expr);
+  }
 
   return onExploreLinkClick(indexScene, expr);
 };

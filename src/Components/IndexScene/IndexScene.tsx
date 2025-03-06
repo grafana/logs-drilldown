@@ -40,6 +40,7 @@ import {
   VAR_LOGS_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
+  VAR_JSON_PARSER,
 } from 'services/variables';
 
 import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
@@ -654,21 +655,15 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
 
   const jsonFieldsVar = new AdHocFiltersVariable({
     name: VAR_JSON_FIELDS,
-    applyMode: 'manual',
-
-    getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
-    getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: (filters: AdHocFilterWithLabels[]) => {
-      return filters?.[0]?.value ?? '';
+    expressionBuilder: (filters) => {
+      return filters.map((filter) => filter.key).join(',');
     },
-    filters: [
-      {
-        key: '',
-        operator: '',
-        value: 'user',
-      },
-    ],
-    // hide: VariableHide.hideVariable,
+  });
+
+  const jsonOnlyParser = new CustomVariable({
+    name: VAR_JSON_PARSER,
+    value: '',
+    type: 'query',
   });
 
   return {
@@ -680,6 +675,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
         levelsVariable,
         metadataVariable,
         jsonFieldsVar,
+        jsonOnlyParser,
         fieldsAndMetadataVariable,
         new CustomVariable({
           name: VAR_PATTERNS,

@@ -20,6 +20,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import {
+  DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
@@ -614,7 +615,7 @@ function getDetectedLabelsQueryRunner() {
 
 function getDetectedFieldsQueryRunner() {
   return getResourceQueryRunner([
-    buildResourceQuery(LOG_STREAM_SELECTOR_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
+    buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
   ]);
 }
 

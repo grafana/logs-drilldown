@@ -23,6 +23,8 @@ import {
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
   VAR_FIELDS_EXPR,
+  VAR_JSON_FIELDS,
+  VAR_JSON_PARSER,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LABELS_EXPR,
@@ -189,6 +191,22 @@ export function setServiceSelectionPrimaryLabelKey(key: string, sceneRef: SceneO
       },
     ],
   });
+}
+
+export function getJsonOnlyParserVariable(sceneRef: SceneObject) {
+  const variable = sceneGraph.lookupVariable(VAR_JSON_PARSER, sceneRef);
+  if (!(variable instanceof CustomVariable)) {
+    throw new Error('VAR_JSON_PARSER not found!');
+  }
+  return variable;
+}
+
+export function getJsonFieldsVariable(sceneRef: SceneObject) {
+  const variable = sceneGraph.lookupVariable(VAR_JSON_FIELDS, sceneRef);
+  if (!(variable instanceof AdHocFiltersVariable)) {
+    throw new Error('VAR_JSON_FIELDS not found!');
+  }
+  return variable;
 }
 
 export function getUrlParamNameForVariable(variableName: string) {

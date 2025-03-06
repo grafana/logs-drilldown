@@ -1,6 +1,15 @@
-import { SceneComponentProps, SceneDataState, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import {
+  AdHocFiltersVariable,
+  AdHocFilterWithLabels,
+  SceneComponentProps,
+  SceneDataState,
+  sceneGraph,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneVariableValueChangedEvent,
+} from '@grafana/scenes';
 import React from 'react';
-import { JSONTree, KeyPath } from 'react-json-tree';
+import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
 import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import {
   AdHocVariableFilter,
@@ -11,7 +20,7 @@ import {
   LoadingState,
   PanelData,
 } from '@grafana/data';
-import { IconButton, LoadingPlaceholder, PanelChrome, useTheme2 } from '@grafana/ui';
+import { IconButton, LoadingPlaceholder, PanelChrome, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsListScene } from './LogsListScene';
@@ -19,16 +28,22 @@ import { getVariableForLabel } from '../../services/fields';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { FilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
+import { getFieldsVariable, getJsonFieldsVariable, getJsonOnlyParserVariable } from '../../services/variableGetters';
+import { EMPTY_VARIABLE_VALUE } from '../../services/variables';
+import { isNumber } from 'lodash';
+import { css } from '@emotion/css';
+import { hasProp } from '../../services/narrowing';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
+  filterJson: 'All' | 'JSON';
   data?: PanelData;
 }
 
-type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object';
+type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
-    super(state);
+    super({ ...state, filterJson: 'All' });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -50,13 +65,31 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return getNestedProperty(lineField, accessors);
   }
 
+  public toggleJson(state: 'All' | 'JSON') {
+    // @todo set query filter instead of client-side filter
+    this.setState({
+      filterJson: state,
+    });
+
+    const jsonVariable = getJsonOnlyParserVariable(this);
+    if (state === 'All') {
+      jsonVariable.changeValueTo('');
+    } else {
+      jsonVariable.changeValueTo('| json | __error__!="JSONParserErr"');
+    }
+
+    const $data = sceneGraph.getData(this);
+    this.updateJsonFrame($data.state);
+  }
+
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
-    const grafanaTheme = useTheme2();
     // const styles = getStyles(grafanaTheme)
     const { menu, data } = model.useState();
+    const $data = sceneGraph.getData(model);
+    const {} = $data.useState();
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { visualizationType } = parentModel.useState();
-    const theme = model.buildTheme(grafanaTheme);
+    const styles = useStyles2(getStyles);
 
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find(
@@ -66,10 +99,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const addFilter = (filter: AdHocVariableFilter, nodeType: NodeTypeLoc) => {
       // @todo labels in JSON do not match labels from Loki
       filter.key = filter.key.replace(/-/g, '_');
-      console.log('addFilter json', nodeType, filter);
+      // console.log('addFilter json', nodeType, filter);
 
-      // @todo when nodeType is `Object` we want to add the JSON fieldname to the VAR_JSON_FIELDS variable
-      // @todo also the VAR_JSON_FIELDS is not interpolating
+      // If the node is a parent node, we want to set the json parser parameter for that key
+      const jsonVariable = getJsonFieldsVariable(model);
+      jsonVariable.setState({
+        filters: [...jsonVariable.state.filters, { value: filter.value, key: filter.key, operator: filter.operator }],
+      });
 
       const variableType = getVariableForLabel(dataFrame, filter.key, model);
       addAdHocFilter(filter, parentModel, variableType);
@@ -77,10 +113,23 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     return (
       <PanelChrome
-        loadingState={data?.state}
+        loadingState={$data.state.data?.state}
         title={'Logs'}
         menu={menu ? <menu.Component model={menu} /> : undefined}
-        actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />}
+        actions={
+          <>
+            <RadioButtonGroup
+              value={model.state.filterJson}
+              size={'sm'}
+              onChange={(label: 'All' | 'JSON') => model.toggleJson(label)}
+              options={[
+                { label: 'All', value: 'All' },
+                { label: 'JSON', value: 'JSON' },
+              ]}
+            />
+            <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+          </>
+        }
       >
         {!lineField?.values && (
           <>
@@ -89,147 +138,146 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         )}
 
         {lineField?.values && (
-          <JSONTree
-            data={lineField.values}
-            theme={theme}
-            // getItemString={(nodeType, data1, itemType, itemString) => {
-            //     // console.log('getItemString', {nodeType, data1, itemType, itemString})
-            //     return <span>{itemType} {itemString}</span>
-            // }}
-            //
-            // valueRenderer={(valueAsString, value, keyPath) => {
-            //     // console.log('valueRenderer', {valueAsString, value, keyPath})
-            //     // @todo narrow the type?
-            //     // @ts-expect-error
-            //     return <em>{valueAsString}</em>
-            // }}
+          <span className={styles.JSONTreeWrap}>
+            <JSONTree
+              data={lineField.values}
+              getItemString={(nodeType, data, itemType, itemString) => {
+                console.log('getItemString', { nodeType, data, itemType, itemString });
+                if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
+                  return null;
+                }
 
-            shouldExpandNodeInitially={(keyPath, data, level) => level <= 2}
-            labelRenderer={(keyPath, nodeType, expanded) => {
-              const nodeTypeLoc = nodeType as NodeTypeLoc;
-
-              if (nodeTypeLoc !== 'Object' && keyPath[0] !== 'Time' && keyPath[0] !== 'Line') {
                 return (
                   <span>
-                    <IconButton
-                      onClick={() =>
-                        addFilter(
-                          {
-                            key: keyPath[0].toString(),
-                            value: model.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
-                            operator: FilterOp.Equal,
-                          },
-                          nodeTypeLoc
-                        )
-                      }
-                      size={'sm'}
-                      name={'plus-circle'}
-                      aria-label={'add filter'}
-                    />
-                    <IconButton
-                      onClick={() => {
-                        addFilter(
-                          {
-                            key: keyPath[0].toString(),
-                            value: model.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
-                            operator: FilterOp.NotEqual,
-                          },
-                          nodeTypeLoc
-                        );
-                      }}
-                      size={'sm'}
-                      name={'minus-circle'}
-                      aria-label={'remove filter'}
-                    />
-                    <strong>{keyPath[0]}</strong>
+                    {itemType} {itemString}
                   </span>
                 );
-              } else if (nodeTypeLoc === 'Object' && keyPath[0] !== 'Line') {
-                return (
-                  <span>
-                    <IconButton
-                      onClick={() =>
-                        addFilter(
-                          {
-                            key: keyPath[0].toString(),
-                            value: '""',
-                            operator: FilterOp.NotEqual,
-                          },
-                          nodeTypeLoc
-                        )
-                      }
-                      size={'sm'}
-                      name={'plus-circle'}
-                      aria-label={'add filter'}
-                    />
-                    <IconButton
-                      onClick={() => {
-                        addFilter(
-                          {
-                            key: keyPath[0].toString(),
-                            value: '""',
-                            operator: FilterOp.Equal,
-                          },
-                          nodeTypeLoc
-                        );
-                      }}
-                      size={'sm'}
-                      name={'minus-circle'}
-                      aria-label={'remove filter'}
-                    />
-                    <strong>{keyPath[0]}</strong>
-                  </span>
-                );
-              }
-              return <strong>{keyPath[0]}</strong>;
-            }}
-          />
+              }}
+              valueRenderer={(valueAsString, value, keyPath) => {
+                if (keyPath === 'Time') {
+                  return null;
+                }
+
+                return <>{valueAsString?.toString()}</>;
+              }}
+              shouldExpandNodeInitially={(keyPath, data, level) => level <= 2}
+              labelRenderer={(keyPath, nodeType, expanded) => {
+                const nodeTypeLoc = nodeType as NodeTypeLoc;
+                const keyPathString = keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
+
+                if (
+                  nodeTypeLoc !== 'Object' &&
+                  nodeTypeLoc !== 'Array' &&
+                  keyPath[0] !== 'Time' &&
+                  keyPath[0] !== 'Line' &&
+                  keyPath[0] !== 'root' &&
+                  !isNumber(keyPath[0])
+                ) {
+                  return (
+                    <>
+                      <span className={styles.labelButtonsWrap}>
+                        <IconButton
+                          className={styles.filterButton}
+                          onClick={() =>
+                            addFilter(
+                              {
+                                key: keyPath[0].toString(),
+                                value: model.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
+                                operator: FilterOp.Equal,
+                              },
+                              nodeTypeLoc
+                            )
+                          }
+                          size={'md'}
+                          name={'plus-circle'}
+                          aria-label={'add filter'}
+                        />
+                        <IconButton
+                          className={styles.filterButton}
+                          onClick={() => {
+                            addFilter(
+                              {
+                                key: keyPath[0].toString(),
+                                value: model.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
+                                operator: FilterOp.NotEqual,
+                              },
+                              nodeTypeLoc
+                            );
+                          }}
+                          size={'md'}
+                          name={'minus-circle'}
+                          aria-label={'remove filter'}
+                        />
+
+                        <strong className={styles.labelWrap}>{keyPathString}</strong>
+                      </span>
+                    </>
+                  );
+                } else if (
+                  (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
+                  keyPath[0] !== 'Line' &&
+                  keyPath[0] !== 'root' &&
+                  !isNumber(keyPath[0])
+                ) {
+                  return (
+                    <>
+                      <span className={styles.labelWrap}>
+                        <IconButton
+                          className={styles.filterButton}
+                          onClick={() =>
+                            addFilter(
+                              {
+                                key: keyPath[0].toString(),
+                                value: EMPTY_VARIABLE_VALUE,
+                                operator: FilterOp.NotEqual,
+                              },
+                              nodeTypeLoc
+                            )
+                          }
+                          size={'md'}
+                          name={'plus-circle'}
+                          aria-label={'add filter'}
+                        />
+                        <IconButton
+                          className={styles.filterButton}
+                          onClick={() => {
+                            addFilter(
+                              {
+                                key: keyPath[0].toString(),
+                                value: EMPTY_VARIABLE_VALUE,
+                                operator: FilterOp.Equal,
+                              },
+                              nodeTypeLoc
+                            );
+                          }}
+                          size={'md'}
+                          name={'minus-circle'}
+                          aria-label={'remove filter'}
+                        />
+                        <strong>{keyPathString}</strong>
+                      </span>
+                    </>
+                  );
+                }
+
+                if (isNumber(keyPath[0]) && keyPath[1] === 'root') {
+                  const time = lineField.values[keyPath[0]]?.Time;
+                  // console.log('render root nodes', {keyPath, nodeTypeLoc, line: lineField.values[keyPath[0]]})
+                  return <strong className={styles.timeNode}>{time}</strong>;
+                }
+
+                if (keyPath[0] === 'Time') {
+                  return null;
+                }
+
+                return <strong>{keyPath[0]}:</strong>;
+              }}
+            />
+          </span>
         )}
       </PanelChrome>
     );
   };
-
-  public buildTheme(grafanaTheme: GrafanaTheme2) {
-    const rawTheme = {
-      scheme: 'grafana',
-      author: 'Grafana Labs (http://grafana.com)',
-      base00: grafanaTheme.colors.background.primary, // BACKGROUND_COLOR
-      base01: grafanaTheme.colors.background.canvas,
-      base02: grafanaTheme.colors.background.secondary,
-      base03: grafanaTheme.colors.primary.main, // ITEM_STRING_EXPANDED_COLOR
-      base04: grafanaTheme.colors.primary.shade,
-      base05: '#f8f8f2',
-      base06: '#f5f4f1',
-      base07: '#f9f8f5', // TEXT_COLOR
-      base08: '#f92672', // NULL_COLOR, UNDEFINED_COLOR, FUNCTION_COLOR, SYMBOL_COLOR
-      base09: '#fd971f', // NUMBER_COLOR, BOOLEAN_COLOR
-      base0A: '#f4bf75',
-      base0B: '#a6e22e', // STRING_COLOR, DATE_COLOR, ITEM_STRING_COLOR
-      base0C: '#a1efe4', // label name
-      base0D: '#66d9ef', // LABEL_COLOR, ARROW_COLOR
-      base0E: '#ae81ff',
-      base0F: '#cc6633',
-    };
-
-    // const colorMap = (theme: Record<string, string>) => ({
-    //     BACKGROUND_COLOR: theme.base00,
-    //     TEXT_COLOR: theme.base07,
-    //     STRING_COLOR: theme.base0B,
-    //     DATE_COLOR: theme.base0B,
-    //     NUMBER_COLOR: theme.base09,
-    //     BOOLEAN_COLOR: theme.base09,
-    //     NULL_COLOR: theme.base08,
-    //     UNDEFINED_COLOR: theme.base08,
-    //     FUNCTION_COLOR: theme.base08,
-    //     SYMBOL_COLOR: theme.base08,
-    //     LABEL_COLOR: theme.base0D,
-    //     ARROW_COLOR: theme.base0D,
-    //     ITEM_STRING_COLOR: theme.base0B,
-    //     ITEM_STRING_EXPANDED_COLOR: theme.base03,
-    // });
-
-    return rawTheme;
-  }
 
   public onActivate() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
@@ -252,13 +300,37 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         }
       })
     );
+
+    const fieldsVariable = getFieldsVariable(this);
+    this._subs.add(
+      // Hacky sync on field filter updates, this will result in duplicate queries
+      fieldsVariable.subscribeToEvent(SceneVariableValueChangedEvent, (evt) => {
+        // console.log('fields changed event', evt)
+        const state = evt.payload.state as AdHocFiltersVariable['state'];
+        const fieldFilters = state.filters;
+
+        const jsonVariable = getJsonFieldsVariable(this);
+        let newJsonFilters: AdHocFilterWithLabels[] = [];
+
+        jsonVariable.state.filters.forEach((jsonField) => {
+          if (fieldFilters.find((fieldFilter) => fieldFilter.key === jsonField.key)) {
+            newJsonFilters.push(jsonField);
+          }
+        });
+
+        // console.log('need to remove dups', newJsonFilters)
+        jsonVariable.setState({
+          filters: newJsonFilters,
+        });
+      })
+    );
   }
 
   private updateJsonFrame(newState: SceneDataState) {
     const dataFrame = getLogsPanelFrame(newState.data);
     const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
     // const timeNs = dataFrame?.fields.find(field => field.type === FieldType.string && field.name === 'tsNs')
-    const labels = dataFrame?.fields.find((field) => field.type === FieldType.other && field.name === 'labels');
+    // const labels = dataFrame?.fields.find((field) => field.type === FieldType.other && field.name === 'labels');
     // const labelTypes = dataFrame?.fields.find(field => field.type === FieldType.other && field.name === 'labelTypes')
 
     const timeZone = getTimeZone();
@@ -273,23 +345,31 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               if (f.name === 'Line') {
                 return {
                   ...f,
-                  values: f.values.map((v, i) => {
-                    let parsed;
-                    try {
-                      parsed = JSON.parse(v);
-                    } catch (e) {
-                      parsed = v;
-                    }
-                    return {
-                      // @todo ns? This will remove leading zeros
-                      Time: renderTimeStamp(time?.values?.[i], timeZone),
-                      Line: parsed,
-                      // @todo labels? Allow filtering when key has same name as label?
-                      Labels: labels?.values[i],
-                      // LabelTypes: labelTypes?.values[i]
-                    };
-                    // return parsed;
-                  }),
+                  values: f.values
+                    .map((v, i) => {
+                      let parsed;
+                      try {
+                        parsed = JSON.parse(v);
+                      } catch (e) {
+                        console.warn('failed to parse', {
+                          e,
+                          v,
+                        });
+                        parsed = v;
+                      }
+
+                      return {
+                        // @todo ns? This will remove leading zeros
+                        Time: renderTimeStamp(time?.values?.[i], timeZone),
+                        Line: parsed,
+                        // @todo labels? Allow filtering when key has same name as label?
+                        // Labels: labels?.values[i],
+                        // LabelTypes: labelTypes?.values[i]
+                      };
+                      // return parsed;
+                      // remove null
+                    })
+                    .filter((f) => f),
                 };
               }
               return f;
@@ -322,11 +402,29 @@ function getNestedProperty(obj: Record<string, any>, props: Array<string | numbe
   }
 }
 
-// const getStyles = (theme: GrafanaTheme2) => ({
-//     jsonWrap: css({
-//         width: '100%',
-//     }),
-//     lineWrap: css({
-//         display: 'flex',
-//     }),
-// });
+const getStyles = (theme: GrafanaTheme2) => ({
+  timeNode: css({
+    color: theme.colors.text.maxContrast,
+  }),
+  // Library uses inline styles
+  labelButtonsWrap: css({
+    display: 'inline-flex',
+
+    color: 'var(--json-tree-label-color)',
+  }),
+  labelWrap: css({
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    alignItems: 'center',
+  }),
+  filterButton: css({
+    // marginLeft: '0.25em',
+    // marginRight: '0.25em',
+    // display: 'inline-flex',
+    // verticalAlign: 'middle',
+  }),
+  JSONTreeWrap: css`
+    // override css
+    --json-tree-align-items: flex-start;
+  `,
+});

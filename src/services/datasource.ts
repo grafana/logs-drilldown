@@ -343,6 +343,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
     subscriber.next({ data: [], state: LoadingState.Loading });
 
     const { interpolatedTarget, expression } = this.interpolate(ds, targets, request);
+    console.log('expression', expression);
 
     try {
       const response = await ds.getResource<DetectedFieldsResponse>(
