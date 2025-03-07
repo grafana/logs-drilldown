@@ -13,7 +13,9 @@ import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
 import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import {
   AdHocVariableFilter,
+  DataFrame,
   dateTimeFormat,
+  Field,
   FieldType,
   getTimeZone,
   GrafanaTheme2,
@@ -41,11 +43,29 @@ interface LogsJsonSceneState extends SceneObjectState {
 }
 
 type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
+
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
     super({ ...state, filterJson: 'All' });
 
     this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  public getKey(keyPath: KeyPath) {
+    // @todo build keys for nested nodes
+    let key: string | undefined | number;
+    const keys = [...keyPath];
+    const keysToConcat = [];
+
+    // eslint-disable-next-line no-cond-assign
+    while ((key = keys.shift())) {
+      if (key === 'Line' || isNumber(key) || key === 'root') {
+        break;
+      }
+      keysToConcat.unshift(key);
+    }
+    // console.log('getKey', {key, keyPath, nodeType, lineField, keysToConcat, cat: keysToConcat.join('_')})
+    return keysToConcat.join('_');
   }
 
   public getValue(keyPath: KeyPath, nodeType: NodeTypeLoc, lineField: Array<string | number>): string | number {
@@ -62,7 +82,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       }
     }
 
-    return getNestedProperty(lineField, accessors);
+    const value = getNestedProperty(lineField, accessors);
+    // console.log('getValue', {value, keyPath, nodeType, lineField})
+    return value;
   }
 
   public toggleJson(state: 'All' | 'JSON') {
@@ -82,34 +104,49 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.updateJsonFrame($data.state);
   }
 
+  public addFilter(filter: AdHocVariableFilter, nodeType: NodeTypeLoc, dataFrame: DataFrame | undefined) {
+    console.log('addFilter', { filter, nodeType });
+    // @todo labels in JSON do not match labels from Loki
+    filter.key = filter.key.replace(/-/g, '_');
+    // console.log('addFilter json', nodeType, filter);
+
+    // If the node is a parent node, we want to set the json parser parameter for that key
+    if (nodeType === 'Object' || nodeType === 'Array') {
+      const jsonVariable = getJsonFieldsVariable(this);
+      jsonVariable.setState({
+        filters: [
+          ...jsonVariable.state.filters,
+          {
+            value: filter.value,
+            key: filter.key,
+            operator: filter.operator,
+          },
+        ],
+      });
+    }
+
+    const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
+    const variableType = getVariableForLabel(dataFrame, filter.key, this);
+    addAdHocFilter(filter, logsListScene, variableType);
+  }
+
+  private getKeyPathString(keyPath: KeyPath) {
+    return keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
+  }
+
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
     // const styles = getStyles(grafanaTheme)
     const { menu, data } = model.useState();
     const $data = sceneGraph.getData(model);
     const {} = $data.useState();
-    const parentModel = sceneGraph.getAncestor(model, LogsListScene);
-    const { visualizationType } = parentModel.useState();
+    const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
+    const { visualizationType } = logsListScene.useState();
     const styles = useStyles2(getStyles);
 
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find(
       (field) => field.type === FieldType.string && (field.name === 'Line' || field.name === 'body')
     );
-
-    const addFilter = (filter: AdHocVariableFilter, nodeType: NodeTypeLoc) => {
-      // @todo labels in JSON do not match labels from Loki
-      filter.key = filter.key.replace(/-/g, '_');
-      // console.log('addFilter json', nodeType, filter);
-
-      // If the node is a parent node, we want to set the json parser parameter for that key
-      const jsonVariable = getJsonFieldsVariable(model);
-      jsonVariable.setState({
-        filters: [...jsonVariable.state.filters, { value: filter.value, key: filter.key, operator: filter.operator }],
-      });
-
-      const variableType = getVariableForLabel(dataFrame, filter.key, model);
-      addAdHocFilter(filter, parentModel, variableType);
-    };
 
     return (
       <PanelChrome
@@ -127,7 +164,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 { label: 'JSON', value: 'JSON' },
               ]}
             />
-            <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+            <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
           </>
         }
       >
@@ -137,12 +174,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           </>
         )}
 
-        {lineField?.values && (
+        {dataFrame && lineField?.values && (
           <span className={styles.JSONTreeWrap}>
             <JSONTree
               data={lineField.values}
               getItemString={(nodeType, data, itemType, itemString) => {
-                console.log('getItemString', { nodeType, data, itemType, itemString });
+                // console.log('getItemString', { nodeType, data, itemType, itemString });
                 if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
                   return null;
                 }
@@ -162,9 +199,14 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               }}
               shouldExpandNodeInitially={(keyPath, data, level) => level <= 2}
               labelRenderer={(keyPath, nodeType, expanded) => {
+                const depth = keyPath.length;
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
-                const keyPathString = keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
 
+                // console.log('labelRenderer', {
+                //     depth, nodeTypeLoc, keyPath, expanded
+                // })
+
+                // Value nodes
                 if (
                   nodeTypeLoc !== 'Object' &&
                   nodeTypeLoc !== 'Array' &&
@@ -173,99 +215,26 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return (
-                    <>
-                      <span className={styles.labelButtonsWrap}>
-                        <IconButton
-                          className={styles.filterButton}
-                          onClick={() =>
-                            addFilter(
-                              {
-                                key: keyPath[0].toString(),
-                                value: model.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
-                                operator: FilterOp.Equal,
-                              },
-                              nodeTypeLoc
-                            )
-                          }
-                          size={'md'}
-                          name={'plus-circle'}
-                          aria-label={'add filter'}
-                        />
-                        <IconButton
-                          className={styles.filterButton}
-                          onClick={() => {
-                            addFilter(
-                              {
-                                key: keyPath[0].toString(),
-                                value: model.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
-                                operator: FilterOp.NotEqual,
-                              },
-                              nodeTypeLoc
-                            );
-                          }}
-                          size={'md'}
-                          name={'minus-circle'}
-                          aria-label={'remove filter'}
-                        />
+                  return model.getValueLabel(keyPath, nodeTypeLoc, lineField, dataFrame);
+                }
 
-                        <strong className={styles.labelWrap}>{keyPathString}</strong>
-                      </span>
-                    </>
-                  );
-                } else if (
+                // Parent nodes
+                if (
                   (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
                   keyPath[0] !== 'Line' &&
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return (
-                    <>
-                      <span className={styles.labelWrap}>
-                        <IconButton
-                          className={styles.filterButton}
-                          onClick={() =>
-                            addFilter(
-                              {
-                                key: keyPath[0].toString(),
-                                value: EMPTY_VARIABLE_VALUE,
-                                operator: FilterOp.NotEqual,
-                              },
-                              nodeTypeLoc
-                            )
-                          }
-                          size={'md'}
-                          name={'plus-circle'}
-                          aria-label={'add filter'}
-                        />
-                        <IconButton
-                          className={styles.filterButton}
-                          onClick={() => {
-                            addFilter(
-                              {
-                                key: keyPath[0].toString(),
-                                value: EMPTY_VARIABLE_VALUE,
-                                operator: FilterOp.Equal,
-                              },
-                              nodeTypeLoc
-                            );
-                          }}
-                          size={'md'}
-                          name={'minus-circle'}
-                          aria-label={'remove filter'}
-                        />
-                        <strong>{keyPathString}</strong>
-                      </span>
-                    </>
-                  );
+                  return model.getNestedNodeLabel(keyPath, nodeTypeLoc, dataFrame);
                 }
 
+                // Show the timestamp as the label of the log line
                 if (isNumber(keyPath[0]) && keyPath[1] === 'root') {
                   const time = lineField.values[keyPath[0]]?.Time;
-                  // console.log('render root nodes', {keyPath, nodeTypeLoc, line: lineField.values[keyPath[0]]})
                   return <strong className={styles.timeNode}>{time}</strong>;
                 }
 
+                // Don't render time node
                 if (keyPath[0] === 'Time') {
                   return null;
                 }
@@ -278,6 +247,108 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       </PanelChrome>
     );
   };
+
+  private getNestedNodeLabel(keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame) {
+    // This is not a class component, this rule is wrong with scenes
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const styles = useStyles2(getStyles);
+    return (
+      <>
+        <span className={styles.labelWrap}>
+          <IconButton
+            className={styles.filterButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              this.addFilter(
+                {
+                  key: this.getKey(keyPath),
+                  value: EMPTY_VARIABLE_VALUE,
+                  operator: FilterOp.NotEqual,
+                },
+                nodeTypeLoc,
+                dataFrame
+              );
+            }}
+            size={'md'}
+            name={'plus-circle'}
+            aria-label={'add filter'}
+          />
+          <IconButton
+            className={styles.filterButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              this.addFilter(
+                {
+                  key: this.getKey(keyPath),
+                  value: EMPTY_VARIABLE_VALUE,
+                  operator: FilterOp.Equal,
+                },
+                nodeTypeLoc,
+                dataFrame
+              );
+            }}
+            size={'md'}
+            name={'minus-circle'}
+            aria-label={'remove filter'}
+          />
+          <strong>{this.getKeyPathString(keyPath)}</strong>
+        </span>
+      </>
+    );
+  }
+
+  private getValueLabel(
+    keyPath: KeyPath,
+    nodeTypeLoc: NodeTypeLoc,
+    lineField: Field<string | number>,
+    dataFrame: DataFrame
+  ) {
+    // This is not a class component, this rule is wrong with scenes
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const styles = useStyles2(getStyles);
+    return (
+      <>
+        <span className={styles.labelButtonsWrap}>
+          <IconButton
+            className={styles.filterButton}
+            onClick={(e) => {
+              this.addFilter(
+                {
+                  key: this.getKey(keyPath),
+                  value: this.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
+                  operator: FilterOp.Equal,
+                },
+                nodeTypeLoc,
+                dataFrame
+              );
+            }}
+            size={'md'}
+            name={'plus-circle'}
+            aria-label={'add filter'}
+          />
+          <IconButton
+            className={styles.filterButton}
+            onClick={(e) => {
+              this.addFilter(
+                {
+                  key: this.getKey(keyPath),
+                  value: this.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
+                  operator: FilterOp.NotEqual,
+                },
+                nodeTypeLoc,
+                dataFrame
+              );
+            }}
+            size={'md'}
+            name={'minus-circle'}
+            aria-label={'remove filter'}
+          />
+
+          <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
+        </span>
+      </>
+    );
+  }
 
   public onActivate() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);

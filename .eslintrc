@@ -1,3 +1,7 @@
 {
-  "extends": "./.config/.eslintrc"
+  "extends": "./.config/.eslintrc",
+  "rules": {
+    // Why is this not working
+    "no-cond-assign": ["error", "except-parens"]
+  }
 }
