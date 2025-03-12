@@ -14,9 +14,9 @@ interface Props {
     addFilter: (keyPath: KeyPath, filter: AdHocVariableFilter, nodeType: NodeTypeLoc, dataFrame: DataFrame | undefined) => void
 }
 
-export function JSONFilterNestedNodeInButton({addFilter, keyPath, nodeTypeLoc, dataFrame}: Props) {
+export function JSONFilterNestedNodeOutButton({addFilter, keyPath, nodeTypeLoc, dataFrame}: Props) {
     return <IconButton
-        tooltip={`Include log lines that contain ${keyPath[0]}`}
+        tooltip={`Exclude log lines that contain ${keyPath[0]}`}
         // className={styles.filterButton}
         onClick={(e) => {
             e.stopPropagation();
@@ -25,14 +25,14 @@ export function JSONFilterNestedNodeInButton({addFilter, keyPath, nodeTypeLoc, d
                 {
                     key: getJsonKey(keyPath),
                     value: EMPTY_VARIABLE_VALUE,
-                    operator: FilterOp.NotEqual,
+                    operator: FilterOp.Equal,
                 },
                 nodeTypeLoc,
                 dataFrame
             );
         }}
         size={'md'}
-        name={'plus-circle'}
-        aria-label={'add filter'}
+        name={'minus-circle'}
+        aria-label={'remove filter'}
     />;
 }

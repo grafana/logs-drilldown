@@ -33,7 +33,7 @@ import {
   VAR_LEVELS_EXPR,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
-  VAR_LINE_FILTERS_EXPR,
+  VAR_LINE_FILTERS_EXPR, VAR_LINE_FORMAT,
   VAR_METADATA,
   VAR_METADATA_EXPR,
   VAR_PATTERNS,
@@ -195,6 +195,14 @@ export function setServiceSelectionPrimaryLabelKey(key: string, sceneRef: SceneO
 
 export function getJsonOnlyParserVariable(sceneRef: SceneObject) {
   const variable = sceneGraph.lookupVariable(VAR_JSON_PARSER, sceneRef);
+  if (!(variable instanceof CustomVariable)) {
+    throw new Error('VAR_JSON_PARSER not found!');
+  }
+  return variable;
+}
+
+export function getLineFormatVariable(sceneRef: SceneObject) {
+  const variable = sceneGraph.lookupVariable(VAR_LINE_FORMAT, sceneRef);
   if (!(variable instanceof CustomVariable)) {
     throw new Error('VAR_JSON_PARSER not found!');
   }

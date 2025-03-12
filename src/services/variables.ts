@@ -60,6 +60,9 @@ export const VAR_JSON_FIELDS_EXPR = '${jsonFields}';
 export const VAR_JSON_PARSER = 'jsonParser';
 export const VAR_JSON_PARSER_EXPR = '${jsonParser}';
 
+export const VAR_LINE_FORMAT = 'lineFormat';
+export const VAR_LINE_FORMAT_EXPR = '${lineFormat}';
+
 export const DETECTED_FIELDS_MIXED_FORMAT_EXPR = `| json | logfmt | drop __error__, __error_details__`;
 export const MIXED_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__`;
 export const JSON_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | drop __error__, __error_details__`;
@@ -75,7 +78,7 @@ export const VAR_LINE_FILTER_EXPR = '${lineFilterV2}';
 // The new multi value line filter (ad-hoc variable)
 export const VAR_LINE_FILTERS = 'lineFilters';
 export const VAR_LINE_FILTERS_EXPR = '${lineFilters}';
-export const LOG_STREAM_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_JSON_PARSER_EXPR}`;
+export const LOG_STREAM_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} ${VAR_JSON_PARSER_EXPR}`;
 // Same as the LOG_STREAM_SELECTOR_EXPR, but without the fields as they will need to be built manually to exclude the current filter value
 export const DETECTED_FIELD_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
 export const DETECTED_FIELD_AND_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR} ${PENDING_FIELDS_EXPR}`;

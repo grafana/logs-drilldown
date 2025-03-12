@@ -1,10 +1,12 @@
-import { UrlQueryMap, urlUtil } from '@grafana/data';
+import {UrlQueryMap, urlUtil} from '@grafana/data';
 import {
   SERVICE_NAME,
   SERVICE_UI_LABEL,
   VAR_DATASOURCE,
   VAR_FIELD_GROUP_BY,
   VAR_FIELDS,
+  VAR_JSON_FIELDS,
+  VAR_JSON_PARSER,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LEVELS,
@@ -13,13 +15,13 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from './variables';
-import { locationService } from '@grafana/runtime';
-import { RouteMatch, RouteProps } from '../Components/Pages';
-import { replaceSlash } from './extensions/links';
-import { SceneObject } from '@grafana/scenes';
-import { getLabelsVariable } from './variableGetters';
-import { logger } from './logger';
-import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
+import {locationService} from '@grafana/runtime';
+import {RouteMatch, RouteProps} from '../Components/Pages';
+import {replaceSlash} from './extensions/links';
+import {SceneObject} from '@grafana/scenes';
+import {getLabelsVariable} from './variableGetters';
+import {logger} from './logger';
+import {PLUGIN_BASE_URL, prefixRoute} from './plugin';
 
 export enum PageSlugs {
   explore = 'explore',
@@ -103,6 +105,8 @@ export const DRILLDOWN_URL_KEYS = [
   `var-${VAR_LINE_FILTER}`,
   `var-${VAR_METADATA}`,
   `var-${VAR_LINE_FILTERS}`,
+  `var-${VAR_JSON_FIELDS}`,
+  `var-${VAR_JSON_PARSER}`,
 ];
 
 export function getDrilldownSlug() {
