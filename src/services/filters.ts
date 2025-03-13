@@ -1,11 +1,15 @@
-import { DetectedLabel } from './fields';
+import { DetectedLabel, isLogLineField } from './fields';
 import {
   ALL_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
   stripAdHocFilterUserInputPrefix,
 } from './variables';
-import { VariableValueOption } from '@grafana/scenes';
+import { SceneObject, VariableValueOption } from '@grafana/scenes';
+import { getJsonFieldsVariable, getLineFormatVariable } from './variableGetters';
+import { FilterOp, JSONFilterOp } from './filterTypes';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { isNumber } from 'lodash';
 
 // We want to show labels with cardinality 1 at the end of the list because they are less useful
 // And then we want to sort by cardinality - from lowest to highest
@@ -54,4 +58,61 @@ export function isFilterMetadata(filter: { value: string; valueLabels?: string[]
     ? stripAdHocFilterUserInputPrefix(filter.value)
     : filter.value;
   return value === filter.valueLabels?.[0];
+}
+
+export const EMPTY_JSON_FILTER_VALUE = ' ';
+
+export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
+  const lineFormatVar = getLineFormatVariable(sceneRef);
+  const lineFormatFilter = lineFormatVar.state.filters?.[0];
+  if (!lineFormatFilter) {
+    console.warn('Unexpected line format filter parse error. Line format filter is expected when drilling back up');
+  }
+
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+  const filters = [...jsonVariable.state.filters.filter((f) => f.key !== lineFormatFilter?.key)];
+
+  console.log('removeJsonDrilldownFilters', { oldFilters: jsonVariable.state.filters, filters });
+  jsonVariable.setState({
+    filters,
+  });
+  lineFormatVar.setState({
+    filters: [],
+  });
+}
+
+export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, hasValue = true) {
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+
+  const value = hasValue ? getJsonKey(keyPath, '.') : EMPTY_JSON_FILTER_VALUE;
+  const key = getJsonKey(keyPath, '_');
+
+  const filters = [
+    ...jsonVariable.state.filters.filter((f) => f.key !== key),
+    {
+      value,
+      key,
+      operator: hasValue ? FilterOp.Equal : JSONFilterOp.Empty,
+    },
+  ];
+
+  jsonVariable.setState({
+    filters,
+  });
+}
+
+export function getJsonKey(keyPath: KeyPath, joinBy: '_' | '.' = '_') {
+  let key: string | undefined | number;
+  const keys = [...keyPath];
+  const keysToConcat = [];
+
+  // eslint-disable-next-line no-cond-assign
+  while ((key = keys.shift())) {
+    if (isLogLineField(key.toString()) || isNumber(key) || key === 'root') {
+      break;
+    }
+    keysToConcat.unshift(key);
+  }
+  // console.log('getKey', {key, keyPath, nodeType, lineField, keysToConcat, cat: keysToConcat.join('_')})
+  return keysToConcat.join(joinBy);
 }

@@ -346,3 +346,7 @@ export function lokiRegularEscape<T>(value: T) {
   }
   return value;
 }
+
+export function isLogLineField(fieldName: string) {
+  return fieldName === 'Line' || fieldName === 'body';
+}

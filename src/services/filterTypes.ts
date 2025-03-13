@@ -10,6 +10,9 @@ export enum LabelFilterOp {
   RegexEqual = '=~',
   RegexNotEqual = '!~',
 }
+export enum JSONFilterOp {
+  Empty = ' ',
+}
 
 export enum NumericFilterOp {
   gt = '>',
