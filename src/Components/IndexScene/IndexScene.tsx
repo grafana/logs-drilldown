@@ -40,7 +40,8 @@ import {
   VAR_LOGS_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
-  VAR_JSON_PARSER, VAR_LINE_FORMAT,
+  VAR_JSON_PARSER,
+  VAR_LINE_FORMAT,
 } from 'services/variables';
 
 import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
@@ -100,7 +101,7 @@ import { lineFilterOperators, operators } from '../../services/operators';
 import { operatorFunction } from '../../services/variableHelpers';
 import { FilterOp } from '../../services/filterTypes';
 import { areArraysEqual } from '../../services/comparison';
-import {EMPTY_JSON_FILTER_VALUE, isFilterMetadata} from '../../services/filters';
+import { EMPTY_JSON_FILTER_VALUE, isFilterMetadata } from '../../services/filters';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
@@ -173,7 +174,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       }),
       new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER }),
       new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
-
     ];
 
     if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
@@ -667,13 +667,15 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     expressionBuilder: (filters) => {
-      return filters.map((filter) => {
-        // @todo ad-hoc variables don't allow empty strings, (and will not be added in url state) but we don't always have an operator or value for the json parser field, so we add an empty space for now, and remove empty spaces when interpolating
-        if(filter.value && filter.value !== EMPTY_JSON_FILTER_VALUE){
-          return `${filter.key}${filter.operator}"${filter.value}"`
-        }
-        return filter.key
-      }).join(',');
+      return filters
+        .map((filter) => {
+          // ad-hoc variables don't allow empty strings, (and will not be added in url state) but we don't always have an operator or value for the json parser field, so we add an empty space for now, and remove empty spaces when interpolating
+          if (filter.value && filter.value !== EMPTY_JSON_FILTER_VALUE) {
+            return `${filter.key}${filter.operator}"${filter.value}"`;
+          }
+          return filter.key;
+        })
+        .join(',');
     },
   });
 
@@ -683,13 +685,22 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     type: 'query',
   });
 
-  const lineFormatVariable = new CustomVariable({
+  const lineFormatVariable = new AdHocFiltersVariable({
     name: VAR_LINE_FORMAT,
-    value: '',
-    type: 'custom',
+    layout: 'horizontal',
     allowCustomValue: true,
-    noValueOnClear: true
-  })
+    getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
+    getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
+    expressionBuilder: (filters) => {
+      if (filters.length) {
+        // We should only have a single line_format, which saves the state of where we're currently "drilled in"
+        // we're using an-ad-hoc variable instead of a regular text variable because we need to be able to delete the json parser value associated with this "drilldown",
+        const key = filters.map((filter) => filter.key).join('_');
+        return `| line_format "{{.${key}}}"`;
+      }
+      return '';
+    },
+  });
 
   return {
     variablesScene: new SceneVariableSet({

@@ -1,48 +1,54 @@
 import {
-    AdHocFiltersVariable,
-    AdHocFilterWithLabels,
-    SceneComponentProps,
-    SceneDataState,
-    sceneGraph,
-    SceneObjectBase,
-    SceneObjectState,
-    SceneVariableValueChangedEvent,
+  AdHocFiltersVariable,
+  AdHocFilterWithLabels,
+  SceneComponentProps,
+  SceneDataState,
+  sceneGraph,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneVariableValueChangedEvent,
 } from '@grafana/scenes';
 import React from 'react';
-import {JSONTree, KeyPath} from '@gtk-grafana/react-json-tree';
-import {getLogsPanelFrame, ServiceScene} from './ServiceScene';
+import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
+import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import {
-    AdHocVariableFilter,
-    DataFrame,
-    dateTimeFormat,
-    Field,
-    FieldType,
-    getTimeZone,
-    GrafanaTheme2,
-    LoadingState,
-    PanelData,
+  AdHocVariableFilter,
+  DataFrame,
+  dateTimeFormat,
+  Field,
+  FieldType,
+  getTimeZone,
+  GrafanaTheme2,
+  LoadingState,
+  PanelData,
 } from '@grafana/data';
-import {IconButton, LoadingPlaceholder, PanelChrome, RadioButtonGroup, useStyles2} from '@grafana/ui';
-import {LogsPanelHeaderActions} from '../Table/LogsHeaderActions';
-import {PanelMenu} from '../Panels/PanelMenu';
-import {LogsListScene} from './LogsListScene';
-import {getVariableForLabel} from '../../services/fields';
-import {addToFilters} from './Breakdowns/AddToFiltersButton';
-import {FilterOp} from '../../services/filterTypes';
-import {getPrettyQueryExpr} from '../../services/scenes';
+import { IconButton, LoadingPlaceholder, PanelChrome, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { PanelMenu } from '../Panels/PanelMenu';
+import { LogsListScene } from './LogsListScene';
+import { getVariableForLabel, isLogLineField } from '../../services/fields';
+import { addToFilters } from './Breakdowns/AddToFiltersButton';
+import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
+import { getPrettyQueryExpr } from '../../services/scenes';
 import {
-    getFieldsVariable,
-    getJsonFieldsVariable,
-    getJsonOnlyParserVariable,
-    getLineFormatVariable
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getJsonOnlyParserVariable,
+  getLineFormatVariable,
 } from '../../services/variableGetters';
-import {isNumber} from 'lodash';
-import {css} from '@emotion/css';
-import {hasProp} from '../../services/narrowing';
-import {addJsonParserFields, getJsonKey, removeJsonDrilldownFilters} from "../../services/filters";
-import {DrilldownButton} from "./JSONPanel/DrilldownButton";
-import {JSONFilterNestedNodeInButton} from "./JSONPanel/JSONFilterNestedNodeInButton";
-import {JSONFilterNestedNodeOutButton} from "./JSONPanel/JSONFilterNestedNodeOutButton";
+import { isNumber } from 'lodash';
+import { css } from '@emotion/css';
+import { hasProp } from '../../services/narrowing';
+import {
+  addJsonParserFields,
+  EMPTY_JSON_FILTER_VALUE,
+  getJsonKey,
+  removeJsonDrilldownFilters,
+} from '../../services/filters';
+import { DrilldownButton } from './JSONPanel/DrilldownButton';
+import { JSONFilterNestedNodeInButton } from './JSONPanel/JSONFilterNestedNodeInButton';
+import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeOutButton';
+import { addCurrentUrlToHistory } from '../../services/navigate';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -78,8 +84,11 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return value;
   }
 
+  /**
+   * I think we can (and should) get rid of this, but leaving now for as a debug
+   * @param state
+   */
   public toggleJson(state: 'All' | 'JSON') {
-    // @todo set query filter instead of client-side filter
     this.setState({
       filterJson: state,
     });
@@ -95,48 +104,76 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.updateJsonFrame($data.state);
   }
 
+  /**
+   * Drills into node specified by keyPath
+   * Note, if we've already drilled down into a node, the keyPath (from the viz) will not have the parent nodes we need to build the json parser fields.
+   * We re-create the full key path using the values currently stored in the lineFormat variable
+   */
   private addDrilldown = (keyPath: KeyPath) => {
-    const getLineFilterKey = getJsonKey(keyPath)
+    addCurrentUrlToHistory();
     const lineFormatVar = getLineFormatVariable(this);
-      if (getLineFilterKey) {
-          addJsonParserFields(this, keyPath, true)
-          lineFormatVar.changeValueTo(`| line_format "{{.${getLineFilterKey}}}"`)
-      }else{
-          // If we don't have a key, the filter is drilling "up" into the root, remove any line_format and all json parser fields with values
-          lineFormatVar.changeValueTo(``)
 
-          // @todo, but we need to add a value for nested value filters, so we need to do better then removing all, just any associated with a drilldown.
-          // @todo maybe the VAR_LINE_FORMAT needs to be an ad-hoc variable? Or we need to keep track of the key used in the drilldown somewhere, and only clear the json fields that matches
-          removeJsonDrilldownFilters(this)
-      }
-  }
+    let keyPathWithAdjustedRoot = [...keyPath];
+    const fullPathFilters: AdHocFilterWithLabels[] = [
+      ...lineFormatVar.state.filters,
+      ...keyPathWithAdjustedRoot
+        // line format filters only store the parent node field names
+        .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== 'root')
+        // keyPath order is from child to root, we want to order from root to child
+        .reverse()
+        // convert to ad-hoc filter
+        .map((nodeKey) => ({
+          key: nodeKey.toString(),
+          // The operator and value are not used when interpolating the variable, but empty values will cause the ad-hoc filter to get removed from the URL state, we work around this by adding an empty space for the value and operator
+          // we could store the depth of the node as a value, right now we assume that these filters always include every parent node of the current node, ordered by node depth ASC (root node first)
+          operator: JSONFilterOp.Empty,
+          value: EMPTY_JSON_FILTER_VALUE,
+        })),
+    ];
 
-  private addFilter = (keyPath: KeyPath, filter: AdHocVariableFilter, nodeType: NodeTypeLoc, dataFrame: DataFrame | undefined) => {
-    console.log('addFilter', { filter, nodeType, keyPath });
-    let key = filter.key
-    // @todo labels in JSON do not match labels from Loki
-    if(key.includes('-')){
-        key = key.replace(/-/g, '_');
+    // the last 3 in the key path are always array
+    const fullKeyPath = [...fullPathFilters.map((filter) => filter.key).reverse(), ...keyPath.slice(-3)];
+
+    // If keyPath length is greater then 3 we're drilling down
+    if (keyPath.length > 3) {
+      addJsonParserFields(this, fullKeyPath, true);
+
+      lineFormatVar.setState({
+        filters: fullPathFilters,
+      });
+    } else {
+      // Otherwise we're drilling back up to the root
+      removeJsonDrilldownFilters(this);
+    }
+  };
+
+  private addFilter = (
+    keyPath: KeyPath,
+    filter: AdHocVariableFilter,
+    nodeType: NodeTypeLoc,
+    dataFrame: DataFrame | undefined
+  ) => {
+    let key = filter.key;
+
+    // @todo labels in JSON do not match labels from Loki, is replacing dashes with underscores enough?
+    if (key.includes('-')) {
+      key = key.replace(/-/g, '_');
     }
 
     // Add json parser value if nested
-      if(keyPath.length > 4){
-          addJsonParserFields(this, keyPath, true)
-      }else{
-          addJsonParserFields(this, keyPath, false)
-      }
-
-      // Top level fields are already extracted by initial json parser, no need to add them, until they drill in, or filter something else?
-
-
+    if (keyPath.length > 4) {
+      addJsonParserFields(this, keyPath, true);
+    } else {
+      addJsonParserFields(this, keyPath, false);
+    }
 
     const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
     const variableType = getVariableForLabel(dataFrame, filter.key, this);
 
     // @todo force json parser for nested nodes
     // @todo check if filter already exists, toggle if same operator exists for same key, include/exclude otherwise
-    addToFilters(key, filter.value, filter.operator === '=' ? 'include' : 'exclude', logsListScene, variableType)
-  }
+    addToFilters(key, filter.value, filter.operator === '=' ? 'include' : 'exclude', logsListScene, variableType);
+  };
 
   private getKeyPathString(keyPath: KeyPath) {
     return keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
@@ -146,14 +183,15 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     // const styles = getStyles(grafanaTheme)
     const { menu, data } = model.useState();
     const $data = sceneGraph.getData(model);
+    // Rerender on data change
     const {} = $data.useState();
     const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
     const { visualizationType } = logsListScene.useState();
     const styles = useStyles2(getStyles);
-    const lineFormatVar = getLineFormatVariable(model)
+    const lineFormatVar = getLineFormatVariable(model);
 
-    const isDrillDown = !!lineFormatVar.state.value
-
+    // If we have a line format variable, we are drilled down into a nested node
+    const isDrillDown = lineFormatVar.state.filters.length > 0;
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find(
       (field) => field.type === FieldType.string && (field.name === 'Line' || field.name === 'body')
@@ -190,7 +228,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             <JSONTree
               data={lineField.values}
               getItemString={(nodeType, data, itemType, itemString) => {
-                // console.log('getItemString', { nodeType, data, itemType, itemString });
                 if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
                   return null;
                 }
@@ -213,13 +250,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 const depth = keyPath.length;
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
-                // console.log('labelRenderer', {
-                //     depth, nodeTypeLoc, keyPath, expanded
-                // })
-
-                  if(keyPath[0] === 'root' && isDrillDown) {
-                    return model.getNestedNodeDrilldownButtons(keyPath, nodeTypeLoc, dataFrame)
-                  }
+                if (keyPath[0] === 'root' && isDrillDown) {
+                  return model.getNestedNodeDrilldownButtons(keyPath, nodeTypeLoc, dataFrame);
+                }
 
                 // Value nodes
                 if (
@@ -240,10 +273,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  if(depth <= 4) {
+                  if (depth <= 4) {
                     return model.getNestedNodeFilterButtons(keyPath, nodeTypeLoc, dataFrame);
-                  }else {
-                    return model.getNestedNodeDrilldownButtons(keyPath, nodeTypeLoc, dataFrame)
+                  } else {
+                    return model.getNestedNodeDrilldownButtons(keyPath, nodeTypeLoc, dataFrame);
                   }
                 }
 
@@ -267,54 +300,54 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  private getNestedNodeDrilldownButtons(keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame){
-    //@todo move to static method or new component?
-    // This is not a class component, this rule is wrong with scenes
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-
+  //@todo add already selected state
+  private getNestedNodeDrilldownButtons = (keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame) => {
     const styles = useStyles2(getStyles);
 
-    //@todo add already selected state
     return (
-        <>
-            <span className={styles.labelWrap}>
-                <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
-                <strong>{this.getKeyPathString(keyPath)}</strong>
-            </span>
-        </>
+      <>
+        <span className={styles.labelWrap}>
+          <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+          <strong>{this.getKeyPathString(keyPath)}</strong>
+        </span>
+      </>
     );
-  }
+  };
 
-  private getNestedNodeFilterButtons(keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame) {
-    //@todo move to static method or new component?
-    // This is not a class component, this rule is wrong with scenes
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-
-    //@todo add already selected state
+  //@todo add already selected state
+  private getNestedNodeFilterButtons = (keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame) => {
     const styles = useStyles2(getStyles);
     return (
       <>
         <span className={styles.labelWrap}>
-            <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
-            <JSONFilterNestedNodeInButton addFilter={this.addFilter} keyPath={keyPath} nodeTypeLoc={nodeTypeLoc} dataFrame={dataFrame}  />
-            <JSONFilterNestedNodeOutButton addFilter={this.addFilter} keyPath={keyPath} nodeTypeLoc={nodeTypeLoc} dataFrame={dataFrame}  />
-            <strong>{this.getKeyPathString(keyPath)}</strong>
+          <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+          <JSONFilterNestedNodeInButton
+            addFilter={this.addFilter}
+            keyPath={keyPath}
+            nodeTypeLoc={nodeTypeLoc}
+            dataFrame={dataFrame}
+          />
+          <JSONFilterNestedNodeOutButton
+            addFilter={this.addFilter}
+            keyPath={keyPath}
+            nodeTypeLoc={nodeTypeLoc}
+            dataFrame={dataFrame}
+          />
+          <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
       </>
     );
-  }
+  };
 
-  private getValueLabel(
+  // @todo add already selected state
+  private getValueLabel = (
     keyPath: KeyPath,
     nodeTypeLoc: NodeTypeLoc,
     lineField: Field<string | number>,
     dataFrame: DataFrame
-  ) {
-    // This is not a class component, this rule is wrong with scenes
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+  ) => {
     const styles = useStyles2(getStyles);
-    const value = this.getValue(keyPath, nodeTypeLoc, lineField.values)?.toString()
-    // @todo add already selected state
+    const value = this.getValue(keyPath, nodeTypeLoc, lineField.values)?.toString();
     return (
       <>
         <span className={styles.labelButtonsWrap}>
@@ -322,9 +355,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             tooltip={`Include log lines containing ${value}`}
             className={styles.filterButton}
             onClick={(e) => {
-                e.stopPropagation();
+              e.stopPropagation();
               this.addFilter(
-                  keyPath,
+                keyPath,
                 {
                   key: getJsonKey(keyPath),
                   value,
@@ -342,9 +375,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             tooltip={`Exclude log lines containing ${value}`}
             className={styles.filterButton}
             onClick={(e) => {
-                e.stopPropagation();
+              e.stopPropagation();
               this.addFilter(
-                  keyPath,
+                keyPath,
                 {
                   key: getJsonKey(keyPath),
                   value: this.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
@@ -363,7 +396,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         </span>
       </>
     );
-  }
+  };
 
   public onActivate() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
@@ -391,10 +424,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this._subs.add(
       // Hacky sync on field filter updates, this will result in duplicate queries
       fieldsVariable.subscribeToEvent(SceneVariableValueChangedEvent, (evt) => {
-        console.log('fields changed event', evt)
+        console.log('fields changed event', evt);
         const state = evt.payload.state as AdHocFiltersVariable['state'];
         const fieldFilters = state.filters;
-
 
         const jsonVariable = getJsonFieldsVariable(this);
         let newJsonFilters: AdHocFilterWithLabels[] = [];
@@ -405,7 +437,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           }
         });
 
-        console.log('need to remove dups', newJsonFilters)
+        console.log('need to remove dups', newJsonFilters);
         jsonVariable.setState({
           filters: newJsonFilters,
         });
@@ -446,15 +478,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       }
 
                       return {
-                        // @todo ns? This will remove leading zeros
                         Time: renderTimeStamp(time?.values?.[i], timeZone),
                         Line: parsed,
-                        // @todo labels? Allow filtering when key has same name as label?
-                        // Labels: labels?.values[i],
-                        // LabelTypes: labelTypes?.values[i]
                       };
-                      // return parsed;
-                      // remove null
                     })
                     .filter((f) => f),
                 };

@@ -33,7 +33,8 @@ import {
   VAR_LEVELS_EXPR,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
-  VAR_LINE_FILTERS_EXPR, VAR_LINE_FORMAT,
+  VAR_LINE_FILTERS_EXPR,
+  VAR_LINE_FORMAT,
   VAR_METADATA,
   VAR_METADATA_EXPR,
   VAR_PATTERNS,
@@ -203,7 +204,7 @@ export function getJsonOnlyParserVariable(sceneRef: SceneObject) {
 
 export function getLineFormatVariable(sceneRef: SceneObject) {
   const variable = sceneGraph.lookupVariable(VAR_LINE_FORMAT, sceneRef);
-  if (!(variable instanceof CustomVariable)) {
+  if (!(variable instanceof AdHocFiltersVariable)) {
     throw new Error('VAR_JSON_PARSER not found!');
   }
   return variable;
