@@ -106,13 +106,11 @@ export function getJsonKey(keyPath: KeyPath, joinBy: '_' | '.' = '_') {
   const keys = [...keyPath];
   const keysToConcat = [];
 
-  // eslint-disable-next-line no-cond-assign
   while ((key = keys.shift())) {
     if (isLogLineField(key.toString()) || isNumber(key) || key === 'root') {
       break;
     }
     keysToConcat.unshift(key);
   }
-  // console.log('getKey', {key, keyPath, nodeType, lineField, keysToConcat, cat: keysToConcat.join('_')})
   return keysToConcat.join(joinBy);
 }
