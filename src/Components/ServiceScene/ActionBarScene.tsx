@@ -1,18 +1,20 @@
+import React, { useEffect, useState } from 'react';
 import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Box, Dropdown, Menu, Stack, Tab, TabsBar, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { config, usePluginLinks } from '@grafana/runtime';
+import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
+import { css, cx } from '@emotion/css';
+
+import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
+import { BreakdownViewDefinition, breakdownViewsDefinitions, TabNames } from './BreakdownViews';
+import { IndexScene } from '../IndexScene/IndexScene';
+import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
+
 import { getDrilldownSlug, getDrilldownValueSlug, PageSlugs, ValueSlugs } from '../../services/routing';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getDrillDownTabLink } from '../../services/navigate';
-import React, { useEffect, useState } from 'react';
-import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
-import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
-import { css, cx } from '@emotion/css';
-import { BreakdownViewDefinition, breakdownViewsDefinitions, TabNames } from './BreakdownViews';
-import { config, usePluginLinks } from '@grafana/runtime';
 import { getLabelsVariable } from '../../services/variableGetters';
-import { IndexScene } from '../IndexScene/IndexScene';
 import { LINE_LIMIT } from '../../services/query';
-import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 
 export interface ActionBarSceneState extends SceneObjectState {
   maxLines?: number;
