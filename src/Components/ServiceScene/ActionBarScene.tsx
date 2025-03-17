@@ -6,15 +6,16 @@ import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { css, cx } from '@emotion/css';
 
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
-import { BreakdownViewDefinition, breakdownViewsDefinitions, TabNames } from './BreakdownViews';
+import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 
-import { getDrilldownSlug, getDrilldownValueSlug, PageSlugs, ValueSlugs } from '../../services/routing';
+import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getDrillDownTabLink } from '../../services/navigate';
 import { getLabelsVariable } from '../../services/variableGetters';
 import { LINE_LIMIT } from '../../services/query';
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 
 export interface ActionBarSceneState extends SceneObjectState {
   maxLines?: number;

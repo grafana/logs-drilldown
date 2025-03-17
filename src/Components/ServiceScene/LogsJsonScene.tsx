@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -8,9 +9,6 @@ import {
   SceneObjectState,
   SceneVariableValueChangedEvent,
 } from '@grafana/scenes';
-import React from 'react';
-import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
-import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import {
   AdHocVariableFilter,
   DataFrame,
@@ -23,11 +21,21 @@ import {
   PanelData,
 } from '@grafana/data';
 import { IconButton, LoadingPlaceholder, PanelChrome, RadioButtonGroup, useStyles2 } from '@grafana/ui';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { PanelMenu } from '../Panels/PanelMenu';
+
+import { isNumber } from 'lodash';
+import { css } from '@emotion/css';
+import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
+
 import { LogsListScene } from './LogsListScene';
-import { getVariableForLabel, isLogLineField } from '../../services/fields';
+import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
+import { PanelMenu } from '../Panels/PanelMenu';
+import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters } from './Breakdowns/AddToFiltersButton';
+import { DrilldownButton } from './JSONPanel/DrilldownButton';
+import { JSONFilterNestedNodeInButton } from './JSONPanel/JSONFilterNestedNodeInButton';
+import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeOutButton';
+
+import { getVariableForLabel, isLogLineField } from '../../services/fields';
 import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
 import {
@@ -36,8 +44,6 @@ import {
   getJsonOnlyParserVariable,
   getLineFormatVariable,
 } from '../../services/variableGetters';
-import { isNumber } from 'lodash';
-import { css } from '@emotion/css';
 import { hasProp } from '../../services/narrowing';
 import {
   addJsonParserFields,
@@ -45,9 +51,6 @@ import {
   getJsonKey,
   removeJsonDrilldownFilters,
 } from '../../services/filters';
-import { DrilldownButton } from './JSONPanel/DrilldownButton';
-import { JSONFilterNestedNodeInButton } from './JSONPanel/JSONFilterNestedNodeInButton';
-import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeOutButton';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 
 interface LogsJsonSceneState extends SceneObjectState {

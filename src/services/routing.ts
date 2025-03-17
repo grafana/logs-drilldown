@@ -23,18 +23,7 @@ import { SceneObject } from '@grafana/scenes';
 import { getLabelsVariable } from './variableGetters';
 import { logger } from './logger';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
-
-export enum PageSlugs {
-  explore = 'explore',
-  logs = 'logs',
-  labels = 'labels',
-  patterns = 'patterns',
-  fields = 'fields',
-}
-export enum ValueSlugs {
-  field = 'field',
-  label = 'label',
-}
+import { PageSlugs, ValueSlugs } from './enums';
 
 export type ParentDrilldownSlugs =
   | PageSlugs.explore

@@ -59,7 +59,7 @@ import {
   CONTROLS_VARS_TOOLBAR,
   LayoutScene,
 } from './LayoutScene';
-import { getDrilldownSlug, PageSlugs } from '../../services/routing';
+import { getDrilldownSlug } from '../../services/routing';
 import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelectionScene';
 import { LoadingPlaceholder } from '@grafana/ui';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
@@ -106,6 +106,7 @@ import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { NoLokiSplash } from '../NoLokiSplash';
+import { PageSlugs } from '../../services/enums';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 

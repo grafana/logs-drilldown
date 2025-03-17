@@ -39,7 +39,7 @@ import { getMetadataService } from '../../services/metadata';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
 import { areArraysEqual } from '../../services/comparison';
 import { ActionBarScene } from './ActionBarScene';
-import { breakdownViewsDefinitions, TabNames, valueBreakdownViews } from './BreakdownViews';
+import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -52,19 +52,14 @@ import {
 } from '../../services/variableGetters';
 import { logger } from '../../services/logger';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import {
-  getDrilldownSlug,
-  getDrilldownValueSlug,
-  getPrimaryLabelFromUrl,
-  PageSlugs,
-  ValueSlugs,
-} from '../../services/routing';
+import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
 import { replaceSlash } from '../../services/extensions/links';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { migrateLineFilterV1 } from '../../services/migrations';
 import { VariableHide } from '@grafana/schema';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';

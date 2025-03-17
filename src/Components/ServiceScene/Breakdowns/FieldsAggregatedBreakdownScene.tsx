@@ -24,7 +24,6 @@ import {
 } from '../ServiceScene';
 import React from 'react';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
-import { ValueSlugs } from '../../../services/routing';
 import { DataFrame, LoadingState } from '@grafana/data';
 import {
   buildFieldsQueryString,
@@ -41,6 +40,7 @@ import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panel
 import { logger } from '../../../services/logger';
 import { getPanelOption } from '../../../services/store';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { ValueSlugs } from '../../../services/enums';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
