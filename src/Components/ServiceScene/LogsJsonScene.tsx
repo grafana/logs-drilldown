@@ -64,22 +64,18 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   }
 
   public getValue(keyPath: KeyPath, nodeType: NodeTypeLoc, lineField: Array<string | number>): string | number {
-    // console.log('getValue', {keyPath, nodeType, lineField})
     const keys = [...keyPath];
     const accessors = [];
 
     while (keys.length) {
       const key = keys.pop();
-      // console.log('k', key)
 
       if (key !== 'root' && key !== undefined) {
         accessors.push(key);
       }
     }
 
-    const value = getNestedProperty(lineField, accessors);
-    // console.log('getValue', {value, keyPath, nodeType, lineField})
-    return value;
+    return getNestedProperty(lineField, accessors);
   }
 
   /**
@@ -389,7 +385,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this._subs.add(
       // Hacky sync on field filter updates, this will result in duplicate queries
       fieldsVariable.subscribeToEvent(SceneVariableValueChangedEvent, (evt) => {
-        console.log('fields changed event', evt);
         const state = evt.payload.state as AdHocFiltersVariable['state'];
         const fieldFilters = state.filters;
 
@@ -401,8 +396,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             newJsonFilters.push(jsonField);
           }
         });
-
-        console.log('need to remove dups', newJsonFilters);
         jsonVariable.setState({
           filters: newJsonFilters,
         });
@@ -419,7 +412,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     const timeZone = getTimeZone();
     if (newState.data) {
-      // console.time('json parse')
       const transformedData: PanelData = {
         ...newState.data,
         series: newState.data.series.map((frame) => {
@@ -435,6 +427,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       try {
                         parsed = JSON.parse(v);
                       } catch (e) {
+                        // @todo
                         console.warn('failed to parse', {
                           e,
                           v,
@@ -455,7 +448,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           };
         }),
       };
-      // console.timeEnd('json parse')
       this.setState({
         data: transformedData,
       });

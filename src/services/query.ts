@@ -5,7 +5,6 @@ import {
   FieldValue,
   VAR_DATASOURCE_EXPR,
   VAR_JSON_FIELDS_EXPR,
-  VAR_LABEL_GROUP_BY_EXPR,
 } from './variables';
 import { LokiQuery } from './lokiQuery';
 import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
