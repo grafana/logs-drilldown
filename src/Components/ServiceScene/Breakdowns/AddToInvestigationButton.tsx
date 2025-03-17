@@ -90,36 +90,34 @@ export class AddToInvestigationButton extends SceneObjectBase<AddToInvestigation
     const data = sceneGraph.getData(this);
     const frames = data?.state.data?.series;
     let fieldConfig = panel?.state.fieldConfig;
-    if (fieldConfig) {
-      if (frames) {
-        for (const frame of frames) {
-          for (const field of frame.fields) {
-            const configKeys = Object.keys(field.config);
-            const properties = configKeys.map((key) => ({
-              id: key,
-              value: field.config[key as keyof FieldConfig],
-            }));
+    if (fieldConfig && frames?.length) {
+      for (const frame of frames) {
+        for (const field of frame.fields) {
+          const configKeys = Object.keys(field.config);
+          const properties = configKeys.map((key) => ({
+            id: key,
+            value: field.config[key as keyof FieldConfig],
+          }));
 
-            // check if the override already exists
-            const existingOverride = fieldConfig.overrides.find(
-              (o) =>
-                o.matcher.options === (field.config.displayNameFromDS ?? field.config.displayName ?? field.name) &&
-                o.matcher.id === 'byName'
-            );
-            if (!existingOverride) {
-              // add as first override
-              fieldConfig.overrides.unshift({
-                matcher: {
-                  id: 'byName',
-                  options: field.config.displayNameFromDS ?? field.config.displayName ?? field.name,
-                },
-                properties,
-              });
-            }
+          // check if the override already exists
+          const existingOverride = fieldConfig.overrides.find(
+            (o) =>
+              o.matcher.options === (field.config.displayNameFromDS ?? field.config.displayName ?? field.name) &&
+              o.matcher.id === 'byName'
+          );
+          if (!existingOverride) {
+            // add as first override
+            fieldConfig.overrides.unshift({
+              matcher: {
+                id: 'byName',
+                options: field.config.displayNameFromDS ?? field.config.displayName ?? field.name,
+              },
+              properties,
+            });
+          }
 
-            if (existingOverride && JSON.stringify(existingOverride.properties) !== JSON.stringify(properties)) {
-              existingOverride.properties = properties;
-            }
+          if (existingOverride && JSON.stringify(existingOverride.properties) !== JSON.stringify(properties)) {
+            existingOverride.properties = properties;
           }
         }
       }
