@@ -92,7 +92,6 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
     // Manually interpolate query so we don't pollute the variable interpolation for other queries
     const { variableName, filterExpression } = this.removeValueLabelFromVariableInterpolation();
     query.expr = query.expr.replace(`$\{${variableName}}`, filterExpression);
-    console.log('query', query);
     return query;
   }
 

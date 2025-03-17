@@ -253,8 +253,6 @@ export function addToFilters(
     ];
   }
 
-  console.log('addToFilters', filters)
-
   // Variable needs to be updated before event is published!
   variable.setState({
     filters,

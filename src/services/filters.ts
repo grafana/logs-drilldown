@@ -72,7 +72,6 @@ export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
   const jsonVariable = getJsonFieldsVariable(sceneRef);
   const filters = [...jsonVariable.state.filters.filter((f) => f.key !== lineFormatFilter?.key)];
 
-  console.log('removeJsonDrilldownFilters', { oldFilters: jsonVariable.state.filters, filters });
   jsonVariable.setState({
     filters,
   });
