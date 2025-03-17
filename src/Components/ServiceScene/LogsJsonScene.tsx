@@ -20,7 +20,7 @@ import {
   LoadingState,
   PanelData,
 } from '@grafana/data';
-import { IconButton, LoadingPlaceholder, PanelChrome, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { IconButton, LoadingPlaceholder, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
@@ -38,12 +38,7 @@ import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeO
 import { getVariableForLabel, isLogLineField } from '../../services/fields';
 import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getJsonOnlyParserVariable,
-  getLineFormatVariable,
-} from '../../services/variableGetters';
+import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from '../../services/variableGetters';
 import { hasProp } from '../../services/narrowing';
 import {
   addJsonParserFields,
@@ -85,26 +80,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const value = getNestedProperty(lineField, accessors);
     // console.log('getValue', {value, keyPath, nodeType, lineField})
     return value;
-  }
-
-  /**
-   * I think we can (and should) get rid of this, but leaving now for as a debug
-   * @param state
-   */
-  public toggleJson(state: 'All' | 'JSON') {
-    this.setState({
-      filterJson: state,
-    });
-
-    const jsonVariable = getJsonOnlyParserVariable(this);
-    if (state === 'All') {
-      jsonVariable.changeValueTo('');
-    } else {
-      jsonVariable.changeValueTo('| json | __error__!="JSONParserErr"');
-    }
-
-    const $data = sceneGraph.getData(this);
-    this.updateJsonFrame($data.state);
   }
 
   /**
@@ -205,20 +180,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         loadingState={$data.state.data?.state}
         title={'Logs'}
         menu={menu ? <menu.Component model={menu} /> : undefined}
-        actions={
-          <>
-            <RadioButtonGroup
-              value={model.state.filterJson}
-              size={'sm'}
-              onChange={(label: 'All' | 'JSON') => model.toggleJson(label)}
-              options={[
-                { label: 'All', value: 'All' },
-                { label: 'JSON', value: 'JSON' },
-              ]}
-            />
-            <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
-          </>
-        }
+        actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
         {!lineField?.values && (
           <>

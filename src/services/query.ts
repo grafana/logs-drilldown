@@ -4,11 +4,13 @@ import {
   AdHocFiltersWithLabelsAndMeta,
   FieldValue,
   VAR_DATASOURCE_EXPR,
+  VAR_JSON_FIELDS_EXPR,
+  VAR_LABEL_GROUP_BY_EXPR,
 } from './variables';
 import { LokiQuery } from './lokiQuery';
 import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
 import { PLUGIN_ID } from './plugin';
-import { AdHocFilterWithLabels, sceneUtils } from '@grafana/scenes';
+import { AdHocFilterWithLabels, sceneGraph, SceneObject, sceneUtils } from '@grafana/scenes';
 import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
 import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
 import { ExpressionBuilder } from './ExpressionBuilder';
@@ -195,6 +197,20 @@ export function unwrapWildcardSearch(input: string) {
 
 export function sanitizeStreamSelector(expression: string) {
   return expression.replace(/\s*,\s*}/, '}');
+}
+
+/**
+ * Variables that contain other variables are not interpolated, until interpolate is called again.
+ */
+export function interpolateExpression(sceneObject: SceneObject, uninterpolatedExpr: string | undefined) {
+  let expr = sceneGraph.interpolate(sceneObject, uninterpolatedExpr);
+
+  // Need to interpolate expressions with VAR_JSON_FIELDS_EXPR twice
+  if (expr.includes(VAR_JSON_FIELDS_EXPR)) {
+    expr = sceneGraph.interpolate(sceneObject, expr);
+  }
+
+  return expr;
 }
 
 // default line limit; each data source can define it's own line limit too

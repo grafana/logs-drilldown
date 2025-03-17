@@ -6,7 +6,6 @@ import {
   VAR_FIELD_GROUP_BY,
   VAR_FIELDS,
   VAR_JSON_FIELDS,
-  VAR_JSON_PARSER,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LEVELS,
@@ -96,7 +95,6 @@ export const DRILLDOWN_URL_KEYS = [
   `var-${VAR_METADATA}`,
   `var-${VAR_LINE_FILTERS}`,
   `var-${VAR_JSON_FIELDS}`,
-  `var-${VAR_JSON_PARSER}`,
   `var-${VAR_LINE_FORMAT}`,
 ];
 

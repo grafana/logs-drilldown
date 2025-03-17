@@ -40,7 +40,6 @@ import {
   VAR_LOGS_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
-  VAR_JSON_PARSER,
   VAR_LINE_FORMAT,
 } from 'services/variables';
 
@@ -64,6 +63,7 @@ import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelection
 import { LoadingPlaceholder } from '@grafana/ui';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
+  interpolateExpression,
   onAddCustomAdHocValue,
   onAddCustomFieldValue,
   renderLevelsFilter,
@@ -440,7 +440,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const expr = uninterpolatedExpression
         .replace(PENDING_FIELDS_EXPR, otherFiltersString)
         .replace(PENDING_METADATA_EXPR, otherMetadataString);
-      const interpolated = sceneGraph.interpolate(this, expr);
+
+      const interpolated = interpolateExpression(this, expr);
 
       return getDetectedFieldValuesTagValuesProvider(
         filter,
@@ -483,7 +484,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const otherFiltersString = this.renderVariableFilters(VAR_LEVELS, filters);
       const uninterpolatedExpression = getFieldsTagValuesExpression(VAR_LEVELS);
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
-      const interpolated = sceneGraph.interpolate(this, expr);
+      const interpolated = interpolateExpression(this, expr);
 
       return getDetectedFieldValuesTagValuesProvider(
         filter,
@@ -680,12 +681,6 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     },
   });
 
-  const jsonOnlyParser = new CustomVariable({
-    name: VAR_JSON_PARSER,
-    value: '',
-    type: 'query',
-  });
-
   const lineFormatVariable = new AdHocFiltersVariable({
     name: VAR_LINE_FORMAT,
     layout: 'horizontal',
@@ -713,7 +708,6 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
         levelsVariable,
         metadataVariable,
         jsonFieldsVar,
-        jsonOnlyParser,
         fieldsAndMetadataVariable,
         new CustomVariable({
           name: VAR_PATTERNS,

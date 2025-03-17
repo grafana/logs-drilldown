@@ -27,12 +27,11 @@ test.describe('explore nginx-json breakdown pages ', () => {
   test(`should exclude ${fieldName}, request should contain json`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
     explorePage.blockAllQueriesExcept({
-      refIds: [fieldName],
+      refIds: [new RegExp(`^${fieldName}$`)],
       requests,
     });
     // First request should fire here
     await explorePage.goToFieldsTab();
-
     await page.getByLabel(`Select ${fieldName}`).click();
     const allPanels = explorePage.getAllPanelsLocator();
     // We should have 6 panels
@@ -52,8 +51,11 @@ test.describe('explore nginx-json breakdown pages ', () => {
       const post = req.post;
       const queries: LokiQuery[] = post.queries;
       queries.forEach((query) => {
-        expect(query.expr).toContain(
-          `sum by (${fieldName}) (count_over_time({service_name="nginx-json"}      | json | drop __error__, __error_details__ | ${fieldName}!=""`
+        expect(query.expr.replace(/\s+/g, '')).toContain(
+          `sum by (${fieldName}) (count_over_time({service_name="nginx-json"}      | json | drop __error__, __error_details__ | ${fieldName}!=""`.replace(
+            /\s+/g,
+            ''
+          )
         );
       });
     });
