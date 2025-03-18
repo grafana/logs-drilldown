@@ -223,3 +223,7 @@ export function getVisibleRangeFrame(start: number, end: number) {
 
   return frame;
 }
+
+export function isEmptyLogsResult(series: DataFrame[]) {
+  return series.length === 0 || series[0].fields[0].values.length === 0;
+}
