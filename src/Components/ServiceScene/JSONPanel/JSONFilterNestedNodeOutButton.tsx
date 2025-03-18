@@ -1,38 +1,31 @@
-import {IconButton} from "@grafana/ui";
-import React from "react";
-import {KeyPath} from "@gtk-grafana/react-json-tree";
-import {AdHocVariableFilter, DataFrame} from "@grafana/data";
-import {NodeTypeLoc} from "../LogsJsonScene";
-import {getJsonKey} from "../../../services/filters";
-import {EMPTY_VARIABLE_VALUE} from "../../../services/variables";
-import {FilterOp} from "../../../services/filterTypes";
+import { IconButton } from '@grafana/ui';
+import React from 'react';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { DataFrame } from '@grafana/data';
+import { AddJSONFilter, NodeTypeLoc } from '../LogsJsonScene';
+import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
 
 interface Props {
-    keyPath: KeyPath,
-    nodeTypeLoc: NodeTypeLoc
-    dataFrame: DataFrame
-    addFilter: (keyPath: KeyPath, filter: AdHocVariableFilter, nodeType: NodeTypeLoc, dataFrame: DataFrame | undefined) => void
+  jsonKey: string;
+  keyPath: KeyPath;
+  nodeTypeLoc: NodeTypeLoc;
+  dataFrame: DataFrame;
+  addFilter: AddJSONFilter;
+  active: boolean;
 }
 
-export function JSONFilterNestedNodeOutButton({addFilter, keyPath, nodeTypeLoc, dataFrame}: Props) {
-    return <IconButton
-        tooltip={`Exclude log lines that contain ${keyPath[0]}`}
-        // className={styles.filterButton}
-        onClick={(e) => {
-            e.stopPropagation();
-            addFilter(
-                keyPath,
-                {
-                    key: getJsonKey(keyPath),
-                    value: EMPTY_VARIABLE_VALUE,
-                    operator: FilterOp.Equal,
-                },
-                nodeTypeLoc,
-                dataFrame
-            );
-        }}
-        size={'md'}
-        name={'minus-circle'}
-        aria-label={'remove filter'}
-    />;
+export function JSONFilterNestedNodeOutButton({ addFilter, keyPath, nodeTypeLoc, dataFrame, jsonKey, active }: Props) {
+  return (
+    <IconButton
+      tooltip={`Exclude log lines that contain ${keyPath[0]}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        addFilter(keyPath, jsonKey, EMPTY_VARIABLE_VALUE, active ? 'toggle' : 'include', dataFrame);
+      }}
+      variant={active ? 'primary' : 'secondary'}
+      size={'md'}
+      name={'search-minus'}
+      aria-label={'remove filter'}
+    />
+  );
 }

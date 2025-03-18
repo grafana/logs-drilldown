@@ -7,10 +7,8 @@ import {
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
-  SceneVariableValueChangedEvent,
 } from '@grafana/scenes';
 import {
-  AdHocVariableFilter,
   DataFrame,
   dateTimeFormat,
   Field,
@@ -30,23 +28,31 @@ import { LogsListScene } from './LogsListScene';
 import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { addToFilters } from './Breakdowns/AddToFiltersButton';
+import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { DrilldownButton } from './JSONPanel/DrilldownButton';
 import { JSONFilterNestedNodeInButton } from './JSONPanel/JSONFilterNestedNodeInButton';
 import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeOutButton';
 
-import { getVariableForLabel, isLogLineField } from '../../services/fields';
+import { isLogLineField } from '../../services/fields';
 import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from '../../services/variableGetters';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getValueFromFieldsFilter,
+} from '../../services/variableGetters';
 import { hasProp } from '../../services/narrowing';
 import {
   addJsonParserFields,
+  addJsonParserFieldValue,
   EMPTY_JSON_FILTER_VALUE,
   getJsonKey,
   removeJsonDrilldownFilters,
 } from '../../services/filters';
 import { addCurrentUrlToHistory } from '../../services/navigate';
+import { areArraysEqual } from '../../services/comparison';
+import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -55,6 +61,13 @@ interface LogsJsonSceneState extends SceneObjectState {
 }
 
 export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
+export type AddJSONFilter = (
+  keyPath: KeyPath,
+  key: string,
+  value: string,
+  filterType: FilterType,
+  dataFrame: DataFrame | undefined
+) => void;
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
@@ -63,7 +76,60 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  public getValue(keyPath: KeyPath, nodeType: NodeTypeLoc, lineField: Array<string | number>): string | number {
+  public onActivate() {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+
+    this.setState({
+      menu: new PanelMenu({
+        investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
+      }),
+    });
+
+    const $data = sceneGraph.getData(this);
+    if ($data.state.data?.state === LoadingState.Done) {
+      this.updateJsonFrame($data.state);
+    }
+
+    this._subs.add(
+      $data.subscribeToState((newState) => {
+        if (newState.data?.state === LoadingState.Done) {
+          this.updateJsonFrame(newState);
+        }
+      })
+    );
+    const fieldsVariable = getFieldsVariable(this);
+    const lineFormatVariable = getLineFormatVariable(this);
+
+    this.addJsonParserFieldsForCurrentFilters();
+    this.clearJsonParserFields();
+
+    this._subs.add(
+      fieldsVariable.subscribeToState((newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
+            this.clearJsonParserFields();
+          } else if (newState.filters.length < prevState.filters.length) {
+            // If no other field filter has the same key, then we can remove the json parser
+            const filterDiff = prevState.filters.filter(
+              (prevFilter) => !newState.filters.find((newFilter) => newFilter.key === prevFilter.key)
+            );
+
+            if (filterDiff.length) {
+              const jsonVariable = getJsonFieldsVariable(this);
+              const newJsonFilters = jsonVariable.state.filters.filter(
+                (jsonFilter) => !filterDiff.find((filtersToRemove) => jsonFilter.key === filtersToRemove.key)
+              );
+              jsonVariable.setState({
+                filters: newJsonFilters,
+              });
+            }
+          }
+        }
+      })
+    );
+  }
+
+  private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
     const keys = [...keyPath];
     const accessors = [];
 
@@ -86,11 +152,28 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private addDrilldown = (keyPath: KeyPath) => {
     addCurrentUrlToHistory();
     const lineFormatVar = getLineFormatVariable(this);
+    const { fullPathFilters, fullKeyPath } = this.getFullKeyPath(keyPath);
 
-    let keyPathWithAdjustedRoot = [...keyPath];
+    // If keyPath length is greater than 3 we're drilling down (root, line index, line)
+    if (keyPath.length > 3) {
+      addJsonParserFields(this, fullKeyPath, true);
+
+      lineFormatVar.setState({
+        filters: fullPathFilters,
+      });
+    } else {
+      // Otherwise we're drilling back up to the root
+      removeJsonDrilldownFilters(this);
+      this.clearJsonParserFields();
+    }
+  };
+
+  private getFullKeyPath(keyPath: ReadonlyArray<string | number>) {
+    const lineFormatVar = getLineFormatVariable(this);
+
     const fullPathFilters: AdHocFilterWithLabels[] = [
       ...lineFormatVar.state.filters,
-      ...keyPathWithAdjustedRoot
+      ...keyPath
         // line format filters only store the parent node field names
         .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== 'root')
         // keyPath order is from child to root, we want to order from root to child
@@ -107,46 +190,27 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     // the last 3 in the key path are always array
     const fullKeyPath = [...fullPathFilters.map((filter) => filter.key).reverse(), ...keyPath.slice(-3)];
+    return { fullPathFilters, fullKeyPath };
+  }
 
-    // If keyPath length is greater then 3 we're drilling down
-    if (keyPath.length > 3) {
-      addJsonParserFields(this, fullKeyPath, true);
-
-      lineFormatVar.setState({
-        filters: fullPathFilters,
-      });
-    } else {
-      // Otherwise we're drilling back up to the root
-      removeJsonDrilldownFilters(this);
-    }
-  };
-
-  private addFilter = (
+  private addFilter: AddJSONFilter = (
     keyPath: KeyPath,
-    filter: AdHocVariableFilter,
-    nodeType: NodeTypeLoc,
+    key: string,
+    value: string,
+    filterType: FilterType,
     dataFrame: DataFrame | undefined
   ) => {
-    let key = filter.key;
+    addCurrentUrlToHistory();
 
-    // @todo labels in JSON do not match labels from Loki, is replacing dashes with underscores enough?
+    // @todo https://github.com/grafana/loki/issues/16817
     if (key.includes('-')) {
       key = key.replace(/-/g, '_');
     }
 
-    // Add json parser value if nested
-    if (keyPath.length > 4) {
-      addJsonParserFields(this, keyPath, true);
-    } else {
-      addJsonParserFields(this, keyPath, false);
-    }
+    addJsonParserFieldValue(this, keyPath);
 
     const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
-    const variableType = getVariableForLabel(dataFrame, filter.key, this);
-
-    // @todo force json parser for nested nodes
-    // @todo check if filter already exists, toggle if same operator exists for same key, include/exclude otherwise
-    addToFilters(key, filter.value, filter.operator === '=' ? 'include' : 'exclude', logsListScene, variableType);
+    addToFilters(key, value, filterType, logsListScene, VAR_FIELDS, false, true);
   };
 
   private getKeyPathString(keyPath: KeyPath) {
@@ -163,6 +227,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const { visualizationType } = logsListScene.useState();
     const styles = useStyles2(getStyles);
     const lineFormatVar = getLineFormatVariable(model);
+    const fieldsVar = getFieldsVariable(model);
 
     // If we have a line format variable, we are drilled down into a nested node
     const isDrillDown = lineFormatVar.state.filters.length > 0;
@@ -173,18 +238,19 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     return (
       <PanelChrome
+        statusMessage={$data.state.data?.errors?.[0].message}
         loadingState={$data.state.data?.state}
         title={'Logs'}
         menu={menu ? <menu.Component model={menu} /> : undefined}
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
-        {!lineField?.values && (
+        {$data.state.data?.state === LoadingState.Loading && (
           <>
             <LoadingPlaceholder text={'Loading...'} />
           </>
         )}
 
-        {dataFrame && lineField?.values && (
+        {$data.state.data?.state === LoadingState.Done && dataFrame && lineField?.values && (
           <span className={styles.JSONTreeWrap}>
             <JSONTree
               data={lineField.values}
@@ -207,12 +273,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 return <>{valueAsString?.toString()}</>;
               }}
               shouldExpandNodeInitially={(keyPath, data, level) => level <= 2}
-              labelRenderer={(keyPath, nodeType, expanded) => {
+              labelRenderer={(keyPath, nodeType) => {
                 const depth = keyPath.length;
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
                 if (keyPath[0] === 'root' && isDrillDown) {
-                  return model.getNestedNodeDrilldownButtons(keyPath, nodeTypeLoc, dataFrame);
+                  return model.getNestedNodeDrilldownButtons(keyPath);
                 }
 
                 // Value nodes
@@ -224,7 +290,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getValueLabel(keyPath, nodeTypeLoc, lineField, dataFrame);
+                  return model.getValueLabel(keyPath, lineField, dataFrame, fieldsVar);
                 }
 
                 // Parent nodes
@@ -235,9 +301,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   !isNumber(keyPath[0])
                 ) {
                   if (depth <= 4) {
-                    return model.getNestedNodeFilterButtons(keyPath, nodeTypeLoc, dataFrame);
+                    return model.getNestedNodeFilterButtons(keyPath, nodeTypeLoc, dataFrame, fieldsVar);
                   } else {
-                    return model.getNestedNodeDrilldownButtons(keyPath, nodeTypeLoc, dataFrame);
+                    return model.getNestedNodeDrilldownButtons(keyPath);
                   }
                 }
 
@@ -261,8 +327,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  //@todo add already selected state
-  private getNestedNodeDrilldownButtons = (keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame) => {
+  private getNestedNodeDrilldownButtons = (keyPath: KeyPath) => {
     const styles = useStyles2(getStyles);
 
     return (
@@ -275,24 +340,38 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  //@todo add already selected state
-  private getNestedNodeFilterButtons = (keyPath: KeyPath, nodeTypeLoc: NodeTypeLoc, dataFrame: DataFrame) => {
+  private getNestedNodeFilterButtons = (
+    keyPath: KeyPath,
+    nodeTypeLoc: NodeTypeLoc,
+    dataFrame: DataFrame,
+    fieldsVar: AdHocFiltersVariable
+  ) => {
     const styles = useStyles2(getStyles);
+    const { fullKeyPath } = this.getFullKeyPath(keyPath);
+    const fullKey = getJsonKey(fullKeyPath);
+    const existingFilter = fieldsVar.state.filters.find(
+      (f) => f.key === fullKey && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
+    );
+
     return (
       <>
         <span className={styles.labelWrap}>
           <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
           <JSONFilterNestedNodeInButton
+            jsonKey={fullKey}
             addFilter={this.addFilter}
-            keyPath={keyPath}
+            keyPath={fullKeyPath}
             nodeTypeLoc={nodeTypeLoc}
             dataFrame={dataFrame}
+            active={existingFilter?.operator === FilterOp.NotEqual}
           />
           <JSONFilterNestedNodeOutButton
+            jsonKey={fullKey}
             addFilter={this.addFilter}
-            keyPath={keyPath}
+            keyPath={fullKeyPath}
             nodeTypeLoc={nodeTypeLoc}
             dataFrame={dataFrame}
+            active={existingFilter?.operator === FilterOp.Equal}
           />
           <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
@@ -300,15 +379,21 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  // @todo add already selected state
   private getValueLabel = (
     keyPath: KeyPath,
-    nodeTypeLoc: NodeTypeLoc,
     lineField: Field<string | number>,
-    dataFrame: DataFrame
+    dataFrame: DataFrame,
+    fieldsVar: AdHocFiltersVariable
   ) => {
     const styles = useStyles2(getStyles);
-    const value = this.getValue(keyPath, nodeTypeLoc, lineField.values)?.toString();
+
+    const value = this.getValue(keyPath, lineField.values)?.toString();
+    const { fullKeyPath } = this.getFullKeyPath(keyPath);
+    const fullKey = getJsonKey(fullKeyPath);
+    const existingFilter = fieldsVar.state.filters.find(
+      (f) => f.key === fullKey && getValueFromFieldsFilter(f).value === value
+    );
+
     return (
       <>
         <span className={styles.labelButtonsWrap}>
@@ -318,18 +403,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             onClick={(e) => {
               e.stopPropagation();
               this.addFilter(
-                keyPath,
-                {
-                  key: getJsonKey(keyPath),
-                  value,
-                  operator: FilterOp.Equal,
-                },
-                nodeTypeLoc,
+                fullKeyPath,
+                fullKey,
+                value,
+                existingFilter?.operator === FilterOp.Equal ? 'toggle' : 'include',
                 dataFrame
               );
             }}
+            variant={existingFilter?.operator === FilterOp.Equal ? 'primary' : 'secondary'}
             size={'md'}
-            name={'plus-circle'}
+            name={'search-plus'}
             aria-label={'add filter'}
           />
           <IconButton
@@ -338,18 +421,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             onClick={(e) => {
               e.stopPropagation();
               this.addFilter(
-                keyPath,
-                {
-                  key: getJsonKey(keyPath),
-                  value: this.getValue(keyPath, nodeTypeLoc, lineField.values).toString(),
-                  operator: FilterOp.NotEqual,
-                },
-                nodeTypeLoc,
+                fullKeyPath,
+                fullKey,
+                value,
+                existingFilter?.operator === FilterOp.NotEqual ? 'toggle' : 'exclude',
                 dataFrame
               );
             }}
+            variant={existingFilter?.operator === FilterOp.NotEqual ? 'primary' : 'secondary'}
             size={'md'}
-            name={'minus-circle'}
+            name={'search-minus'}
             aria-label={'remove filter'}
           />
 
@@ -359,48 +440,22 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  public onActivate() {
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+  private addJsonParserFieldsForCurrentFilters() {
+    // @todo https://github.com/grafana/loki/issues/16816
+    // Need to add json parser prop for any nested json field, or field filters from the "Fields" tab will break if the user has other JSON parser props defined by interacting in the viz.
+  }
 
-    this.setState({
-      menu: new PanelMenu({
-        investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
-      }),
-    });
-
-    const $data = sceneGraph.getData(this);
-    if ($data.state.data?.state === LoadingState.Done) {
-      this.updateJsonFrame($data.state);
-    }
-
-    this._subs.add(
-      $data.subscribeToState((newState) => {
-        if (newState.data?.state === LoadingState.Done) {
-          this.updateJsonFrame(newState);
-        }
-      })
-    );
-
+  private clearJsonParserFields() {
     const fieldsVariable = getFieldsVariable(this);
-    this._subs.add(
-      // Hacky sync on field filter updates, this will result in duplicate queries
-      fieldsVariable.subscribeToEvent(SceneVariableValueChangedEvent, (evt) => {
-        const state = evt.payload.state as AdHocFiltersVariable['state'];
-        const fieldFilters = state.filters;
+    const jsonVar = getJsonFieldsVariable(this);
+    const lineFormatVariable = getLineFormatVariable(this);
 
-        const jsonVariable = getJsonFieldsVariable(this);
-        let newJsonFilters: AdHocFilterWithLabels[] = [];
-
-        jsonVariable.state.filters.forEach((jsonField) => {
-          if (fieldFilters.find((fieldFilter) => fieldFilter.key === jsonField.key)) {
-            newJsonFilters.push(jsonField);
-          }
-        });
-        jsonVariable.setState({
-          filters: newJsonFilters,
-        });
-      })
-    );
+    // If there are no active filters, and no line format (drilldowns), clear the json
+    if (!fieldsVariable.state.filters.length && !lineFormatVariable.state.filters.length) {
+      jsonVar.setState({
+        filters: [],
+      });
+    }
   }
 
   private updateJsonFrame(newState: SceneDataState) {
@@ -417,6 +472,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         series: newState.data.series.map((frame) => {
           return {
             ...frame,
+
             fields: frame.fields.map((f) => {
               if (f.name === 'Line') {
                 return {
@@ -438,6 +494,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       return {
                         Time: renderTimeStamp(time?.values?.[i], timeZone),
                         Line: parsed,
+                        // @todo add support for structured metadata
+                        // Labels: labels?.values?.[0],
                       };
                     })
                     .filter((f) => f),

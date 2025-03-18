@@ -80,6 +80,58 @@ export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
   });
 }
 
+export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath) {
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+
+  let value = getJsonKey(keyPath, '.');
+  let key = getJsonKey(keyPath, '_');
+
+  // @todo https://github.com/grafana/loki/issues/16817
+  if (key.includes('-')) {
+    key = key.replace(/-/g, '_');
+    value = `[\\"${value}\\"]`;
+  }
+
+  const nextKeyPath = [...keyPath];
+  let nextKey = nextKeyPath.shift();
+
+  let filters = [
+    ...jsonVariable.state.filters.filter((f) => f.key !== key),
+    {
+      value,
+      key,
+      operator: FilterOp.Equal,
+    },
+  ];
+
+  while (nextKey && !isLogLineField(nextKey.toString()) && !isNumber(nextKey) && nextKey !== 'root') {
+    const nextFullKey = getJsonKey(nextKeyPath, '_');
+    const nextValue = getJsonKey(nextKeyPath, '.');
+
+    if (
+      nextFullKey &&
+      !filters.find(
+        (filter) => filter.key === nextFullKey && filter.value === nextValue && filter.operator === FilterOp.Equal
+      )
+    ) {
+      filters = [
+        ...filters.filter((f) => f.key !== nextFullKey),
+        {
+          value: nextValue,
+          key: nextFullKey,
+          operator: FilterOp.Equal,
+        },
+      ];
+    }
+
+    nextKey = nextKeyPath.shift();
+  }
+
+  jsonVariable.setState({
+    filters,
+  });
+}
+
 export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, hasValue = true) {
   const jsonVariable = getJsonFieldsVariable(sceneRef);
 
