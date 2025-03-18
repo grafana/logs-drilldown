@@ -50,7 +50,6 @@ import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
-  filterJson: 'All' | 'JSON';
   data?: PanelData;
 }
 
@@ -65,7 +64,7 @@ export type AddJSONFilter = (
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
-    super({ ...state, filterJson: 'All' });
+    super(state);
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
