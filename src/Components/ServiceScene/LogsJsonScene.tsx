@@ -246,7 +246,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   !isNumber(keyPath[0])
                 ) {
                   if (depth <= 4) {
-                    return model.getNestedNodeFilterButtons(keyPath, nodeTypeLoc, dataFrame, fieldsVar);
+                    return model.getNestedNodeFilterButtons(keyPath, fieldsVar);
                   } else {
                     return model.getNestedNodeDrilldownButtons(keyPath);
                   }
@@ -283,12 +283,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  private getNestedNodeFilterButtons = (
-    keyPath: KeyPath,
-    nodeTypeLoc: NodeTypeLoc,
-    dataFrame: DataFrame,
-    fieldsVar: AdHocFiltersVariable
-  ) => {
+  private getNestedNodeFilterButtons = (keyPath: KeyPath, fieldsVar: AdHocFiltersVariable) => {
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
     const fullKey = getJsonKey(fullKeyPath);
     const existingFilter = fieldsVar.state.filters.find(
@@ -303,16 +298,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             jsonKey={fullKey}
             addFilter={this.addFilter}
             keyPath={fullKeyPath}
-            nodeTypeLoc={nodeTypeLoc}
-            dataFrame={dataFrame}
             active={existingFilter?.operator === FilterOp.NotEqual}
           />
           <JSONFilterNestedNodeOutButton
             jsonKey={fullKey}
             addFilter={this.addFilter}
             keyPath={fullKeyPath}
-            nodeTypeLoc={nodeTypeLoc}
-            dataFrame={dataFrame}
             active={existingFilter?.operator === FilterOp.Equal}
           />
           <strong>{this.getKeyPathString(keyPath)}</strong>
