@@ -11,7 +11,6 @@ import {
   AdHocFieldValue,
   FieldValue,
   isAdHocFilterValueUserInput,
-  JSON_FORMAT_EXPR,
   LOGS_FORMAT_EXPR,
   LogsQueryOptions,
   MIXED_FORMAT_EXPR,

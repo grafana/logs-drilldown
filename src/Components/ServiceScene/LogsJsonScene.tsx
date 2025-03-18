@@ -18,7 +18,7 @@ import {
   LoadingState,
   PanelData,
 } from '@grafana/data';
-import { IconButton, LoadingPlaceholder, PanelChrome, useStyles2 } from '@grafana/ui';
+import { IconButton, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
