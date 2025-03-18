@@ -287,11 +287,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   private getNestedNodeDrilldownButtons = (keyPath: KeyPath) => {
-    const styles = useStyles2(getStyles);
-
     return (
       <>
-        <span className={styles.labelWrap}>
+        <span className={labelWrapStyle}>
           <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
           <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
@@ -305,7 +303,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     dataFrame: DataFrame,
     fieldsVar: AdHocFiltersVariable
   ) => {
-    const styles = useStyles2(getStyles);
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
     const fullKey = getJsonKey(fullKeyPath);
     const existingFilter = fieldsVar.state.filters.find(
@@ -314,7 +311,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     return (
       <>
-        <span className={styles.labelWrap}>
+        <span className={labelWrapStyle}>
           <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
           <JSONFilterNestedNodeInButton
             jsonKey={fullKey}
@@ -344,7 +341,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     dataFrame: DataFrame,
     fieldsVar: AdHocFiltersVariable
   ) => {
-    const styles = useStyles2(getStyles);
+    // @todo clean up styles
+    const styles = useStyles2(getValueLabelStyles);
 
     const value = this.getValue(keyPath, lineField.values)?.toString();
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
@@ -358,7 +356,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         <span className={styles.labelButtonsWrap}>
           <IconButton
             tooltip={`Include log lines containing ${value}`}
-            className={styles.filterButton}
             onClick={(e) => {
               e.stopPropagation();
               this.addFilter(
@@ -376,7 +373,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           />
           <IconButton
             tooltip={`Exclude log lines containing ${value}`}
-            className={styles.filterButton}
             onClick={(e) => {
               e.stopPropagation();
               this.addFilter(
@@ -477,28 +473,27 @@ function getNestedProperty(obj: Record<string, any>, props: Array<string | numbe
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
+  JSONTreeWrap: css`
+    // override css variables
+    --json-tree-align-items: flex-start;
+    --json-tree-label-color: ${theme.isDark ? '#73bf69' : '#56a64b'};
+    --json-tree-label-value-color: ${theme.isDark ? '#ce9178' : '#a31515'};
+    --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
+  `,
   timeNode: css({
-    color: theme.colors.text.maxContrast,
+    // color: theme.colors.text.maxContrast,
   }),
-  // Library uses inline styles
+});
+
+const labelWrapStyle = css({
+  color: 'var(--json-tree-label-color)',
+  display: 'inline-flex',
+  alignItems: 'center',
+});
+const getValueLabelStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     display: 'inline-flex',
-
     color: 'var(--json-tree-label-color)',
   }),
-  labelWrap: css({
-    color: 'var(--json-tree-label-color)',
-    display: 'inline-flex',
-    alignItems: 'center',
-  }),
-  filterButton: css({
-    // marginLeft: '0.25em',
-    // marginRight: '0.25em',
-    // display: 'inline-flex',
-    // verticalAlign: 'middle',
-  }),
-  JSONTreeWrap: css`
-    // override css
-    --json-tree-align-items: flex-start;
-  `,
+  labelWrap: labelWrapStyle,
 });
