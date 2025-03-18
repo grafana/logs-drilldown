@@ -54,13 +54,7 @@ interface LogsJsonSceneState extends SceneObjectState {
 }
 
 export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
-export type AddJSONFilter = (
-  keyPath: KeyPath,
-  key: string,
-  value: string,
-  filterType: FilterType,
-  dataFrame: DataFrame | undefined
-) => void;
+export type AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => void;
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
@@ -158,13 +152,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return { fullPathFilters, fullKeyPath };
   }
 
-  private addFilter: AddJSONFilter = (
-    keyPath: KeyPath,
-    key: string,
-    value: string,
-    filterType: FilterType,
-    dataFrame: DataFrame | undefined
-  ) => {
+  private addFilter: AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => {
     addCurrentUrlToHistory();
 
     // @todo https://github.com/grafana/loki/issues/16817
@@ -197,9 +185,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     // If we have a line format variable, we are drilled down into a nested node
     const isDrillDown = lineFormatVar.state.filters.length > 0;
     const dataFrame = getLogsPanelFrame(data);
-    const lineField = dataFrame?.fields.find(
-      (field) => field.type === FieldType.string && (field.name === 'Line' || field.name === 'body')
-    );
+    const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
 
     return (
       <PanelChrome
@@ -245,7 +231,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   nodeTypeLoc !== 'Object' &&
                   nodeTypeLoc !== 'Array' &&
                   keyPath[0] !== 'Time' &&
-                  keyPath[0] !== 'Line' &&
+                  !isLogLineField(keyPath[0].toString()) &&
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
@@ -255,7 +241,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 // Parent nodes
                 if (
                   (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
-                  keyPath[0] !== 'Line' &&
+                  !isLogLineField(keyPath[0].toString()) &&
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
@@ -362,8 +348,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 fullKeyPath,
                 fullKey,
                 value,
-                existingFilter?.operator === FilterOp.Equal ? 'toggle' : 'include',
-                dataFrame
+                existingFilter?.operator === FilterOp.Equal ? 'toggle' : 'include'
               );
             }}
             variant={existingFilter?.operator === FilterOp.Equal ? 'primary' : 'secondary'}
@@ -379,8 +364,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 fullKeyPath,
                 fullKey,
                 value,
-                existingFilter?.operator === FilterOp.NotEqual ? 'toggle' : 'exclude',
-                dataFrame
+                existingFilter?.operator === FilterOp.NotEqual ? 'toggle' : 'exclude'
               );
             }}
             variant={existingFilter?.operator === FilterOp.NotEqual ? 'primary' : 'secondary'}
@@ -416,7 +400,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             ...frame,
 
             fields: frame.fields.map((f) => {
-              if (f.name === 'Line') {
+              if (isLogLineField(f.name)) {
                 return {
                   ...f,
                   values: f.values
