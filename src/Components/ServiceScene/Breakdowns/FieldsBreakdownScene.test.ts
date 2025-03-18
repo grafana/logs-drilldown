@@ -15,7 +15,6 @@ describe('buildFieldsQueryString', () => {
       name: VAR_FIELDS,
       filters: [],
     });
-
     const nameField: Field = {
       name: DETECTED_FIELDS_NAME_FIELD,
       type: FieldType.string,
@@ -47,7 +46,7 @@ describe('buildFieldsQueryString', () => {
 
     const result = buildFieldsQueryString('caller', filterVariable, detectedFieldsFrame);
     expect(result).toEqual(
-      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | logfmt | caller!="" \${fields} \${lineFormat} [$__auto]))`
+      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | logfmt | caller!="" \${fields} [$__auto]))`
     );
   });
   test('should build json-parser query', () => {
@@ -87,7 +86,7 @@ describe('buildFieldsQueryString', () => {
 
     const result = buildFieldsQueryString('caller', filterVariable, detectedFieldsFrame);
     expect(result).toEqual(
-      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json \${jsonFields} | drop __error__, __error_details__ | caller!="" \${fields} \${lineFormat} [$__auto]))`
+      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json caller="caller" \${jsonFields} | drop __error__, __error_details__ | caller!="" \${fields} [$__auto]))`
     );
   });
   test('should build mixed-parser query', () => {
@@ -126,7 +125,7 @@ describe('buildFieldsQueryString', () => {
 
     const result = buildFieldsQueryString('caller', filterVariable, detectedFieldsFrame);
     expect(result).toEqual(
-      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json \${jsonFields} | logfmt | drop __error__, __error_details__ | caller!="" \${fields} \${lineFormat} [$__auto]))`
+      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json \${jsonFields} | logfmt | drop __error__, __error_details__ | caller!="" \${fields} [$__auto]))`
     );
   });
   test('should build metadata query', () => {
@@ -165,7 +164,7 @@ describe('buildFieldsQueryString', () => {
 
     const result = buildFieldsQueryString('caller', metadataVariable, detectedFieldsFrame);
     expect(result).toEqual(
-      `sum by (caller) (count_over_time({\${filters}} | caller!="" \${levels} \${metadata} \${patterns} \${lineFilters}  \${fields} \${lineFormat} [$__auto]))`
+      `sum by (caller) (count_over_time({\${filters}} | caller!="" \${levels} \${metadata} \${patterns} \${lineFilters}  \${fields} [$__auto]))`
     );
   });
 });

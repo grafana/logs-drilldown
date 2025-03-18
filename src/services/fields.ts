@@ -346,7 +346,9 @@ export function buildFieldsQueryString(
 
   if (parser === 'json') {
     // @todo need detected fields response https://github.com/grafana/loki/issues/16816
-    options.jsonParserPropToAdd = jsonVariable?.state.filters.length ? optionValue + ',' : optionValue;
+    options.jsonParserPropToAdd = jsonVariable?.state.filters.length
+      ? `${optionValue}="${optionValue}",`
+      : `${optionValue}="${optionValue}"`;
   }
 
   return buildFieldsQuery(optionValue, options);
