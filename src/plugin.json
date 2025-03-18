@@ -6,7 +6,7 @@
   "autoEnabled": true,
   "info": {
     "keywords": ["app", "loki", "explore", "logs", "drilldown", "drill", "down", "drill-down"],
-    "description": "Queryless exploration of log data stored in Loki",
+    "description": "Visualize log volumes to easily detect anomalies or significant changes over time, without needing to compose LogQL queries.",
     "author": {
       "name": "Grafana"
     },

@@ -74,4 +74,4 @@ Our new experiences are in their early stages, and we'd love to hear your feedba
 
 ## What's next?
 
-Dive into [Get started with Grafana Logs Drilldown]({{< relref "./get-started" >}}) to learn how to set up Grafana Logs Drilldown and take a tour of the feature using your own data.
+Dive into [Get started with Grafana Logs Drilldown](get-started/) to learn how to set up Grafana Logs Drilldown and take a tour of the feature using your own data.
