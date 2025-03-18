@@ -22,7 +22,13 @@ import { setLevelColorOverrides } from './panel';
 import { map, Observable } from 'rxjs';
 import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
-import { getLogsStreamSelector, getValueFromFieldsFilter } from './variableGetters';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getLogsStreamSelector,
+  getValueFromFieldsFilter,
+} from './variableGetters';
 import { logger } from './logger';
 import { PanelMenu } from '../Components/Panels/PanelMenu';
 import { getLabelTypeFromFrame } from './lokiQuery';
@@ -257,6 +263,7 @@ export function isAvgField(fieldType: DetectedFieldType | undefined) {
 }
 
 export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions) {
+  console.log('buildFieldsQuery', optionValue, options);
   if (options.fieldType && ['bytes', 'duration'].includes(options.fieldType)) {
     return (
       `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` +
@@ -287,7 +294,8 @@ export function getDetectedFieldType(optionValue: string, detectedFieldsFrame?: 
 export function buildFieldsQueryString(
   optionValue: string,
   fieldsVariable: AdHocFiltersVariable,
-  detectedFieldsFrame?: DataFrame
+  detectedFieldsFrame?: DataFrame,
+  jsonVariable?: AdHocFiltersVariable
 ) {
   const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
   const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
@@ -336,6 +344,11 @@ export function buildFieldsQueryString(
     fieldType: optionType,
   };
 
+  if (parser === 'json') {
+    // @todo need detected fields response https://github.com/grafana/loki/issues/16816
+    options.jsonParserPropToAdd = jsonVariable?.state.filters.length ? optionValue + ',' : optionValue;
+  }
+
   return buildFieldsQuery(optionValue, options);
 }
 
@@ -349,4 +362,17 @@ export function lokiRegularEscape<T>(value: T) {
 
 export function isLogLineField(fieldName: string) {
   return fieldName === 'Line' || fieldName === 'body';
+}
+
+export function clearJsonParserFields(sceneRef: SceneObject) {
+  const fieldsVariable = getFieldsVariable(sceneRef);
+  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const lineFormatVariable = getLineFormatVariable(sceneRef);
+
+  // If there are no active filters, and no line format (drilldowns), clear the json
+  if (!fieldsVariable.state.filters.length && !lineFormatVariable.state.filters.length) {
+    jsonVar.setState({
+      filters: [],
+    });
+  }
 }

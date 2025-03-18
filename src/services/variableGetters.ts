@@ -11,10 +11,10 @@ import {
   AdHocFieldValue,
   FieldValue,
   isAdHocFilterValueUserInput,
-  JSON_FORMAT_EXPR_NO_JSON_FIELDS,
+  JSON_FORMAT_EXPR,
   LOGS_FORMAT_EXPR,
   LogsQueryOptions,
-  MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
+  MIXED_FORMAT_EXPR,
   SERVICE_NAME,
   stripAdHocFilterUserInputPrefix,
   VAR_AGGREGATED_METRICS,
@@ -24,6 +24,7 @@ import {
   VAR_FIELDS_AND_METADATA,
   VAR_FIELDS_EXPR,
   VAR_JSON_FIELDS,
+  VAR_JSON_FIELDS_EXPR,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LABELS_EXPR,
@@ -52,19 +53,20 @@ export function getLogsStreamSelector(options: LogsQueryOptions) {
     labelExpressionToAdd = '',
     structuredMetadataToAdd = '',
     fieldExpressionToAdd = '',
+    jsonParserPropToAdd = '',
     parser = undefined,
   } = options;
 
-  // @todo add json args
   switch (parser) {
     case 'structuredMetadata':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'json':
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR_NO_JSON_FIELDS}  ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      // @todo what about commas?
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | drop __error__, __error_details__ ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'logfmt':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     default:
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR_NO_JSON_FIELDS} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
   }
 }
 

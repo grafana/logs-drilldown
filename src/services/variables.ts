@@ -25,6 +25,7 @@ export type LogsQueryOptions = {
   labelExpressionToAdd?: string;
   structuredMetadataToAdd?: string;
   fieldExpressionToAdd?: string;
+  jsonParserPropToAdd?: string;
   parser?: ParserType;
   fieldType?: DetectedFieldType;
 };
@@ -62,9 +63,8 @@ export const VAR_LINE_FORMAT_EXPR = '${lineFormat}';
 export const DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS = `| json | logfmt | drop __error__, __error_details__`;
 export const DETECTED_FIELDS_MIXED_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__`;
 export const MIXED_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__`;
-export const MIXED_FORMAT_EXPR_NO_JSON_FIELDS = `| json | logfmt | drop __error__, __error_details__`;
 export const JSON_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | drop __error__, __error_details__`;
-export const JSON_FORMAT_EXPR_NO_JSON_FIELDS = `| json | drop __error__, __error_details__`;
+// export const JSON_FORMAT_EXPR_NO_JSON_FIELDS = `| json | drop __error__, __error_details__`;
 export const LOGS_FORMAT_EXPR = `| logfmt`;
 // This variable is hardcoded to the value of MIXED_FORMAT_EXPR. This is a hack to get logs context working, we don't want to use a variable for a value that doesn't change and cannot be updated by the user.
 export const VAR_LOGS_FORMAT = 'logsFormat';
@@ -79,7 +79,7 @@ export const VAR_LINE_FILTERS = 'lineFilters';
 export const VAR_LINE_FILTERS_EXPR = '${lineFilters}';
 export const LOG_STREAM_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR}`;
 // Same as the LOG_STREAM_SELECTOR_EXPR, but without the fields as they will need to be built manually to exclude the current filter value
-export const DETECTED_FIELD_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS} ${VAR_FIELDS_EXPR}`;
+export const DETECTED_FIELD_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
 export const DETECTED_FIELD_AND_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR} ${PENDING_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR}`;
 export const DETECTED_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_FIELDS_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
 export const DETECTED_LEVELS_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${PENDING_FIELDS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;

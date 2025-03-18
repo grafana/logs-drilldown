@@ -2,6 +2,7 @@ import React from 'react';
 
 import { LoadingState, PanelData } from '@grafana/data';
 import {
+  AdHocFiltersVariable,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -44,9 +45,11 @@ import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
   getFieldsVariable,
+  getJsonFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
+  getLineFormatVariable,
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
@@ -60,6 +63,7 @@ import { VariableHide } from '@grafana/schema';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { clearJsonParserFields } from '../../services/fields';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';
@@ -346,12 +350,42 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private subscribeToFieldsVariable() {
     const fieldsVar = getFieldsVariable(this);
+
     return fieldsVar.subscribeToState((newState, prevState) => {
       if (!areArraysEqual(newState.filters, prevState.filters)) {
+        this.removeStaleJsonParserProps(newState, prevState);
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
       }
     });
+  }
+
+  /**
+   * If we removed a filter from the ad-hoc variables, we need to remove old json parser props
+   */
+  private removeStaleJsonParserProps(
+    newState: AdHocFiltersVariable['state'],
+    prevState: AdHocFiltersVariable['state']
+  ) {
+    const lineFormatVariable = getLineFormatVariable(this);
+    if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
+      clearJsonParserFields(this);
+    } else if (newState.filters.length < prevState.filters.length) {
+      // If no other field filter has the same key, then we can remove the json parser
+      const filterDiff = prevState.filters.filter(
+        (prevFilter) => !newState.filters.find((newFilter) => newFilter.key === prevFilter.key)
+      );
+
+      if (filterDiff.length) {
+        const jsonVariable = getJsonFieldsVariable(this);
+        const newJsonFilters = jsonVariable.state.filters.filter(
+          (jsonFilter) => !filterDiff.find((filtersToRemove) => jsonFilter.key === filtersToRemove.key)
+        );
+        jsonVariable.setState({
+          filters: newJsonFilters,
+        });
+      }
+    }
   }
 
   private subscribeToMetadataVariable() {

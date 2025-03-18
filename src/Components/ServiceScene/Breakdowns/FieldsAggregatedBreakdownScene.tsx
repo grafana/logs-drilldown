@@ -34,6 +34,7 @@ import {
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
+  getJsonFieldsVariable,
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
@@ -357,7 +358,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     fieldType?: DetectedFieldType
   ) {
     const fieldsVariable = getFieldsVariable(this);
-    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame);
+    const jsonVariable = getJsonFieldsVariable(this);
+    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
     const query = buildDataQuery(queryString, {
       legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
       refId: optionValue,

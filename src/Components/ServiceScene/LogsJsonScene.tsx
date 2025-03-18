@@ -33,15 +33,10 @@ import { DrilldownButton } from './JSONPanel/DrilldownButton';
 import { JSONFilterNestedNodeInButton } from './JSONPanel/JSONFilterNestedNodeInButton';
 import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeOutButton';
 
-import { isLogLineField } from '../../services/fields';
+import { clearJsonParserFields, isLogLineField } from '../../services/fields';
 import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLineFormatVariable,
-  getValueFromFieldsFilter,
-} from '../../services/variableGetters';
+import { getFieldsVariable, getLineFormatVariable, getValueFromFieldsFilter } from '../../services/variableGetters';
 import { hasProp } from '../../services/narrowing';
 import {
   addJsonParserFields,
@@ -51,7 +46,6 @@ import {
   removeJsonDrilldownFilters,
 } from '../../services/filters';
 import { addCurrentUrlToHistory } from '../../services/navigate';
-import { areArraysEqual } from '../../services/comparison';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
 
 interface LogsJsonSceneState extends SceneObjectState {
@@ -97,36 +91,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         }
       })
     );
-    const fieldsVariable = getFieldsVariable(this);
-    const lineFormatVariable = getLineFormatVariable(this);
-
     this.addJsonParserFieldsForCurrentFilters();
-    this.clearJsonParserFields();
-
-    this._subs.add(
-      fieldsVariable.subscribeToState((newState, prevState) => {
-        if (!areArraysEqual(newState.filters, prevState.filters)) {
-          if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
-            this.clearJsonParserFields();
-          } else if (newState.filters.length < prevState.filters.length) {
-            // If no other field filter has the same key, then we can remove the json parser
-            const filterDiff = prevState.filters.filter(
-              (prevFilter) => !newState.filters.find((newFilter) => newFilter.key === prevFilter.key)
-            );
-
-            if (filterDiff.length) {
-              const jsonVariable = getJsonFieldsVariable(this);
-              const newJsonFilters = jsonVariable.state.filters.filter(
-                (jsonFilter) => !filterDiff.find((filtersToRemove) => jsonFilter.key === filtersToRemove.key)
-              );
-              jsonVariable.setState({
-                filters: newJsonFilters,
-              });
-            }
-          }
-        }
-      })
-    );
+    clearJsonParserFields(this);
   }
 
   private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
@@ -164,7 +130,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     } else {
       // Otherwise we're drilling back up to the root
       removeJsonDrilldownFilters(this);
-      this.clearJsonParserFields();
+      clearJsonParserFields(this);
     }
   };
 
@@ -244,13 +210,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         menu={menu ? <menu.Component model={menu} /> : undefined}
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
-        {$data.state.data?.state === LoadingState.Loading && (
-          <>
-            <LoadingPlaceholder text={'Loading...'} />
-          </>
-        )}
-
-        {$data.state.data?.state === LoadingState.Done && dataFrame && lineField?.values && (
+        {dataFrame && lineField?.values && (
           <span className={styles.JSONTreeWrap}>
             <JSONTree
               data={lineField.values}
@@ -443,19 +403,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private addJsonParserFieldsForCurrentFilters() {
     // @todo https://github.com/grafana/loki/issues/16816
     // Need to add json parser prop for any nested json field, or field filters from the "Fields" tab will break if the user has other JSON parser props defined by interacting in the viz.
-  }
-
-  private clearJsonParserFields() {
-    const fieldsVariable = getFieldsVariable(this);
-    const jsonVar = getJsonFieldsVariable(this);
-    const lineFormatVariable = getLineFormatVariable(this);
-
-    // If there are no active filters, and no line format (drilldowns), clear the json
-    if (!fieldsVariable.state.filters.length && !lineFormatVariable.state.filters.length) {
-      jsonVar.setState({
-        filters: [],
-      });
-    }
   }
 
   private updateJsonFrame(newState: SceneDataState) {
