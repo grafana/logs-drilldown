@@ -23,7 +23,7 @@ View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for
 *  Move share button to right side on mobile (https://github.com/grafana/explore-logs/pull/1115)
 *  Clear filters icon not working with detected_level (https://github.com/grafana/explore-logs/pull/1105)
 *  Add overflow-y to tabs container (https://github.com/grafana/explore-logs/pull/1104)
-*  ServiceSelectionPagination:  check for undefined in options (https://github.com/grafana/explore-logs/pull/1080
+*  ServiceSelectionPagination: check for undefined in options (https://github.com/grafana/explore-logs/pull/1080
 *  Cannot add more then 2 values for same label (https://github.com/grafana/explore-logs/pull/1088)
 *  Allow direction to be updated when sort order changes (https://github.com/grafana/explore-logs/pull/1082)
 
