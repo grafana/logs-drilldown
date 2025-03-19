@@ -157,20 +157,26 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   handleLogsError(data: PanelData) {
-    const errorResponse = data.errors?.length ? data.errors[0].message : data.error?.message;
+    const error = data.errors?.length ? data.errors[0] : data.error;
+    const errorResponse = error?.message;
     if (errorResponse) {
-      logger.error(errorResponse);
+      logger.error(new Error('Logs Panel error'), {
+        msg: errorResponse,
+        status: error.statusText ?? 'N/A',
+        type: error.type ?? 'N/A',
+      });
     }
 
-    let error = 'Unexpected error response. Please review your filters or try a different time range.';
+    let errorMessage = 'Unexpected error response. Please review your filters or try a different time range.';
     if (errorResponse?.includes('parse error')) {
-      error = 'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
+      errorMessage =
+        'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
     } else if (errorResponse?.includes('response larger than the max message size')) {
-      error =
+      errorMessage =
         'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
     }
 
-    this.showLogsError(error);
+    this.showLogsError(errorMessage);
   }
 
   handleNoData() {
