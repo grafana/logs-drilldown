@@ -127,7 +127,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(
       serviceScene.subscribeToState((newState, prevState) => {
-        console.log(newState.$data?.state.data);
         if (newState.$data?.state.data?.state === LoadingState.Error) {
           this.handleLogsError(newState.$data?.state.data);
         } else if (
