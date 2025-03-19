@@ -1,3 +1,7 @@
+# Changelog
+
+View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for up-to-date changelog information.
+
 ## 1.0.9
 
 ##### New Features
