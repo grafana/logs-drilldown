@@ -56,7 +56,7 @@
     "grafanaDependency": ">=11.3.0",
     "plugins": [],
     "extensions": {
-      "exposedComponents": ["grafana-adaptivelogs-app/temporary-exemptions/v1"]
+      "exposedComponents": ["grafana-adaptivelogs-app/temporary-exemptions/v1", "grafana-investigations-app/sidebar/v1"]
     }
   },
   "preload": true,

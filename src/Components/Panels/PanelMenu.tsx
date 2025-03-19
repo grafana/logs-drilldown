@@ -342,7 +342,6 @@ export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
   return {
     panelWrapper: css({
       width: '100%',
-      height: '100%',
       label: 'panel-wrapper',
       position: 'absolute',
       display: 'flex',

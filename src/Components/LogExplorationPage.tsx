@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 
 import { SceneApp, useSceneApp } from '@grafana/scenes';
-import { config } from '@grafana/runtime';
+import { config, usePluginComponent } from '@grafana/runtime';
 import { Redirect } from 'react-router-dom';
 import { makeIndexPage, makeRedirectPage } from './Pages';
 import { initializeMetadataService } from '../services/metadata';
+import { useStyles2 } from '@grafana/ui';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 
 const getSceneApp = () =>
   new SceneApp({
@@ -17,6 +20,8 @@ const getSceneApp = () =>
 
 function LogExplorationView() {
   const [isInitialized, setIsInitialized] = React.useState(false);
+  const styles = useStyles2(getStyles);
+  const { component: InvestigationsSidebar } = usePluginComponent('grafana-investigations-app/sidebar/v1');
 
   initializeMetadataService();
 
@@ -38,7 +43,36 @@ function LogExplorationView() {
     return null;
   }
 
+  if (InvestigationsSidebar) {
+    return (
+      <div className={styles.container}>
+        <scene.Component model={scene} />
+        <InvestigationsSidebar />
+      </div>
+    );
+  }
   return <scene.Component model={scene} />;
 }
 
 export default LogExplorationView;
+
+function getStyles(theme: GrafanaTheme2) {
+  return {
+    container: css({
+      display: 'flex',
+      flexDirection: 'row',
+      height: `calc(100vh - ${theme.spacing(5)})`,
+
+      '& > div': {
+        overflowY: 'auto',
+        overflowX: 'hidden',
+      },
+      '& > div:first-child': {
+        flex: 3,
+      },
+      '& > div:last-child': {
+        flex: 1,
+      },
+    }),
+  };
+}
