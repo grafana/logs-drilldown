@@ -31,7 +31,7 @@ View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for
 *  Increase loki max log length (https://github.com/grafana/explore-logs/pull/1112)
 *  Add missing image, remove empty section (https://github.com/grafana/explore-logs/pull/1089)
 *  Make OTEL endpoint configurable in generator dockerfile (https://github.com/grafana/explore-logs/pull/1075)
-*  Rename:  rename exposed component (https://github.com/grafana/explore-logs/pull/1094)
+*  Rename: rename exposed component (https://github.com/grafana/explore-logs/pull/1094)
 *  Add metadata to logged error (https://github.com/grafana/explore-logs/pull/1129)
 
 ##### Documentation Changes
