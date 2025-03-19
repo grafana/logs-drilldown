@@ -39,7 +39,7 @@ View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for
 
 ##### Other Changes
 *  Add `fieldConfig` to investigations context (https://github.com/grafana/explore-logs/pull/1124)
-*  Investigations:  change investigations plugin id (https://github.com/grafana/explore-logs/pull/1084)
+*  Investigations: change investigations plugin id (https://github.com/grafana/explore-logs/pull/1084)
 *  E2E flake (https://github.com/grafana/explore-logs/pull/1101)
 
 ## 1.0.8
