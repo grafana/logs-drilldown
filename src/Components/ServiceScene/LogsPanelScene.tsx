@@ -159,8 +159,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
   handleLogsError(data: PanelData) {
     const errorResponse = data.errors?.length ? data.errors[0].message : data.error?.message;
-    let error = 'Unexpected error response. Please review your filters or try a different time range.';
+    if (errorResponse) {
+      logger.error(errorResponse);
+    }
 
+    let error = 'Unexpected error response. Please review your filters or try a different time range.';
     if (errorResponse?.includes('parse error')) {
       error = 'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
     } else if (errorResponse?.includes('response larger than the max message size')) {
