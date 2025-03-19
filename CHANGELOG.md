@@ -2,6 +2,46 @@
 
 View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for up-to-date changelog information.
 
+## 1.0.9
+
+##### New Features
+*  Value drilldown UX: Multiple include filters (https://github.com/grafana/explore-logs/pull/1074)
+*  Service selection pagination: generate options based on totalCount (https://github.com/grafana/explore-logs/pull/1077)
+*  Display error message when logs fail to load (https://github.com/grafana/explore-logs/pull/1079)
+*  No Loki datasource splash page: (https://github.com/grafana/explore-logs/pull/1061)
+*  Navigation UX: Open pages in new tab (https://github.com/grafana/explore-logs/pull/1106)
+*  Table UX: surface field menu options in column header (https://github.com/grafana/explore-logs/pull/1064)
+*  Table UX: Add Manage columns button to table header (https://github.com/grafana/explore-logs/pull/1057)
+*  Line filters UX: expand input on focus (https://github.com/grafana/explore-logs/pull/1113)
+*  Service Scene UX: Pagination (https://github.com/grafana/explore-logs/pull/1058)
+*  Link extensions: Open in Explore logs button (https://github.com/grafana/explore-logs/pull/1035)
+*  Link extensions: Add pattern filter support (https://github.com/grafana/explore-logs/pull/1036)
+*  Link extensions: Support multiple include filters in queries from Explore (https://github.com/grafana/explore-logs/pull/1103)
+
+##### Bug Fixes
+*  Empty label values missing labelValues (https://github.com/grafana/explore-logs/pull/1111)
+*  Move share button to right side on mobile (https://github.com/grafana/explore-logs/pull/1115)
+*  Clear filters icon not working with detected_level (https://github.com/grafana/explore-logs/pull/1105)
+*  Add overflow-y to tabs container (https://github.com/grafana/explore-logs/pull/1104)
+*  ServiceSelectionPagination: check for undefined in options (https://github.com/grafana/explore-logs/pull/1080
+*  Cannot add more then 2 values for same label (https://github.com/grafana/explore-logs/pull/1088)
+*  Allow direction to be updated when sort order changes (https://github.com/grafana/explore-logs/pull/1082)
+
+##### Chores
+*  Increase loki max log length (https://github.com/grafana/explore-logs/pull/1112)
+*  Add missing image, remove empty section (https://github.com/grafana/explore-logs/pull/1089)
+*  Make OTEL endpoint configurable in generator dockerfile (https://github.com/grafana/explore-logs/pull/1075)
+*  Rename: rename exposed component (https://github.com/grafana/explore-logs/pull/1094)
+*  Add metadata to logged error (https://github.com/grafana/explore-logs/pull/1129)
+
+##### Documentation Changes
+*  Fix title copy (https://github.com/grafana/explore-logs/pull/1092)
+
+##### Other Changes
+*  Add `fieldConfig` to investigations context (https://github.com/grafana/explore-logs/pull/1124)
+*  Investigations: change investigations plugin id (https://github.com/grafana/explore-logs/pull/1084)
+*  E2E flake (https://github.com/grafana/explore-logs/pull/1101)
+
 ## 1.0.8
 * Open in Explore logs button by @kozhuhds in https://github.com/grafana/explore-logs/pull/1035
 * Table: Add manage columns button to table header by @gtk-grafana in https://github.com/grafana/explore-logs/pull/1057
