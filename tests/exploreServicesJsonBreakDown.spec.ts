@@ -222,6 +222,11 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Assert we still have results
       await expect(page.getByText('{} 11 keys')).toHaveCount(EXPANDED_NODE_COUNT);
     });
+
+    // @todo
+    test('can add filter in logs panel without breaking existing json', async ({ page }) => {});
+    test('can add filter in table panel without breaking existing json', async ({ page }) => {});
+    test('can add filter in filter variable without breaking existing json', async ({ page }) => {});
   });
 });
 

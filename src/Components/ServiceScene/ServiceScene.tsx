@@ -3,6 +3,7 @@ import React from 'react';
 import { LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
+  AdHocFilterWithLabels,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -45,6 +46,7 @@ import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
   getFieldsVariable,
+  getJsonFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
@@ -62,8 +64,9 @@ import { VariableHide } from '@grafana/schema';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { clearJsonParserFields } from '../../services/fields';
+import { clearJsonParserFields, getParserForField } from '../../services/fields';
 import { filterUnusedJSONParserProps } from '../../services/filters';
+import { FilterOp } from '../../services/filterTypes';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';
@@ -378,6 +381,41 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
       if (filterDiff.length) {
         filterUnusedJSONParserProps(this);
+      }
+    } else if (newState.filters.length > prevState.filters.length) {
+      const jsonVar = getJsonFieldsVariable(this);
+
+      // Gets any new filters that were added
+      const newFilters = newState.filters.filter(
+        (newFilter) => !prevState.filters.find((prevFilter) => newFilter.key === prevFilter.key)
+      );
+
+      const jsonParserPropsToAdd: AdHocFilterWithLabels[] = [];
+
+      newFilters.forEach((filter) => {
+        const hasJsonParserProp = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
+
+        // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
+        // @todo need to add json parser prop using path from detected_fields
+        // https://github.com/grafana/loki/issues/16816
+        // Currently only works for top-level props
+        if (!hasJsonParserProp) {
+          const parserForThisField = getParserForField(filter.key, this);
+          console.log(`${filter.key} has json prop`, { hasJsonParserProp, parserForThisField });
+          if (parserForThisField === 'json') {
+            jsonParserPropsToAdd.push({
+              key: filter.key,
+              value: filter.key,
+              operator: FilterOp.Equal,
+            });
+          }
+        }
+      });
+
+      if (jsonParserPropsToAdd.length) {
+        jsonVar.setState({
+          filters: [...jsonVar.state.filters, ...jsonParserPropsToAdd],
+        });
       }
     }
   }
