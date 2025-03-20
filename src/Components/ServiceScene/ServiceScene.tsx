@@ -356,7 +356,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     return fieldsVar.subscribeToState((newState, prevState) => {
       if (!areArraysEqual(newState.filters, prevState.filters)) {
-        this.removeStaleJsonParserProps(newState, prevState);
+        this.manageJsonParserProps(newState, prevState);
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
       }
@@ -366,13 +366,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   /**
    * If we removed a filter from the ad-hoc variables, we need to remove old json parser props
    */
-  private removeStaleJsonParserProps(
-    newState: AdHocFiltersVariable['state'],
-    prevState: AdHocFiltersVariable['state']
-  ) {
+  private manageJsonParserProps(newState: AdHocFiltersVariable['state'], prevState: AdHocFiltersVariable['state']) {
     const lineFormatVariable = getLineFormatVariable(this);
     if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
       clearJsonParserFields(this);
+
+      // A field was removed
     } else if (newState.filters.length < prevState.filters.length) {
       // If no other field filter has the same key, then we can remove the json parser
       const filterDiff = prevState.filters.filter(
@@ -382,6 +381,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       if (filterDiff.length) {
         filterUnusedJSONParserProps(this);
       }
+
+      // A field was added
     } else if (newState.filters.length > prevState.filters.length) {
       const jsonVar = getJsonFieldsVariable(this);
 
@@ -402,7 +403,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         if (!hasJsonParserProp) {
           const parserForThisField = getParserForField(filter.key, this);
           console.log(`${filter.key} has json prop`, { hasJsonParserProp, parserForThisField });
-          if (parserForThisField === 'json') {
+          if (parserForThisField === 'json' || parserForThisField === 'mixed') {
             jsonParserPropsToAdd.push({
               key: filter.key,
               value: filter.key,

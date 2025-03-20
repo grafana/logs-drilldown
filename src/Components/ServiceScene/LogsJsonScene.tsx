@@ -219,7 +219,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               }}
               shouldExpandNodeInitially={(keyPath, data, level) => level <= 2}
               labelRenderer={(keyPath, nodeType) => {
-                const depth = keyPath.length;
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
                 if (keyPath[0] === 'root' && isDrillDown) {
