@@ -263,7 +263,6 @@ export function isAvgField(fieldType: DetectedFieldType | undefined) {
 }
 
 export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions) {
-  console.log('buildFieldsQuery', optionValue, options);
   if (options.fieldType && ['bytes', 'duration'].includes(options.fieldType)) {
     return (
       `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` +

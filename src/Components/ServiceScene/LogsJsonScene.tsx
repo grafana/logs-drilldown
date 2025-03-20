@@ -47,6 +47,7 @@ import {
 } from '../../services/filters';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
+import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -156,9 +157,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     addCurrentUrlToHistory();
 
     // @todo https://github.com/grafana/loki/issues/16817
-    if (key.includes('-')) {
-      key = key.replace(/-/g, '_');
-    }
+    // https://grafana.com/docs/loki/latest/get-started/labels/#label-format
+    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
 
     addJsonParserFieldValue(this, keyPath);
 
@@ -322,6 +322,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const styles = useStyles2(getValueLabelStyles);
 
     const value = this.getValue(keyPath, lineField.values)?.toString();
+    const label = keyPath[0];
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
     const fullKey = getJsonKey(fullKeyPath);
     const existingFilter = fieldsVar.state.filters.find(
@@ -332,7 +333,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       <>
         <span className={styles.labelButtonsWrap}>
           <IconButton
-            tooltip={`Include log lines containing ${value}`}
+            tooltip={`Include log lines containing ${label}="${value}"`}
             onClick={(e) => {
               e.stopPropagation();
               this.addFilter(
@@ -342,13 +343,14 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 existingFilter?.operator === FilterOp.Equal ? 'toggle' : 'include'
               );
             }}
+            aria-selected={existingFilter?.operator === FilterOp.Equal}
             variant={existingFilter?.operator === FilterOp.Equal ? 'primary' : 'secondary'}
             size={'md'}
             name={'search-plus'}
             aria-label={'add filter'}
           />
           <IconButton
-            tooltip={`Exclude log lines containing ${value}`}
+            tooltip={`Exclude log lines containing ${label}="${value}"`}
             onClick={(e) => {
               e.stopPropagation();
               this.addFilter(
@@ -358,6 +360,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 existingFilter?.operator === FilterOp.NotEqual ? 'toggle' : 'exclude'
               );
             }}
+            aria-selected={existingFilter?.operator === FilterOp.Equal}
             variant={existingFilter?.operator === FilterOp.NotEqual ? 'primary' : 'secondary'}
             size={'md'}
             name={'search-minus'}

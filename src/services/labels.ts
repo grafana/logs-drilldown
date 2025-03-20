@@ -113,3 +113,8 @@ export function getVisibleFilters(key: string, allLabels: string[], variable: Ad
     return inclusiveFilters.length === 0 || inclusiveFilters.includes(label);
   });
 }
+
+// Regex that grabs invalid chars in a loki label name
+// From https://grafana.com/docs/loki/latest/get-started/labels/#label-format
+export const LABEL_NAME_INVALID_CHARS = /[^a-zA-Z_:]/g;
+export const LABEL_VALUE_INVALID_CHARS = /[^a-zA-Z0-9_:]/g;

@@ -3,6 +3,7 @@ import React from 'react';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { AddJSONFilter } from '../LogsJsonScene';
 import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
+import { FilterOp } from '../../../services/filterTypes';
 
 interface Props {
   jsonKey: string;
@@ -19,6 +20,7 @@ export function JSONFilterNestedNodeInButton({ addFilter, keyPath, jsonKey, acti
         e.stopPropagation();
         addFilter(keyPath, jsonKey, EMPTY_VARIABLE_VALUE, active ? 'toggle' : 'exclude');
       }}
+      aria-selected={active}
       variant={active ? 'primary' : 'secondary'}
       size={'md'}
       name={'search-plus'}

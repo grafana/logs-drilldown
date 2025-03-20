@@ -32,6 +32,10 @@ export class ExplorePage {
     return this.page.getByLabel('Table', { exact: true });
   }
 
+  getJsonToggleLocator() {
+    return this.page.getByLabel('Json', { exact: true });
+  }
+
   getLogsToggleLocator() {
     return this.page.getByTestId(/data-testid Panel header Logs/).getByLabel('Logs', { exact: true });
   }

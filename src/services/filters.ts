@@ -10,6 +10,7 @@ import { getJsonFieldsVariable, getLineFormatVariable } from './variableGetters'
 import { FilterOp, JSONFilterOp } from './filterTypes';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { isNumber } from 'lodash';
+import { LABEL_NAME_INVALID_CHARS } from './labels';
 
 // We want to show labels with cardinality 1 at the end of the list because they are less useful
 // And then we want to sort by cardinality - from lowest to highest
@@ -87,8 +88,8 @@ export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath)
   let key = getJsonKey(keyPath, '_');
 
   // @todo https://github.com/grafana/loki/issues/16817
-  if (key.includes('-')) {
-    key = key.replace(/-/g, '_');
+  if (key.match(LABEL_NAME_INVALID_CHARS)) {
+    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
     value = `[\\"${value}\\"]`;
   }
 

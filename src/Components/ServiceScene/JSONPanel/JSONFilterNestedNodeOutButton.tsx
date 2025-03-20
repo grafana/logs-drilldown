@@ -19,6 +19,7 @@ export function JSONFilterNestedNodeOutButton({ addFilter, keyPath, jsonKey, act
         e.stopPropagation();
         addFilter(keyPath, jsonKey, EMPTY_VARIABLE_VALUE, active ? 'toggle' : 'include');
       }}
+      aria-selected={active}
       variant={active ? 'primary' : 'secondary'}
       size={'md'}
       name={'search-minus'}
