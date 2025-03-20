@@ -6,11 +6,15 @@ import {
   stripAdHocFilterUserInputPrefix,
 } from './variables';
 import { SceneObject, VariableValueOption } from '@grafana/scenes';
-import { getJsonFieldsVariable, getLineFormatVariable } from './variableGetters';
+import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from './variableGetters';
 import { FilterOp, JSONFilterOp } from './filterTypes';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { isNumber } from 'lodash';
 import { LABEL_NAME_INVALID_CHARS } from './labels';
+
+export const EMPTY_JSON_FILTER_VALUE = ' ';
+export const LEVEL_INDEX_NAME = 'level';
+export const FIELDS_TO_REMOVE = ['level_extracted', LEVEL_VARIABLE_VALUE, LEVEL_INDEX_NAME];
 
 // We want to show labels with cardinality 1 at the end of the list because they are less useful
 // And then we want to sort by cardinality - from lowest to highest
@@ -39,8 +43,6 @@ export function getLabelOptions(labels: string[]) {
 
   return [{ label: 'All', value: ALL_VARIABLE_VALUE }, ...labelOptions];
 }
-export const LEVEL_INDEX_NAME = 'level';
-export const FIELDS_TO_REMOVE = ['level_extracted', LEVEL_VARIABLE_VALUE, LEVEL_INDEX_NAME];
 
 export const LABELS_TO_REMOVE = ['__aggregated_metric__', '__stream_shard__'];
 export function getFieldOptions(labels: string[]) {
@@ -61,21 +63,37 @@ export function isFilterMetadata(filter: { value: string; valueLabels?: string[]
   return value === filter.valueLabels?.[0];
 }
 
-export const EMPTY_JSON_FILTER_VALUE = ' ';
+/**
+ * Filters json parser prop filters that are not currently used in either the line filters or the field filters
+ *
+ * We are looping through the field filters and line format filters for each json parser prop
+ * While those arrays of filters don't have unbounded length,
+ * we could make this much more performant by adding the values of those variables to a set
+ */
+export function filterUnusedJSONParserProps(sceneRef: SceneObject) {
+  const lineFormatVar = getLineFormatVariable(sceneRef);
+  const lineFormatFilters = lineFormatVar.state.filters;
+  const fieldsVar = getFieldsVariable(sceneRef);
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+
+  // Loop through the json variable filters, remove them if there aren't any fields filters or line format filters
+  const filters = jsonVariable.state.filters.filter((f) => {
+    const hasLineFormat = lineFormatFilters.find((lineFormatFilter) => lineFormatFilter.key === f.key);
+
+    if (!hasLineFormat) {
+      return fieldsVar.state.filters.find((fieldsFilter) => fieldsFilter.key === f.key);
+    }
+    return true;
+  });
+
+  jsonVariable.setState({
+    filters: filters,
+  });
+}
 
 export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
-  const lineFormatFilter = lineFormatVar.state.filters?.[0];
-  if (!lineFormatFilter) {
-    console.warn('Unexpected line format filter parse error. Line format filter is expected when drilling back up');
-  }
-
-  const jsonVariable = getJsonFieldsVariable(sceneRef);
-  const filters = [...jsonVariable.state.filters.filter((f) => f.key !== lineFormatFilter?.key)];
-
-  jsonVariable.setState({
-    filters,
-  });
+  filterUnusedJSONParserProps(sceneRef);
   lineFormatVar.setState({
     filters: [],
   });

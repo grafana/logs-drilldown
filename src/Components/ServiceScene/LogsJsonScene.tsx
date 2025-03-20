@@ -245,11 +245,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  if (depth <= 4) {
-                    return model.getNestedNodeFilterButtons(keyPath, fieldsVar);
-                  } else {
-                    return model.getNestedNodeDrilldownButtons(keyPath);
-                  }
+                  return model.getNestedNodeFilterButtons(keyPath, fieldsVar);
                 }
 
                 // Show the timestamp as the label of the log line

@@ -191,6 +191,37 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'true'
       );
     });
+    test('can filter nested props and drill back to root without removing json parser prop for active filters', async ({
+      page,
+    }) => {
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+
+      // Expand all nested objects
+      await page.getByLabel('nested_object', { exact: true }).first().getByRole('button', { name: '▶' }).click();
+      await page.getByLabel('DeeplyNestedObject', { exact: true }).first().getByRole('button', { name: '▶' }).click();
+      await page
+        .getByLabel('ExtraDeeplyNestedObject', { exact: true })
+        .first()
+        .getByRole('button', { name: '▶' })
+        .click();
+
+      // Filter all nested objects
+      await page.getByLabel('Include log lines that contain nested_object').first().click();
+      await page.getByLabel('Include log lines that contain DeeplyNestedObject').first().click();
+      await page.getByLabel('Include log lines that contain ExtraDeeplyNestedObject').first().click();
+      await expect(page.getByText('{} 11 keys')).toHaveCount(EXPANDED_NODE_COUNT);
+
+      // Drill into child
+      await page.getByLabel('ExtraDeeplyNestedObject', { exact: true }).getByLabel('Set numArray as root node').click();
+      await expect(page.getByText('[] 3 items')).toHaveCount(EXPANDED_NODE_COUNT);
+
+      // Drill up to the root
+      await page.getByLabel('Set root as root node').click();
+
+      // Assert we still have results
+      await expect(page.getByText('{} 11 keys')).toHaveCount(EXPANDED_NODE_COUNT);
+    });
   });
 });
 

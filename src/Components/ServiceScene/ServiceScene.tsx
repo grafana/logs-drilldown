@@ -45,7 +45,6 @@ import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
   getFieldsVariable,
-  getJsonFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
@@ -64,6 +63,7 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { clearJsonParserFields } from '../../services/fields';
+import { filterUnusedJSONParserProps } from '../../services/filters';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';
@@ -377,13 +377,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
 
       if (filterDiff.length) {
-        const jsonVariable = getJsonFieldsVariable(this);
-        const newJsonFilters = jsonVariable.state.filters.filter(
-          (jsonFilter) => !filterDiff.find((filtersToRemove) => jsonFilter.key === filtersToRemove.key)
-        );
-        jsonVariable.setState({
-          filters: newJsonFilters,
-        });
+        filterUnusedJSONParserProps(this);
       }
     }
   }
