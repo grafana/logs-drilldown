@@ -11,10 +11,7 @@ export const LogsPanelError = ({ clearFilters, error }: Props) => {
   return (
     <GrotError>
       <div>
-        <p>
-          <strong>No logs found.</strong>
-        </p>
-        <p>{getMessageFromError(error)}</p>
+        <p>{error}</p>
         <Button variant="secondary" onClick={clearFilters}>
           Clear filters
         </Button>
@@ -22,11 +19,3 @@ export const LogsPanelError = ({ clearFilters, error }: Props) => {
     </GrotError>
   );
 };
-
-function getMessageFromError(error: string) {
-  if (error.includes('parse error')) {
-    return 'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
-  }
-
-  return 'Logs could not be retrieved. Please review your filters or try a different time range.';
-}

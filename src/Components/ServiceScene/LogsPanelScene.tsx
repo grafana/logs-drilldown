@@ -39,6 +39,7 @@ import { LogsSortOrder } from '@grafana/schema';
 import { getPrettyQueryExpr } from 'services/scenes';
 import { LogsPanelError } from './LogsPanelError';
 import { clearVariables } from 'services/variableHelpers';
+import { isEmptyLogsResult } from 'services/logsFrame';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
@@ -128,6 +129,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       serviceScene.subscribeToState((newState, prevState) => {
         if (newState.$data?.state.data?.state === LoadingState.Error) {
           this.handleLogsError(newState.$data?.state.data);
+        } else if (
+          newState.$data?.state.data?.state === LoadingState.Done &&
+          isEmptyLogsResult(newState.$data?.state.data.series)
+        ) {
+          this.handleNoData();
         } else if (this.state.error) {
           this.clearLogsError();
         }
@@ -151,9 +157,35 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   handleLogsError(data: PanelData) {
+    const error = data.errors?.length ? data.errors[0] : data.error;
+    const errorResponse = error?.message;
+    if (errorResponse) {
+      logger.error(new Error('Logs Panel error'), {
+        msg: errorResponse,
+        status: error.statusText ?? 'N/A',
+        type: error.type ?? 'N/A',
+      });
+    }
+
+    let errorMessage = 'Unexpected error response. Please review your filters or try a different time range.';
+    if (errorResponse?.includes('parse error')) {
+      errorMessage =
+        'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
+    } else if (errorResponse?.includes('response larger than the max message size')) {
+      errorMessage =
+        'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
+    }
+
+    this.showLogsError(errorMessage);
+  }
+
+  handleNoData() {
+    this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+  }
+
+  showLogsError(error: string) {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
 
-    const error = data.errors?.length ? data.errors[0].message : data.error?.message;
     this.setState({ error, logsVolumeCollapsedByError });
 
     if (logsVolumeCollapsedByError) {
