@@ -2,6 +2,8 @@ import React from 'react';
 
 import { LoadingState, PanelData } from '@grafana/data';
 import {
+  AdHocFiltersVariable,
+  AdHocFilterWithLabels,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -20,6 +22,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import {
+  DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
@@ -38,32 +41,32 @@ import { getMetadataService } from '../../services/metadata';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
 import { areArraysEqual } from '../../services/comparison';
 import { ActionBarScene } from './ActionBarScene';
-import { breakdownViewsDefinitions, TabNames, valueBreakdownViews } from './BreakdownViews';
+import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
   getFieldsVariable,
+  getJsonFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
+  getLineFormatVariable,
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
 import { logger } from '../../services/logger';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import {
-  getDrilldownSlug,
-  getDrilldownValueSlug,
-  getPrimaryLabelFromUrl,
-  PageSlugs,
-  ValueSlugs,
-} from '../../services/routing';
+import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
 import { replaceSlash } from '../../services/extensions/links';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { migrateLineFilterV1 } from '../../services/migrations';
 import { VariableHide } from '@grafana/schema';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { clearJsonParserFields, getDetectedFieldProps } from '../../services/fields';
+import { filterUnusedJSONParserProps } from '../../services/filters';
+import { FilterOp } from '../../services/filterTypes';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';
@@ -350,12 +353,68 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private subscribeToFieldsVariable() {
     const fieldsVar = getFieldsVariable(this);
+
     return fieldsVar.subscribeToState((newState, prevState) => {
       if (!areArraysEqual(newState.filters, prevState.filters)) {
+        this.manageJsonParserProps(newState, prevState);
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
       }
     });
+  }
+
+  /**
+   * If we removed a filter from the ad-hoc variables, we need to remove old json parser props
+   */
+  private manageJsonParserProps(newState: AdHocFiltersVariable['state'], prevState: AdHocFiltersVariable['state']) {
+    const lineFormatVariable = getLineFormatVariable(this);
+    if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
+      clearJsonParserFields(this);
+
+      // A field was removed
+    } else if (newState.filters.length < prevState.filters.length) {
+      // If no other field filter has the same key, then we can remove the json parser
+      const filterDiff = prevState.filters.filter(
+        (prevFilter) => !newState.filters.find((newFilter) => newFilter.key === prevFilter.key)
+      );
+
+      if (filterDiff.length) {
+        filterUnusedJSONParserProps(this);
+      }
+
+      // A field was added
+    } else if (newState.filters.length > prevState.filters.length) {
+      const jsonVar = getJsonFieldsVariable(this);
+
+      // Gets any new filters that were added
+      const newFilters = newState.filters.filter(
+        (newFilter) => !prevState.filters.find((prevFilter) => newFilter.key === prevFilter.key)
+      );
+
+      const jsonParserPropsToAdd: AdHocFilterWithLabels[] = [];
+
+      newFilters.forEach((filter) => {
+        const hasJsonParserProp = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
+
+        // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
+        if (!hasJsonParserProp) {
+          const { parser, path } = getDetectedFieldProps(filter.key, this);
+          if ((parser === 'json' || parser === 'mixed') && path) {
+            jsonParserPropsToAdd.push({
+              key: filter.key,
+              value: path,
+              operator: FilterOp.Equal,
+            });
+          }
+        }
+      });
+
+      if (jsonParserPropsToAdd.length) {
+        jsonVar.setState({
+          filters: [...jsonVar.state.filters, ...jsonParserPropsToAdd],
+        });
+      }
+    }
   }
 
   private subscribeToMetadataVariable() {
@@ -614,7 +673,7 @@ function getDetectedLabelsQueryRunner() {
 
 function getDetectedFieldsQueryRunner() {
   return getResourceQueryRunner([
-    buildResourceQuery(LOG_STREAM_SELECTOR_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
+    buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
   ]);
 }
 

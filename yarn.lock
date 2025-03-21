@@ -1216,6 +1216,11 @@
     uplot "1.6.31"
     uuid "9.0.1"
 
+"@gtk-grafana/react-json-tree@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@gtk-grafana/react-json-tree/-/react-json-tree-0.0.5.tgz#b2c20bb9ccc6ea8754f1b0817875804fc1d1bab9"
+  integrity sha512-EPPpnfwrR1zYBwP2dLnRrfuaoSVNPv6HO2E3UNbdS3UiJOtvNG7qUk67qidns05zAJEPGwvb5d9zAEucWzraAA==
+
 "@hello-pangea/dnd@16.6.0", "@hello-pangea/dnd@^16.6.0":
   version "16.6.0"
   resolved "https://registry.yarnpkg.com/@hello-pangea/dnd/-/dnd-16.6.0.tgz#7509639c7bd13f55e537b65a9dcfcd54e7c99ac7"
