@@ -48,6 +48,7 @@ export type DetectedField = {
   cardinality: number;
   type: string;
   parsers: string[] | null;
+  jsonPath: string[];
 };
 
 export type DetectedFieldsResponse = {
@@ -132,6 +133,34 @@ export function getParserForField(fieldName: string, sceneRef: SceneObject): Par
     return 'mixed';
   }
   return parser;
+}
+
+export function getDetectedFieldProps(
+  fieldName: string,
+  sceneRef: SceneObject
+): { parser: ParserType | undefined; path: string | undefined } {
+  const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
+  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
+  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
+  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+
+  const index = namesField?.values.indexOf(fieldName);
+  const parser =
+    index !== undefined && index !== -1 ? extractParserFromString(parserField?.values?.[index] ?? '') : undefined;
+  const pathArray = index !== undefined ? pathField?.values?.[index] : undefined;
+  const path = pathArray ? getJsonPathArraySyntax(pathArray) : undefined;
+
+  if (parser === undefined) {
+    logger.warn('missing parser, using mixed format for', { fieldName });
+    return {
+      parser: 'mixed',
+      path,
+    };
+  }
+  return {
+    parser,
+    path,
+  };
 }
 
 export function getFilterBreakdownValueScene(
@@ -299,6 +328,7 @@ export function buildFieldsQueryString(
   const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
   const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
   const typesField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
   const index = namesField?.values.indexOf(optionValue);
 
   const parserForThisField =
@@ -306,6 +336,8 @@ export function buildFieldsQueryString(
 
   const optionType =
     index !== undefined && index !== -1 ? extractFieldTypeFromString(typesField?.values?.[index]) : undefined;
+
+  const pathForThisField = index !== undefined && index !== -1 ? pathField?.values?.[index] : undefined;
 
   // Get the parser from the json payload of each filter
   const parsers = fieldsVariable.state.filters.map((filter) => {
@@ -343,11 +375,12 @@ export function buildFieldsQueryString(
     fieldType: optionType,
   };
 
-  if (parser === 'json') {
-    // @todo need detected fields response https://github.com/grafana/loki/issues/16816
+  if (parser === 'json' && pathForThisField) {
+    const jsonPath = getJsonPathArraySyntax(pathForThisField);
+
     options.jsonParserPropToAdd = jsonVariable?.state.filters.length
-      ? `${optionValue}="${optionValue}",`
-      : `${optionValue}="${optionValue}"`;
+      ? `${optionValue}="${jsonPath}",`
+      : `${optionValue}="${jsonPath}"`;
   }
 
   return buildFieldsQuery(optionValue, options);
@@ -376,4 +409,12 @@ export function clearJsonParserFields(sceneRef: SceneObject) {
       filters: [],
     });
   }
+}
+
+export function getJsonPathArraySyntax(path: string[]) {
+  return path
+    .map((path) => {
+      return `[\\"${path}\\"]`;
+    })
+    ?.join('');
 }

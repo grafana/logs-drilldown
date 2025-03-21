@@ -64,7 +64,7 @@ import { VariableHide } from '@grafana/schema';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { clearJsonParserFields, getParserForField } from '../../services/fields';
+import { clearJsonParserFields, getDetectedFieldProps } from '../../services/fields';
 import { filterUnusedJSONParserProps } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
 
@@ -397,16 +397,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         const hasJsonParserProp = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
 
         // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
-        // @todo need to add json parser prop using path from detected_fields
-        // https://github.com/grafana/loki/issues/16816
-        // Currently only works for top-level props
         if (!hasJsonParserProp) {
-          const parserForThisField = getParserForField(filter.key, this);
-          console.log(`${filter.key} has json prop`, { hasJsonParserProp, parserForThisField });
-          if (parserForThisField === 'json' || parserForThisField === 'mixed') {
+          const { parser, path } = getDetectedFieldProps(filter.key, this);
+          if ((parser === 'json' || parser === 'mixed') && path) {
             jsonParserPropsToAdd.push({
               key: filter.key,
-              value: filter.key,
+              value: path,
               operator: FilterOp.Equal,
             });
           }

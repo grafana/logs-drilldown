@@ -5,6 +5,7 @@ import {
   DETECTED_FIELDS_CARDINALITY_NAME,
   DETECTED_FIELDS_NAME_FIELD,
   DETECTED_FIELDS_PARSER_NAME,
+  DETECTED_FIELDS_PATH_NAME,
   DETECTED_FIELDS_TYPE_NAME,
 } from '../../../services/datasource';
 import { buildFieldsQueryString } from '../../../services/fields';
@@ -79,14 +80,20 @@ describe('buildFieldsQueryString', () => {
       values: ['string'],
       config: {},
     };
+    const jsonPath: Field = {
+      name: DETECTED_FIELDS_PATH_NAME,
+      type: FieldType.string,
+      values: [['root', 'caller-path']],
+      config: {},
+    };
 
     const detectedFieldsFrame: DataFrame = createDataFrame({
-      fields: [nameField, cardinalityField, parserField, typeField],
+      fields: [nameField, cardinalityField, parserField, typeField, jsonPath],
     });
 
     const result = buildFieldsQueryString('caller', filterVariable, detectedFieldsFrame);
     expect(result).toEqual(
-      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json caller="caller" \${jsonFields} | drop __error__, __error_details__ | caller!="" \${fields} [$__auto]))`
+      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json caller="[\\"root\\"][\\"caller-path\\"]" \${jsonFields} | drop __error__, __error_details__ | caller!="" \${fields} [$__auto]))`
     );
   });
   test('should build mixed-parser query', () => {

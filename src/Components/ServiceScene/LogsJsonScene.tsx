@@ -87,7 +87,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         }
       })
     );
-    this.addJsonParserFieldsForCurrentFilters();
     clearJsonParserFields(this);
   }
 
@@ -313,7 +312,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     dataFrame: DataFrame,
     fieldsVar: AdHocFiltersVariable
   ) => {
-    // @todo clean up styles
     const styles = useStyles2(getValueLabelStyles);
 
     const value = this.getValue(keyPath, lineField.values)?.toString();
@@ -346,11 +344,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       </span>
     );
   };
-
-  private addJsonParserFieldsForCurrentFilters() {
-    // @todo https://github.com/grafana/loki/issues/16816
-    // Need to add json parser prop for any nested json field, or field filters from the "Fields" tab will break if the user has other JSON parser props defined by interacting in the viz.
-  }
 
   private updateJsonFrame(newState: SceneDataState) {
     const dataFrame = getLogsPanelFrame(newState.data);

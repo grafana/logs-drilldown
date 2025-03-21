@@ -1,4 +1,4 @@
-import { DetectedLabel, isLogLineField } from './fields';
+import { DetectedLabel, getJsonPathArraySyntax, isLogLineField } from './fields';
 import {
   ALL_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
@@ -77,11 +77,16 @@ export function filterUnusedJSONParserProps(sceneRef: SceneObject) {
   const jsonVariable = getJsonFieldsVariable(sceneRef);
 
   // Loop through the json variable filters, remove them if there aren't any fields filters or line format filters
-  const filters = jsonVariable.state.filters.filter((f) => {
-    const hasLineFormat = lineFormatFilters.find((lineFormatFilter) => lineFormatFilter.key === f.key);
+  // @todo this has bugs if a non top-level filter is active and we're currently drilled into a node
+  const filters = jsonVariable.state.filters.filter((jsonParserPropFilter) => {
+    const hasLineFormat = lineFormatFilters.find((lineFormatFilter) => {
+      return lineFormatFilter.key === jsonParserPropFilter.key;
+    });
 
     if (!hasLineFormat) {
-      return fieldsVar.state.filters.find((fieldsFilter) => fieldsFilter.key === f.key);
+      return fieldsVar.state.filters.find((fieldsFilter) => {
+        return fieldsFilter.key === jsonParserPropFilter.key;
+      });
     }
     return true;
   });
@@ -99,33 +104,34 @@ export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
   });
 }
 
+export function formatJsonKey(key: string) {
+  if (key.match(LABEL_NAME_INVALID_CHARS)) {
+    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
+  }
+  return key;
+}
+
 export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath) {
   const jsonVariable = getJsonFieldsVariable(sceneRef);
 
-  let value = getJsonKey(keyPath, '.');
-  let key = getJsonKey(keyPath, '_');
-
-  // @todo https://github.com/grafana/loki/issues/16817
-  if (key.match(LABEL_NAME_INVALID_CHARS)) {
-    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
-    value = `[\\"${value}\\"]`;
-  }
-
+  const value = getJsonKeyPath(keyPath);
+  const key = getJsonKey(keyPath);
+  const filterKey = formatJsonKey(key);
   const nextKeyPath = [...keyPath];
   let nextKey = nextKeyPath.shift();
 
   let filters = [
-    ...jsonVariable.state.filters.filter((f) => f.key !== key),
+    ...jsonVariable.state.filters.filter((f) => f.key !== filterKey),
     {
       value,
-      key,
+      key: filterKey,
       operator: FilterOp.Equal,
     },
   ];
 
   while (nextKey && !isLogLineField(nextKey.toString()) && !isNumber(nextKey) && nextKey !== 'root') {
-    const nextFullKey = getJsonKey(nextKeyPath, '_');
-    const nextValue = getJsonKey(nextKeyPath, '.');
+    const nextFullKey = getJsonKey(nextKeyPath);
+    const nextValue = getJsonKeyPath(nextKeyPath);
 
     if (
       nextFullKey &&
@@ -154,8 +160,8 @@ export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath)
 export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, hasValue = true) {
   const jsonVariable = getJsonFieldsVariable(sceneRef);
 
-  const value = hasValue ? getJsonKey(keyPath, '.') : EMPTY_JSON_FILTER_VALUE;
-  const key = getJsonKey(keyPath, '_');
+  const value = hasValue ? getJsonKeyPath(keyPath) : EMPTY_JSON_FILTER_VALUE;
+  const key = getJsonKey(keyPath);
 
   const filters = [
     ...jsonVariable.state.filters.filter((f) => f.key !== key),
@@ -171,7 +177,7 @@ export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, has
   });
 }
 
-export function getJsonKey(keyPath: KeyPath, joinBy: '_' | '.' = '_') {
+export function getJsonKey(keyPath: KeyPath) {
   let key: string | undefined | number;
   const keys = [...keyPath];
   const keysToConcat = [];
@@ -182,5 +188,20 @@ export function getJsonKey(keyPath: KeyPath, joinBy: '_' | '.' = '_') {
     }
     keysToConcat.unshift(key);
   }
-  return keysToConcat.join(joinBy);
+  return keysToConcat.join('_');
+}
+
+export function getJsonKeyPath(keyPath: KeyPath) {
+  let key: string | undefined | number;
+  const keys = [...keyPath];
+  const keysToConcat = [];
+
+  while ((key = keys.shift())) {
+    if (isLogLineField(key.toString()) || isNumber(key) || key === 'root') {
+      break;
+    }
+    keysToConcat.unshift(key);
+  }
+
+  return getJsonPathArraySyntax(keysToConcat);
 }
