@@ -18,7 +18,7 @@ import {
   LoadingState,
   PanelData,
 } from '@grafana/data';
-import { IconButton, PanelChrome, useStyles2 } from '@grafana/ui';
+import { PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
@@ -29,9 +29,9 @@ import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
-import { DrilldownButton } from './JSONPanel/DrilldownButton';
-import { JSONFilterNestedNodeInButton } from './JSONPanel/JSONFilterNestedNodeInButton';
-import { JSONFilterNestedNodeOutButton } from './JSONPanel/JSONFilterNestedNodeOutButton';
+import DrilldownButton from './JSONPanel/DrilldownButton';
+import JSONFilterNestedNodeInButton from './JSONPanel/JSONFilterNestedNodeInButton';
+import JSONFilterNestedNodeOutButton from './JSONPanel/JSONFilterNestedNodeOutButton';
 
 import { clearJsonParserFields, isLogLineField } from '../../services/fields';
 import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
@@ -48,6 +48,8 @@ import {
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
 import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
+import JSONFilterValueInButton from './JSONPanel/JSONFilterValueInButton';
+import JSONFilterValueOutButton from './JSONPanel/JSONFilterValueOutButton';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -286,24 +288,22 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
 
     return (
-      <>
-        <span className={labelWrapStyle}>
-          <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
-          <JSONFilterNestedNodeInButton
-            jsonKey={fullKey}
-            addFilter={this.addFilter}
-            keyPath={fullKeyPath}
-            active={existingFilter?.operator === FilterOp.NotEqual}
-          />
-          <JSONFilterNestedNodeOutButton
-            jsonKey={fullKey}
-            addFilter={this.addFilter}
-            keyPath={fullKeyPath}
-            active={existingFilter?.operator === FilterOp.Equal}
-          />
-          <strong>{this.getKeyPathString(keyPath)}</strong>
-        </span>
-      </>
+      <span className={labelWrapStyle}>
+        <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+        <JSONFilterNestedNodeInButton
+          jsonKey={fullKey}
+          addFilter={this.addFilter}
+          keyPath={fullKeyPath}
+          active={existingFilter?.operator === FilterOp.NotEqual}
+        />
+        <JSONFilterNestedNodeOutButton
+          jsonKey={fullKey}
+          addFilter={this.addFilter}
+          keyPath={fullKeyPath}
+          active={existingFilter?.operator === FilterOp.Equal}
+        />
+        <strong>{this.getKeyPathString(keyPath)}</strong>
+      </span>
     );
   };
 
@@ -325,46 +325,25 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
 
     return (
-      <>
-        <span className={styles.labelButtonsWrap}>
-          <IconButton
-            tooltip={`Include log lines containing ${label}="${value}"`}
-            onClick={(e) => {
-              e.stopPropagation();
-              this.addFilter(
-                fullKeyPath,
-                fullKey,
-                value,
-                existingFilter?.operator === FilterOp.Equal ? 'toggle' : 'include'
-              );
-            }}
-            aria-selected={existingFilter?.operator === FilterOp.Equal}
-            variant={existingFilter?.operator === FilterOp.Equal ? 'primary' : 'secondary'}
-            size={'md'}
-            name={'search-plus'}
-            aria-label={'add filter'}
-          />
-          <IconButton
-            tooltip={`Exclude log lines containing ${label}="${value}"`}
-            onClick={(e) => {
-              e.stopPropagation();
-              this.addFilter(
-                fullKeyPath,
-                fullKey,
-                value,
-                existingFilter?.operator === FilterOp.NotEqual ? 'toggle' : 'exclude'
-              );
-            }}
-            aria-selected={existingFilter?.operator === FilterOp.Equal}
-            variant={existingFilter?.operator === FilterOp.NotEqual ? 'primary' : 'secondary'}
-            size={'md'}
-            name={'search-minus'}
-            aria-label={'remove filter'}
-          />
-
-          <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
-        </span>
-      </>
+      <span className={styles.labelButtonsWrap}>
+        <JSONFilterValueInButton
+          label={label}
+          value={value}
+          fullKeyPath={fullKeyPath}
+          fullKey={fullKey}
+          addFilter={this.addFilter}
+          existingFilter={existingFilter}
+        />
+        <JSONFilterValueOutButton
+          label={label}
+          value={value}
+          fullKeyPath={fullKeyPath}
+          fullKey={fullKey}
+          addFilter={this.addFilter}
+          existingFilter={existingFilter}
+        />
+        <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
+      </span>
     );
   };
 

@@ -1,5 +1,5 @@
 import { IconButton } from '@grafana/ui';
-import React from 'react';
+import React, { memo } from 'react';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { AddJSONFilter } from '../LogsJsonScene';
 import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
@@ -11,7 +11,7 @@ interface Props {
   active: boolean;
 }
 
-export function JSONFilterNestedNodeInButton({ addFilter, keyPath, jsonKey, active }: Props) {
+const JSONFilterNestedNodeInButton = memo(({ addFilter, keyPath, jsonKey, active }: Props) => {
   return (
     <IconButton
       tooltip={`Include log lines that contain ${keyPath[0]}`}
@@ -26,4 +26,7 @@ export function JSONFilterNestedNodeInButton({ addFilter, keyPath, jsonKey, acti
       aria-label={'add filter'}
     />
   );
-}
+});
+
+JSONFilterNestedNodeInButton.displayName = 'JSONFilterNestedNodeInButton';
+export default JSONFilterNestedNodeInButton;
