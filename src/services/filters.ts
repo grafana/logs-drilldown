@@ -65,30 +65,36 @@ export function isFilterMetadata(filter: { value: string; valueLabels?: string[]
 
 /**
  * Filters json parser prop filters that are not currently used in either the line filters or the field filters
- *
- * We are looping through the field filters and line format filters for each json parser prop
- * While those arrays of filters don't have unbounded length,
- * we could make this much more performant by adding the values of those variables to a set
+ * @todo unit test
  */
 export function filterUnusedJSONParserProps(sceneRef: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const lineFormatFilters = lineFormatVar.state.filters;
   const fieldsVar = getFieldsVariable(sceneRef);
   const jsonVariable = getJsonFieldsVariable(sceneRef);
+  const lineFormatSet = new Set();
+  lineFormatFilters.forEach((lineFormatFilter) => {
+    lineFormatSet.add(lineFormatFilter.key);
+  });
 
-  // Loop through the json variable filters, remove them if there aren't any fields filters or line format filters
-  // @todo this has bugs if a non top-level filter is active and we're currently drilled into a node
+  const fieldsFilterSet = new Set();
+  fieldsVar.state.filters.forEach((fieldFilter) => fieldsFilterSet.add(fieldFilter.key));
+
+  // Loop through the json variable filters, remove them if there aren't any fields filters or line format filters that match
   const filters = jsonVariable.state.filters.filter((jsonParserPropFilter) => {
-    const hasLineFormat = lineFormatFilters.find((lineFormatFilter) => {
-      return lineFormatFilter.key === jsonParserPropFilter.key;
+    let hasLineFormat = false;
+    let lineFormatKeys: string[] = [];
+
+    // Concat the line format variables together and check to see if the json parser filter match
+    hasLineFormat = lineFormatFilters.some((lineFormatFilter) => {
+      lineFormatKeys.push(lineFormatFilter.key);
+      const concatLineFormatKeys = lineFormatKeys.join('_');
+      return concatLineFormatKeys === jsonParserPropFilter.key;
     });
 
-    if (!hasLineFormat) {
-      return fieldsVar.state.filters.find((fieldsFilter) => {
-        return fieldsFilter.key === jsonParserPropFilter.key;
-      });
-    }
-    return true;
+    // And check if the fields contain a matching key
+    const hasFieldFilter = fieldsFilterSet.has(jsonParserPropFilter.key);
+    return hasFieldFilter || hasLineFormat;
   });
 
   jsonVariable.setState({
@@ -178,20 +184,16 @@ export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, has
 }
 
 export function getJsonKey(keyPath: KeyPath) {
-  let key: string | undefined | number;
-  const keys = [...keyPath];
-  const keysToConcat = [];
-
-  while ((key = keys.shift())) {
-    if (isLogLineField(key.toString()) || isNumber(key) || key === 'root') {
-      break;
-    }
-    keysToConcat.unshift(key);
-  }
+  const keysToConcat = getJSONKeysFromKeyPath(keyPath);
   return keysToConcat.join('_');
 }
 
 export function getJsonKeyPath(keyPath: KeyPath) {
+  const keysToConcat = getJSONKeysFromKeyPath(keyPath);
+  return getJsonPathArraySyntax(keysToConcat);
+}
+
+function getJSONKeysFromKeyPath(keyPath: ReadonlyArray<string | number>) {
   let key: string | undefined | number;
   const keys = [...keyPath];
   const keysToConcat = [];
@@ -202,6 +204,5 @@ export function getJsonKeyPath(keyPath: KeyPath) {
     }
     keysToConcat.unshift(key);
   }
-
-  return getJsonPathArraySyntax(keysToConcat);
+  return keysToConcat;
 }
