@@ -6,19 +6,25 @@ describe('setLevelColorOverrides', () => {
   test('Sets the color overrides for log levels', () => {
     const overrideColorMock = jest.fn();
     const matchFieldsWithNameMock = jest.fn().mockImplementation(() => ({ overrideColor: overrideColorMock }));
+    const matchFieldsWithNameByRegexMock = jest.fn().mockImplementation(() => ({ overrideColor: overrideColorMock }));
 
     const overrides = {
       matchFieldsWithName: matchFieldsWithNameMock,
+      matchFieldsWithNameByRegex: matchFieldsWithNameByRegexMock,
     };
     // @ts-expect-error
     setLevelColorOverrides(overrides);
 
-    expect(matchFieldsWithNameMock).toHaveBeenCalledTimes(5);
+    // Ensure the correct number of calls
+    expect(matchFieldsWithNameMock).toHaveBeenCalledTimes(1);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledTimes(4);
     expect(overrideColorMock).toHaveBeenCalledTimes(5);
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('info');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('debug');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('error');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('warn');
+
+    // Check that regex is called correctly for each field
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith('/^info$/i');
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith('/^debug$/i');
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith('/^error$/i');
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith('/^(warn|warning)$/i');
     expect(matchFieldsWithNameMock).toHaveBeenCalledWith('logs');
   });
 });
