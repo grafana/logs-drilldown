@@ -33,6 +33,7 @@ import { logger } from './logger';
 import { PanelMenu } from '../Components/Panels/PanelMenu';
 import { getLabelTypeFromFrame } from './lokiQuery';
 import { LabelType } from './fieldsTypes';
+import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
 
 export type DetectedLabel = {
   label: string;
@@ -395,7 +396,7 @@ export function lokiRegularEscape<T>(value: T) {
 }
 
 export function isLogLineField(fieldName: string) {
-  return fieldName === 'Line' || fieldName === 'body';
+  return fieldName === DATAPLANE_LINE_NAME || fieldName === DATAPLANE_BODY_NAME_LEGACY;
 }
 
 export function clearJsonParserFields(sceneRef: SceneObject) {
