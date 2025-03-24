@@ -64,6 +64,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   getJsonParserExpressionBuilder,
+  getLineFormatExpressionBuilder,
   interpolateExpression,
   onAddCustomAdHocValue,
   onAddCustomFieldValue,
@@ -678,15 +679,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     allowCustomValue: true,
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: (filters) => {
-      if (filters.length) {
-        // We should only have a single line_format, which saves the state of where we're currently "drilled in"
-        // we're using an-ad-hoc variable instead of a regular text variable because we need to be able to delete the json parser value associated with this "drilldown",
-        const key = filters.map((filter) => filter.key).join('_');
-        return `| line_format "{{.${key}}}"`;
-      }
-      return '';
-    },
+    expressionBuilder: getLineFormatExpressionBuilder(),
   });
 
   return {

@@ -222,5 +222,17 @@ export function getJsonParserExpressionBuilder() {
   };
 }
 
+export function getLineFormatExpressionBuilder() {
+  return (filters: AdHocFilterWithLabels[]) => {
+    if (filters.length) {
+      // We should only have a single line_format, which saves the state of where we're currently "drilled in"
+      // we're using an-ad-hoc variable instead of a regular text variable because we need to be able to delete the json parser value associated with this "drilldown",
+      const key = filters.map((filter) => filter.key).join('_');
+      return `| line_format "{{.${key}}}"`;
+    }
+    return '';
+  };
+}
+
 // default line limit; each data source can define it's own line limit too
 export const LINE_LIMIT = 1000;
