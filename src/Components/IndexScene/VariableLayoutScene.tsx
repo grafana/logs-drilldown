@@ -9,11 +9,12 @@ import {
   CONTROLS_JSON_FIELDS,
   CONTROLS_VARS_DATASOURCE,
   CONTROLS_VARS_FIELDS_COMBINED,
-  LayoutScene
+  LayoutScene,
 } from './LayoutScene';
 import { useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { AppliedPattern } from '../../services/variables';
+import { getJsonParserVariableVisibility } from '../../services/store';
 
 interface VariableLayoutSceneState extends SceneObjectState {}
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
@@ -31,86 +32,88 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
         <>
           {/* First row - datasource, timepicker, refresh, labels, button */}
           {controls && (
-              <div className={styles.controlsFirstRowContainer}>
-                <div className={styles.filtersWrap}>
-                  <div className={cx(styles.filters, styles.firstRowWrapper)}>
-                    {controls.map((control) => {
-                      return control instanceof SceneFlexLayout ? (
-                          <control.Component key={control.state.key} model={control}/>
-                      ) : null;
-                    })}
-                  </div>
+            <div className={styles.controlsFirstRowContainer}>
+              <div className={styles.filtersWrap}>
+                <div className={cx(styles.filters, styles.firstRowWrapper)}>
+                  {controls.map((control) => {
+                    return control instanceof SceneFlexLayout ? (
+                      <control.Component key={control.state.key} model={control} />
+                    ) : null;
+                  })}
                 </div>
-                <div className={styles.controlsWrapper}>
-                  <GiveFeedbackButton/>
-                  <div className={styles.timeRangeDatasource}>
+              </div>
+              <div className={styles.controlsWrapper}>
+                <GiveFeedbackButton />
+                <div className={styles.timeRangeDatasource}>
+                  {controls.map((control) => {
+                    return control.state.key === CONTROLS_VARS_DATASOURCE ? (
+                      <control.Component key={control.state.key} model={control} />
+                    ) : null;
+                  })}
+
+                  <div className={styles.timeRange}>
                     {controls.map((control) => {
-                      return control.state.key === CONTROLS_VARS_DATASOURCE ? (
-                          <control.Component key={control.state.key} model={control}/>
+                      return !(control instanceof CustomVariableValueSelectors) &&
+                        !(control instanceof SceneFlexLayout) ? (
+                        <control.Component key={control.state.key} model={control} />
                       ) : null;
                     })}
-
-                    <div className={styles.timeRange}>
-                      {controls.map((control) => {
-                        return !(control instanceof CustomVariableValueSelectors) &&
-                        !(control instanceof SceneFlexLayout) ? (
-                            <control.Component key={control.state.key} model={control}/>
-                        ) : null;
-                      })}
-                    </div>
                   </div>
                 </div>
               </div>
+            </div>
           )}
 
           {/* Second row - Levels - custom renderer */}
           <div className={styles.controlsRowContainer}>
-            {levelsRenderer && <levelsRenderer.Component model={levelsRenderer}/>}
+            {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
           </div>
 
           {/* 3rd row - Combined fields (fields + metadata)  */}
           <div className={styles.controlsRowContainer}>
             {controls && (
-                <div className={styles.filtersWrap}>
-                  <div className={styles.filters}>
-                    {controls.map((control) => {
-                      return control instanceof CustomVariableValueSelectors &&
+              <div className={styles.filtersWrap}>
+                <div className={styles.filters}>
+                  {controls.map((control) => {
+                    return control instanceof CustomVariableValueSelectors &&
                       control.state.key === CONTROLS_VARS_FIELDS_COMBINED ? (
-                          <control.Component key={control.state.key} model={control}/>
-                      ) : null;
-                    })}
-                  </div>
+                      <control.Component key={control.state.key} model={control} />
+                    ) : null;
+                  })}
                 </div>
+              </div>
             )}
           </div>
 
-          {/*DEBUG REMOVE*/}
-          <div className={styles.controlsRowContainer}>
-            {controls && (
+          {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}
+          {getJsonParserVariableVisibility() && (
+            <div className={styles.controlsRowContainer}>
+              {controls && (
                 <div className={styles.filtersWrap}>
                   <div className={styles.filters}>
                     {controls.map((control) => {
                       return control instanceof CustomVariableValueSelectors &&
-                      control.state.key === CONTROLS_JSON_FIELDS ? (
-                          <control.Component key={control.state.key} model={control}/>
+                        control.state.key === CONTROLS_JSON_FIELDS ? (
+                        <control.Component key={control.state.key} model={control} />
                       ) : null;
                     })}
                   </div>
                 </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* 4th row - Patterns */}
           <div className={styles.controlsRowContainer}>
             <PatternControls
-                patterns={patterns}
-                onRemove={(patterns: AppliedPattern[]) => indexScene.setState({patterns})}
+              patterns={patterns}
+              onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
             />
           </div>
 
           {/* 5th row - Line filters - custom renderer */}
           <div className={styles.controlsRowContainer}>
-            {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer}/>}
+            {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
           </div>
         </>
       </div>

@@ -253,6 +253,13 @@ export function setLogsVisualizationType(type: string) {
   localStorage.setItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY, type);
 }
 
+// JSON filter debug mode
+const JSON_PARSER_PROPS_DEBUG_KEY = `${pluginJson.id}.jsonParser.visible`;
+export function getJsonParserVariableVisibility(): boolean {
+  // localStorage.setItem('grafana-lokiexplore-app.jsonParser.visible', true)
+  return !!localStorage.getItem(JSON_PARSER_PROPS_DEBUG_KEY);
+}
+
 // Line filter options
 const LINE_FILTER_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.linefilter.option`;
 export function setLineFilterCase(caseSensitive: boolean) {
