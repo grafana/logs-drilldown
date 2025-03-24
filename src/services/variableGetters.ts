@@ -60,7 +60,6 @@ export function getLogsStreamSelector(options: LogsQueryOptions) {
     case 'structuredMetadata':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'json':
-      // @todo what about commas?
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | drop __error__, __error_details__ ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'logfmt':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
