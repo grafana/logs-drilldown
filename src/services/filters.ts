@@ -7,12 +7,13 @@ import {
 } from './variables';
 import { SceneObject, VariableValueOption } from '@grafana/scenes';
 import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from './variableGetters';
-import { FilterOp, JSONFilterOp } from './filterTypes';
+import { FilterOp } from './filterTypes';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { isNumber } from 'lodash';
 import { LABEL_NAME_INVALID_CHARS } from './labels';
 
-export const EMPTY_JSON_FILTER_VALUE = ' ';
+// Ad-hoc variables added without values are not added to url state, so we add an empty value
+export const EMPTY_AD_HOC_FILTER_VALUE = ' ';
 export const LEVEL_INDEX_NAME = 'level';
 export const FIELDS_TO_REMOVE = ['level_extracted', LEVEL_VARIABLE_VALUE, LEVEL_INDEX_NAME];
 
@@ -163,10 +164,9 @@ export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath)
   });
 }
 
-export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, hasValue = true) {
+export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath) {
   const jsonVariable = getJsonFieldsVariable(sceneRef);
-
-  const value = hasValue ? getJsonKeyPath(keyPath) : EMPTY_JSON_FILTER_VALUE;
+  const value = getJsonKeyPath(keyPath);
   const key = getJsonKey(keyPath);
 
   const filters = [
@@ -174,7 +174,7 @@ export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath, has
     {
       value,
       key,
-      operator: hasValue ? FilterOp.Equal : JSONFilterOp.Empty,
+      operator: FilterOp.Equal,
     },
   ];
 

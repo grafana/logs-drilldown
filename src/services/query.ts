@@ -212,5 +212,15 @@ export function interpolateExpression(sceneObject: SceneObject, uninterpolatedEx
   return expr;
 }
 
+export function getJsonParserExpressionBuilder() {
+  return (filters: AdHocFilterWithLabels[]) => {
+    return filters
+      .map((filter) => {
+        return `${filter.key}${filter.operator}"${filter.value}"`;
+      })
+      .join(',');
+  };
+}
+
 // default line limit; each data source can define it's own line limit too
 export const LINE_LIMIT = 1000;

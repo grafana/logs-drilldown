@@ -10,7 +10,8 @@ export enum LabelFilterOp {
   RegexEqual = '=~',
   RegexNotEqual = '!~',
 }
-export enum JSONFilterOp {
+// Line filter doesn't have an operator, so we add an empty space to keep it in URL state
+export enum LineFormatFilterOp {
   Empty = ' ',
 }
 

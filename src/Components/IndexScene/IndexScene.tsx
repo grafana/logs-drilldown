@@ -23,24 +23,24 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 import {
-  AppliedPattern,
   AdHocFiltersWithLabelsAndMeta,
+  AppliedPattern,
   EXPLORATION_DS,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
   PENDING_METADATA_EXPR,
   VAR_DATASOURCE,
   VAR_FIELDS,
-  VAR_JSON_FIELDS,
   VAR_FIELDS_AND_METADATA,
+  VAR_JSON_FIELDS,
   VAR_LABELS,
   VAR_LEVELS,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
+  VAR_LINE_FORMAT,
   VAR_LOGS_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
-  VAR_LINE_FORMAT,
 } from 'services/variables';
 
 import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
@@ -63,6 +63,7 @@ import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelection
 import { LoadingPlaceholder } from '@grafana/ui';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
+  getJsonParserExpressionBuilder,
   interpolateExpression,
   onAddCustomAdHocValue,
   onAddCustomFieldValue,
@@ -101,7 +102,7 @@ import { lineFilterOperators, operators } from '../../services/operators';
 import { operatorFunction } from '../../services/variableHelpers';
 import { FilterOp } from '../../services/filterTypes';
 import { areArraysEqual } from '../../services/comparison';
-import { EMPTY_JSON_FILTER_VALUE, isFilterMetadata } from '../../services/filters';
+import { isFilterMetadata } from '../../services/filters';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
@@ -668,17 +669,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     allowCustomValue: true,
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: (filters) => {
-      return filters
-        .map((filter) => {
-          // ad-hoc variables don't allow empty strings, (and will not be added in url state) but we don't always have an operator or value for the json parser field, so we add an empty space for now, and remove empty spaces when interpolating
-          if (filter.value && filter.value !== EMPTY_JSON_FILTER_VALUE) {
-            return `${filter.key}${filter.operator}"${filter.value}"`;
-          }
-          return filter.key;
-        })
-        .join(',');
-    },
+    expressionBuilder: getJsonParserExpressionBuilder(),
   });
 
   const lineFormatVariable = new AdHocFiltersVariable({

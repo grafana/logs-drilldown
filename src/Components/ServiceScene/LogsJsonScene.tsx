@@ -25,7 +25,7 @@ import JSONFilterNestedNodeInButton from './JSONPanel/JSONFilterNestedNodeInButt
 import JSONFilterNestedNodeOutButton from './JSONPanel/JSONFilterNestedNodeOutButton';
 
 import { clearJsonParserFields, isLogLineField } from '../../services/fields';
-import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
+import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
 import {
   getFieldsVariable,
@@ -37,7 +37,7 @@ import { hasProp } from '../../services/narrowing';
 import {
   addJsonParserFields,
   addJsonParserFieldValue,
-  EMPTY_JSON_FILTER_VALUE,
+  EMPTY_AD_HOC_FILTER_VALUE,
   getJsonKey,
   removeJsonDrilldownFilters,
 } from '../../services/filters';
@@ -113,7 +113,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     // If keyPath length is greater than 3 we're drilling down (root, line index, line)
     if (keyPath.length > 3) {
-      addJsonParserFields(this, fullKeyPath, true);
+      addJsonParserFields(this, fullKeyPath);
 
       lineFormatVar.setState({
         filters: fullPathFilters,
@@ -140,8 +140,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           key: nodeKey.toString(),
           // The operator and value are not used when interpolating the variable, but empty values will cause the ad-hoc filter to get removed from the URL state, we work around this by adding an empty space for the value and operator
           // we could store the depth of the node as a value, right now we assume that these filters always include every parent node of the current node, ordered by node depth ASC (root node first)
-          operator: JSONFilterOp.Empty,
-          value: EMPTY_JSON_FILTER_VALUE,
+          operator: LineFormatFilterOp.Empty,
+          value: EMPTY_AD_HOC_FILTER_VALUE,
         })),
     ];
 
@@ -152,8 +152,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
   private addFilter: AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => {
     addCurrentUrlToHistory();
-
-    // @todo https://github.com/grafana/loki/issues/16817
     // https://grafana.com/docs/loki/latest/get-started/labels/#label-format
     key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
 
