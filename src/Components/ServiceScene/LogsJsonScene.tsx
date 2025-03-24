@@ -8,16 +8,7 @@ import {
   SceneObjectBase,
   SceneObjectState,
 } from '@grafana/scenes';
-import {
-  DataFrame,
-  dateTimeFormat,
-  Field,
-  FieldType,
-  getTimeZone,
-  GrafanaTheme2,
-  LoadingState,
-  PanelData,
-} from '@grafana/data';
+import { dateTimeFormat, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
 import { PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
@@ -36,7 +27,12 @@ import JSONFilterNestedNodeOutButton from './JSONPanel/JSONFilterNestedNodeOutBu
 import { clearJsonParserFields, isLogLineField } from '../../services/fields';
 import { FilterOp, JSONFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import { getFieldsVariable, getLineFormatVariable, getValueFromFieldsFilter } from '../../services/variableGetters';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getValueFromFieldsFilter,
+} from '../../services/variableGetters';
 import { hasProp } from '../../services/narrowing';
 import {
   addJsonParserFields,
@@ -180,13 +176,26 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
     const { visualizationType } = logsListScene.useState();
     const styles = useStyles2(getStyles);
+
     const lineFormatVar = getLineFormatVariable(model);
     const fieldsVar = getFieldsVariable(model);
+    const jsonVar = getJsonFieldsVariable(model);
 
     // If we have a line format variable, we are drilled down into a nested node
     const isDrillDown = lineFormatVar.state.filters.length > 0;
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
+
+    const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
+    jsonVar.state.filters.forEach((filter) => {
+      // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
+      // all json props are wrapped with [\" ... "\], strip those chars out so we have the actual key used in the json
+      const fullKeyFromJsonParserProps = filter.value
+        .substring(3, filter.value.length - 3)
+        .split('\\"][\\"')
+        .join('_');
+      jsonParserPropsMap.set(fullKeyFromJsonParserProps, filter);
+    });
 
     return (
       <PanelChrome
@@ -235,7 +244,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getValueLabel(keyPath, lineField, dataFrame, fieldsVar);
+                  return model.getValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap);
                 }
 
                 // Parent nodes
@@ -245,7 +254,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getNestedNodeFilterButtons(keyPath, fieldsVar);
+                  return model.getNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap);
                 }
 
                 // Show the timestamp as the label of the log line
@@ -279,13 +288,19 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  private getNestedNodeFilterButtons = (keyPath: KeyPath, fieldsVar: AdHocFiltersVariable) => {
+  private getNestedNodeFilterButtons = (
+    keyPath: KeyPath,
+    fieldsVar: AdHocFiltersVariable,
+    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>
+  ) => {
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
     const fullKey = getJsonKey(fullKeyPath);
-    const existingFilter = fieldsVar.state.filters.find(
-      (f) => f.key === fullKey && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
-    );
-
+    const jsonParserProp = jsonParserPropsMap.get(fullKey);
+    const existingFilter =
+      jsonParserProp &&
+      fieldsVar.state.filters.find(
+        (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
+      );
     return (
       <span className={labelWrapStyle}>
         <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
@@ -309,8 +324,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private getValueLabel = (
     keyPath: KeyPath,
     lineField: Field<string | number>,
-    dataFrame: DataFrame,
-    fieldsVar: AdHocFiltersVariable
+    fieldsVar: AdHocFiltersVariable,
+    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>
   ) => {
     const styles = useStyles2(getValueLabelStyles);
 
@@ -318,9 +333,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const label = keyPath[0];
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
     const fullKey = getJsonKey(fullKeyPath);
-    const existingFilter = fieldsVar.state.filters.find(
-      (f) => f.key === fullKey && getValueFromFieldsFilter(f).value === value
-    );
+    const jsonParserProp = jsonParserPropsMap.get(fullKey);
+    const existingFilter =
+      jsonParserProp &&
+      fieldsVar.state.filters.find((f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value);
 
     return (
       <span className={styles.labelButtonsWrap}>
@@ -370,11 +386,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       try {
                         parsed = JSON.parse(v);
                       } catch (e) {
-                        // @todo
-                        console.warn('failed to parse', {
-                          e,
-                          v,
-                        });
+                        // @todo add error message in result?
                         parsed = v;
                       }
 
