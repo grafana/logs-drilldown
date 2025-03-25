@@ -399,6 +399,9 @@ export function isLogLineField(fieldName: string) {
   return fieldName === DATAPLANE_LINE_NAME || fieldName === DATAPLANE_BODY_NAME_LEGACY;
 }
 
+/**
+ * Housekeeping: clears json parsers if there is not any field or line format filters
+ */
 export function clearJsonParserFields(sceneRef: SceneObject) {
   const fieldsVariable = getFieldsVariable(sceneRef);
   const jsonVar = getJsonFieldsVariable(sceneRef);

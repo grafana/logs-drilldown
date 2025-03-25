@@ -62,9 +62,7 @@ export type AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filte
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
-    super({
-      ...state,
-    });
+    super(state);
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -103,6 +101,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   }
 
+  /**
+   * Checks detected_fields for jsonPath support added in 3.5.0
+   * Remove when 3.5.0 is the oldest Loki version supported
+   */
   private setVizFlags(newState: SceneQueryRunner['state']) {
     const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
     if (this.state.jsonFiltersSupported === undefined) {
@@ -118,6 +120,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
   }
 
+  /**
+   * Gets value from log Field at keyPath
+   */
   private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
     const keys = [...keyPath];
     const accessors = [];
@@ -157,6 +162,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
   };
 
+  /**
+   * Reconstructs the full keyPath even if a line filter is set and the user is currently drilled down into a nested node
+   */
   private getFullKeyPath(keyPath: ReadonlyArray<string | number>) {
     const lineFormatVar = getLineFormatVariable(this);
 
@@ -182,6 +190,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return { fullPathFilters, fullKeyPath };
   }
 
+  /**
+   * Adds a fields filter and JSON parser props on viz interaction
+   */
   private addFilter: AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => {
     addCurrentUrlToHistory();
     // https://grafana.com/docs/loki/latest/get-started/labels/#label-format
@@ -193,6 +204,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     addToFilters(key, value, filterType, logsListScene, VAR_FIELDS, false, true);
   };
 
+  /**
+   * Formats key from keypath
+   */
   private getKeyPathString(keyPath: KeyPath) {
     return keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
   }
@@ -307,7 +321,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 // Show the timestamp as the label of the log line
                 if (isNumber(keyPath[0]) && keyPath[1] === 'root') {
                   const time = lineField.values[keyPath[0]]?.Time;
-                  return <strong className={styles.timeNode}>{time}</strong>;
+                  return <strong>{time}</strong>;
                 }
 
                 // Don't render time node
@@ -324,6 +338,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
+  /**
+   * Gets drilldown button and key label for root node when line format filter is active
+   */
   private getNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
     return (
       <>
@@ -335,6 +352,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
+  /**
+   * Gets filter buttons for a nested JSON node
+   */
   private getNestedNodeFilterButtons = (
     keyPath: KeyPath,
     fieldsVar: AdHocFiltersVariable,
@@ -373,6 +393,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
+  /**
+   * Gets a value label and filter buttons
+   */
   private getValueLabel = (
     keyPath: KeyPath,
     lineField: Field<string | number>,
@@ -418,6 +441,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
+  /**
+   * Creates the dataframe consumed by the viz
+   */
   private updateJsonFrame(newState: SceneDataState) {
     const dataFrame = getLogsPanelFrame(newState.data);
     const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
@@ -494,9 +520,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     --json-tree-label-value-color: ${theme.isDark ? '#ce9178' : '#a31515'};
     --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
   `,
-  timeNode: css({
-    // color: theme.colors.text.maxContrast,
-  }),
 });
 
 const labelWrapStyle = css({
