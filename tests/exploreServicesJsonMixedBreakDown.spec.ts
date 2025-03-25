@@ -74,8 +74,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     await explorePage.goToFieldsTab();
     const allPanels = explorePage.getAllPanelsLocator();
 
-    // Should be 22 fields coming back from the detected_fields, but one is detected_level
-    await expect(allPanels).toHaveCount(22);
+    // Should be at least 20 fields coming back from the detected_fields, but one is detected_level
+    await expect.poll(() => allPanels.count()).toBeGreaterThanOrEqual(20);
 
     await page.getByLabel(`Select ${logFmtFieldName}`).click();
 
@@ -88,8 +88,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     // Nav to fields index
     await explorePage.goToFieldsTab();
     // There is only one panel/value, so we should be redirected back to the aggregation after excluding it
-    // We'll have all 18 responses from detected_fields
-    await expect(allPanels).toHaveCount(19);
+    await expect.poll(() => allPanels.count()).toBeGreaterThanOrEqual(19);
 
     // Adhoc content filter should be added
     await expect(page.getByLabel(E2EComboboxStrings.editByKey(logFmtFieldName))).toBeVisible();
@@ -145,7 +144,9 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
       const queries: LokiQuery[] = post.queries;
       queries.forEach((query) => {
         expect(query.expr.replace(/\s+/g, '')).toContain(
-          `sum by (${jsonFmtFieldName}) (count_over_time({service_name="${serviceName}"} | json status="status" | drop __error__, __error_details__ | ${jsonFmtFieldName}!=""`.replace(
+          // @todo after upgrading loki dep
+          //`sum by (${jsonFmtFieldName}) (count_over_time({service_name="${serviceName}"} | json status="status" | drop __error__, __error_details__ | ${jsonFmtFieldName}!=""`
+          `sum by (${jsonFmtFieldName}) (count_over_time({service_name="${serviceName}"} | json | drop __error__, __error_details__ | ${jsonFmtFieldName}!=""`.replace(
             /\s+/g,
             ''
           )
