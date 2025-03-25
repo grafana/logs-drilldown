@@ -459,6 +459,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
               legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
               splitDuration,
               refId: `ts-${primaryLabelValue}`,
+              step: serviceLabelVar.state.value === AGGREGATED_SERVICE_NAME ? '10s' : undefined,
             }),
           ],
           { runQueriesMode: 'manual' }
