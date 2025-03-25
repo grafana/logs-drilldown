@@ -9,7 +9,7 @@ import {
   SceneObjectState,
 } from '@grafana/scenes';
 import { dateTimeFormat, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
-import { Alert, PanelChrome, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
@@ -215,7 +215,11 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       <PanelChrome
         statusMessage={$data.state.data?.errors?.[0].message}
         loadingState={$data.state.data?.state}
-        title={'Logs'}
+        title={
+          <>
+            JSON <Badge color={'blue'} text={'Experimental'} />
+          </>
+        }
         menu={menu ? <menu.Component model={menu} /> : undefined}
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >

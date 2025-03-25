@@ -33,7 +33,7 @@ export class ExplorePage {
   }
 
   getJsonToggleLocator() {
-    return this.page.getByLabel('Json', { exact: true });
+    return this.page.getByLabel('JSON', { exact: true });
   }
 
   getLogsToggleLocator() {
