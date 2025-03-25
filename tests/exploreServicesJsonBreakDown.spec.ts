@@ -53,9 +53,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
         const queries: LokiQuery[] = post.queries;
         queries.forEach((query) => {
           expect(query.expr.replace(/\s+/g, '')).toContain(
-            // @todo after loki upgrade
-            // `sum by (${fieldName}) (count_over_time({service_name="nginx-json"} | json method="[\\"method\\"]" | drop __error__, __error_details__ | ${fieldName}!=""`
-            `sum by (${fieldName}) (count_over_time({service_name="nginx-json"} | json | drop __error__, __error_details__ | ${fieldName}!=""`.replace(
+            `sum by (${fieldName}) (count_over_time({service_name="nginx-json"} | json method="[\\"method\\"]" | drop __error__, __error_details__ | ${fieldName}!=""`.replace(
               /\s+/g,
               ''
             )
@@ -79,13 +77,14 @@ test.describe('explore nginx-json breakdown pages ', () => {
     });
   });
 
-  test.describe.skip('JSON viz', () => {
+  test.describe('JSON viz', () => {
     test('can filter top level props', async ({ page }) => {
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
 
       // add some include filters
       const userIdentifierInclude = page.getByLabel(/Include log lines containing user-identifier=".+"/);
+      await page.pause();
       await expect(userIdentifierInclude).toHaveCount(EXPANDED_NODE_COUNT); // 50 nodes are expanded by default
       await userIdentifierInclude.first().click();
       await expect(page.getByLabel('Edit filter with key user_identifier')).toHaveCount(1);

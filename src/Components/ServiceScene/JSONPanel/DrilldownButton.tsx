@@ -12,7 +12,7 @@ const DrilldownButton = memo(
           addDrilldown(keyPath);
         }}
         size={'md'}
-        name={'angle-double-down'}
+        name={'eye'}
         aria-label={`drilldown into ${keyPath[0]}`}
       />
     );
