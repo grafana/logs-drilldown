@@ -12,7 +12,7 @@ import {
 import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode, useStyles2 } from '@grafana/ui';
 import { getQueryRunner, setLogsVolumeFieldConfigs, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
-import { LEVEL_VARIABLE_VALUE } from 'services/variables';
+import { LEVEL_LABEL, LEVEL_VARIABLE_VALUE } from 'services/variables';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getTimeSeriesExpr } from '../../services/expressions';
 import { toggleLevelFromFilter } from 'services/levels';
@@ -123,8 +123,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       // .setShowMenuAlways(true)
       .setData(
         getQueryRunner([
-          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
+          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false, LEVEL_LABEL), {
+            legendFormat: `{{${LEVEL_LABEL}}}`,
           }),
         ])
       );

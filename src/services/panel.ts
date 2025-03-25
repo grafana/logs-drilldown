@@ -29,26 +29,33 @@ import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/Se
 import { getLogsPanelSortOrderFromStore, getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getParserForField } from './fields';
+import { LEVEL_VARIABLE_VALUE } from './variables';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
+const INFO_FIELD_NAME_MATCH = '/^info$/i';
+const DEBUG_FIELD_NAME_MATCH = '/^debug$/i';
+const WARN_FIELD_NAME_MATCH = '/^(warn|warning)$/i';
+const ERROR_FIELD_NAME_MATCH = '/^error$/i';
+const UNKNOWN_FIELD_NAME_MATCH = '/^(logs|unknown)$/i';
+
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithNameByRegex('/^info$/i').overrideColor({
+  overrides.matchFieldsWithNameByRegex(INFO_FIELD_NAME_MATCH).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-green',
   });
-  overrides.matchFieldsWithNameByRegex('/^debug$/i').overrideColor({
+  overrides.matchFieldsWithNameByRegex(DEBUG_FIELD_NAME_MATCH).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-blue',
   });
-  overrides.matchFieldsWithNameByRegex('/^error$/i').overrideColor({
+  overrides.matchFieldsWithNameByRegex(ERROR_FIELD_NAME_MATCH).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-red',
   });
-  overrides.matchFieldsWithNameByRegex('/^(warn|warning)$/i').overrideColor({
+  overrides.matchFieldsWithNameByRegex(WARN_FIELD_NAME_MATCH).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-orange',
   });
-  overrides.matchFieldsWithName('logs').overrideColor({
+  overrides.matchFieldsWithNameByRegex(UNKNOWN_FIELD_NAME_MATCH).overrideColor({
     mode: 'fixed',
     fixedColor: 'darkgray',
   });
@@ -198,6 +205,24 @@ function setColorByDisplayNameTransformation() {
   };
 }
 
+/**
+ * If
+ */
+export function levelTransformation() {
+  return (source: Observable<DataFrame[]>) => {
+    return source.pipe(
+      map((data: DataFrame[]) => {
+        return data.map((d) => {
+          if (!d.fields[1].config.displayNameFromDS && d.fields[1].labels?.[LEVEL_VARIABLE_VALUE]) {
+            d.fields[1].config.displayName = d.fields[1].labels?.[LEVEL_VARIABLE_VALUE];
+          }
+          return d;
+        });
+      })
+    );
+  };
+}
+
 export function sortLevelTransformation() {
   return (source: Observable<DataFrame[]>) => {
     return source.pipe(
@@ -207,8 +232,8 @@ export function sortLevelTransformation() {
             if (d.fields.length < 2) {
               return d;
             }
-            if (!d.fields[1].config.displayNameFromDS) {
-              d.fields[1].config.displayNameFromDS = UNKNOWN_LEVEL_LOGS;
+            if (!d.fields[1].config.displayNameFromDS && !d.fields[1].config.displayName) {
+              d.fields[1].config.displayName = UNKNOWN_LEVEL_LOGS;
             }
             return d;
           })
@@ -216,10 +241,10 @@ export function sortLevelTransformation() {
             if (a.fields.length < 2 || b.fields.length < 2) {
               return 0;
             }
-            const aName: string | undefined = a.fields[1].config.displayNameFromDS;
-            const aVal = aName?.includes('error') ? 4 : aName?.includes('warn') ? 3 : aName?.includes('info') ? 2 : 1;
-            const bName: string | undefined = b.fields[1].config.displayNameFromDS;
-            const bVal = bName?.includes('error') ? 4 : bName?.includes('warn') ? 3 : bName?.includes('info') ? 2 : 1;
+            const aName: string | undefined = a.fields[1].config.displayName ?? a.fields[1].config.displayNameFromDS;
+            const aVal = aName?.match('error') ? 4 : aName?.match('warn') ? 3 : aName?.match('info') ? 2 : 1;
+            const bName: string | undefined = b.fields[1].config.displayName ?? b.fields[1].config.displayNameFromDS;
+            const bVal = bName?.match('error') ? 4 : bName?.match('warn') ? 3 : bName?.match('info') ? 2 : 1;
             return aVal - bVal;
           });
       })
@@ -245,14 +270,17 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
     (query) => query.refId === LOGS_PANEL_QUERY_REFID || query.refId === LOGS_COUNT_QUERY_REFID
   );
 
+  console.log('getQueryRunner', queries, hasLevel);
+
   if (hasLevel) {
+    console.log('has level');
     return new SceneDataTransformer({
       $data: getSceneQueryRunner({
         datasource: { uid: WRAPPED_LOKI_DS_UID },
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [sortLevelTransformation],
+      transformations: [levelTransformation, sortLevelTransformation],
     });
   }
 

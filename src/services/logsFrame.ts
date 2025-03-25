@@ -73,7 +73,7 @@ export function parseDataplaneLogsFrame(frame: DataFrame): LogsFrame | null {
     return null;
   }
 
-  const severityField = getField(cache, DATAPLANE_SEVERITY_NAME, FieldType.string) ?? null;
+  const severityField = cache.getFieldByName('detected_level') ?? cache.getFieldByName('level') ?? null;
   const idField = getField(cache, DATAPLANE_ID_NAME, FieldType.string) ?? null;
   const labelsField = getField(cache, DATAPLANE_LABELS_NAME, FieldType.other) ?? null;
 

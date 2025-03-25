@@ -78,6 +78,7 @@ export const PRETTY_LOG_STREAM_SELECTOR_EXPR = `${VAR_LABELS_EXPR} ${VAR_LEVELS_
 export const EXPLORATION_DS = { uid: VAR_DATASOURCE_EXPR };
 export const ALL_VARIABLE_VALUE = '$__all';
 export const LEVEL_VARIABLE_VALUE = 'detected_level';
+export const LEVEL_LABEL = 'level';
 export const SERVICE_NAME = 'service_name';
 export const SERVICE_UI_LABEL = 'service';
 export const VAR_AGGREGATED_METRICS = 'var_aggregated_metrics';
