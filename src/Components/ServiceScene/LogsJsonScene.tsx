@@ -9,14 +9,14 @@ import {
   SceneObjectState,
 } from '@grafana/scenes';
 import { dateTimeFormat, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
-import { PanelChrome, useStyles2 } from '@grafana/ui';
+import { Alert, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
 import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
 
 import { LogsListScene } from './LogsListScene';
-import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
+import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
@@ -50,6 +50,9 @@ import JSONFilterValueOutButton from './JSONPanel/JSONFilterValueOutButton';
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
   data?: PanelData;
+  // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
+  // If undefined, we don't know yet, if false, no support
+  jsonFiltersSupported?: boolean;
 }
 
 export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
@@ -57,7 +60,9 @@ export type AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filte
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
-    super(state);
+    super({
+      ...state,
+    });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -84,6 +89,17 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       })
     );
     clearJsonParserFields(this);
+
+    this._subs.add(
+      serviceScene.state.$detectedFieldsData?.subscribeToState((newState) => {
+        const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
+        if (this.state.jsonFiltersSupported === undefined) {
+          this.setState({
+            jsonFiltersSupported: !!detectedFieldFrame?.fields?.[4].values.some((v) => v !== undefined),
+          });
+        }
+      })
+    );
   }
 
   private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
@@ -167,7 +183,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
     // const styles = getStyles(grafanaTheme)
-    const { menu, data } = model.useState();
+    const { menu, data, jsonFiltersSupported } = model.useState();
     const $data = sceneGraph.getData(model);
     // Rerender on data change
     const {} = $data.useState();
@@ -205,6 +221,11 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       >
         {dataFrame && lineField?.values && (
           <span className={styles.JSONTreeWrap}>
+            {jsonFiltersSupported === false && (
+              <Alert severity={'warning'} title={'JSON filtering requires Loki 3.x.x.'}>
+                This view will be read only until Loki is upgraded to 3.x.x
+              </Alert>
+            )}
             <JSONTree
               data={lineField.values}
               getItemString={(nodeType, data, itemType, itemString) => {
@@ -230,7 +251,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
                 if (keyPath[0] === 'root' && isDrillDown) {
-                  return model.getNestedNodeDrilldownButtons(keyPath);
+                  return model.getNestedNodeDrilldownButtons(keyPath, jsonFiltersSupported);
                 }
 
                 // Value nodes
@@ -242,7 +263,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap);
+                  return model.getValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
                 }
 
                 // Parent nodes
@@ -252,7 +273,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap);
+                  return model.getNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
                 }
 
                 // Show the timestamp as the label of the log line
@@ -275,11 +296,11 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  private getNestedNodeDrilldownButtons = (keyPath: KeyPath) => {
+  private getNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
     return (
       <>
         <span className={labelWrapStyle}>
-          <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+          {jsonFiltersSupported && <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />}
           <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
       </>
@@ -289,7 +310,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private getNestedNodeFilterButtons = (
     keyPath: KeyPath,
     fieldsVar: AdHocFiltersVariable,
-    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>
+    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
+    jsonFiltersSupported?: boolean
   ) => {
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
     const fullKey = getJsonKey(fullKeyPath);
@@ -301,19 +323,23 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       );
     return (
       <span className={labelWrapStyle}>
-        <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
-        <JSONFilterNestedNodeInButton
-          jsonKey={fullKey}
-          addFilter={this.addFilter}
-          keyPath={fullKeyPath}
-          active={existingFilter?.operator === FilterOp.NotEqual}
-        />
-        <JSONFilterNestedNodeOutButton
-          jsonKey={fullKey}
-          addFilter={this.addFilter}
-          keyPath={fullKeyPath}
-          active={existingFilter?.operator === FilterOp.Equal}
-        />
+        {jsonFiltersSupported && (
+          <>
+            <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+            <JSONFilterNestedNodeInButton
+              jsonKey={fullKey}
+              addFilter={this.addFilter}
+              keyPath={fullKeyPath}
+              active={existingFilter?.operator === FilterOp.NotEqual}
+            />
+            <JSONFilterNestedNodeOutButton
+              jsonKey={fullKey}
+              addFilter={this.addFilter}
+              keyPath={fullKeyPath}
+              active={existingFilter?.operator === FilterOp.Equal}
+            />
+          </>
+        )}
         <strong>{this.getKeyPathString(keyPath)}</strong>
       </span>
     );
@@ -323,7 +349,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     keyPath: KeyPath,
     lineField: Field<string | number>,
     fieldsVar: AdHocFiltersVariable,
-    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>
+    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
+    jsonFiltersSupported?: boolean
   ) => {
     const styles = useStyles2(getValueLabelStyles);
 
@@ -338,22 +365,26 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     return (
       <span className={styles.labelButtonsWrap}>
-        <JSONFilterValueInButton
-          label={label}
-          value={value}
-          fullKeyPath={fullKeyPath}
-          fullKey={fullKey}
-          addFilter={this.addFilter}
-          existingFilter={existingFilter}
-        />
-        <JSONFilterValueOutButton
-          label={label}
-          value={value}
-          fullKeyPath={fullKeyPath}
-          fullKey={fullKey}
-          addFilter={this.addFilter}
-          existingFilter={existingFilter}
-        />
+        {jsonFiltersSupported && (
+          <>
+            <JSONFilterValueInButton
+              label={label}
+              value={value}
+              fullKeyPath={fullKeyPath}
+              fullKey={fullKey}
+              addFilter={this.addFilter}
+              existingFilter={existingFilter}
+            />
+            <JSONFilterValueOutButton
+              label={label}
+              value={value}
+              fullKeyPath={fullKeyPath}
+              fullKey={fullKey}
+              addFilter={this.addFilter}
+              existingFilter={existingFilter}
+            />
+          </>
+        )}
         <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
       </span>
     );
