@@ -107,7 +107,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    */
   private setVizFlags(newState: SceneQueryRunner['state']) {
     const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
-    if (this.state.jsonFiltersSupported === undefined) {
+    if (!this.state.jsonFiltersSupported) {
       if (detectedFieldFrame?.fields?.[2].values.some((v) => v === 'json' || v === 'mixed')) {
         this.setState({
           jsonFiltersSupported: detectedFieldFrame?.fields?.[4].values.some((v) => v !== undefined),
