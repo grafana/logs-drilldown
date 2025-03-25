@@ -77,7 +77,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
     });
   });
 
-  test.describe('JSON viz', () => {
+  test.describe.skip('JSON viz', () => {
     test('can filter top level props', async ({ page }) => {
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();

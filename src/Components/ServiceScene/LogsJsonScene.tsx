@@ -222,8 +222,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         {dataFrame && lineField?.values && (
           <span className={styles.JSONTreeWrap}>
             {jsonFiltersSupported === false && (
-              <Alert severity={'warning'} title={'JSON filtering requires Loki 3.x.x.'}>
-                This view will be read only until Loki is upgraded to 3.x.x
+              <Alert severity={'warning'} title={'JSON filtering requires Loki 3.4.3.'}>
+                This view will be read only until Loki is upgraded to 3.4.3
               </Alert>
             )}
             <JSONTree
