@@ -32,19 +32,19 @@ import { getParserForField } from './fields';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithName('info').overrideColor({
+  overrides.matchFieldsWithNameByRegex('/^info$/i').overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-green',
   });
-  overrides.matchFieldsWithName('debug').overrideColor({
+  overrides.matchFieldsWithNameByRegex('/^debug$/i').overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-blue',
   });
-  overrides.matchFieldsWithName('error').overrideColor({
+  overrides.matchFieldsWithNameByRegex('/^error$/i').overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-red',
   });
-  overrides.matchFieldsWithName('warn').overrideColor({
+  overrides.matchFieldsWithNameByRegex('/^(warn|warning)$/i').overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-orange',
   });
