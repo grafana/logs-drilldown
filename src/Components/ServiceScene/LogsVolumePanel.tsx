@@ -81,6 +81,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     // trigger variable render on AddFilterEvent, set filter state to trigger logs panel query
     this._subs.add(
       this.subscribeToEvent(AddFilterEvent, (event) => {
+        console.log('AddFilterEvent', event);
         if (event.key === LEVEL_VARIABLE_VALUE) {
           const levelsVariableScene = sceneGraph.findObject(this, (obj) => obj instanceof LevelsVariableScene);
           if (levelsVariableScene instanceof LevelsVariableScene) {
@@ -235,8 +236,17 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     );
 
     context.onToggleSeriesVisibility = (label: string, mode: SeriesVisibilityChangeMode) => {
-      const action = toggleLevelFromFilter(label, this);
-      this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, label), true);
+      const panel = this.state.panel;
+      const panelData = panel?.state.$data;
+      const panelDataFrames = panelData?.state.data;
+      const labels = panelDataFrames?.series[0].fields[1].labels;
+      let labelType: typeof LEVEL_VARIABLE_VALUE | typeof LEVEL_LABEL = LEVEL_VARIABLE_VALUE;
+      if (labels && LEVEL_LABEL in labels) {
+        labelType = LEVEL_LABEL;
+      }
+
+      const action = toggleLevelFromFilter(label, this, labelType);
+      this.publishEvent(new AddFilterEvent('legend', 'include', labelType, label), true);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,

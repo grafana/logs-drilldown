@@ -25,6 +25,7 @@ import { logger } from './logger';
  * @param sceneRef
  * @param streamSelectorName - the name of the stream selector we are aggregating by
  * @param excludeEmpty - if true, the query will exclude empty values for the given streamSelectorName
+ * @param additionalGroupBy
  */
 export function getTimeSeriesExpr(
   sceneRef: SceneObject,

@@ -1,9 +1,9 @@
 import { DataFrame } from '@grafana/data';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
-import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from './variables';
+import { LEVEL_LABEL, LEVEL_VARIABLE_VALUE, VAR_LABELS, VAR_LEVELS } from './variables';
 import { SceneObject } from '@grafana/scenes';
 import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { getLevelsVariable } from './variableGetters';
+import { getLabelsVariable, getLevelsVariable } from './variableGetters';
 
 import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
 
@@ -90,22 +90,28 @@ function normalizeLevelName(level: string) {
  * If the filter exists but it's different, it's replaced.
  * If the filter exists, it's removed.
  */
-export function toggleLevelFromFilter(level: string, sceneRef: SceneObject): FilterType {
-  const levelFilter = getLevelsVariable(sceneRef);
-  const empty = levelFilter.state.filters.length === 0;
-  const filterExists = levelFilter.state.filters.find(
+export function toggleLevelFromFilter(
+  level: string,
+  sceneRef: SceneObject,
+  levelType: typeof LEVEL_VARIABLE_VALUE | typeof LEVEL_LABEL = LEVEL_VARIABLE_VALUE
+): FilterType {
+  const levelVariable = levelType === LEVEL_VARIABLE_VALUE ? getLevelsVariable(sceneRef) : getLabelsVariable(sceneRef);
+  const empty = levelVariable.state.filters.length === 0;
+  const filterExists = levelVariable.state.filters.find(
     (filter) => filter.value === level && isOperatorInclusive(filter.operator)
   );
 
-  if (level === 'logs') {
+  if (level === 'logs' || level === 'unknown') {
     level = '""';
   }
 
+  const variable = levelType === LEVEL_VARIABLE_VALUE ? VAR_LEVELS : VAR_LABELS;
+
   if (empty || !filterExists) {
-    addToFilters(LEVEL_VARIABLE_VALUE, level, 'include', sceneRef, VAR_LEVELS);
+    addToFilters(levelType, level, 'include', sceneRef, variable);
     return 'include';
   } else {
-    addToFilters(LEVEL_VARIABLE_VALUE, level, 'toggle', sceneRef, VAR_LEVELS);
+    addToFilters(levelType, level, 'toggle', sceneRef, variable);
     return 'toggle';
   }
 }
