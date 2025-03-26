@@ -228,27 +228,27 @@ export function sortLevelTransformation() {
               return 0;
             }
             const aName: string | undefined = a.fields[1].config.displayNameFromDS;
-            const aVal = aName?.match(new RegExp(CRITICAL_LEVEL_FIELD_NAME_REGEX))
+            const aVal = aName?.match(CRITICAL_LEVEL_FIELD_NAME_REGEX)
               ? 5
-              : aName?.match(new RegExp(ERROR_LEVEL_FIELD_NAME_REGEX))
+              : aName?.match(ERROR_LEVEL_FIELD_NAME_REGEX)
               ? 4
-              : aName?.match(new RegExp(WARNING_LEVEL_FIELD_NAME_REGEX))
+              : aName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
               ? 3
-              : aName?.match(new RegExp(DEBUG_LEVEL_FIELD_NAME_REGEX))
+              : aName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
               ? 2
-              : aName?.match(new RegExp(INFO_LEVEL_FIELD_NAME_REGEX))
+              : aName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
               ? 2
               : 1;
             const bName: string | undefined = b.fields[1].config.displayNameFromDS;
-            const bVal = bName?.match(new RegExp(CRITICAL_LEVEL_FIELD_NAME_REGEX))
+            const bVal = bName?.match(CRITICAL_LEVEL_FIELD_NAME_REGEX)
               ? 5
-              : bName?.match(new RegExp(ERROR_LEVEL_FIELD_NAME_REGEX))
+              : bName?.match(ERROR_LEVEL_FIELD_NAME_REGEX)
               ? 4
-              : bName?.match(new RegExp(WARNING_LEVEL_FIELD_NAME_REGEX))
+              : bName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
               ? 3
-              : bName?.match(new RegExp(DEBUG_LEVEL_FIELD_NAME_REGEX))
+              : bName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
               ? 2
-              : bName?.match(new RegExp(INFO_LEVEL_FIELD_NAME_REGEX).source)
+              : bName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
               ? 2
               : 1;
 
