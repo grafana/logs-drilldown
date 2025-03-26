@@ -39,27 +39,27 @@ export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithNameByRegex(new RegExp(INFO_LEVEL_FIELD_NAME_REGEX).source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-green',
   });
-  overrides.matchFieldsWithNameByRegex(new RegExp(DEBUG_LEVEL_FIELD_NAME_REGEX).source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-blue',
   });
-  overrides.matchFieldsWithNameByRegex(new RegExp(WARNING_LEVEL_FIELD_NAME_REGEX).source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-orange',
   });
-  overrides.matchFieldsWithNameByRegex(new RegExp(ERROR_LEVEL_FIELD_NAME_REGEX).source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-red',
   });
-  overrides.matchFieldsWithNameByRegex(new RegExp(CRITICAL_LEVEL_FIELD_NAME_REGEX).source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: '#705da0',
   });
-  overrides.matchFieldsWithNameByRegex(new RegExp(UNKNOWN_LEVEL_FIELD_NAME_REGEX).source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'darkgray',
   });
