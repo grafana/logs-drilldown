@@ -295,11 +295,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   return null;
                 }
 
-                return (
-                  <span>
-                    {itemType} {itemString}
-                  </span>
-                );
+                return <span>{itemType}</span>;
               }}
               valueRenderer={(valueAsString, value, keyPath) => {
                 if (keyPath === 'Time') {
