@@ -20,12 +20,16 @@ You can install Grafana Logs Drilldown in your own Grafana instance using `grafa
 > The following Loki and Grafana version and configuration are required:
 >
 > - Loki v3.2+
->   - `--pattern-ingester.enabled=true` for pattern ingestion
 >   - Volume endpoint enabled in Loki config:
+>     - `--pattern-ingester.enabled=true` for pattern ingestion
+>   - Level detection enabled in Loki config:      
+>     - `--validation.discover-log-levels=true` for level detection
+
 >
 > ```yaml
 > limits_config:
 >   volume_enabled: true
+>   discover_log_levels: true
 > ```
 >
 > - Grafana v11.3+
