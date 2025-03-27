@@ -122,7 +122,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Remove when 3.5.0 is the oldest Loki version supported
    */
   private setVizFlags(detectedFieldFrame: DataFrame) {
-    console.log('setVizFlags', { detectedFieldFrame });
     if (!this.state.jsonFiltersSupported) {
       if (detectedFieldFrame?.fields?.[2].values.some((v) => v === 'json' || v === 'mixed')) {
         this.setState({
@@ -130,7 +129,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           hasJsonFields: true,
         });
       } else if (detectedFieldFrame) {
-        console.log('hasJsonFields false', detectedFieldFrame);
         this.setState({
           hasJsonFields: false,
         });
@@ -301,8 +299,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 if (keyPath === 'Time') {
                   return null;
                 }
-
-                console.log('valueAsString?.toString()', valueAsString?.toString());
 
                 return <>{valueAsString?.toString()}</>;
               }}
