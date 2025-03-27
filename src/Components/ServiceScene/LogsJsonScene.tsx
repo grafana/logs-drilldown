@@ -288,6 +288,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             )}
             <JSONTree
               data={lineField.values}
+              hideRootExpand={true}
               getItemString={(nodeType, data, itemType, itemString) => {
                 if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
                   return null;
