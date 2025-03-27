@@ -7,9 +7,17 @@ import {
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
-  SceneQueryRunner,
 } from '@grafana/scenes';
-import { dateTimeFormat, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
+import {
+  DataFrame,
+  dateTimeFormat,
+  Field,
+  FieldType,
+  getTimeZone,
+  GrafanaTheme2,
+  LoadingState,
+  PanelData,
+} from '@grafana/data';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
@@ -90,13 +98,21 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
     clearJsonParserFields(this);
 
-    if (serviceScene.state?.$detectedFieldsData?.state) {
-      this.setVizFlags(serviceScene.state?.$detectedFieldsData?.state);
+    const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(
+      serviceScene.state?.$detectedFieldsData?.state
+    );
+    if (detectedFieldFrame) {
+      this.setVizFlags(detectedFieldFrame);
+    } else {
+      serviceScene.state?.$detectedFieldsData?.runQueries();
     }
 
     this._subs.add(
       serviceScene.state.$detectedFieldsData?.subscribeToState((newState) => {
-        this.setVizFlags(newState);
+        const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
+        if (detectedFieldFrame) {
+          this.setVizFlags(detectedFieldFrame);
+        }
       })
     );
   }
@@ -105,14 +121,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Checks detected_fields for jsonPath support added in 3.5.0
    * Remove when 3.5.0 is the oldest Loki version supported
    */
-  private setVizFlags(newState: SceneQueryRunner['state']) {
-    const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
+  private setVizFlags(detectedFieldFrame: DataFrame) {
+    console.log('setVizFlags', { detectedFieldFrame });
     if (!this.state.jsonFiltersSupported) {
       if (detectedFieldFrame?.fields?.[2].values.some((v) => v === 'json' || v === 'mixed')) {
         this.setState({
           jsonFiltersSupported: detectedFieldFrame?.fields?.[4].values.some((v) => v !== undefined),
+          hasJsonFields: true,
         });
-      } else {
+      } else if (detectedFieldFrame) {
+        console.log('hasJsonFields false', detectedFieldFrame);
         this.setState({
           hasJsonFields: false,
         });
@@ -260,7 +278,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 This view will be read only until Loki is upgraded to 3.5.0
               </Alert>
             )}
-            {jsonFiltersSupported === undefined && !hasJsonFields && (
+            {jsonFiltersSupported === undefined && hasJsonFields === false && (
               <>
                 <Alert severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
