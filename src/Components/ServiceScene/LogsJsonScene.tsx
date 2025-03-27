@@ -55,6 +55,8 @@ import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
 import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
 import JSONFilterValueInButton from './JSONPanel/JSONFilterValueInButton';
 import JSONFilterValueOutButton from './JSONPanel/JSONFilterValueOutButton';
+import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { clearVariables } from '../../services/variableHelpers';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -63,6 +65,7 @@ interface LogsJsonSceneState extends SceneObjectState {
   // If undefined, we don't know yet, if false, no support
   jsonFiltersSupported?: boolean;
   hasJsonFields?: boolean;
+  emptyScene?: NoMatchingLabelsScene;
 }
 
 export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
@@ -82,6 +85,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       menu: new PanelMenu({
         investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
       }),
+      emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
     });
 
     const $data = sceneGraph.getData(this);
@@ -229,7 +233,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
     // const styles = getStyles(grafanaTheme)
-    const { menu, data, jsonFiltersSupported, hasJsonFields } = model.useState();
+    const { menu, data, jsonFiltersSupported, hasJsonFields, emptyScene } = model.useState();
     const $data = sceneGraph.getData(model);
     // Rerender on data change
     const {} = $data.useState();
@@ -276,7 +280,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 This view will be read only until Loki is upgraded to 3.5.0
               </Alert>
             )}
-            {jsonFiltersSupported === undefined && hasJsonFields === false && (
+            {lineField.values.length > 0 && jsonFiltersSupported === undefined && hasJsonFields === false && (
               <>
                 <Alert severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
@@ -348,6 +352,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             />
           </span>
         )}
+        {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
       </PanelChrome>
     );
   };

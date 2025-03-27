@@ -84,7 +84,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // add some include filters
       const userIdentifierInclude = page.getByLabel(/Include log lines containing user-identifier=".+"/);
-      await page.pause();
       await expect(userIdentifierInclude).toHaveCount(EXPANDED_NODE_COUNT); // 50 nodes are expanded by default
       await userIdentifierInclude.first().click();
       await expect(page.getByLabel('Edit filter with key user_identifier')).toHaveCount(1);
@@ -110,7 +109,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // Now there should be no results
       await expect(userIdentifierInclude).toHaveCount(0);
-      await expect(page.getByText('[] 0 items')).toHaveCount(1);
+      await expect(page.getByText('No labels match these filters. ')).toHaveCount(1);
     });
     test('can filter nested level props', async ({ page }) => {
       await explorePage.goToLogsTab();
@@ -125,7 +124,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Filter by url
       await page.getByLabel(/Include log lines containing url=".+"/).click();
       await expect(page.getByLabel('Edit filter with key nested_object_url')).toHaveCount(1);
-      await expect(page.getByText('[] 1 item')).toHaveCount(1);
+      await expect(page.getByText('▶Line:{}')).toHaveCount(1);
 
       // Open DeeplyNestedObject
       await page.getByLabel('DeeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
@@ -144,7 +143,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
         .click();
 
       // Should be no results
-      await expect(page.getByText('[] 0 items')).toHaveCount(1);
+      await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
     });
     test('can drill into nested nodes', async ({ page }) => {
       await explorePage.goToLogsTab();
@@ -211,17 +210,17 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await page.getByLabel('Include log lines that contain nested_object').first().click();
       await page.getByLabel('Include log lines that contain DeeplyNestedObject').first().click();
       await page.getByLabel('Include log lines that contain ExtraDeeplyNestedObject').first().click();
-      await expect(page.getByText('{} 11 keys')).toHaveCount(EXPANDED_NODE_COUNT);
+      await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill into child
       await page.getByLabel('ExtraDeeplyNestedObject', { exact: true }).getByLabel('Set numArray as root node').click();
-      await expect(page.getByText('[] 3 items')).toHaveCount(EXPANDED_NODE_COUNT);
+      await expect(page.getByText('▶Line:[]')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill up to the root
       await page.getByLabel('Set root as root node').click();
 
       // Assert we still have results
-      await expect(page.getByText('{} 11 keys')).toHaveCount(EXPANDED_NODE_COUNT);
+      await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
     });
 
     // @todo
