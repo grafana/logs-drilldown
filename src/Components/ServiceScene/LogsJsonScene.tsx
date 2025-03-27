@@ -263,6 +263,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     return (
       <PanelChrome
+        padding={'none'}
         statusMessage={$data.state.data?.errors?.[0].message}
         loadingState={$data.state.data?.state}
         title={
@@ -292,9 +293,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               data={lineField.values}
               hideRootExpand={true}
               valueWrap={''}
-              getItemString={(nodeType, data, itemType) => {
+              getItemString={(nodeType, data, itemType, itemString, keyPath) => {
                 if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
                   return null;
+                }
+                if (keyPath[0] === 'root') {
+                  return (
+                    <span>
+                      {itemType} {itemString}
+                    </span>
+                  );
                 }
 
                 return <span>{itemType}</span>;
@@ -538,6 +546,34 @@ const getStyles = (theme: GrafanaTheme2) => ({
     --json-tree-label-color: ${theme.isDark ? '#73bf69' : '#56a64b'};
     --json-tree-label-value-color: ${theme.isDark ? '#ce9178' : '#a31515'};
     --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
+    --json-tree-ul-root-padding: 0;
+
+    // first nested node padding
+    > ul > li > ul {
+      padding: 0 0 0 ${theme.spacing(2)};
+    }
+
+    // Root node styles
+    > ul > li > span {
+      position: sticky;
+      top: 0;
+      left: 0;
+      background: ${theme.colors.background.primary};
+      padding-bottom: ${theme.spacing(0.5)};
+      margin-bottom: ${theme.spacing(0.5)};
+      box-shadow: ${theme.shadows.z1};
+      z-index: 2;
+      padding-left: ${theme.spacing(1)};
+    }
+
+    > ul > li > ul > li > span {
+      position: sticky;
+      top: 26px;
+      left: 0;
+      background: ${theme.colors.background.primary};
+
+      z-index: 1;
+    }
   `,
 });
 
