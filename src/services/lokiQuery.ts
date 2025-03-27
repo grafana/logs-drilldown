@@ -21,6 +21,7 @@ export type LokiQuery = {
   datasource?: DataSourceRef;
   maxLines?: number;
   direction?: LokiQueryDirection;
+  step?: string;
 };
 
 export type LokiQueryType = 'instant' | 'range' | 'stream' | string;

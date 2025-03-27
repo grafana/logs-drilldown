@@ -1,6 +1,6 @@
 # Grafana Logs Drilldown
 
-Grafana Logs Drilldown offers a queryless experience for browsing Loki logs without the need for writing complex queries. Discover or narrow down your search using by volume and text patterns. Uncover related logs and understand patterns—all with just a few clicks.
+The Grafana Logs Drilldown app offers a queryless experience for browsing Loki logs without the need for writing complex queries. Discover or narrow down your search by using volume and text patterns. Uncover related logs and understand patterns—all with just a few clicks.
 
 ## Requirements
 

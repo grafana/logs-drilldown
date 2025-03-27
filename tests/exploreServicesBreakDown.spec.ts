@@ -297,7 +297,7 @@ test.describe('explore services breakdown page', () => {
   test(`should select label ${labelName}, update filters, open in explore`, async ({ page, browser }) => {
     await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
-      refIds: [],
+      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${labelName}}}`],
     });
     const valueName = 'eu-west-1';

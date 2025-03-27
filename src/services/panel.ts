@@ -31,24 +31,35 @@ import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMeta
 import { getParserForField } from './fields';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
+export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
+export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
+export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
+export const ERROR_LEVEL_FIELD_NAME_REGEX = /^error$/i;
+export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
+export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
+
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithName('info').overrideColor({
+  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-green',
   });
-  overrides.matchFieldsWithName('debug').overrideColor({
+  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-blue',
   });
-  overrides.matchFieldsWithName('error').overrideColor({
-    mode: 'fixed',
-    fixedColor: 'semi-dark-red',
-  });
-  overrides.matchFieldsWithName('warn').overrideColor({
+  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'semi-dark-orange',
   });
-  overrides.matchFieldsWithName('logs').overrideColor({
+  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+    mode: 'fixed',
+    fixedColor: 'semi-dark-red',
+  });
+  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+    mode: 'fixed',
+    fixedColor: '#705da0',
+  });
+  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     mode: 'fixed',
     fixedColor: 'darkgray',
   });
@@ -217,9 +228,30 @@ export function sortLevelTransformation() {
               return 0;
             }
             const aName: string | undefined = a.fields[1].config.displayNameFromDS;
-            const aVal = aName?.includes('error') ? 4 : aName?.includes('warn') ? 3 : aName?.includes('info') ? 2 : 1;
+            const aVal = aName?.match(CRITICAL_LEVEL_FIELD_NAME_REGEX)
+              ? 5
+              : aName?.match(ERROR_LEVEL_FIELD_NAME_REGEX)
+              ? 4
+              : aName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
+              ? 3
+              : aName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
+              ? 2
+              : aName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
+              ? 2
+              : 1;
             const bName: string | undefined = b.fields[1].config.displayNameFromDS;
-            const bVal = bName?.includes('error') ? 4 : bName?.includes('warn') ? 3 : bName?.includes('info') ? 2 : 1;
+            const bVal = bName?.match(CRITICAL_LEVEL_FIELD_NAME_REGEX)
+              ? 5
+              : bName?.match(ERROR_LEVEL_FIELD_NAME_REGEX)
+              ? 4
+              : bName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
+              ? 3
+              : bName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
+              ? 2
+              : bName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
+              ? 2
+              : 1;
+
             return aVal - bVal;
           });
       })

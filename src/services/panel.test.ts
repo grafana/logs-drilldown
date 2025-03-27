@@ -1,25 +1,38 @@
 import { FieldType, createDataFrame } from '@grafana/data';
-import { setLevelColorOverrides, sortLevelTransformation } from './panel';
+import {
+  CRITICAL_LEVEL_FIELD_NAME_REGEX,
+  DEBUG_LEVEL_FIELD_NAME_REGEX,
+  ERROR_LEVEL_FIELD_NAME_REGEX,
+  INFO_LEVEL_FIELD_NAME_REGEX,
+  setLevelColorOverrides,
+  sortLevelTransformation,
+  UNKNOWN_LEVEL_FIELD_NAME_REGEX,
+  WARNING_LEVEL_FIELD_NAME_REGEX,
+} from './panel';
 import { lastValueFrom, of } from 'rxjs';
 
 describe('setLevelColorOverrides', () => {
   test('Sets the color overrides for log levels', () => {
     const overrideColorMock = jest.fn();
-    const matchFieldsWithNameMock = jest.fn().mockImplementation(() => ({ overrideColor: overrideColorMock }));
+    const matchFieldsWithNameByRegexMock = jest.fn().mockImplementation(() => ({ overrideColor: overrideColorMock }));
 
     const overrides = {
-      matchFieldsWithName: matchFieldsWithNameMock,
+      matchFieldsWithNameByRegex: matchFieldsWithNameByRegexMock,
     };
     // @ts-expect-error
     setLevelColorOverrides(overrides);
 
-    expect(matchFieldsWithNameMock).toHaveBeenCalledTimes(5);
-    expect(overrideColorMock).toHaveBeenCalledTimes(5);
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('info');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('debug');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('error');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('warn');
-    expect(matchFieldsWithNameMock).toHaveBeenCalledWith('logs');
+    // Ensure the correct number of calls
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledTimes(6);
+    expect(overrideColorMock).toHaveBeenCalledTimes(6);
+
+    // Check that regex is called correctly for each field
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(INFO_LEVEL_FIELD_NAME_REGEX).source);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(DEBUG_LEVEL_FIELD_NAME_REGEX).source);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(WARNING_LEVEL_FIELD_NAME_REGEX).source);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(ERROR_LEVEL_FIELD_NAME_REGEX).source);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(CRITICAL_LEVEL_FIELD_NAME_REGEX).source);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(UNKNOWN_LEVEL_FIELD_NAME_REGEX).source);
   });
 });
 
