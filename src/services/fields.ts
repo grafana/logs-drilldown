@@ -22,11 +22,18 @@ import { setLevelColorOverrides } from './panel';
 import { map, Observable } from 'rxjs';
 import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
-import { getLogsStreamSelector, getValueFromFieldsFilter } from './variableGetters';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getLogsStreamSelector,
+  getValueFromFieldsFilter,
+} from './variableGetters';
 import { logger } from './logger';
 import { PanelMenu } from '../Components/Panels/PanelMenu';
 import { getLabelTypeFromFrame } from './lokiQuery';
 import { LabelType } from './fieldsTypes';
+import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
 
 export type DetectedLabel = {
   label: string;
@@ -42,6 +49,7 @@ export type DetectedField = {
   cardinality: number;
   type: string;
   parsers: string[] | null;
+  jsonPath: string[];
 };
 
 export type DetectedFieldsResponse = {
@@ -126,6 +134,34 @@ export function getParserForField(fieldName: string, sceneRef: SceneObject): Par
     return 'mixed';
   }
   return parser;
+}
+
+export function getDetectedFieldProps(
+  fieldName: string,
+  sceneRef: SceneObject
+): { parser: ParserType | undefined; path: string | undefined } {
+  const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
+  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
+  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
+  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+
+  const index = namesField?.values.indexOf(fieldName);
+  const parser =
+    index !== undefined && index !== -1 ? extractParserFromString(parserField?.values?.[index] ?? '') : undefined;
+  const pathArray = index !== undefined ? pathField?.values?.[index] : undefined;
+  const path = pathArray ? getJsonPathArraySyntax(pathArray) : undefined;
+
+  if (parser === undefined) {
+    logger.warn('missing parser, using mixed format for', { fieldName });
+    return {
+      parser: 'mixed',
+      path,
+    };
+  }
+  return {
+    parser,
+    path,
+  };
 }
 
 export function getFilterBreakdownValueScene(
@@ -287,11 +323,13 @@ export function getDetectedFieldType(optionValue: string, detectedFieldsFrame?: 
 export function buildFieldsQueryString(
   optionValue: string,
   fieldsVariable: AdHocFiltersVariable,
-  detectedFieldsFrame?: DataFrame
+  detectedFieldsFrame?: DataFrame,
+  jsonVariable?: AdHocFiltersVariable
 ) {
   const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
   const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
   const typesField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
   const index = namesField?.values.indexOf(optionValue);
 
   const parserForThisField =
@@ -299,6 +337,8 @@ export function buildFieldsQueryString(
 
   const optionType =
     index !== undefined && index !== -1 ? extractFieldTypeFromString(typesField?.values?.[index]) : undefined;
+
+  const pathForThisField = index !== undefined && index !== -1 ? pathField?.values?.[index] : undefined;
 
   // Get the parser from the json payload of each filter
   const parsers = fieldsVariable.state.filters.map((filter) => {
@@ -336,6 +376,14 @@ export function buildFieldsQueryString(
     fieldType: optionType,
   };
 
+  if (parser === 'json' && pathForThisField) {
+    const jsonPath = getJsonPathArraySyntax(pathForThisField);
+
+    options.jsonParserPropToAdd = jsonVariable?.state.filters.length
+      ? `${optionValue}="${jsonPath}",`
+      : `${optionValue}="${jsonPath}"`;
+  }
+
   return buildFieldsQuery(optionValue, options);
 }
 
@@ -345,4 +393,32 @@ export function lokiRegularEscape<T>(value: T) {
     return value.replace(/'/g, "\\\\'");
   }
   return value;
+}
+
+export function isLogLineField(fieldName: string) {
+  return fieldName === DATAPLANE_LINE_NAME || fieldName === DATAPLANE_BODY_NAME_LEGACY;
+}
+
+/**
+ * Housekeeping: clears json parsers if there is not any field or line format filters
+ */
+export function clearJsonParserFields(sceneRef: SceneObject) {
+  const fieldsVariable = getFieldsVariable(sceneRef);
+  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const lineFormatVariable = getLineFormatVariable(sceneRef);
+
+  // If there are no active filters, and no line format (drilldowns), clear the json
+  if (!fieldsVariable.state.filters.length && !lineFormatVariable.state.filters.length) {
+    jsonVar.setState({
+      filters: [],
+    });
+  }
+}
+
+export function getJsonPathArraySyntax(path: string[]) {
+  return path
+    .map((path) => {
+      return `[\\"${path}\\"]`;
+    })
+    ?.join('');
 }

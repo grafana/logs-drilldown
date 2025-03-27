@@ -938,8 +938,8 @@ test.describe('explore services breakdown page', () => {
       (q) => q.expr.includes('pod')
     );
 
-    expect(expressions[0]).toEqual(
-      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""       [$__auto]))'
+    expect(expressions[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!="" [$__auto]))'.replace(/\s+/g, '')
     );
 
     const bytesIncludeButton = page
@@ -1011,8 +1011,11 @@ test.describe('explore services breakdown page', () => {
       (q) => q.expr.includes('pod')
     );
 
-    expect(expressionsAfterNumericFilter[0]).toEqual(
-      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | bytes<=2KB | bytes>500B [$__auto]))'
+    expect(expressionsAfterNumericFilter[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | bytes<=2KB | bytes>500B [$__auto]))'.replace(
+        /\s+/g,
+        ''
+      )
     );
 
     // Assert that the variables were added to the UI
