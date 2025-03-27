@@ -289,6 +289,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             <JSONTree
               data={lineField.values}
               hideRootExpand={true}
+              valueWrap={''}
               getItemString={(nodeType, data, itemType, itemString) => {
                 if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
                   return null;
@@ -304,6 +305,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 if (keyPath === 'Time') {
                   return null;
                 }
+
+                console.log('valueAsString?.toString()', valueAsString?.toString());
 
                 return <>{valueAsString?.toString()}</>;
               }}
