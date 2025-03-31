@@ -175,11 +175,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     const lineFormatVariable = getLineFormatVariable(this);
     const jsonVar = getJsonFieldsVariable(this);
+    const fieldsVar = getFieldsVariable(this);
 
     const lineFormatFilters = lineFormatVariable.state.filters;
     const keyIndex = lineFormatFilters.findIndex((filter) => filter.key === key);
     const lineFormatFiltersToKeep = lineFormatFilters.filter((_, index) => index <= keyIndex);
     const jsonParserKeys: string[] = [];
+
     for (let i = 0; i < lineFormatFilters.length; i++) {
       jsonParserKeys.push(
         `${
@@ -194,7 +196,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
 
     const jsonParserKeysToRemove = jsonParserKeys.slice(keyIndex + 1);
-    const jsonParserFilters = jsonVar.state.filters.filter((filter) => !jsonParserKeysToRemove.includes(filter.key));
+    const fieldsFilterSet = new Set();
+    fieldsVar.state.filters.forEach((fieldFilter) => fieldsFilterSet.add(fieldFilter.key));
+
+    const jsonParserFilters = jsonVar.state.filters.filter(
+      (filter) => !jsonParserKeysToRemove.includes(filter.key) || fieldsFilterSet.has(filter.key)
+    );
 
     jsonVar.setState({
       filters: jsonParserFilters,

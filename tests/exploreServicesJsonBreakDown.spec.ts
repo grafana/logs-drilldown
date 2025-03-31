@@ -228,7 +228,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
     // test('can add filter in logs panel without breaking existing json', async ({ page }) => {});
     // test('can add filter in table panel without breaking existing json', async ({ page }) => {});
     // test('can add filter in filter variable without breaking existing json', async ({ page }) => {});
-    // test('can drillUp to a parent node', async ({ page }) => {});
+    // test('can drillUp to a parent node without removing existing nested node filter', async ({ page }) => {});
   });
 });
 
