@@ -18,7 +18,7 @@ import {
   LoadingState,
   PanelData,
 } from '@grafana/data';
-import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, Button, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
@@ -44,7 +44,6 @@ import {
 } from '../../services/variableGetters';
 import { hasProp } from '../../services/narrowing';
 import {
-  addJsonParserFields,
   addJsonParserFieldValue,
   EMPTY_AD_HOC_FILTER_VALUE,
   getJsonKey,
@@ -62,7 +61,7 @@ interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
   data?: PanelData;
   // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
-  // If undefined, we don't know yet, if false, no support
+  // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   jsonFiltersSupported?: boolean;
   hasJsonFields?: boolean;
   emptyScene?: NoMatchingLabelsScene;
@@ -169,6 +168,43 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   }
 
   /**
+   * Drill back up to a parent node via the sticky "breadcrumbs"
+   */
+  private addDrillUp = (key: string) => {
+    addCurrentUrlToHistory();
+
+    const lineFormatVariable = getLineFormatVariable(this);
+    const jsonVar = getJsonFieldsVariable(this);
+
+    const lineFormatFilters = lineFormatVariable.state.filters;
+    const keyIndex = lineFormatFilters.findIndex((filter) => filter.key === key);
+    const lineFormatFiltersToKeep = lineFormatFilters.filter((_, index) => index <= keyIndex);
+    const jsonParserKeys: string[] = [];
+    for (let i = 0; i < lineFormatFilters.length; i++) {
+      jsonParserKeys.push(
+        `${
+          jsonParserKeys.length
+            ? `${lineFormatFilters
+                .map((filter) => filter.key)
+                .slice(0, i)
+                .join('_')}_`
+            : ''
+        }${lineFormatFilters[i].key}`
+      );
+    }
+
+    const jsonParserKeysToRemove = jsonParserKeys.slice(keyIndex + 1);
+    const jsonParserFilters = jsonVar.state.filters.filter((filter) => !jsonParserKeysToRemove.includes(filter.key));
+
+    jsonVar.setState({
+      filters: jsonParserFilters,
+    });
+    lineFormatVariable.setState({
+      filters: lineFormatFiltersToKeep,
+    });
+  };
+
+  /**
    * Drills into node specified by keyPath
    * Note, if we've already drilled down into a node, the keyPath (from the viz) will not have the parent nodes we need to build the json parser fields.
    * We re-create the full key path using the values currently stored in the lineFormat variable
@@ -180,7 +216,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     // If keyPath length is greater than 3 we're drilling down (root, line index, line)
     if (keyPath.length > 3) {
-      addJsonParserFields(this, fullKeyPath);
+      addJsonParserFieldValue(this, fullKeyPath);
 
       lineFormatVar.setState({
         filters: fullPathFilters,
@@ -237,8 +273,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Formats key from keypath
    */
-  private getKeyPathString(keyPath: KeyPath) {
-    return keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
+  private getKeyPathString(keyPath: KeyPath, sepChar = ':') {
+    return keyPath[0] !== 'Time' ? keyPath[0] + sepChar : keyPath[0];
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
@@ -251,12 +287,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const { visualizationType } = logsListScene.useState();
     const styles = useStyles2(getStyles);
 
-    const lineFormatVar = getLineFormatVariable(model);
     const fieldsVar = getFieldsVariable(model);
     const jsonVar = getJsonFieldsVariable(model);
 
     // If we have a line format variable, we are drilled down into a nested node
-    const isDrillDown = lineFormatVar.state.filters.length > 0;
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
 
@@ -303,13 +337,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               data={lineField.values}
               hideRootExpand={true}
               valueWrap={''}
-              getItemString={(nodeType, data, itemType, itemString, keyPath) => {
+              getItemString={(_, data, itemType, itemString, keyPath) => {
                 if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
                   return null;
                 }
                 if (keyPath[0] === 'root') {
                   return (
-                    <span>
+                    <span className={rootNodeItemString}>
                       {itemType} {itemString}
                     </span>
                   );
@@ -317,19 +351,19 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
                 return <span>{itemType}</span>;
               }}
-              valueRenderer={(valueAsString, value, keyPath) => {
+              valueRenderer={(valueAsString, _, keyPath) => {
                 if (keyPath === 'Time') {
                   return null;
                 }
 
                 return <>{valueAsString?.toString()}</>;
               }}
-              shouldExpandNodeInitially={(keyPath, data, level) => level <= 2}
+              shouldExpandNodeInitially={(_, __, level) => level <= 2}
               labelRenderer={(keyPath, nodeType) => {
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
-                if (keyPath[0] === 'root' && isDrillDown) {
-                  return model.getNestedNodeDrilldownButtons(keyPath, jsonFiltersSupported);
+                if (keyPath[0] === 'root') {
+                  return model.getRootNodeLabel(keyPath, jsonFiltersSupported);
                 }
 
                 // Value nodes
@@ -376,15 +410,48 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   /**
-   * Gets drilldown button and key label for root node when line format filter is active
+   * Gets drilldown button and key label for root node when line format filter is active.
+   * aka breadcrumbs
    */
-  private getNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
+  private getRootNodeLabel = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
+    const lineFormatVar = getLineFormatVariable(this);
+    const filters = lineFormatVar.state.filters;
+    const rootKeyPath = ['Line', 0, 'root'];
+
     return (
       <>
-        <span className={labelWrapStyle}>
-          {jsonFiltersSupported && <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />}
-          <strong>{this.getKeyPathString(keyPath)}</strong>
+        <span className={drillUpWrapperStyle} key={'root'}>
+          <Button
+            size={'sm'}
+            onClick={() => jsonFiltersSupported && this.addDrilldown(rootKeyPath)}
+            variant={'secondary'}
+            fill={'text'}
+          >
+            {this.getKeyPathString(keyPath)}
+          </Button>
+          {filters.length > 0 && <span> {'>'} </span>}
         </span>
+
+        {filters.map((filter, i) => {
+          const selected = filter.key === filters[filters.length - 1].key;
+          return (
+            <span className={drillUpWrapperStyle} key={filter.key}>
+              {
+                <Button
+                  size={'sm'}
+                  disabled={selected}
+                  onClick={() => jsonFiltersSupported && this.addDrillUp(filter.key)}
+                  variant={'secondary'}
+                  fill={'text'}
+                >
+                  {filter.key}
+                </Button>
+              }
+              {i < filters.length - 1 && <span> {'>'} </span>}
+              {i === filters.length - 1 && <span> {':'} </span>}
+            </span>
+          );
+        })}
       </>
     );
   };
@@ -571,9 +638,12 @@ const getStyles = (theme: GrafanaTheme2) => ({
       background: ${theme.colors.background.primary};
       padding-bottom: ${theme.spacing(0.5)};
       margin-bottom: ${theme.spacing(0.5)};
-      box-shadow: ${theme.shadows.z1};
+      box-shadow: 0 1px 7px rgba(1, 4, 9, 0.75);
       z-index: 2;
       padding-left: ${theme.spacing(1)};
+      align-items: center;
+      overflow-x: scroll;
+      overflow-y: hidden;
     }
 
     > ul > li > ul > li > span {
@@ -581,18 +651,29 @@ const getStyles = (theme: GrafanaTheme2) => ({
       top: 26px;
       left: 0;
       background: ${theme.colors.background.primary};
-
       z-index: 1;
     }
   `,
 });
 
 const labelWrapStyle = css({
-  color: 'var(--json-tree-label-color)',
   display: 'inline-flex',
   alignItems: 'center',
 });
-const getValueLabelStyles = (theme: GrafanaTheme2) => ({
+const drillUpWrapperStyle = css({
+  display: 'flex',
+  alignItems: 'center',
+  overflowX: 'scroll',
+});
+const rootNodeItemString = css({
+  display: 'flex',
+  flexWrap: 'nowrap',
+  textWrap: 'nowrap',
+  // Match small button font size
+  fontSize: '12px',
+});
+
+const getValueLabelStyles = (_: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     display: 'inline-flex',
     color: 'var(--json-tree-label-color)',
