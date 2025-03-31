@@ -105,10 +105,25 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(
       serviceScene.state?.$detectedFieldsData?.state
     );
-    if (detectedFieldFrame) {
-      this.setVizFlags(detectedFieldFrame);
+
+    // if we already have a detected fields frame
+    if (detectedFieldFrame && detectedFieldFrame.length) {
+      // Check if the fields count matches, otherwise re-run detected_fields query
+      if (
+        !serviceScene.state.fieldsCount === undefined ||
+        serviceScene.state.fieldsCount !== detectedFieldFrame?.length
+      ) {
+        serviceScene.state?.$detectedFieldsData?.runQueries();
+      } else {
+        this.setVizFlags(detectedFieldFrame);
+      }
     } else {
-      serviceScene.state?.$detectedFieldsData?.runQueries();
+      if (
+        !serviceScene.state?.$detectedFieldsData ||
+        serviceScene.state?.$detectedFieldsData?.state.data?.state === LoadingState.Done
+      ) {
+        serviceScene.state?.$detectedFieldsData?.runQueries();
+      }
     }
 
     this._subs.add(
@@ -126,17 +141,15 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Remove when 3.5.0 is the oldest Loki version supported
    */
   private setVizFlags(detectedFieldFrame: DataFrame) {
-    if (!this.state.jsonFiltersSupported) {
-      if (detectedFieldFrame?.fields?.[2].values.some((v) => v === 'json' || v === 'mixed')) {
-        this.setState({
-          jsonFiltersSupported: detectedFieldFrame?.fields?.[4].values.some((v) => v !== undefined),
-          hasJsonFields: true,
-        });
-      } else if (detectedFieldFrame) {
-        this.setState({
-          hasJsonFields: false,
-        });
-      }
+    if (detectedFieldFrame?.fields?.[2].values.some((v) => v === 'json' || v === 'mixed')) {
+      this.setState({
+        jsonFiltersSupported: detectedFieldFrame?.fields?.[4].values.some((v) => v !== undefined),
+        hasJsonFields: true,
+      });
+    } else if (detectedFieldFrame) {
+      this.setState({
+        hasJsonFields: false,
+      });
     }
   }
 
@@ -281,7 +294,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 This view will be read only until Loki is upgraded to 3.5.0
               </Alert>
             )}
-            {lineField.values.length > 0 && jsonFiltersSupported === undefined && hasJsonFields === false && (
+            {lineField.values.length > 0 && hasJsonFields === false && (
               <>
                 <Alert severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
