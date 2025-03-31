@@ -175,7 +175,8 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
 
       // re-root
-      await page.getByLabel('Set root as root node').click();
+      await page.pause();
+      await page.getByRole('button', { name: 'root', exact: true }).click();
       // Open nested_object
       await page.getByLabel('nested_object', { exact: true }).getByRole('button', { name: '▶' }).click();
       await page.getByLabel('DeeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
@@ -217,7 +218,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByText('▶Line:[]')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill up to the root
-      await page.getByLabel('Set root as root node').click();
+      await page.getByRole('button', { name: 'root', exact: true }).click();
 
       // Assert we still have results
       await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
@@ -227,6 +228,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
     // test('can add filter in logs panel without breaking existing json', async ({ page }) => {});
     // test('can add filter in table panel without breaking existing json', async ({ page }) => {});
     // test('can add filter in filter variable without breaking existing json', async ({ page }) => {});
+    // test('can drillUp to a parent node', async ({ page }) => {});
   });
 });
 

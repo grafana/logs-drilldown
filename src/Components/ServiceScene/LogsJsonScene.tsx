@@ -425,11 +425,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             size={'sm'}
             onClick={() => jsonFiltersSupported && this.addDrilldown(rootKeyPath)}
             variant={'secondary'}
-            fill={'text'}
+            fill={'outline'}
+            disabled={!filters.length}
+            name={keyPath[0].toString()}
           >
-            {this.getKeyPathString(keyPath)}
+            {this.getKeyPathString(keyPath, filters.length ? '' : ':')}
           </Button>
-          {filters.length > 0 && <span> {'>'} </span>}
+          {filters.length > 0 && <span className={breadCrumbDelimiter}>{'>'}</span>}
         </span>
 
         {filters.map((filter, i) => {
@@ -442,13 +444,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   disabled={selected}
                   onClick={() => jsonFiltersSupported && this.addDrillUp(filter.key)}
                   variant={'secondary'}
-                  fill={'text'}
+                  fill={'outline'}
                 >
                   {filter.key}
                 </Button>
               }
-              {i < filters.length - 1 && <span> {'>'} </span>}
-              {i === filters.length - 1 && <span> {':'} </span>}
+              {i < filters.length - 1 && <span className={breadCrumbDelimiter}>{'>'}</span>}
+              {i === filters.length - 1 && <span className={itemStringDelimiter}>{':'}</span>}
             </span>
           );
         })}
@@ -664,6 +666,13 @@ const drillUpWrapperStyle = css({
   display: 'flex',
   alignItems: 'center',
   overflowX: 'scroll',
+});
+const breadCrumbDelimiter = css({
+  marginLeft: '0.5em',
+  marginRight: '0.5em',
+});
+const itemStringDelimiter = css({
+  marginLeft: '0.5em',
 });
 const rootNodeItemString = css({
   display: 'flex',
