@@ -173,13 +173,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    */
   private addDrilldown = (keyPath: KeyPath) => {
     addCurrentUrlToHistory();
-    const lineFormatVar = getLineFormatVariable(this);
     const { fullPathFilters, fullKeyPath } = this.getFullKeyPath(keyPath);
 
     // If keyPath length is greater than 3 we're drilling down (root, line index, line)
     if (keyPath.length > 3) {
       addJsonParserFields(this, fullKeyPath);
 
+      const lineFormatVar = getLineFormatVariable(this);
       lineFormatVar.setState({
         filters: fullPathFilters,
       });
