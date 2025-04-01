@@ -247,7 +247,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const { menu, data, jsonFiltersSupported, hasJsonFields, emptyScene } = model.useState();
     const $data = sceneGraph.getData(model);
     // Rerender on data change
-    const {} = $data.useState();
+    $data.useState();
     const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
     const { visualizationType } = logsListScene.useState();
     const styles = useStyles2(getStyles);
