@@ -68,7 +68,7 @@ export function isFilterMetadata(filter: { value: string; valueLabels?: string[]
  * Filters json parser prop filters that are not currently used in either the line filters or the field filters
  * @todo unit test
  */
-export function filterUnusedJSONParserProps(sceneRef: SceneObject) {
+export function filterUnusedJSONFilters(sceneRef: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const lineFormatFilters = lineFormatVar.state.filters;
   const fieldsVar = getFieldsVariable(sceneRef);
@@ -105,7 +105,7 @@ export function filterUnusedJSONParserProps(sceneRef: SceneObject) {
 
 export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
-  filterUnusedJSONParserProps(sceneRef);
+  filterUnusedJSONFilters(sceneRef);
   lineFormatVar.setState({
     filters: [],
   });

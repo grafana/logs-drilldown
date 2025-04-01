@@ -70,7 +70,7 @@ import {
   getParserAndPathForField,
   getJsonPathArraySyntax,
 } from '../../services/fields';
-import { filterUnusedJSONParserProps } from '../../services/filters';
+import { filterUnusedJSONFilters } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
@@ -384,7 +384,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
 
       if (filterDiff.length) {
-        filterUnusedJSONParserProps(this);
+        filterUnusedJSONFilters(this);
       }
 
       // A field was added
