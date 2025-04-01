@@ -93,13 +93,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     const $data = sceneGraph.getData(this);
     if ($data.state.data?.state === LoadingState.Done) {
-      this.updateJsonFrame($data.state);
+      this.transformDataFrame($data.state);
     }
 
     this._subs.add(
       $data.subscribeToState((newState) => {
         if (newState.data?.state === LoadingState.Done) {
-          this.updateJsonFrame(newState);
+          this.transformDataFrame(newState);
         }
       })
     );
@@ -498,7 +498,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Creates the dataframe consumed by the viz
    */
-  private updateJsonFrame(newState: SceneDataState) {
+  private transformDataFrame(newState: SceneDataState) {
     const dataFrame = getLogsPanelFrame(newState.data);
     const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
 
