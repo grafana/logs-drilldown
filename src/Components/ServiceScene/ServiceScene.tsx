@@ -399,10 +399,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       const jsonParserPropsToAdd: AdHocFilterWithLabels[] = [];
 
       newFilters.forEach((filter) => {
-        const hasJsonParserProp = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
+        const hasJsonFilters = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
 
         // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
-        if (!hasJsonParserProp) {
+        if (!hasJsonFilters) {
           const { parser, path } = getParserAndPathForField(filter.key, this);
           if ((parser === 'json' || parser === 'mixed') && path) {
             jsonParserPropsToAdd.push({
