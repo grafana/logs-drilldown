@@ -501,9 +501,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private updateJsonFrame(newState: SceneDataState) {
     const dataFrame = getLogsPanelFrame(newState.data);
     const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
-    // const timeNs = dataFrame?.fields.find(field => field.type === FieldType.string && field.name === 'tsNs')
-    // const labels = dataFrame?.fields.find((field) => field.type === FieldType.other && field.name === 'labels');
-    // const labelTypes = dataFrame?.fields.find(field => field.type === FieldType.other && field.name === 'labelTypes')
 
     const timeZone = getTimeZone();
     if (newState.data) {
