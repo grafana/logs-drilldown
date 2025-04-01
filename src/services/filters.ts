@@ -103,7 +103,7 @@ export function filterUnusedJSONFilters(sceneRef: SceneObject) {
   });
 }
 
-export function removeJsonDrilldownFilters(sceneRef: SceneObject) {
+export function removeLineFormatFilters(sceneRef: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   filterUnusedJSONFilters(sceneRef);
   lineFormatVar.setState({

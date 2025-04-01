@@ -3,13 +3,13 @@ import { IconButton } from '@grafana/ui';
 import React, { memo } from 'react';
 
 const ReRootJSONButton = memo(
-  ({ keyPath, addDrilldown }: { keyPath: KeyPath; addDrilldown: (keyPath: KeyPath) => void }) => {
+  ({ keyPath, setNewRootNode }: { keyPath: KeyPath; setNewRootNode: (keyPath: KeyPath) => void }) => {
     return (
       <IconButton
         tooltip={`Set ${keyPath[0]} as root node`}
         onClick={(e) => {
           e.stopPropagation();
-          addDrilldown(keyPath);
+          setNewRootNode(keyPath);
         }}
         size={'md'}
         name={'eye'}

@@ -42,7 +42,7 @@ import {
   addJsonParserFieldValue,
   EMPTY_AD_HOC_FILTER_VALUE,
   getJsonKey,
-  removeJsonDrilldownFilters,
+  removeLineFormatFilters,
 } from '../../services/filters';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
@@ -174,7 +174,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Note, if we've already drilled down into a node, the keyPath (from the viz) will not have the parent nodes we need to build the json parser fields.
    * We re-create the full key path using the values currently stored in the lineFormat variable
    */
-  private addDrilldown = (keyPath: KeyPath) => {
+  private setNewRootNode = (keyPath: KeyPath) => {
     addCurrentUrlToHistory();
     const { fullPathFilters, fullKeyPath } = this.getFullKeyPath(keyPath);
 
@@ -188,7 +188,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       });
     } else {
       // Otherwise we're drilling back up to the root
-      removeJsonDrilldownFilters(this);
+      removeLineFormatFilters(this);
       clearJsonParserFields(this);
     }
   };
@@ -257,7 +257,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const jsonVar = getJsonFieldsVariable(model);
 
     // If we have a line format variable, we are drilled down into a nested node
-    const isDrillDown = lineFormatVar.state.filters.length > 0;
+    const hasLineFormat = lineFormatVar.state.filters.length > 0;
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
 
@@ -329,8 +329,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               labelRenderer={(keyPath, nodeType) => {
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
-                if (keyPath[0] === 'root' && isDrillDown) {
-                  return model.renderNestedNodeDrilldownButtons(keyPath, jsonFiltersSupported);
+                if (keyPath[0] === 'root' && hasLineFormat) {
+                  return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
                 }
 
                 // Value nodes
@@ -388,13 +388,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   /**
-   * Gets drilldown button and key label for root node when line format filter is active
+   * Gets re-root button and key label for root node when line format filter is active
    */
-  private renderNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
+  private renderNestedNodeButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
     return (
       <>
         <span className={jsonLabelWrapStyles}>
-          {jsonFiltersSupported && <ReRootJSONButton keyPath={keyPath} addDrilldown={this.addDrilldown} />}
+          {jsonFiltersSupported && <ReRootJSONButton keyPath={keyPath} setNewRootNode={this.setNewRootNode} />}
           <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
       </>
@@ -423,7 +423,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       <span className={jsonLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
-            <ReRootJSONButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+            <ReRootJSONButton keyPath={keyPath} setNewRootNode={this.setNewRootNode} />
             <JSONFilterNestedNodeButton
               type={'include'}
               jsonKey={fullKey}
