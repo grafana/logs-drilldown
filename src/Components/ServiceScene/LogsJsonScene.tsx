@@ -553,8 +553,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
   JSONTreeWrap: css`
     // override css variables
     --json-tree-align-items: flex-start;
-    --json-tree-label-color: ${theme.isDark ? '#73bf69' : '#56a64b'};
-    --json-tree-label-value-color: ${theme.isDark ? '#ce9178' : '#a31515'};
+    --json-tree-label-color: ${theme.colors.text.secondary};
+    --json-tree-label-value-color: ${theme.colors.text.primary};
     --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
     --json-tree-ul-root-padding: 0;
 
