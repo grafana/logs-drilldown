@@ -148,7 +148,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
         hasJsonFields: true,
       });
-    } else if (detectedFieldFrame) {
+    } else {
       this.setState({
         hasJsonFields: false,
       });
