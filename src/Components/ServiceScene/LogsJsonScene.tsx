@@ -8,16 +8,7 @@ import {
   SceneObjectBase,
   SceneObjectState,
 } from '@grafana/scenes';
-import {
-  DataFrame,
-  dateTimeFormat,
-  Field,
-  FieldType,
-  getTimeZone,
-  GrafanaTheme2,
-  LoadingState,
-  PanelData,
-} from '@grafana/data';
+import { DataFrame, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
@@ -60,6 +51,12 @@ import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { clearVariables } from '../../services/variableHelpers';
 import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
 import JSONFilterValueButton from './JSONPanel/JSONFilterValueButton';
+import {
+  getJSONVizNestedProperty,
+  getJSONVizValueLabelStyles,
+  jsonLabelWrapStyles,
+  renderJSONVizTimeStamp,
+} from '../../services/JSONViz';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -166,7 +163,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       }
     }
 
-    return getNestedProperty(lineField, accessors);
+    return getJSONVizNestedProperty(lineField, accessors);
   }
 
   /**
@@ -382,7 +379,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private getNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
     return (
       <>
-        <span className={labelWrapStyle}>
+        <span className={jsonLabelWrapStyles}>
           {jsonFiltersSupported && <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />}
           <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
@@ -409,7 +406,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       );
 
     return (
-      <span className={labelWrapStyle}>
+      <span className={jsonLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
             <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
@@ -444,7 +441,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
     jsonFiltersSupported?: boolean
   ) => {
-    const styles = useStyles2(getValueLabelStyles);
+    const styles = useStyles2(getJSONVizValueLabelStyles);
 
     const value = this.getValue(keyPath, lineField.values)?.toString();
     const label = keyPath[0];
@@ -517,7 +514,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       }
 
                       return {
-                        Time: renderTimeStamp(time?.values?.[i], timeZone),
+                        Time: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                         Line: parsed,
                         // @todo add support for structured metadata
                         // Labels: labels?.values?.[0],
@@ -535,23 +532,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         data: transformedData,
       });
     }
-  }
-}
-
-const renderTimeStamp = (epochMs: number, timeZone?: string) => {
-  return dateTimeFormat(epochMs, {
-    timeZone: timeZone,
-    defaultWithMS: true,
-  });
-};
-
-function getNestedProperty(obj: Record<string, any>, props: Array<string | number>): any {
-  if (props.length === 1) {
-    return obj[props[0]];
-  }
-  const prop = props.shift();
-  if (prop !== undefined) {
-    return getNestedProperty(obj[prop], props);
   }
 }
 
@@ -591,17 +571,4 @@ const getStyles = (theme: GrafanaTheme2) => ({
       z-index: 1;
     }
   `,
-});
-
-const labelWrapStyle = css({
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
-  alignItems: 'center',
-});
-const getValueLabelStyles = (theme: GrafanaTheme2) => ({
-  labelButtonsWrap: css({
-    display: 'inline-flex',
-    color: 'var(--json-tree-label-color)',
-  }),
-  labelWrap: labelWrapStyle,
 });
