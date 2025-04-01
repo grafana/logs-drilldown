@@ -121,10 +121,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       } else {
         this.setVizFlags(detectedFieldFrame);
       }
-    } else {
-      if (!detectedFieldFrame || serviceScene.state?.$detectedFieldsData?.state.data?.state === LoadingState.Done) {
-        serviceScene.state?.$detectedFieldsData?.runQueries();
-      }
     }
 
     this._subs.add(
