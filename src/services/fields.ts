@@ -376,12 +376,21 @@ export function buildFieldsQueryString(
     fieldType: optionType,
   };
 
-  if (parser === 'json' && pathForThisField) {
+  if ((parser === 'json' || parser === 'mixed') && pathForThisField) {
     const jsonPath = getJsonPathArraySyntax(pathForThisField);
-
-    options.jsonParserPropToAdd = jsonVariable?.state.filters.length
-      ? `${optionValue}="${jsonPath}",`
-      : `${optionValue}="${jsonPath}"`;
+    const fieldFilters = fieldsVariable.state.filters;
+    const jsonFilters = jsonVariable?.state.filters;
+    // Only add JSON path args if every field filter already has a json parser prop
+    if (fieldFilters.every((fieldFilter) => jsonFilters?.some((jsonFilter) => fieldFilter.key === jsonFilter.key))) {
+      options.jsonParserPropToAdd = jsonVariable?.state.filters.length
+        ? `${optionValue}="${jsonPath}",`
+        : `${optionValue}="${jsonPath}"`;
+    } else {
+      logger.warn('missing json path for field filters', {
+        fieldFilters: JSON.stringify(fieldFilters),
+        jsonFilters: JSON.stringify(jsonFilters),
+      });
+    }
   }
 
   return buildFieldsQuery(optionValue, options);

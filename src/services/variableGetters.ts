@@ -13,7 +13,6 @@ import {
   isAdHocFilterValueUserInput,
   LOGS_FORMAT_EXPR,
   LogsQueryOptions,
-  MIXED_FORMAT_EXPR,
   SERVICE_NAME,
   stripAdHocFilterUserInputPrefix,
   VAR_AGGREGATED_METRICS,
@@ -64,7 +63,7 @@ export function getLogsStreamSelector(options: LogsQueryOptions) {
     case 'logfmt':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     default:
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__  ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
   }
 }
 
