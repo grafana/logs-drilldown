@@ -2,7 +2,7 @@ import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { IconButton } from '@grafana/ui';
 import React, { memo } from 'react';
 
-const DrilldownButton = memo(
+const ReRootJSONButton = memo(
   ({ keyPath, addDrilldown }: { keyPath: KeyPath; addDrilldown: (keyPath: KeyPath) => void }) => {
     return (
       <IconButton
@@ -18,5 +18,5 @@ const DrilldownButton = memo(
     );
   }
 );
-DrilldownButton.displayName = 'DrilldownButton';
-export default DrilldownButton;
+ReRootJSONButton.displayName = 'DrilldownButton';
+export default ReRootJSONButton;

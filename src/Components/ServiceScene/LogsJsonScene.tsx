@@ -20,7 +20,7 @@ import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceS
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
-import DrilldownButton from './JSONPanel/DrilldownButton';
+import ReRootJSONButton from './JSONPanel/ReRootJSONButton';
 
 import {
   clearJsonParserFields,
@@ -394,7 +394,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return (
       <>
         <span className={jsonLabelWrapStyles}>
-          {jsonFiltersSupported && <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />}
+          {jsonFiltersSupported && <ReRootJSONButton keyPath={keyPath} addDrilldown={this.addDrilldown} />}
           <strong>{this.getKeyPathString(keyPath)}</strong>
         </span>
       </>
@@ -423,7 +423,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       <span className={jsonLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
-            <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
+            <ReRootJSONButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
             <JSONFilterNestedNodeButton
               type={'include'}
               jsonKey={fullKey}
