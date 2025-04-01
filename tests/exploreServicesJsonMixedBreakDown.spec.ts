@@ -55,7 +55,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
       const queries: LokiQuery[] = post.queries;
       queries.forEach((query) => {
         expect(query.expr.replace(/\s+/g, '')).toContain(
-          `sum by (${mixedFieldName}) (count_over_time({service_name="${serviceName}"}      | json | logfmt | drop __error__, __error_details__ | ${mixedFieldName}!=""`.replace(
+          `sum by (${mixedFieldName}) (count_over_time({service_name="${serviceName}"}      | json method="[\\"method\\"]" | logfmt | drop __error__, __error_details__ | ${mixedFieldName}!=""`.replace(
             /\s+/g,
             ''
           )
