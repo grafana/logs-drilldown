@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LoadingState, PanelData } from '@grafana/data';
+import { Field, LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -64,8 +64,13 @@ import { VariableHide } from '@grafana/schema';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { clearJsonParserFields, getDetectedFieldProps } from '../../services/fields';
-import { filterUnusedJSONParserProps } from '../../services/filters';
+import {
+  clearJsonParserFields,
+  extractParserFromString,
+  getParserAndPathForField,
+  getJsonPathArraySyntax,
+} from '../../services/fields';
+import { filterUnusedJSONFilters } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
@@ -379,7 +384,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
 
       if (filterDiff.length) {
-        filterUnusedJSONParserProps(this);
+        filterUnusedJSONFilters(this);
       }
 
       // A field was added
@@ -394,11 +399,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       const jsonParserPropsToAdd: AdHocFilterWithLabels[] = [];
 
       newFilters.forEach((filter) => {
-        const hasJsonParserProp = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
+        const hasJsonFilters = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
 
         // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
-        if (!hasJsonParserProp) {
-          const { parser, path } = getDetectedFieldProps(filter.key, this);
+        if (!hasJsonFilters) {
+          const { parser, path } = getParserAndPathForField(filter.key, this);
           if ((parser === 'json' || parser === 'mixed') && path) {
             jsonParserPropsToAdd.push({
               key: filter.key,
@@ -546,15 +551,56 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private subscribeToDetectedFieldsQuery(updateFieldsCount: boolean) {
     return this.state.$detectedFieldsData?.subscribeToState((newState) => {
       this.updateLoadingState(newState, TabNames.fields);
-      if (updateFieldsCount && newState.data?.state === LoadingState.Done) {
-        const detectedFieldsResponse = newState.data;
-        const detectedFieldsFields = detectedFieldsResponse.series[0];
+      const detectedFieldsResponse = newState.data;
+      const detectedFieldsFrame = detectedFieldsResponse?.series[0];
 
-        if (detectedFieldsFields !== undefined && detectedFieldsFields.length !== this.state.fieldsCount) {
+      const detectedFieldsNamesField = detectedFieldsFrame?.fields[0];
+      const detectedFieldsParsersField = detectedFieldsFrame?.fields[2];
+      const detectedFieldsJsonPathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+
+      if (updateFieldsCount && newState.data?.state === LoadingState.Done) {
+        if (detectedFieldsFrame !== undefined && detectedFieldsFrame.length !== this.state.fieldsCount) {
           this.setState({
-            fieldsCount: detectedFieldsFields.length,
+            fieldsCount: detectedFieldsFrame.length,
           });
-          getMetadataService().setFieldsCount(detectedFieldsFields.length);
+          getMetadataService().setFieldsCount(detectedFieldsFrame.length);
+        }
+      }
+
+      // Sync any fields that are missing json parser props if we have them (loki 3.5.0+)
+      if (
+        detectedFieldsFrame &&
+        newState.data?.state === LoadingState.Done &&
+        detectedFieldsJsonPathField?.values.some((v) => v)
+      ) {
+        const fieldsVar = getFieldsVariable(this);
+        const jsonPathVar = getJsonFieldsVariable(this);
+
+        let jsonFieldsToAdd: AdHocFilterWithLabels[] = [];
+        for (let i = 0; i < detectedFieldsFrame.length; i++) {
+          const parser = extractParserFromString(detectedFieldsParsersField?.values[i]);
+          const jsonPath = detectedFieldsJsonPathField.values[i];
+          const fieldName = detectedFieldsNamesField?.values[i];
+
+          // If there is a json field that doesn't have a json parser prop
+          if (
+            (parser === 'json' || parser === 'mixed') &&
+            fieldsVar.state.filters.some((f) => f.key === fieldName) &&
+            !jsonPathVar.state.filters.some((f) => f.key === fieldName)
+          ) {
+            const path = getJsonPathArraySyntax(jsonPath);
+            jsonFieldsToAdd.push({
+              key: fieldName,
+              operator: FilterOp.Equal,
+              value: path,
+            });
+          }
+        }
+
+        if (jsonFieldsToAdd.length) {
+          jsonPathVar.setState({
+            filters: [...jsonPathVar.state.filters, ...jsonFieldsToAdd],
+          });
         }
       }
     });

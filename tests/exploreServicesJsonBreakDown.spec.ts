@@ -166,12 +166,14 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // Drill down again into DeeplyNestedObject
       await page.getByLabel('Set DeeplyNestedObject as root node').first().click();
+      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'false');
       await page
         .getByLabel(/Include log lines containing url=".+"/)
         .first()
         .click();
       await expect(page.getByLabel('Edit filter with key nested_object_DeeplyNestedObject_url')).toHaveCount(1);
+      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
 
       // re-root

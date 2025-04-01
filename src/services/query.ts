@@ -204,7 +204,7 @@ export function sanitizeStreamSelector(expression: string) {
 export function interpolateExpression(sceneObject: SceneObject, uninterpolatedExpr: string | undefined) {
   let expr = sceneGraph.interpolate(sceneObject, uninterpolatedExpr);
 
-  // Need to interpolate expressions with VAR_JSON_FIELDS_EXPR twice
+  // interpolate doesn't interpolate nested variables, so we check to see if the un-interpolated variable is still present and run it again.
   if (expr.includes(VAR_JSON_FIELDS_EXPR)) {
     expr = sceneGraph.interpolate(sceneObject, expr);
   }

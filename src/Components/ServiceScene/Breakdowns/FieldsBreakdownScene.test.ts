@@ -132,7 +132,7 @@ describe('buildFieldsQueryString', () => {
 
     const result = buildFieldsQueryString('caller', filterVariable, detectedFieldsFrame);
     expect(result).toEqual(
-      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json \${jsonFields} | logfmt | drop __error__, __error_details__ | caller!="" \${fields} [$__auto]))`
+      `sum by (caller) (count_over_time({\${filters}}  \${levels} \${metadata} \${patterns} \${lineFilters} | json  \${jsonFields} | logfmt | drop __error__, __error_details__  | caller!="" \${fields} [$__auto]))`
     );
   });
   test('should build metadata query', () => {
