@@ -120,10 +120,31 @@ export function extractParserFromArray(parsers?: string[]): ParserType {
   return 'mixed';
 }
 
+export function getDetectedFieldsNamesField(detectedFieldsFrame?: DataFrame) {
+  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
+  return namesField;
+}
+export function getDetectedFieldsCardinalityField(detectedFieldsFrame?: DataFrame) {
+  const cardinalityField: Field<string> | undefined = detectedFieldsFrame?.fields[1];
+  return cardinalityField;
+}
+export function getDetectedFieldsParserField(detectedFieldsFrame?: DataFrame) {
+  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
+  return parserField;
+}
+export function getDetectedFieldsTypeField(detectedFieldsFrame?: DataFrame) {
+  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  return parserField;
+}
+export function getDetectedFieldsJsonPathField(detectedFieldsFrame?: DataFrame) {
+  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+  return pathField;
+}
+
 export function getParserForField(fieldName: string, sceneRef: SceneObject): ParserType | undefined {
   const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
-  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
 
   const index = namesField?.values.indexOf(fieldName);
   const parser =
@@ -141,9 +162,9 @@ export function getDetectedFieldProps(
   sceneRef: SceneObject
 ): { parser: ParserType | undefined; path: string | undefined } {
   const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
-  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
-  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
 
   const index = namesField?.values.indexOf(fieldName);
   const parser =
@@ -314,8 +335,8 @@ export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions)
  * @param detectedFieldsFrame
  */
 export function getDetectedFieldType(optionValue: string, detectedFieldsFrame?: DataFrame) {
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
-  const typesField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
   const index = namesField?.values.indexOf(optionValue);
   return index !== undefined && index !== -1 ? extractFieldTypeFromString(typesField?.values?.[index]) : undefined;
 }
@@ -326,10 +347,10 @@ export function buildFieldsQueryString(
   detectedFieldsFrame?: DataFrame,
   jsonVariable?: AdHocFiltersVariable
 ) {
-  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
-  const typesField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
-  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
   const index = namesField?.values.indexOf(optionValue);
 
   const parserForThisField =

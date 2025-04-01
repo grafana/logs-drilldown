@@ -31,7 +31,12 @@ import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import DrilldownButton from './JSONPanel/DrilldownButton';
 
-import { clearJsonParserFields, isLogLineField } from '../../services/fields';
+import {
+  clearJsonParserFields,
+  getDetectedFieldsJsonPathField,
+  getDetectedFieldsParserField,
+  isLogLineField,
+} from '../../services/fields';
 import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
 import { getPrettyQueryExpr } from '../../services/scenes';
 import {
@@ -137,9 +142,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Remove when 3.5.0 is the oldest Loki version supported
    */
   private setVizFlags(detectedFieldFrame: DataFrame) {
-    if (detectedFieldFrame?.fields?.[2].values.some((v) => v === 'json' || v === 'mixed')) {
+    // the third field is the parser, see datasource.ts:getDetectedFields for more info
+    if (getDetectedFieldsParserField(detectedFieldFrame)?.values.some((v) => v === 'json' || v === 'mixed')) {
       this.setState({
-        jsonFiltersSupported: detectedFieldFrame?.fields?.[4].values.some((v) => v !== undefined),
+        jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
         hasJsonFields: true,
       });
     } else if (detectedFieldFrame) {
