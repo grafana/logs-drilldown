@@ -327,7 +327,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 const nodeTypeLoc = nodeType as NodeTypeLoc;
 
                 if (keyPath[0] === 'root' && isDrillDown) {
-                  return model.getNestedNodeDrilldownButtons(keyPath, jsonFiltersSupported);
+                  return model.renderNestedNodeDrilldownButtons(keyPath, jsonFiltersSupported);
                 }
 
                 // Value nodes
@@ -339,7 +339,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
+                  return model.renderValueLabel(
+                    keyPath,
+                    lineField,
+                    fieldsVar,
+                    jsonParserPropsMap,
+                    jsonFiltersSupported
+                  );
                 }
 
                 // Parent nodes
@@ -349,7 +355,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
                 ) {
-                  return model.getNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
+                  return model.renderNestedNodeFilterButtons(
+                    keyPath,
+                    fieldsVar,
+                    jsonParserPropsMap,
+                    jsonFiltersSupported
+                  );
                 }
 
                 // Show the timestamp as the label of the log line
@@ -376,7 +387,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Gets drilldown button and key label for root node when line format filter is active
    */
-  private getNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
+  private renderNestedNodeDrilldownButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
     return (
       <>
         <span className={jsonLabelWrapStyles}>
@@ -390,7 +401,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Gets filter buttons for a nested JSON node
    */
-  private getNestedNodeFilterButtons = (
+  private renderNestedNodeFilterButtons = (
     keyPath: KeyPath,
     fieldsVar: AdHocFiltersVariable,
     jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
@@ -434,7 +445,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Gets a value label and filter buttons
    */
-  private getValueLabel = (
+  private renderValueLabel = (
     keyPath: KeyPath,
     lineField: Field<string | number>,
     fieldsVar: AdHocFiltersVariable,
