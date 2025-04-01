@@ -71,6 +71,9 @@ interface LogsJsonSceneState extends SceneObjectState {
 export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
 export type AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => void;
 
+const DataFrameTimeName = 'Time';
+const DataFrameLineName = 'Line';
+
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
     super(state);
@@ -236,7 +239,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Formats key from keypath
    */
   private getKeyPathString(keyPath: KeyPath) {
-    return keyPath[0] !== 'Time' ? keyPath[0] + ':' : keyPath[0];
+    return keyPath[0] !== DataFrameTimeName ? keyPath[0] + ':' : keyPath[0];
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
@@ -302,7 +305,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               hideRootExpand={true}
               valueWrap={''}
               getItemString={(nodeType, data, itemType, itemString, keyPath) => {
-                if (data && hasProp(data, 'Time') && typeof data.Time === 'string') {
+                if (data && hasProp(data, DataFrameTimeName) && typeof data.Time === 'string') {
                   return null;
                 }
                 if (keyPath[0] === 'root') {
@@ -316,7 +319,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 return <span>{itemType}</span>;
               }}
               valueRenderer={(valueAsString, value, keyPath) => {
-                if (keyPath === 'Time') {
+                if (keyPath === DataFrameTimeName) {
                   return null;
                 }
 
@@ -334,7 +337,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 if (
                   nodeTypeLoc !== 'Object' &&
                   nodeTypeLoc !== 'Array' &&
-                  keyPath[0] !== 'Time' &&
+                  keyPath[0] !== DataFrameTimeName &&
                   !isLogLineField(keyPath[0].toString()) &&
                   keyPath[0] !== 'root' &&
                   !isNumber(keyPath[0])
@@ -365,12 +368,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
                 // Show the timestamp as the label of the log line
                 if (isNumber(keyPath[0]) && keyPath[1] === 'root') {
-                  const time = lineField.values[keyPath[0]]?.Time;
+                  const time = lineField.values[keyPath[0]]?.[DataFrameTimeName];
                   return <strong>{time}</strong>;
                 }
 
                 // Don't render time node
-                if (keyPath[0] === 'Time') {
+                if (keyPath[0] === DataFrameTimeName) {
                   return null;
                 }
 
@@ -525,8 +528,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       }
 
                       return {
-                        Time: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
-                        Line: parsed,
+                        [DataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
+                        [DataFrameLineName]: parsed,
                         // @todo add support for structured metadata
                         // Labels: labels?.values?.[0],
                       };
