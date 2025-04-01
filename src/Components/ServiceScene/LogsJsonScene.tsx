@@ -104,9 +104,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       serviceScene.state?.$detectedFieldsData?.state
     );
 
-    // if we already have a detected fields frame
     if (detectedFieldFrame && detectedFieldFrame.length) {
-      // Check if the fields count matches, otherwise re-run detected_fields query
+      // If the field count differs from the length of the dataframe or the fields count is not defined, then we either have a detected fields response from another scene, or the application is being initialized on this scene
+      // In both cases we want to run the detected_fields query again to check for jsonPath support (loki 3.5.0) or to check if there are any JSON parsers for the current field set.
+      // @todo remove when we drop support for Loki versions before 3.5.0
       if (
         !serviceScene.state.fieldsCount === undefined ||
         serviceScene.state.fieldsCount !== detectedFieldFrame?.length
