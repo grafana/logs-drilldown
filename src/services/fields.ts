@@ -157,7 +157,7 @@ export function getParserForField(fieldName: string, sceneRef: SceneObject): Par
   return parser;
 }
 
-export function getDetectedFieldProps(
+export function getParserAndPathForField(
   fieldName: string,
   sceneRef: SceneObject
 ): { parser: ParserType | undefined; path: string | undefined } {

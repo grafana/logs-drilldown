@@ -67,7 +67,7 @@ import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import {
   clearJsonParserFields,
   extractParserFromString,
-  getDetectedFieldProps,
+  getParserAndPathForField,
   getJsonPathArraySyntax,
 } from '../../services/fields';
 import { filterUnusedJSONParserProps } from '../../services/filters';
@@ -403,7 +403,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
         // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
         if (!hasJsonParserProp) {
-          const { parser, path } = getDetectedFieldProps(filter.key, this);
+          const { parser, path } = getParserAndPathForField(filter.key, this);
           if ((parser === 'json' || parser === 'mixed') && path) {
             jsonParserPropsToAdd.push({
               key: filter.key,
