@@ -30,8 +30,6 @@ import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import DrilldownButton from './JSONPanel/DrilldownButton';
-import JSONFilterNestedNodeInButton from './JSONPanel/JSONFilterNestedNodeInButton';
-import JSONFilterNestedNodeOutButton from './JSONPanel/JSONFilterNestedNodeOutButton';
 
 import { clearJsonParserFields, isLogLineField } from '../../services/fields';
 import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
@@ -53,10 +51,10 @@ import {
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
 import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
-import JSONFilterValueInButton from './JSONPanel/JSONFilterValueInButton';
-import JSONFilterValueOutButton from './JSONPanel/JSONFilterValueOutButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { clearVariables } from '../../services/variableHelpers';
+import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
+import JSONFilterValueButton from './JSONPanel/JSONFilterValueButton';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -406,18 +404,21 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       fieldsVar.state.filters.find(
         (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
       );
+
     return (
       <span className={labelWrapStyle}>
         {jsonFiltersSupported && (
           <>
             <DrilldownButton keyPath={keyPath} addDrilldown={this.addDrilldown} />
-            <JSONFilterNestedNodeInButton
+            <JSONFilterNestedNodeButton
+              type={'include'}
               jsonKey={fullKey}
               addFilter={this.addFilter}
               keyPath={fullKeyPath}
               active={existingFilter?.operator === FilterOp.NotEqual}
             />
-            <JSONFilterNestedNodeOutButton
+            <JSONFilterNestedNodeButton
+              type={'exclude'}
               jsonKey={fullKey}
               addFilter={this.addFilter}
               keyPath={fullKeyPath}
@@ -455,21 +456,23 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       <span className={styles.labelButtonsWrap}>
         {jsonFiltersSupported && (
           <>
-            <JSONFilterValueInButton
+            <JSONFilterValueButton
               label={label}
               value={value}
               fullKeyPath={fullKeyPath}
               fullKey={fullKey}
               addFilter={this.addFilter}
               existingFilter={existingFilter}
+              type={'include'}
             />
-            <JSONFilterValueOutButton
+            <JSONFilterValueButton
               label={label}
               value={value}
               fullKeyPath={fullKeyPath}
               fullKey={fullKey}
               addFilter={this.addFilter}
               existingFilter={existingFilter}
+              type={'exclude'}
             />
           </>
         )}
