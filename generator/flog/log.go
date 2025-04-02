@@ -131,6 +131,15 @@ func NewCommonLogFormat(t time.Time, URI string, statusCode int) string {
 }
 
 type ExtraDeeplyNestedObject struct {
+	BaseObject
+}
+
+type DeeplyNestedObject struct {
+	BaseObject
+	ExtraDeeplyNestedObject `json:"extraDeeplyNestedObject"`
+}
+
+type BaseObject struct {
 	Method         string   `json:"method"`
 	Url            string   `json:"url"`
 	NumArray       []int    `json:"numArray"`
@@ -138,44 +147,30 @@ type ExtraDeeplyNestedObject struct {
 	UserIdentifier string   `json:"user-identifier"`
 }
 
-type DeeplyNestedObject struct {
-	Method                  string   `json:"method"`
-	Url                     string   `json:"url"`
-	NumArray                []int    `json:"numArray"`
-	StrArray                []string `json:"strArray"`
-	UserIdentifier          string   `json:"user-identifier"`
-	ExtraDeeplyNestedObject ExtraDeeplyNestedObject
-}
-
 type NestedJsonObject struct {
-	Method             string   `json:"method"`
-	Url                string   `json:"url"`
-	NumArray           []int    `json:"numArray"`
-	StrArray           []string `json:"strArray"`
-	UserIdentifier     string   `json:"user-identifier"`
-	DeeplyNestedObject DeeplyNestedObject
+	BaseObject
+	DeeplyNestedObject `json:"deeplyNestedObject"`
 }
 
-// NewJSONLogFormat creates a log string with json log format
-func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
-	nestedJsonObject := &NestedJsonObject{
+// Helper function to initialize BaseObject
+func newBaseObject() BaseObject {
+	return BaseObject{
 		Method:         gofakeit.HTTPMethod(),
 		Url:            gofakeit.URL(),
 		UserIdentifier: gofakeit.Username(),
 		NumArray:       []int{gofakeit.Number(0, 30000), gofakeit.Number(0, 30000), gofakeit.Number(0, 30000)},
 		StrArray:       []string{gofakeit.Word(), gofakeit.Word(), gofakeit.Word()},
+	}
+}
+
+// NewJSONLogFormat creates a log string with json log format
+func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
+	nestedJsonObject := &NestedJsonObject{
+		BaseObject: newBaseObject(),
 		DeeplyNestedObject: DeeplyNestedObject{
-			Method:         gofakeit.HTTPMethod(),
-			Url:            gofakeit.URL(),
-			UserIdentifier: gofakeit.Username(),
-			NumArray:       []int{gofakeit.Number(0, 30000), gofakeit.Number(0, 30000), gofakeit.Number(0, 30000)},
-			StrArray:       []string{gofakeit.Word(), gofakeit.Word(), gofakeit.Word()},
+			BaseObject: newBaseObject(),
 			ExtraDeeplyNestedObject: ExtraDeeplyNestedObject{
-				Method:         gofakeit.HTTPMethod(),
-				Url:            gofakeit.URL(),
-				UserIdentifier: gofakeit.Username(),
-				NumArray:       []int{gofakeit.Number(0, 30000), gofakeit.Number(0, 30000), gofakeit.Number(0, 30000)},
-				StrArray:       []string{gofakeit.Word(), gofakeit.Word(), gofakeit.Word()},
+				BaseObject: newBaseObject(),
 			},
 		},
 	}
