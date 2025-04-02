@@ -147,7 +147,7 @@ type DeeplyNestedObject struct {
 	ExtraDeeplyNestedObject ExtraDeeplyNestedObject
 }
 
-type nestedJsonObject struct {
+type NestedJsonObject struct {
 	Method             string   `json:"method"`
 	Url                string   `json:"url"`
 	NumArray           []int    `json:"numArray"`
@@ -158,7 +158,7 @@ type nestedJsonObject struct {
 
 // NewJSONLogFormat creates a log string with json log format
 func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
-	nestedJsonObject := &nestedJsonObject{
+	nestedJsonObject := &NestedJsonObject{
 		Method:         gofakeit.HTTPMethod(),
 		Url:            gofakeit.URL(),
 		UserIdentifier: gofakeit.Username(),
