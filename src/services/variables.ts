@@ -27,6 +27,7 @@ export type LogsQueryOptions = {
   fieldExpressionToAdd?: string;
   parser?: ParserType;
   fieldType?: DetectedFieldType;
+  aggregation?: string
 };
 
 export const VAR_LABELS = 'filters';
@@ -67,6 +68,8 @@ export const VAR_LINE_FILTER_EXPR = '${lineFilterV2}';
 // The new multi value line filter (ad-hoc variable)
 export const VAR_LINE_FILTERS = 'lineFilters';
 export const VAR_LINE_FILTERS_EXPR = '${lineFilters}';
+export const VARIANT_PLACEHOLDER = "${VARIANT_PLACEHOLDER}"
+export const VARIANT_EXPR = `variants(\n${VARIANT_PLACEHOLDER}\n) of ({${VAR_LABELS_EXPR}} [$__auto])`
 export const LOG_STREAM_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
 // Same as the LOG_STREAM_SELECTOR_EXPR, but without the fields as they will need to be built manually to exclude the current filter value
 export const DETECTED_FIELD_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${PENDING_FIELDS_EXPR}`;
