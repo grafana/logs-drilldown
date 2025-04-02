@@ -220,8 +220,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
             .setCustomFieldConfig('pointSize', 0)
             .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
             .setHoverHeader(false)
-            // 11.5
-            // .setShowMenuAlways(true)
+            .setShowMenuAlways(true)
             .setOverrides(setLevelColorOverrides)
             .setMenu(new PanelMenu({ investigationOptions: { labelName: optionValue } }))
             .setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES)
