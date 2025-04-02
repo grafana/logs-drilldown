@@ -9,7 +9,7 @@ import {
   SceneObjectState,
 } from '@grafana/scenes';
 import { DataFrame, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
-import { Alert, Badge, Button, PanelChrome, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, Button, Icon, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
 import { css } from '@emotion/css';
@@ -455,7 +455,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           >
             {this.getKeyPathString(keyPath, filters.length ? '' : ':')}
           </Button>
-          {filters.length > 0 && <span className={breadCrumbDelimiter}>{'>'}</span>}
+          {filters.length > 0 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
         </span>
 
         {filters.map((filter, i) => {
@@ -473,8 +473,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   {filter.key}
                 </Button>
               }
-              {i < filters.length - 1 && <span className={breadCrumbDelimiter}>{'>'}</span>}
-              {i === filters.length - 1 && <span className={itemStringDelimiter}>{':'}</span>}
+              {i < filters.length - 1 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
+              {i === filters.length - 1 && <Icon className={itemStringDelimiter} name={'angle-right'} />}
             </span>
           );
         })}
