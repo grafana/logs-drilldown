@@ -22,7 +22,6 @@ import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvest
 import { getPluginLinkExtensions } from '@grafana/runtime';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
-// @ts-expect-error
 import { getObservablePluginLinks } from '@grafana/runtime/unstable';
 import { ExtensionPoints } from '../../services/extensions/links';
 import { setLevelColorOverrides } from '../../services/panel';
