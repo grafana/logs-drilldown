@@ -19,7 +19,9 @@ import { findObjectOfType, getQueryRunnerFromChildren } from '../../services/sce
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { logger } from '../../services/logger';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
-// @ts-ignore Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version
+// Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
+// We need both imports to support Grafana v11 and v12.
+// @ts-expect-error 
 import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import { ExtensionPoints } from '../../services/extensions/links';
 import { setLevelColorOverrides } from '../../services/panel';
