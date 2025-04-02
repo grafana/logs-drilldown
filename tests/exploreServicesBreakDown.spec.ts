@@ -593,9 +593,6 @@ test.describe('explore services breakdown page', () => {
     // Remove tempo-distributor
     await page.getByLabel('Remove filter with key').first().click();
 
-    await explorePage.assertNotLoading();
-    await explorePage.assertPanelsNotLoading();
-
     // Get panel count to ensure the pod regex filter reduces the result set
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
@@ -614,6 +611,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('=~').nth(3)).toBeVisible();
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
+    await page.pause();
     await expect
       .poll(() =>
         page
