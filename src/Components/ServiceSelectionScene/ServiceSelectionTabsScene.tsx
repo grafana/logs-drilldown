@@ -151,7 +151,6 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
                 <>
                   {popoverRef.current && (
                     <>
-                      {/* @ts-expect-error @todo upgrade typescript */}
                       <Popover
                         {...popperProps}
                         {...rest}
