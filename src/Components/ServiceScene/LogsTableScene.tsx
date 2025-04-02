@@ -117,16 +117,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     width: '100%',
     height: '100%',
     label: 'panel-wrapper-table',
-
-    // @todo remove this wrapper and styles when core changes are introduced in 11.5
-    // Need more specificity to override core style
-    'button.show-on-hover': {
-      opacity: 1,
-      visibility: 'visible',
-      background: 'none',
-      '&:hover': {
-        background: theme.colors.secondary.shade,
-      },
-    },
   }),
 });
