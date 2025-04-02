@@ -151,14 +151,15 @@ version: '3.7'
 
 services:
   grafana:
-    container_name: 'myorg-basic-app'
+    extends:
+      file: .config/docker-compose-base.yaml
+      service: grafana
     build:
-      context: ./.config
       args:
         grafana_version: ${GRAFANA_VERSION:-9.1.2}
         grafana_image: ${GRAFANA_IMAGE:-grafana}
 ```
 
-In this example, we assign the environment variable `GRAFANA_IMAGE` to the build arg `grafana_image` with a default value of `grafana`. This will allow you to set the value while running the docker-compose commands, which might be convenient in some scenarios.
+In this example, we assign the environment variable `GRAFANA_IMAGE` to the build arg `grafana_image` with a default value of `grafana`. This will allow you to set the value while running the docker compose commands, which might be convenient in some scenarios.
 
 ---
