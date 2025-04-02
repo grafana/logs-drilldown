@@ -1,4 +1,4 @@
-import { DataFrame, GrafanaTheme2, PanelMenuItem } from '@grafana/data';
+import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -19,7 +19,10 @@ import { findObjectOfType, getQueryRunnerFromChildren } from '../../services/sce
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { logger } from '../../services/logger';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
-import { getPluginLinkExtensions } from '@grafana/runtime';
+// Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
+// We need both imports to support Grafana v11 and v12.
+// @ts-expect-error
+import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import { ExtensionPoints } from '../../services/extensions/links';
 import { setLevelColorOverrides } from '../../services/panel';
 import { setPanelOption } from '../../services/store';
@@ -28,6 +31,7 @@ import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSu
 import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { css } from '@emotion/css';
+import { lastValueFrom } from 'rxjs';
 import { interpolateExpression } from '../../services/query';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
@@ -133,8 +137,8 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       });
 
       this._subs.add(
-        this.state.investigationsButton?.subscribeToState(() => {
-          subscribeToAddToInvestigation(this);
+        this.state.investigationsButton?.subscribeToState(async () => {
+          await subscribeToAddToInvestigation(this);
         })
       );
     });
@@ -281,26 +285,39 @@ const onSwitchVizTypeTracking = (newVizType: AvgFieldPanelType) => {
   });
 };
 
-const getInvestigationLink = (addToInvestigation: AddToInvestigationButton) => {
-  const links = getPluginLinkExtensions({
-    extensionPointId: ExtensionPoints.MetricInvestigation,
-    context: addToInvestigation.state.context,
-  });
+const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton) => {
+  const extensionPointId = ExtensionPoints.MetricInvestigation;
+  const context = addToInvestigation.state.context;
 
-  return links.extensions[0];
-};
+  // `getPluginLinkExtensions` is removed in Grafana v12
+  if (getPluginLinkExtensions !== undefined) {
+    const links = getPluginLinkExtensions({
+      extensionPointId,
+      context,
+    });
 
-const onAddToInvestigationClick = (event: React.MouseEvent, addToInvestigation: AddToInvestigationButton) => {
-  const link = getInvestigationLink(addToInvestigation);
-  if (link && link.onClick) {
-    link.onClick(event);
+    return links.extensions[0];
   }
+
+  // `getObservablePluginLinks` is introduced in Grafana v12
+  if (getObservablePluginLinks !== undefined) {
+    const links: PluginExtensionLink[] = await lastValueFrom(
+      getObservablePluginLinks({
+        extensionPointId,
+        context,
+      })
+    );
+
+    return links[0];
+  }
+
+  return undefined;
 };
 
-function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu) {
+async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu) {
   const addToInvestigationButton = exploreLogsVizPanelMenu.state.investigationsButton;
   if (addToInvestigationButton) {
-    const link = getInvestigationLink(addToInvestigationButton);
+    const link = await getInvestigationLink(addToInvestigationButton);
 
     const existingMenuItems = exploreLogsVizPanelMenu.state.body?.state.items ?? [];
 
@@ -319,7 +336,7 @@ function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu) {
         exploreLogsVizPanelMenu.state.body?.addItem({
           text: ADD_TO_INVESTIGATION_MENU_TEXT,
           iconClassName: 'plus-square',
-          onClick: (e) => onAddToInvestigationClick(e, addToInvestigationButton),
+          onClick: (e) => link.onClick && link.onClick(e),
         });
       } else {
         if (existingAddToExplorationLink) {
