@@ -19,13 +19,13 @@ import {
   DetectedFieldType,
   ParserType,
   VARIANT_EXPR,
-  VARIANT_PLACEHOLDER
+  VARIANT_PLACEHOLDER,
 } from '../../../services/variables';
-import {buildDataQuery} from '../../../services/query';
-import {getQueryRunner, getSceneQueryRunner, setLevelColorOverrides} from '../../../services/panel';
-import {DrawStyle, LoadingPlaceholder, StackingMode, useStyles2} from '@grafana/ui';
-import {LayoutSwitcher} from './LayoutSwitcher';
-import {FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene} from './FieldsBreakdownScene';
+import { buildDataQuery } from '../../../services/query';
+import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
+import { LayoutSwitcher } from './LayoutSwitcher';
+import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import {
   getDetectedFieldsFrame,
   getDetectedFieldsFrameFromQueryRunnerState,
@@ -34,23 +34,29 @@ import {
   ServiceScene,
 } from '../ServiceScene';
 import React from 'react';
-import {SelectLabelActionScene} from './SelectLabelActionScene';
-import {ValueSlugs} from '../../../services/routing';
-import {DataFrame, LoadingState, PanelData} from '@grafana/data';
+import { SelectLabelActionScene } from './SelectLabelActionScene';
+import { ValueSlugs } from '../../../services/routing';
+import { DataFrame, LoadingState, PanelData } from '@grafana/data';
 import {
   buildFieldsQueryString,
   extractParserFromArray,
   getDetectedFieldType,
   getVariantAndLabel,
   groupFramesByVariantTransformation,
-  isAvgField, selectFramesTransformation, selectFrameTransformation,
+  isAvgField,
+  selectFramesTransformation,
+  selectFrameTransformation,
 } from '../../../services/fields';
-import {getFieldGroupByVariable, getFieldsVariable, getValueFromFieldsFilter,} from '../../../services/variableGetters';
-import {AvgFieldPanelType, getPanelWrapperStyles, PanelMenu} from '../../Panels/PanelMenu';
-import {logger} from '../../../services/logger';
-import {getPanelOption} from '../../../services/store';
-import {MAX_NUMBER_OF_TIME_SERIES} from './TimeSeriesLimit';
-import {LokiQuery} from "../../../services/lokiQuery";
+import {
+  getFieldGroupByVariable,
+  getFieldsVariable,
+  getValueFromFieldsFilter,
+} from '../../../services/variableGetters';
+import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { logger } from '../../../services/logger';
+import { getPanelOption } from '../../../services/store';
+import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { LokiQuery } from '../../../services/lokiQuery';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
@@ -225,7 +231,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       options: [
         { value: 'grid', label: 'Grid' },
         { value: 'rows', label: 'Rows' },
-        {value: 'single', label: 'Single'}
+        { value: 'single', label: 'Single' },
       ],
       active: 'grid',
       layouts: [
@@ -248,44 +254,47 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         //       })
         //   ]
         // })
-          new SceneByFrameRepeater({
-            $data: new SceneDataTransformer({
-              transformations: [() => groupFramesByVariantTransformation(this.state.$data?.state.data?.series)],
-            }),
-            getLayoutChild(data: PanelData, frames: DataFrame[], frameIndex: number): SceneObject {
-              console.log('getLayoutChild', {
-                data, frames
-              })
-              const {labelName, variant} = getVariantAndLabel(frames[0])
-              const panel = PanelBuilders.timeseries()
-                  .setTitle(`${labelName} - ${variant}`)
-                  .setData(new SceneDataTransformer({
-                    transformations: [() => selectFramesTransformation(frames, frameIndex)],
-                  }),)
-                  .setOption('legend', { showLegend: false })
-                  .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
-                  .setCustomFieldConfig('fillOpacity', 100)
-                  .setCustomFieldConfig('lineWidth', 0)
-                  .setCustomFieldConfig('pointSize', 0)
-                  .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
+        new SceneByFrameRepeater({
+          $data: new SceneDataTransformer({
+            transformations: [() => groupFramesByVariantTransformation(this.state.$data?.state.data?.series)],
+          }),
+          getLayoutChild(data: PanelData, frames: DataFrame[], frameIndex: number): SceneObject {
+            console.log('getLayoutChild', {
+              data,
+              frames,
+            });
+            const { labelName, variant } = getVariantAndLabel(frames[0]);
+            const panel = PanelBuilders.timeseries()
+              .setTitle(`${labelName} - ${variant}`)
+              .setData(
+                new SceneDataTransformer({
+                  transformations: [() => selectFramesTransformation(frames, frameIndex)],
+                })
+              )
+              .setOption('legend', { showLegend: false })
+              .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
+              .setCustomFieldConfig('fillOpacity', 100)
+              .setCustomFieldConfig('lineWidth', 0)
+              .setCustomFieldConfig('pointSize', 0)
+              .setCustomFieldConfig('drawStyle', DrawStyle.Bars);
 
-                  return new SceneCSSGridItem({
-                    body: panel.build(),
-                  });
-            },
-            body: new SceneCSSGridLayout({
-              templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
-              autoRows: '200px',
-              children: [
-                new SceneFlexItem({
-                  body: new SceneReactObject({
-                    reactNode: <LoadingPlaceholder text="Loading..." />,
-                  }),
+            return new SceneCSSGridItem({
+              body: panel.build(),
+            });
+          },
+          body: new SceneCSSGridLayout({
+            templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
+            autoRows: '200px',
+            children: [
+              new SceneFlexItem({
+                body: new SceneReactObject({
+                  reactNode: <LoadingPlaceholder text="Loading..." />,
                 }),
-              ],
-              isLazy: true,
-            }),
-          })
+              }),
+            ],
+            isLazy: true,
+          }),
+        }),
       ],
     });
   }
@@ -340,7 +349,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   private buildChildrenQueries(options: string[]) {
-    const childrenQueries: LokiQuery[] = []
+    const childrenQueries: LokiQuery[] = [];
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
 
     for (const option of options) {
@@ -349,19 +358,21 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       }
 
       const fieldType = getDetectedFieldType(option, detectedFieldsFrame);
-      const query = this.getLokiQueryForPanel(option, detectedFieldsFrame, fieldType, '__variant__')
-      childrenQueries.push(query)
+      const query = this.getLokiQueryForPanel(option, detectedFieldsFrame, fieldType);
+      childrenQueries.push(query);
     }
-    const variantExpr = VARIANT_EXPR.replace(VARIANT_PLACEHOLDER, childrenQueries.map(query => query.expr).join(',\n\t'))
-    const legendFormats = childrenQueries.map(query => query.legendFormat).join("")
+    const variantExpr = VARIANT_EXPR.replace(
+      VARIANT_PLACEHOLDER,
+      childrenQueries.map((query) => query.expr).join(',\n\t')
+    );
+    const legendFormats = childrenQueries.map((query) => query.legendFormat).join('');
 
-
-    console.log('children queries', childrenQueries)
-    console.log('variant query', VARIANT_EXPR)
-    console.log('variant expr', variantExpr)
+    console.log('children queries', childrenQueries);
+    console.log('variant query', VARIANT_EXPR);
+    console.log('variant expr', variantExpr);
     console.log('variant interpolated:', {
-      interpolated: sceneGraph.interpolate(this, variantExpr)
-    })
+      interpolated: sceneGraph.interpolate(this, variantExpr),
+    });
 
     const dataQuery = buildDataQuery(variantExpr, {
       legendFormat: legendFormats,
@@ -371,8 +382,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     this.setState({
       $data: getSceneQueryRunner({
         queries: [dataQuery],
-      })
-    })
+      }),
+    });
   }
 
   private buildChildren(options: string[]): SceneCSSGridItem[] {
@@ -390,11 +401,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       if (child) {
         children.push(child);
         child.addActivationHandler(() => {
-          console.log('child activation', child)
-        })
+          console.log('child activation', child);
+        });
       }
     }
-
 
     return children;
   }
@@ -450,10 +460,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   private getLokiQueryForPanel(
-      optionValue: string,
-      detectedFieldsFrame: DataFrame | undefined,
-      fieldType?: DetectedFieldType,
-      aggregation?: string
+    optionValue: string,
+    detectedFieldsFrame: DataFrame | undefined,
+    fieldType?: DetectedFieldType,
+    aggregation?: string
   ) {
     const fieldsVariable = getFieldsVariable(this);
     const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, aggregation);
@@ -462,7 +472,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       refId: optionValue,
     });
   }
-
 
   private getQueryRunnerForPanel(
     optionValue: string,
