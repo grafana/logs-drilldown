@@ -2,21 +2,21 @@
 
 ##### Chores
 
-*  fix e2e test (#1135) (7873d6dd)
+*  Fix e2e test (#1135) (7873d6dd)
 
 ##### Documentation Changes
 
-*  update readme to include discover_log_levels config requirement (#1143) (359e9766)
+*  Update readme to include discover_log_levels config requirement (#1143) (359e9766)
 
 ##### New Features
 
-*  add critical/fatal log level (#1146) (038a8146)
-*  add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
+*  Add critical/fatal log level (#1146) (038a8146)
+*  Add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
 
 ##### Bug Fixes
 
-*  error being thrown when toggling case sensitivity with empty value (#1153) (156245c9)
-*  set step as 10s for aggregated metric queries (#1145) (b370c190)
+*  Error thrown when toggling case sensitivity with an empty value (#1153) (156245c9)
+*  Set step as 10s for aggregated metric queries (#1145) (b370c190)
 
 ##### Other Changes
 
