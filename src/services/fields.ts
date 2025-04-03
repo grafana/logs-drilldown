@@ -1,4 +1,4 @@
-import { DataFrame, Field, PanelData, ReducerID } from '@grafana/data';
+import { DataFrame, Field, ReducerID } from '@grafana/data';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 import {
   AdHocFiltersVariable,
@@ -179,7 +179,7 @@ export function getFilterBreakdownValueScene(
   };
 }
 
-export function selectFrameTransformation(frame: DataFrame | DataFrame[]) {
+export function selectFrameTransformation(frame: DataFrame) {
   return (source: Observable<DataFrame[]>) => {
     return source.pipe(
       map(() => {
@@ -189,18 +189,29 @@ export function selectFrameTransformation(frame: DataFrame | DataFrame[]) {
   };
 }
 
-export function selectFramesTransformation(frames: DataFrame[], frameIndex: number) {
+export function selectFramesTransformation(frames: DataFrame[], labelName: string) {
   return (source: Observable<DataFrame[]>) => {
     return source.pipe(
       map(() => {
-        console.log('frames', frames);
-        return frames;
+        return frames.map((frame) => {
+          return {
+            ...frame,
+            fields: frame.fields.map((field) => {
+              if (field.config.displayNameFromDS && field.labels) {
+                const labelValue = field.labels[labelName];
+                return { ...field, config: { ...field.config, displayNameFromDS: labelValue } };
+              } else {
+                return field;
+              }
+            }),
+          };
+        });
       })
     );
   };
 }
 
-export function getVariantAndLabel(frame: DataFrame) {
+export function getVariantAndLabel(frame: DataFrame): { variant: number; labelName: string } {
   const valueField = frame.fields[1];
   const labels = valueField.labels;
   let variant: number | undefined = undefined;
@@ -216,6 +227,12 @@ export function getVariantAndLabel(frame: DataFrame) {
         labelName = key;
       }
     });
+  }
+  if (variant === undefined) {
+    throw new Error('Missing variant!');
+  }
+  if (labelName === undefined) {
+    labelName = '__MISSING__';
   }
   return { variant, labelName };
 }
@@ -246,7 +263,6 @@ export function groupFramesByVariantTransformation(
     return source.pipe(
       map(() => {
         return array.map((variantFrames) => {
-          console.log('variantFrames', variantFrames);
           return variantFrames[1].frames;
         });
       })

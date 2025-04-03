@@ -23,7 +23,12 @@ import {
   VARIANT_PLACEHOLDER,
 } from '../../../services/variables';
 import { buildDataQuery } from '../../../services/query';
-import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import {
+  getQueryRunner,
+  getSceneQueryRunner,
+  setColorByDisplayNameTransformation,
+  setLevelColorOverrides,
+} from '../../../services/panel';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
@@ -46,7 +51,6 @@ import {
   groupFramesByVariantTransformation,
   isAvgField,
   selectFramesTransformation,
-  selectFrameTransformation,
 } from '../../../services/fields';
 import {
   getFieldGroupByVariable,
@@ -234,7 +238,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         { value: 'single', label: 'Single' },
         { value: 'variant', label: 'Variant' },
       ],
-      active: 'grid',
+      active: 'variant',
       layouts: [
         new SceneCSSGridLayout({
           templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
@@ -257,19 +261,20 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }),
         new SceneByFrameRepeater({
           $data: new SceneDataTransformer({
+            //@ts-expect-error transformation types don't like getting arrays of arrays of dataframes
             transformations: [() => groupFramesByVariantTransformation(this.state.$data?.state.data?.series)],
           }),
+          //@ts-expect-error same thing here, but as long as we transform
           getLayoutChild(data: PanelData, frames: DataFrame[], frameIndex: number): SceneObject {
-            console.log('getLayoutChild', {
-              data,
-              frames,
-            });
-            const { labelName, variant } = getVariantAndLabel(frames[0]);
+            const { labelName } = getVariantAndLabel(frames[0]);
             const panel = PanelBuilders.timeseries()
-              .setTitle(`${labelName} - ${variant}`)
+              .setTitle(labelName)
               .setData(
                 new SceneDataTransformer({
-                  transformations: [() => selectFramesTransformation(frames, frameIndex)],
+                  transformations: [
+                    () => selectFramesTransformation(frames, labelName),
+                    setColorByDisplayNameTransformation,
+                  ],
                 })
               )
               // .setOption('legend', { showLegend: false })
@@ -306,8 +311,14 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       this._subs.add(
         panel?.state.$data?.getResultsStream().subscribe((result) => {
           if (result.data.errors && result.data.errors.length > 0) {
-            child.setState({ isHidden: true });
-            this.updateFieldCount();
+            // @todo need to show warning in panel
+            console.log('result errors', {
+              errors: result.data.errors,
+              result: result,
+              panel: panel,
+            });
+            // child.setState({ isHidden: true });
+            // this.updateFieldCount();
           }
         })
       );
@@ -366,17 +377,11 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       VARIANT_PLACEHOLDER,
       childrenQueries.map((query) => query.expr).join(',\n\t')
     );
-    const legendFormats = childrenQueries.map((query) => query.legendFormat).join('');
-
-    console.log('children queries', childrenQueries);
-    console.log('variant query', VARIANT_EXPR);
-    console.log('variant expr', variantExpr);
     console.log('variant interpolated:', {
       interpolated: sceneGraph.interpolate(this, variantExpr),
     });
 
     const dataQuery = buildDataQuery(variantExpr, {
-      legendFormat: legendFormats,
       refId: 'fields-variant',
     });
 
@@ -401,12 +406,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       const child = this.buildChild(option, detectedFieldsFrame, panelType);
       if (child) {
         children.push(child);
-        child.addActivationHandler(() => {
-          console.log('child activation', child);
-        });
       }
     }
-
     return children;
   }
 
@@ -418,6 +419,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
     const dataTransformer = this.getQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
     let body;
+
     const headerActions = [];
     if (!isAvgField(fieldType)) {
       body = PanelBuilders.timeseries()
@@ -437,7 +439,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       } else {
         body = PanelBuilders.timeseries();
       }
-      body.setTitle(labelName).setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
+      body
+        .setTitle(labelName)
+        .setData(dataTransformer)
+        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
       headerActions.push(
         new SelectLabelActionScene({
           labelName: String(labelName),

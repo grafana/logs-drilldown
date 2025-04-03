@@ -178,7 +178,7 @@ export function syncFieldsValueSummaryVisibleSeries(
   }
 }
 
-function setColorByDisplayNameTransformation() {
+export function setColorByDisplayNameTransformation() {
   return (source: Observable<DataFrame[]>) => {
     return source.pipe(
       map((data: DataFrame[]) => {
