@@ -58,13 +58,9 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             </div>
           )}
 
-          {/* Second row - Levels - custom renderer */}
+          {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
           <div className={styles.controlsRowContainer}>
             {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
-          </div>
-
-          {/* 3rd row - Combined fields (fields + metadata)  */}
-          <div className={styles.controlsRowContainer}>
             {controls && (
               <div className={styles.filtersWrap}>
                 <div className={styles.filters}>
@@ -79,7 +75,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             )}
           </div>
 
-          {/* 4th row - Patterns */}
+          {/* 3rd row - Patterns */}
           <div className={styles.controlsRowContainer}>
             <PatternControls
               patterns={patterns}
@@ -87,7 +83,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             />
           </div>
 
-          {/* 5th row - Line filters - custom renderer */}
+          {/* 4th row - Line filters - custom renderer */}
           <div className={styles.controlsRowContainer}>
             {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
           </div>
@@ -145,7 +141,6 @@ function getStyles(theme: GrafanaTheme2) {
       // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
       gap: theme.spacing(1),
       alignItems: 'flex-start',
-      paddingLeft: theme.spacing(2),
     }),
     controlsContainer: css({
       label: 'controlsContainer',
