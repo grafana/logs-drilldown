@@ -7,6 +7,7 @@ import {
   SceneCSSGridLayout,
   SceneDataTransformer,
   SceneFlexItem,
+  SceneFlexLayout,
   sceneGraph,
   SceneObject,
   SceneObjectBase,
@@ -175,7 +176,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   onActivate() {
     this.setState({
       body: this.build(),
-      // $data: getQueryRunner()
     });
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
@@ -232,6 +232,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         { value: 'grid', label: 'Grid' },
         { value: 'rows', label: 'Rows' },
         { value: 'single', label: 'Single' },
+        { value: 'variant', label: 'Variant' },
       ],
       active: 'grid',
       layouts: [
@@ -247,13 +248,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
           children: childrenClones,
           isLazy: true,
         }),
-        // new SceneFlexLayout({
-        //   children: [
-        //       new SceneFlexItem({
-        //         body: PanelBuilders.timeseries().setData(this.state.$data).build()
-        //       })
-        //   ]
-        // })
+        new SceneFlexLayout({
+          children: [
+            new SceneFlexItem({
+              body: PanelBuilders.timeseries().setData(this.state.$data).build(),
+            }),
+          ],
+        }),
         new SceneByFrameRepeater({
           $data: new SceneDataTransformer({
             transformations: [() => groupFramesByVariantTransformation(this.state.$data?.state.data?.series)],
@@ -271,7 +272,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                   transformations: [() => selectFramesTransformation(frames, frameIndex)],
                 })
               )
-              .setOption('legend', { showLegend: false })
+              // .setOption('legend', { showLegend: false })
               .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
               .setCustomFieldConfig('fillOpacity', 100)
               .setCustomFieldConfig('lineWidth', 0)
@@ -436,10 +437,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       } else {
         body = PanelBuilders.timeseries();
       }
-      body
-        .setTitle(labelName)
-        .setData(dataTransformer)
-        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
+      body.setTitle(labelName).setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
       headerActions.push(
         new SelectLabelActionScene({
           labelName: String(labelName),
