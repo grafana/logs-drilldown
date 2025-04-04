@@ -21,7 +21,7 @@ import { logger } from '../../services/logger';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
-// @ts-expect-error 
+// @ts-expect-error
 import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import { ExtensionPoints } from '../../services/extensions/links';
 import { setLevelColorOverrides } from '../../services/panel';
@@ -31,7 +31,7 @@ import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSu
 import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { css } from '@emotion/css';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
@@ -300,7 +300,7 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
 
   // `getObservablePluginLinks` is introduced in Grafana v12
   if (getObservablePluginLinks !== undefined) {
-    const links: PluginExtensionLink[] = await lastValueFrom(
+    const links: PluginExtensionLink[] = await firstValueFrom(
       getObservablePluginLinks({
         extensionPointId,
         context,
