@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 import { DragDropContext, Draggable, DraggableProvided, Droppable, DropResult } from '@hello-pangea/dnd';
 import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data/';
-import { useTheme2 } from '@grafana/ui/';
+import { GrafanaTheme2 } from '@grafana/data';
+import { useTheme2 } from '@grafana/ui';
 
 import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
 

@@ -136,11 +136,17 @@ export const LogLinePill = (props: LogLinePillProps) => {
 
     const length = Object.keys(columns).filter((c) => columns[c].active).length;
     if (pendingColumns[fieldName].active) {
-      pendingColumns[fieldName].active = false;
-      pendingColumns[fieldName].index = undefined;
+      pendingColumns[fieldName] = {
+        ...pendingColumns[fieldName],
+        active: false,
+        index: undefined,
+      };
     } else {
-      pendingColumns[fieldName].active = true;
-      pendingColumns[fieldName].index = length;
+      pendingColumns[fieldName] = {
+        ...pendingColumns[fieldName],
+        active: true,
+        index: length,
+      };
     }
 
     setColumns(pendingColumns);
