@@ -10,11 +10,13 @@ export const NoLokiSplash = () => {
   return (
     <div className={styles.wrap}>
       <div className={styles.graphicContainer}>
-        {React.createElement(SVG as any, {
-          src: theme.isDark
-            ? `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
-            : `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`,
-        })}
+        <SVG
+          src={
+            theme.isDark
+              ? `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
+              : `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
+          }
+        />
       </div>
       <div className={styles.text}>
         <h3 className={styles.title}>Welcome to Grafana Logs Drilldown</h3>
