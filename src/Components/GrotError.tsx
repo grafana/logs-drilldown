@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import SVG from 'react-inlinesvg';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2, useTheme2, Text } from '@grafana/ui';
@@ -35,13 +34,14 @@ export const GrotError = ({ children }: React.PropsWithChildren<Props>) => {
   return (
     <div className={styles.wrap}>
       <div className={styles.graphicContainer}>
-        <SVG
+        <img
           className={styles.graphic}
           src={
             theme.isDark
               ? `/public/plugins/grafana-lokiexplore-app/img/grot_err.svg`
               : `/public/plugins/grafana-lokiexplore-app/img/grot_err_light.svg`
           }
+          alt="Grot error illustration"
         />
       </div>
       <div className={styles.text}>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useStyles2, useTheme2 } from '@grafana/ui';
-import SVG from 'react-inlinesvg';
 import { GrafanaTheme2, locationUtil } from '@grafana/data';
 import { css } from '@emotion/css';
 
@@ -10,12 +9,13 @@ export const NoLokiSplash = () => {
   return (
     <div className={styles.wrap}>
       <div className={styles.graphicContainer}>
-        <SVG
+        <img
           src={
             theme.isDark
               ? `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
               : `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
           }
+          alt="Grot illustration, no loki configured"
         />
       </div>
       <div className={styles.text}>
