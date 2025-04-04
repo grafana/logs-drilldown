@@ -13,7 +13,6 @@ export class LogsSceneQueryRunner extends SceneQueryRunner {
 
     // @todo can we make runWithTimeRange protected? (https://github.com/grafana/scenes/pull/866)
     // Hack to call private method
-    // @ts-expect-error
-    this['runWithTimeRange'](timeRange);
+    this['runWithTimeRangeAndScopes'](timeRange);
   }
 }
