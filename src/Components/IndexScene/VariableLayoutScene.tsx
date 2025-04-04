@@ -131,6 +131,9 @@ function getStyles(theme: GrafanaTheme2) {
       gap: theme.spacing(2),
       justifyContent: 'space-between',
       alignItems: 'flex-start',
+      [theme.breakpoints.down('md')]: {
+        flexDirection: 'column-reverse',
+      },
     }),
     controlsRowContainer: css({
       '&:empty': {
@@ -139,8 +142,11 @@ function getStyles(theme: GrafanaTheme2) {
       label: 'controls-row',
       display: 'flex',
       // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
-      gap: theme.spacing(1),
+      gap: theme.spacing(2),
       alignItems: 'flex-start',
+      [theme.breakpoints.down('lg')]: {
+        flexDirection: 'column',
+      },
     }),
     controlsContainer: css({
       label: 'controlsContainer',
