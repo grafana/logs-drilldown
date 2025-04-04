@@ -303,6 +303,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         })
       )
       .setOption('showLogContextToggle', true)
+      .setShowMenuAlways(true)
       .setOption('enableInfiniteScrolling', true)
       .setOption('onNewLogsReceived', this.updateVisibleRange)
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
