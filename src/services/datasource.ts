@@ -89,9 +89,12 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
             throw new Error('Invalid datasource!');
           }
 
+          // Cast to LokiDatasource after validation
+          const lokiDs = ds as LokiDatasource;
+
           // override the target datasource to Loki
           request.targets = request.targets?.map((target) => {
-            target.datasource = ds;
+            target.datasource = lokiDs;
             return target;
           });
 
@@ -108,27 +111,27 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
 
           switch (requestType) {
             case 'volume': {
-              await this.getVolume(request, ds, subscriber);
+              await this.getVolume(request, lokiDs, subscriber);
               break;
             }
             case 'patterns': {
-              await this.getPatterns(request, ds, subscriber);
+              await this.getPatterns(request, lokiDs, subscriber);
               break;
             }
             case 'detected_labels': {
-              await this.getDetectedLabels(request, ds, subscriber);
+              await this.getDetectedLabels(request, lokiDs, subscriber);
               break;
             }
             case 'detected_fields': {
-              await this.getDetectedFields(request, ds, subscriber);
+              await this.getDetectedFields(request, lokiDs, subscriber);
               break;
             }
             case 'labels': {
-              await this.getLabels(request, ds, subscriber);
+              await this.getLabels(request, lokiDs, subscriber);
               break;
             }
             default: {
-              this.getData(request, ds, subscriber);
+              this.getData(request, lokiDs, subscriber);
               break;
             }
           }
