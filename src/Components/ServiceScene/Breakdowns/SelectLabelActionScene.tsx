@@ -216,7 +216,6 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
                 <>
                   {popoverRef.current && (
                     <>
-                      {/* @ts-expect-error @todo upgrade typescript */}
                       <Popover
                         {...popperProps}
                         {...rest}

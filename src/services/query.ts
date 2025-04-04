@@ -131,12 +131,12 @@ export function escapeDoubleQuotedLineFilter(filter: AdHocFilterWithLabels) {
   // Is not regex
   if (filter.operator === LineFilterOp.match || filter.operator === LineFilterOp.negativeMatch) {
     if (filter.key === LineFilterCaseSensitive.caseInsensitive) {
-      return sceneUtils.escapeLabelValueInRegexSelector(filter.value);
+      return sceneUtils.escapeLabelValueInRegexSelector(filter.value ?? '');
     } else {
-      return sceneUtils.escapeLabelValueInExactSelector(filter.value);
+      return sceneUtils.escapeLabelValueInExactSelector(filter.value ?? '');
     }
   } else {
-    return sceneUtils.escapeLabelValueInExactSelector(filter.value);
+    return sceneUtils.escapeLabelValueInExactSelector(filter.value ?? '');
   }
 }
 
@@ -167,7 +167,7 @@ export function renderLogQLLineFilter(filters: AdHocFilterWithLabels[]) {
   sortLineFilters(filters);
   return filters
     .map((filter) => {
-      if (filter.value === '') {
+      if (!filter.value) {
         return '';
       }
 

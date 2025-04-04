@@ -127,14 +127,15 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByText('▶Line:{}')).toHaveCount(1);
 
       // Open DeeplyNestedObject
-      await page.getByLabel('DeeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
+      await page.pause();
+      await page.getByLabel('deeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
 
       // Filter by URL
       await page
         .getByLabel(/Include log lines containing url=".+"/)
         .last()
         .click();
-      await expect(page.getByLabel('Edit filter with key nested_object_DeeplyNestedObject_url')).toHaveCount(1);
+      await expect(page.getByLabel('Edit filter with key nested_object_deeplyNestedObject_url')).toHaveCount(1);
 
       // Exclude last line
       await page
@@ -165,14 +166,14 @@ test.describe('explore nginx-json breakdown pages ', () => {
       );
 
       // Drill down again into DeeplyNestedObject
-      await page.getByLabel('Set DeeplyNestedObject as root node').first().click();
+      await page.getByLabel('Set deeplyNestedObject as root node').first().click();
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'false');
       await page
         .getByLabel(/Include log lines containing url=".+"/)
         .first()
         .click();
-      await expect(page.getByLabel('Edit filter with key nested_object_DeeplyNestedObject_url')).toHaveCount(1);
+      await expect(page.getByLabel('Edit filter with key nested_object_deeplyNestedObject_url')).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
 
@@ -181,7 +182,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await page.getByRole('button', { name: 'root', exact: true }).click();
       // Open nested_object
       await page.getByLabel('nested_object', { exact: true }).getByRole('button', { name: '▶' }).click();
-      await page.getByLabel('DeeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
+      await page.getByLabel('deeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
 
       // Both url nodes should have active filter state
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(2);
@@ -202,21 +203,21 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // Expand all nested objects
       await page.getByLabel('nested_object', { exact: true }).first().getByRole('button', { name: '▶' }).click();
-      await page.getByLabel('DeeplyNestedObject', { exact: true }).first().getByRole('button', { name: '▶' }).click();
+      await page.getByLabel('deeplyNestedObject', { exact: true }).first().getByRole('button', { name: '▶' }).click();
       await page
-        .getByLabel('ExtraDeeplyNestedObject', { exact: true })
+        .getByLabel('extraDeeplyNestedObject', { exact: true })
         .first()
         .getByRole('button', { name: '▶' })
         .click();
 
       // Filter all nested objects
       await page.getByLabel('Include log lines that contain nested_object').first().click();
-      await page.getByLabel('Include log lines that contain DeeplyNestedObject').first().click();
-      await page.getByLabel('Include log lines that contain ExtraDeeplyNestedObject').first().click();
+      await page.getByLabel('Include log lines that contain deeplyNestedObject').first().click();
+      await page.getByLabel('Include log lines that contain extraDeeplyNestedObject').first().click();
       await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill into child
-      await page.getByLabel('ExtraDeeplyNestedObject', { exact: true }).getByLabel('Set numArray as root node').click();
+      await page.getByLabel('extraDeeplyNestedObject', { exact: true }).getByLabel('Set numArray as root node').click();
       await expect(page.getByText('▶Line:[]')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill up to the root
