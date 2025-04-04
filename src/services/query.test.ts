@@ -24,6 +24,27 @@ describe('buildDataQuery', () => {
   });
 });
 describe('renderLogQLLineFilter not containing backticks', () => {
+  test('base case - empty string', () => {
+    const filters: AdHocVariableFilter[] = [
+      {
+        key: LineFilterCaseSensitive.caseInsensitive,
+        operator: LineFilterOp.regex,
+        value: '',
+      },
+    ];
+    expect(renderLogQLLineFilter(filters)).toEqual('');
+  });
+  test('should not throw error when value undefined', () => {
+    const filters: AdHocVariableFilter[] = [
+      {
+        key: LineFilterCaseSensitive.caseInsensitive,
+        operator: LineFilterOp.regex,
+        //@ts-expect-error
+        value: undefined,
+      },
+    ];
+    expect(renderLogQLLineFilter(filters)).toEqual('');
+  });
   // REGEXP ops
   test('Renders positive case-insensitive regex', () => {
     const filters: AdHocVariableFilter[] = [
