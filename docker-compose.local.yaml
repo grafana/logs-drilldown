@@ -10,6 +10,8 @@ services:
       - GF_TRACING_OPENTELEMETRY_JAEGER_ADDRESS=http://host.docker.internal:14268/api/traces
       - GF_TRACING_OPENTELEMETRY_JAEGER_PROPAGATION=jaeger,w3c
       - GF_PLUGINS_PREINSTALL_DISABLED=true
+      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     build:
       context: ./.config
       args:
