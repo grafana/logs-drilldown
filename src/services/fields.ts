@@ -141,8 +141,7 @@ export function getFilterBreakdownValueScene(
       .setOption('legend', { showLegend: false })
       .setCustomFieldConfig('fillOpacity', 9)
       .setTitle(getTitle(frame))
-      // 11.5
-      // .setShowMenuAlways(true)
+      .setShowMenuAlways(true)
       .setData(
         new SceneDataTransformer({
           transformations: [() => selectFrameTransformation(frame)],
