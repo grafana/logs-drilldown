@@ -13,7 +13,8 @@ export interface LayoutSwitcherState extends SceneObjectState {
   options: Array<SelectableValue<LayoutType>>;
 }
 
-export type LayoutType = 'single' | 'grid' | 'rows';
+// @todo undo
+export type LayoutType = 'single' | 'grid' | 'rows' | 'variant';
 
 export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   public static Selector = LayoutSwitcherComponent;
