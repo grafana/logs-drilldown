@@ -3,7 +3,7 @@ import { dateTime, TimeRange } from '@grafana/data';
 import { PLUGIN_ID } from './plugin';
 
 // Var declaration is required to hoist subPath, so we can use it in both the jest.mock call below (which is also hoisted), and the test assertion
-let mockSubPath;
+let mockSubPath: string;
 const protocolHost = 'http://localhost:3000';
 
 jest.mock('@grafana/runtime', () => {
