@@ -6,6 +6,7 @@ import { Field, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getDrilldownSlug } from '../../../services/routing';
 import { css } from '@emotion/css';
+import { setSceneLayout, getSceneLayout } from 'services/store';
 
 export interface LayoutSwitcherState extends SceneObjectState {
   active: LayoutType;
@@ -17,13 +18,29 @@ export type LayoutType = 'single' | 'grid' | 'rows';
 
 export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   public static Selector = LayoutSwitcherComponent;
+  constructor(state: LayoutSwitcherState) {
+    super({
+      ...state,
+      active: state.active ?? 'grid',
+    });
+
+    this.addActivationHandler(this.onActivate.bind(this));
+  }
 
   public onLayoutChange = (active: LayoutType) => {
     reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.layout_type_changed, {
       layout: active,
       view: getDrilldownSlug(),
     });
+    setSceneLayout(active);
     this.setState({ active });
+  };
+
+  public onActivate = () => {
+    const layout = getSceneLayout();
+    if (layout) {
+      this.setState({ active: layout as LayoutType });
+    }
   };
 
   public static Component = ({ model }: SceneComponentProps<LayoutSwitcher>) => {
