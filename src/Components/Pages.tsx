@@ -11,13 +11,11 @@ import {
   ChildDrilldownSlugs,
   DRILLDOWN_URL_KEYS,
   extractValuesFromRoute,
-  PageSlugs,
   ParentDrilldownSlugs,
   ROUTE_DEFINITIONS,
   ROUTES,
   SERVICE_URL_KEYS,
   SUB_ROUTES,
-  ValueSlugs,
 } from '../services/routing';
 import { PageLayoutType } from '@grafana/data';
 import { IndexScene } from './IndexScene/IndexScene';
@@ -25,6 +23,7 @@ import { navigateToIndex } from '../services/navigate';
 import { logger } from '../services/logger';
 import { capitalizeFirstLetter } from '../services/text';
 import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
+import { PageSlugs, ValueSlugs } from '../services/enums';
 
 export type RouteProps = { labelName: string; labelValue: string; breakdownLabel?: string };
 export type RouteMatch = SceneRouteMatch<RouteProps>;
