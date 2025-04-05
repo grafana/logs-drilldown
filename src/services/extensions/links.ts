@@ -25,6 +25,7 @@ import { LabelType } from '../fieldsTypes';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { PatternFilterOp } from '../filterTypes';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { locationService } from '@grafana/runtime';
 
 const PRODUCT_NAME = 'Grafana Logs Drilldown';
 const title = `Open in ${PRODUCT_NAME}`;
@@ -228,6 +229,7 @@ export function appendUrlParameter(
   value: string,
   initalParams?: URLSearchParams
 ): URLSearchParams {
+  const location = locationService.getLocation();
   const searchParams = new URLSearchParams(initalParams?.toString() ?? location.search);
   searchParams.append(key, value);
 

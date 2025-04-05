@@ -1145,14 +1145,14 @@ test.describe('explore services breakdown page', () => {
 
   test('should see empty fields UI', async ({ page }) => {
     await page.goto(
-      '/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+      `/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all`
     );
     await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
   });
   test('should see clear fields UI', async ({ page }) => {
     await page.goto(
-      '/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+      `/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all`
     );
     await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
     await expect(page.getByLabel(E2EComboboxStrings.editByKey('bytes'))).toHaveCount(1);
@@ -1750,6 +1750,8 @@ test.describe('explore services breakdown page', () => {
         '%5C%5Cnpage_url%3D%22https:%2F%2Fgrafana%5C.net%2Fexplore%5C%3Fleft%3D%5C%7B%22datasource%22:%22grafanacloud-prom%22,%22queries%22:%5C%5B%5C%7B%22datasource%22:%5C%7B%22type%22:%22prometheus%22,%22uid%22:%22grafanacloud-prom%22%5C%7D,%22expr%22:%22max%20by%20%5C%28kube_cluster_name,%20kube_namespace%5C%29%20%5C%28quantile_over_time%5C%280%5C.85,%20kubernetes_state_pod_age%5C%7Bplatform%3D%22data%22,kube_namespace%21~%22data-dev%5C%7Cdata-stg%22,pod_phase%3D%22pending%22%5C%7D%5C%5B5m%5C%5D%5C%29%5C%29%20%3E%20600%22,%22refId%22:%22A%22%5C%7D%5C%5D,%22range%22:%5C%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%5C%7D%5C%7D%22%60';
       const decodedAndUnescaped =
         '\\\\npage_url="https://grafana.net/explore?left={"datasource":"grafanacloud-prom","queries":[{"datasource":{"type":"prometheus","uid":"grafanacloud-prom"},"expr":"max by (kube_cluster_name, kube_namespace) (quantile_over_time(0.85, kubernetes_state_pod_age{platform="data",kube_namespace!~"data-dev|data-stg",pod_phase="pending"}[5m])) > 600","refId":"A"}],"range":{"from":"now-1h","to":"now"}}"';
+
+      await page.pause();
       await explorePage.gotoServicesOldUrlLineFilters('tempo-distributor', false, urlEncodedAndEscaped);
       const firstLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).first();
 
