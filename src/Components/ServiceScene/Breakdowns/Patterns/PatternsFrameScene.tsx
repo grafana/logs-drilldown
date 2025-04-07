@@ -250,5 +250,9 @@ export function overrideToFixedColor(key: keyof typeof palette): FieldColor {
 const styles = {
   container: css({
     width: '100%',
+    // Hide header on hover hack
+    '.show-on-hover': {
+      display: 'none',
+    },
   }),
 };
