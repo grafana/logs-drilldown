@@ -407,7 +407,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         const newUrl = location.pathname + '?' + search.toString();
         if (currentUrl !== newUrl) {
           if (replace) {
-            console.log('replace', newUrl);
             locationService.replace(newUrl);
           } else {
             pushUrlHandler(newUrl);

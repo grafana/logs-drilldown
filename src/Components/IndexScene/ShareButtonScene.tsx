@@ -240,7 +240,7 @@ export const createAndCopyShortLink = async (path: string) => {
  * Adapted from /grafana/grafana/public/app/features/explore/utils/links.ts
  * Returns the current URL with absolute time range
  */
-export const constructAbsoluteUrl = (timeRange: SceneTimeRangeLike): string => {
+const constructAbsoluteUrl = (timeRange: SceneTimeRangeLike): string => {
   const from = toUtc(timeRange.state.value.from);
   const to = toUtc(timeRange.state.value.to);
   const location = locationService.getLocation();
