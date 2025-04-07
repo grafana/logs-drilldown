@@ -43,7 +43,7 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
     if (layout) {
       if (layout === LayoutTypeEnum.single && this.isTopLevelLayoutType()) {
         // top level layouts do not have single layout type default to grid
-        this.setState({ active: 'grid' });
+        this.setState({ active: LayoutTypeEnum.grid });
       } else {
         this.setState({ active: layout as LayoutType });
       }
