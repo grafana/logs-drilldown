@@ -15,6 +15,11 @@ export interface LayoutSwitcherState extends SceneObjectState {
 }
 
 export type LayoutType = 'single' | 'grid' | 'rows';
+export enum LayoutTypeEnum {
+  single = 'single',
+  grid = 'grid',
+  rows = 'rows',
+}
 
 export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   public static Selector = LayoutSwitcherComponent;
@@ -27,6 +32,24 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
+  public isTopLevelLayoutType = () => {
+    // Top layouts do not have 'single' layout type
+    const isTopLevel = this.state.options.every((o) => o.value !== LayoutTypeEnum.single);
+    return isTopLevel;
+  };
+
+  public updateLayout = () => {
+    const layout = getSceneLayout();
+    if (layout) {
+      if (layout === LayoutTypeEnum.single && this.isTopLevelLayoutType()) {
+        // top level layouts do not have single layout type default to grid
+        this.setState({ active: 'grid' });
+      } else {
+        this.setState({ active: layout as LayoutType });
+      }
+    }
+  };
+
   public onLayoutChange = (active: LayoutType) => {
     reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.layout_type_changed, {
       layout: active,
@@ -37,10 +60,7 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   };
 
   public onActivate = () => {
-    const layout = getSceneLayout();
-    if (layout) {
-      this.setState({ active: layout as LayoutType });
-    }
+    this.updateLayout();
   };
 
   public static Component = ({ model }: SceneComponentProps<LayoutSwitcher>) => {
