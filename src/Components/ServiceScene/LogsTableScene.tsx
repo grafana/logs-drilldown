@@ -77,10 +77,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
     return (
       <div className={styles.panelWrapper} ref={panelWrap}>
+        {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
         <PanelChrome
           loadingState={data?.state}
           title={'Logs'}
           menu={menu ? <menu.Component model={menu} /> : undefined}
+          showMenuAlways={true}
           actions={
             <>
               <Button onClick={() => model.showColumnManagementDrawer(true)} variant={'secondary'} size={'sm'}>
