@@ -218,7 +218,7 @@ export const UrlParameters = {
 export type UrlParameterType = (typeof UrlParameters)[keyof typeof UrlParameters];
 
 export function setUrlParameter(key: UrlParameterType, value: string, initalParams?: URLSearchParams): URLSearchParams {
-  const searchParams = new URLSearchParams(initalParams?.toString() ?? location.search);
+  const searchParams = new URLSearchParams(initalParams?.toString() ?? locationService.getSearch());
   searchParams.set(key, value);
 
   return searchParams;
