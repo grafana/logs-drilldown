@@ -1,3 +1,32 @@
+## 1.0.11 (2025-04-07)
+
+##### Chores
+
+*  (gh actions) - pin to tag for security (#1173) (a58f29ec)
+*  Bump @grafana/create-plugin configuration to 5.19.1 (#1159) (ae36050c)
+*  Fix e2e test (#1135) (7873d6dd)
+
+##### Documentation Changes
+
+*  Update readme to include discover_log_levels config requirement (#1143) (359e9766)
+
+##### New Features
+
+*  Add critical/fatal log level (#1146) (038a8146)
+*  Add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
+
+##### Bug Fixes
+
+*  Links should use `firstValueFrom` (#1170) (7caf11c8)
+*  Changelog (#1169) (c662e796)
+*  Error being thrown when toggling case sensitivity with empty value (#1153) (156245c9)
+*  Set step as 10s for aggregated metric queries (#1145) (b370c190)
+
+##### Other Changes
+
+*  Remove padding and combine level with fields (#1168) (977a839d)
+*  Make extensions compatibly with different Grafana versions (#1148) (e2c75d29)
+
 ## 1.0.10
 
 ##### Chores
