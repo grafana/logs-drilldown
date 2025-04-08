@@ -280,42 +280,38 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const parentModel = this.getParentScene();
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    return (
-      PanelBuilders.logs()
-        .setTitle(this.getTitle(serviceScene.state.logsCount))
-        .setOption('showTime', true)
-        .setOption('onClickFilterLabel', this.handleLabelFilterClick)
-        .setOption('onClickFilterOutLabel', this.handleLabelFilterOutClick)
-        .setOption('isFilterLabelActive', this.handleIsFilterLabelActive)
-        .setOption('onClickFilterString', this.handleFilterStringClick)
-        .setOption('onClickFilterOutString', this.handleFilterOutStringClick)
-        .setOption('onClickShowField', this.onClickShowField)
-        .setOption('onClickHideField', this.onClickHideField)
-        .setOption('displayedFields', parentModel.state.displayedFields)
-        .setOption('sortOrder', options.sortOrder ?? getLogsPanelSortOrderFromStore())
-        .setOption('wrapLogMessage', options.wrapLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false)))
-        .setOption(
-          'prettifyLogMessage',
-          options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
-        )
-        .setMenu(
-          new PanelMenu({
-            investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
-          })
-        )
-        .setOption('showLogContextToggle', true)
-        // @ts-expect-error Requires Grafana 11.5
-        .setOption('enableInfiniteScrolling', true)
-        // @ts-expect-error Grafana 11.5
-        .setOption('onNewLogsReceived', this.updateVisibleRange)
-        // @ts-expect-error Grafana 11.5
-        .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
+    return PanelBuilders.logs()
+      .setTitle(this.getTitle(serviceScene.state.logsCount))
+      .setOption('showTime', true)
+      .setOption('onClickFilterLabel', this.handleLabelFilterClick)
+      .setOption('onClickFilterOutLabel', this.handleLabelFilterOutClick)
+      .setOption('isFilterLabelActive', this.handleIsFilterLabelActive)
+      .setOption('onClickFilterString', this.handleFilterStringClick)
+      .setOption('onClickFilterOutString', this.handleFilterOutStringClick)
+      .setOption('onClickShowField', this.onClickShowField)
+      .setOption('onClickHideField', this.onClickHideField)
+      .setOption('displayedFields', parentModel.state.displayedFields)
+      .setOption('sortOrder', options.sortOrder ?? getLogsPanelSortOrderFromStore())
+      .setOption('wrapLogMessage', options.wrapLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false)))
+      .setOption(
+        'prettifyLogMessage',
+        options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
+      )
+      .setMenu(
+        new PanelMenu({
+          investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
+        })
+      )
+      .setOption('showLogContextToggle', true)
+      .setShowMenuAlways(true)
+      .setOption('enableInfiniteScrolling', true)
+      .setOption('onNewLogsReceived', this.updateVisibleRange)
+      .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
 
-        .setHeaderActions(
-          new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
-        )
-        .build()
-    );
+      .setHeaderActions(
+        new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
+      )
+      .build();
   }
 
   private updateVisibleRange = (newLogs: DataFrame[]) => {
