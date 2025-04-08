@@ -31,12 +31,11 @@ export default defineConfig<PluginOptions>({
     baseURL: 'http://localhost:3001',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-
+    trace: 'on',
     // Turn on when debugging local tests
-    // video: {
-    //   mode: 'on',
-    // }
+    video: {
+      mode: 'on',
+    },
   },
   expect: { timeout: 15000 },
 
