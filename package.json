@@ -36,6 +36,7 @@
     "e2e:codegen": "playwright install && playwright codegen",
     "generate-logs": "pushd generator; docker build -t log-generator . && docker run log-generator -url http://host.docker.internal:3100/loki/api/v1/push; popd",
     "server": "docker compose -f docker-compose.local.yaml up --build",
+    "start": "yarn build && docker compose -f docker-compose.local.yaml up --build -d && yarn dev",
     "server:localLoki": "docker compose -f docker-compose-local-loki.dev.yaml up --build",
     "server:ci": "docker compose -f docker-compose.dev.yaml up --build -d",
     "sign": "npx --yes @grafana/sign-plugin@latest",
@@ -115,11 +116,11 @@
   "dependencies": {
     "@bsull/augurs": "^0.6.0",
     "@emotion/css": "^11.10.6",
-    "@grafana/data": "^11.3.0",
+    "@grafana/data": "^11.6.0",
     "@grafana/lezer-logql": "^0.2.7",
-    "@grafana/runtime": "^11.3.0",
+    "@grafana/runtime": "^11.6.0",
     "@grafana/scenes": "6.6.3",
-    "@grafana/ui": "^11.3.0",
+    "@grafana/ui": "^11.6.0",
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
@@ -133,7 +134,6 @@
   },
   "resolutions": {
     "react-router-dom": "^6.22.0"
-
   },
   "packageManager": "yarn@1.22.21"
 }

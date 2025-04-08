@@ -3,26 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, useTheme2, Text } from '@grafana/ui';
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    graphicContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      margin: '0 auto',
-    }),
-    graphic: css({ width: '200px', height: '120px', padding: theme.spacing(1) }),
-    text: css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }),
-    wrap: css({
-      margin: '0 auto',
-    }),
-  };
-};
+import { useStyles2, EmptyState } from '@grafana/ui';
 
 type Props = {
   children?: React.ReactNode;
@@ -30,25 +11,19 @@ type Props = {
 
 export const GrotError = ({ children }: React.PropsWithChildren<Props>) => {
   const styles = useStyles2(getStyles);
-  const theme = useTheme2();
   return (
     <div className={styles.wrap}>
-      <div className={styles.graphicContainer}>
-        <img
-          className={styles.graphic}
-          src={
-            theme.isDark
-              ? `/public/plugins/grafana-lokiexplore-app/img/grot_err.svg`
-              : `/public/plugins/grafana-lokiexplore-app/img/grot_err_light.svg`
-          }
-          alt="Grot error illustration"
-        />
-      </div>
-      <div className={styles.text}>
-        <Text textAlignment="center" color="primary" element="span">
-          {children ? children : 'An error occurred'}
-        </Text>
-      </div>
+      <EmptyState variant="not-found" message={children ? '' : 'An error occurred'}>
+        {children && children}
+      </EmptyState>
     </div>
   );
+};
+
+const getStyles = (theme: GrafanaTheme2) => {
+  return {
+    wrap: css({
+      margin: '0 auto',
+    }),
+  };
 };
