@@ -43,7 +43,7 @@ datasources:
     type: loki
     typeName: Loki
     typeLogoUrl: public/app/plugins/datasource/loki/img/loki_icon.svg
-    uid: grafanacloud-logs
+    uid: grafanacloud-dev-logs
     url: https://logs-dev-005.grafana-dev.net
     basicAuth: true
     isDefault: false
