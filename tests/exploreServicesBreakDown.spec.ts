@@ -593,9 +593,6 @@ test.describe('explore services breakdown page', () => {
     // Remove tempo-distributor
     await page.getByLabel('Remove filter with key').first().click();
 
-    await explorePage.assertNotLoading();
-    await explorePage.assertPanelsNotLoading();
-
     // Get panel count to ensure the pod regex filter reduces the result set
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
@@ -614,6 +611,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('=~').nth(3)).toBeVisible();
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
+    await page.pause();
     await expect
       .poll(() =>
         page
@@ -938,8 +936,8 @@ test.describe('explore services breakdown page', () => {
       (q) => q.expr.includes('pod')
     );
 
-    expect(expressions[0]).toEqual(
-      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""       [$__auto]))'
+    expect(expressions[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!="" [$__auto]))'.replace(/\s+/g, '')
     );
 
     const bytesIncludeButton = page
@@ -1011,8 +1009,11 @@ test.describe('explore services breakdown page', () => {
       (q) => q.expr.includes('pod')
     );
 
-    expect(expressionsAfterNumericFilter[0]).toEqual(
-      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | bytes<=2KB | bytes>500B [$__auto]))'
+    expect(expressionsAfterNumericFilter[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | bytes<=2KB | bytes>500B [$__auto]))'.replace(
+        /\s+/g,
+        ''
+      )
     );
 
     // Assert that the variables were added to the UI

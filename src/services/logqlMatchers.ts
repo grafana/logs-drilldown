@@ -108,7 +108,7 @@ function parseLabelFilters(query: string, filter: IndexedLabelFilter[]) {
     if (!identifierPosition || identifierPosition.length === 0) {
       continue;
     }
-    
+
     const valuePosition = getAllPositionsInNodeByType(matcher, String);
     const operator = query.substring(identifierPosition[0].to, valuePosition[0].from);
     const key = identifierPosition[0].getExpression(query);
