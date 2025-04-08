@@ -277,8 +277,7 @@ function buildValueSummaryPanel(title: string, options?: { levelColor?: boolean 
     .setCustomFieldConfig('lineWidth', 0)
     .setCustomFieldConfig('pointSize', 0)
     .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
-    // 11.5
-    // .setShowMenuAlways(true)
+    .setShowMenuAlways(true)
     .setSeriesLimit(SUMMARY_PANEL_SERIES_LIMIT);
 
   if (options?.levelColor) {

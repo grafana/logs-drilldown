@@ -11,6 +11,7 @@ import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/Pa
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
 const DS_LOCALSTORAGE_KEY = `${pluginJson.id}.datasource`;
+const SCENE_LAYOUT_LOCALSTORAGE_KEY = `${pluginJson.id}.scene.layout`;
 
 // This should be a string, but we'll accept anything and return an empty array if it's not a string
 export function getFavoriteLabelValuesFromStorage(dsKey: string | unknown, labelName: string): string[] {
@@ -340,4 +341,12 @@ export function getServiceSelectionPageCount(): number | undefined {
 }
 export function setServiceSelectionPageCount(pageCount: number) {
   localStorage.setItem(SERVICE_SELECTION_PAGE_COUNT_KEY, pageCount.toString(10));
+}
+
+export function getSceneLayout(): string | null {
+  const value = localStorage.getItem(SCENE_LAYOUT_LOCALSTORAGE_KEY);
+  return value;
+}
+export function setSceneLayout(layout: string) {
+  localStorage.setItem(SCENE_LAYOUT_LOCALSTORAGE_KEY, layout);
 }

@@ -378,8 +378,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
               minHeight: 300,
               body: PanelBuilders.timeseries()
                 .setTitle(optionValue)
-                // 11.5
-                // .setShowMenuAlways(true)
+                .setShowMenuAlways(true)
                 .setMenu(new PanelMenu({}))
                 .build(),
             }),
