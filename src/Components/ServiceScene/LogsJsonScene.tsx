@@ -60,6 +60,7 @@ import {
   renderJSONVizTimeStamp,
   rootNodeItemString,
 } from '../../services/JSONViz';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -215,6 +216,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     lineFormatVariable.setState({
       filters: lineFormatFiltersToKeep,
     });
+
+    this.lineFormatEvent('remove', key);
   };
 
   /**
@@ -234,11 +237,27 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       lineFormatVar.setState({
         filters: fullPathFilters,
       });
+      this.lineFormatEvent('add', keyPath[0].toString());
     } else {
       // Otherwise we're drilling back up to the root
       removeLineFormatFilters(this);
       clearJsonParserFields(this);
+      this.lineFormatEvent('remove', 'root');
     }
+  };
+
+  /**
+   * Fires rudderstack event when the viz adds/removes a new root (line format)
+   */
+  private lineFormatEvent = (type: 'add' | 'remove', key: string) => {
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.change_line_format_in_json_panel,
+      {
+        key,
+        type: type,
+      }
+    );
   };
 
   /**
@@ -281,6 +300,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
     addToFilters(key, value, filterType, logsListScene, VAR_FIELDS, false, true);
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
+      {
+        filterType: 'json',
+        key,
+        action: filterType,
+      }
+    );
   };
 
   /**
