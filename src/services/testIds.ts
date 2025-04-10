@@ -48,7 +48,7 @@ export const testIds = {
   },
 
   index: {
-    showLogsButton: 'data-testid Show logs',
+    showLogsButton: 'data-testid button-filter-include',
     addNewLabelTab: 'data-testid Tab Add label',
     searchLabelValueInput: 'data-testid search-services-input',
     aggregatedMetricsMenu: 'data-testid aggregated-metrics-menu',

@@ -123,6 +123,10 @@ export class ExplorePage {
     await this.firstServicePageSelect.click();
   }
 
+  async clickShowLogs() {
+    await this.page.getByTestId('data-testid Show logs header').click();
+  }
+
   /**
    * Changes the datasource from gdev-loki to gdev-loki-copy
    */
