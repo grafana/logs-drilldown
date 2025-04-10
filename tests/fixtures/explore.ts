@@ -424,3 +424,5 @@ export enum ComboBoxIndex {
 }
 
 export const serviceSelectionPaginationTextMatch = /of \d+/;
+
+export const E2ESubPath = '/grafana';
