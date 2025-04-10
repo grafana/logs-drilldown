@@ -963,7 +963,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       this.state.body.setState({
         children: newChildren,
         isLazy: true,
-        templateColumns: 'repeat(auto-fit, minmax(500px, 1fr) minmax(300px, 70vw))',
+        templateColumns: 'repeat(auto-fit, minmax(300px, 1fr) minmax(300px, 70vw))',
         autoRows: '200px',
         md: {
           templateColumns: '1fr',
