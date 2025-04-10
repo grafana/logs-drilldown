@@ -6,6 +6,8 @@ import { EmbeddedLogsExplorationProps } from './types';
 import { initializeMetadataService } from 'services/metadata';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 
+import initRuntimeDs from 'services/datasource';
+
 function buildLogsExplorationFromState({
   timeRangeState,
   onTimeRangeChange,
@@ -22,6 +24,8 @@ function buildLogsExplorationFromState({
   if (!query) {
     return null;
   }
+
+  initRuntimeDs();
 
   const { labelFilters } = getMatcherFromQuery(query);
 

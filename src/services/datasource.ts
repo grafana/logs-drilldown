@@ -507,7 +507,12 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 }
 
+let initialized = false;
 function init() {
+  if (initialized) {
+    return;
+  }
+  initialized = true;
   sceneUtils.registerRuntimeDataSource({
     dataSource: new WrappedLokiDatasource('wrapped-loki-ds', WRAPPED_LOKI_DS_UID),
   });
