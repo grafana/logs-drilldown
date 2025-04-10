@@ -14,7 +14,8 @@ export interface LayoutSwitcherState extends SceneObjectState {
   options: Array<SelectableValue<LayoutType>>;
 }
 
-export type LayoutType = 'single' | 'grid' | 'rows';
+// @todo undo
+export type LayoutType = 'single' | 'grid' | 'rows' | 'variant';
 
 export enum LayoutTypeEnum {
   single = 'single',
