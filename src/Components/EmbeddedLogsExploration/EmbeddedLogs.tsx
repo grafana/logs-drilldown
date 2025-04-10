@@ -4,8 +4,14 @@ import { SceneTimeRange } from '@grafana/scenes';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { EmbeddedLogsExplorationProps } from './types';
 import { initializeMetadataService } from 'services/metadata';
+import { getMatcherFromQuery } from 'services/logqlMatchers';
 
-function buildLogsExplorationFromState({ timeRangeState, onTimeRangeChange, ...state }: EmbeddedLogsExplorationProps) {
+function buildLogsExplorationFromState({
+  timeRangeState,
+  onTimeRangeChange,
+  query,
+  ...state
+}: EmbeddedLogsExplorationProps) {
   const $timeRange = new SceneTimeRange(timeRangeState);
   $timeRange.subscribeToState((state) => {
     if (onTimeRangeChange) {
@@ -13,10 +19,16 @@ function buildLogsExplorationFromState({ timeRangeState, onTimeRangeChange, ...s
     }
   });
 
+  if (!query) {
+    return null;
+  }
+
+  const { labelFilters } = getMatcherFromQuery(query);
+
   return new IndexScene({
     ...state,
     $timeRange,
-    initialFilters: [{ key: 'service_name', operator: '=', value: 'loki' }],
+    initialFilters: labelFilters,
     embedded: true,
   });
 }
