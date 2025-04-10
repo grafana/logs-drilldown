@@ -480,16 +480,16 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       })
       .setHeaderActions([
         new FavoriteServiceHeaderActionScene({
-          ds: datasourceVar.getValue()?.toString(),
+          ds: datasourceVar.getValue()?.toString() ?? '',
           labelName: primaryLabelName,
           labelValue: primaryLabelValue,
         }),
-        new AddLabelToFiltersHeaderActionScene({
-          name: primaryLabelName,
-          value: primaryLabelValue,
-          hidden: this.isAggregatedMetricsActive(),
-        }),
-        new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }),
+        this.isAggregatedMetricsActive()
+          ? new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName })
+          : new AddLabelToFiltersHeaderActionScene({
+              name: primaryLabelName,
+              value: primaryLabelValue,
+            }),
       ])
       .build();
 
