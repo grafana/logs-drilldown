@@ -213,7 +213,7 @@ export function selectFramesTransformation(frames: DataFrame[], labelName: strin
 
 export function getVariantAndLabel(frame: DataFrame): { variant: number; labelName: string } {
   const valueField = frame.fields[1];
-  const labels = valueField.labels;
+  const labels = valueField?.labels;
   let variant: number | undefined = undefined;
   let labelName: string | undefined = undefined;
 

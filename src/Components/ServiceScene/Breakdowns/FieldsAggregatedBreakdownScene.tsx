@@ -375,7 +375,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
     const variantExpr = VARIANT_EXPR.replace(
       VARIANT_PLACEHOLDER,
-      childrenQueries.map((query) => query.expr).join(',\n\t')
+      childrenQueries
+        .filter((query) => !query.expr.includes('avg_over_time'))
+        .map((query) => query.expr)
+        .join(',\n\t')
     );
     console.log('variant interpolated:', {
       interpolated: sceneGraph.interpolate(this, variantExpr),

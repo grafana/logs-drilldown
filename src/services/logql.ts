@@ -47,14 +47,16 @@ export function requestSupportsSharding(request: SceneDataQueryRequest) {
 
 const SHARDING_PLACEHOLDER = '__stream_shard_number__';
 export const addShardingPlaceholderSelector = (query: string) => {
-  return query.replace('}', `, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`);
+  //@ts-expect-error replaceAll requires es2021
+  return query.replaceAll('}', `, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`);
 };
 
 export const interpolateShardingSelector = (queries: LokiQuery[], shards?: number[]) => {
   if (shards === undefined || shards.length === 0) {
     return queries.map((query) => ({
       ...query,
-      expr: query.expr.replace(`, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`, '}'),
+      //@ts-expect-error replaceAll requires es2021
+      expr: query.expr.replaceAll(`, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`, '}'),
     }));
   }
 
@@ -65,22 +67,30 @@ export const interpolateShardingSelector = (queries: LokiQuery[], shards?: numbe
     shardValue = shardValue === '-1' ? '' : shardValue;
     return queries.map((query) => ({
       ...query,
-      expr: query.expr.replace(`, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`, `, __stream_shard__="${shardValue}"}`),
+      //@ts-expect-error replaceAll requires es2021
+      expr: query.expr.replaceAll(
+        `, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`,
+        `, __stream_shard__="${shardValue}"}`
+      ),
     }));
   }
 
   return queries.map((query) => ({
     ...query,
-    expr: query.expr.replace(new RegExp(`${SHARDING_PLACEHOLDER}`, 'g'), shardValue),
+    //@ts-expect-error replaceAll requires es2021
+    expr: query.expr.replaceAll(new RegExp(`${SHARDING_PLACEHOLDER}`, 'g'), shardValue),
   }));
 };
 
 export const getSelectorForShardValues = (query: string) => {
   const selector = getNodesFromQuery(query, [Selector]);
   if (selector.length > 0) {
-    return query
-      .substring(selector[0].from, selector[0].to)
-      .replace(`, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`, '}');
+    return (
+      query
+        .substring(selector[0].from, selector[0].to)
+        //@ts-expect-error replaceAll requires es2021
+        .replaceAll(`, __stream_shard__=~"${SHARDING_PLACEHOLDER}"}`, '}')
+    );
   }
   return '';
 };
