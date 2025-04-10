@@ -34,7 +34,29 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.setState({
       menu: new PanelMenu({ addInvestigationsLink: false }),
     });
+    this.onActivateSyncDisplayedFieldsWithUrlColumns();
   }
+
+  private getParentScene() {
+    return sceneGraph.getAncestor(this, LogsListScene);
+  }
+
+  // on activate sync displayed fields with url columns
+  onActivateSyncDisplayedFieldsWithUrlColumns = () => {
+    const parentModel = this.getParentScene();
+    parentModel.setState({
+      urlColumns: Array.from(new Set([...parentModel.state.displayedFields])),
+    });
+  };
+
+  // setUrlColumns update displayed fields in the parent scene
+  updateDisplayedFields = (urlColumns: string[]) => {
+    const parentModel = this.getParentScene();
+    parentModel.setState({
+      displayedFields: Array.from(new Set([...(urlColumns || [])])),
+    });
+  };
+
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
     const styles = useStyles2(getStyles);
     // Get state from parent model
@@ -62,6 +84,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const setUrlColumns = (urlColumns: string[]) => {
       if (!areArraysStrictlyEqual(urlColumns, parentModel.state.urlColumns)) {
         parentModel.setState({ urlColumns });
+        // sync table urlColumns with log panel displayed fields
+        model.updateDisplayedFields(urlColumns);
       }
     };
 
