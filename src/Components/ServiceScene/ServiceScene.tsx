@@ -152,7 +152,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         [TabNames.logs]: false,
       },
       loading: true,
-      body: state.body ?? buildGraphScene(),
+      body: state.body,
       $data: getServiceSceneQueryRunner(),
       $patternsData: getPatternsQueryRunner(),
       $detectedLabelsData: getDetectedLabelsQueryRunner(),
@@ -290,6 +290,9 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     if (indexScene.state.embedded) {
       this.setState({ embedded: true });
+    }
+    if (!this.state.body) {
+      this.setState({ body: this.buildGraphScene() });
     }
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
@@ -547,7 +550,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (!this.state.body) {
-      stateUpdate.body = buildGraphScene();
+      stateUpdate.body = this.buildGraphScene();
     }
 
     if (Object.keys(stateUpdate).length) {
@@ -560,6 +563,20 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       return 'logs';
     }
     return getDrilldownSlug();
+  }
+
+  private buildGraphScene() {
+    return new SceneFlexLayout({
+      direction: 'column',
+      children: [
+        new SceneFlexItem({
+          ySizing: 'content',
+          body: new ActionBarScene({
+            embedded: this.state.embedded,
+          }),
+        }),
+      ],
+    });
   }
 
   public setBreakdownView() {
@@ -606,18 +623,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     return <LoadingPlaceholder text={'Loading...'} />;
   };
-}
-
-function buildGraphScene() {
-  return new SceneFlexLayout({
-    direction: 'column',
-    children: [
-      new SceneFlexItem({
-        ySizing: 'content',
-        body: new ActionBarScene({}),
-      }),
-    ],
-  });
 }
 
 function getPatternsQueryRunner() {
