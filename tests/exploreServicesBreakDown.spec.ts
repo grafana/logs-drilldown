@@ -203,6 +203,17 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText(`drop __error__, __error_details__`)).toBeVisible();
   });
 
+  test(`sync log panel displayed fields with table url columns`, async ({ page }) => {
+    await explorePage.goToLogsTab();
+    // Open log details
+    await page.getByTitle('See log details').nth(1).click();
+    await page.getByLabel('Show this field instead of').nth(1).click();
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    // Check column headers are visible
+    await expect(page.getByRole('columnheader')).toHaveCount(2);
+  });
+
   test(`should persist column ordering`, async ({ page }) => {
     const table = page.getByTestId(testIds.table.wrapper);
     await explorePage.goToLogsTab();
