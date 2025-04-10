@@ -95,6 +95,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedLabelsData: SceneQueryRunner | undefined;
   $detectedFieldsData: SceneQueryRunner | undefined;
   loadingStates: ServiceSceneLoadingStates;
+  embedded?: boolean;
 }
 
 export function getLogsPanelFrame(data: PanelData | undefined) {
@@ -176,7 +177,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
 
         // If we remove the service name filter, we should redirect to the start
-        let { labelName, labelValue, breakdownLabel } = getPrimaryLabelFromUrl();
+        let { labelName, labelValue, breakdownLabel } = this.getPrimaryLabel();
 
         // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
         if (labelName === SERVICE_UI_LABEL) {
@@ -233,6 +234,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     );
   }
 
+  private getPrimaryLabel() {
+    if (this.state.embedded) {
+      const variable = getLabelsVariable(this);
+      return { labelName: variable.state.filters[0].key, labelValue: variable.state.filters[0].value };
+    }
+    return getPrimaryLabelFromUrl();
+  }
+
   private redirectToStart() {
     // Clear ongoing queries
     this.setState({
@@ -278,6 +287,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    if (indexScene.state.embedded) {
+      this.setState({ embedded: true });
+    }
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: true });
@@ -542,9 +555,16 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
+  private getBreakdownView() {
+    if (this.state.embedded) {
+      return 'logs';
+    }
+    return getDrilldownSlug();
+  }
+
   public setBreakdownView() {
     const { body } = this.state;
-    const breakdownView = getDrilldownSlug();
+    const breakdownView = this.getBreakdownView();
     const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === breakdownView);
 
     if (!body) {

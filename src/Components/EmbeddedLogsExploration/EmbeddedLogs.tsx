@@ -14,9 +14,10 @@ function buildLogsExplorationFromState({ timeRangeState, onTimeRangeChange, ...s
   });
 
   return new IndexScene({
-    $timeRange,
-    //embedded: true,
     ...state,
+    $timeRange,
+    initialFilters: [{ key: 'service_name', operator: '=', value: 'loki' }],
+    embedded: true,
   });
 }
 

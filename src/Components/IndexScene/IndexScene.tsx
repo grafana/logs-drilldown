@@ -114,16 +114,21 @@ export interface IndexSceneState extends SceneObjectState {
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
+  embedded: boolean;
+}
+
+interface EmbeddedIndexSceneConstructor {
+  datasourceUid?: string;
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
-  public constructor(state: Partial<IndexSceneState>) {
-    const { variablesScene, unsub } = getVariableSet(
-      getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
-      state.initialFilters
-    );
+  public constructor({
+    datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
+    ...state
+  }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
+    const { variablesScene, unsub } = getVariableSet(datasourceUid, state.initialFilters);
 
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -182,6 +187,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       controls: state.controls ?? controls,
       // Need to clear patterns state when the class in constructed
       patterns: [],
+      embedded: state.embedded ?? false,
       ...state,
       body: new LayoutScene({}),
     });
@@ -218,7 +224,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     showLogsButton.setState({ hidden: false });
 
     if (!this.state.contentScene) {
-      stateUpdate.contentScene = getContentScene(this.state.routeMatch?.params.breakdownLabel);
+      stateUpdate.contentScene = this.getContentScene();
     }
     this.setTagProviders();
     this.setState(stateUpdate);
@@ -254,6 +260,15 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
     };
+  }
+
+  private getContentScene() {
+    if (this.state.embedded) {
+      return new ServiceScene({
+        embedded: true,
+      });
+    }
+    return getContentScene(this.state.routeMatch?.params.breakdownLabel);
   }
 
   private subscribeToCombinedFieldsVariable = (
