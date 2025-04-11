@@ -205,13 +205,27 @@ test.describe('explore services breakdown page', () => {
 
   test(`sync log panel displayed fields with table url columns`, async ({ page }) => {
     await explorePage.goToLogsTab();
+
     // Open log details
     await page.getByTitle('See log details').nth(1).click();
     await page.getByLabel('Show this field instead of').nth(1).click();
+
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
+
     // Check column headers are visible
     await expect(page.getByRole('columnheader')).toHaveCount(2);
+
+    // Extract the current URL
+    const currentUrl = page.url();
+
+    // Parse the URL to get query parameters
+    const urlObj = new URL(currentUrl);
+    const displayedFields = urlObj.searchParams.get('displayedFields');
+    const urlColumns = urlObj.searchParams.get('urlColumns');
+
+    // Check if displayedFields is the same as urlColumns
+    expect(displayedFields).toBe(urlColumns);
   });
 
   test(`should persist column ordering`, async ({ page }) => {
