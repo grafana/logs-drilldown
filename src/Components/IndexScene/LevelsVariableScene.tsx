@@ -23,6 +23,7 @@ export interface LevelsVariableSceneState extends SceneObjectState {
   isLoading: boolean;
   visible: boolean;
   isOpen: boolean;
+  embedded?: boolean;
 }
 export const LEVELS_VARIABLE_SCENE_KEY = 'levels-var-custom-renderer';
 export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneState> {
@@ -92,7 +93,9 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
   onChangeOptions = (options: SelectableValue[]) => {
     // Save current url to history before the filter change
-    addCurrentUrlToHistory();
+    if (!this.state.embedded) {
+      addCurrentUrlToHistory();
+    }
 
     this.setState({
       options: this.state.options?.map((value) => {

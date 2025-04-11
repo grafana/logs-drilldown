@@ -189,7 +189,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       patterns: [],
       embedded: state.embedded ?? false,
       ...state,
-      body: new LayoutScene({}),
+      body: new LayoutScene({
+        embedded: state.embedded ?? false,
+      }),
     });
 
     this._subs.add(unsub);

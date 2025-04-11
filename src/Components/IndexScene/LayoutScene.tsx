@@ -17,6 +17,7 @@ interface LayoutSceneState extends SceneObjectState {
   lineFilterRenderer?: LineFilterVariablesScene;
   levelsRenderer?: LevelsVariableScene;
   variableLayout?: SceneObject;
+  embedded?: boolean;
 }
 
 const interceptBannerStorageKey = `${PLUGIN_ID}.interceptBannerStorageKey`;
@@ -75,8 +76,12 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
 
   public onActivate() {
     this.setState({
-      lineFilterRenderer: new LineFilterVariablesScene({}),
-      levelsRenderer: new LevelsVariableScene({}),
+      lineFilterRenderer: new LineFilterVariablesScene({
+        embedded: this.state.embedded,
+      }),
+      levelsRenderer: new LevelsVariableScene({
+        embedded: this.state.embedded,
+      }),
       variableLayout: new VariableLayoutScene({}),
     });
   }
