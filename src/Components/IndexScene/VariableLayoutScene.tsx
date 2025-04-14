@@ -37,7 +37,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
               <div className={styles.controlsWrapper}>
-                <GiveFeedbackButton />
+                {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
                   {controls.map((control) => {
                     return control.state.key === CONTROLS_VARS_DATASOURCE ? (
