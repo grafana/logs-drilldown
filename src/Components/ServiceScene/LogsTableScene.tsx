@@ -13,6 +13,8 @@ import { getVariableForLabel } from '../../services/fields';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 
+let defaultUrlColumns = ['timestamp', 'body'];
+
 interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
   isColumnManagementActive: boolean;
@@ -44,16 +46,26 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
     const parentModel = this.getParentScene();
+
     parentModel.setState({
-      urlColumns: Array.from(new Set([...parentModel.state.displayedFields])),
+      urlColumns: Array.from(new Set([...defaultUrlColumns, ...parentModel.state.displayedFields])),
     });
   };
 
   // setUrlColumns update displayed fields in the parent scene
   updateDisplayedFields = (urlColumns: string[]) => {
     const parentModel = this.getParentScene();
+
+    // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
+    defaultUrlColumns = defaultUrlColumns.filter((col) => urlColumns.includes(col));
+
+    // Remove any default urlColumn for displayedFields
+    const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
+      (field) => !defaultUrlColumns.includes(field)
+    );
+
     parentModel.setState({
-      displayedFields: Array.from(new Set([...(urlColumns || [])])),
+      displayedFields: newDisplayedFields,
     });
   };
 
