@@ -62,6 +62,7 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
     <Tooltip placement={'auto-start'} show={!!errorMessage && invalid} content={errorMessage}>
       <Input
         invalid={invalid}
+        aria-invalid={invalid}
         rows={2}
         width={width}
         value={value}
