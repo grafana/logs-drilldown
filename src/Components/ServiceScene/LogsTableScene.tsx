@@ -1,6 +1,7 @@
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LogsListScene } from './LogsListScene';
 import { AdHocVariableFilter, GrafanaTheme2 } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import { TableProvider } from '../Table/TableProvider';
 import React, { useRef } from 'react';
 import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
@@ -46,7 +47,17 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    const urlColumnsParam = searchParams.get('urlColumns');
+    const urlColumnsUrl = urlColumnsParam ? (JSON.parse(decodeURIComponent(urlColumnsParam)) as string[]) : null;
     const parentModel = this.getParentScene();
+    // Sync from url
+    defaultUrlColumns = urlColumnsUrl
+      ? this.urlHasDefaultUrlColumns(urlColumnsUrl)
+        ? this.updateDefaultUrlColumns(urlColumnsUrl)
+        : defaultUrlColumns
+      : defaultUrlColumns;
+    defaultUrlColumns = defaultUrlColumns.length > 0 ? defaultUrlColumns : defaultUrlColumns;
     parentModel.setState({
       urlColumns: Array.from(new Set([...defaultUrlColumns, ...parentModel.state.displayedFields])),
     });
@@ -55,18 +66,36 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   // setUrlColumns update displayed fields in the parent scene
   updateDisplayedFields = (urlColumns: string[]) => {
     const parentModel = this.getParentScene();
-
     // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
-    defaultUrlColumns = defaultUrlColumns.filter((col) => urlColumns.includes(col));
+    defaultUrlColumns = this.updateDefaultUrlColumns(urlColumns);
 
     // Remove any default urlColumn for displayedFields
     const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
       (field) => !defaultUrlColumns.includes(field)
     );
-
+    // Todo: update url for explore
     parentModel.setState({
       displayedFields: newDisplayedFields,
     });
+  };
+
+  // check if url has default columns initially there are none so we need to keep defualt values
+  urlHasDefaultUrlColumns = (urlColumns: string[]) => {
+    return defaultUrlColumns.some((col) => urlColumns.includes(col));
+  };
+
+  // update defaultUrlColumns and match order
+  updateDefaultUrlColumns = (urlColumns: string[]) => {
+    defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
+      // return the column in the same index position as urlColumns
+      if (urlColumns.includes(col)) {
+        const urlIndex = urlColumns.indexOf(col);
+        acc[urlIndex] = col;
+      }
+      return acc;
+    }, []);
+
+    return defaultUrlColumns;
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
