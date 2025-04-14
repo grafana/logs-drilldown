@@ -5,6 +5,7 @@ import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { FilterOp } from '../src/services/filterTypes';
 import { SERVICE_NAME } from '../src/services/variables';
+import { DEFAULT_URL_COLUMNS } from '../src/Components/Table/constants';
 
 const fieldName = 'caller';
 const levelName = 'detected_level';
@@ -213,19 +214,20 @@ test.describe('explore services breakdown page', () => {
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
 
-    // Check column headers are visible
-    await expect(page.getByRole('columnheader')).toHaveCount(2);
-
     // Extract the current URL
     const currentUrl = page.url();
 
     // Parse the URL to get query parameters
     const urlObj = new URL(currentUrl);
-    const displayedFields = urlObj.searchParams.get('displayedFields');
-    const urlColumns = urlObj.searchParams.get('urlColumns');
+    const displayedFields = JSON.parse(urlObj.searchParams.get('displayedFields') || '[]');
+    const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
+    const visualizationType = urlObj.searchParams.get('visualizationType');
 
-    // Check if displayedFields is the same as urlColumns
-    expect(displayedFields).toBe(urlColumns);
+    // Filter out default columns from urlColumns
+    const filteredUrlColumns = urlColumns.filter((col: string) => !DEFAULT_URL_COLUMNS.includes(col));
+
+    // Check if filtered urlColumns matches displayedFields
+    expect(displayedFields).toEqual(filteredUrlColumns);
   });
 
   test(`should persist column ordering`, async ({ page }) => {

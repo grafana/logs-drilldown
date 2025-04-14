@@ -12,8 +12,9 @@ import { getLogsPanelFrame } from './ServiceScene';
 import { getVariableForLabel } from '../../services/fields';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { DEFAULT_URL_COLUMNS } from '../Table/constants';
 
-let defaultUrlColumns = ['timestamp', 'body'];
+let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -46,7 +47,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
     const parentModel = this.getParentScene();
-
     parentModel.setState({
       urlColumns: Array.from(new Set([...defaultUrlColumns, ...parentModel.state.displayedFields])),
     });
