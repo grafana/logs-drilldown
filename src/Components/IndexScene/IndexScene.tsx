@@ -128,7 +128,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
     ...state
   }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { variablesScene, unsub } = getVariableSet(datasourceUid, state.initialFilters);
+    const { variablesScene, unsub } = getVariableSet(datasourceUid, state.initialFilters, state.embedded);
 
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -570,7 +570,7 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[]) {
+function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,
@@ -661,6 +661,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     label: 'Data source',
     value: initialDatasourceUid,
     pluginId: 'loki',
+    hide: embedded ? VariableHide.hideVariable : VariableHide.dontHide,
   });
 
   const unsub = dsVariable.subscribeToState((newState) => {
