@@ -12,6 +12,7 @@ import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getLogsPanelFrame } from './ServiceScene';
 import { getVariableForLabel } from '../../services/fields';
 import { PanelMenu } from '../Panels/PanelMenu';
+import { setDisplayedFields } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
 
@@ -73,10 +74,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
       (field) => !defaultUrlColumns.includes(field)
     );
-    // Todo: update url for explore
+    // sync state displayedFields for LogsPanelScene
     parentModel.setState({
       displayedFields: newDisplayedFields,
     });
+    // sync LocalStorage displayedFields for Go to explore
+    setDisplayedFields(this, parentModel.state.displayedFields);
   };
 
   // check if url has default columns initially there are none so we need to keep defualt values
