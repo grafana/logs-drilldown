@@ -7,7 +7,7 @@ import {
   SceneObjectBase,
   SceneObjectState,
 } from '@grafana/scenes';
-import { PatternFrame } from './PatternsBreakdownScene';
+import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 import React from 'react';
 import { IndexScene } from '../../../IndexScene/IndexScene';
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
@@ -300,8 +300,12 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   const { patternFrames: patternFramesRaw, patternsNotMatchingFilters } = model.useState();
   const patternFrames = patternFramesRaw ?? [];
 
+  // Get unfiltered patterns for percentage calculation
+  const patternsBreakdownScene = sceneGraph.getAncestor(model, PatternsBreakdownScene);
+  const unfilteredPatterns = patternsBreakdownScene.state.patternFrames ?? [];
+
   // Calculate total for percentages
-  const total = patternFrames.reduce((previousValue, frame) => {
+  const total = unfilteredPatterns.reduce((previousValue, frame) => {
     return previousValue + frame.sum;
   }, 0);
 

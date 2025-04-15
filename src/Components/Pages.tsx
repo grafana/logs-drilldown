@@ -17,7 +17,7 @@ import {
   SERVICE_URL_KEYS,
   SUB_ROUTES,
 } from '../services/routing';
-import { PageLayoutType } from '@grafana/data';
+import { PageLayoutType, urlUtil } from '@grafana/data';
 import { IndexScene } from './IndexScene/IndexScene';
 import { navigateToIndex } from '../services/navigate';
 import { logger } from '../services/logger';
@@ -89,7 +89,7 @@ export function makeIndexPage() {
 export function makeRedirectPage() {
   return new SceneAppPage({
     title: '',
-    url: PLUGIN_BASE_URL,
+    url: urlUtil.renderUrl(PLUGIN_BASE_URL, undefined),
     getScene: makeEmptyScene(),
     hideFromBreadcrumbs: true,
     routePath: '*',
