@@ -6,6 +6,8 @@ services:
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
       - GF_PLUGINS_PREINSTALL_DISABLED=true
+      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     build:
       context: ./.config
       args:

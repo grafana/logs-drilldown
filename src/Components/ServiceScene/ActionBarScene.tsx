@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Box, Dropdown, Menu, Stack, Tab, TabsBar, ToolbarButton, useStyles2 } from '@grafana/ui';
-import { config, usePluginLinks } from '@grafana/runtime';
-import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { css, cx } from '@emotion/css';
-
-import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
-import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
-
-import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
+import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
+import React from 'react';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getDrillDownTabLink } from '../../services/navigate';
-import { getLabelsVariable } from '../../services/variableGetters';
 import { LINE_LIMIT } from '../../services/query';
+import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
+import { IndexScene } from '../IndexScene/IndexScene';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
+import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
+import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 
 export interface ActionBarSceneState extends SceneObjectState {
   maxLines?: number;
@@ -70,7 +66,6 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       <Box paddingY={0}>
         <div className={styles.actions}>
           <Stack gap={1}>
-            {config.featureToggles.appSidecar && <ToolbarExtensionsRenderer serviceScene={serviceScene} />}
             {model.state.shareButtonScene && (
               <model.state.shareButtonScene.Component model={model.state.shareButtonScene} />
             )}
@@ -139,75 +134,6 @@ function getStyles(theme: GrafanaTheme2) {
       },
     }),
   };
-}
-
-/**
- * Shows extensions in the toolbar.
- * Shows a single button if there is only one extension or a dropdown if there are multiple.
- * @param props
- * @constructor
- */
-function ToolbarExtensionsRenderer(props: { serviceScene: SceneObject }) {
-  const [filters, setFilters] = useState<Array<{ key: string; value: string }>>(
-    getLabelsVariable(props.serviceScene).state.filters
-  );
-  useEffect(() => {
-    const sub = getLabelsVariable(props.serviceScene).subscribeToState((newState) => {
-      setFilters(newState.filters);
-    });
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [props.serviceScene]);
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const extensions = usePluginLinks({
-    extensionPointId: 'grafana-lokiexplore-app/toolbar-open-related/v1',
-    limitPerPlugin: 3,
-    context: { filters },
-  });
-
-  if (extensions.isLoading || extensions.links.length === 0) {
-    return null;
-  }
-
-  if (extensions.links.length === 1) {
-    const e = extensions.links[0];
-
-    return (
-      <div>
-        <ToolbarButton variant={'canvas'} key={e.id} onClick={(event) => e.onClick?.(event)} icon={e.icon}>
-          Related {e.title}
-        </ToolbarButton>
-      </div>
-    );
-  }
-
-  const menu = (
-    <Menu>
-      {extensions.links.map((link) => {
-        return (
-          <Menu.Item
-            ariaLabel={link.title}
-            icon={link?.icon || 'plug'}
-            key={link.id}
-            label={link.title}
-            onClick={(event) => {
-              link.onClick?.(event);
-            }}
-          />
-        );
-      })}
-    </Menu>
-  );
-
-  return (
-    <Dropdown onVisibleChange={setIsOpen} placement="bottom-start" overlay={menu}>
-      <ToolbarButton aria-label="Open related" variant="canvas" isOpen={isOpen}>
-        Open related
-      </ToolbarButton>
-    </Dropdown>
-  );
 }
 
 function LogsCount(
