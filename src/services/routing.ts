@@ -22,6 +22,7 @@ import { logger } from './logger';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
 
 export enum PageSlugs {
+  embed = 'embed',
   explore = 'explore',
   logs = 'logs',
   labels = 'labels',
@@ -38,10 +39,12 @@ export type ParentDrilldownSlugs =
   | PageSlugs.fields
   | PageSlugs.logs
   | PageSlugs.labels
-  | PageSlugs.patterns;
+  | PageSlugs.patterns
+  | PageSlugs.embed;
 export type ChildDrilldownSlugs = ValueSlugs.field | ValueSlugs.label;
 
 export const ROUTES = {
+  embed: () => prefixRoute(PageSlugs.embed),
   explore: () => prefixRoute(PageSlugs.explore),
   logs: (labelValue: string, labelName = 'service') =>
     prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.logs}`),
@@ -65,6 +68,7 @@ export const SUB_ROUTES = {
 };
 
 export const ROUTE_DEFINITIONS: Record<keyof typeof PageSlugs, string> = {
+  embed: prefixRoute(PageSlugs.embed),
   explore: prefixRoute(PageSlugs.explore),
   logs: prefixRoute(`${PageSlugs.explore}/:labelName/:labelValue/${PageSlugs.logs}`),
   fields: prefixRoute(`${PageSlugs.explore}/:labelName/:labelValue/${PageSlugs.fields}`),
