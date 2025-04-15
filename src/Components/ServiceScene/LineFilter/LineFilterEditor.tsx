@@ -73,7 +73,7 @@ export function LineFilterEditor({
           width={focus ? width : undefined}
           onFocus={() => setFocus(true)}
           data-testid={testIds.exploreServiceDetails.searchLogs}
-          value={lineFilter}
+          value={lineFilter ?? ''}
           className={cx(onSubmitLineFilter ? styles.inputNoBorderRight : undefined, styles.input)}
           onChange={onInputChange}
           suffix={

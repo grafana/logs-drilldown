@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { Icon, IconButton, Input, Tooltip, useStyles2 } from '@grafana/ui';
-import React, { ChangeEvent, HTMLProps, useCallback, useEffect, useState } from 'react';
+import React, { HTMLProps, useCallback, useEffect, useState } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 import { narrowErrorMessage } from '../../../services/narrowing';
 
@@ -64,13 +64,19 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
   );
 
   useEffect(() => {
+    if (value) {
+      initValidation(value);
+    } else {
+      setInvalid(false);
+      setErrorMessage('');
+      return;
+    }
+
     if (!regex) {
       setInvalid(false);
       setErrorMessage('');
     }
-  }, [regex]);
-
-  initValidation(value);
+  }, [regex, value, initValidation]);
 
   return (
     <Tooltip placement={'auto-start'} show={!!errorMessage && invalid} content={errorMessage}>
@@ -80,12 +86,7 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
         rows={2}
         width={width}
         value={value}
-        onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-          if (onChange) {
-            onChange(e);
-          }
-          initValidation(value);
-        }}
+        onChange={onChange}
         suffix={
           <span className={styles.suffixWrapper}>
             {onClear && value ? (
