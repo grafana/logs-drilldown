@@ -108,13 +108,13 @@ export const showLogsButtonSceneKey = 'showLogsButtonScene';
 export interface IndexSceneState extends SceneObjectState {
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
-  controls: SceneObject[];
+  controls?: SceneObject[];
   body?: LayoutScene;
   initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
-  embedded: boolean;
+  embedded?: boolean;
 }
 
 interface EmbeddedIndexSceneConstructor {
@@ -570,7 +570,7 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded: boolean) {
+function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded?: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,

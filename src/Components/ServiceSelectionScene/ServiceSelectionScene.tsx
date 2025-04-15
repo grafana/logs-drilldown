@@ -793,7 +793,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   private getQueryOptionsToolbar() {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    return indexScene.state.controls.find((control) => control instanceof ToolbarScene) as ToolbarScene | undefined;
+    return indexScene.state.controls?.find((control) => control instanceof ToolbarScene) as ToolbarScene | undefined;
   }
 
   private onSupportedAggregatedMetricTimeRange() {

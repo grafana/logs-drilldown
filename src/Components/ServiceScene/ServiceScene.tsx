@@ -243,25 +243,30 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private redirectToStart() {
-    // Clear ongoing queries
-    this.setState({
-      $data: undefined,
-      $logsCount: undefined,
-      body: undefined,
-      $patternsData: undefined,
-      $detectedLabelsData: undefined,
-      $detectedFieldsData: undefined,
-      patternsCount: undefined,
-      labelsCount: undefined,
-      fieldsCount: undefined,
-      logsCount: undefined,
-      totalLogsCount: undefined,
-    });
-    getMetadataService().setServiceSceneState(this.state);
-    this._subs.unsubscribe();
+    if (!this.state.embedded) {
+      // Clear ongoing queries
+      this.setState({
+        $data: undefined,
+        $logsCount: undefined,
+        body: undefined,
+        $patternsData: undefined,
+        $detectedLabelsData: undefined,
+        $detectedFieldsData: undefined,
+        patternsCount: undefined,
+        labelsCount: undefined,
+        fieldsCount: undefined,
+        logsCount: undefined,
+        totalLogsCount: undefined,
+      });
+      getMetadataService().setServiceSceneState(this.state);
+      this._subs.unsubscribe();
 
-    // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
-    navigateToIndex();
+      // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
+      navigateToIndex();
+    } else {
+      // @todo set initial labels?
+      console.warn('Cannot redirect when embedded');
+    }
   }
 
   private showVariables() {
