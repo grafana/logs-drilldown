@@ -28,7 +28,6 @@
       }
     ],
     "sort/type-properties": "error",
-    "sort/string-enums": "error",
     "sort/string-unions": "error",
     "sort/exports": "off"
   },
