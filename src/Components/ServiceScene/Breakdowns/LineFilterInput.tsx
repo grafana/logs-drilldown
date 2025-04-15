@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { Icon, IconButton, Input, Tooltip, useStyles2 } from '@grafana/ui';
-import React, { ChangeEvent, HTMLProps, useState } from 'react';
+import React, { ChangeEvent, HTMLProps, useCallback, useEffect, useState } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 import { narrowErrorMessage } from '../../../services/narrowing';
 
@@ -20,41 +20,55 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
   const [invalid, setInvalid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const load = async () => {
+  const validate = useCallback(
+    (value: string) => {
+      if (value) {
+        try {
+          re2JS?.compile(value);
+          if (invalid) {
+            setInvalid(false);
+            setErrorMessage('');
+          }
+        } catch (e) {
+          const msg = narrowErrorMessage(e);
+          if (!invalid) {
+            setInvalid(true);
+          }
+
+          if (msg && msg !== errorMessage) {
+            setErrorMessage(msg);
+          }
+        }
+      } else if (invalid) {
+        setInvalid(false);
+        setErrorMessage('');
+      }
+    },
+    [errorMessage, invalid]
+  );
+
+  const load = useCallback(async () => {
     re2JS = null;
     re2JS = (await import('re2js')).RE2JS;
-  };
+  }, []);
 
-  const initValidation = (value: string) => {
-    if (re2JS === undefined && regex) {
-      load().then(() => validate(value));
-    } else if (regex && re2JS) {
-      validate(value);
-    }
-  };
-
-  const validate = (value: string) => {
-    if (value) {
-      try {
-        re2JS?.compile(value);
-        if (invalid) {
-          setInvalid(false);
-          setErrorMessage('');
-        }
-      } catch (e) {
-        const msg = narrowErrorMessage(e);
-        if (!invalid) {
-          setInvalid(true);
-        }
-
-        if (msg && msg !== errorMessage) {
-          setErrorMessage(msg);
-        }
+  const initValidation = useCallback(
+    (value: string) => {
+      if (re2JS === undefined && regex) {
+        load().then(() => validate(value));
+      } else if (regex && re2JS) {
+        validate(value);
       }
-    } else if (invalid) {
+    },
+    [load, regex, validate]
+  );
+
+  useEffect(() => {
+    if (!regex) {
       setInvalid(false);
+      setErrorMessage('');
     }
-  };
+  }, [regex]);
 
   initValidation(value);
 
