@@ -47,15 +47,17 @@ function getServicesScene(routeMatch: OptionalRouteMatch) {
 }
 
 function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
-  return (
-    <div>
-      {/* It will never re-render */}
-      <SuspendedEmbeddedLogsExploration {...props} />
-    </div>
-  );
+  // Component is always null, doesn't look like we can embed something from the same app?
+  // const { component: Component, isLoading } = usePluginComponents<EmbeddedLogsExplorationProps>({
+  //   extensionPointId: 'grafana-lokiexplore-app/embedded-logs-exploration/v1',
+  // });
+  //
+  // console.log('Component', { Component, isLoading });
+
+  return <SuspendedEmbeddedLogsExploration {...props} />;
 }
 
-function getEmbedScene(routeMatch?: OptionalRouteMatch) {
+function getEmbedScene() {
   // @todo form field inputs?
   const dsUID = 'PDDA8E780A17E7EF1';
   const initialStart = 'now-15m';
@@ -104,7 +106,7 @@ export function makeEmbedPage() {
     url: prefixRoute(PageSlugs.embed),
     layout: PageLayoutType.Custom,
     routePath: prefixRoute(PageSlugs.embed),
-    getScene: (routeMatch) => getEmbedScene(routeMatch),
+    getScene: (routeMatch) => getEmbedScene(),
     drilldowns: [
       {
         routePath: ROUTE_DEFINITIONS.embed,
