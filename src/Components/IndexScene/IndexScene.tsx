@@ -570,7 +570,7 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded: boolean) {
+function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded = false) {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,
