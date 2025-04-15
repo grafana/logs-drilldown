@@ -279,8 +279,20 @@ export function getOpenInDrilldownURL(ref: SceneObject) {
   const fields = getFieldsVariable(ref);
   const ds = getDataSourceVariable(ref);
 
-  let params = setUrlParameter(UrlParameters.DatasourceId, ds.getValue()?.toString(), new URLSearchParams());
+  const dataSourceUID = ds.getValue()?.toString();
+
+  if (!dataSourceUID) {
+    throw new Error('Datasource is not defined!');
+  }
+
+  console.log('@todo pass all params', {
+    labels,
+    levels,
+    fields,
+  });
+
+  let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUID, new URLSearchParams());
   // TODO: pass all params
 
-  return createAppUrl('explore', params);
+  return createAppUrl('/explore', params);
 }
