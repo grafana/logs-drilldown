@@ -25,6 +25,13 @@ import { LabelType } from '../fieldsTypes';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { PatternFilterOp } from '../filterTypes';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { SceneObject } from '@grafana/scenes';
+import {
+  getDataSourceVariable,
+  getFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+} from 'services/variableGetters';
 
 const PRODUCT_NAME = 'Grafana Logs Drilldown';
 const title = `Open in ${PRODUCT_NAME}`;
@@ -264,4 +271,16 @@ export function escapeUrlPipeDelimiters(value: string | undefined): string {
 
 export function escapeURLDelimiters(value: string | undefined): string {
   return escapeUrlCommaDelimiters(escapeUrlPipeDelimiters(value));
+}
+
+export function getOpenInDrilldownURL(ref: SceneObject) {
+  const labels = getLabelsVariable(ref);
+  const levels = getLevelsVariable(ref);
+  const fields = getFieldsVariable(ref);
+  const ds = getDataSourceVariable(ref);
+
+  let params = setUrlParameter(UrlParameters.DatasourceId, ds.getValue()?.toString(), new URLSearchParams());
+  // TODO: pass all params
+
+  return createAppUrl('explore', params);
 }

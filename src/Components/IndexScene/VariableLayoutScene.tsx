@@ -6,9 +6,10 @@ import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { PatternControls } from './PatternControls';
 import { IndexScene } from './IndexScene';
 import { CONTROLS_VARS_DATASOURCE, CONTROLS_VARS_FIELDS_COMBINED, LayoutScene } from './LayoutScene';
-import { useStyles2 } from '@grafana/ui';
+import { LinkButton, useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { AppliedPattern } from '../../services/variables';
+import { getOpenInDrilldownURL } from 'services/extensions/links';
 
 interface VariableLayoutSceneState extends SceneObjectState {}
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
@@ -39,6 +40,12 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
+                  {indexScene.state.embedded && (
+                    <LinkButton href={getOpenInDrilldownURL(model)} variant="secondary" icon="arrow-right">
+                      Logs Drilldown
+                    </LinkButton>
+                  )}
+
                   {controls.map((control) => {
                     return control.state.key === CONTROLS_VARS_DATASOURCE ? (
                       <control.Component key={control.state.key} model={control} />
