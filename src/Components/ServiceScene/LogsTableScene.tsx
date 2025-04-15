@@ -82,7 +82,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     setDisplayedFields(this, parentModel.state.displayedFields);
   };
 
-  // check if url has default columns initially there are none so we need to keep defualt values
+  // check if url has default columns initially there are none so we need to keep default values
   urlHasDefaultUrlColumns = (urlColumns: string[]) => {
     return defaultUrlColumns.some((col) => urlColumns.includes(col));
   };
