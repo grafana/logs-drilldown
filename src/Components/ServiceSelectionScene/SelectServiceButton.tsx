@@ -15,9 +15,23 @@ import { addToFavorites } from '../../services/favorites';
 export interface SelectServiceButtonState extends SceneObjectState {
   labelValue: string;
   labelName: string;
+  hidden?: boolean;
 }
 
 export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonState> {
+  constructor(state: SelectServiceButtonState) {
+    super(state);
+
+    this.addActivationHandler(this.onActivate.bind(this));
+  }
+  onActivate() {
+    const labelsVar = getLabelsVariable(this);
+    this.setState({ hidden: labelsVar.state.filters.length > 0 });
+    labelsVar.subscribeToState((newState) => {
+      this.setState({ hidden: newState.filters.length > 0 });
+    });
+  }
+
   public getLink = () => {
     if (!this.state.labelValue) {
       return;
@@ -35,6 +49,10 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
     const labels = getLabelsVariable(model);
     // Re-render links on label filter changes
     labels.useState();
+    const { hidden } = model.useState();
+    if (hidden) {
+      return null;
+    }
     const link = model.getLink();
     return (
       <LinkButton
