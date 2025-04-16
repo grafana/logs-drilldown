@@ -70,6 +70,7 @@ export function migrateLineFilterV1(serviceScene: ServiceScene) {
       ]);
     });
   }
+  const location = locationService.getLocation();
 
   // Remove from url without refreshing
   delete search['var-lineFilter'];
