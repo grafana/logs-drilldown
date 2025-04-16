@@ -81,7 +81,7 @@ import { ToolbarScene } from '../IndexScene/ToolbarScene';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 import { FavoriteServiceHeaderActionScene } from './FavoriteServiceHeaderActionScene';
-import { pushUrlHandler } from '../../services/navigate';
+import { isEmbedded, pushUrlHandler } from '../../services/navigate';
 import { NoServiceVolume } from './NoServiceVolume';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import { AddLabelToFiltersHeaderActionScene } from './AddLabelToFiltersHeaderActionScene';
@@ -396,6 +396,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
    */
   addLabelChangeToBrowserHistory(newKey: string, replace = false) {
     const { key: primaryLabelRaw, search, location } = getSelectedTabFromUrl();
+    if (isEmbedded()) {
+      return;
+    }
     if (primaryLabelRaw) {
       const primaryLabelSplit = primaryLabelRaw?.split('|');
       const keyInUrl = primaryLabelSplit?.[0];

@@ -33,6 +33,13 @@ export class MetadataService {
     this.serviceSceneState.labelsCount = count;
   }
 
+  public setEmbedded(embedded: boolean) {
+    if (!this.serviceSceneState) {
+      this.serviceSceneState = {};
+    }
+    this.serviceSceneState.embedded = embedded;
+  }
+
   public setFieldsCount(count: number) {
     if (!this.serviceSceneState) {
       this.serviceSceneState = {};
@@ -49,6 +56,7 @@ export class MetadataService {
       loading: state.loading,
       logsCount: state.logsCount,
       totalLogsCount: state.totalLogsCount,
+      embedded: state.embedded,
     };
   }
 }

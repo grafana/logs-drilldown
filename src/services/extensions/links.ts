@@ -23,15 +23,9 @@ import { LokiQuery } from '../lokiQuery';
 import { LabelType } from '../fieldsTypes';
 
 import { isOperatorInclusive } from '../operatorHelpers';
-import { PatternFilterOp } from '../filterTypes';
+import { FilterOp, PatternFilterOp } from '../filterTypes';
 import { renderPatternFilters } from '../renderPatternFilters';
-import { SceneObject } from '@grafana/scenes';
-import {
-  getDataSourceVariable,
-  getFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-} from 'services/variableGetters';
+import { AdHocFiltersVariable, DataSourceVariable } from '@grafana/scenes';
 import { locationService } from '@grafana/runtime';
 
 const PRODUCT_NAME = 'Grafana Logs Drilldown';
@@ -275,26 +269,26 @@ export function escapeURLDelimiters(value: string | undefined): string {
   return escapeUrlCommaDelimiters(escapeUrlPipeDelimiters(value));
 }
 
-export function getOpenInDrilldownURL(ref: SceneObject) {
-  const labels = getLabelsVariable(ref);
-  const levels = getLevelsVariable(ref);
-  const fields = getFieldsVariable(ref);
-  const ds = getDataSourceVariable(ref);
-
-  const dataSourceUID = ds.getValue()?.toString();
+export function getOpenInDrilldownURL(
+  datasource: DataSourceVariable,
+  labels: AdHocFiltersVariable,
+  fields: AdHocFiltersVariable,
+  levels: AdHocFiltersVariable
+) {
+  const dataSourceUID = datasource.getValue()?.toString();
 
   if (!dataSourceUID) {
     throw new Error('Datasource is not defined!');
   }
 
-  console.log('@todo pass all params', {
-    labels,
-    levels,
-    fields,
-  });
+  const primaryLabel = labels.state.filters.find((filter) => filter.operator === FilterOp.Equal);
+  const labelName = primaryLabel?.keyLabel ?? primaryLabel?.key;
+  const labelValue = primaryLabel?.valueLabels?.[0] ?? primaryLabel?.value;
 
   let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUID, new URLSearchParams());
-  // TODO: pass all params
+  params.set(UrlParameters.Labels, labels.urlSync?.getUrlState()[UrlParameters.Labels]?.toString() ?? '');
+  params.set(UrlParameters.Fields, fields.urlSync?.getUrlState()[UrlParameters.Fields]?.toString() ?? '');
+  params.set(UrlParameters.Levels, levels.urlSync?.getUrlState()[UrlParameters.Levels]?.toString() ?? '');
 
-  return createAppUrl('/explore', params);
+  return createAppUrl(`/explore/${labelName}/${labelValue}/logs`, params);
 }

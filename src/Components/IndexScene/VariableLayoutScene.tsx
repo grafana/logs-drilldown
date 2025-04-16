@@ -10,6 +10,12 @@ import { LinkButton, useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { AppliedPattern } from '../../services/variables';
 import { getOpenInDrilldownURL } from 'services/extensions/links';
+import {
+  getDataSourceVariable,
+  getFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+} from '../../services/variableGetters';
 
 type HeaderPosition = 'sticky' | 'relative';
 interface VariableLayoutSceneState extends SceneObjectState {
@@ -19,6 +25,15 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { controls, patterns } = indexScene.useState();
+
+    // All this re-rendering for embedded only
+    const levelsVar = getLevelsVariable(model);
+    const fieldsVar = getFieldsVariable(model);
+    const labelsVar = getLabelsVariable(model);
+    const dataSourceVariable = getDataSourceVariable(model);
+    levelsVar.useState();
+    fieldsVar.useState();
+    labelsVar.useState();
 
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { lineFilterRenderer, levelsRenderer } = layoutScene.useState();
@@ -49,7 +64,11 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
                   {indexScene.state.embedded && (
-                    <LinkButton href={getOpenInDrilldownURL(model)} variant="secondary" icon="arrow-right">
+                    <LinkButton
+                      href={getOpenInDrilldownURL(dataSourceVariable, labelsVar, fieldsVar, levelsVar)}
+                      variant="secondary"
+                      icon="arrow-right"
+                    >
                       Logs Drilldown
                     </LinkButton>
                   )}

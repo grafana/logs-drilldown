@@ -23,8 +23,8 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 import {
-  AppliedPattern,
   AdHocFiltersWithLabelsAndMeta,
+  AppliedPattern,
   EXPLORATION_DS,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
@@ -182,7 +182,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     super({
-      $timeRange: state.$timeRange ?? new SceneTimeRange({}),
+      $timeRange: state.$timeRange ?? new SceneTimeRange(),
       $variables: state.$variables ?? variablesScene,
       controls: state.controls ?? controls,
       // Need to clear patterns state when the class in constructed
