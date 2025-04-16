@@ -12,6 +12,7 @@ import {
   getFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
+  getLineFiltersVariable,
   getMetadataVariable,
 } from '../../services/variableGetters';
 import { areArraysEqual } from '../../services/comparison';
@@ -37,7 +38,7 @@ function buildLogsExplorationFromState({
 
   initRuntimeDs();
 
-  const { labelFilters, fields } = getMatcherFromQuery(query);
+  const { labelFilters, fields, lineFilters } = getMatcherFromQuery(query);
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
     key: filter.key,
@@ -81,10 +82,19 @@ function buildLogsExplorationFromState({
         valueLabels: [f.value],
       })) ?? [];
 
+  const initialLineFilters =
+    lineFilters?.map((f) => ({
+      key: f.key,
+      operator: f.operator,
+      value: f.value,
+      keyValue: f.key,
+      valueLabels: [f.value],
+    })) ?? [];
+
   const indexScene = new IndexScene({
     ...state,
     $timeRange,
-    initialFilters: { initialLabels, initialFields, initialMetadata, initialLevels },
+    initialFilters: { initialLabels, initialFields, initialMetadata, initialLevels, initialLineFilters },
     embedded: true,
   });
 
@@ -125,6 +135,16 @@ function buildLogsExplorationFromState({
 
         const metaDataVar = getMetadataVariable(serviceScene);
         metaDataVar.subscribeToState((newState, prevState) => {
+          if (!areArraysEqual(newState.filters, prevState.filters)) {
+            const expr = sceneGraph.interpolate($data, LOG_STREAM_SELECTOR_EXPR);
+            if (query !== expr) {
+              onQueryChange(expr);
+            }
+          }
+        });
+
+        const lineFiltersVar = getLineFiltersVariable(serviceScene);
+        lineFiltersVar.subscribeToState((newState, prevState) => {
           if (!areArraysEqual(newState.filters, prevState.filters)) {
             const expr = sceneGraph.interpolate($data, LOG_STREAM_SELECTOR_EXPR);
             if (query !== expr) {

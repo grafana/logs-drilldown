@@ -8,14 +8,9 @@ import { IndexScene } from './IndexScene';
 import { CONTROLS_VARS_DATASOURCE, CONTROLS_VARS_FIELDS_COMBINED, LayoutScene } from './LayoutScene';
 import { LinkButton, useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
-import { AppliedPattern } from '../../services/variables';
+import { AppliedPattern, LOG_STREAM_SELECTOR_EXPR } from '../../services/variables';
 import { getOpenInDrilldownURL } from 'services/extensions/links';
-import {
-  getDataSourceVariable,
-  getFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-} from '../../services/variableGetters';
+import { getDataSourceVariable, getLabelsVariable } from '../../services/variableGetters';
 
 type HeaderPosition = 'sticky' | 'relative';
 interface VariableLayoutSceneState extends SceneObjectState {
@@ -26,17 +21,13 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { controls, patterns } = indexScene.useState();
 
-    // All this re-rendering for embedded only
-    const levelsVar = getLevelsVariable(model);
-    const fieldsVar = getFieldsVariable(model);
     const labelsVar = getLabelsVariable(model);
+    const timeRange = sceneGraph.getTimeRange(model);
     const dataSourceVariable = getDataSourceVariable(model);
-    levelsVar.useState();
-    fieldsVar.useState();
-    labelsVar.useState();
 
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { lineFilterRenderer, levelsRenderer } = layoutScene.useState();
+    const queryExpr = sceneGraph.interpolate(model, LOG_STREAM_SELECTOR_EXPR);
 
     const styles = useStyles2((theme) => getStyles(theme, model.state.position));
 
@@ -65,7 +56,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 <div className={styles.timeRangeDatasource}>
                   {indexScene.state.embedded && (
                     <LinkButton
-                      href={getOpenInDrilldownURL(dataSourceVariable, labelsVar, fieldsVar, levelsVar)}
+                      href={getOpenInDrilldownURL(dataSourceVariable, queryExpr, labelsVar, timeRange)}
                       variant="secondary"
                       icon="arrow-right"
                     >

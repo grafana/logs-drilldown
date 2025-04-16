@@ -26,7 +26,6 @@ import {
   AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
   EXPLORATION_DS,
-  LEVEL_VARIABLE_VALUE,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
   PENDING_METADATA_EXPR,
@@ -106,17 +105,20 @@ import { NoLokiSplash } from '../NoLokiSplash';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
+interface InitialFilters {
+  initialLabels?: AdHocVariableFilter[];
+  initialFields?: AdHocVariableFilter[];
+  initialLevels?: AdHocVariableFilter[];
+  initialMetadata?: AdHocVariableFilter[];
+  initialLineFilters?: AdHocVariableFilter[];
+}
+
 export interface IndexSceneState extends SceneObjectState {
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
   controls?: SceneObject[];
   body?: LayoutScene;
-  initialFilters?: {
-    initialLabels?: AdHocVariableFilter[];
-    initialFields?: AdHocVariableFilter[];
-    initialLevels?: AdHocVariableFilter[];
-    initialMetadata?: AdHocVariableFilter[];
-  };
+  initialFilters?: InitialFilters;
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
@@ -578,16 +580,7 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-const getVariableSet = (
-  initialDatasourceUid: string,
-  initialFilters?: {
-    initialLabels?: AdHocVariableFilter[];
-    initialFields?: AdHocVariableFilter[];
-    initialLevels?: AdHocVariableFilter[];
-    initialMetadata?: AdHocVariableFilter[];
-  },
-  embedded = false
-) => {
+const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFilters, embedded = false) => {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,
@@ -656,7 +649,7 @@ const getVariableSet = (
     name: VAR_LEVELS,
     label: 'Error levels',
     applyMode: 'manual',
-    filters: initialFilters?.initialLevels ?? [{ key: LEVEL_VARIABLE_VALUE, operator: '=', value: 'warn' }],
+    filters: initialFilters?.initialLevels ?? [],
     layout: 'vertical',
     expressionBuilder: renderLevelsFilter,
     hide: VariableHide.hideVariable,
@@ -666,6 +659,7 @@ const getVariableSet = (
   const lineFiltersVariable = new AdHocFiltersVariable({
     name: VAR_LINE_FILTERS,
     hide: VariableHide.hideVariable,
+    filters: initialFilters?.initialLineFilters ?? [],
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     expressionBuilder: renderLogQLLineFilter,
