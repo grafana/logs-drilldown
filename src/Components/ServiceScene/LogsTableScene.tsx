@@ -15,6 +15,7 @@ import { PanelMenu } from '../Panels/PanelMenu';
 import { setDisplayedFields } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
+import { narrowUrlParam } from 'services/narrowing';
 
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
@@ -50,7 +51,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
     const urlColumnsParam = searchParams.get('urlColumns');
-    const urlColumnsUrl = urlColumnsParam ? (JSON.parse(decodeURIComponent(urlColumnsParam)) as string[]) : null;
+    const urlColumnsUrl = narrowUrlParam(urlColumnsParam);
     const parentModel = this.getParentScene();
     // Sync from url
     defaultUrlColumns = urlColumnsUrl
