@@ -22,61 +22,36 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
 
   const validate = useCallback(
     (value: string) => {
-      if (value) {
-        try {
-          re2JS?.compile(value);
-          if (invalid) {
-            setInvalid(false);
-            setErrorMessage('');
-          }
-        } catch (e) {
-          const msg = narrowErrorMessage(e);
-          if (!invalid) {
-            setInvalid(true);
-          }
+      // Do we have a value that can be validated? Check this first before attempting to load the package.
+      if (!value || !regex) {
+        setErrorMessage('');
+        setInvalid(false);
+        return;
+      }
 
-          if (msg && msg !== errorMessage) {
-            setErrorMessage(msg);
-          }
-        }
-      } else if (invalid) {
+      if (re2JS === undefined) {
+        load().then(() => validate(value));
+        return;
+      }
+
+      try {
+        re2JS?.compile(value);
         setInvalid(false);
         setErrorMessage('');
+      } catch (e) {
+        const msg = narrowErrorMessage(e);
+        setInvalid(true);
+        if (msg) {
+          setErrorMessage(msg);
+        }
       }
     },
-    [errorMessage, invalid]
-  );
-
-  const load = useCallback(async () => {
-    re2JS = null;
-    re2JS = (await import('re2js')).RE2JS;
-  }, []);
-
-  const initValidation = useCallback(
-    (value: string) => {
-      if (re2JS === undefined && regex) {
-        load().then(() => validate(value));
-      } else if (regex && re2JS) {
-        validate(value);
-      }
-    },
-    [load, regex, validate]
+    [regex]
   );
 
   useEffect(() => {
-    if (value) {
-      initValidation(value);
-    } else {
-      setInvalid(false);
-      setErrorMessage('');
-      return;
-    }
-
-    if (!regex) {
-      setInvalid(false);
-      setErrorMessage('');
-    }
-  }, [regex, value, initValidation]);
+    validate(value);
+  }, [validate, value]);
 
   return (
     <Tooltip placement={'auto-start'} show={!!errorMessage && invalid} content={errorMessage}>
@@ -107,6 +82,11 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
       />
     </Tooltip>
   );
+};
+
+const load = async () => {
+  re2JS = null;
+  re2JS = (await import('re2js')).RE2JS;
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
