@@ -56,7 +56,7 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
     const link = model.getLink();
     return (
       <LinkButton
-        data-testid={testIds.index.showLogsButton}
+        data-testid={testIds.index.selectServiceButton}
         tooltip={`View logs for ${model.state.labelValue}`}
         className={styles.button}
         variant={'secondary'}
