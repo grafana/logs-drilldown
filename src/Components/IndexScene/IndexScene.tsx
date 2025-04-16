@@ -26,6 +26,7 @@ import {
   AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
   EXPLORATION_DS,
+  LEVEL_VARIABLE_VALUE,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
   PENDING_METADATA_EXPR,
@@ -110,7 +111,12 @@ export interface IndexSceneState extends SceneObjectState {
   contentScene?: SceneObject;
   controls?: SceneObject[];
   body?: LayoutScene;
-  initialFilters?: AdHocVariableFilter[];
+  initialFilters?: {
+    initialLabels?: AdHocVariableFilter[];
+    initialFields?: AdHocVariableFilter[];
+    initialLevels?: AdHocVariableFilter[];
+    initialMetadata?: AdHocVariableFilter[];
+  };
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
@@ -128,8 +134,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
     ...state
   }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { variablesScene, unsub } = getVariableSet(datasourceUid, state.initialFilters, state.embedded);
-
+    const { variablesScene, unsub } = getVariableSet(datasourceUid, state?.initialFilters, state.embedded);
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         key: CONTROLS_VARS_FIRST_ROW_KEY,
@@ -232,8 +237,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this.setState(stateUpdate);
 
     this.updatePatterns(this.state, getPatternsVariable(this));
-    this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
-    this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+
+    if (!this.state.embedded) {
+      this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
+      this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+    }
 
     this._subs.add(
       this.subscribeToState((newState) => {
@@ -570,14 +578,23 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded = false) {
+const getVariableSet = (
+  initialDatasourceUid: string,
+  initialFilters?: {
+    initialLabels?: AdHocVariableFilter[];
+    initialFields?: AdHocVariableFilter[];
+    initialLevels?: AdHocVariableFilter[];
+    initialMetadata?: AdHocVariableFilter[];
+  },
+  embedded = false
+) => {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,
     layout: 'combobox',
     label: 'Labels',
     allowCustomValue: true,
-    filters: initialFilters ?? [],
+    filters: initialFilters?.initialLabels ?? [],
     expressionBuilder: renderLogQLLabelFilters,
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
@@ -593,6 +610,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     label: 'Detected fields',
     applyMode: 'manual',
     layout: 'combobox',
+    filters: initialFilters?.initialFields ?? [],
     expressionBuilder: renderLogQLFieldFilters,
     hide: VariableHide.hideVariable,
     allowCustomValue: true,
@@ -607,6 +625,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     label: 'Metadata',
     applyMode: 'manual',
     layout: 'combobox',
+    filters: initialFilters?.initialMetadata ?? [],
     expressionBuilder: (filters: AdHocFilterWithLabels[]) => renderLogQLMetadataFilters(filters),
     hide: VariableHide.hideVariable,
     allowCustomValue: true,
@@ -637,6 +656,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     name: VAR_LEVELS,
     label: 'Error levels',
     applyMode: 'manual',
+    filters: initialFilters?.initialLevels ?? [{ key: LEVEL_VARIABLE_VALUE, operator: '=', value: 'warn' }],
     layout: 'vertical',
     expressionBuilder: renderLevelsFilter,
     hide: VariableHide.hideVariable,
@@ -702,4 +722,4 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     }),
     unsub,
   };
-}
+};

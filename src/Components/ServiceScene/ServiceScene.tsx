@@ -292,6 +292,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
+    console.log('service scene activate', getLevelsVariable(this).state.filters);
     if (!this.state.body) {
       this.setState({ body: this.buildGraphScene() });
     }
@@ -335,6 +336,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     // Migrations
     migrateLineFilterV1(this);
+
+    console.log('service scene activate END', getLevelsVariable(this).state.filters);
   }
 
   private subscribeToPatternsVariable() {
