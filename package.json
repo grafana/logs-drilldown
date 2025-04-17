@@ -126,6 +126,7 @@
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
     "@types/react-table": "^7.7.20",
+    "re2js": "^1.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "@gtk-grafana/react-json-tree": "^0.0.9",

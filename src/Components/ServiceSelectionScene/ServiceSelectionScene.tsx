@@ -449,6 +449,19 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     if (timeRange.to.diff(timeRange.from, 'hours') >= 4 && timeRange.to.diff(timeRange.from, 'hours') <= 26) {
       splitDuration = '2h';
     }
+    const headerActions = [];
+
+    if (this.isAggregatedMetricsActive()) {
+      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+    } else {
+      headerActions.push(
+        new AddLabelToFiltersHeaderActionScene({
+          name: primaryLabelName,
+          value: primaryLabelValue,
+        })
+      );
+      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+    }
     const panel = PanelBuilders.timeseries()
       // If service was previously selected, we show it in the title
       .setTitle(primaryLabelValue)
@@ -484,12 +497,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           labelName: primaryLabelName,
           labelValue: primaryLabelValue,
         }),
-        this.isAggregatedMetricsActive()
-          ? new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName })
-          : new AddLabelToFiltersHeaderActionScene({
-              name: primaryLabelName,
-              value: primaryLabelValue,
-            }),
+        ...headerActions,
       ])
       .build();
 

@@ -7577,6 +7577,11 @@ rc-virtual-list@^3.5.1, rc-virtual-list@^3.5.2:
     rc-resize-observer "^1.0.0"
     rc-util "^5.36.0"
 
+re2js@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/re2js/-/re2js-1.1.0.tgz#8da02a05f16e51388659c74fc92ad6dc27565769"
+  integrity sha512-ovDCIb2ZQR7Do3NzH2XEuXOzqd1q8srvkeaOVMf+EZNt1Z4JoUVvNKCR9qf8EbqoPhvLknkoyiiBzoQtmuzIbQ==
+
 react-calendar@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/react-calendar/-/react-calendar-5.1.0.tgz#f5d3342a872cbb8907099ca5651bc936046033b8"
