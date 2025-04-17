@@ -307,7 +307,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('enableInfiniteScrolling', true)
       .setOption('onNewLogsReceived', this.updateVisibleRange)
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
-
       .setHeaderActions(
         new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
       )

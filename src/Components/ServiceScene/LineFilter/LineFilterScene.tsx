@@ -34,7 +34,7 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
    */
   constructor(state?: Partial<LineFilterState>) {
     super({
-      lineFilter: state?.lineFilter || '',
+      lineFilter: state?.lineFilter ?? '',
       caseSensitive: state?.caseSensitive ?? getLineFilterCase(false),
       regex: state?.regex ?? getLineFilterRegex(false),
       exclusive: state?.exclusive ?? getLineFilterExclusive(false),

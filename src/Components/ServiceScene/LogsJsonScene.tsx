@@ -663,7 +663,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     --json-tree-label-color: ${theme.colors.text.secondary};
     --json-tree-label-value-color: ${theme.colors.text.primary};
     --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
-    --json-tree-ul-root-padding: 0;
+    --json-tree-ul-root-padding: 0 0 ${theme.spacing(2)} 0;
 
     // first nested node padding
     > ul > li > ul {
