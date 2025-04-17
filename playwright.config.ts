@@ -1,7 +1,7 @@
 import type { PluginOptions } from '@grafana/plugin-e2e';
 import { defineConfig, devices } from '@playwright/test';
 import { dirname } from 'node:path';
-import {E2ESubPath} from "./tests/fixtures/explore";
+import { E2ESubPath } from './tests/fixtures/explore';
 
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
@@ -31,13 +31,12 @@ export default defineConfig<PluginOptions>({
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: `http://localhost:3001${E2ESubPath}`,
 
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on',
+    trace: 'on-first-retry',
     // Turn on when debugging local tests
-    video: {
-      mode: 'on',
-    },
+    // video: {
+    //   mode: 'on',
+    // },
   },
   expect: { timeout: 15000 },
 
