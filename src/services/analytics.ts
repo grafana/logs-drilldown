@@ -43,6 +43,10 @@ export const USER_EVENTS_ACTIONS = {
     action_view_changed: 'action_view_changed',
     // Clicking on "Include" button in time series panels. Used in multiple views. The view type is passed as a parameter. Props: filterType, key, isFilterDuplicate, filtersLength
     add_to_filters_in_breakdown_clicked: 'add_to_filters_in_breakdown_clicked',
+    // Adding a positive or negative filter from the JSON panel
+    add_to_filters_in_json_panel: 'add_to_filters_in_json_panel',
+    // Setting a new root in the json panel
+    change_line_format_in_json_panel: 'change_line_format_in_json_panel',
     // Clicking on "Select" button button in time series panels. Used in multiple views.The view type is passed as a parameter. Props: field, previousField, view
     select_field_in_breakdown_clicked: 'select_field_in_breakdown_clicked',
     // Clicking on one of the levels in the Logs Volume panel
