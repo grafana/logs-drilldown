@@ -41,7 +41,7 @@ test.describe('explore services page', () => {
       await page.keyboard.press('Escape');
 
       // Assert the first is nginx, or we might click before it's done loading
-      await expect(page.getByTestId('header-container').first()).toHaveText('nginxInclude');
+      await expect(page.getByTestId('header-container').first()).toHaveText('nginxIncludeShow logs');
       await explorePage.addServiceName();
       await explorePage.clickShowLogs();
 
@@ -58,7 +58,7 @@ test.describe('explore services page', () => {
       await expect(page.getByTestId('header-container').nth(1)).toBeVisible();
 
       // Assert that the first element is nginx now
-      await expect(page.getByTestId('header-container').first()).toHaveText('nginxExclude');
+      await expect(page.getByTestId('header-container').first()).toHaveText('nginxRemove');
       await explorePage.servicesSearch.click();
 
       // Assert there is more than one element in the dropdown
