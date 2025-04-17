@@ -72,7 +72,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           onClick={() => (included === true ? model.onClick('clear') : model.onClick('include'))}
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >
-          {included ? 'Exclude' : 'Include'}
+          {included ? 'Remove' : 'Include'}
         </Button>
       </span>
     );

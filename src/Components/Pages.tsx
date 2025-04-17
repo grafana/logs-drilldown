@@ -49,7 +49,7 @@ export function makeIndexPage() {
     url: prefixRoute(PageSlugs.explore),
     layout: PageLayoutType.Custom,
     preserveUrlKeys: SERVICE_URL_KEYS,
-    routePath: prefixRoute(PageSlugs.explore),
+    routePath: `${PageSlugs.explore}/*`,
     getScene: (routeMatch) => getServicesScene(routeMatch),
     drilldowns: [
       {
@@ -121,6 +121,7 @@ export function makeBreakdownPage(
     title: capitalizeFirstLetter(slug),
     layout: PageLayoutType.Custom,
     url: ROUTES[slug](labelValue, labelName),
+    routePath: ROUTE_DEFINITIONS[slug],
     preserveUrlKeys: DRILLDOWN_URL_KEYS,
     getParentPage: () => parent,
     getScene: (routeMatch) => getServicesScene(routeMatch),
@@ -149,6 +150,7 @@ export function makeBreakdownValuePage(
     title: capitalizeFirstLetter(breakdownLabel),
     layout: PageLayoutType.Custom,
     url: SUB_ROUTES[slug](labelValue, labelName, breakdownLabel),
+    routePath: CHILD_ROUTE_DEFINITIONS[slug],
     preserveUrlKeys: DRILLDOWN_URL_KEYS,
     getParentPage: () => parent,
     getScene: (routeMatch) => getServicesScene(routeMatch),
