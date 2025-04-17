@@ -123,7 +123,7 @@ export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterO
   }
 }
 
-export function narrowUrlParam(param: unknown): string[] | null {
+export function narrowStringsArray(param: unknown): string[] | null {
   try {
     // Attempt to parse the string as JSON
     const parsedParam = JSON.parse(decodeURIComponent(param as string));
