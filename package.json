@@ -119,7 +119,7 @@
     "@grafana/data": "^11.6.0",
     "@grafana/lezer-logql": "^0.2.7",
     "@grafana/runtime": "^11.6.0",
-    "@grafana/scenes": "@grafana/scenes@6.9.0--canary.1093.14409340532.0",
+    "@grafana/scenes": "^6.9.0",
     "@grafana/ui": "^11.6.0",
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
