@@ -10,7 +10,14 @@ import { LinkButton, useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { AppliedPattern, LOG_STREAM_SELECTOR_EXPR } from '../../services/variables';
 import { getOpenInDrilldownURL } from 'services/extensions/links';
-import { getDataSourceVariable, getLabelsVariable } from '../../services/variableGetters';
+import {
+  getDataSourceVariable,
+  getFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+  getMetadataVariable,
+} from '../../services/variableGetters';
 
 type HeaderPosition = 'sticky' | 'relative';
 interface VariableLayoutSceneState extends SceneObjectState {
@@ -22,6 +29,14 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const { controls, patterns } = indexScene.useState();
 
     const labelsVar = getLabelsVariable(model);
+
+    // To generate the correct link we must re-render this component whenever a filter is added or removed.
+    labelsVar.useState();
+    getFieldsVariable(model).useState();
+    getLevelsVariable(model).useState();
+    getMetadataVariable(model).useState();
+    getLineFiltersVariable(model).useState();
+
     const timeRange = sceneGraph.getTimeRange(model);
     const dataSourceVariable = getDataSourceVariable(model);
 

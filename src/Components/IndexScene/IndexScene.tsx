@@ -105,20 +105,12 @@ import { NoLokiSplash } from '../NoLokiSplash';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
-interface InitialFilters {
-  initialLabels?: AdHocVariableFilter[];
-  initialFields?: AdHocVariableFilter[];
-  initialLevels?: AdHocVariableFilter[];
-  initialMetadata?: AdHocVariableFilter[];
-  initialLineFilters?: AdHocVariableFilter[];
-}
-
 export interface IndexSceneState extends SceneObjectState {
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
   controls?: SceneObject[];
   body?: LayoutScene;
-  initialFilters?: InitialFilters;
+  initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
@@ -189,7 +181,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     super({
-      $timeRange: state.$timeRange ?? new SceneTimeRange(),
+      $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
       controls: state.controls ?? controls,
       // Need to clear patterns state when the class in constructed
@@ -580,14 +572,14 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFilters, embedded = false) => {
+function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded?: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,
     layout: 'combobox',
     label: 'Labels',
     allowCustomValue: true,
-    filters: initialFilters?.initialLabels ?? [],
+    filters: initialFilters ?? [],
     expressionBuilder: renderLogQLLabelFilters,
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
@@ -603,7 +595,6 @@ const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFi
     label: 'Detected fields',
     applyMode: 'manual',
     layout: 'combobox',
-    filters: initialFilters?.initialFields ?? [],
     expressionBuilder: renderLogQLFieldFilters,
     hide: VariableHide.hideVariable,
     allowCustomValue: true,
@@ -618,7 +609,6 @@ const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFi
     label: 'Metadata',
     applyMode: 'manual',
     layout: 'combobox',
-    filters: initialFilters?.initialMetadata ?? [],
     expressionBuilder: (filters: AdHocFilterWithLabels[]) => renderLogQLMetadataFilters(filters),
     hide: VariableHide.hideVariable,
     allowCustomValue: true,
@@ -649,7 +639,6 @@ const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFi
     name: VAR_LEVELS,
     label: 'Error levels',
     applyMode: 'manual',
-    filters: initialFilters?.initialLevels ?? [],
     layout: 'vertical',
     expressionBuilder: renderLevelsFilter,
     hide: VariableHide.hideVariable,
@@ -659,7 +648,6 @@ const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFi
   const lineFiltersVariable = new AdHocFiltersVariable({
     name: VAR_LINE_FILTERS,
     hide: VariableHide.hideVariable,
-    filters: initialFilters?.initialLineFilters ?? [],
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     expressionBuilder: renderLogQLLineFilter,
@@ -716,4 +704,4 @@ const getVariableSet = (initialDatasourceUid: string, initialFilters?: InitialFi
     }),
     unsub,
   };
-};
+}

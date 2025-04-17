@@ -8,7 +8,6 @@ interface EmbeddedLogsExplorationFromQuery extends IndexSceneState {
   query: string;
   timeRangeState: SceneTimeRangeState;
   onTimeRangeChange: (timeRange: TimeRange) => void;
-  onQueryChange: (query: string) => void;
 }
 
 interface EmbeddedLogsExplorationFromFilters extends IndexSceneState {
@@ -17,7 +16,6 @@ interface EmbeddedLogsExplorationFromFilters extends IndexSceneState {
   query?: never;
   timeRangeState: SceneTimeRangeState;
   onTimeRangeChange: (timeRange: TimeRange) => void;
-  onQueryChange: (query: string) => void;
 }
 
 export type EmbeddedLogsExplorationProps = EmbeddedLogsExplorationFromQuery | EmbeddedLogsExplorationFromFilters;
