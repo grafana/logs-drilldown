@@ -1,21 +1,24 @@
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { LogsListScene } from './LogsListScene';
-import { AdHocVariableFilter, GrafanaTheme2 } from '@grafana/data';
-import { TableProvider } from '../Table/TableProvider';
 import React, { useRef } from 'react';
-import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+
 import { css } from '@emotion/css';
-import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
-import { areArraysStrictlyEqual } from '../../services/comparison';
-import { getLogsPanelFrame } from './ServiceScene';
-import { getVariableForLabel } from '../../services/fields';
+
+import { AdHocVariableFilter, GrafanaTheme2 } from '@grafana/data';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
+
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { TableProvider } from '../Table/TableProvider';
+import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
+import { LogsListScene } from './LogsListScene';
+import { getLogsPanelFrame } from './ServiceScene';
+import { areArraysStrictlyEqual } from 'services/comparison';
+import { getVariableForLabel } from 'services/fields';
 
 interface LogsTableSceneState extends SceneObjectState {
-  menu?: PanelMenu;
   isColumnManagementActive: boolean;
+  menu?: PanelMenu;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   constructor(state: Partial<LogsTableSceneState>) {
@@ -40,8 +43,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { data } = sceneGraph.getData(model).useState();
-    const { selectedLine, urlColumns, visualizationType, tableLogLineState } = parentModel.useState();
-    const { menu, isColumnManagementActive } = model.useState();
+    const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
+    const { isColumnManagementActive, menu } = model.useState();
 
     // Get time range
     const timeRange = sceneGraph.getTimeRange(model);
@@ -116,8 +119,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
 const getStyles = (theme: GrafanaTheme2) => ({
   panelWrapper: css({
-    width: '100%',
     height: '100%',
     label: 'panel-wrapper-table',
+    width: '100%',
   }),
 });
