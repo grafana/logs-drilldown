@@ -10,9 +10,7 @@ import { useStyles2 } from '@grafana/ui';
 import { LineFilterProps, LineFilterVariable } from './LineFilterVariable';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 
-interface LineFilterRendererState extends SceneObjectState {
-  embedded?: boolean;
-}
+interface LineFilterRendererState extends SceneObjectState {}
 
 /**
  * The scene for the submitted line filter that is rendered up top with the other variables.
@@ -63,9 +61,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
   handleEnter = (e: KeyboardEvent<HTMLInputElement>, lineFilter: string, filter: AdHocFilterWithLabels) => {
     if (e.key === 'Enter') {
       // Add the current url to browser history before the state is changed so the user can revert their change.
-      if (!this.state.embedded) {
-        addCurrentUrlToHistory();
-      }
+      addCurrentUrlToHistory();
       this.updateVariableLineFilter(filter, { ...filter, value: lineFilter });
     }
   };

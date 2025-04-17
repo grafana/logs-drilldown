@@ -78,12 +78,8 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
   public onActivate() {
     const slug = getDrilldownSlug();
     this.setState({
-      lineFilterRenderer: new LineFilterVariablesScene({
-        embedded: this.state.embedded,
-      }),
-      levelsRenderer: new LevelsVariableScene({
-        embedded: this.state.embedded,
-      }),
+      lineFilterRenderer: new LineFilterVariablesScene({}),
+      levelsRenderer: new LevelsVariableScene({}),
       variableLayout: new VariableLayoutScene({ position: slug === PageSlugs.explore ? 'sticky' : 'relative' }),
     });
   }

@@ -292,7 +292,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
-    console.log('service scene activate', getLevelsVariable(this).state.filters);
     if (!this.state.body) {
       this.setState({ body: this.buildGraphScene() });
     }
