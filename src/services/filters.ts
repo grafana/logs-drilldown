@@ -1,11 +1,21 @@
-import { DetectedLabel } from './fields';
+import { DetectedLabel, getJsonPathArraySyntax, isLogLineField } from './fields';
 import {
   ALL_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
   stripAdHocFilterUserInputPrefix,
 } from './variables';
-import { VariableValueOption } from '@grafana/scenes';
+import { SceneObject, VariableValueOption } from '@grafana/scenes';
+import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from './variableGetters';
+import { FilterOp } from './filterTypes';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { isNumber } from 'lodash';
+import { LABEL_NAME_INVALID_CHARS } from './labels';
+
+// Ad-hoc variables added without values are not added to url state, so we add an empty value
+export const EMPTY_AD_HOC_FILTER_VALUE = ' ';
+export const LEVEL_INDEX_NAME = 'level';
+export const FIELDS_TO_REMOVE = ['level_extracted', LEVEL_VARIABLE_VALUE, LEVEL_INDEX_NAME];
 
 // We want to show labels with cardinality 1 at the end of the list because they are less useful
 // And then we want to sort by cardinality - from lowest to highest
@@ -34,8 +44,6 @@ export function getLabelOptions(labels: string[]) {
 
   return [{ label: 'All', value: ALL_VARIABLE_VALUE }, ...labelOptions];
 }
-export const LEVEL_INDEX_NAME = 'level';
-export const FIELDS_TO_REMOVE = ['level_extracted', LEVEL_VARIABLE_VALUE, LEVEL_INDEX_NAME];
 
 export const LABELS_TO_REMOVE = ['__aggregated_metric__', '__stream_shard__'];
 export function getFieldOptions(labels: string[]) {
@@ -54,4 +62,147 @@ export function isFilterMetadata(filter: { value: string; valueLabels?: string[]
     ? stripAdHocFilterUserInputPrefix(filter.value)
     : filter.value;
   return value === filter.valueLabels?.[0];
+}
+
+/**
+ * Filters json parser prop filters that are not currently used in either the line filters or the field filters
+ * @todo unit test
+ */
+export function filterUnusedJSONFilters(sceneRef: SceneObject) {
+  const lineFormatVar = getLineFormatVariable(sceneRef);
+  const lineFormatFilters = lineFormatVar.state.filters;
+  const fieldsVar = getFieldsVariable(sceneRef);
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+  const lineFormatSet = new Set();
+  lineFormatFilters.forEach((lineFormatFilter) => {
+    lineFormatSet.add(lineFormatFilter.key);
+  });
+
+  const fieldsFilterSet = new Set();
+  fieldsVar.state.filters.forEach((fieldFilter) => fieldsFilterSet.add(fieldFilter.key));
+
+  // Loop through the json variable filters, remove them if there aren't any fields filters or line format filters that match
+  const filters = jsonVariable.state.filters.filter((jsonParserPropFilter) => {
+    let hasLineFormat = false;
+    let lineFormatKeys: string[] = [];
+
+    // Concat the line format variables together and check to see if the json parser filter match
+    hasLineFormat = lineFormatFilters.some((lineFormatFilter) => {
+      lineFormatKeys.push(lineFormatFilter.key);
+      const concatLineFormatKeys = lineFormatKeys.join('_');
+      return concatLineFormatKeys === jsonParserPropFilter.key;
+    });
+
+    // And check if the fields contain a matching key
+    const hasFieldFilter = fieldsFilterSet.has(jsonParserPropFilter.key);
+    return hasFieldFilter || hasLineFormat;
+  });
+
+  jsonVariable.setState({
+    filters: filters,
+  });
+}
+
+export function removeLineFormatFilters(sceneRef: SceneObject) {
+  const lineFormatVar = getLineFormatVariable(sceneRef);
+  filterUnusedJSONFilters(sceneRef);
+  lineFormatVar.setState({
+    filters: [],
+  });
+}
+
+export function formatJsonKey(key: string) {
+  if (key.match(LABEL_NAME_INVALID_CHARS)) {
+    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
+  }
+  return key;
+}
+
+export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath) {
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+
+  const value = getJsonKeyPath(keyPath);
+  const key = getJsonKey(keyPath);
+  const filterKey = formatJsonKey(key);
+  const nextKeyPath = [...keyPath];
+  let nextKey = nextKeyPath.shift();
+
+  let filters = [
+    ...jsonVariable.state.filters.filter((f) => f.key !== filterKey),
+    {
+      value,
+      key: filterKey,
+      operator: FilterOp.Equal,
+    },
+  ];
+
+  while (nextKey && !isLogLineField(nextKey.toString()) && !isNumber(nextKey) && nextKey !== 'root') {
+    const nextFullKey = getJsonKey(nextKeyPath);
+    const nextValue = getJsonKeyPath(nextKeyPath);
+
+    if (
+      nextFullKey &&
+      !filters.find(
+        (filter) => filter.key === nextFullKey && filter.value === nextValue && filter.operator === FilterOp.Equal
+      )
+    ) {
+      filters = [
+        ...filters.filter((f) => f.key !== nextFullKey),
+        {
+          value: nextValue,
+          key: nextFullKey,
+          operator: FilterOp.Equal,
+        },
+      ];
+    }
+
+    nextKey = nextKeyPath.shift();
+  }
+
+  jsonVariable.setState({
+    filters,
+  });
+}
+
+export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath) {
+  const jsonVariable = getJsonFieldsVariable(sceneRef);
+  const value = getJsonKeyPath(keyPath);
+  const key = getJsonKey(keyPath);
+
+  const filters = [
+    ...jsonVariable.state.filters.filter((f) => f.key !== key),
+    {
+      value,
+      key,
+      operator: FilterOp.Equal,
+    },
+  ];
+
+  jsonVariable.setState({
+    filters,
+  });
+}
+
+export function getJsonKey(keyPath: KeyPath) {
+  const keysToConcat = getJSONKeysFromKeyPath(keyPath);
+  return keysToConcat.join('_');
+}
+
+export function getJsonKeyPath(keyPath: KeyPath) {
+  const keysToConcat = getJSONKeysFromKeyPath(keyPath);
+  return getJsonPathArraySyntax(keysToConcat);
+}
+
+function getJSONKeysFromKeyPath(keyPath: ReadonlyArray<string | number>) {
+  let key: string | undefined | number;
+  const keys = [...keyPath];
+  const keysToConcat = [];
+
+  while ((key = keys.shift())) {
+    if (isLogLineField(key.toString()) || isNumber(key) || key === 'root') {
+      break;
+    }
+    keysToConcat.unshift(key);
+  }
+  return keysToConcat;
 }

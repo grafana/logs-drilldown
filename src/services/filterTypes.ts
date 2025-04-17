@@ -10,6 +10,10 @@ export enum LabelFilterOp {
   RegexEqual = '=~',
   RegexNotEqual = '!~',
 }
+// Line filter doesn't have an operator, so we add an empty space to keep it in URL state
+export enum LineFormatFilterOp {
+  Empty = ' ',
+}
 
 export enum NumericFilterOp {
   gt = '>',

@@ -1,13 +1,16 @@
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { ALL_VARIABLE_VALUE } from './variables';
-import { getMetadataService } from './metadata';
 import { locationService } from '@grafana/runtime';
-import { buildServicesUrl, DRILLDOWN_URL_KEYS, PageSlugs, ROUTES, ValueSlugs } from './routing';
 import { sceneGraph } from '@grafana/scenes';
 import { UrlQueryMap, urlUtil } from '@grafana/data';
+import { ALL_VARIABLE_VALUE } from './variables';
+
+import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { IndexScene } from '../Components/IndexScene/IndexScene';
+
+import { getMetadataService } from './metadata';
+import { buildServicesUrl, DRILLDOWN_URL_KEYS, ROUTES } from './routing';
 import { replaceSlash } from './extensions/links';
 import { prefixRoute } from './plugin';
+import { PageSlugs, ValueSlugs } from './enums';
 
 let previousRoute: string | undefined = undefined;
 
