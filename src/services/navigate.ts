@@ -126,7 +126,7 @@ export function navigateToDrilldownPage(path: PageSlugs, serviceScene: ServiceSc
  * doing so triggers a re-render of the entire app, and any local state is wiped out and re-initialized with the props passed in from the embedding plugin.
  */
 export function isEmbedded(): boolean {
-  return getMetadataService().getServiceSceneState()?.embedded ?? false;
+  return getMetadataService()?.getServiceSceneState()?.embedded ?? false;
 }
 
 export function pushUrlHandler(newUrl: string) {
