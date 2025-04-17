@@ -119,15 +119,30 @@ export function navigateToDrilldownPage(path: PageSlugs, serviceScene: ServiceSc
   }
 }
 
+/**
+ * Get the embedded flag from the singleton
+ *
+ * Note: Embedded components cannot change location,
+ * doing so triggers a re-render of the entire app, and any local state is wiped out and re-initialized with the props passed in from the embedding plugin.
+ */
+export function isEmbedded(): boolean {
+  return getMetadataService()?.getServiceSceneState()?.embedded ?? false;
+}
+
 export function pushUrlHandler(newUrl: string) {
-  previousRoute = newUrl;
-  locationService.push(newUrl);
+  if (!isEmbedded()) {
+    previousRoute = newUrl;
+    locationService.push(newUrl);
+  }
 }
 
 export function addCurrentUrlToHistory() {
-  // Add the current url to browser history before the state is changed so the user can revert their change.
-  const location = locationService.getLocation();
-  locationService.push(location.pathname + location.search);
+  // Don't push location when embedded
+  if (!isEmbedded()) {
+    // Add the current url to browser history before the state is changed so the user can revert their change.
+    const location = locationService.getLocation();
+    locationService.push(location.pathname + location.search);
+  }
 }
 
 /**
@@ -139,7 +154,7 @@ export function navigateToIndex() {
   const currentUrl = location.pathname + location.search;
   const search = locationService.getSearch();
 
-  if (serviceUrl === currentUrl || currentUrl.includes(serviceUrl)) {
+  if (serviceUrl === currentUrl || currentUrl.includes(serviceUrl) || isEmbedded()) {
     return;
   }
 

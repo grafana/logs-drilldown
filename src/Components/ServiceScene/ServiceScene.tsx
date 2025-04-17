@@ -84,6 +84,7 @@ export interface ServiceSceneCustomState {
   loading?: boolean;
   totalLogsCount?: number;
   logsCount?: number;
+  embedded?: boolean;
 }
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
@@ -151,7 +152,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         [TabNames.logs]: false,
       },
       loading: true,
-      body: state.body ?? buildGraphScene(),
+      body: state.body,
       $data: getServiceSceneQueryRunner(),
       $patternsData: getPatternsQueryRunner(),
       $detectedLabelsData: getDetectedLabelsQueryRunner(),
@@ -176,7 +177,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
 
         // If we remove the service name filter, we should redirect to the start
-        let { labelName, labelValue, breakdownLabel } = getPrimaryLabelFromUrl();
+        let { labelName, labelValue, breakdownLabel } = this.getPrimaryLabel();
 
         // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
         if (labelName === SERVICE_UI_LABEL) {
@@ -233,26 +234,39 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     );
   }
 
-  private redirectToStart() {
-    // Clear ongoing queries
-    this.setState({
-      $data: undefined,
-      $logsCount: undefined,
-      body: undefined,
-      $patternsData: undefined,
-      $detectedLabelsData: undefined,
-      $detectedFieldsData: undefined,
-      patternsCount: undefined,
-      labelsCount: undefined,
-      fieldsCount: undefined,
-      logsCount: undefined,
-      totalLogsCount: undefined,
-    });
-    getMetadataService().setServiceSceneState(this.state);
-    this._subs.unsubscribe();
+  private getPrimaryLabel() {
+    if (this.state.embedded) {
+      const variable = getLabelsVariable(this);
+      return { labelName: variable.state.filters[0].key, labelValue: variable.state.filters[0].value };
+    }
+    return getPrimaryLabelFromUrl();
+  }
 
-    // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
-    navigateToIndex();
+  private redirectToStart() {
+    if (!this.state.embedded) {
+      // Clear ongoing queries
+      this.setState({
+        $data: undefined,
+        $logsCount: undefined,
+        body: undefined,
+        $patternsData: undefined,
+        $detectedLabelsData: undefined,
+        $detectedFieldsData: undefined,
+        patternsCount: undefined,
+        labelsCount: undefined,
+        fieldsCount: undefined,
+        logsCount: undefined,
+        totalLogsCount: undefined,
+      });
+      getMetadataService().setServiceSceneState(this.state);
+      this._subs.unsubscribe();
+
+      // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
+      navigateToIndex();
+    } else {
+      // @todo set initial labels?
+      console.warn('Cannot redirect when embedded');
+    }
   }
 
   private showVariables() {
@@ -278,6 +292,9 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
+    if (!this.state.body) {
+      this.setState({ body: this.buildGraphScene() });
+    }
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: true });
@@ -312,8 +329,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
 
+    if (this.state.embedded && !getMetadataService().getServiceSceneState()?.embedded) {
+      getMetadataService().setEmbedded(this.state.embedded);
+    }
+
     // Migrations
     migrateLineFilterV1(this);
+
+    console.log('service scene activate END', getLevelsVariable(this).state.filters);
   }
 
   private subscribeToPatternsVariable() {
@@ -534,7 +557,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (!this.state.body) {
-      stateUpdate.body = buildGraphScene();
+      stateUpdate.body = this.buildGraphScene();
     }
 
     if (Object.keys(stateUpdate).length) {
@@ -542,9 +565,30 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
+  private getBreakdownView() {
+    if (this.state.embedded) {
+      return 'logs';
+    }
+    return getDrilldownSlug();
+  }
+
+  private buildGraphScene() {
+    return new SceneFlexLayout({
+      direction: 'column',
+      children: [
+        new SceneFlexItem({
+          ySizing: 'content',
+          body: new ActionBarScene({
+            embedded: this.state.embedded,
+          }),
+        }),
+      ],
+    });
+  }
+
   public setBreakdownView() {
     const { body } = this.state;
-    const breakdownView = getDrilldownSlug();
+    const breakdownView = this.getBreakdownView();
     const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === breakdownView);
 
     if (!body) {
@@ -586,18 +630,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     return <LoadingPlaceholder text={'Loading...'} />;
   };
-}
-
-function buildGraphScene() {
-  return new SceneFlexLayout({
-    direction: 'column',
-    children: [
-      new SceneFlexItem({
-        ySizing: 'content',
-        body: new ActionBarScene({}),
-      }),
-    ],
-  });
 }
 
 function getPatternsQueryRunner() {

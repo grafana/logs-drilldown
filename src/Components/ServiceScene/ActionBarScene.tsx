@@ -15,6 +15,7 @@ import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
 export interface ActionBarSceneState extends SceneObjectState {
   maxLines?: number;
   shareButtonScene?: ShareButtonScene;
+  embedded?: boolean;
 }
 
 export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
@@ -41,6 +42,11 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
   }
   public static Component = ({ model }: SceneComponentProps<ActionBarScene>) => {
     const styles = useStyles2(getStyles);
+
+    if (model.state.embedded) {
+      return null;
+    }
+
     let currentBreakdownViewSlug = getDrilldownSlug();
     let allowNavToParent = false;
 
