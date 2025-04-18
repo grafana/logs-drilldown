@@ -107,6 +107,14 @@ export function narrowTimeRange(unknownRange: unknown): RawTimeRange | undefined
   return undefined;
 }
 
+export function narrowErrorMessage(e: unknown): string | undefined {
+  const msg = isObj(e) && hasProp(e, 'error') && isString(e.error);
+  if (msg) {
+    return msg;
+  }
+  return undefined;
+}
+
 export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterOp {
   switch (op) {
     case LabelFilterOp.Equal:
