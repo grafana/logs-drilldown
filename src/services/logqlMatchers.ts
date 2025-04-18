@@ -105,8 +105,12 @@ function parseLabelFilters(query: string, filter: IndexedLabelFilter[]) {
   const allMatcher = getNodesFromQuery(query, [Matcher]);
   for (const matcher of allMatcher) {
     const identifierPosition = getAllPositionsInNodeByType(matcher, Identifier);
+    if (!identifierPosition || identifierPosition.length === 0) {
+      continue;
+    }
+
     const valuePosition = getAllPositionsInNodeByType(matcher, String);
-    const operator = query.substring(identifierPosition[0]?.to, valuePosition[0]?.from);
+    const operator = query.substring(identifierPosition[0].to, valuePosition[0].from);
     const key = identifierPosition[0].getExpression(query);
     const value = valuePosition.map((position) => query.substring(position.from + 1, position.to - 1))[0];
 

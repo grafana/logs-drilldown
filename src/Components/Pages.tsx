@@ -20,15 +20,15 @@ import {
   SUB_ROUTES,
   ValueSlugs,
 } from '../services/routing';
-import { dateTimeParse, PageLayoutType, TimeRange } from '@grafana/data';
+import { PageLayoutType, urlUtil, dateTimeParse, TimeRange } from '@grafana/data';
 import { IndexScene } from './IndexScene/IndexScene';
 import { navigateToIndex } from '../services/navigate';
 import { logger } from '../services/logger';
 import { capitalizeFirstLetter } from '../services/text';
 import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
-import React from 'React';
 import { SuspendedEmbeddedLogsExploration } from '../services/extensions/exposedComponents';
+import React from 'react';
 
 export type RouteProps = { labelName: string; labelValue: string; breakdownLabel?: string };
 export type RouteMatch = SceneRouteMatch<RouteProps>;
@@ -105,7 +105,7 @@ export function makeEmbedPage() {
     title: 'Grafana Logs Drilldown — Embedded',
     url: prefixRoute(PageSlugs.embed),
     layout: PageLayoutType.Custom,
-    routePath: prefixRoute(PageSlugs.embed),
+    routePath: `${PageSlugs.embed}`,
     getScene: (routeMatch) => getEmbedScene(),
     drilldowns: [
       {
@@ -124,7 +124,7 @@ export function makeIndexPage() {
     url: prefixRoute(PageSlugs.explore),
     layout: PageLayoutType.Custom,
     preserveUrlKeys: SERVICE_URL_KEYS,
-    routePath: prefixRoute(PageSlugs.explore),
+    routePath: `${PageSlugs.explore}/*`,
     getScene: (routeMatch) => getServicesScene(routeMatch),
     drilldowns: [
       {
@@ -160,7 +160,7 @@ export function makeIndexPage() {
 export function makeRedirectPage() {
   return new SceneAppPage({
     title: '',
-    url: PLUGIN_BASE_URL,
+    url: urlUtil.renderUrl(PLUGIN_BASE_URL, undefined),
     getScene: makeEmptyScene(),
     hideFromBreadcrumbs: true,
     routePath: '*',
@@ -192,6 +192,7 @@ export function makeBreakdownPage(
     title: capitalizeFirstLetter(slug),
     layout: PageLayoutType.Custom,
     url: ROUTES[slug](labelValue, labelName),
+    routePath: ROUTE_DEFINITIONS[slug],
     preserveUrlKeys: DRILLDOWN_URL_KEYS,
     getParentPage: () => parent,
     getScene: (routeMatch) => getServicesScene(routeMatch),
@@ -220,6 +221,7 @@ export function makeBreakdownValuePage(
     title: capitalizeFirstLetter(breakdownLabel),
     layout: PageLayoutType.Custom,
     url: SUB_ROUTES[slug](labelValue, labelName, breakdownLabel),
+    routePath: CHILD_ROUTE_DEFINITIONS[slug],
     preserveUrlKeys: DRILLDOWN_URL_KEYS,
     getParentPage: () => parent,
     getScene: (routeMatch) => getServicesScene(routeMatch),

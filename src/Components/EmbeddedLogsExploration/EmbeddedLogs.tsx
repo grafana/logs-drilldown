@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SceneTimeRange } from '@grafana/scenes';
+import { AdHocFilterWithLabels, SceneTimeRange } from '@grafana/scenes';
 
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { EmbeddedLogsExplorationProps } from './types';
@@ -30,10 +30,16 @@ export function buildLogsExplorationFromState({
 
   const { labelFilters } = getMatcherFromQuery(query);
 
+  const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
+    key: filter.key,
+    value: filter.value,
+    operator: filter.operator,
+  }));
+
   return new IndexScene({
     ...state,
+    initialFilters: initialLabels,
     $timeRange,
-    initialFilters: labelFilters,
     embedded: true,
   });
 }

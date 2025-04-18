@@ -84,6 +84,7 @@ export interface ServiceSceneCustomState {
   loading?: boolean;
   totalLogsCount?: number;
   logsCount?: number;
+  embedded?: boolean;
 }
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
@@ -95,7 +96,6 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedLabelsData: SceneQueryRunner | undefined;
   $detectedFieldsData: SceneQueryRunner | undefined;
   loadingStates: ServiceSceneLoadingStates;
-  embedded?: boolean;
 }
 
 export function getLogsPanelFrame(data: PanelData | undefined) {
@@ -292,10 +292,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
-    const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    if (indexScene.state.embedded) {
-      this.setState({ embedded: true });
-    }
     if (!this.state.body) {
       this.setState({ body: this.buildGraphScene() });
     }
@@ -333,8 +329,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
 
+    if (this.state.embedded && !getMetadataService().getServiceSceneState()?.embedded) {
+      getMetadataService().setEmbedded(this.state.embedded);
+    }
+
     // Migrations
     migrateLineFilterV1(this);
+
+    console.log('service scene activate END', getLevelsVariable(this).state.filters);
   }
 
   private subscribeToPatternsVariable() {

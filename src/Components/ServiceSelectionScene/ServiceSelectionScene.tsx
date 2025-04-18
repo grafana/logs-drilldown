@@ -81,7 +81,7 @@ import { ToolbarScene } from '../IndexScene/ToolbarScene';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 import { FavoriteServiceHeaderActionScene } from './FavoriteServiceHeaderActionScene';
-import { pushUrlHandler } from '../../services/navigate';
+import { isEmbedded, pushUrlHandler } from '../../services/navigate';
 import { NoServiceVolume } from './NoServiceVolume';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import { AddLabelToFiltersHeaderActionScene } from './AddLabelToFiltersHeaderActionScene';
@@ -396,6 +396,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
    */
   addLabelChangeToBrowserHistory(newKey: string, replace = false) {
     const { key: primaryLabelRaw, search, location } = getSelectedTabFromUrl();
+    if (isEmbedded()) {
+      return;
+    }
     if (primaryLabelRaw) {
       const primaryLabelSplit = primaryLabelRaw?.split('|');
       const keyInUrl = primaryLabelSplit?.[0];
@@ -449,6 +452,19 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     if (timeRange.to.diff(timeRange.from, 'hours') >= 4 && timeRange.to.diff(timeRange.from, 'hours') <= 26) {
       splitDuration = '2h';
     }
+    const headerActions = [];
+
+    if (this.isAggregatedMetricsActive()) {
+      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+    } else {
+      headerActions.push(
+        new AddLabelToFiltersHeaderActionScene({
+          name: primaryLabelName,
+          value: primaryLabelValue,
+        })
+      );
+      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+    }
     const panel = PanelBuilders.timeseries()
       // If service was previously selected, we show it in the title
       .setTitle(primaryLabelValue)
@@ -480,16 +496,11 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       })
       .setHeaderActions([
         new FavoriteServiceHeaderActionScene({
-          ds: datasourceVar.getValue()?.toString(),
+          ds: datasourceVar.getValue()?.toString() ?? '',
           labelName: primaryLabelName,
           labelValue: primaryLabelValue,
         }),
-        new AddLabelToFiltersHeaderActionScene({
-          name: primaryLabelName,
-          value: primaryLabelValue,
-          hidden: this.isAggregatedMetricsActive(),
-        }),
-        new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }),
+        ...headerActions,
       ])
       .build();
 
@@ -963,7 +974,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       this.state.body.setState({
         children: newChildren,
         isLazy: true,
-        templateColumns: 'repeat(auto-fit, minmax(500px, 1fr) minmax(300px, 70vw))',
+        templateColumns: 'repeat(auto-fit, minmax(350px, 1fr) minmax(300px, calc(70vw - 100px)))',
         autoRows: '200px',
         md: {
           templateColumns: '1fr',

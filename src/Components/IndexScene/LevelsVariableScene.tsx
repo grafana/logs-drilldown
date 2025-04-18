@@ -93,9 +93,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
   onChangeOptions = (options: SelectableValue[]) => {
     // Save current url to history before the filter change
-    if (!this.state.embedded) {
-      addCurrentUrlToHistory();
-    }
+    addCurrentUrlToHistory();
 
     this.setState({
       options: this.state.options?.map((value) => {

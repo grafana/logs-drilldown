@@ -41,8 +41,9 @@ test.describe('explore services page', () => {
       await page.keyboard.press('Escape');
 
       // Assert the first is nginx, or we might click before it's done loading
-      await expect(page.getByTestId('header-container').first()).toHaveText('nginxShow logs');
+      await expect(page.getByTestId('header-container').first()).toHaveText('nginxIncludeShow logs');
       await explorePage.addServiceName();
+      await explorePage.clickShowLogs();
 
       // Assert we made it to the breakdown, and nginx is selected
       await expect(page.getByLabel('Edit filter with key')).toHaveText('service_name = nginx');
@@ -57,7 +58,7 @@ test.describe('explore services page', () => {
       await expect(page.getByTestId('header-container').nth(1)).toBeVisible();
 
       // Assert that the first element is nginx now
-      await expect(page.getByTestId('header-container').first()).toHaveText('nginxShow logs');
+      await expect(page.getByTestId('header-container').first()).toHaveText('nginxRemove');
       await explorePage.servicesSearch.click();
 
       // Assert there is more than one element in the dropdown
@@ -132,6 +133,7 @@ test.describe('explore services page', () => {
     test('should select a service label value and navigate to log view', async ({ page }) => {
       await explorePage.gotoServices();
       await explorePage.addServiceName();
+      await explorePage.clickShowLogs();
       await expect(explorePage.logVolumeGraph).toBeVisible();
     });
 
@@ -153,6 +155,7 @@ test.describe('explore services page', () => {
     test('should clear filters and levels when navigating back to previously activated service', async ({ page }) => {
       await explorePage.gotoServices();
       await explorePage.addServiceName();
+      await explorePage.clickShowLogs();
       // Add detected_level filter
       await page.getByTestId(testIds.exploreServiceDetails.tabLabels).click();
       await page.getByLabel('Select detected_level').click();
@@ -184,6 +187,7 @@ test.describe('explore services page', () => {
       await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
       await explorePage.addServiceName();
+      await explorePage.clickShowLogs();
 
       await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toBeVisible();
       await expect(page.getByTestId(testIds.variables.levels.inputWrap)).not.toContainText(levelTextMatch);
@@ -342,6 +346,7 @@ test.describe('explore services page', () => {
 
         // Click on first service
         await explorePage.addServiceName();
+        await explorePage.clickShowLogs();
         await explorePage.assertTabsNotLoading();
 
         // Clear variable
@@ -357,6 +362,7 @@ test.describe('explore services page', () => {
 
         // Click on first service
         await explorePage.addServiceName();
+        await explorePage.clickShowLogs();
         await explorePage.assertTabsNotLoading();
 
         // Clear variable
@@ -392,6 +398,7 @@ test.describe('explore services page', () => {
       test('should re-execute volume query after being redirected back to service selection', async ({ page }) => {
         await explorePage.assertPanelsNotLoading();
         await explorePage.addServiceName();
+        await explorePage.clickShowLogs();
         await expect(explorePage.logVolumeGraph).toBeVisible();
         await explorePage.changeDatasource();
         expect(logsVolumeCount).toBe(2);
@@ -456,6 +463,7 @@ test.describe('explore services page', () => {
         }) => {
           // Select the first service
           await explorePage.addServiceName();
+          await explorePage.clickShowLogs();
 
           const serviceNameVariableLoc = page.getByTestId(testIds.variables.serviceName.label);
           await expect(serviceNameVariableLoc).toHaveCount(1);
@@ -613,6 +621,7 @@ test.describe('explore services page', () => {
 
         // Select the first and only result
         await explorePage.addServiceName();
+        await explorePage.clickShowLogs();
         await explorePage.assertTabsNotLoading();
 
         // Logs tab should be visible and selected

@@ -23,8 +23,8 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 import {
-  AppliedPattern,
   AdHocFiltersWithLabelsAndMeta,
+  AppliedPattern,
   EXPLORATION_DS,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
@@ -128,8 +128,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
     ...state
   }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { variablesScene, unsub } = getVariableSet(datasourceUid, state.initialFilters, state.embedded);
-
+    const { variablesScene, unsub } = getVariableSet(datasourceUid, state?.initialFilters, state.embedded);
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         key: CONTROLS_VARS_FIRST_ROW_KEY,
@@ -232,8 +231,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this.setState(stateUpdate);
 
     this.updatePatterns(this.state, getPatternsVariable(this));
-    this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
-    this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+
+    if (!this.state.embedded) {
+      this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
+      this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+    }
 
     this._subs.add(
       this.subscribeToState((newState) => {
@@ -570,7 +572,7 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded = false) {
+function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded?: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     name: VAR_LABELS,
     datasource: EXPLORATION_DS,
