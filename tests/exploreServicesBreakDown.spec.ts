@@ -5,6 +5,7 @@ import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { FilterOp } from '../src/services/filterTypes';
 import { SERVICE_NAME } from '../src/services/variables';
+import { DEFAULT_URL_COLUMNS } from '../src/Components/Table/constants';
 
 const fieldName = 'caller';
 const levelName = 'detected_level';
@@ -201,6 +202,32 @@ test.describe('explore services breakdown page', () => {
     await panelMenuItem.click();
     await expect(page.getByLabel('Go Queryless')).toBeVisible();
     await expect(page.getByText(`drop __error__, __error_details__`)).toBeVisible();
+  });
+
+  test(`sync log panel displayed fields with table url columns`, async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Open log details
+    await page.getByTitle('See log details').nth(1).click();
+    await page.getByLabel('Show this field instead of').nth(1).click();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+
+    // Extract the current URL
+    const currentUrl = page.url();
+
+    // Parse the URL to get query parameters
+    const urlObj = new URL(currentUrl);
+    const displayedFields = JSON.parse(urlObj.searchParams.get('displayedFields') || '[]');
+    const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
+    const visualizationType = urlObj.searchParams.get('visualizationType');
+
+    // Filter out default columns from urlColumns
+    const filteredUrlColumns = urlColumns.filter((col: string) => !DEFAULT_URL_COLUMNS.includes(col));
+
+    // Check if filtered urlColumns matches displayedFields
+    expect(displayedFields).toEqual(filteredUrlColumns);
   });
 
   test(`should persist column ordering`, async ({ page }) => {

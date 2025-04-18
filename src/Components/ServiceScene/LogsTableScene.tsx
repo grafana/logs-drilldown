@@ -1,6 +1,7 @@
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LogsListScene } from './LogsListScene';
 import { AdHocVariableFilter, GrafanaTheme2 } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import { TableProvider } from '../Table/TableProvider';
 import React, { useRef } from 'react';
 import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
@@ -11,7 +12,12 @@ import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getLogsPanelFrame } from './ServiceScene';
 import { getVariableForLabel } from '../../services/fields';
 import { PanelMenu } from '../Panels/PanelMenu';
+import { setDisplayedFields } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { DEFAULT_URL_COLUMNS } from '../Table/constants';
+import { narrowStringsArray } from 'services/narrowing';
+
+let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -34,7 +40,68 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.setState({
       menu: new PanelMenu({ addInvestigationsLink: false }),
     });
+    this.onActivateSyncDisplayedFieldsWithUrlColumns();
   }
+
+  private getParentScene() {
+    return sceneGraph.getAncestor(this, LogsListScene);
+  }
+
+  // on activate sync displayed fields with url columns
+  onActivateSyncDisplayedFieldsWithUrlColumns = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    const urlColumnsParam = searchParams.get('urlColumns');
+    const urlColumnsUrl = narrowStringsArray(urlColumnsParam);
+    const parentModel = this.getParentScene();
+    // Sync from url
+    defaultUrlColumns = urlColumnsUrl
+      ? this.urlHasDefaultUrlColumns(urlColumnsUrl)
+        ? this.updateDefaultUrlColumns(urlColumnsUrl)
+        : defaultUrlColumns
+      : defaultUrlColumns;
+    defaultUrlColumns = defaultUrlColumns.length > 0 ? defaultUrlColumns : defaultUrlColumns;
+    parentModel.setState({
+      urlColumns: Array.from(new Set([...defaultUrlColumns, ...parentModel.state.displayedFields])),
+    });
+  };
+
+  // setUrlColumns update displayed fields in the parent scene
+  updateDisplayedFields = (urlColumns: string[]) => {
+    const parentModel = this.getParentScene();
+    // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
+    defaultUrlColumns = this.updateDefaultUrlColumns(urlColumns);
+
+    // Remove any default urlColumn for displayedFields
+    const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
+      (field) => !defaultUrlColumns.includes(field)
+    );
+    // sync state displayedFields for LogsPanelScene
+    parentModel.setState({
+      displayedFields: newDisplayedFields,
+    });
+    // sync LocalStorage displayedFields for Go to explore
+    setDisplayedFields(this, parentModel.state.displayedFields);
+  };
+
+  // check if url has default columns initially there are none so we need to keep default values
+  urlHasDefaultUrlColumns = (urlColumns: string[]) => {
+    return defaultUrlColumns.some((col) => urlColumns.includes(col));
+  };
+
+  // update defaultUrlColumns and match order
+  updateDefaultUrlColumns = (urlColumns: string[]) => {
+    defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
+      // return the column in the same index position as urlColumns
+      if (urlColumns.includes(col)) {
+        const urlIndex = urlColumns.indexOf(col);
+        acc[urlIndex] = col;
+      }
+      return acc;
+    }, []);
+
+    return defaultUrlColumns;
+  };
+
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
     const styles = useStyles2(getStyles);
     // Get state from parent model
@@ -62,6 +129,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const setUrlColumns = (urlColumns: string[]) => {
       if (!areArraysStrictlyEqual(urlColumns, parentModel.state.urlColumns)) {
         parentModel.setState({ urlColumns });
+        // sync table urlColumns with log panel displayed fields
+        model.updateDisplayedFields(urlColumns);
       }
     };
 
