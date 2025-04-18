@@ -10,8 +10,8 @@ const getSceneApp = () =>
   new SceneApp({
     pages: [makeIndexPage(), makeEmbedPage(), makeRedirectPage()],
     urlSyncOptions: {
-      createBrowserHistorySteps: true,
-      updateUrlOnInit: true,
+      createBrowserHistorySteps: false,
+      updateUrlOnInit: false,
     },
   });
 

@@ -51,7 +51,6 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
     if (!exploration) {
       initializeMetadataService();
       setExploration(buildLogsExplorationFromState(props));
-      console.log('setting exploration', exploration);
     }
   }, [exploration, props]);
 
