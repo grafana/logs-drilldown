@@ -188,6 +188,87 @@ export function selectFrameTransformation(frame: DataFrame) {
   };
 }
 
+export function selectFramesTransformation(frames: DataFrame[], labelName: string) {
+  return (source: Observable<DataFrame[]>) => {
+    return source.pipe(
+      map(() => {
+        return frames.map((frame) => {
+          return {
+            ...frame,
+            fields: frame.fields.map((field) => {
+              if (field.config.displayNameFromDS && field.labels) {
+                const labelValue = field.labels[labelName];
+                return { ...field, config: { ...field.config, displayNameFromDS: labelValue } };
+              } else {
+                return field;
+              }
+            }),
+          };
+        });
+      })
+    );
+  };
+}
+
+export function getVariantAndLabel(frame: DataFrame): { variant: number; labelName: string } {
+  const valueField = frame.fields[1];
+  const labels = valueField?.labels;
+  let variant: number | undefined = undefined;
+  let labelName: string | undefined = undefined;
+
+  if (labels) {
+    const labelKeys = Object.keys(labels);
+    labelKeys.forEach((key) => {
+      // Do we only ever have 2 labels?
+      if (key === '__variant__') {
+        variant = parseInt(labels[key], 10);
+      } else {
+        labelName = key;
+      }
+    });
+  }
+  if (variant === undefined) {
+    throw new Error('Missing variant!');
+  }
+  if (labelName === undefined) {
+    labelName = '__MISSING__';
+  }
+  return { variant, labelName };
+}
+
+type LabeledFrames = { frames: DataFrame[]; label: string };
+
+export function groupFramesByVariantTransformation(
+  series: DataFrame[] | undefined
+): (source: Observable<DataFrame[][]>) => Observable<DataFrame[][]> {
+  return (source: Observable<DataFrame[][]>) => {
+    const dataFrameMap = new Map<number, LabeledFrames>();
+    series?.forEach((frame) => {
+      let { variant, labelName } = getVariantAndLabel(frame);
+      if (variant && labelName) {
+        if (dataFrameMap.has(variant)) {
+          // Typescript!!!!!!!!
+          const currentFrames = dataFrameMap.get(variant) as LabeledFrames;
+          currentFrames?.frames.push(frame);
+          dataFrameMap.set(variant, currentFrames);
+        } else {
+          dataFrameMap.set(variant, { frames: [frame], label: labelName });
+        }
+      }
+    });
+
+    const array = Array.from(dataFrameMap).sort((a, b) => a[0] - b[0]);
+
+    return source.pipe(
+      map(() => {
+        return array.map((variantFrames) => {
+          return variantFrames[1].frames;
+        });
+      })
+    );
+  };
+}
+
 /**
  * Returns the variable to use when adding filters in a panel.
  * @param frame
@@ -256,18 +337,21 @@ export function isAvgField(fieldType: DetectedFieldType | undefined) {
 }
 
 export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions) {
+  const aggregationString = `${options.aggregation ? `, ${options.aggregation}` : ''}`;
   if (options.fieldType && ['bytes', 'duration'].includes(options.fieldType)) {
     return (
       `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` +
       options.fieldType +
-      `(${optionValue}) | __error__="" [$__auto]) by ()`
+      `(${optionValue}${aggregationString}) | __error__="" [$__auto]) by ()`
     );
   } else if (options.fieldType && options.fieldType === 'float') {
     return (
-      `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` + optionValue + ` | __error__="" [$__auto]) by ()`
+      `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` +
+      optionValue +
+      ` | __error__="" [$__auto]) by (${aggregationString})`
     );
   } else {
-    return `sum by (${optionValue}) (count_over_time(${getLogsStreamSelector(options)} [$__auto]))`;
+    return `sum by (${optionValue}${aggregationString}) (count_over_time(${getLogsStreamSelector(options)} [$__auto]))`;
   }
 }
 
@@ -286,7 +370,8 @@ export function getDetectedFieldType(optionValue: string, detectedFieldsFrame?: 
 export function buildFieldsQueryString(
   optionValue: string,
   fieldsVariable: AdHocFiltersVariable,
-  detectedFieldsFrame?: DataFrame
+  detectedFieldsFrame?: DataFrame,
+  aggregation?: string
 ) {
   const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
   const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
@@ -333,6 +418,7 @@ export function buildFieldsQueryString(
     fieldExpressionToAdd,
     parser: parser,
     fieldType: optionType,
+    aggregation,
   };
 
   return buildFieldsQuery(optionValue, options);
