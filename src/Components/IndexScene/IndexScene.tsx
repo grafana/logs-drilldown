@@ -102,6 +102,7 @@ import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { NoLokiSplash } from '../NoLokiSplash';
+import { filterInvalidTimeOptions, quickOptions } from '../../services/timePicker';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
@@ -163,7 +164,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         layout: 'vertical',
         include: [VAR_FIELDS_AND_METADATA],
       }),
-      new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER }),
+      new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER, quickRanges: filterInvalidTimeOptions(quickOptions) }),
       new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
     ];
 
