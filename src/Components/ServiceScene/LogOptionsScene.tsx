@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, InlineField, RadioButtonGroup, Tooltip, useStyles2 } from '@grafana/ui';
 import React from 'react';
-import { getLogOption, LogsVisualizationType, setLogOption } from 'services/store';
+import { LogsVisualizationType, setLogOption } from 'services/store';
 import { LogsListScene } from './LogsListScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
@@ -11,6 +11,7 @@ import { LogsPanelScene } from './LogsPanelScene';
 import { locationService } from '@grafana/runtime';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { logger } from '../../services/logger';
+import { logsControlsSupported } from 'services/panel';
 
 interface LogOptionsState extends SceneObjectState {
   visualizationType: LogsVisualizationType;
@@ -30,7 +31,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   }
 
   handleWrapLinesChange = (type: boolean) => {
-    this.getLogsPanelScene().setState({ wrapLogMessage: type });
+    this.getLogsPanelScene().setState({ wrapLogMessage: type, prettifyLogMessage: type });
     setLogOption('wrapLogMessage', type);
     this.getLogsListScene().setLogsVizOption({ wrapLogMessage: type });
     this.getLogsListScene().setLogsVizOption({ prettifyLogMessage: type });
@@ -76,52 +77,51 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
           </Button>
         </Tooltip>
       )}
-      <InlineField className={styles.buttonGroupWrapper} transparent>
-        <RadioButtonGroup
-          size="sm"
-          options={[
-            {
-              label: 'Newest first',
-              value: LogsSortOrder.Descending,
-              description: 'Show results newest to oldest',
-            },
-            {
-              label: 'Oldest first',
-              value: LogsSortOrder.Ascending,
-              description: 'Show results oldest to newest',
-            },
-          ]}
-          value={sortOrder}
-          onChange={model.onChangeLogsSortOrder}
-        />
-      </InlineField>
-
-      <InlineField className={styles.buttonGroupWrapper} transparent>
-        <RadioButtonGroup
-          size="sm"
-          value={wrapLines}
-          onChange={model.handleWrapLinesChange}
-          options={[
-            {
-              label: 'Wrap',
-              value: true,
-              description: 'Enable wrapping of long log lines',
-            },
-            {
-              label: 'No wrap',
-              value: false,
-              description: 'Disable wrapping of long log lines',
-            },
-          ]}
-        />
-      </InlineField>
+      {!logsControlsSupported && (
+        <>
+          <InlineField className={styles.buttonGroupWrapper} transparent>
+            <RadioButtonGroup
+              size="sm"
+              options={[
+                {
+                  label: 'Newest first',
+                  value: LogsSortOrder.Descending,
+                  description: 'Show results newest to oldest',
+                },
+                {
+                  label: 'Oldest first',
+                  value: LogsSortOrder.Ascending,
+                  description: 'Show results oldest to newest',
+                },
+              ]}
+              value={sortOrder}
+              onChange={model.onChangeLogsSortOrder}
+            />
+          </InlineField>
+          <InlineField className={styles.buttonGroupWrapper} transparent>
+            <RadioButtonGroup
+              size="sm"
+              value={wrapLines}
+              onChange={model.handleWrapLinesChange}
+              options={[
+                {
+                  label: 'Wrap',
+                  value: true,
+                  description: 'Enable wrapping of long log lines',
+                },
+                {
+                  label: 'No wrap',
+                  value: false,
+                  description: 'Disable wrapping of long log lines',
+                },
+              ]}
+            />
+          </InlineField>
+        </>
+      )}
       <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} />
     </div>
   );
-}
-
-export function getLogsPanelSortOrderFromStore() {
-  return getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending) as LogsSortOrder;
 }
 
 export function getLogsPanelSortOrderFromURL() {
