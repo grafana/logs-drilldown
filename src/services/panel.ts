@@ -29,6 +29,7 @@ import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/Se
 import { getLogsPanelSortOrderFromStore, getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getParserForField } from './fields';
+import { config } from '@grafana/runtime';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
@@ -333,3 +334,5 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
+
+export const logsControlsSupported = config.buildInfo.version > '12' || config.buildInfo.version.includes('12.1');

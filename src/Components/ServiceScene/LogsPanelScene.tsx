@@ -1,3 +1,4 @@
+import pluginJson from '../../plugin.json';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -40,6 +41,7 @@ import { getPrettyQueryExpr } from 'services/scenes';
 import { LogsPanelError } from './LogsPanelError';
 import { clearVariables } from 'services/variableHelpers';
 import { isEmptyLogsResult } from 'services/logsFrame';
+import { logsControlsSupported } from 'services/panel';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
@@ -280,9 +282,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const parentModel = this.getParentScene();
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    return PanelBuilders.logs()
+    const panel = PanelBuilders.logs()
       .setTitle(this.getTitle(serviceScene.state.logsCount))
-      .setOption('showTime', true)
       .setOption('onClickFilterLabel', this.handleLabelFilterClick)
       .setOption('onClickFilterOutLabel', this.handleLabelFilterOutClick)
       .setOption('isFilterLabelActive', this.handleIsFilterLabelActive)
@@ -291,12 +292,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onClickShowField', this.onClickShowField)
       .setOption('onClickHideField', this.onClickHideField)
       .setOption('displayedFields', parentModel.state.displayedFields)
-      .setOption('sortOrder', options.sortOrder ?? getLogsPanelSortOrderFromStore())
-      .setOption('wrapLogMessage', options.wrapLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false)))
-      .setOption(
-        'prettifyLogMessage',
-        options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
-      )
       .setMenu(
         new PanelMenu({
           investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
@@ -310,7 +305,23 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setHeaderActions(
         new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
       )
-      .build();
+      // @ts-expect-error Requires Grafana 12.1
+      .setOption('showControls', true)
+      // @ts-expect-error Requires Grafana 12.1
+      .setOption('controlsStorageKey', pluginJson.id);
+
+    if (!logsControlsSupported) {
+      panel
+        .setOption('sortOrder', options.sortOrder ?? getLogsPanelSortOrderFromStore())
+        .setOption('wrapLogMessage', options.wrapLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false)))
+        .setOption(
+          'prettifyLogMessage',
+          options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
+        )
+        .setOption('showTime', true);
+    }
+
+    return panel.build();
   }
 
   private updateVisibleRange = (newLogs: DataFrame[]) => {
