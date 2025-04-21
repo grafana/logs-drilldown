@@ -50,8 +50,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
-    const urlColumnsParam = searchParams.get('urlColumns');
-    const urlColumnsUrl = narrowStringsArray(urlColumnsParam);
+    let urlColumnsUrl: string[] | null = [];
+    try {
+      urlColumnsUrl = narrowStringsArray(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+    } catch (e) {
+      console.error(e);
+    }
     const parentModel = this.getParentScene();
     // Sync from url
     defaultUrlColumns = urlColumnsUrl
