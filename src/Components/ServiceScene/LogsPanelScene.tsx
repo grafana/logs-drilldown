@@ -1,4 +1,3 @@
-import pluginJson from '../../plugin.json';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -12,7 +11,12 @@ import {
   VizPanel,
 } from '@grafana/scenes';
 import { DataFrame, getValueFormat, LoadingState, LogRowModel, PanelData } from '@grafana/data';
-import { getLogOption, getLogsVolumeOption, setDisplayedFields } from '../../services/store';
+import {
+  getLogOption,
+  getLogsVolumeOption,
+  setDisplayedFields,
+  LOG_OPTIONS_LOCALSTORAGE_KEY,
+} from '../../services/store';
 import React, { MouseEvent } from 'react';
 import { LogsListScene } from './LogsListScene';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
@@ -42,6 +46,7 @@ import { LogsPanelError } from './LogsPanelError';
 import { clearVariables } from 'services/variableHelpers';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
+import { isLogsSortOrder } from 'services/guards';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
@@ -304,11 +309,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
       .setHeaderActions(
         new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
-      )
-      // @ts-expect-error Requires Grafana 12.1
-      .setOption('showControls', true)
-      // @ts-expect-error Requires Grafana 12.1
-      .setOption('controlsStorageKey', pluginJson.id);
+      );
 
     if (!logsControlsSupported) {
       panel
@@ -319,10 +320,25 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
           options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
         )
         .setOption('showTime', true);
+    } else {
+      // @ts-expect-error Requires Grafana 12.1
+      panel
+        .setOption('showControls', true)
+        // @ts-expect-error Requires Grafana 12.1
+        .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
+        // @ts-expect-error Requires Grafana 12.1
+        .setOption('onLogOptionsChange', this.handleLogOptionsChange);
     }
 
     return panel.build();
   }
+
+  private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {
+    if (option === 'sortOrder' && isLogsSortOrder(value)) {
+      this.setState({ sortOrder: value });
+      this.setLogsVizOption({ sortOrder: value });
+    }
+  };
 
   private updateVisibleRange = (newLogs: DataFrame[]) => {
     // Update logs count
