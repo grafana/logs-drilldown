@@ -5,7 +5,7 @@ import { getDataSourceName, getServiceName } from './variableGetters';
 import { logger } from './logger';
 import { SERVICE_NAME } from './variables';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
-import { unknownToStrings } from './narrowing';
+import { narrowStringsArray, unknownToStrings } from './narrowing';
 import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
@@ -193,8 +193,7 @@ export function getDisplayedFields(sceneRef: SceneObject): string[] {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
   if (storedFields) {
-    // TODO: narrowing
-    return JSON.parse(storedFields);
+    return narrowStringsArray(JSON.parse(storedFields)) ?? [];
   }
   return [];
 }
