@@ -26,10 +26,11 @@ import { DrawStyle, StackingMode } from '@grafana/ui';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
-import { getLogsPanelSortOrderFromStore, getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
+import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getParserForField } from './fields';
 import { config } from '@grafana/runtime';
+import { getLogOption } from './store';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
@@ -302,7 +303,8 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
     queries = queries.map((query) => ({
       ...query,
       get direction() {
-        const sortOrder = getLogsPanelSortOrderFromURL() || getLogsPanelSortOrderFromStore();
+        const sortOrder =
+          getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
         return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
       },
     }));
