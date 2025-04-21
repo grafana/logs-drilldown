@@ -16,6 +16,7 @@ import {
   getLogsVolumeOption,
   setDisplayedFields,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
+  getBooleanLogOption,
 } from '../../services/store';
 import React, { MouseEvent } from 'react';
 import { LogsListScene } from './LogsListScene';
@@ -31,7 +32,7 @@ import {
 } from '../../services/variableGetters';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
 import { CopyLinkButton } from './CopyLinkButton';
-import { getLogsPanelSortOrderFromStore, LogOptionsScene } from './LogOptionsScene';
+import { LogOptionsScene } from './LogOptionsScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { ServiceScene } from './ServiceScene';
@@ -52,19 +53,21 @@ interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
   error?: string;
   logsVolumeCollapsedByError?: boolean;
-  sortOrder?: LogsSortOrder;
-  wrapLogMessage?: boolean;
+  sortOrder: LogsSortOrder;
+  prettifyLogMessage: boolean;
+  wrapLogMessage: boolean;
 }
 
 export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['sortOrder', 'wrapLogMessage'],
+    keys: ['sortOrder', 'wrapLogMessage', 'prettifyLogMessage'],
   });
 
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
-      sortOrder: getLogsPanelSortOrderFromStore(),
-      wrapLogMessage: Boolean(getLogOption<boolean>('wrapLogMessage', false)),
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
       error: undefined,
       ...state,
     });
@@ -78,6 +81,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.updateFromUrl({
       sortOrder: searchParams.get('sortOrder'),
       wrapLogMessage: searchParams.get('wrapLogMessage'),
+      prettifyLogMessage: searchParams.get('prettifyLogMessage'),
     });
   }
 
@@ -85,6 +89,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     return {
       sortOrder: JSON.stringify(this.state.sortOrder),
       wrapLogMessage: JSON.stringify(this.state.wrapLogMessage),
+      prettifyLogMessage: JSON.stringify(this.state.prettifyLogMessage),
     };
   }
 
@@ -98,13 +103,18 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
           this.setLogsVizOption({ sortOrder: decodedSortOrder });
         }
       }
-
       if (typeof values.wrapLogMessage === 'string' && values.wrapLogMessage) {
         const decodedWrapLogMessage = JSON.parse(values.wrapLogMessage);
         if (typeof decodedWrapLogMessage === 'boolean') {
           stateUpdate.wrapLogMessage = decodedWrapLogMessage;
           this.setLogsVizOption({ wrapLogMessage: decodedWrapLogMessage });
-          this.setLogsVizOption({ prettifyLogMessage: decodedWrapLogMessage });
+        }
+      }
+      if (typeof values.prettifyLogMessage === 'string' && values.prettifyLogMessage) {
+        const decodedPrettifyLogMessage = JSON.parse(values.prettifyLogMessage);
+        if (typeof decodedPrettifyLogMessage === 'boolean') {
+          stateUpdate.wrapLogMessage = decodedPrettifyLogMessage;
+          this.setLogsVizOption({ prettifyLogMessage: decodedPrettifyLogMessage });
         }
       }
     } catch (e) {
@@ -123,11 +133,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
     if (!this.state.body) {
       this.setState({
-        body: this.getLogsPanel({
-          wrapLogMessage: this.state.wrapLogMessage,
-          prettifyLogMessage: this.state.wrapLogMessage,
-          sortOrder: this.state.sortOrder,
-        }),
+        body: this.getLogsPanel(),
       });
     }
 
@@ -147,11 +153,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         if (newState.logsCount !== prevState.logsCount) {
           if (!this.state.body) {
             this.setState({
-              body: this.getLogsPanel({
-                wrapLogMessage: this.state.wrapLogMessage,
-                prettifyLogMessage: this.state.wrapLogMessage,
-                sortOrder: this.state.sortOrder,
-              }),
+              body: this.getLogsPanel(),
             });
           } else {
             this.state.body.setState({
@@ -283,7 +285,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
   }
 
-  private getLogsPanel(options: Partial<Options>) {
+  private getLogsPanel = () => {
     const parentModel = this.getParentScene();
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
@@ -309,20 +311,17 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
       .setHeaderActions(
         new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
-      );
+      )
+      .setOption('sortOrder', this.state.sortOrder)
+      .setOption('wrapLogMessage', this.state.wrapLogMessage)
+      .setOption('prettifyLogMessage', this.state.prettifyLogMessage);
 
     if (!logsControlsSupported) {
-      panel
-        .setOption('sortOrder', options.sortOrder ?? getLogsPanelSortOrderFromStore())
-        .setOption('wrapLogMessage', options.wrapLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false)))
-        .setOption(
-          'prettifyLogMessage',
-          options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
-        )
-        .setOption('showTime', true);
+      panel.setOption('showTime', true);
     } else {
-      // @ts-expect-error Requires Grafana 12.1
       panel
+        .setOption('showTime', getBooleanLogOption('showTime', true))
+        // @ts-expect-error Requires Grafana 12.1
         .setOption('showControls', true)
         // @ts-expect-error Requires Grafana 12.1
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
@@ -331,12 +330,18 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     }
 
     return panel.build();
-  }
+  };
 
   private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {
     if (option === 'sortOrder' && isLogsSortOrder(value)) {
       this.setState({ sortOrder: value });
       this.setLogsVizOption({ sortOrder: value });
+    } else if (option === 'wrapLogMessage' && typeof value === 'boolean') {
+      this.setState({ wrapLogMessage: value });
+      this.setLogsVizOption({ wrapLogMessage: value });
+    } else if (option === 'prettifyLogMessage' && typeof value === 'boolean') {
+      this.setState({ prettifyLogMessage: value });
+      this.setLogsVizOption({ prettifyLogMessage: value });
     }
   };
 
