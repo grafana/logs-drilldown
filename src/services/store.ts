@@ -189,10 +189,11 @@ function getExplorationPrefix(sceneRef: SceneObject) {
   return `${ds}.${serviceName}`;
 }
 
-export function getDisplayedFields(sceneRef: SceneObject) {
+export function getDisplayedFields(sceneRef: SceneObject): string[] {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
   if (storedFields) {
+    // TODO: narrowing
     return JSON.parse(storedFields);
   }
   return [];
@@ -205,16 +206,22 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
 
 // Log panel options
 export const LOG_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.logs.option`;
-export function getLogOption<T>(option: keyof Options, defaultValue: T) {
+export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
-  return localStorageResult ? localStorageResult : defaultValue;
+  // TODO: narrow stored value
+  return localStorageResult ? (localStorageResult as T) : defaultValue;
+}
+
+export function getBooleanLogOption(option: keyof Options, defaultValue: boolean): boolean {
+  const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
+  if (localStorageResult === null) {
+    return defaultValue;
+  }
+  return localStorageResult === '' || localStorageResult === 'false' ? false : true;
 }
 
 export function setLogOption(option: keyof Options, value: string | number | boolean) {
   let storedValue = value.toString();
-  if (typeof value === 'boolean' && !value) {
-    storedValue = '';
-  }
   localStorage.setItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`, storedValue);
 }
 
