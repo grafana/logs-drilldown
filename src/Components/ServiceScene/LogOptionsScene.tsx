@@ -33,6 +33,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   handleWrapLinesChange = (type: boolean) => {
     this.getLogsPanelScene().setState({ wrapLogMessage: type, prettifyLogMessage: type });
     setLogOption('wrapLogMessage', type);
+    setLogOption('prettifyLogMessage', type);
     this.getLogsListScene().setLogsVizOption({ wrapLogMessage: type, prettifyLogMessage: type });
   };
 
