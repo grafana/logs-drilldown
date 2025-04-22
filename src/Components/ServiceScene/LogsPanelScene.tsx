@@ -100,21 +100,22 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
         if (decodedSortOrder) {
           stateUpdate.sortOrder = decodedSortOrder;
-          this.setLogsVizOption({ sortOrder: decodedSortOrder });
+        }
+      }
+      if (typeof values.prettifyLogMessage === 'string' && values.prettifyLogMessage) {
+        const decodedPrettifyLogMessage = JSON.parse(values.prettifyLogMessage);
+        if (typeof decodedPrettifyLogMessage === 'boolean') {
+          stateUpdate.prettifyLogMessage = decodedPrettifyLogMessage;
         }
       }
       if (typeof values.wrapLogMessage === 'string' && values.wrapLogMessage) {
         const decodedWrapLogMessage = JSON.parse(values.wrapLogMessage);
         if (typeof decodedWrapLogMessage === 'boolean') {
           stateUpdate.wrapLogMessage = decodedWrapLogMessage;
-          this.setLogsVizOption({ wrapLogMessage: decodedWrapLogMessage });
-        }
-      }
-      if (typeof values.prettifyLogMessage === 'string' && values.prettifyLogMessage) {
-        const decodedPrettifyLogMessage = JSON.parse(values.prettifyLogMessage);
-        if (typeof decodedPrettifyLogMessage === 'boolean') {
-          stateUpdate.wrapLogMessage = decodedPrettifyLogMessage;
-          this.setLogsVizOption({ prettifyLogMessage: decodedPrettifyLogMessage });
+          // Before controls, wrapLogMessage was synced with prettifyLogMessage
+          if (!logsControlsSupported) {
+            stateUpdate.prettifyLogMessage = decodedWrapLogMessage;
+          }
         }
       }
     } catch (e) {
@@ -124,6 +125,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
     if (Object.keys(stateUpdate).length) {
       this.setState({ ...stateUpdate });
+      this.setLogsVizOption({ ...stateUpdate });
     }
   }
 
