@@ -52,18 +52,28 @@ func main() {
 	// Creates and starts all apps.
 	for namespace, apps := range generators {
 		for serviceName, generator := range apps {
-			log.ForAllClusters(namespace, serviceName, func(labels model.LabelSet, metadata push.LabelsAdapter) {
-				// Remove `metadata` from nginx logs
-				if serviceName == "nginx" {
-					metadata = push.LabelsAdapter{}
-				}
-				if strings.Contains(string(serviceName), "-otel") {
-					generator(ctx, log.NewAppLogger(labels, log.NewOtelLogger(string(serviceName))), metadata)
-				} else {
-					generator(ctx, log.NewAppLogger(labels, logger), metadata)
-				}
-
-			})
+			log.ForAllClusters(
+				namespace,
+				serviceName,
+				func(labels model.LabelSet, metadata push.LabelsAdapter) {
+					// Remove `metadata` from nginx logs
+					if serviceName == "nginx" {
+						metadata = push.LabelsAdapter{}
+					}
+					if strings.Contains(string(serviceName), "-otel") {
+						generator(
+							ctx,
+							log.NewAppLogger(
+								labels,
+								log.NewOtelLogger(string(serviceName), labels),
+							),
+							metadata,
+						)
+					} else {
+						generator(ctx, log.NewAppLogger(labels, logger), metadata)
+					}
+				},
+			)
 		}
 	}
 	startFailingMimirPod(ctx, logger)

@@ -96,6 +96,28 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 		"loki-queryfrontend-otel": lokiOtelPod("loki-queryfrontend-otel"),
 		"loki-distributor-otel":   lokiOtelPod("loki-distributor-otel"),
 	},
+	"grafanacon": {
+		"grafanacon-json-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+		"grafanacon-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+	},
 }
 
 func lokiOtelPod(svc string) LogGenerator {

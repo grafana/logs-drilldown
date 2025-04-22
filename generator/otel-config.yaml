@@ -10,6 +10,14 @@ processors:
   batch:
     timeout: 1s
     send_batch_size: 1024
+  transform:
+    log_statements:
+      - context: log
+        statements:
+          - merge_maps(log.attributes, ParseJSON(body), "upsert") where resource.attributes["service.name"] == "grafanacon-otel"
+          - set(log.body, log.attributes["msg"]) where resource.attributes["service.name"] == "grafanacon-otel" and log.attributes["msg"] != nil
+          - delete_key(log.attributes, "msg") where resource.attributes["service.name"] == "grafanacon-otel" and log.attributes["msg"] != nil
+
 
 exporters:
   otlphttp/logs:
@@ -21,5 +29,5 @@ service:
   pipelines:
     logs:
       receivers: [otlp]
-      processors: [batch]
+      processors: [batch, transform]
       exporters: [otlphttp/logs]
