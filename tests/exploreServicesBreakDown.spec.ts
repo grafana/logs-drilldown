@@ -320,7 +320,6 @@ test.describe('explore services breakdown page', () => {
     await page.getByTestId('data-testid Panel menu item Explore').click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
-
   test(`should select label ${labelName}, update filters, open in explore`, async ({ page, browser }) => {
     await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
