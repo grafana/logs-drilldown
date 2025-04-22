@@ -16,6 +16,8 @@ import { setDisplayedFields } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { narrowStringsArray } from 'services/narrowing';
+import { LogListControls } from './LogListControls';
+import { logsControlsSupported } from 'services/panel';
 
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
@@ -165,22 +167,25 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
             </>
           }
         >
-          {dataFrame && (
-            <TableProvider
-              panelWrap={panelWrap}
-              addFilter={addFilter}
-              timeRange={timeRangeValue}
-              selectedLine={selectedLine}
-              urlColumns={urlColumns ?? []}
-              setUrlColumns={setUrlColumns}
-              dataFrame={dataFrame}
-              clearSelectedLine={clearSelectedLine}
-              setUrlTableBodyState={setUrlTableBodyState}
-              urlTableBodyState={tableLogLineState}
-              showColumnManagementDrawer={model.showColumnManagementDrawer}
-              isColumnManagementActive={isColumnManagementActive}
-            />
-          )}
+          <div className={styles.container}>
+            {logsControlsSupported && <LogListControls />}
+            {dataFrame && (
+              <TableProvider
+                panelWrap={panelWrap}
+                addFilter={addFilter}
+                timeRange={timeRangeValue}
+                selectedLine={selectedLine}
+                urlColumns={urlColumns ?? []}
+                setUrlColumns={setUrlColumns}
+                dataFrame={dataFrame}
+                clearSelectedLine={clearSelectedLine}
+                setUrlTableBodyState={setUrlTableBodyState}
+                urlTableBodyState={tableLogLineState}
+                showColumnManagementDrawer={model.showColumnManagementDrawer}
+                isColumnManagementActive={isColumnManagementActive}
+              />
+            )}
+          </div>
         </PanelChrome>
       </div>
     );
@@ -192,5 +197,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
     width: '100%',
     height: '100%',
     label: 'panel-wrapper-table',
+  }),
+  container: css({
+    display: 'flex',
+    flexDirection: 'row-reverse',
   }),
 });
