@@ -1,17 +1,19 @@
-#### 1.0.12 (2025-04-22)
+# Changelog
+
+## 1.0.12 (2025-04-22)
 
 ##### Chores
 
-*  remove `ToolbarExtensionsRenderer` (#1187) (ba7383ac)
-*  (provisioning) - add loki datasource and env (#1175) (9d319574)
-*  (grafana 11.6) - update to latest grafana 11.6 and latest plugin libraries, remove comments (#1162) (d8edbcb5)
-*  (gh actions) - pin to tag for security (#1173) (a58f29ec)
+*  Remove `ToolbarExtensionsRenderer` (#1187) (ba7383ac)
+*  (provisioning) - Add loki datasource and env (#1175) (9d319574)
+*  (grafana 11.6) - Update to latest grafana 11.6 and latest plugin libraries, remove comments (#1162) (d8edbcb5)
+*  (gh actions) - Pin to tag for security (#1173) (a58f29ec)
 *  Bump @grafana/create-plugin configuration to 5.19.1 (#1159) (ae36050c)
-*  fix e2e test (#1135) (7873d6dd)
-*  add 1.0.9 changelog (#1131) (cbdd49f6)
-*  increase loki max log length (#1112) (b02dce95)
-*  add missing image, remove empty section (#1089) (866ed2aa)
-*  make OTEL endpoint configurable in generator dockerfile (#1075) (5c7df3b5)
+*  Fix e2e test (#1135) (7873d6dd)
+*  Add 1.0.9 changelog (#1131) (cbdd49f6)
+*  Increase loki max log length (#1112) (b02dce95)
+*  Add missing image, remove empty section (#1089) (866ed2aa)
+*  Make OTEL endpoint configurable in generator dockerfile (#1075) (5c7df3b5)
 * **rename:**  rename exposed component (#1094) (39f11102)
 
 ##### Documentation Changes
@@ -23,27 +25,27 @@
 
 *  (LogPanelTable) - sync the display fields and urlColumns between the logs panel and table (#1189) (139c5803)
 *  (layoutSwitcher) - set layoutSwitcher from localStorage (#1172) (df7454e3)
-*  add critical/fatal log level (#1146) (038a8146)
-*  add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
-*  open in Explore logs button (#1035) (b76afa67)
-*  add Manage columns button to table header (#1057) (b29b47a3)
-* **investigations:**  change investigations plugin id (#1084) (1a2164aa)
+*  Add critical/fatal log level (#1146) (038a8146)
+*  Add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
+*  Open in Explore logs button (#1035) (b76afa67)
+*  Add Manage columns button to table header (#1057) (b29b47a3)
+* **Investigations:**  change investigations plugin id (#1084) (1a2164aa)
 * **ServiceSelectionPagionationScene:**  generate options based on totalCount (#1077) (0e611daa)
 
 ##### Bug Fixes
 
-*  patterns table displaying percentage relative to current seach results (#1186) (f3bb1fe4)
-*  parseLabelFilters throw error (#1181) (72378ff9)
-*  add missing changelog header (#1180) (3524aabe)
-*  remove date from changelog to fix release (#1179) (1b012b09)
-*  changelog (#1169) (c662e796)
-*  error being thrown when toggling case sensitivity with empty value (#1153) (156245c9)
-*  set step as 10s for aggregated metric queries (#1145) (b370c190)
-*  empty label values missing labelValues (#1111) (bfbf715d)
-*  move share button to right side on mobile (#1115) (d8e32284)
-*  clear filters icon not working with detected_level (#1105) (d7bf106a)
-*  add overflow-y to tabs container (#1104) (12281df8)
-* **investigation:**  links should use `firstValueFrom` (#1170) (7caf11c8)
+*  Patterns table displaying percentage relative to current seach results (#1186) (f3bb1fe4)
+*  ParseLabelFilters throw error (#1181) (72378ff9)
+*  Add missing changelog header (#1180) (3524aabe)
+*  Remove date from changelog to fix release (#1179) (1b012b09)
+*  Changelog (#1169) (c662e796)
+*  Error being thrown when toggling case sensitivity with empty value (#1153) (156245c9)
+*  Set step as 10s for aggregated metric queries (#1145) (b370c190)
+*  Empty label values missing labelValues (#1111) (bfbf715d)
+*  Move share button to right side on mobile (#1115) (d8e32284)
+*  Clear filters icon not working with detected_level (#1105) (d7bf106a)
+*  Add overflow-y to tabs container (#1104) (12281df8)
+* **Investigation:**  links should use `firstValueFrom` (#1170) (7caf11c8)
 * **LogsPanelScene:**  add metadata to logged error (#1129) (16aa7d9e)
 * **ServiceSelectionPagination:**  check for undefined in options (#1080) (acc65e0f)
 
@@ -71,8 +73,6 @@
 *  add pattern filter support (#1036) (965bbdcf)
 *  Hide custom pixel width, surface field menu options in column header (#1064) (fe27a285)
 *  Pagination (#1058) (a68beb0c)
-
-# Changelog
 
 ## 1.0.11
 
