@@ -34,6 +34,13 @@ export const LogListControls = ({ sortOrder = LogsSortOrder.Ascending }) => {
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
+      <IconButton
+        name="columns"
+        className={styles.controlButton}
+        onClick={() => {}}
+        tooltip={'Manage columns'}
+        size="lg"
+      />
       {!config.exploreHideLogsDownload && (
         <>
           <div className={styles.divider} />

@@ -160,9 +160,11 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           showMenuAlways={true}
           actions={
             <>
-              <Button onClick={() => model.showColumnManagementDrawer(true)} variant={'secondary'} size={'sm'}>
-                Manage columns
-              </Button>
+              {!logsControlsSupported && (
+                <Button onClick={() => model.showColumnManagementDrawer(true)} variant={'secondary'} size={'sm'}>
+                  Manage columns
+                </Button>
+              )}
               <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
             </>
           }
