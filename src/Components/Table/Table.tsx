@@ -14,11 +14,12 @@ import {
   FieldWithIndex,
   Labels,
   MappingType,
+  sortDataFrame,
   transformDataFrame,
   ValueMap,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-import { TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
+import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
 import { Drawer, Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
 import { TableCellContextProvider } from 'Components/Table/Context/TableCellContext';
@@ -45,6 +46,7 @@ interface Props {
   logsFrame: LogsFrame;
   width: number;
   labels: Labels[];
+  logsSortOrder: LogsSortOrder;
 }
 
 const getStyles = () => ({
@@ -66,11 +68,14 @@ function TableAndContext(props: {
   selectedLine?: number;
   logsFrame: LogsFrame;
   onResize: (fieldDisplayName: string, width: number) => void;
+  logsSortOrder: LogsSortOrder;
 }) {
   return (
     <GrafanaTable
       onColumnResize={props.onResize}
-      initialSortBy={[{ displayName: getTimeName(props.logsFrame), desc: true }]}
+      initialSortBy={[
+        { displayName: getTimeName(props.logsFrame), desc: props.logsSortOrder === LogsSortOrder.Descending },
+      ]}
       initialRowIndex={props.selectedLine}
       cellHeight={TableCellHeight.Sm}
       data={props.data}
@@ -107,12 +112,15 @@ export const Table = (props: Props) => {
 
   const templateSrv = getTemplateSrv();
   const replace = useMemo(() => templateSrv.replace.bind(templateSrv), [templateSrv]);
+  const timeIndex = logsFrame?.timeField.index;
 
   const prepareTableFrame = useCallback(
-    (frame: DataFrame): DataFrame => {
-      if (!frame.length) {
-        return frame;
+    (rawFrame: DataFrame): DataFrame => {
+      if (!rawFrame.length) {
+        return rawFrame;
       }
+
+      const frame = sortDataFrame(rawFrame, timeIndex, props.logsSortOrder === LogsSortOrder.Descending);
 
       const [frameWithOverrides] = applyFieldOverrides({
         data: [frame],
@@ -278,6 +286,7 @@ export const Table = (props: Props) => {
               height={height}
               width={width}
               onResize={debounce(onResize, 100)}
+              logsSortOrder={props.logsSortOrder}
             />
           </ScrollSync>
         </TableCellContextProvider>

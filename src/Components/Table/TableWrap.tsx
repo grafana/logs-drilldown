@@ -1,7 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import { css } from '@emotion/css';
 
-import { DataFrame, FieldType, FieldWithIndex, getTimeZone, guessFieldTypeFromValue, Labels } from '@grafana/data';
+import {
+  DataFrame,
+  FieldType,
+  FieldWithIndex,
+  getTimeZone,
+  guessFieldTypeFromValue,
+  Labels,
+  LogsSortOrder,
+} from '@grafana/data';
 
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
@@ -28,6 +36,7 @@ interface TableWrapProps {
   setUrlTableBodyState: (logLineState: LogLineState) => void;
   showColumnManagementDrawer: (isActive: boolean) => void;
   isColumnManagementActive: boolean;
+  logsSortOrder: LogsSortOrder;
 }
 
 const getStyles = () => ({
@@ -130,6 +139,7 @@ export const TableWrap = (props: TableWrapProps) => {
           height={panelWrapSize.height - 50}
           width={panelWrapSize.width - 25 + (logsControlsSupported ? -32 : 0)}
           labels={labels}
+          logsSortOrder={props.logsSortOrder}
         />
       </TableColumnContextProvider>
     </section>
