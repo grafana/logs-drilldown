@@ -120,7 +120,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       }
     } catch (e) {
       // URL Params can be manually changed and it will make JSON.parse() fail.
-      logger.error(e, { msg: 'LogOptionsScene: updateFromUrl unexpected error' });
+      logger.error(e, { msg: 'LogsPanelScene: updateFromUrl unexpected error' });
     }
 
     if (Object.keys(stateUpdate).length) {
