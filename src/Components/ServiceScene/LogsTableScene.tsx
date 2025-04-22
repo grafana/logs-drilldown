@@ -1,6 +1,13 @@
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import {
+  SceneComponentProps,
+  sceneGraph,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneObjectUrlSyncConfig,
+  SceneObjectUrlValues,
+} from '@grafana/scenes';
 import { LogsListScene } from './LogsListScene';
-import { AdHocVariableFilter, GrafanaTheme2 } from '@grafana/data';
+import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import { TableProvider } from '../Table/TableProvider';
 import React, { useRef } from 'react';
@@ -12,24 +19,62 @@ import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getLogsPanelFrame } from './ServiceScene';
 import { getVariableForLabel } from '../../services/fields';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { setDisplayedFields } from '../../services/store';
+import { getLogOption, setDisplayedFields } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
-import { narrowStringsArray } from 'services/narrowing';
+import { narrowLogsSortOrder, narrowStringsArray } from 'services/narrowing';
 import { LogListControls } from './LogListControls';
 import { logsControlsSupported } from 'services/panel';
+import { logger } from 'services/logger';
 
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
+  sortOrder: LogsSortOrder;
   isColumnManagementActive: boolean;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, {
+    keys: ['sortOrder'],
+  });
+
   constructor(state: Partial<LogsTableSceneState>) {
-    super({ ...state, isColumnManagementActive: false });
+    super({
+      ...state,
+      isColumnManagementActive: false,
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+    });
 
     this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  private setStateFromUrl() {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+
+    this.updateFromUrl({
+      sortOrder: searchParams.get('sortOrder'),
+    });
+  }
+
+  getUrlState() {
+    return {
+      sortOrder: JSON.stringify(this.state.sortOrder),
+    };
+  }
+
+  updateFromUrl(values: SceneObjectUrlValues) {
+    try {
+      if (typeof values.sortOrder === 'string' && values.sortOrder) {
+        const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
+        if (decodedSortOrder) {
+          this.setState({ sortOrder: decodedSortOrder });
+        }
+      }
+    } catch (e) {
+      // URL Params can be manually changed and it will make JSON.parse() fail.
+      logger.error(e, { msg: 'LogsTableScene: updateFromUrl unexpected error' });
+    }
   }
 
   public showColumnManagementDrawer = (isActive: boolean) => {
@@ -43,6 +88,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       menu: new PanelMenu({ addInvestigationsLink: false }),
     });
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
+    this.setStateFromUrl();
   }
 
   private getParentScene() {
@@ -114,7 +160,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, urlColumns, visualizationType, tableLogLineState } = parentModel.useState();
-    const { menu, isColumnManagementActive } = model.useState();
+    const { menu, isColumnManagementActive, sortOrder } = model.useState();
 
     // Get time range
     const timeRange = sceneGraph.getTimeRange(model);
@@ -185,6 +231,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 urlTableBodyState={tableLogLineState}
                 showColumnManagementDrawer={model.showColumnManagementDrawer}
                 isColumnManagementActive={isColumnManagementActive}
+                logsSortOrder={sortOrder}
               />
             )}
           </div>
