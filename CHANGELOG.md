@@ -12,19 +12,17 @@
 
 *  (LogPanelTable) - Sync the display fields and urlColumns between the logs panel and table (#1189) (139c5803)
 *  (LayoutSwitcher) - Set layoutSwitcher from localStorage (#1172) (df7454e3)
+*  Line filter validation (#1190) (f38aa5fd)
 
 ##### Bug Fixes
 
-*  Patterns table displaying percentage relative to current seach results (#1186) (f3bb1fe4)
+*  Patterns table displaying percentage relative to current search results (#1186) (f3bb1fe4)
 *  ParseLabelFilters throw error (#1181) (72378ff9)
-*  Add missing changelog header (#1180) (3524aabe)
-*  Remove date from changelog to fix release (#1179) (1b012b09)
 
 ##### Other Changes
 
-*  Updating to v6 (#1019) (a13d9e21)
+*  Updating to Scenes v6 (#1019) (a13d9e21)
 *  Conditionally display "show logs" buttons (#1194) (fad95388)
-*  Client regex validation (#1190) (f38aa5fd)
 *  Simplify panel buttons (#1188) (37c50063)
 *  Fix url sharing and line filter migrations (#1176) (7c2ecb77)
 
