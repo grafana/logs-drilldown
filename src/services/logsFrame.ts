@@ -8,6 +8,9 @@ import {
   FieldType,
   FieldWithIndex,
   Labels,
+  LinkModel,
+  LogRowModel,
+  ScopedVars,
 } from '@grafana/data';
 
 // these are like Labels, but their values can be
@@ -227,4 +230,142 @@ export function getVisibleRangeFrame(start: number, end: number) {
 
 export function isEmptyLogsResult(series: DataFrame[]) {
   return series.length === 0 || series[0].fields[0].values.length === 0;
+}
+
+export function getLogsExtractFields(dataFrame: DataFrame) {
+  return dataFrame.fields
+    .filter((field: Field & { typeInfo?: { frame: string } }) => {
+      const isFieldLokiLabels =
+        field.typeInfo?.frame === 'json.RawMessage' &&
+        field.name === 'labels' &&
+        dataFrame?.meta?.type !== DataFrameType.LogLines;
+      const isFieldDataplaneLabels =
+        field.name === 'labels' && field.type === FieldType.other && dataFrame?.meta?.type === DataFrameType.LogLines;
+      return isFieldLokiLabels || isFieldDataplaneLabels;
+    })
+    .flatMap((field: Field) => {
+      return [
+        {
+          id: 'extractFields',
+          options: {
+            format: 'json',
+            keepTime: false,
+            replace: false,
+            source: field.name,
+          },
+        },
+      ];
+    });
+}
+
+export type GetFieldLinksFn = (
+  field: Field,
+  rowIndex: number,
+  dataFrame: DataFrame,
+  vars: ScopedVars
+) => Array<LinkModel<Field>>;
+
+export type FieldDef = {
+  keys: string[];
+  values: string[];
+  links?: Array<LinkModel<Field>>;
+  fieldIndex: number;
+};
+
+export const safeStringifyValue = (value: unknown, space?: number) => {
+  if (value === undefined || value === null) {
+    return '';
+  }
+
+  try {
+    return JSON.stringify(value, null, space);
+  } catch (error) {
+    console.error(error);
+  }
+
+  return '';
+};
+
+/**
+ * creates fields from the dataframe-fields, adding data-links, when field.config.links exists
+ */
+export const getDataframeFields = (row: LogRowModel, getFieldLinks?: GetFieldLinksFn): FieldDef[] => {
+  const nonEmptyVisibleFields = getNonEmptyVisibleFields(row);
+  return nonEmptyVisibleFields.map((field) => {
+    const vars: ScopedVars = {
+      __labels: {
+        text: 'Labels',
+        value: {
+          tags: { ...row.labels },
+        },
+      },
+    };
+    const links = getFieldLinks ? getFieldLinks(field, row.rowIndex, row.dataFrame, vars) : [];
+    const fieldVal = field.values[row.rowIndex];
+    const outputVal =
+      typeof fieldVal === 'string' || typeof fieldVal === 'number' ? fieldVal.toString() : safeStringifyValue(fieldVal);
+    return {
+      keys: [field.name],
+      values: [outputVal],
+      links: links,
+      fieldIndex: field.index,
+    };
+  });
+};
+
+type VisOptions = {
+  keepTimestamp?: boolean;
+  keepBody?: boolean;
+};
+
+// Optimized version of separateVisibleFields() to only return visible fields for getAllFields()
+function getNonEmptyVisibleFields(row: LogRowModel, opts?: VisOptions): FieldWithIndex[] {
+  const frame = row.dataFrame;
+  const visibleFieldIndices = getVisibleFieldIndices(frame, opts ?? {});
+  const visibleFields: FieldWithIndex[] = [];
+  for (let index = 0; index < frame.fields.length; index++) {
+    const field = frame.fields[index];
+    // ignore empty fields
+    if (field.values[row.rowIndex] == null) {
+      continue;
+    }
+    // hidden fields are always hidden
+    if (field.config.custom?.hidden) {
+      continue;
+    }
+
+    // fields with data-links are visible
+    if ((field.config.links && field.config.links.length > 0) || visibleFieldIndices.has(index)) {
+      visibleFields.push({ ...field, index });
+    }
+  }
+  return visibleFields;
+}
+
+// return the fields (their indices to be exact) that should be visible
+// based on the logs dataframe structure
+function getVisibleFieldIndices(frame: DataFrame, opts: VisOptions): Set<number> {
+  const logsFrame = parseLogsFrame(frame);
+  if (logsFrame === null) {
+    // should not really happen
+    return new Set();
+  }
+
+  // we want to show every "extra" field
+  const visibleFieldIndices = new Set(logsFrame.extraFields.map((f) => f.index));
+
+  // we always show the severity field
+  if (logsFrame.severityField !== null) {
+    visibleFieldIndices.add(logsFrame.severityField.index);
+  }
+
+  if (opts.keepBody) {
+    visibleFieldIndices.add(logsFrame.bodyField.index);
+  }
+
+  if (opts.keepTimestamp) {
+    visibleFieldIndices.add(logsFrame.timeField.index);
+  }
+
+  return visibleFieldIndices;
 }
