@@ -131,4 +131,19 @@ export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterO
   }
 }
 
+export function narrowStringsArray(param: unknown): string[] | null {
+  try {
+    // Attempt to parse the string as JSON
+    const parsedParam = JSON.parse(decodeURIComponent(param as string));
+    // Verify the parsed result is an array of strings
+    if (Array.isArray(parsedParam) && parsedParam.every((item) => typeof item === 'string')) {
+      return parsedParam;
+    }
+    return null;
+  } catch (e) {
+    // If parsing fails, it's not a valid JSON string
+    return null;
+  }
+}
+
 export class NarrowingError extends Error {}
