@@ -7,6 +7,9 @@
 *  Remove `ToolbarExtensionsRenderer` (#1187) (ba7383ac)
 *  (Provisioning) - Add loki datasource and env (#1175) (9d319574)
 *  (Grafana 11.6) - Update to latest grafana 11.6 and latest plugin libraries, remove comments (#1162) (d8edbcb5)
+*  Updating to Scenes v6 (#1019) (a13d9e21)
+*  Conditionally display "show logs" buttons (#1194) (fad95388)
+*  Simplify panel buttons (#1188) (37c50063)
 
 ##### New Features
 
@@ -18,12 +21,6 @@
 
 *  Patterns table displaying percentage relative to current search results (#1186) (f3bb1fe4)
 *  ParseLabelFilters throw error (#1181) (72378ff9)
-
-##### Other Changes
-
-*  Updating to Scenes v6 (#1019) (a13d9e21)
-*  Conditionally display "show logs" buttons (#1194) (fad95388)
-*  Simplify panel buttons (#1188) (37c50063)
 *  Fix url sharing and line filter migrations (#1176) (7c2ecb77)
 
 ## 1.0.11
