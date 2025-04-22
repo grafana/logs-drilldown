@@ -5,6 +5,7 @@ import {
   SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
+  SceneQueryRunner,
 } from '@grafana/scenes';
 import { LogsListScene } from './LogsListScene';
 import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
@@ -19,7 +20,7 @@ import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getLogsPanelFrame } from './ServiceScene';
 import { getVariableForLabel } from '../../services/fields';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { getLogOption, setDisplayedFields } from '../../services/store';
+import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { narrowLogsSortOrder, narrowStringsArray } from 'services/narrowing';
@@ -154,6 +155,24 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     return defaultUrlColumns;
   };
 
+  handleSortChange = (newOrder: LogsSortOrder) => {
+    if (newOrder === this.state.sortOrder) {
+      return;
+    }
+    setLogOption('sortOrder', newOrder);
+    const $data = sceneGraph.getData(this);
+    const queryRunner =
+      $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
+    if (queryRunner) {
+      queryRunner.runQueries();
+    }
+    this.setState({ sortOrder: newOrder });
+  };
+
+  onManageColumnsClick = () => {
+    this.showColumnManagementDrawer(true);
+  };
+
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
     const styles = useStyles2(getStyles);
     // Get state from parent model
@@ -207,7 +226,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           actions={
             <>
               {!logsControlsSupported && (
-                <Button onClick={() => model.showColumnManagementDrawer(true)} variant={'secondary'} size={'sm'}>
+                <Button onClick={model.onManageColumnsClick} variant={'secondary'} size={'sm'}>
                   Manage columns
                 </Button>
               )}
@@ -216,7 +235,13 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           }
         >
           <div className={styles.container}>
-            {logsControlsSupported && <LogListControls />}
+            {logsControlsSupported && (
+              <LogListControls
+                sortOrder={sortOrder}
+                onSortOrderChange={model.handleSortChange}
+                onManageColumnsClick={model.onManageColumnsClick}
+              />
+            )}
             {dataFrame && (
               <TableProvider
                 panelWrap={panelWrap}

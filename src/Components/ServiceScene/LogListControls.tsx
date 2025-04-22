@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { LogsSortOrder } from '@grafana/data';
 import { GrafanaTheme2 } from '@grafana/data/';
@@ -11,7 +11,13 @@ function downloadLogs(type: string) {
   //download(format, filteredLogs, logsMeta);
 }
 
-export const LogListControls = ({ sortOrder = LogsSortOrder.Ascending }) => {
+interface Props {
+  sortOrder: LogsSortOrder;
+  onSortOrderChange(newOrder: LogsSortOrder): void;
+  onManageColumnsClick(): void;
+}
+
+export const LogListControls = ({ sortOrder, onSortOrderChange, onManageColumnsClick }: Props) => {
   const styles = useStyles2(getStyles);
 
   const downloadMenu = useMemo(
@@ -25,19 +31,23 @@ export const LogListControls = ({ sortOrder = LogsSortOrder.Ascending }) => {
     []
   );
 
+  const toggleSortOrder = useCallback(() => {
+    onSortOrderChange(sortOrder === LogsSortOrder.Ascending ? LogsSortOrder.Descending : LogsSortOrder.Ascending);
+  }, [onSortOrderChange, sortOrder]);
+
   return (
     <div className={styles.navContainer}>
       <IconButton
         name={sortOrder === LogsSortOrder.Descending ? 'sort-amount-up' : 'sort-amount-down'}
         className={styles.controlButton}
-        onClick={() => {}}
+        onClick={toggleSortOrder}
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
       <IconButton
         name="columns"
         className={styles.controlButton}
-        onClick={() => {}}
+        onClick={onManageColumnsClick}
         tooltip={'Manage columns'}
         size="lg"
       />
