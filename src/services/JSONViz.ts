@@ -31,23 +31,3 @@ export const jsonLabelWrapStyles = css({
   display: 'inline-flex',
   alignItems: 'center',
 });
-
-export const drillUpWrapperStyle = css({
-  display: 'flex',
-  alignItems: 'center',
-  overflowX: 'scroll',
-});
-export const breadCrumbDelimiter = css({
-  marginLeft: '0.5em',
-  marginRight: '0.5em',
-});
-export const itemStringDelimiter = css({
-  marginLeft: '0.5em',
-});
-export const rootNodeItemString = css({
-  display: 'flex',
-  flexWrap: 'nowrap',
-  textWrap: 'nowrap',
-  // Match small button font size
-  fontSize: '12px',
-});
