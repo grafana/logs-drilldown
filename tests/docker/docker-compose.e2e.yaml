@@ -1,0 +1,40 @@
+version: '3.0'
+
+name: 'logs-drilldown-e2e'
+services:
+  grafana:
+    container_name: 'logs-drilldown-e2e'
+    extends:
+      file: ../../.config/docker-compose-base.yaml
+      service: grafana
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
+      - GF_PLUGINS_PREINSTALL_DISABLED=true
+      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    build:
+      context: ./.config
+      args:
+        grafana_version: ${GRAFANA_VERSION:-11.6.0}
+    ports: !override
+      - 3001:3000/tcp
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/grafana-logsapp
+      - ./provisioning:/etc/grafana/provisioning
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+  loki:
+    image: grafana/loki:3.3.2
+    environment:
+      LOG_CLUSTER_DEPTH: '8'
+      LOG_SIM_TH: '0.3'
+    ports:
+      - '3100:3100'
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: on-failure
+  generator:
+    build:
+      context: ./generator
+    command: -url http://loki:3100/loki/api/v1/push

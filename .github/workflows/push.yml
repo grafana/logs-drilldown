@@ -16,4 +16,6 @@ jobs:
       run-playwright-docker: true
       run-playwright-with-grafana-dependency: '11.6.0'
       upload-playwright-artifacts: true
+      playwright-report-path: tests/test-reports/
+      playwright-docker-compose-file: tests/docker/docker-compose.e2e.yaml
       playwright-grafana-url: http://localhost:3001
