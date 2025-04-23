@@ -7,6 +7,7 @@ import {
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
+  SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
   SceneQueryRunner,
 } from '@grafana/scenes';
@@ -97,6 +98,10 @@ const DataFrameLineName = 'Line';
 const VizRootName = 'root';
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, {
+    keys: ['sortOrder'],
+  });
+
   constructor(state: Partial<LogsJsonSceneState>) {
     super({
       ...state,
