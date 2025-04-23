@@ -29,7 +29,7 @@ import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
 import { SuspendedEmbeddedLogsExploration } from '../services/extensions/exposedComponents';
 import React from 'react';
-import { usePluginComponents } from '@grafana/runtime';
+import { usePluginComponent, usePluginComponents } from '@grafana/runtime';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 export type RouteProps = { labelName: string; labelValue: string; breakdownLabel?: string };
@@ -50,14 +50,13 @@ function getServicesScene(routeMatch: OptionalRouteMatch) {
 
 function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
   // Component is always null, doesn't look like we can embed something from the same app?
-  const { components, isLoading } = usePluginComponents<EmbeddedLogsExplorationProps>({
-    extensionPointId: 'grafana-lokiexplore-app/embedded-logs-exploration/v1',
-  });
-  const Component = components[0];
+  const { component: LogsDrilldownComponent, isLoading } = usePluginComponent<EmbeddedLogsExplorationProps>(
+    'grafana-lokiexplore-app/embedded-logs-exploration/v1'
+  );
 
-  console.log('Component', { components, isLoading, Component });
+  console.log('Component', { LogsDrilldownComponent, isLoading });
 
-  return isLoading ? <LoadingPlaceholder text={'Loading...'} /> : <Component {...props} />;
+  return isLoading ? <LoadingPlaceholder text={'Loading...'} /> : <LogsDrilldownComponent {...props} />;
 }
 
 function getEmbedScene() {
