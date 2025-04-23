@@ -7,6 +7,8 @@ import { SERVICE_NAME } from './variables';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 import { narrowStringsArray, unknownToStrings } from './narrowing';
 import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { LogsDedupStrategy } from '@grafana/data';
+import { isDedupStrategy } from './guards';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -201,6 +203,20 @@ export function getDisplayedFields(sceneRef: SceneObject): string[] {
 export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
   const PREFIX = getExplorationPrefix(sceneRef);
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
+}
+
+export function getDedupStategy(sceneRef: SceneObject): LogsDedupStrategy {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  const storedStrategy = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`);
+  if (storedStrategy && isDedupStrategy(storedStrategy)) {
+    return storedStrategy;
+  }
+  return LogsDedupStrategy.none;
+}
+
+export function setDedupStategy(sceneRef: SceneObject, strategy: LogsDedupStrategy) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`, strategy);
 }
 
 // Log panel options

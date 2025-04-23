@@ -17,6 +17,8 @@ import {
   setDisplayedFields,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   getBooleanLogOption,
+  getDedupStategy,
+  setDedupStategy,
 } from '../../services/store';
 import React, { MouseEvent } from 'react';
 import { LogsListScene } from './LogsListScene';
@@ -41,13 +43,13 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { locationService } from '@grafana/runtime';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { logger } from '../../services/logger';
-import { LogsSortOrder } from '@grafana/schema';
+import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
 import { getPrettyQueryExpr } from 'services/scenes';
 import { LogsPanelError } from './LogsPanelError';
 import { clearVariables } from 'services/variableHelpers';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
-import { isLogsSortOrder } from 'services/guards';
+import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
@@ -56,6 +58,7 @@ interface LogsPanelSceneState extends SceneObjectState {
   sortOrder: LogsSortOrder;
   prettifyLogMessage: boolean;
   wrapLogMessage: boolean;
+  dedupStrategy: LogsDedupStrategy;
 }
 
 export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
@@ -68,6 +71,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
       prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
+      dedupStrategy: LogsDedupStrategy.none,
       error: undefined,
       ...state,
     });
@@ -132,6 +136,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   public onActivate() {
     // Need viz to set options, but setting options will trigger query
     this.setStateFromUrl();
+
+    if (getDedupStategy(this)) {
+      this.setState({
+        dedupStrategy: getDedupStategy(this),
+      });
+    }
 
     if (!this.state.body) {
       this.setState({
@@ -316,7 +326,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       )
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
-      .setOption('prettifyLogMessage', this.state.prettifyLogMessage);
+      .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
+      .setOption('dedupStrategy', this.state.dedupStrategy);
 
     if (!logsControlsSupported) {
       panel.setOption('showTime', true);
@@ -344,6 +355,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     } else if (option === 'prettifyLogMessage' && typeof value === 'boolean') {
       this.setState({ prettifyLogMessage: value });
       this.setLogsVizOption({ prettifyLogMessage: value });
+    } else if (option === 'dedupStrategy' && isDedupStrategy(value)) {
+      setDedupStategy(this, value);
+      this.setState({ dedupStrategy: value });
+      this.setLogsVizOption({ dedupStrategy: value });
     }
   };
 
