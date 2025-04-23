@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -419,6 +419,15 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         .join('_');
       jsonParserPropsMap.set(fullKeyFromJsonParserProps, filter);
     });
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+
+    const onScrollToBottomClick = useCallback(() => {
+      scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
+    }, []);
+
+    const onScrollToTopClick = useCallback(() => {
+      scrollRef.current?.scrollTo(0, 0);
+    }, []);
 
     return (
       // @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done
@@ -437,10 +446,15 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       >
         <div className={styles.container}>
           {logsControlsSupported && (
-            <LogListControls sortOrder={sortOrder} onSortOrderChange={model.handleSortChange} />
+            <LogListControls
+              sortOrder={sortOrder}
+              onSortOrderChange={model.handleSortChange}
+              onScrollToBottomClick={onScrollToBottomClick}
+              onScrollToTopClick={onScrollToTopClick}
+            />
           )}
           {dataFrame && lineField?.values && (
-            <div className={styles.JSONTreeWrap}>
+            <div className={styles.JSONTreeWrap} ref={scrollRef}>
               {jsonFiltersSupported === false && (
                 <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
                   This view will be read only until Loki is upgraded to 3.5.0

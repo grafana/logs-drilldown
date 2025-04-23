@@ -12,6 +12,8 @@ interface Props {
   onManageColumnsClick?(): void;
   onLineStateClick?(): void;
   lineState?: LogLineState;
+  onScrollToTopClick?(): void;
+  onScrollToBottomClick?(): void;
 }
 
 export const LogListControls = ({
@@ -20,6 +22,8 @@ export const LogListControls = ({
   onManageColumnsClick,
   onLineStateClick,
   lineState,
+  onScrollToBottomClick,
+  onScrollToTopClick,
 }: Props) => {
   const styles = useStyles2(getStyles);
 
@@ -29,6 +33,16 @@ export const LogListControls = ({
 
   return (
     <div className={styles.navContainer}>
+      {onScrollToBottomClick && (
+        <IconButton
+          name="arrow-down"
+          className={styles.controlButton}
+          variant="secondary"
+          onClick={onScrollToBottomClick}
+          tooltip={'Scroll to bottom'}
+          size="lg"
+        />
+      )}
       <IconButton
         name={sortOrder === LogsSortOrder.Descending ? 'sort-amount-up' : 'sort-amount-down'}
         className={styles.controlButton}
@@ -54,6 +68,17 @@ export const LogListControls = ({
           size="lg"
         />
       )}
+      {onScrollToTopClick && (
+        <IconButton
+          name="arrow-up"
+          data-testid="scrollToTop"
+          className={styles.scrollToTopButton}
+          variant="secondary"
+          onClick={onScrollToTopClick}
+          tooltip="Scroll to top"
+          size="lg"
+        />
+      )}
     </div>
   );
 };
@@ -71,6 +96,12 @@ const getStyles = (theme: GrafanaTheme2) => {
       paddingLeft: theme.spacing(1),
       borderLeft: `solid 1px ${theme.colors.border.medium}`,
       overflow: 'hidden',
+    }),
+    scrollToTopButton: css({
+      margin: 0,
+      marginTop: 'auto',
+      color: theme.colors.text.secondary,
+      height: theme.spacing(2),
     }),
     controlButton: css({
       margin: 0,
