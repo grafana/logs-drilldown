@@ -13,7 +13,7 @@ services:
       - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     build:
-      context: ./.config
+      context: ../../.config
       args:
         grafana_version: ${GRAFANA_VERSION:-11.6.0}
     ports: !override
@@ -36,5 +36,5 @@ services:
     restart: on-failure
   generator:
     build:
-      context: ./generator
+      context: ../../generator
     command: -url http://loki:3100/loki/api/v1/push
