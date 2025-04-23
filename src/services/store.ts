@@ -204,7 +204,7 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
 }
 
 // Log panel options
-export const LOG_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.logs.option`;
+export const LOG_OPTIONS_LOCALSTORAGE_KEY = `grafana.explore.logs`;
 export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   // TODO: narrow stored value
