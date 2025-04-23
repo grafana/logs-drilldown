@@ -205,7 +205,7 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
 }
 
-export function getDedupStategy(sceneRef: SceneObject): LogsDedupStrategy {
+export function getDedupStrategy(sceneRef: SceneObject): LogsDedupStrategy {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedStrategy = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`);
   if (storedStrategy && isDedupStrategy(storedStrategy)) {
@@ -214,7 +214,7 @@ export function getDedupStategy(sceneRef: SceneObject): LogsDedupStrategy {
   return LogsDedupStrategy.none;
 }
 
-export function setDedupStategy(sceneRef: SceneObject, strategy: LogsDedupStrategy) {
+export function setDedupStrategy(sceneRef: SceneObject, strategy: LogsDedupStrategy) {
   const PREFIX = getExplorationPrefix(sceneRef);
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`, strategy);
 }

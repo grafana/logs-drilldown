@@ -17,8 +17,8 @@ import {
   setDisplayedFields,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   getBooleanLogOption,
-  getDedupStategy,
-  setDedupStategy,
+  getDedupStrategy,
+  setDedupStrategy,
 } from '../../services/store';
 import React, { MouseEvent } from 'react';
 import { LogsListScene } from './LogsListScene';
@@ -137,9 +137,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     // Need viz to set options, but setting options will trigger query
     this.setStateFromUrl();
 
-    if (getDedupStategy(this)) {
+    if (getDedupStrategy(this)) {
       this.setState({
-        dedupStrategy: getDedupStategy(this),
+        dedupStrategy: getDedupStrategy(this),
       });
     }
 
@@ -356,7 +356,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setState({ prettifyLogMessage: value });
       this.setLogsVizOption({ prettifyLogMessage: value });
     } else if (option === 'dedupStrategy' && isDedupStrategy(value)) {
-      setDedupStategy(this, value);
+      setDedupStrategy(this, value);
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
     }
