@@ -181,6 +181,12 @@ export const TableColumnContextProvider = ({
     }
   }, [initialColumns, handleSetColumns]);
 
+  useEffect(() => {
+    if (urlTableBodyState) {
+      setBodyState(urlTableBodyState);
+    }
+  }, [urlTableBodyState]);
+
   // When the columns are updated, we need to check if nothing is selected so we can set the default
   useEffect(() => {
     const activeColumns = getDefaultColumns(columns, logsFrame);

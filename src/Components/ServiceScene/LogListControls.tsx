@@ -4,14 +4,23 @@ import React, { useCallback } from 'react';
 import { LogsSortOrder } from '@grafana/data';
 import { GrafanaTheme2 } from '@grafana/data/';
 import { IconButton, useStyles2 } from '@grafana/ui';
+import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 interface Props {
   sortOrder: LogsSortOrder;
   onSortOrderChange(newOrder: LogsSortOrder): void;
   onManageColumnsClick(): void;
+  onLineStateClick?(): void;
+  lineState?: LogLineState;
 }
 
-export const LogListControls = ({ sortOrder, onSortOrderChange, onManageColumnsClick }: Props) => {
+export const LogListControls = ({
+  sortOrder,
+  onSortOrderChange,
+  onManageColumnsClick,
+  onLineStateClick,
+  lineState,
+}: Props) => {
   const styles = useStyles2(getStyles);
 
   const toggleSortOrder = useCallback(() => {
@@ -34,6 +43,15 @@ export const LogListControls = ({ sortOrder, onSortOrderChange, onManageColumnsC
         tooltip={'Manage columns'}
         size="lg"
       />
+      {onLineStateClick && lineState && (
+        <IconButton
+          name={lineState === LogLineState.text ? 'brackets-curly' : 'text-fields'}
+          className={styles.controlButton}
+          onClick={onLineStateClick}
+          tooltip={lineState === LogLineState.text ? 'Show labels' : 'Show log text'}
+          size="lg"
+        />
+      )}
     </div>
   );
 };

@@ -173,6 +173,14 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.showColumnManagementDrawer(true);
   };
 
+  onLineStateClick = () => {
+    const parentModel = sceneGraph.getAncestor(this, LogsListScene);
+    const { tableLogLineState } = parentModel.state;
+    parentModel.setState({
+      tableLogLineState: tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text,
+    });
+  };
+
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
     const styles = useStyles2(getStyles);
     // Get state from parent model
@@ -240,6 +248,9 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 sortOrder={sortOrder}
                 onSortOrderChange={model.handleSortChange}
                 onManageColumnsClick={model.onManageColumnsClick}
+                onLineStateClick={model.onLineStateClick}
+                // "Auto" defaults to display "show text"
+                lineState={tableLogLineState ?? LogLineState.labels}
               />
             )}
             {dataFrame && (
