@@ -352,8 +352,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     });
 
     return (
+      // @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done
       <PanelChrome
         padding={'none'}
+        showMenuAlways={true}
         statusMessage={$data.state.data?.errors?.[0].message}
         loadingState={$data.state.data?.state}
         title={
