@@ -7,8 +7,19 @@ import {
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
+  SceneObjectUrlValues,
+  SceneQueryRunner,
 } from '@grafana/scenes';
-import { DataFrame, Field, FieldType, getTimeZone, GrafanaTheme2, LoadingState, PanelData } from '@grafana/data';
+import {
+  DataFrame,
+  Field,
+  FieldType,
+  getTimeZone,
+  GrafanaTheme2,
+  LoadingState,
+  LogsSortOrder,
+  PanelData,
+} from '@grafana/data';
 import { Alert, Badge, Button, Icon, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { isNumber } from 'lodash';
@@ -36,7 +47,7 @@ import {
   getLineFormatVariable,
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
-import { hasProp } from '../../services/narrowing';
+import { hasProp, narrowLogsSortOrder } from '../../services/narrowing';
 import {
   addJsonParserFieldValue,
   EMPTY_AD_HOC_FILTER_VALUE,
@@ -61,6 +72,11 @@ import {
   rootNodeItemString,
 } from '../../services/JSONViz';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { logsControlsSupported } from 'services/panel';
+import { LogListControls } from './LogListControls';
+import { getLogOption, setLogOption } from 'services/store';
+import { locationService } from '@grafana/runtime';
+import { logger } from 'services/logger';
 
 interface LogsJsonSceneState extends SceneObjectState {
   menu?: PanelMenu;
@@ -70,6 +86,7 @@ interface LogsJsonSceneState extends SceneObjectState {
   jsonFiltersSupported?: boolean;
   hasJsonFields?: boolean;
   emptyScene?: NoMatchingLabelsScene;
+  sortOrder: LogsSortOrder;
 }
 
 export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
@@ -81,12 +98,45 @@ const VizRootName = 'root';
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
-    super(state);
+    super({
+      ...state,
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+    });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
+  private setStateFromUrl() {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+
+    this.updateFromUrl({
+      sortOrder: searchParams.get('sortOrder'),
+    });
+  }
+
+  getUrlState() {
+    return {
+      sortOrder: JSON.stringify(this.state.sortOrder),
+    };
+  }
+
+  updateFromUrl(values: SceneObjectUrlValues) {
+    try {
+      if (typeof values.sortOrder === 'string' && values.sortOrder) {
+        const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
+        if (decodedSortOrder) {
+          this.setState({ sortOrder: decodedSortOrder });
+        }
+      }
+    } catch (e) {
+      // URL Params can be manually changed and it will make JSON.parse() fail.
+      logger.error(e, { msg: 'LogsJsonScene: updateFromUrl unexpected error' });
+    }
+  }
+
   public onActivate() {
+    this.setStateFromUrl();
+
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
     this.setState({
@@ -316,6 +366,20 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
+  handleSortChange = (newOrder: LogsSortOrder) => {
+    if (newOrder === this.state.sortOrder) {
+      return;
+    }
+    setLogOption('sortOrder', newOrder);
+    const $data = sceneGraph.getData(this);
+    const queryRunner =
+      $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
+    if (queryRunner) {
+      queryRunner.runQueries();
+    }
+    this.setState({ sortOrder: newOrder });
+  };
+
   /**
    * Formats key from keypath
    */
@@ -325,7 +389,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
     // const styles = getStyles(grafanaTheme)
-    const { menu, data, jsonFiltersSupported, hasJsonFields, emptyScene } = model.useState();
+    const { menu, data, jsonFiltersSupported, hasJsonFields, emptyScene, sortOrder } = model.useState();
     const $data = sceneGraph.getData(model);
     // Rerender on data change
     $data.useState();
@@ -366,104 +430,109 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         menu={menu ? <menu.Component model={menu} /> : undefined}
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
-        {dataFrame && lineField?.values && (
-          <span className={styles.JSONTreeWrap}>
-            {jsonFiltersSupported === false && (
-              <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
-                This view will be read only until Loki is upgraded to 3.5.0
-              </Alert>
-            )}
-            {lineField.values.length > 0 && hasJsonFields === false && (
-              <>
-                <Alert severity={'info'} title={'No JSON fields detected'}>
-                  This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
-                  better experience.
+        <div className={styles.container}>
+          {logsControlsSupported && (
+            <LogListControls sortOrder={sortOrder} onSortOrderChange={model.handleSortChange} />
+          )}
+          {dataFrame && lineField?.values && (
+            <div className={styles.JSONTreeWrap}>
+              {jsonFiltersSupported === false && (
+                <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
+                  This view will be read only until Loki is upgraded to 3.5.0
                 </Alert>
-              </>
-            )}
-            <JSONTree
-              data={lineField.values}
-              hideRootExpand={true}
-              valueWrap={''}
-              getItemString={(_, data, itemType, itemString, keyPath) => {
-                if (data && hasProp(data, DataFrameTimeName) && typeof data.Time === 'string') {
-                  return null;
-                }
-                if (keyPath[0] === VizRootName) {
-                  return (
-                    <span className={rootNodeItemString}>
-                      {itemType} {itemString}
-                    </span>
-                  );
-                }
+              )}
+              {lineField.values.length > 0 && hasJsonFields === false && (
+                <>
+                  <Alert severity={'info'} title={'No JSON fields detected'}>
+                    This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for
+                    a better experience.
+                  </Alert>
+                </>
+              )}
+              <JSONTree
+                data={lineField.values}
+                hideRootExpand={true}
+                valueWrap={''}
+                getItemString={(_, data, itemType, itemString, keyPath) => {
+                  if (data && hasProp(data, DataFrameTimeName) && typeof data.Time === 'string') {
+                    return null;
+                  }
+                  if (keyPath[0] === VizRootName) {
+                    return (
+                      <span className={rootNodeItemString}>
+                        {itemType} {itemString}
+                      </span>
+                    );
+                  }
 
-                return <span>{itemType}</span>;
-              }}
-              valueRenderer={(valueAsString, _, keyPath) => {
-                if (keyPath === DataFrameTimeName) {
-                  return null;
-                }
+                  return <span>{itemType}</span>;
+                }}
+                valueRenderer={(valueAsString, _, keyPath) => {
+                  if (keyPath === DataFrameTimeName) {
+                    return null;
+                  }
 
-                return <>{valueAsString?.toString()}</>;
-              }}
-              shouldExpandNodeInitially={(_, __, level) => level <= 2}
-              labelRenderer={(keyPath, nodeType) => {
-                const nodeTypeLoc = nodeType as NodeTypeLoc;
+                  return <>{valueAsString?.toString()}</>;
+                }}
+                shouldExpandNodeInitially={(_, __, level) => level <= 2}
+                labelRenderer={(keyPath, nodeType) => {
+                  const nodeTypeLoc = nodeType as NodeTypeLoc;
 
-                if (keyPath[0] === VizRootName) {
-                  return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
-                }
+                  if (keyPath[0] === VizRootName) {
+                    return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
+                  }
 
-                // Value nodes
-                if (
-                  nodeTypeLoc !== 'Object' &&
-                  nodeTypeLoc !== 'Array' &&
-                  keyPath[0] !== DataFrameTimeName &&
-                  !isLogLineField(keyPath[0].toString()) &&
-                  keyPath[0] !== VizRootName &&
-                  !isNumber(keyPath[0])
-                ) {
-                  return model.renderValueLabel(
-                    keyPath,
-                    lineField,
-                    fieldsVar,
-                    jsonParserPropsMap,
-                    jsonFiltersSupported
-                  );
-                }
+                  // Value nodes
+                  if (
+                    nodeTypeLoc !== 'Object' &&
+                    nodeTypeLoc !== 'Array' &&
+                    keyPath[0] !== DataFrameTimeName &&
+                    !isLogLineField(keyPath[0].toString()) &&
+                    keyPath[0] !== VizRootName &&
+                    !isNumber(keyPath[0])
+                  ) {
+                    return model.renderValueLabel(
+                      keyPath,
+                      lineField,
+                      fieldsVar,
+                      jsonParserPropsMap,
+                      jsonFiltersSupported
+                    );
+                  }
 
-                // Parent nodes
-                if (
-                  (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
-                  !isLogLineField(keyPath[0].toString()) &&
-                  keyPath[0] !== VizRootName &&
-                  !isNumber(keyPath[0])
-                ) {
-                  return model.renderNestedNodeFilterButtons(
-                    keyPath,
-                    fieldsVar,
-                    jsonParserPropsMap,
-                    jsonFiltersSupported
-                  );
-                }
+                  // Parent nodes
+                  if (
+                    (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
+                    !isLogLineField(keyPath[0].toString()) &&
+                    keyPath[0] !== VizRootName &&
+                    !isNumber(keyPath[0])
+                  ) {
+                    return model.renderNestedNodeFilterButtons(
+                      keyPath,
+                      fieldsVar,
+                      jsonParserPropsMap,
+                      jsonFiltersSupported
+                    );
+                  }
 
-                // Show the timestamp as the label of the log line
-                if (isNumber(keyPath[0]) && keyPath[1] === VizRootName) {
-                  const time = lineField.values[keyPath[0]]?.[DataFrameTimeName];
-                  return <strong>{time}</strong>;
-                }
+                  // Show the timestamp as the label of the log line
+                  if (isNumber(keyPath[0]) && keyPath[1] === VizRootName) {
+                    const time = lineField.values[keyPath[0]]?.[DataFrameTimeName];
+                    return <strong>{time}</strong>;
+                  }
 
-                // Don't render time node
-                if (keyPath[0] === DataFrameTimeName) {
-                  return null;
-                }
+                  // Don't render time node
+                  if (keyPath[0] === DataFrameTimeName) {
+                    return null;
+                  }
 
-                return <strong>{keyPath[0]}:</strong>;
-              }}
-            />
-          </span>
-        )}
-        {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
+                  return <strong>{keyPath[0]}:</strong>;
+                }}
+              />
+            </div>
+          )}
+          {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
+        </div>
       </PanelChrome>
     );
   };
@@ -663,6 +732,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
+  container: css({
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    paddingRight: theme.spacing(1),
+    height: '100%',
+  }),
   JSONTreeWrap: css`
     // override css variables
     --json-tree-align-items: flex-start;
@@ -670,6 +745,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
     --json-tree-label-value-color: ${theme.colors.text.primary};
     --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
     --json-tree-ul-root-padding: 0 0 ${theme.spacing(2)} 0;
+
+    overflow: auto;
+    height: 100%;
 
     // first nested node padding
     > ul > li > ul {

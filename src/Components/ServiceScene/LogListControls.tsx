@@ -9,7 +9,7 @@ import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 interface Props {
   sortOrder: LogsSortOrder;
   onSortOrderChange(newOrder: LogsSortOrder): void;
-  onManageColumnsClick(): void;
+  onManageColumnsClick?(): void;
   onLineStateClick?(): void;
   lineState?: LogLineState;
 }
@@ -36,13 +36,15 @@ export const LogListControls = ({
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
-      <IconButton
-        name="columns"
-        className={styles.controlButton}
-        onClick={onManageColumnsClick}
-        tooltip={'Manage columns'}
-        size="lg"
-      />
+      {onManageColumnsClick && (
+        <IconButton
+          name="columns"
+          className={styles.controlButton}
+          onClick={onManageColumnsClick}
+          tooltip={'Manage columns'}
+          size="lg"
+        />
+      )}
       {onLineStateClick && lineState && (
         <IconButton
           name={lineState === LogLineState.text ? 'brackets-curly' : 'text-fields'}
