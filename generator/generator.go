@@ -118,6 +118,38 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 			}()
 		},
 	},
+	"e-commerce": {
+		"shopping-cart": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+					logger.LogWithMetadata(level, t, flog.NewShoppingCart(t), metadata)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+		"shopping-cart-structured": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+					logLine, labels := flog.NewShoppingCartWithMetadata(t)
+
+					newLabels := make(push.LabelsAdapter, len(labels)+len(metadata))
+					for _, label := range labels {
+						newLabels = append(newLabels, label)
+					}
+					for _, v := range metadata {
+						newLabels = append(newLabels, v)
+					}
+
+					logger.LogWithMetadata(level, t, logLine, newLabels)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+	},
 }
 
 func lokiOtelPod(svc string) LogGenerator {

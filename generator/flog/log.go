@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit"
+	"github.com/grafana/loki/pkg/push"
 )
 
 const (
@@ -24,7 +25,8 @@ const (
 	// CommonLogFormat : {host} {user-identifier} {auth-user-id} [{datetime}] "{method} {request} {protocol}" {response-code} {bytes}
 	CommonLogFormat = "%s - %s [%s] \"%s %s %s\" %d %d"
 	// JSONLogFormat : {"host": "{host}", "user-identifier": "{user-identifier}", "datetime": "{datetime}", "method": "{method}", "request": "{request}", "protocol": "{protocol}", "status": {status}, "bytes": {bytes}, "referer": "{referer}", "_25values": "{_25values}"
-	JSONLogFormat = `{"host":"%s", "user-identifier":"%s", "datetime":"%s", "method": "%s", "request": "%s", "protocol":"%s", "status":%d, "bytes":"%dMB", "referer": "%s", "_25values": %d, "msg":"%s", "nested_object": %s}`
+	JSONLogFormat         = `{"host":"%s", "user-identifier":"%s", "datetime":"%s", "method": "%s", "request": "%s", "protocol":"%s", "status":%d, "bytes":"%dMB", "referer": "%s", "_25values": %d, "msg":"%s", "nested_object": %s}`
+	ShoppingCartLogFormat = "Order %d successfully placed, customerId: %s, price: %f, paymentMethod: %s, shippingMethod: %s, shippingCountry: %s"
 )
 
 // NewApacheCommonLog creates a log string with apache common log format
@@ -230,4 +232,43 @@ func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
 		weightedRandomSentence(),
 		nestedJson,
 	)
+}
+
+// "Order %d successfully placed, customerId: %s, price: %f, paymentMethod: %s, shippingMethod: %s, shippingCountry: %s"
+func NewShoppingCart(t time.Time) string {
+	return fmt.Sprintf(
+		ShoppingCartLogFormat,
+		gofakeit.Number(1, 10000),
+		gofakeit.UUID(),
+		gofakeit.Price(10.0, 1000.0),
+		gofakeit.CreditCardType(),
+		RandShippingMethod(),
+		gofakeit.CountryAbr(),
+	)
+}
+
+func NewShoppingCartWithMetadata(t time.Time) (string, push.LabelsAdapter) {
+	orderId := gofakeit.Number(1, 10000)
+	customerId := gofakeit.UUID()
+	price := gofakeit.Price(10.0, 1000.0)
+	paymentMethod := gofakeit.CreditCardType()
+	shippingMethod := RandShippingMethod()
+	country := gofakeit.CountryAbr()
+
+	return fmt.Sprintf(
+			ShoppingCartLogFormat,
+			gofakeit.Number(1, 10000),
+			gofakeit.UUID(),
+			gofakeit.Price(10.0, 1000.0),
+			gofakeit.CreditCardType(),
+			RandShippingMethod(),
+			gofakeit.CountryAbr(),
+		), push.LabelsAdapter{
+			{Name: "orderId", Value: fmt.Sprintf("%d", orderId)},
+			{Name: "customerId", Value: customerId},
+			{Name: "price", Value: fmt.Sprintf("%f", price)},
+			{Name: "paymentMethod", Value: paymentMethod},
+			{Name: "shippingMethod", Value: shippingMethod},
+			{Name: "shippingCountry", Value: country},
+		}
 }
