@@ -1,9 +1,11 @@
 import { LinkButton } from '@grafana/ui';
+import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 import React, { lazy, Suspense } from 'react';
 const OpenInLogsDrilldownButton = lazy(() => import('Components/OpenInLogsDrilldownButton/OpenInLogsDrilldownButton'));
+const EmbeddedLogsExploration = lazy(() => import('Components/EmbeddedLogsExploration/EmbeddedLogs'));
 
-function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
+export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
   return (
     <Suspense
       fallback={
@@ -17,11 +19,10 @@ function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProp
   );
 }
 
-export const exposedComponents = [
-  {
-    id: `grafana-lokiexplore-app/open-in-explore-logs-button/v1`,
-    title: 'Open in Logs Drilldown button',
-    description: 'A button that opens a logs view in the Logs Drilldown app.',
-    component: SuspendedOpenInLogsDrilldownButton,
-  },
-];
+export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmbeddedLogsExploration {...props} />
+    </Suspense>
+  );
+}

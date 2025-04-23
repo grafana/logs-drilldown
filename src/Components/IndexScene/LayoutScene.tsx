@@ -18,6 +18,7 @@ interface LayoutSceneState extends SceneObjectState {
   lineFilterRenderer?: LineFilterVariablesScene;
   levelsRenderer?: LevelsVariableScene;
   variableLayout?: SceneObject;
+  embedded?: boolean;
 }
 
 const interceptBannerStorageKey = `${PLUGIN_ID}.interceptBannerStorageKey`;
