@@ -785,8 +785,12 @@ const getStyles = (theme: GrafanaTheme2) => ({
       z-index: 2;
       padding-left: ${theme.spacing(1)};
       align-items: center;
-      overflow-x: scroll;
+      overflow-x: auto;
       overflow-y: hidden;
+    }
+
+    > ul > li > span > span > span {
+      overflow-x: auto;
     }
 
     > ul > li > ul > li > span {
