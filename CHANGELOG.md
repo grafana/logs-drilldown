@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.13
+
+##### Bug Fixes
+
+*  Fix issue with release pipeline
+
 ## 1.0.12
 
 ##### Chores
