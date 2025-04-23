@@ -14,7 +14,6 @@ export function buildLogsExplorationFromState({
   query,
   ...state
 }: EmbeddedLogsExplorationProps) {
-  console.log('buildLogsExplorationFromState', { state, query, timeRangeState });
   const $timeRange = new SceneTimeRange(timeRangeState);
   $timeRange.subscribeToState((state) => {
     if (onTimeRangeChange) {
