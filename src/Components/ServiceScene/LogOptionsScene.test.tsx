@@ -8,6 +8,16 @@ import { LogsSortOrder } from '@grafana/data';
 
 jest.mock('services/store');
 jest.mock('./LogsListScene');
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  config: {
+    ...jest.requireActual('@grafana/runtime').config,
+    buildInfo: {
+      ...jest.requireActual('@grafana/runtime').config.buildInfo,
+      version: '11.6',
+    },
+  },
+}));
 
 describe('LogOptionsScene', () => {
   beforeEach(() => {
@@ -54,9 +64,10 @@ describe('LogOptionsScene', () => {
     expect(screen.getByTitle('Enable wrapping of long log lines')).toBeInTheDocument();
     expect(screen.getByTitle('Disable wrapping of long log lines')).toBeInTheDocument();
     await act(async () => userEvent.click(screen.getByTitle('Enable wrapping of long log lines')));
-    expect(setLogOption).toHaveBeenCalledTimes(1);
+    expect(setLogOption).toHaveBeenCalledTimes(2);
     expect(setLogOption).toHaveBeenCalledWith('wrapLogMessage', true);
-    expect(scene.setLogsVizOption).toHaveBeenCalledWith({ wrapLogMessage: true });
+    expect(setLogOption).toHaveBeenCalledWith('prettifyLogMessage', true);
+    expect(scene.setLogsVizOption).toHaveBeenCalledWith({ wrapLogMessage: true, prettifyLogMessage: true });
   });
 
   test('Does not show the clear fields button with no fields in display', async () => {
