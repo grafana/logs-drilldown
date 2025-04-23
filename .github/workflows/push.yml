@@ -14,8 +14,8 @@ jobs:
       plugin-version-suffix: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || '' }}
       run-playwright: false
       run-playwright-docker: true
-      run-playwright-with-grafana-dependency: '11.6.0'
+      run-playwright-with-grafana-dependency: 'latest'
       upload-playwright-artifacts: true
       playwright-report-path: tests/test-reports/
-      playwright-docker-compose-file: tests/docker/docker-compose.e2e.yaml
+      playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001
