@@ -14,10 +14,9 @@ processors:
     log_statements:
       - context: log
         statements:
-          - merge_maps(log.attributes, ParseJSON(body), "upsert") where resource.attributes["service.name"] == "grafanacon-otel"
+          - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where resource.attributes["service.name"] == "grafanacon-otel"
           - set(log.body, log.attributes["msg"]) where resource.attributes["service.name"] == "grafanacon-otel" and log.attributes["msg"] != nil
           - delete_key(log.attributes, "msg") where resource.attributes["service.name"] == "grafanacon-otel" and log.attributes["msg"] != nil
-
 
 exporters:
   otlphttp/logs:
