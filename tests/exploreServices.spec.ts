@@ -431,7 +431,7 @@ test.describe('explore services page', () => {
           await expect(selectNewLabelSelect).toContainText('Search labels');
 
           // Add "namespace" as a new tab
-          await page.getByText(/namespace/, { exact: true }).click();
+          await page.getByText('namespace', { exact: true }).click();
           await expect(newNamespaceTabLoc).toHaveCount(1);
 
           // Click "New" tab
@@ -605,7 +605,7 @@ test.describe('explore services page', () => {
         await expect(selectNewLabelSelect).toContainText('Search labels');
 
         // Add "namespace" as a new tab
-        await page.getByText(/namespace/, { exact: true }).click();
+        await page.getByText('namespace', { exact: true }).click();
         const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
         await expect(newNamespaceTabLoc).toHaveCount(1);
 
