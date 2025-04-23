@@ -756,6 +756,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flexDirection: 'row-reverse',
     paddingRight: theme.spacing(1),
     height: '100%',
+    paddingBottom: theme.spacing(1),
   }),
   JSONTreeWrap: css`
     // override css variables
