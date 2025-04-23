@@ -228,12 +228,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   private setNewRootNode = (keyPath: KeyPath) => {
     addCurrentUrlToHistory();
     const { fullPathFilters, fullKeyPath } = this.getFullKeyPath(keyPath);
-    console.log('setNewRootNode', {
-      fullPathFilters,
-      fullKeyPath,
-      keyPath,
-    });
-
     // If keyPath length is greater than 3 we're drilling down (root, line index, line)
     if (keyPath.length > 3) {
       addJsonParserFieldValue(this, fullKeyPath);
