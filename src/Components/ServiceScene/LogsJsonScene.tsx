@@ -221,28 +221,38 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   /**
-   * Drills into node specified by keyPath
+   * Drills down into node specified by keyPath
    * Note, if we've already drilled down into a node, the keyPath (from the viz) will not have the parent nodes we need to build the json parser fields.
    * We re-create the full key path using the values currently stored in the lineFormat variable
    */
   private setNewRootNode = (keyPath: KeyPath) => {
     addCurrentUrlToHistory();
     const { fullPathFilters, fullKeyPath } = this.getFullKeyPath(keyPath);
+    console.log('setNewRootNode', {
+      fullPathFilters,
+      fullKeyPath,
+      keyPath,
+    });
 
     // If keyPath length is greater than 3 we're drilling down (root, line index, line)
     if (keyPath.length > 3) {
       addJsonParserFieldValue(this, fullKeyPath);
 
       const lineFormatVar = getLineFormatVariable(this);
+
       lineFormatVar.setState({
-        filters: fullPathFilters,
+        // Need to strip out any unsupported chars to match the field name we're creating in the json parser args
+        filters: fullPathFilters.map((filter) => ({
+          ...filter,
+          key: filter.key.replace(LABEL_NAME_INVALID_CHARS, '_'),
+        })),
       });
       this.lineFormatEvent('add', keyPath[0].toString());
     } else {
       // Otherwise we're drilling back up to the root
       removeLineFormatFilters(this);
       clearJsonParserFields(this);
-      this.lineFormatEvent('remove', 'root');
+      this.lineFormatEvent('remove', VizRootName);
     }
   };
 
