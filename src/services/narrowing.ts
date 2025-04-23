@@ -6,7 +6,7 @@ import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 
-function hasProp<K extends PropertyKey>(data: object, prop: K): data is Record<K, unknown> {
+export function hasProp<K extends PropertyKey>(data: object, prop: K): data is Record<K, unknown> {
   return prop in data;
 }
 

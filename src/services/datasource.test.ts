@@ -50,12 +50,14 @@ describe('datasource', () => {
             type: 'string',
             cardinality: 2,
             parsers: ['logfmt'],
+            jsonPath: ['caller'],
           },
           {
             label: 'detected_level',
             type: 'string',
             cardinality: 4,
             parsers: ['logfmt'],
+            jsonPath: ['detected-level'],
           },
         ],
       };
@@ -113,18 +115,21 @@ describe('datasource', () => {
             type: 'string',
             cardinality: 2,
             parsers: ['logfmt'],
+            jsonPath: ['caller'],
           },
           {
             label: 'level_extracted',
             type: 'string',
             cardinality: 4,
             parsers: ['logfmt'],
+            jsonPath: ['level_extracted'],
           },
           {
             label: 'level',
             type: 'string',
             cardinality: 4,
             parsers: ['logfmt'],
+            jsonPath: ['level'],
           },
         ],
       };

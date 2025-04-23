@@ -5,10 +5,16 @@ import { GiveFeedbackButton } from './GiveFeedbackButton';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { PatternControls } from './PatternControls';
 import { IndexScene } from './IndexScene';
-import { CONTROLS_VARS_DATASOURCE, CONTROLS_VARS_FIELDS_COMBINED, LayoutScene } from './LayoutScene';
+import {
+  CONTROLS_JSON_FIELDS,
+  CONTROLS_VARS_DATASOURCE,
+  CONTROLS_VARS_FIELDS_COMBINED,
+  LayoutScene,
+} from './LayoutScene';
 import { useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { AppliedPattern } from '../../services/variables';
+import { getJsonParserVariableVisibility } from '../../services/store';
 
 type HeaderPosition = 'sticky' | 'relative';
 interface VariableLayoutSceneState extends SceneObjectState {
@@ -82,6 +88,24 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               </div>
             )}
           </div>
+
+          {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}
+          {getJsonParserVariableVisibility() && (
+            <div className={styles.controlsRowContainer}>
+              {controls && (
+                <div className={styles.filtersWrap}>
+                  <div className={styles.filters}>
+                    {controls.map((control) => {
+                      return control instanceof CustomVariableValueSelectors &&
+                        control.state.key === CONTROLS_JSON_FIELDS ? (
+                        <control.Component key={control.state.key} model={control} />
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 3rd row - Patterns */}
           <div className={styles.controlsRowContainer}>

@@ -124,7 +124,7 @@ export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sc
   const config = setLogsVolumeFieldConfigs(FieldConfigBuilders.timeseries()).setOverrides(
     setLabelSeriesOverrides.bind(null, focusedLevels)
   );
-  if (config instanceof FieldConfigBuilder) {
+  if (config instanceof FieldConfigBuilder && panel.getPlugin()) {
     panel.onFieldConfigChange(config.build(), true);
   }
 }

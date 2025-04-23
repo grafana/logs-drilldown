@@ -234,7 +234,7 @@ export function getLogsVolumeOption(option: 'collapsed') {
 }
 
 // Log visualization options
-export type LogsVisualizationType = 'logs' | 'table';
+export type LogsVisualizationType = 'logs' | 'table' | 'json';
 
 const VISUALIZATION_TYPE_LOCALSTORAGE_KEY = 'grafana.explore.logs.visualisationType';
 export function getLogsVisualizationType(): LogsVisualizationType {
@@ -243,6 +243,8 @@ export function getLogsVisualizationType(): LogsVisualizationType {
     case 'table':
     case 'logs':
       return storedType;
+    case 'json':
+      return 'json';
     default:
       return 'logs';
   }
@@ -250,6 +252,13 @@ export function getLogsVisualizationType(): LogsVisualizationType {
 
 export function setLogsVisualizationType(type: string) {
   localStorage.setItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY, type);
+}
+
+// JSON filter debug mode
+const JSON_PARSER_PROPS_DEBUG_KEY = `${pluginJson.id}.jsonParser.visible`;
+export function getJsonParserVariableVisibility(): boolean {
+  // localStorage.setItem('grafana-lokiexplore-app.jsonParser.visible', true)
+  return !!localStorage.getItem(JSON_PARSER_PROPS_DEBUG_KEY);
 }
 
 // Line filter options
