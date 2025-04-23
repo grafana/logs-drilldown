@@ -69,7 +69,6 @@ export const DETECTED_FIELDS_CARDINALITY_NAME = 'cardinality';
 export const DETECTED_FIELDS_PARSER_NAME = 'parser';
 
 export const DETECTED_FIELDS_TYPE_NAME = 'type';
-export const DETECTED_FIELDS_PATH_NAME = 'jsonPath';
 
 export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   constructor(pluginId: string, uid: string) {
@@ -373,7 +372,6 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       };
       const parserField: Field = { name: DETECTED_FIELDS_PARSER_NAME, type: FieldType.string, values: [], config: {} };
       const typeField: Field = { name: DETECTED_FIELDS_TYPE_NAME, type: FieldType.string, values: [], config: {} };
-      const pathField: Field = { name: DETECTED_FIELDS_PATH_NAME, type: FieldType.string, values: [], config: {} };
 
       response.fields?.forEach((field) => {
         if (!FIELDS_TO_REMOVE.includes(field.label)) {
@@ -381,13 +379,12 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           cardinalityField.values.push(field.cardinality);
           parserField.values.push(field.parsers?.length ? field.parsers.join(', ') : 'structuredMetadata');
           typeField.values.push(field.type);
-          pathField.values.push(field.jsonPath);
         }
       });
 
       const dataFrame = createDataFrame({
         refId: interpolatedTarget.refId,
-        fields: [nameField, cardinalityField, parserField, typeField, pathField],
+        fields: [nameField, cardinalityField, parserField, typeField],
       });
 
       subscriber.next({ data: [dataFrame], state: LoadingState.Done });

@@ -1,6 +1,5 @@
-import { buildServicesUrl, ROUTES } from './routing';
+import { buildServicesUrl, PageSlugs, ROUTES } from './routing';
 import { buildDrilldownPageUrl } from './navigate';
-import { PageSlugs } from './enums';
 
 describe('buildBreakdownUrl', () => {
   const OLD_LOCATION = window.location;

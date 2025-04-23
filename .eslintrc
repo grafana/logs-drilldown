@@ -2,8 +2,7 @@
   "extends": "./.config/.eslintrc",
   "rules": {
     // throw error when using global location object, use Grafana's LocationService instead!
-    "no-restricted-globals": ["error", "location"],
-    "no-cond-assign": ["error", "except-parens"]
+    "no-restricted-globals": ["error", "location"]
   },
   "overrides": [
     {

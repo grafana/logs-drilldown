@@ -16,7 +16,7 @@ import {
 } from '@grafana/scenes';
 import { Alert, useStyles2 } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { checkPrimaryLabel, getPrimaryLabelFromUrl } from 'services/routing';
+import { checkPrimaryLabel, getPrimaryLabelFromUrl, ValueSlugs } from 'services/routing';
 import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
 import { ByFrameRepeater } from './ByFrameRepeater';
 import { FieldSelector } from './FieldSelector';
@@ -34,7 +34,6 @@ import { LabelsAggregatedBreakdownScene } from './LabelsAggregatedBreakdownScene
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { EmptyLayoutScene } from './EmptyLayoutScene';
 import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
-import { ValueSlugs } from '../../../services/enums';
 
 export interface LabelBreakdownSceneState extends SceneObjectState {
   body?: SceneObject;

@@ -202,15 +202,10 @@ export function addToFilters(
   value: string,
   operator: FilterType,
   scene: SceneObject,
-  variableType: InterpolatedFilterType,
-  addToHistory = true,
-  // JSON nested nodes will not exist in the detected_fields response, so if this is being called from the json viz, assume JSON parser
-  jsonParser = false
+  variableType: InterpolatedFilterType
 ) {
   // Add the current url to browser history before the state is changed so the user can revert their change.
-  if (addToHistory) {
-    addCurrentUrlToHistory();
-  }
+  addCurrentUrlToHistory();
 
   if (variableType === VAR_LABELS) {
     addToFavorites(key, value, scene);
@@ -223,7 +218,7 @@ export function addToFilters(
   if (variableType === VAR_FIELDS) {
     valueObject = JSON.stringify({
       value,
-      parser: jsonParser ? 'json' : getParserForField(key, scene),
+      parser: getParserForField(key, scene),
     });
   } else if (variableType === VAR_LEVELS && operator === 'exclude') {
     valueLabel = `!${value}`;

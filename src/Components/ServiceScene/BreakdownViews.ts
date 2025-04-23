@@ -1,14 +1,12 @@
-import { DashboardCursorSync } from '@grafana/schema';
-import { behaviors, SceneFlexItem, SceneFlexLayout, SceneObject } from '@grafana/scenes';
-
+import { PageSlugs, ValueSlugs } from '../../services/routing';
 import { LogsListScene } from './LogsListScene';
-import { LogsVolumePanel } from './LogsVolumePanel';
+import { testIds } from '../../services/testIds';
 import { LabelBreakdownScene } from './Breakdowns/LabelBreakdownScene';
 import { FieldsBreakdownScene } from './Breakdowns/FieldsBreakdownScene';
 import { PatternsBreakdownScene } from './Breakdowns/Patterns/PatternsBreakdownScene';
-
-import { testIds } from '../../services/testIds';
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { behaviors, SceneFlexItem, SceneFlexLayout, SceneObject } from '@grafana/scenes';
+import { LogsVolumePanel } from './LogsVolumePanel';
+import { DashboardCursorSync } from '@grafana/schema';
 
 interface ValueBreakdownViewDefinition {
   displayName: string;
@@ -17,6 +15,12 @@ interface ValueBreakdownViewDefinition {
   getScene: (value: string) => SceneObject;
 }
 
+export enum TabNames {
+  logs = 'Logs',
+  labels = 'Labels',
+  fields = 'Fields',
+  patterns = 'Patterns',
+}
 export interface BreakdownViewDefinition {
   displayName: TabNames;
   value: PageSlugs;

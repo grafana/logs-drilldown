@@ -11,8 +11,10 @@ import {
   AdHocFieldValue,
   FieldValue,
   isAdHocFilterValueUserInput,
+  JSON_FORMAT_EXPR,
   LOGS_FORMAT_EXPR,
   LogsQueryOptions,
+  MIXED_FORMAT_EXPR,
   SERVICE_NAME,
   stripAdHocFilterUserInputPrefix,
   VAR_AGGREGATED_METRICS,
@@ -21,8 +23,6 @@ import {
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
   VAR_FIELDS_EXPR,
-  VAR_JSON_FIELDS,
-  VAR_JSON_FIELDS_EXPR,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LABELS_EXPR,
@@ -32,7 +32,6 @@ import {
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
   VAR_LINE_FILTERS_EXPR,
-  VAR_LINE_FORMAT,
   VAR_METADATA,
   VAR_METADATA_EXPR,
   VAR_PATTERNS,
@@ -51,7 +50,6 @@ export function getLogsStreamSelector(options: LogsQueryOptions) {
     labelExpressionToAdd = '',
     structuredMetadataToAdd = '',
     fieldExpressionToAdd = '',
-    jsonParserPropToAdd = '',
     parser = undefined,
   } = options;
 
@@ -59,11 +57,11 @@ export function getLogsStreamSelector(options: LogsQueryOptions) {
     case 'structuredMetadata':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'json':
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | drop __error__, __error_details__ ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'logfmt':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     default:
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__  ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
   }
 }
 
@@ -191,22 +189,6 @@ export function setServiceSelectionPrimaryLabelKey(key: string, sceneRef: SceneO
       },
     ],
   });
-}
-
-export function getLineFormatVariable(sceneRef: SceneObject) {
-  const variable = sceneGraph.lookupVariable(VAR_LINE_FORMAT, sceneRef);
-  if (!(variable instanceof AdHocFiltersVariable)) {
-    throw new Error('VAR_JSON_PARSER not found!');
-  }
-  return variable;
-}
-
-export function getJsonFieldsVariable(sceneRef: SceneObject) {
-  const variable = sceneGraph.lookupVariable(VAR_JSON_FIELDS, sceneRef);
-  if (!(variable instanceof AdHocFiltersVariable)) {
-    throw new Error('VAR_JSON_FIELDS not found!');
-  }
-  return variable;
 }
 
 export function getUrlParamNameForVariable(variableName: string) {

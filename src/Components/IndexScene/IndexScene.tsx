@@ -23,8 +23,8 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 import {
-  AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
+  AdHocFiltersWithLabelsAndMeta,
   EXPLORATION_DS,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
@@ -32,12 +32,10 @@ import {
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
-  VAR_JSON_FIELDS,
   VAR_LABELS,
   VAR_LEVELS,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
-  VAR_LINE_FORMAT,
   VAR_LOGS_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
@@ -46,7 +44,6 @@ import {
 import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
 import { ServiceScene } from '../ServiceScene/ServiceScene';
 import {
-  CONTROLS_JSON_FIELDS,
   CONTROLS_VARS_DATASOURCE,
   CONTROLS_VARS_FIELDS,
   CONTROLS_VARS_FIELDS_COMBINED,
@@ -58,14 +55,11 @@ import {
   CONTROLS_VARS_TOOLBAR,
   LayoutScene,
 } from './LayoutScene';
-import { getDrilldownSlug } from '../../services/routing';
+import { getDrilldownSlug, PageSlugs } from '../../services/routing';
 import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelectionScene';
 import { LoadingPlaceholder } from '@grafana/ui';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
-  getJsonParserExpressionBuilder,
-  getLineFormatExpressionBuilder,
-  interpolateExpression,
   onAddCustomAdHocValue,
   onAddCustomFieldValue,
   renderLevelsFilter,
@@ -108,7 +102,6 @@ import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { NoLokiSplash } from '../NoLokiSplash';
-import { PageSlugs } from '../../services/enums';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
@@ -169,11 +162,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         key: CONTROLS_VARS_FIELDS_COMBINED,
         layout: 'vertical',
         include: [VAR_FIELDS_AND_METADATA],
-      }),
-      new CustomVariableValueSelectors({
-        key: CONTROLS_JSON_FIELDS,
-        layout: 'vertical',
-        include: [VAR_JSON_FIELDS, VAR_LINE_FORMAT],
       }),
       new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER }),
       new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
@@ -442,8 +430,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const expr = uninterpolatedExpression
         .replace(PENDING_FIELDS_EXPR, otherFiltersString)
         .replace(PENDING_METADATA_EXPR, otherMetadataString);
-
-      const interpolated = interpolateExpression(this, expr);
+      const interpolated = sceneGraph.interpolate(this, expr);
 
       return getDetectedFieldValuesTagValuesProvider(
         filter,
@@ -486,7 +473,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const otherFiltersString = this.renderVariableFilters(VAR_LEVELS, filters);
       const uninterpolatedExpression = getFieldsTagValuesExpression(VAR_LEVELS);
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
-      const interpolated = interpolateExpression(this, expr);
+      const interpolated = sceneGraph.interpolate(this, expr);
 
       return getDetectedFieldValuesTagValuesProvider(
         filter,
@@ -664,34 +651,14 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
     newState.value && addLastUsedDataSourceToStorage(dsValue);
   });
 
-  const jsonFieldsVar = new AdHocFiltersVariable({
-    name: VAR_JSON_FIELDS,
-    // debugging
-    allowCustomValue: true,
-    getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
-    getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: getJsonParserExpressionBuilder(),
-  });
-
-  const lineFormatVariable = new AdHocFiltersVariable({
-    name: VAR_LINE_FORMAT,
-    layout: 'horizontal',
-    allowCustomValue: true,
-    getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
-    getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: getLineFormatExpressionBuilder(),
-  });
-
   return {
     variablesScene: new SceneVariableSet({
       variables: [
-        lineFormatVariable,
         dsVariable,
         labelVariable,
         fieldsVariable,
         levelsVariable,
         metadataVariable,
-        jsonFieldsVar,
         fieldsAndMetadataVariable,
         new CustomVariable({
           name: VAR_PATTERNS,

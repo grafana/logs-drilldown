@@ -1,9 +1,9 @@
 import { getDrillDownIndexLink, navigateToDrilldownPage, navigateToValueBreakdown } from './navigate';
+import { PageSlugs, ValueSlugs } from './routing';
 import { ServiceScene, ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
 import { locationService } from '@grafana/runtime';
 import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { getMetadataService, initializeMetadataService } from './metadata';
-import { PageSlugs, ValueSlugs } from './enums';
 
 const locationSpy = jest.spyOn(locationService, 'push');
 let mockIndexScene: IndexScene;

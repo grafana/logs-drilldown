@@ -20,7 +20,7 @@ import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_LABELS } from 'services/var
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
 import { navigateToValueBreakdown } from '../../../services/navigate';
-import { checkPrimaryLabel, getPrimaryLabelFromUrl } from '../../../services/routing';
+import { checkPrimaryLabel, getPrimaryLabelFromUrl, ValueSlugs } from '../../../services/routing';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { IndexScene } from '../../IndexScene/IndexScene';
 import { getDetectedFieldsFrame, ServiceScene } from '../ServiceScene';
@@ -37,7 +37,6 @@ import { EmptyLayoutScene } from './EmptyLayoutScene';
 import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
 import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
-import { ValueSlugs } from '../../../services/enums';
 
 export const averageFields = ['duration', 'count', 'total', 'bytes'];
 export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';

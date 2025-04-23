@@ -5,13 +5,11 @@ import {
   VAR_DATASOURCE,
   VAR_FIELD_GROUP_BY,
   VAR_FIELDS,
-  VAR_JSON_FIELDS,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LEVELS,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
-  VAR_LINE_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
 } from './variables';
@@ -22,7 +20,18 @@ import { SceneObject } from '@grafana/scenes';
 import { getLabelsVariable } from './variableGetters';
 import { logger } from './logger';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
-import { PageSlugs, ValueSlugs } from './enums';
+
+export enum PageSlugs {
+  explore = 'explore',
+  logs = 'logs',
+  labels = 'labels',
+  patterns = 'patterns',
+  fields = 'fields',
+}
+export enum ValueSlugs {
+  field = 'field',
+  label = 'label',
+}
 
 export type ParentDrilldownSlugs =
   | PageSlugs.explore
@@ -94,8 +103,6 @@ export const DRILLDOWN_URL_KEYS = [
   `var-${VAR_LINE_FILTER}`,
   `var-${VAR_METADATA}`,
   `var-${VAR_LINE_FILTERS}`,
-  `var-${VAR_JSON_FIELDS}`,
-  `var-${VAR_LINE_FORMAT}`,
 ];
 
 export function getDrilldownSlug() {

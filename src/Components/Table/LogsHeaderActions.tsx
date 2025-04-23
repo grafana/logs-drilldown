@@ -24,11 +24,6 @@ export function LogsPanelHeaderActions(props: {
           value: 'table',
           description: 'Show results in table visualisation',
         },
-        {
-          label: 'JSON',
-          value: 'json',
-          description: 'Show results in json visualisation',
-        },
       ]}
       size="sm"
       value={props.vizType}

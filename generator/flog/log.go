@@ -1,7 +1,6 @@
 package flog
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -24,7 +23,7 @@ const (
 	// CommonLogFormat : {host} {user-identifier} {auth-user-id} [{datetime}] "{method} {request} {protocol}" {response-code} {bytes}
 	CommonLogFormat = "%s - %s [%s] \"%s %s %s\" %d %d"
 	// JSONLogFormat : {"host": "{host}", "user-identifier": "{user-identifier}", "datetime": "{datetime}", "method": "{method}", "request": "{request}", "protocol": "{protocol}", "status": {status}, "bytes": {bytes}, "referer": "{referer}", "_25values": "{_25values}"
-	JSONLogFormat = `{"host":"%s", "user-identifier":"%s", "datetime":"%s", "method": "%s", "request": "%s", "protocol":"%s", "status":%d, "bytes":%d, "referer": "%s", "_25values": %d, "nested_object": %s}`
+	JSONLogFormat = `{"host":"%s", "user-identifier":"%s", "datetime":"%s", "method": "%s", "request": "%s", "protocol":"%s", "status":%d, "bytes":%d, "referer": "%s", "_25values": %d}`
 )
 
 // NewApacheCommonLog creates a log string with apache common log format
@@ -130,52 +129,8 @@ func NewCommonLogFormat(t time.Time, URI string, statusCode int) string {
 	)
 }
 
-type ExtraDeeplyNestedObject struct {
-	BaseObject
-}
-
-type DeeplyNestedObject struct {
-	BaseObject
-	ExtraDeeplyNestedObject `json:"extraDeeplyNestedObject"`
-}
-
-type BaseObject struct {
-	Method         string   `json:"method"`
-	Url            string   `json:"url"`
-	NumArray       []int    `json:"numArray"`
-	StrArray       []string `json:"strArray"`
-	UserIdentifier string   `json:"user-identifier"`
-}
-
-type NestedJsonObject struct {
-	BaseObject
-	DeeplyNestedObject `json:"deeplyNestedObject"`
-}
-
-// Helper function to initialize BaseObject
-func newBaseObject() BaseObject {
-	return BaseObject{
-		Method:         gofakeit.HTTPMethod(),
-		Url:            gofakeit.URL(),
-		UserIdentifier: gofakeit.Username(),
-		NumArray:       []int{gofakeit.Number(0, 30000), gofakeit.Number(0, 30000), gofakeit.Number(0, 30000)},
-		StrArray:       []string{gofakeit.Word(), gofakeit.Word(), gofakeit.Word()},
-	}
-}
-
 // NewJSONLogFormat creates a log string with json log format
 func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
-	nestedJsonObject := &NestedJsonObject{
-		BaseObject: newBaseObject(),
-		DeeplyNestedObject: DeeplyNestedObject{
-			BaseObject: newBaseObject(),
-			ExtraDeeplyNestedObject: ExtraDeeplyNestedObject{
-				BaseObject: newBaseObject(),
-			},
-		},
-	}
-	nestedJson, _ := json.Marshal(nestedJsonObject)
-
 	return fmt.Sprintf(
 		JSONLogFormat,
 		ips[rand.Intn(len(ips))],
@@ -188,6 +143,5 @@ func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
 		gofakeit.Number(0, 30000),
 		gofakeit.URL(),
 		gofakeit.Number(0, 25),
-		nestedJson,
 	)
 }

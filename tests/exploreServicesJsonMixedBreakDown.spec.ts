@@ -27,7 +27,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   test(`should exclude ${mixedFieldName}, request should contain both parsers`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
     explorePage.blockAllQueriesExcept({
-      refIds: [new RegExp(`^${mixedFieldName}$`)],
+      refIds: [mixedFieldName],
       requests,
     });
     // First request should fire here
@@ -54,11 +54,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
       const post = req.post;
       const queries: LokiQuery[] = post.queries;
       queries.forEach((query) => {
-        expect(query.expr.replace(/\s+/g, '')).toContain(
-          `sum by (${mixedFieldName}) (count_over_time({service_name="${serviceName}"}      | json method="[\\"method\\"]" | logfmt | drop __error__, __error_details__ | ${mixedFieldName}!=""`.replace(
-            /\s+/g,
-            ''
-          )
+        expect(query.expr).toContain(
+          `sum by (${mixedFieldName}) (count_over_time({service_name="${serviceName}"}      | json | logfmt | drop __error__, __error_details__ | ${mixedFieldName}!=""`
         );
       });
     });
@@ -66,7 +63,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   test(`should exclude ${logFmtFieldName}, request should contain logfmt`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
     explorePage.blockAllQueriesExcept({
-      refIds: [new RegExp(`^${logFmtFieldName}$`)],
+      refIds: [logFmtFieldName],
       requests,
     });
 
@@ -74,8 +71,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     await explorePage.goToFieldsTab();
     const allPanels = explorePage.getAllPanelsLocator();
 
-    // Should be at least 20 fields coming back from the detected_fields, but one is detected_level
-    await expect.poll(() => allPanels.count()).toBeGreaterThanOrEqual(20);
+    // Should be 16 fields coming back from the detected_fields, but one is detected_level
+    await expect(allPanels).toHaveCount(16);
 
     await page.getByLabel(`Select ${logFmtFieldName}`).click();
 
@@ -88,7 +85,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     // Nav to fields index
     await explorePage.goToFieldsTab();
     // There is only one panel/value, so we should be redirected back to the aggregation after excluding it
-    await expect.poll(() => allPanels.count()).toBeGreaterThanOrEqual(19);
+    // We'll have all 12 responses from detected_fields
+    await expect(allPanels).toHaveCount(13);
 
     // Adhoc content filter should be added
     await expect(page.getByLabel(E2EComboboxStrings.editByKey(logFmtFieldName))).toBeVisible();
@@ -96,18 +94,12 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     await expect.poll(() => requests.length).toBeGreaterThanOrEqual(2);
 
     // Aggregation query, no filter
-    expect(requests[0]?.post?.queries[0]?.expr.replace(/\s+/g, '')).toEqual(
-      `sum by (${logFmtFieldName}) (count_over_time({service_name="${serviceName}"}      | logfmt | ${logFmtFieldName}!=""  [$__auto]))`.replace(
-        /\s+/g,
-        ''
-      )
+    expect(requests[0]?.post?.queries[0]?.expr).toEqual(
+      `sum by (${logFmtFieldName}) (count_over_time({service_name="${serviceName}"}      | logfmt | ${logFmtFieldName}!=""  [$__auto]))`
     );
     // Value breakdown query, with/without filter
-    expect(requests[1]?.post?.queries[0]?.expr.replace(/\s+/g, '')).toEqual(
-      `sum by (${logFmtFieldName}) (count_over_time({service_name="${serviceName}"}      | logfmt | ${logFmtFieldName}!=""  [$__auto]))`.replace(
-        /\s+/g,
-        ''
-      )
+    expect(requests[1]?.post?.queries[0]?.expr).toEqual(
+      `sum by (${logFmtFieldName}) (count_over_time({service_name="${serviceName}"}      | logfmt | ${logFmtFieldName}!=""  [$__auto]))`
     );
     if (requests.length === 3) {
       console.log('DEBUG: unexpected third request', requests[1]?.post?.queries[0]?.expr);
@@ -143,11 +135,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
       const post = req.post;
       const queries: LokiQuery[] = post.queries;
       queries.forEach((query) => {
-        expect(query.expr.replace(/\s+/g, '')).toContain(
-          `sum by (${jsonFmtFieldName}) (count_over_time({service_name="${serviceName}"} | json status="[\\"status\\"]" | drop __error__, __error_details__ | ${jsonFmtFieldName}!=""`.replace(
-            /\s+/g,
-            ''
-          )
+        expect(query.expr).toContain(
+          `sum by (${jsonFmtFieldName}) (count_over_time({service_name="${serviceName}"}      | json | drop __error__, __error_details__ | ${jsonFmtFieldName}!=""`
         );
       });
     });
@@ -182,11 +171,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
       const post = req.post;
       const queries: LokiQuery[] = post.queries;
       queries.forEach((query) => {
-        expect(query.expr.replace(/\s+/g, '')).toContain(
-          `sum by (${metadataFieldName}) (count_over_time({service_name="${serviceName}"} | ${metadataFieldName}!=""`.replace(
-            /\s+/g,
-            ''
-          )
+        expect(query.expr).toContain(
+          `sum by (${metadataFieldName}) (count_over_time({service_name="${serviceName}"} | ${metadataFieldName}!=""`
         );
       });
     });
