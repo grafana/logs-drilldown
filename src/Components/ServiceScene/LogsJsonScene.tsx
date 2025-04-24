@@ -790,10 +790,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
       overflow-y: hidden;
     }
 
-    > ul > li > span > span > span {
-      overflow-x: auto;
-    }
-
     > ul > li > ul > li > span {
       position: sticky;
       top: 26px;
