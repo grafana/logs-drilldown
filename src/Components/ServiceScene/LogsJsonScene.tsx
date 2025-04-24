@@ -768,7 +768,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
 
     overflow: auto;
     height: 100%;
-
+width: 100%;
     // first nested node padding
     > ul > li > ul {
       padding: 0 0 0 ${theme.spacing(2)};
