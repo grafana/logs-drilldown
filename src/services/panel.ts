@@ -337,4 +337,7 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
 
-export const logsControlsSupported = config.buildInfo.version > '12' || config.buildInfo.version.includes('12.1');
+// @ts-expect-error Requires Grafana 12.1
+export const logsControlsSupported =
+  config.featureToggles.logsPanelControls &&
+  (config.buildInfo.version > '12' || config.buildInfo.version.includes('12.1'));
