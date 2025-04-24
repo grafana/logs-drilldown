@@ -16,4 +16,4 @@ jobs:
       upload-playwright-artifacts: true
       playwright-report-path: tests/test-reports/
       playwright-docker-compose-file: docker-compose.dev.yaml
-      playwright-grafana-url: http://localhost:3001
+      playwright-grafana-url: http://localhost:3001/grafana
