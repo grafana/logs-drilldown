@@ -23,7 +23,7 @@ import { PanelMenu } from '../Panels/PanelMenu';
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
-import { narrowLogsSortOrder, narrowStringsArray } from 'services/narrowing';
+import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { LogListControls } from './LogListControls';
 import { logsControlsSupported } from 'services/panel';
 import { logger } from 'services/logger';
@@ -101,7 +101,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
     let urlColumnsUrl: string[] | null = [];
     try {
-      urlColumnsUrl = narrowStringsArray(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
     } catch (e) {
       console.error(e);
     }
