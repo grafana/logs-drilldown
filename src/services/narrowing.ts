@@ -131,12 +131,4 @@ export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterO
   }
 }
 
-export function narrowStringsArray(array: unknown): string[] | null {
-  // Verify the parsed result is an array of strings
-  if (Array.isArray(array) && array.every((item) => typeof item === 'string')) {
-    return array;
-  }
-  return null;
-}
-
 export class NarrowingError extends Error {}
