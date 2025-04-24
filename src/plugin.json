@@ -56,7 +56,10 @@
     "grafanaDependency": ">=11.6.0",
     "plugins": [],
     "extensions": {
-      "exposedComponents": ["grafana-adaptivelogs-app/temporary-exemptions/v1"]
+      "exposedComponents": [
+        "grafana-adaptivelogs-app/temporary-exemptions/v1",
+        "grafana-lokiexplore-app/embedded-logs-exploration/v1"
+      ]
     }
   },
   "preload": true,

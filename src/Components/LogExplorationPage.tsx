@@ -3,15 +3,15 @@ import React, { useEffect } from 'react';
 import { SceneApp, useSceneApp } from '@grafana/scenes';
 import { config } from '@grafana/runtime';
 import { Navigate } from 'react-router-dom';
-import { makeIndexPage, makeRedirectPage } from './Pages';
+import { makeEmbedPage, makeIndexPage, makeRedirectPage } from './Pages';
 import { initializeMetadataService } from '../services/metadata';
 
 const getSceneApp = () =>
   new SceneApp({
-    pages: [makeIndexPage(), makeRedirectPage()],
+    pages: [makeIndexPage(), makeEmbedPage(), makeRedirectPage()],
     urlSyncOptions: {
-      createBrowserHistorySteps: true,
-      updateUrlOnInit: true,
+      createBrowserHistorySteps: false,
+      updateUrlOnInit: false,
     },
   });
 

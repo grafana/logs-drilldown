@@ -3,6 +3,7 @@ import {
   SceneAppPage,
   SceneAppPageLike,
   SceneFlexLayout,
+  SceneReactObject,
   SceneRouteMatch,
   SceneTimeRange,
 } from '@grafana/scenes';
@@ -19,12 +20,17 @@ import {
   SUB_ROUTES,
   ValueSlugs,
 } from '../services/routing';
-import { PageLayoutType, urlUtil } from '@grafana/data';
+import { PageLayoutType, urlUtil, dateTimeParse, TimeRange } from '@grafana/data';
 import { IndexScene } from './IndexScene/IndexScene';
 import { navigateToIndex } from '../services/navigate';
 import { logger } from '../services/logger';
 import { capitalizeFirstLetter } from '../services/text';
 import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
+import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
+import { SuspendedEmbeddedLogsExploration } from '../services/extensions/exposedComponents';
+import React from 'react';
+import { usePluginComponent, usePluginComponents } from '@grafana/runtime';
+import { LoadingPlaceholder } from '@grafana/ui';
 
 export type RouteProps = { labelName: string; labelValue: string; breakdownLabel?: string };
 export type RouteMatch = SceneRouteMatch<RouteProps>;
@@ -39,6 +45,76 @@ function getServicesScene(routeMatch: OptionalRouteMatch) {
       $timeRange: new SceneTimeRange(DEFAULT_TIME_RANGE),
       routeMatch,
     }),
+  });
+}
+
+function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
+  // Component is always null, doesn't look like we can embed something from the same app?
+  const { component: LogsDrilldownComponent, isLoading } = usePluginComponent<EmbeddedLogsExplorationProps>(
+    'grafana-lokiexplore-app/embedded-logs-exploration/v1'
+  );
+
+  console.log('Component', { LogsDrilldownComponent, isLoading });
+
+  return isLoading ? <LoadingPlaceholder text={'Loading...'} /> : <LogsDrilldownComponent {...props} />;
+}
+
+function getEmbedScene() {
+  // @todo form field inputs?
+  const dsUID = 'PDDA8E780A17E7EF1';
+  const initialStart = 'now-15m';
+  const initialEnd = 'now';
+  const query = '{service_name="nginx"}';
+  const onTimeRangeChange = (timeRange: TimeRange) => {
+    console.log('onTimeRangeChange', timeRange);
+  };
+
+  const from = dateTimeParse(initialStart);
+  const to = dateTimeParse(initialEnd);
+
+  const timeRange: TimeRange = {
+    from,
+    to,
+    raw: {
+      from: initialStart,
+      to: initialEnd,
+    },
+  };
+
+  const $timeRange = new SceneTimeRange({
+    value: timeRange,
+    from: initialStart,
+    to: initialEnd,
+  });
+
+  const props: EmbeddedLogsExplorationProps = {
+    embedded: true,
+    datasourceUid: dsUID,
+    timeRangeState: $timeRange.state,
+    onTimeRangeChange,
+    query,
+  };
+
+  return new EmbeddedScene({
+    body: new SceneReactObject({
+      reactNode: <EmbeddedSceneWrapper {...props} />,
+    }),
+  });
+}
+
+export function makeEmbedPage() {
+  return new SceneAppPage({
+    title: 'Grafana Logs Drilldown — Embedded',
+    url: prefixRoute(PageSlugs.embed),
+    layout: PageLayoutType.Custom,
+    routePath: `${PageSlugs.embed}`,
+    getScene: (routeMatch) => getEmbedScene(),
+    drilldowns: [
+      {
+        routePath: ROUTE_DEFINITIONS.embed,
+        getPage: (routeMatch: RouteMatch, parent) => makeBreakdownPage(routeMatch, parent, PageSlugs.embed),
+      },
+    ],
   });
 }
 
@@ -77,10 +153,6 @@ export function makeIndexPage() {
       {
         routePath: CHILD_ROUTE_DEFINITIONS.field,
         getPage: (routeMatch: RouteMatch, parent) => makeBreakdownValuePage(routeMatch, parent, ValueSlugs.field),
-      },
-      {
-        routePath: '*',
-        getPage: () => makeRedirectPage(),
       },
     ],
   });
