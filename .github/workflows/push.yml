@@ -12,8 +12,6 @@ jobs:
     uses: grafana/plugin-ci-workflows/.github/workflows/ci.yml@main
     with:
       plugin-version-suffix: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || '' }}
-      run-playwright: false
-      run-playwright-docker: true
       run-playwright-with-grafana-dependency: 'latest'
       upload-playwright-artifacts: true
       playwright-report-path: tests/test-reports/
