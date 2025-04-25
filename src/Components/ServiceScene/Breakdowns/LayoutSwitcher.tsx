@@ -1,12 +1,14 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Field, RadioButtonGroup, useStyles2 } from '@grafana/ui';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+
 import { getDrilldownSlug } from '../../../services/routing';
-import { css } from '@emotion/css';
-import { setSceneLayout, getSceneLayout } from 'services/store';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getSceneLayout, setSceneLayout } from 'services/store';
 
 export interface LayoutSwitcherState extends SceneObjectState {
   active: LayoutType;
@@ -14,7 +16,7 @@ export interface LayoutSwitcherState extends SceneObjectState {
   options: Array<SelectableValue<LayoutType>>;
 }
 
-export type LayoutType = 'single' | 'grid' | 'rows';
+export type LayoutType = 'grid' | 'rows' | 'single';
 
 export enum LayoutTypeEnum {
   single = 'single',
@@ -70,7 +72,7 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   };
 
   public static Component = ({ model }: SceneComponentProps<LayoutSwitcher>) => {
-    const { layouts, options, active } = model.useState();
+    const { active, layouts, options } = model.useState();
 
     const index = options.findIndex((o) => o.value === active);
     if (index === -1) {

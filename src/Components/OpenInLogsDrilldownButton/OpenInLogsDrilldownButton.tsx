@@ -1,6 +1,10 @@
+import React, { useMemo } from 'react';
+
+import { AbstractLabelOperator } from '@grafana/data';
 import { useReturnToPrevious } from '@grafana/runtime';
 import { LinkButton } from '@grafana/ui';
-import React, { useMemo } from 'react';
+
+import { OpenInLogsDrilldownButtonProps } from './types';
 import {
   appendUrlParameter,
   createAppUrl,
@@ -11,8 +15,6 @@ import {
   stringifyAdHocValues,
   UrlParameters,
 } from 'services/extensions/links';
-import { OpenInLogsDrilldownButtonProps } from './types';
-import { AbstractLabelOperator } from '@grafana/data';
 import { LabelFilterOp } from 'services/filterTypes';
 
 const operatorMap = {
@@ -24,11 +26,11 @@ const operatorMap = {
 
 export default function OpenInLogsDrilldownButton({
   datasourceUid,
-  streamSelectors,
   from,
-  to,
-  returnToPreviousSource,
   renderButton,
+  returnToPreviousSource,
+  streamSelectors,
+  to,
 }: OpenInLogsDrilldownButtonProps) {
   const setReturnToPrevious = useReturnToPrevious();
 

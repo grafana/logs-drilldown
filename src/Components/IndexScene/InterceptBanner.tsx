@@ -1,7 +1,9 @@
-import { Alert, useStyles2 } from '@grafana/ui';
 import React from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Alert, useStyles2 } from '@grafana/ui';
 
 export function InterceptBanner(props: { onRemove: () => void }) {
   const styles = useStyles2(getStyles);

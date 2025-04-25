@@ -1,13 +1,14 @@
-import pluginJson from '../plugin.json';
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
-import { addShardingPlaceholderSelector, getSelectorForShardValues, interpolateShardingSelector } from './logql';
+
+import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
-import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { logger } from './logger';
+import { addShardingPlaceholderSelector, getSelectorForShardValues, interpolateShardingSelector } from './logql';
 import { isValidQuery } from './logqlMatchers';
+import { LokiDatasource, LokiQuery } from './lokiQuery';
 
 /**
  * Query splitting by stream shards.
@@ -61,7 +62,7 @@ function splitQueriesByStreamShard(
   splittingTargets: LokiQuery[]
 ) {
   let shouldStop = false;
-  let mergedResponse: DataQueryResponse = { data: [], state: LoadingState.Streaming, key: uuidv4() };
+  let mergedResponse: DataQueryResponse = { data: [], key: uuidv4(), state: LoadingState.Streaming };
   let subquerySubscription: Subscription | null = null;
   let retriesMap = new Map<number, number>();
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -107,9 +108,9 @@ function splitQueriesByStreamShard(
         }
       } catch (e) {
         logger.error(e, {
-          msg: 'sharding retry error',
           error: errorResponse?.error?.message ?? '',
           errors: errorResponse?.errors?.map((e) => e.message).join(' | ') ?? '',
+          msg: 'sharding retry error',
           traces: errorResponse?.traceIds?.join('|') ?? '',
         });
         shouldStop = true;
@@ -153,22 +154,6 @@ function splitQueriesByStreamShard(
 
     // @ts-expect-error
     subquerySubscription = datasource.runQuery(subRequest).subscribe({
-      next: (partialResponse: DataQueryResponse) => {
-        if ((partialResponse.errors ?? []).length > 0 || partialResponse.error != null) {
-          if (retry(partialResponse)) {
-            return;
-          }
-        }
-        nextGroupSize = constrainGroupSize(
-          cycle + groupSize,
-          updateGroupSizeFromResponse(partialResponse, groupSize),
-          shards.length
-        );
-        if (nextGroupSize !== groupSize) {
-          debug(`New group size ${nextGroupSize}`);
-        }
-        mergedResponse = combineResponses(mergedResponse, partialResponse);
-      },
       complete: () => {
         if (retrying) {
           return;
@@ -187,20 +172,36 @@ function splitQueriesByStreamShard(
         }
         nextRequest();
       },
+      next: (partialResponse: DataQueryResponse) => {
+        if ((partialResponse.errors ?? []).length > 0 || partialResponse.error != null) {
+          if (retry(partialResponse)) {
+            return;
+          }
+        }
+        nextGroupSize = constrainGroupSize(
+          cycle + groupSize,
+          updateGroupSizeFromResponse(partialResponse, groupSize),
+          shards.length
+        );
+        if (nextGroupSize !== groupSize) {
+          debug(`New group size ${nextGroupSize}`);
+        }
+        mergedResponse = combineResponses(mergedResponse, partialResponse);
+      },
     });
   };
 
   const runNonSplitRequest = (subscriber: Subscriber<DataQueryResponse>) => {
     subquerySubscription = datasource.query(request).subscribe({
-      next: (partialResponse: DataQueryResponse) => {
-        mergedResponse = partialResponse;
-      },
       complete: () => {
         subscriber.next(mergedResponse);
       },
       error: (error: unknown) => {
         logger.error(error, { msg: 'runNonSplitRequest subscription error' });
         subscriber.error(mergedResponse);
+      },
+      next: (partialResponse: DataQueryResponse) => {
+        mergedResponse = partialResponse;
       },
     });
   };
@@ -216,8 +217,8 @@ function splitQueriesByStreamShard(
 
     datasource.languageProvider
       .fetchLabelValues('__stream_shard__', {
-        timeRange: request.range,
         streamSelector: selector ? selector : undefined,
+        timeRange: request.range,
       })
       .then((values: string[]) => {
         const shards = values.map((value) => parseInt(value, 10));

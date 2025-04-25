@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { render } from '@testing-library/react';
+
 import { GrotError } from './GrotError';
 
 jest.mock('@grafana/ui', () => ({

@@ -1,30 +1,30 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { getBodyName, getTimeName, LogsFrame } from '../../../services/logsFrame';
-import { logger } from '../../../services/logger';
 
-import { PLUGIN_ID } from '../../../services/plugin';
+import { logger } from '../../../services/logger';
+import { getBodyName, getTimeName, LogsFrame } from '../../../services/logsFrame';
 import { NarrowingError, narrowRecordStringNumber } from '../../../services/narrowing';
+import { PLUGIN_ID } from '../../../services/plugin';
+import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 
 const tableColumnCustomWidths = `${PLUGIN_ID}.tableColumnWidths`;
 
 type TableColumnsContextType = {
+  bodyState: LogLineState;
+  clearSelectedLine: () => void;
   // the current list of labels from the dataframe combined with UI metadata
   columns: FieldNameMetaStore;
+  columnWidthMap: Record<string, number>;
   // The active search results
   filteredColumns?: FieldNameMetaStore;
+  setBodyState: (s: LogLineState) => void;
   // Update the column state
   setColumns(newColumns: FieldNameMetaStore): void;
+  setColumnWidthMap(map: Record<string, number>): void;
   // Update search state
   setFilteredColumns(newColumns?: FieldNameMetaStore): void;
+  setVisible: (v: boolean) => void;
   // WIP - sets the visibility of the drawer right now
   visible: boolean;
-  setVisible: (v: boolean) => void;
-  bodyState: LogLineState;
-  setBodyState: (s: LogLineState) => void;
-  clearSelectedLine: () => void;
-  setColumnWidthMap(map: Record<string, number>): void;
-  columnWidthMap: Record<string, number>;
 };
 
 export enum LogLineState {
@@ -34,17 +34,17 @@ export enum LogLineState {
 }
 
 const TableColumnsContext = createContext<TableColumnsContextType>({
-  columnWidthMap: {},
-  setColumnWidthMap: () => {},
+  bodyState: LogLineState.auto,
+  clearSelectedLine: () => {},
   columns: {},
+  columnWidthMap: {},
   filteredColumns: {},
+  setBodyState: () => {},
   setColumns: () => {},
+  setColumnWidthMap: () => {},
   setFilteredColumns: () => {},
   setVisible: () => false,
   visible: false,
-  bodyState: LogLineState.auto,
-  setBodyState: () => {},
-  clearSelectedLine: () => {},
 });
 
 function setDefaultColumns(
@@ -55,18 +55,18 @@ function setDefaultColumns(
   const pendingColumns = { ...columns };
 
   pendingColumns[getTimeName(logsFrame)] = {
-    index: 0,
     active: true,
-    type: 'TIME_FIELD',
-    percentOfLinesWithLabel: 100,
     cardinality: Infinity,
+    index: 0,
+    percentOfLinesWithLabel: 100,
+    type: 'TIME_FIELD',
   };
   pendingColumns[getBodyName(logsFrame)] = {
-    index: 1,
     active: true,
-    type: 'BODY_FIELD',
-    percentOfLinesWithLabel: 100,
     cardinality: Infinity,
+    index: 1,
+    percentOfLinesWithLabel: 100,
+    type: 'BODY_FIELD',
   };
   handleSetColumns(pendingColumns);
 }
@@ -93,24 +93,24 @@ function getColumnWidthsFromLocalStorage(): Record<string, number> {
 
 export const TableColumnContextProvider = ({
   children,
+  clearSelectedLine,
   initialColumns,
+  isColumnManagementActive,
   logsFrame,
   setUrlColumns,
-  clearSelectedLine,
   setUrlTableBodyState,
-  urlTableBodyState,
   showColumnManagementDrawer,
-  isColumnManagementActive,
+  urlTableBodyState,
 }: {
   children: ReactNode;
+  clearSelectedLine: () => void;
   initialColumns: FieldNameMetaStore;
+  isColumnManagementActive: boolean;
   logsFrame: LogsFrame;
   setUrlColumns: (columns: string[]) => void;
-  clearSelectedLine: () => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
-  urlTableBodyState?: LogLineState;
   showColumnManagementDrawer: (isActive: boolean) => void;
-  isColumnManagementActive: boolean;
+  urlTableBodyState?: LogLineState;
 }) => {
   const [columns, setColumns] = useState<FieldNameMetaStore>(removeExtraColumns(initialColumns));
   const [bodyState, setBodyState] = useState<LogLineState>(urlTableBodyState ?? LogLineState.auto);
@@ -206,17 +206,17 @@ export const TableColumnContextProvider = ({
   return (
     <TableColumnsContext.Provider
       value={{
-        setColumnWidthMap,
-        columnWidthMap,
         bodyState,
-        setBodyState: handleSetBodyState,
-        setFilteredColumns,
-        filteredColumns,
-        columns,
-        setColumns: handleSetColumns,
-        visible: isColumnManagementActive,
-        setVisible: handleSetVisible,
         clearSelectedLine: handleClearSelectedLine,
+        columns,
+        columnWidthMap,
+        filteredColumns,
+        setBodyState: handleSetBodyState,
+        setColumns: handleSetColumns,
+        setColumnWidthMap,
+        setFilteredColumns,
+        setVisible: handleSetVisible,
+        visible: isColumnManagementActive,
       }}
     >
       {children}

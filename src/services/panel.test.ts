@@ -1,4 +1,7 @@
-import { FieldType, createDataFrame } from '@grafana/data';
+import { lastValueFrom, of } from 'rxjs';
+
+import { createDataFrame, FieldType } from '@grafana/data';
+
 import {
   CRITICAL_LEVEL_FIELD_NAME_REGEX,
   DEBUG_LEVEL_FIELD_NAME_REGEX,
@@ -9,7 +12,6 @@ import {
   UNKNOWN_LEVEL_FIELD_NAME_REGEX,
   WARNING_LEVEL_FIELD_NAME_REGEX,
 } from './panel';
-import { lastValueFrom, of } from 'rxjs';
 
 describe('setLevelColorOverrides', () => {
   test('Sets the color overrides for log levels', () => {
@@ -38,76 +40,76 @@ describe('setLevelColorOverrides', () => {
 
 describe('sortLevelTransformation', () => {
   const dataFrameA = createDataFrame({
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [1645029699311],
       },
       {
-        name: 'Value',
-        type: FieldType.number,
-        labels: {
-          level: 'error',
-          location: 'moon',
-          protocol: 'http',
-        },
         config: {
           displayNameFromDS: 'error',
         },
-        values: [23],
-      },
-    ],
-  });
-  const dataFrameB = createDataFrame({
-    refId: 'B',
-    fields: [
-      {
-        name: 'Time',
-        type: FieldType.time,
-        config: {},
-        values: [1645029699311],
-      },
-      {
-        name: 'Value',
-        type: FieldType.number,
         labels: {
           level: 'error',
           location: 'moon',
           protocol: 'http',
         },
+        name: 'Value',
+        type: FieldType.number,
+        values: [23],
+      },
+    ],
+    refId: 'A',
+  });
+  const dataFrameB = createDataFrame({
+    fields: [
+      {
+        config: {},
+        name: 'Time',
+        type: FieldType.time,
+        values: [1645029699311],
+      },
+      {
         config: {
           displayNameFromDS: 'warn',
         },
-        values: [23],
-      },
-    ],
-  });
-  const dataFrameC = createDataFrame({
-    refId: 'C',
-    fields: [
-      {
-        name: 'Time',
-        type: FieldType.time,
-        config: {},
-        values: [1645029699311],
-      },
-      {
-        name: 'Value',
-        type: FieldType.number,
         labels: {
           level: 'error',
           location: 'moon',
           protocol: 'http',
         },
-        config: {
-          displayNameFromDS: 'info',
-        },
+        name: 'Value',
+        type: FieldType.number,
         values: [23],
       },
     ],
+    refId: 'B',
+  });
+  const dataFrameC = createDataFrame({
+    fields: [
+      {
+        config: {},
+        name: 'Time',
+        type: FieldType.time,
+        values: [1645029699311],
+      },
+      {
+        config: {
+          displayNameFromDS: 'info',
+        },
+        labels: {
+          level: 'error',
+          location: 'moon',
+          protocol: 'http',
+        },
+        name: 'Value',
+        type: FieldType.number,
+        values: [23],
+      },
+    ],
+    refId: 'C',
   });
   test('Sorts data frames by level', async () => {
     const result = await lastValueFrom(sortLevelTransformation()(of([dataFrameA, dataFrameB, dataFrameC])));

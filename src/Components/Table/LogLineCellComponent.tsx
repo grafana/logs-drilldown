@@ -1,28 +1,29 @@
 import React, { useRef, useState } from 'react';
+
+import { css } from '@emotion/css';
 import { ScrollSyncPane } from 'react-scroll-sync';
 
 import { FieldType, formattedValueToString, GrafanaTheme2, Labels } from '@grafana/data';
 import { CustomCellRendererProps, useTheme2 } from '@grafana/ui';
 
+import { getBodyName } from '../../services/logsFrame';
+import { LEVEL_NAME } from './constants';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { DefaultCellWrapComponent } from 'Components/Table/DefaultCellWrapComponent';
-import { LogLinePill } from 'Components/Table/LogLinePill';
-import { Scroller } from 'Components/Table/Scroller';
-import { css } from '@emotion/css';
 import { LineActionIcons } from 'Components/Table/LineActionIcons';
+import { LogLinePill } from 'Components/Table/LogLinePill';
 import { RawLogLineText } from 'Components/Table/RawLogLineText';
-import { getBodyName } from '../../services/logsFrame';
-import { LEVEL_NAME } from './constants';
+import { Scroller } from 'Components/Table/Scroller';
 
 export type SelectedTableRow = {
-  row: number;
   id: string;
+  row: number;
 };
 
 interface Props extends CustomCellRendererProps {
-  labels: Labels;
   fieldIndex: number;
+  labels: Labels;
 }
 export const LogLineCellComponent = (props: Props) => {
   let value = props.value;
@@ -30,7 +31,7 @@ export const LogLineCellComponent = (props: Props) => {
   const displayValue = field.display!(value);
   const theme = useTheme2();
   const styles = getStyles(theme);
-  const { columns, setVisible, bodyState } = useTableColumnContext();
+  const { bodyState, columns, setVisible } = useTableColumnContext();
   const { logsFrame } = useQueryContext();
   const [isHover, setIsHover] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);

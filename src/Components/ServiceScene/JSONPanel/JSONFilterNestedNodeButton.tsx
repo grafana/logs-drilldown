@@ -1,18 +1,20 @@
-import { IconButton } from '@grafana/ui';
 import React, { memo } from 'react';
-import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { AddJSONFilter } from '../LogsJsonScene';
+
+import { IconButton } from '@grafana/ui';
+
 import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
+import { AddJSONFilter } from '../LogsJsonScene';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 interface Props {
+  active: boolean;
+  addFilter: AddJSONFilter;
   jsonKey: string;
   keyPath: KeyPath;
-  addFilter: AddJSONFilter;
-  active: boolean;
-  type: 'include' | 'exclude';
+  type: 'exclude' | 'include';
 }
 
-const JSONFilterNestedNodeButton = memo(({ addFilter, keyPath, jsonKey, active, type }: Props) => {
+const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, type }: Props) => {
   return (
     <IconButton
       tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}

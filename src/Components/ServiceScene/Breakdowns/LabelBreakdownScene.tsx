@@ -1,5 +1,6 @@
-import { css } from '@emotion/css';
 import React from 'react';
+
+import { css } from '@emotion/css';
 
 import { AdHocVariableFilter, DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
@@ -15,34 +16,35 @@ import {
   VariableValueOption,
 } from '@grafana/scenes';
 import { Alert, useStyles2 } from '@grafana/ui';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { checkPrimaryLabel, getPrimaryLabelFromUrl } from 'services/routing';
-import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
-import { ByFrameRepeater } from './ByFrameRepeater';
-import { FieldSelector } from './FieldSelector';
-import { StatusWrapper } from './StatusWrapper';
-import { getLabelOptions } from 'services/filters';
-import { BreakdownSearchReset, BreakdownSearchScene } from './BreakdownSearchScene';
-import { getSortByPreference } from 'services/store';
-import { SortByScene, SortCriteriaChanged } from './SortByScene';
-import { getDetectedLabelsFrame, ServiceScene } from '../ServiceScene';
-import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
-import { navigateToValueBreakdown } from '../../../services/navigate';
+
 import { areArraysEqual } from '../../../services/comparison';
-import { LabelValuesBreakdownScene } from './LabelValuesBreakdownScene';
-import { LabelsAggregatedBreakdownScene } from './LabelsAggregatedBreakdownScene';
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
-import { EmptyLayoutScene } from './EmptyLayoutScene';
-import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
+import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
 import { ValueSlugs } from '../../../services/enums';
+import { navigateToValueBreakdown } from '../../../services/navigate';
+import { DEFAULT_SORT_BY } from '../../../services/sorting';
+import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
+import { getDetectedLabelsFrame, ServiceScene } from '../ServiceScene';
+import { BreakdownSearchReset, BreakdownSearchScene } from './BreakdownSearchScene';
+import { ByFrameRepeater } from './ByFrameRepeater';
+import { EmptyLayoutScene } from './EmptyLayoutScene';
+import { FieldSelector } from './FieldSelector';
+import { LabelsAggregatedBreakdownScene } from './LabelsAggregatedBreakdownScene';
+import { LabelValuesBreakdownScene } from './LabelValuesBreakdownScene';
+import { SortByScene, SortCriteriaChanged } from './SortByScene';
+import { StatusWrapper } from './StatusWrapper';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getLabelOptions } from 'services/filters';
+import { checkPrimaryLabel, getPrimaryLabelFromUrl } from 'services/routing';
+import { getSortByPreference } from 'services/store';
+import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
 
 export interface LabelBreakdownSceneState extends SceneObjectState {
+  blockingMessage?: string;
   body?: SceneObject;
+  error?: boolean;
+  loading?: boolean;
   search: BreakdownSearchScene;
   sort: SortByScene;
-  loading?: boolean;
-  error?: boolean;
-  blockingMessage?: string;
   // We have to store the value in state because scenes doesn't allow variables that don't have options. We need to hold on to this until the API call getting values is done, and then reset the state
   value?: string;
 }
@@ -61,17 +63,17 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
         new SceneVariableSet({
           variables: [
             new CustomConstantVariable({
-              name: VAR_LABEL_GROUP_BY,
               defaultToAll: false,
               includeAll: true,
-              value: state.value ?? ALL_VARIABLE_VALUE,
+              name: VAR_LABEL_GROUP_BY,
               options: state.options ?? [],
+              value: state.value ?? ALL_VARIABLE_VALUE,
             }),
           ],
         }),
       loading: true,
-      sort: new SortByScene({ target: 'labels' }),
       search: new BreakdownSearchScene('labels'),
+      sort: new SortByScene({ target: 'labels' }),
       value: state.value,
     });
 
@@ -83,8 +85,8 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     const groupByVariable = getLabelGroupByVariable(this);
 
     this.setState({
-      loading: serviceScene.state.$detectedLabelsData?.state.data?.state !== LoadingState.Done,
       error: serviceScene.state.$detectedLabelsData?.state.data?.state === LoadingState.Error,
+      loading: serviceScene.state.$detectedLabelsData?.state.data?.state !== LoadingState.Done,
     });
 
     this._subs.add(
@@ -144,9 +146,9 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     // If the user changes the service
     if (variable.state.value === ALL_VARIABLE_VALUE && newPrimaryLabel !== prevPrimaryLabel) {
       this.setState({
-        loading: true,
         body: undefined,
         error: undefined,
+        loading: true,
       });
     }
   }
@@ -187,9 +189,9 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.value_breakdown_sort_change,
       {
-        target: 'labels',
         criteria: event.sortBy,
         direction: event.direction,
+        target: 'labels',
       }
     );
   };
@@ -197,8 +199,8 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   private updateOptions(detectedLabels: DataFrame | undefined) {
     if (!detectedLabels || !detectedLabels.length) {
       this.setState({
-        loading: false,
         body: new EmptyLayoutScene({ type: 'labels' }),
+        loading: false,
       });
       return;
     }
@@ -220,9 +222,9 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     }
 
     const stateUpdate: Partial<LabelBreakdownSceneState> = {
-      loading: false,
       blockingMessage: undefined,
       error: false,
+      loading: false,
     };
 
     if (variable.hasAllValue() && this.state.body instanceof LabelValuesBreakdownScene) {
@@ -256,16 +258,16 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     const variable = getLabelGroupByVariable(this);
     variable.changeValueTo(value);
 
-    const { sortBy, direction } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.select_field_in_breakdown_clicked,
       {
         label: value,
         previousLabel: variable.getValueText(),
-        view: 'labels',
         sortBy,
         sortByDirection: direction,
+        view: 'labels',
       }
     );
 
@@ -309,12 +311,12 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   };
 
   public static Component = ({ model }: SceneComponentProps<LabelBreakdownScene>) => {
-    const { body, loading, blockingMessage, error } = model.useState();
+    const { blockingMessage, body, error, loading } = model.useState();
     const styles = useStyles2(getStyles);
 
     return (
       <div className={styles.container}>
-        <StatusWrapper {...{ isLoading: loading, blockingMessage }}>
+        <StatusWrapper {...{ blockingMessage, isLoading: loading }}>
           {error && (
             <Alert title="" severity="warning">
               The labels are not available at this moment. Try using a different time range or check again later.
@@ -333,31 +335,31 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
 function getStyles(theme: GrafanaTheme2) {
   return {
     container: css({
-      flexGrow: 1,
       display: 'flex',
-      minHeight: '100%',
       flexDirection: 'column',
+      flexGrow: 1,
       gap: theme.spacing(1),
+      minHeight: '100%',
     }),
     content: css({
-      flexGrow: 1,
       display: 'flex',
+      flexGrow: 1,
       paddingTop: theme.spacing(0),
     }),
     labelsMenuWrapper: css({
-      flexGrow: 0,
-      display: 'flex',
       alignItems: 'top',
-      justifyContent: 'space-between',
+      display: 'flex',
       flexDirection: 'row-reverse',
+      flexGrow: 0,
       gap: theme.spacing(2),
+      justifyContent: 'space-between',
     }),
     valuesMenuWrapper: css({
-      flexGrow: 0,
-      display: 'flex',
       alignItems: 'top',
-      gap: theme.spacing(2),
+      display: 'flex',
       flexDirection: 'row',
+      flexGrow: 0,
+      gap: theme.spacing(2),
     }),
   };
 }

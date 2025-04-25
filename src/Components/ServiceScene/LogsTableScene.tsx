@@ -1,3 +1,9 @@
+import React, { useRef } from 'react';
+
+import { css } from '@emotion/css';
+
+import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
   sceneGraph,
@@ -7,36 +13,33 @@ import {
   SceneObjectUrlValues,
   SceneQueryRunner,
 } from '@grafana/scenes';
-import { LogsListScene } from './LogsListScene';
-import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
-import { TableProvider } from '../Table/TableProvider';
-import React, { useRef } from 'react';
 import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { css } from '@emotion/css';
-import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
+
 import { areArraysStrictlyEqual } from '../../services/comparison';
-import { getLogsPanelFrame } from './ServiceScene';
 import { getVariableForLabel } from '../../services/fields';
-import { PanelMenu } from '../Panels/PanelMenu';
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
-import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
-import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
+import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { TableProvider } from '../Table/TableProvider';
+import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { LogListControls } from './LogListControls';
-import { logsControlsSupported } from 'services/panel';
+import { LogsListScene } from './LogsListScene';
+import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { clearVariables } from '../../services/variableHelpers';
+import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
+import { logsControlsSupported } from 'services/panel';
 
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
+  emptyScene?: NoMatchingLabelsScene;
+  isColumnManagementActive: boolean;
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
-  isColumnManagementActive: boolean;
-  emptyScene?: NoMatchingLabelsScene;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
@@ -285,13 +288,13 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  panelWrapper: css({
-    width: '100%',
-    height: '100%',
-    label: 'panel-wrapper-table',
-  }),
   container: css({
     display: 'flex',
     flexDirection: 'row-reverse',
+  }),
+  panelWrapper: css({
+    height: '100%',
+    label: 'panel-wrapper-table',
+    width: '100%',
   }),
 });

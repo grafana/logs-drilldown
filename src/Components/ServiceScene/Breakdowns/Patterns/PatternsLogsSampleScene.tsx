@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -10,28 +13,26 @@ import {
   SceneReactObject,
   VizPanel,
 } from '@grafana/scenes';
-import React from 'react';
-
-import { LoadingState } from '@grafana/data';
 import { Alert, Button } from '@grafana/ui';
+
+import { logger } from '../../../../services/logger';
+import { LokiQuery } from '../../../../services/lokiQuery';
+import { getQueryRunner } from '../../../../services/panel';
+import { buildDataQuery } from '../../../../services/query';
+import { renderPatternFilters } from '../../../../services/renderPatternFilters';
+import { getFieldsVariable, getLevelsVariable, getLineFiltersVariable } from '../../../../services/variableGetters';
 import {
   AppliedPattern,
   LOG_STREAM_SELECTOR_EXPR,
   PATTERNS_SAMPLE_SELECTOR_EXPR,
   VAR_PATTERNS_EXPR,
 } from '../../../../services/variables';
-import { buildDataQuery } from '../../../../services/query';
-import { getQueryRunner } from '../../../../services/panel';
-import { PatternsViewTableScene } from './PatternsViewTableScene';
 import { emptyStateStyles } from '../FieldsBreakdownScene';
-import { getFieldsVariable, getLevelsVariable, getLineFiltersVariable } from '../../../../services/variableGetters';
-import { LokiQuery } from '../../../../services/lokiQuery';
-import { logger } from '../../../../services/logger';
-import { renderPatternFilters } from '../../../../services/renderPatternFilters';
+import { PatternsViewTableScene } from './PatternsViewTableScene';
 
 interface PatternsLogsSampleSceneState extends SceneObjectState {
-  pattern: string;
   body?: SceneFlexLayout;
+  pattern: string;
 }
 export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleSceneState> {
   constructor(state: PatternsLogsSampleSceneState) {
@@ -57,24 +58,24 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
 
     this.setState({
       body: new SceneFlexLayout({
-        direction: 'column',
         children: [
           new SceneFlexItem({
             body: undefined,
-            width: '100%',
             height: 0,
+            width: '100%',
           }),
           new SceneFlexItem({
-            height: 300,
-            width: '100%',
             body: PanelBuilders.logs()
               .setHoverHeader(true)
               .setOption('showLogContextToggle', true)
               .setOption('showTime', true)
               .setData(queryRunnerWithFilters)
               .build(),
+            height: 300,
+            width: '100%',
           }),
         ],
+        direction: 'column',
       }),
     });
   }
@@ -143,15 +144,15 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
       let logContext;
       try {
         logContext = {
-          pattern: this.state.pattern,
-          traceIds: JSON.stringify(value.data.traceIds),
-          request: JSON.stringify(value.data.request),
           msg: 'onQueryError',
+          pattern: this.state.pattern,
+          request: JSON.stringify(value.data.request),
+          traceIds: JSON.stringify(value.data.traceIds),
         };
       } catch (e) {
         logContext = {
-          pattern: this.state.pattern,
           msg: 'Failed to encode context',
+          pattern: this.state.pattern,
         };
       }
 
@@ -181,11 +182,11 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
 
     if (noticeFlexItem instanceof SceneFlexItem) {
       noticeFlexItem.setState({
-        isHidden: false,
-        height: 'auto',
         body: new SceneReactObject({
           reactNode: reactNode,
         }),
+        height: 'auto',
+        isHidden: false,
       });
     }
     return vizFlexItem;
@@ -229,8 +230,6 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
       // Add a warning notice that the patterns shown will not show up in their current log results due to their existing filters.
       if (noticeFlexItem instanceof SceneFlexItem) {
         noticeFlexItem.setState({
-          isHidden: false,
-          height: 'auto',
           body: new SceneReactObject({
             reactNode: (
               <Alert severity={'warning'} title={''}>
@@ -241,6 +240,8 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
               </Alert>
             ),
           }),
+          height: 'auto',
+          isHidden: false,
         });
       }
 

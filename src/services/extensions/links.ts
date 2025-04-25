@@ -1,6 +1,14 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
 import { PluginExtensionLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 
+import pluginJson from '../../plugin.json';
+import { LabelType } from '../fieldsTypes';
+import { PatternFilterOp } from '../filterTypes';
+import { getMatcherFromQuery } from '../logqlMatchers';
+import { LokiQuery } from '../lokiQuery';
+import { isOperatorInclusive } from '../operatorHelpers';
+import { renderPatternFilters } from '../renderPatternFilters';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFieldValue,
@@ -17,15 +25,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-import pluginJson from '../../plugin.json';
-import { getMatcherFromQuery } from '../logqlMatchers';
-import { LokiQuery } from '../lokiQuery';
-import { LabelType } from '../fieldsTypes';
-
-import { isOperatorInclusive } from '../operatorHelpers';
-import { PatternFilterOp } from '../filterTypes';
-import { renderPatternFilters } from '../renderPatternFilters';
-import { locationService } from '@grafana/runtime';
 
 const PRODUCT_NAME = 'Grafana Logs Drilldown';
 const title = `Open in ${PRODUCT_NAME}`;
@@ -40,27 +39,27 @@ export type LinkConfigs = Array<
   {
     targets: string | string[];
     // eslint-disable-next-line deprecation/deprecation
-  } & Omit<PluginExtensionLinkConfig<PluginExtensionPanelContext>, 'type' | 'extensionPointId'>
+  } & Omit<PluginExtensionLinkConfig<PluginExtensionPanelContext>, 'extensionPointId' | 'type'>
 >;
 
 // `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
 // TODO: fix this type when we move to `@grafana/data` 11.3.x
 export const linkConfigs: LinkConfigs = [
   {
+    configure: contextToLink,
+    description,
+    icon,
+    path: createAppUrl(),
     targets: PluginExtensionPoints.DashboardPanelMenu,
     title,
-    description,
-    icon,
-    path: createAppUrl(),
-    configure: contextToLink,
   },
   {
-    targets: PluginExtensionPoints.ExploreToolbarAction,
-    title,
+    configure: contextToLink,
     description,
     icon,
     path: createAppUrl(),
-    configure: contextToLink,
+    targets: PluginExtensionPoints.ExploreToolbarAction,
+    title,
   },
 ];
 
@@ -103,7 +102,7 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   }
 
   const expr = lokiQuery.expr;
-  const { labelFilters, lineFilters, fields, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
+  const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
   const labelSelector = labelFilters.find((selector) => isOperatorInclusive(selector.operator));
 
   // Require at least one inclusive operator to run a valid Loki query
@@ -166,8 +165,8 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
         }
       } else {
         const fieldValue: AdHocFieldValue = {
-          value: field.value,
           parser: field.parser,
+          value: field.value,
         };
 
         const adHocFilterURLString = `${field.key}|${field.operator}|${escapeURLDelimiters(
@@ -183,8 +182,8 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
 
     for (const field of patternFilters) {
       patterns.push({
-        type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
         pattern: stringifyValues(field.value),
+        type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
       });
     }
 
@@ -205,15 +204,15 @@ export function createAppUrl(path = '/explore', urlParams?: URLSearchParams): st
 
 export const UrlParameters = {
   DatasourceId: `var-${VAR_DATASOURCE}`,
-  TimeRangeFrom: 'from',
-  TimeRangeTo: 'to',
-  Labels: `var-${VAR_LABELS}`,
   Fields: `var-${VAR_FIELDS}`,
-  Metadata: `var-${VAR_METADATA}`,
+  Labels: `var-${VAR_LABELS}`,
   Levels: `var-${VAR_LEVELS}`,
   LineFilters: `var-${VAR_LINE_FILTERS}`,
+  Metadata: `var-${VAR_METADATA}`,
   Patterns: VAR_PATTERNS,
   PatternsVariable: `var-${VAR_PATTERNS}`,
+  TimeRangeFrom: 'from',
+  TimeRangeTo: 'to',
 } as const;
 export type UrlParameterType = (typeof UrlParameters)[keyof typeof UrlParameters];
 

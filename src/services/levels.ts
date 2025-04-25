@@ -1,11 +1,11 @@
 import { DataFrame } from '@grafana/data';
-import { SeriesVisibilityChangeMode } from '@grafana/ui';
-import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from './variables';
 import { SceneObject } from '@grafana/scenes';
-import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { getLevelsVariable } from './variableGetters';
+import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
+import { getLevelsVariable } from './variableGetters';
+import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from './variables';
+import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 /**
  * Given a set of `visibleLevels` in a panel, it returns a list of the new visible levels

@@ -1,5 +1,5 @@
 import { matcherHint, printExpected, printReceived } from 'jest-matcher-utils';
-import { asapScheduler, Subscription, timer, isObservable, Observable } from 'rxjs';
+import { asapScheduler, isObservable, Observable, Subscription, timer } from 'rxjs';
 
 export const OBSERVABLE_TEST_TIMEOUT_IN_MS = 1000;
 
@@ -7,17 +7,17 @@ function tryExpectations<T = unknown>(received: T[], expectations: (received: T[
   try {
     expectations(received);
     return {
-      pass: true,
       message: () => `${matcherHint('.not.toEmitValues')}
 
   Expected observable to complete with
     ${printReceived(received)}
     `,
+      pass: true,
     };
   } catch (err) {
     return {
-      pass: false,
       message: () => 'failed ' + err,
+      pass: false,
     };
   }
 }
@@ -32,13 +32,13 @@ function forceObservableCompletion(
     timeoutObservable.subscribe(() => {
       subscription.unsubscribe();
       resolve({
-        pass: false,
         message: () =>
           `${matcherHint('.toEmitValues')}
   
       Expected ${printReceived('Observable')} to be ${printExpected(
             `completed within ${OBSERVABLE_TEST_TIMEOUT_IN_MS}ms`
           )} but it did not.`,
+        pass: false,
       });
     })
   );
@@ -50,10 +50,10 @@ function expectObservableToBeDefined(received: unknown): jest.CustomMatcherResul
   }
 
   return {
-    pass: false,
     message: () => `${matcherHint('.toEmitValues')}
   
   Expected ${printReceived(received)} to be ${printExpected('defined')}.`,
+    pass: false,
   };
 }
 
@@ -63,10 +63,10 @@ function expectObservableToBeObservable(received: unknown): jest.CustomMatcherRe
   }
 
   return {
-    pass: false,
     message: () => `${matcherHint('.toEmitValues')}
   
   Expected ${printReceived(received)} to be ${printExpected('an Observable')}.`,
+    pass: false,
   };
 }
 
@@ -104,17 +104,17 @@ export function toEmitValuesWith<T = unknown>(
 
     subscription.add(
       received.subscribe({
-        next: (value) => {
-          receivedValues.push(value);
+        complete: () => {
+          subscription.unsubscribe();
+          resolve(tryExpectations(receivedValues, expectations));
         },
         error: (err) => {
           receivedValues.push(err);
           subscription.unsubscribe();
           resolve(tryExpectations(receivedValues, expectations));
         },
-        complete: () => {
-          subscription.unsubscribe();
-          resolve(tryExpectations(receivedValues, expectations));
+        next: (value) => {
+          receivedValues.push(value);
         },
       })
     );

@@ -1,21 +1,24 @@
+import React from 'react';
+
 import { css } from '@emotion/css';
+
+import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, InlineField, RadioButtonGroup, Tooltip, useStyles2 } from '@grafana/ui';
-import React from 'react';
-import { LogsVisualizationType, setLogOption } from 'services/store';
-import { LogsListScene } from './LogsListScene';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
-import { LogsPanelScene } from './LogsPanelScene';
-import { locationService } from '@grafana/runtime';
-import { narrowLogsSortOrder } from '../../services/narrowing';
+
 import { logger } from '../../services/logger';
+import { narrowLogsSortOrder } from '../../services/narrowing';
+import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { LogsListScene } from './LogsListScene';
+import { LogsPanelScene } from './LogsPanelScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logsControlsSupported } from 'services/panel';
+import { LogsVisualizationType, setLogOption } from 'services/store';
 
 interface LogOptionsState extends SceneObjectState {
-  visualizationType: LogsVisualizationType;
   onChangeVisualizationType: (type: LogsVisualizationType) => void;
+  visualizationType: LogsVisualizationType;
 }
 
 /**
@@ -31,10 +34,10 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   }
 
   handleWrapLinesChange = (type: boolean) => {
-    this.getLogsPanelScene().setState({ wrapLogMessage: type, prettifyLogMessage: type });
+    this.getLogsPanelScene().setState({ prettifyLogMessage: type, wrapLogMessage: type });
     setLogOption('wrapLogMessage', type);
     setLogOption('prettifyLogMessage', type);
-    this.getLogsListScene().setLogsVizOption({ wrapLogMessage: type, prettifyLogMessage: type });
+    this.getLogsListScene().setLogsVizOption({ prettifyLogMessage: type, wrapLogMessage: type });
   };
 
   onChangeLogsSortOrder = (sortOrder: LogsSortOrder) => {
@@ -63,7 +66,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const { onChangeVisualizationType, visualizationType } = model.useState();
-  const { wrapLogMessage, sortOrder } = model.getLogsPanelScene().useState();
+  const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
   const { displayedFields } = model.getLogsListScene().useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
@@ -84,14 +87,14 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
               size="sm"
               options={[
                 {
+                  description: 'Show results newest to oldest',
                   label: 'Newest first',
                   value: LogsSortOrder.Descending,
-                  description: 'Show results newest to oldest',
                 },
                 {
+                  description: 'Show results oldest to newest',
                   label: 'Oldest first',
                   value: LogsSortOrder.Ascending,
-                  description: 'Show results oldest to newest',
                 },
               ]}
               value={sortOrder}
@@ -105,14 +108,14 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
               onChange={model.handleWrapLinesChange}
               options={[
                 {
+                  description: 'Enable wrapping of long log lines',
                   label: 'Wrap',
                   value: true,
-                  description: 'Enable wrapping of long log lines',
                 },
                 {
+                  description: 'Disable wrapping of long log lines',
                   label: 'No wrap',
                   value: false,
-                  description: 'Disable wrapping of long log lines',
                 },
               ]}
             />
@@ -147,14 +150,14 @@ export function getLogsPanelSortOrderFromURL() {
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
+  buttonGroupWrapper: css({
     alignItems: 'center',
+    margin: 0,
+  }),
+  container: css({
+    alignItems: 'center',
+    display: 'flex',
     gap: theme.spacing(1),
     marginTop: theme.spacing(0.5),
-  }),
-  buttonGroupWrapper: css({
-    margin: 0,
-    alignItems: 'center',
   }),
 });

@@ -1,22 +1,25 @@
 import React, { useMemo, useRef, useState } from 'react';
+
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2, LoadingState, LogLabelStatsModel, TimeRange } from '@grafana/data';
 import { AdHocFiltersVariable, sceneGraph } from '@grafana/scenes';
 import { Spinner, Toggletip, useStyles2 } from '@grafana/ui';
-import { getLokiDatasource } from 'services/scenes';
-import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { buildDataQuery } from 'services/query';
-import { PatternFieldLabelStats } from './PatternFieldLabelStats';
-import { GrafanaTheme2, LoadingState, LogLabelStatsModel, TimeRange } from '@grafana/data';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { css } from '@emotion/css';
+
 import { getLabelsVariable } from '../../../../services/variableGetters';
+import { PatternFieldLabelStats } from './PatternFieldLabelStats';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { buildDataQuery } from 'services/query';
+import { getLokiDatasource } from 'services/scenes';
 
 interface PatternNameLabelProps {
   exploration: IndexScene;
-  pattern: string;
   maxLines: number;
+  pattern: string;
 }
 
-export const PatternNameLabel = ({ exploration, pattern, maxLines }: PatternNameLabelProps) => {
+export const PatternNameLabel = ({ exploration, maxLines, pattern }: PatternNameLabelProps) => {
   const patternIndices = extractPatternIndices(pattern);
   const [stats, setStats] = useState<LogLabelStatsModel[][] | undefined>(undefined);
   const [statsError, setStatsError] = useState(false);
@@ -43,15 +46,15 @@ export const PatternNameLabel = ({ exploration, pattern, maxLines }: PatternName
 
     datasource
       ?.query({
-        requestId: '1',
+        app: '',
         interval: '',
         intervalMs: 0,
-        scopedVars: {},
         range: currentTimeRange,
+        requestId: '1',
+        scopedVars: {},
+        startTime: 0,
         targets: [buildDataQuery(query, { maxLines })],
         timezone: '',
-        app: '',
-        startTime: 0,
       })
       .forEach((result) => {
         if (result.state === LoadingState.Done && !result.errors?.length) {
@@ -101,13 +104,13 @@ export const PatternNameLabel = ({ exploration, pattern, maxLines }: PatternName
 function getStyles(theme: GrafanaTheme2) {
   return {
     pattern: css({
-      cursor: 'pointer',
-      backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.1),
-      margin: '0 2px',
-
       '&:hover': {
         backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.2),
       },
+      backgroundColor: theme.colors.emphasize(theme.colors.background.primary, 0.1),
+      cursor: 'pointer',
+
+      margin: '0 2px',
     }),
   };
 }
@@ -132,7 +135,7 @@ function convertResultToStats(result: any, fieldCount: number, maxLines: number)
   for (let i = 0; i <= fieldCount; i++) {
     const fieldStats: LogLabelStatsModel[] = [];
     fieldStatsMap.get(`field_${i + 1}`)?.forEach((count, key) => {
-      fieldStats.push({ value: key, count, proportion: count / maxLines });
+      fieldStats.push({ count, proportion: count / maxLines, value: key });
     });
     fieldStats.sort((a, b) => b.count - a.count);
     stats.push(fieldStats);

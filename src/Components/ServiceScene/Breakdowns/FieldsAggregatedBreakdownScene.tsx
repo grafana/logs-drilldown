@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { DataFrame, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
@@ -9,12 +12,27 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
-import { buildDataQuery } from '../../../services/query';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
-import { LayoutSwitcher } from './LayoutSwitcher';
-import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
+
+import { ValueSlugs } from '../../../services/enums';
+import {
+  buildFieldsQueryString,
+  extractParserFromArray,
+  getDetectedFieldType,
+  isAvgField,
+} from '../../../services/fields';
+import { logger } from '../../../services/logger';
+import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import { buildDataQuery } from '../../../services/query';
+import { getPanelOption } from '../../../services/store';
+import {
+  getFieldGroupByVariable,
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getValueFromFieldsFilter,
+} from '../../../services/variableGetters';
+import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
+import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
 import {
   getDetectedFieldsFrame,
   getDetectedFieldsFrameFromQueryRunnerState,
@@ -22,26 +40,10 @@ import {
   getDetectedFieldsParsersFromQueryRunnerState,
   ServiceScene,
 } from '../ServiceScene';
-import React from 'react';
+import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
+import { LayoutSwitcher } from './LayoutSwitcher';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
-import { DataFrame, LoadingState } from '@grafana/data';
-import {
-  buildFieldsQueryString,
-  extractParserFromArray,
-  getDetectedFieldType,
-  isAvgField,
-} from '../../../services/fields';
-import {
-  getFieldGroupByVariable,
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getValueFromFieldsFilter,
-} from '../../../services/variableGetters';
-import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
-import { logger } from '../../../services/logger';
-import { getPanelOption } from '../../../services/store';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
-import { ValueSlugs } from '../../../services/enums';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
@@ -211,24 +213,24 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     });
 
     return new LayoutSwitcher({
-      options: [
-        { value: 'grid', label: 'Grid' },
-        { value: 'rows', label: 'Rows' },
-      ],
       active: 'grid',
       layouts: [
         new SceneCSSGridLayout({
-          templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
           autoRows: '200px',
           children: children,
           isLazy: true,
+          templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          templateColumns: '1fr',
           autoRows: '200px',
           children: childrenClones,
           isLazy: true,
+          templateColumns: '1fr',
         }),
+      ],
+      options: [
+        { label: 'Grid', value: 'grid' },
+        { label: 'Rows', value: 'rows' },
       ],
     });
   }
@@ -342,9 +344,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
       headerActions.push(
         new SelectLabelActionScene({
-          labelName: String(labelName),
-          hideValueDrilldown: true,
           fieldType: ValueSlugs.field,
+          hideValueDrilldown: true,
+          labelName: String(labelName),
         })
       );
     }

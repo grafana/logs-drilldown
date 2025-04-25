@@ -1,4 +1,5 @@
 import React, { lazy } from 'react';
+
 import { AppRootProps } from '@grafana/data';
 const LogExplorationView = lazy(() => import('./LogExplorationPage'));
 

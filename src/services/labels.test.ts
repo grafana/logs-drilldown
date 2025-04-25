@@ -1,9 +1,10 @@
+import { VAR_FIELD_NAME } from '@grafana/data';
 import { AdHocFiltersVariable } from '@grafana/scenes';
-import { VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
+
+import SpyInstance = jest.SpyInstance;
 import { FilterOp } from './filterTypes';
 import { getVisibleFilters } from './labels';
-import { VAR_FIELD_NAME } from '@grafana/data';
-import SpyInstance = jest.SpyInstance;
+import { VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
 
 describe('getVisibleFilters', () => {
   let logSpy: SpyInstance;
@@ -18,21 +19,20 @@ describe('getVisibleFilters', () => {
   describe('labels', () => {
     it('Returns an empty array when everything is empty', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('', [], labelsVariable)).toEqual([]);
     });
     it('Returns all levels when there are no filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('', ['error', 'info'], labelsVariable)).toEqual(['error', 'info']);
     });
     it('Removes negatively filtered levels', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [
           {
             key: 'detected_level',
@@ -40,12 +40,12 @@ describe('getVisibleFilters', () => {
             value: 'error',
           },
         ],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('detected_level', ['error', 'info'], labelsVariable)).toEqual(['info']);
     });
     it('Returns the positive levels from the filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [
           {
             key: 'detected_level',
@@ -63,12 +63,12 @@ describe('getVisibleFilters', () => {
             value: 'info',
           },
         ],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('detected_level', ['info'], labelsVariable)).toEqual(['info']);
     });
     it('Filters the levels by the current filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [
           {
             key: 'detected_level',
@@ -86,13 +86,13 @@ describe('getVisibleFilters', () => {
             value: 'info',
           },
         ],
+        name: VAR_LABELS,
       });
 
       expect(getVisibleFilters('detected_level', ['error', 'warn', 'info', 'debug'], labelsVariable)).toEqual(['info']);
     });
     it('Handles empty positive log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [
           {
             key: 'detected_level',
@@ -100,12 +100,12 @@ describe('getVisibleFilters', () => {
             value: '""',
           },
         ],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('detected_level', ['error', 'logs'], labelsVariable)).toEqual([]);
     });
     it('Handles negative positive log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [
           {
             key: 'detected_level',
@@ -113,12 +113,12 @@ describe('getVisibleFilters', () => {
             value: '""',
           },
         ],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('detected_level', ['error', 'logs'], labelsVariable)).toEqual(['error', 'logs']);
     });
     it('Handles exclusion regex negative log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_LABELS,
         filters: [
           {
             key: 'detected_level',
@@ -126,6 +126,7 @@ describe('getVisibleFilters', () => {
             value: '""',
           },
         ],
+        name: VAR_LABELS,
       });
       expect(getVisibleFilters('detected_level', ['error'], labelsVariable)).toEqual(['error']);
     });
@@ -133,44 +134,43 @@ describe('getVisibleFilters', () => {
   describe('fields', () => {
     it('Returns an empty array when everything is empty', () => {
       const fieldsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [],
+        name: VAR_FIELDS,
       });
       expect(getVisibleFilters('', [], fieldsVariable)).toEqual([]);
     });
     it('Returns all levels when there are no filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [],
+        name: VAR_FIELDS,
       });
       expect(getVisibleFilters('', ['error', 'info'], labelsVariable)).toEqual(['error', 'info']);
     });
     it('Removes negatively filtered levels', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [
           {
             key: 'detected_level',
             operator: FilterOp.NotEqual,
             value: JSON.stringify({
-              value: 'error',
               parser: 'logfmt',
+              value: 'error',
             }),
           },
         ],
+        name: VAR_FIELDS,
       });
       expect(getVisibleFilters('detected_level', ['error', 'info'], labelsVariable)).toEqual(['info']);
     });
     it('Returns the positive levels from the filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [
           {
             key: 'detected_level',
             operator: FilterOp.NotEqual,
             value: JSON.stringify({
-              value: 'error',
               parser: 'logfmt',
+              value: 'error',
             }),
             valueLabels: ['error'],
           },
@@ -178,32 +178,32 @@ describe('getVisibleFilters', () => {
             key: 'detected_level',
             operator: FilterOp.NotEqual,
             value: JSON.stringify({
-              value: 'warn',
               parser: 'logfmt',
+              value: 'warn',
             }),
           },
           {
             key: 'detected_level',
             operator: FilterOp.Equal,
             value: JSON.stringify({
-              value: 'info',
               parser: 'logfmt',
+              value: 'info',
             }),
           },
         ],
+        name: VAR_FIELDS,
       });
       expect(getVisibleFilters('detected_level', ['info'], labelsVariable)).toEqual(['info']);
     });
     it('Filters the levels by the current filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [
           {
             key: 'detected_level',
             operator: FilterOp.NotEqual,
             value: JSON.stringify({
-              value: 'error',
               parser: 'logfmt',
+              value: 'error',
             }),
             valueLabels: ['error'],
           },
@@ -211,8 +211,8 @@ describe('getVisibleFilters', () => {
             key: 'detected_level',
             operator: FilterOp.NotEqual,
             value: JSON.stringify({
-              value: 'warn',
               parser: 'logfmt',
+              value: 'warn',
             }),
             valueLabels: ['error'],
           },
@@ -220,64 +220,65 @@ describe('getVisibleFilters', () => {
             key: 'detected_level',
             operator: FilterOp.Equal,
             value: JSON.stringify({
-              value: 'info',
               parser: 'logfmt',
+              value: 'info',
             }),
             valueLabels: ['info'],
           },
         ],
+        name: VAR_FIELDS,
       });
 
       expect(getVisibleFilters('detected_level', ['error', 'warn', 'info', 'debug'], labelsVariable)).toEqual(['info']);
     });
     it('Handles empty positive log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [
           {
             key: 'detected_level',
             operator: FilterOp.Equal,
             value: JSON.stringify({
-              value: '""',
               parser: 'logfmt',
+              value: '""',
             }),
             valueLabels: ['""'],
           },
         ],
+        name: VAR_FIELDS,
       });
       expect(getVisibleFilters('detected_level', ['error', 'logs'], labelsVariable)).toEqual([]);
     });
     it('Handles negative positive log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELD_NAME,
         filters: [
           {
             key: 'detected_level',
             operator: FilterOp.NotEqual,
             value: JSON.stringify({
-              value: '""',
               parser: 'logfmt',
+              value: '""',
             }),
             valueLabels: ['""'],
           },
         ],
+        name: VAR_FIELD_NAME,
       });
       expect(getVisibleFilters('detected_level', ['error', 'logs'], labelsVariable)).toEqual(['error', 'logs']);
     });
     it('Handles exclusion regex negative log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_FIELDS,
         filters: [
           {
             key: 'detected_level',
             operator: FilterOp.RegexNotEqual,
             value: JSON.stringify({
-              value: '""',
               parser: 'logfmt',
+              value: '""',
             }),
             valueLabels: ['""'],
           },
         ],
+        name: VAR_FIELDS,
       });
       expect(getVisibleFilters('detected_level', ['error'], labelsVariable)).toEqual(['error']);
     });
@@ -285,21 +286,20 @@ describe('getVisibleFilters', () => {
   describe('metadata', () => {
     it('Returns an empty array when everything is empty', () => {
       const fieldsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('', [], fieldsVariable)).toEqual([]);
     });
     it('Returns all levels when there are no filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('', ['error', 'info'], labelsVariable)).toEqual(['error', 'info']);
     });
     it('Removes negatively filtered levels', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [
           {
             key: 'detected_level',
@@ -307,12 +307,12 @@ describe('getVisibleFilters', () => {
             value: 'error',
           },
         ],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('detected_level', ['error', 'info'], labelsVariable)).toEqual(['info']);
     });
     it('Returns the positive levels from the filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [
           {
             key: 'detected_level',
@@ -330,12 +330,12 @@ describe('getVisibleFilters', () => {
             value: 'info',
           },
         ],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('detected_level', ['info'], labelsVariable)).toEqual(['info']);
     });
     it('Filters the levels by the current filters', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [
           {
             key: 'detected_level',
@@ -353,13 +353,13 @@ describe('getVisibleFilters', () => {
             value: 'info',
           },
         ],
+        name: VAR_METADATA,
       });
 
       expect(getVisibleFilters('detected_level', ['error', 'warn', 'info', 'debug'], labelsVariable)).toEqual(['info']);
     });
     it('Handles empty positive log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [
           {
             key: 'detected_level',
@@ -367,12 +367,12 @@ describe('getVisibleFilters', () => {
             value: '""',
           },
         ],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('detected_level', ['error', 'logs'], labelsVariable)).toEqual([]);
     });
     it('Handles negative positive log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [
           {
             key: 'detected_level',
@@ -380,12 +380,12 @@ describe('getVisibleFilters', () => {
             value: '""',
           },
         ],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('detected_level', ['error', 'logs'], labelsVariable)).toEqual(['error', 'logs']);
     });
     it('Handles exclusion regex negative log level filter', () => {
       const labelsVariable = new AdHocFiltersVariable({
-        name: VAR_METADATA,
         filters: [
           {
             key: 'detected_level',
@@ -393,6 +393,7 @@ describe('getVisibleFilters', () => {
             value: '""',
           },
         ],
+        name: VAR_METADATA,
       });
       expect(getVisibleFilters('detected_level', ['error'], labelsVariable)).toEqual(['error']);
     });

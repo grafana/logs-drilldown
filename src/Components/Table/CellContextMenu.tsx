@@ -1,44 +1,45 @@
 import React from 'react';
+
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LinkModel } from '@grafana/data';
 import { Icon, useTheme2 } from '@grafana/ui';
-import { useQueryContext } from './Context/QueryContext';
 
 import { FilterOp } from '../../services/filterTypes';
+import { useQueryContext } from './Context/QueryContext';
 
 interface Props {
   fieldType?: 'derived';
   label: string;
-  value: string;
-  showColumn?: () => void;
   links?: LinkModel[];
-  pillType: 'logPill' | 'column';
+  pillType: 'column' | 'logPill';
+  showColumn?: () => void;
+  value: string;
 }
 
-const getStyles = (theme: GrafanaTheme2, pillType: 'logPill' | 'column') => ({
+const getStyles = (theme: GrafanaTheme2, pillType: 'column' | 'logPill') => ({
   menu: css({
-    position: 'relative',
-    paddingRight: '5px',
     display: 'flex',
-    minWidth: '60px',
     justifyContent: 'flex-start',
-  }),
-  menuItemsWrap: css({
-    boxShadow: theme.shadows.z3,
-    display: 'flex',
-    background: theme.colors.background.secondary,
-    padding: '5px 0',
-    marginLeft: pillType === 'column' ? '5px' : undefined,
+    minWidth: '60px',
+    paddingRight: '5px',
+    position: 'relative',
   }),
   menuItem: css({
-    overflow: 'auto',
-    textOverflow: 'ellipsis',
+    alignItems: 'center',
     cursor: 'pointer',
+    display: 'flex',
+    overflow: 'auto',
     paddingLeft: '5px',
     paddingRight: '5px',
+    textOverflow: 'ellipsis',
+  }),
+  menuItemsWrap: css({
+    background: theme.colors.background.secondary,
+    boxShadow: theme.shadows.z3,
     display: 'flex',
-    alignItems: 'center',
+    marginLeft: pillType === 'column' ? '5px' : undefined,
+    padding: '5px 0',
   }),
 });
 
@@ -54,24 +55,46 @@ export const CellContextMenu = (props: Props) => {
           <>
             <div
               className={styles.menuItem}
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 addFilter({
                   key: props.label,
-                  value: props.value,
                   operator: FilterOp.Equal,
+                  value: props.value,
                 });
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  addFilter({
+                    key: props.label,
+                    operator: FilterOp.Equal,
+                    value: props.value,
+                  });
+                }
               }}
             >
               <Icon title={'Add to search'} size={'md'} name={'plus-circle'} />
             </div>
             <div
               className={styles.menuItem}
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 addFilter({
                   key: props.label,
-                  value: props.value,
                   operator: FilterOp.NotEqual,
+                  value: props.value,
                 });
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  addFilter({
+                    key: props.label,
+                    operator: FilterOp.NotEqual,
+                    value: props.value,
+                  });
+                }
               }}
             >
               <Icon title={'Exclude from search'} size={'md'} name={'minus-circle'} />
@@ -80,7 +103,18 @@ export const CellContextMenu = (props: Props) => {
         )}
 
         {props.showColumn && (
-          <div title={'Add column'} onClick={props.showColumn} className={styles.menuItem}>
+          <div
+            title={'Add column'}
+            role="button"
+            tabIndex={0}
+            className={styles.menuItem}
+            onClick={props.showColumn}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                props.showColumn?.();
+              }
+            }}
+          >
             <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 fillRule="evenodd"
@@ -103,8 +137,15 @@ export const CellContextMenu = (props: Props) => {
             return (
               <div
                 className={styles.menuItem}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   window.open(link.href, '_blank');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    window.open(link.href, '_blank');
+                  }
                 }}
                 key={link.href}
               >

@@ -1,7 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
-import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 import { LokiQuery } from '../src/services/lokiQuery';
+import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const fieldName = 'method';
 // const levelName = 'cluster'
@@ -179,7 +179,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // re-root
       await page.pause();
-      await page.getByRole('button', { name: 'root', exact: true }).click();
+      await page.getByRole('button', { exact: true, name: 'root' }).click();
       // Open nested_object
       await page.getByLabel('nested_object', { exact: true }).getByRole('button', { name: '▶' }).click();
       await page.getByLabel('deeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
@@ -221,7 +221,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByText('▶Line:[]')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill up to the root
-      await page.getByRole('button', { name: 'root', exact: true }).click();
+      await page.getByRole('button', { exact: true, name: 'root' }).click();
 
       // Assert we still have results
       await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);

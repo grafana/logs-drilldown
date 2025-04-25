@@ -1,5 +1,5 @@
-import { addAdHocFilterUserInputPrefix } from 'services/variables';
 import { escapeUrlPipeDelimiters } from './links';
+import { addAdHocFilterUserInputPrefix } from 'services/variables';
 
 export function encodeFilter(input: string) {
   return encodeURIComponent(input)
@@ -20,14 +20,14 @@ export function addCustomInputPrefixAndValueLabels(value: string) {
 }
 
 export function getPath(options: {
-  slug: string;
-  expectedLabelFiltersUrlString?: string;
-  expectedMetadataString?: string;
-  expectedLineFiltersUrlString?: string;
   expectedFieldsUrlString?: string;
+  expectedLabelFiltersUrlString?: string;
   expectedLevelsFilterUrlString?: string;
-  expectedPatternsVariable?: string;
+  expectedLineFiltersUrlString?: string;
+  expectedMetadataString?: string;
   expectedPatterns?: string;
+  expectedPatternsVariable?: string;
+  slug: string;
 }) {
   return `/a/grafana-lokiexplore-app/explore/${options.slug}/logs?var-ds=123abc&from=1675828800000&to=1675854000000${
     options.expectedLabelFiltersUrlString ?? ''

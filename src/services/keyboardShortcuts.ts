@@ -1,12 +1,13 @@
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { KeybindingSet } from './KeybindingSet';
-import { getAppEvents, locationService } from '@grafana/runtime';
 import { BusEventBase, BusEventWithPayload, RawTimeRange, SetPanelAttentionEvent } from '@grafana/data';
+import { getAppEvents, locationService } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VizPanel } from '@grafana/scenes';
-import { getExploreLink } from '../Components/Panels/PanelMenu';
-import { getTimePicker } from './scenes';
 import { OptionsWithLegend } from '@grafana/ui';
+
+import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { getExploreLink } from '../Components/Panels/PanelMenu';
+import { KeybindingSet } from './KeybindingSet';
 import { narrowTimeRange } from './narrowing';
+import { getTimePicker } from './scenes';
 
 const appEvents = getAppEvents();
 
@@ -177,8 +178,8 @@ export class CopyTimeEvent extends BusEventBase {
 // Copied from https://github.com/grafana/grafana/blob/main/public/app/types/events.ts
 // @todo export from core grafana
 interface PasteTimeEventPayload {
-  updateUrl?: boolean;
   timeRange?: string;
+  updateUrl?: boolean;
 }
 
 // Copied from https://github.com/grafana/grafana/blob/main/public/app/types/events.ts
@@ -208,7 +209,7 @@ export function setWindowGrafanaSceneContext(activeScene: SceneObject) {
 }
 
 // taken from /Users/galen/projects/grafana/grafana/public/app/core/utils/timePicker.ts
-type CopiedTimeRangeResult = { range: RawTimeRange; isError: false } | { range: string; isError: true };
+type CopiedTimeRangeResult = { isError: false; range: RawTimeRange } | { isError: true; range: string };
 // modified to narrow types from clipboard
 export async function getCopiedTimeRange(): Promise<CopiedTimeRangeResult> {
   const raw = await navigator.clipboard.readText();
@@ -221,5 +222,5 @@ export async function getCopiedTimeRange(): Promise<CopiedTimeRangeResult> {
       return { isError: false, range };
     }
   } catch (e) {}
-  return { range: raw, isError: true };
+  return { isError: true, range: raw };
 }

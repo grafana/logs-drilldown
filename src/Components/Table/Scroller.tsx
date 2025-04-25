@@ -1,7 +1,9 @@
-import { Icon, useTheme2 } from '@grafana/ui';
 import React from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Icon, useTheme2 } from '@grafana/ui';
 
 const getStyles = (theme: GrafanaTheme2) => ({
   scroller: css`
@@ -43,17 +45,17 @@ const stopScroll = (id: React.MutableRefObject<HTMLDivElement | null>) => {
 
 const goLeft = (id: React.MutableRefObject<HTMLDivElement | null>) => {
   id?.current?.scrollTo({
-    top: 0,
-    left: 0,
     behavior: 'smooth',
+    left: 0,
+    top: 0,
   });
 };
 
 const goRight = (id: React.MutableRefObject<HTMLDivElement | null>) => {
   id?.current?.scrollTo({
-    top: 0,
-    left: id.current.scrollWidth,
     behavior: 'smooth',
+    left: id.current.scrollWidth,
+    top: 0,
   });
 };
 

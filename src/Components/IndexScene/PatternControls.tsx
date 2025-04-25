@@ -1,18 +1,21 @@
 import React from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
-import { PatternTag } from './PatternTag';
+
 import { css } from '@emotion/css';
-import { useStyles2, Text } from '@grafana/ui';
-import { USER_EVENTS_ACTIONS, USER_EVENTS_PAGES, reportAppInteraction } from 'services/analytics';
-import { testIds } from 'services/testIds';
-import { AppliedPattern } from '../../services/variables';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Text, useStyles2 } from '@grafana/ui';
+
 import { addCurrentUrlToHistory } from '../../services/navigate';
+import { AppliedPattern } from '../../services/variables';
+import { PatternTag } from './PatternTag';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { testIds } from 'services/testIds';
 
 type Props = {
-  patterns: AppliedPattern[] | undefined;
   onRemove: (patterns: AppliedPattern[]) => void;
+  patterns: AppliedPattern[] | undefined;
 };
-export const PatternControls = ({ patterns, onRemove }: Props) => {
+export const PatternControls = ({ onRemove, patterns }: Props) => {
   const styles = useStyles2(getStyles);
 
   if (!patterns || patterns.length === 0) {
@@ -26,8 +29,8 @@ export const PatternControls = ({ patterns, onRemove }: Props) => {
     addCurrentUrlToHistory();
     onRemove(patterns.filter((pat) => pat !== pattern));
     reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.pattern_removed, {
-      includePatternsLength: includePatterns.length - (pattern?.type === 'include' ? 1 : 0),
       excludePatternsLength: excludePatterns.length - (pattern?.type !== 'include' ? 1 : 0),
+      includePatternsLength: includePatterns.length - (pattern?.type === 'include' ? 1 : 0),
       type: pattern.type,
     });
   };
@@ -69,14 +72,14 @@ export const PatternControls = ({ patterns, onRemove }: Props) => {
 
 function getStyles(theme: GrafanaTheme2) {
   return {
+    patterns: css({
+      alignItems: 'center',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: theme.spacing(1),
+    }),
     patternsContainer: css({
       overflow: 'hidden',
-    }),
-    patterns: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-      alignItems: 'center',
-      flexWrap: 'wrap',
     }),
   };
 }

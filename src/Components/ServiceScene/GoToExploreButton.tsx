@@ -5,13 +5,13 @@ import { config } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 import { ToolbarButton } from '@grafana/ui';
 
-import { getDataSource, getQueryExpr } from 'services/scenes';
-import { testIds } from 'services/testIds';
-import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { USER_EVENTS_ACTIONS, USER_EVENTS_PAGES, reportAppInteraction } from 'services/analytics';
-import { getDisplayedFields, getLogsVisualizationType } from 'services/store';
-import { unknownToStrings } from '../../services/narrowing';
 import { DATAPLANE_LABELS_NAME } from '../../services/logsFrame';
+import { unknownToStrings } from '../../services/narrowing';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getDataSource, getQueryExpr } from 'services/scenes';
+import { getDisplayedFields, getLogsVisualizationType } from 'services/store';
+import { testIds } from 'services/testIds';
 interface GoToExploreButtonState {
   exploration: IndexScene;
 }
@@ -51,17 +51,17 @@ export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open =
   const columns = getUrlColumns();
   const exploreState = JSON.stringify({
     ['loki-explore']: {
-      range: toURLRange(timeRange.raw),
-      queries: [{ refId: 'logs', expr, datasource }],
+      datasource,
       panelsState: {
         logs: {
-          displayedFields,
-          visualisationType: visualisationType === 'json' ? 'logs' : visualisationType,
           columns,
+          displayedFields,
           labelFieldName: visualisationType === 'table' ? DATAPLANE_LABELS_NAME : undefined,
+          visualisationType: visualisationType === 'json' ? 'logs' : visualisationType,
         },
       },
-      datasource,
+      queries: [{ datasource, expr, refId: 'logs' }],
+      range: toURLRange(timeRange.raw),
     },
   });
   const subUrl = config.appSubUrl ?? '';

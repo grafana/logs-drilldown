@@ -1,28 +1,33 @@
+import React, { useCallback } from 'react';
+
+import { css, cx } from '@emotion/css';
+
+import { Field } from '@grafana/data';
+import { Icon } from '@grafana/ui';
+
+import { getBodyName } from '../../services/logsFrame';
+import { useQueryContext } from './Context/QueryContext';
+import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
+import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
 import { LogsTableHeader, LogsTableHeaderProps } from 'Components/Table/LogsTableHeader';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
-import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
-import { Icon } from '@grafana/ui';
-import React, { useCallback } from 'react';
-import { Field } from '@grafana/data';
-import { getBodyName } from '../../services/logsFrame';
-import { css, cx } from '@emotion/css';
-import { useQueryContext } from './Context/QueryContext';
+import { useSharedStyles } from 'styles/shared-styles';
 
 export function LogsTableHeaderWrap(props: {
+  autoColumnWidths?: () => void;
   headerProps: LogsTableHeaderProps;
-  openColumnManagementDrawer: () => void;
 
+  openColumnManagementDrawer: () => void;
   // Moves the current column forward or backward one index
   slideLeft?: (cols: FieldNameMetaStore) => void;
-  slideRight?: (cols: FieldNameMetaStore) => void;
 
-  autoColumnWidths?: () => void;
+  slideRight?: (cols: FieldNameMetaStore) => void;
 }) {
   const { setHeaderMenuActive } = useTableHeaderContext();
-  const { columns, setColumns, bodyState, setBodyState } = useTableColumnContext();
+  const { bodyState, columns, setBodyState, setColumns } = useTableColumnContext();
   const { logsFrame } = useQueryContext();
   const styles = getStyles();
+  const { linkButton } = useSharedStyles();
 
   const hideColumn = useCallback(
     (field: Field) => {
@@ -54,8 +59,8 @@ export function LogsTableHeaderWrap(props: {
   return (
     <LogsTableHeader {...props.headerProps}>
       <div className={styles.linkWrap}>
-        <a
-          className={styles.link}
+        <button
+          className={cx(linkButton, styles.link)}
           onClick={() => {
             props.openColumnManagementDrawer();
             setHeaderMenuActive(false);
@@ -63,10 +68,10 @@ export function LogsTableHeaderWrap(props: {
         >
           <Icon className={styles.icon} name={'columns'} size={'md'} />
           Manage columns
-        </a>
+        </button>
       </div>
       <div className={styles.linkWrap}>
-        <a className={styles.link} onClick={() => hideColumn(props.headerProps.field)}>
+        <button className={cx(linkButton, styles.link)} onClick={() => hideColumn(props.headerProps.field)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 17 16"
@@ -88,28 +93,28 @@ export function LogsTableHeaderWrap(props: {
             />
           </svg>
           Remove column
-        </a>
+        </button>
       </div>
       {props.slideLeft && (
         <div className={styles.linkWrap}>
-          <a className={styles.link} onClick={() => props.slideLeft?.(columns)}>
+          <button className={cx(linkButton, styles.link)} onClick={() => props.slideLeft?.(columns)}>
             <Icon className={cx(styles.icon, styles.reverse)} name={'arrow-from-right'} size={'md'} />
             Move left
-          </a>
+          </button>
         </div>
       )}
       {props.slideRight && (
         <div className={styles.linkWrap}>
-          <a className={styles.link} onClick={() => props.slideRight?.(columns)}>
+          <button className={cx(linkButton, styles.link)} onClick={() => props.slideRight?.(columns)}>
             <Icon className={styles.icon} name={'arrow-from-right'} size={'md'} />
             Move right
-          </a>
+          </button>
         </div>
       )}
       {isBodyField && (
         <div className={styles.linkWrap}>
-          <a
-            className={styles.link}
+          <button
+            className={cx(linkButton, styles.link)}
             onClick={() => {
               if (bodyState === LogLineState.text) {
                 setBodyState(LogLineState.labels);
@@ -125,16 +130,16 @@ export function LogsTableHeaderWrap(props: {
             )}
 
             {bodyState === LogLineState.text ? 'Show labels' : 'Show log text'}
-          </a>
+          </button>
         </div>
       )}
 
       {props.autoColumnWidths && (
         <div className={styles.linkWrap}>
-          <a className={styles.link} onClick={() => props.autoColumnWidths?.()}>
+          <button className={cx(linkButton, styles.link)} onClick={() => props.autoColumnWidths?.()}>
             <Icon className={styles.icon} name={'arrows-h'} size={'md'} />
             Reset column widths
-          </a>
+          </button>
         </div>
       )}
     </LogsTableHeader>
@@ -143,16 +148,16 @@ export function LogsTableHeaderWrap(props: {
 
 const getStyles = () => {
   return {
-    reverse: css({
-      transform: 'scaleX(-1)',
-    }),
-    link: css({
-      paddingTop: '5px',
-      paddingBottom: '5px',
-    }),
     icon: css({
       marginRight: '10px',
     }),
+    link: css({
+      paddingBottom: '5px',
+      paddingTop: '5px',
+    }),
     linkWrap: css({}),
+    reverse: css({
+      transform: 'scaleX(-1)',
+    }),
   };
 };

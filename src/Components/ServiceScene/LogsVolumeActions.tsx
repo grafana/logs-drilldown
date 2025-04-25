@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { usePluginComponent } from '@grafana/runtime';
-import { VAR_LABELS } from 'services/variables';
-import { getAdHocFiltersVariable } from 'services/variableGetters';
 import { AdHocVariableFilter } from '@grafana/data';
+import { usePluginComponent } from '@grafana/runtime';
+import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+
 import { getDataSource } from 'services/scenes';
+import { getAdHocFiltersVariable } from 'services/variableGetters';
+import { VAR_LABELS } from 'services/variables';
 
 interface LogsVolumeActionsState extends SceneObjectState {}
 

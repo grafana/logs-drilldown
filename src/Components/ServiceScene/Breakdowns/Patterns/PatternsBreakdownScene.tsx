@@ -1,5 +1,6 @@
-import { css } from '@emotion/css';
 import React from 'react';
+
+import { css } from '@emotion/css';
 
 import { DataFrame, dateTime, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
@@ -14,34 +15,35 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 import { Text, useStyles2 } from '@grafana/ui';
+
+import { areArraysEqual } from '../../../../services/comparison';
+import { IndexScene } from '../../../IndexScene/IndexScene';
+import { ServiceScene } from '../../ServiceScene';
+import { PatternsFrameScene } from './PatternsFrameScene';
+import { PatternsNotDetected, PatternsTooOld } from './PatternsNotDetected';
+import { PatternsViewTextSearch } from './PatternsViewTextSearch';
 import { StatusWrapper } from 'Components/ServiceScene/Breakdowns/StatusWrapper';
 import { VAR_LABEL_GROUP_BY } from 'services/variables';
-import { ServiceScene } from '../../ServiceScene';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { PatternsFrameScene } from './PatternsFrameScene';
-import { PatternsViewTextSearch } from './PatternsViewTextSearch';
-import { PatternsNotDetected, PatternsTooOld } from './PatternsNotDetected';
-import { areArraysEqual } from '../../../../services/comparison';
 
 export interface PatternsBreakdownSceneState extends SceneObjectState {
-  body?: SceneFlexLayout;
-  value?: string;
-  loading?: boolean;
-  error?: boolean;
   blockingMessage?: string;
-  // The dataframe built from the patterns that we get back from the loki Patterns API
-  patternFrames?: PatternFrame[];
-
+  body?: SceneFlexLayout;
+  error?: boolean;
   // Subset of patternFrames, undefined if empty, empty array if search results returned nothing (no data)
   filteredPatterns?: PatternFrame[];
+  loading?: boolean;
   patternFilter: string;
+
+  // The dataframe built from the patterns that we get back from the loki Patterns API
+  patternFrames?: PatternFrame[];
+  value?: string;
 }
 
 export type PatternFrame = {
   dataFrame: DataFrame;
   pattern: string;
+  status?: 'exclude' | 'include';
   sum: number;
-  status?: 'include' | 'exclude';
 };
 
 export const PATTERNS_MAX_AGE_HOURS = 3;
@@ -52,7 +54,7 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
       $variables:
         state.$variables ??
         new SceneVariableSet({
-          variables: [new CustomVariable({ name: VAR_LABEL_GROUP_BY, defaultToAll: true, includeAll: true })],
+          variables: [new CustomVariable({ defaultToAll: true, includeAll: true, name: VAR_LABEL_GROUP_BY })],
         }),
       loading: true,
       patternFilter: '',
@@ -64,14 +66,14 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
 
   // parent render
   public static Component = ({ model }: SceneComponentProps<PatternsBreakdownScene>) => {
-    const { body, loading, blockingMessage, patternFrames, error } = model.useState();
+    const { blockingMessage, body, error, loading, patternFrames } = model.useState();
     const { value: timeRange } = sceneGraph.getTimeRange(model).useState();
     const styles = useStyles2(getStyles);
     const timeRangeTooOld = dateTime().diff(timeRange.to, 'hours') >= PATTERNS_MAX_AGE_HOURS;
 
     return (
       <div className={styles.container}>
-        <StatusWrapper {...{ isLoading: loading, blockingMessage }}>
+        <StatusWrapper {...{ blockingMessage, isLoading: loading }}>
           {!loading && error && (
             <div className={styles.patternMissingText}>
               <Text textAlignment="center" color="primary">
@@ -115,8 +117,8 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
 
     if (newState.data?.state === LoadingState.Done) {
       this.setState({
-        loading: false,
         error: false,
+        loading: false,
       });
 
       if (!areArraysEqual(newFrames, prevFrames)) {
@@ -124,13 +126,13 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
       }
     } else if (newState.data?.state === LoadingState.Loading) {
       this.setState({
-        loading: true,
         error: false,
+        loading: true,
       });
     } else if (newState.data?.state === LoadingState.Error) {
       this.setState({
-        loading: false,
         error: true,
+        loading: false,
       });
     }
   };
@@ -138,16 +140,16 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
   private setBody() {
     this.setState({
       body: new SceneFlexLayout({
-        direction: 'column',
         children: [
           new SceneFlexItem({
-            ySizing: 'content',
             body: new PatternsViewTextSearch(),
+            ySizing: 'content',
           }),
           new SceneFlexItem({
             body: new PatternsFrameScene(),
           }),
         ],
+        direction: 'column',
       }),
     });
   }
@@ -175,8 +177,8 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
       const patternFrame: PatternFrame = {
         dataFrame,
         pattern: dataFrame.name ?? '',
-        sum,
         status: existingPattern?.type,
+        sum,
       };
 
       return patternFrame;
@@ -187,33 +189,33 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
 function getStyles(theme: GrafanaTheme2) {
   return {
     container: css({
-      flexGrow: 1,
       display: 'flex',
-      minHeight: '100%',
       flexDirection: 'column',
+      flexGrow: 1,
+      minHeight: '100%',
     }),
     content: css({
-      flexGrow: 1,
       display: 'flex',
+      flexGrow: 1,
       paddingTop: theme.spacing(0),
     }),
     controls: css({
-      flexGrow: 0,
-      display: 'flex',
       alignItems: 'top',
-      gap: theme.spacing(2),
-    }),
-    controlsRight: css({
-      flexGrow: 0,
       display: 'flex',
-      justifyContent: 'flex-end',
+      flexGrow: 0,
+      gap: theme.spacing(2),
     }),
     controlsLeft: css({
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'flex-left',
       justifyItems: 'left',
       width: '100%',
-      flexDirection: 'column',
+    }),
+    controlsRight: css({
+      display: 'flex',
+      flexGrow: 0,
+      justifyContent: 'flex-end',
     }),
     patternMissingText: css({
       padding: theme.spacing(2),

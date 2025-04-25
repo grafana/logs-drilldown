@@ -1,4 +1,5 @@
 import { LogsDedupStrategy } from '@grafana/data';
+
 import { isDedupStrategy } from './guards';
 
 describe('isDedupStrategy', () => {

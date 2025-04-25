@@ -18,7 +18,43 @@ import {
   SceneVariableValueChangedEvent,
   VariableDependencyConfig,
 } from '@grafana/scenes';
+import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
+
+import { areArraysEqual } from '../../services/comparison';
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { replaceSlash } from '../../services/extensions/links';
+import {
+  clearJsonParserFields,
+  extractParserFromString,
+  getJsonPathArraySyntax,
+  getParserAndPathForField,
+} from '../../services/fields';
+import { filterUnusedJSONFilters } from '../../services/filters';
+import { FilterOp } from '../../services/filterTypes';
+import { logger } from '../../services/logger';
+import { getMetadataService } from '../../services/metadata';
+import { migrateLineFilterV1 } from '../../services/migrations';
+import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
+import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
+import {
+  getDataSourceVariable,
+  getFieldsAndMetadataVariable,
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+  getLineFormatVariable,
+  getMetadataVariable,
+  getPatternsVariable,
+} from '../../services/variableGetters';
+import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
+import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
+import { ActionBarScene } from './ActionBarScene';
+import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import {
@@ -37,41 +73,6 @@ import {
   VAR_LEVELS,
   VAR_PATTERNS,
 } from 'services/variables';
-import { getMetadataService } from '../../services/metadata';
-import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
-import { areArraysEqual } from '../../services/comparison';
-import { ActionBarScene } from './ActionBarScene';
-import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
-import {
-  getDataSourceVariable,
-  getFieldsAndMetadataVariable,
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-  getLineFormatVariable,
-  getMetadataVariable,
-  getPatternsVariable,
-} from '../../services/variableGetters';
-import { logger } from '../../services/logger';
-import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
-import { replaceSlash } from '../../services/extensions/links';
-import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
-import { migrateLineFilterV1 } from '../../services/migrations';
-import { VariableHide } from '@grafana/schema';
-import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import {
-  clearJsonParserFields,
-  extractParserFromString,
-  getParserAndPathForField,
-  getJsonPathArraySyntax,
-} from '../../services/fields';
-import { filterUnusedJSONFilters } from '../../services/filters';
-import { FilterOp } from '../../services/filterTypes';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';
@@ -86,22 +87,22 @@ type ServiceSceneLoadingStates = {
 };
 
 export interface ServiceSceneCustomState {
-  labelsCount?: number;
-  patternsCount?: number;
   fieldsCount?: number;
+  labelsCount?: number;
   loading?: boolean;
-  totalLogsCount?: number;
   logsCount?: number;
+  patternsCount?: number;
+  totalLogsCount?: number;
 }
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
-  body: SceneFlexLayout | undefined;
-  drillDownLabel?: string;
   $data: SceneDataProvider | undefined;
+  $detectedFieldsData: SceneQueryRunner | undefined;
+  $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
   $patternsData: SceneQueryRunner | undefined;
-  $detectedLabelsData: SceneQueryRunner | undefined;
-  $detectedFieldsData: SceneQueryRunner | undefined;
+  body: SceneFlexLayout | undefined;
+  drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
 }
 
@@ -142,29 +143,29 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   public constructor(
     state: MakeOptional<
       ServiceSceneState,
-      | 'body'
       | '$data'
-      | '$patternsData'
-      | '$detectedLabelsData'
       | '$detectedFieldsData'
-      | 'loadingStates'
+      | '$detectedLabelsData'
       | '$logsCount'
+      | '$patternsData'
+      | 'body'
+      | 'loadingStates'
     >
   ) {
     super({
+      $data: getServiceSceneQueryRunner(),
+      $detectedFieldsData: getDetectedFieldsQueryRunner(),
+      $detectedLabelsData: getDetectedLabelsQueryRunner(),
+      $logsCount: getLogCountQueryRunner(),
+      $patternsData: getPatternsQueryRunner(),
+      body: state.body ?? buildGraphScene(),
+      loading: true,
       loadingStates: {
         [TabNames.patterns]: false,
         [TabNames.labels]: false,
         [TabNames.fields]: false,
         [TabNames.logs]: false,
       },
-      loading: true,
-      body: state.body ?? buildGraphScene(),
-      $data: getServiceSceneQueryRunner(),
-      $patternsData: getPatternsQueryRunner(),
-      $detectedLabelsData: getDetectedLabelsQueryRunner(),
-      $detectedFieldsData: getDetectedFieldsQueryRunner(),
-      $logsCount: getLogCountQueryRunner(),
       ...state,
     });
 
@@ -184,7 +185,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
 
         // If we remove the service name filter, we should redirect to the start
-        let { labelName, labelValue, breakdownLabel } = getPrimaryLabelFromUrl();
+        let { breakdownLabel, labelName, labelValue } = getPrimaryLabelFromUrl();
 
         // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
         if (labelName === SERVICE_UI_LABEL) {
@@ -209,15 +210,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
             indexScene.setState({
               routeMatch: {
                 ...prevRouteMatch,
+                isExact: prevRouteMatch?.isExact ?? true,
                 params: {
                   ...prevRouteMatch?.params,
                   labelName: newPrimaryLabel.key === SERVICE_NAME ? SERVICE_UI_LABEL : newPrimaryLabel.key,
                   // If there are a bunch of values separated by pipe, like labels that come from explore, let's truncate the value so the slug doesn't get too long
                   labelValue: newPrimaryLabelValue.split('|')[0],
                 },
-                url: prevRouteMatch?.url ?? '',
                 path: prevRouteMatch?.path ?? '',
-                isExact: prevRouteMatch?.isExact ?? true,
+                url: prevRouteMatch?.url ?? '',
               },
             });
 
@@ -245,15 +246,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // Clear ongoing queries
     this.setState({
       $data: undefined,
-      $logsCount: undefined,
-      body: undefined,
-      $patternsData: undefined,
-      $detectedLabelsData: undefined,
       $detectedFieldsData: undefined,
-      patternsCount: undefined,
-      labelsCount: undefined,
+      $detectedLabelsData: undefined,
+      $logsCount: undefined,
+      $patternsData: undefined,
+      body: undefined,
       fieldsCount: undefined,
+      labelsCount: undefined,
       logsCount: undefined,
+      patternsCount: undefined,
       totalLogsCount: undefined,
     });
     getMetadataService().setServiceSceneState(this.state);
@@ -407,8 +408,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           if ((parser === 'json' || parser === 'mixed') && path) {
             jsonParserPropsToAdd.push({
               key: filter.key,
-              value: path,
               operator: FilterOp.Equal,
+              value: path,
             });
           }
         }
@@ -695,13 +696,13 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
 function buildGraphScene() {
   return new SceneFlexLayout({
-    direction: 'column',
     children: [
       new SceneFlexItem({
-        ySizing: 'content',
         body: new ActionBarScene({}),
+        ySizing: 'content',
       }),
     ],
+    direction: 'column',
   });
 }
 
@@ -731,8 +732,8 @@ function getLogCountQueryRunner() {
   const queryRunner = getQueryRunner(
     [
       buildDataQuery(`sum(count_over_time(${LOG_STREAM_SELECTOR_EXPR}[$__auto]))`, {
-        refId: LOGS_COUNT_QUERY_REFID,
         queryType: 'instant',
+        refId: LOGS_COUNT_QUERY_REFID,
       }),
     ],
     { runQueriesMode: 'manual' } // for some reason when this query is set to auto, it doesn't run on time range update, looks like there is different behavior with data providers not in the special $data prop

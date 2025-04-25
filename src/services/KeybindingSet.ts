@@ -5,10 +5,10 @@ export const mousetrap = new Mousetrap(document);
 export interface KeyBindingItem {
   /** Key or key pattern like mod+o */
   key: string;
-  /** Defaults to keydown */
-  type?: string;
   /** The handler callback */
   onTrigger: () => void;
+  /** Defaults to keydown */
+  type?: string;
 }
 
 /**

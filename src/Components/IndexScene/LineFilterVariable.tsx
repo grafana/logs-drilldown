@@ -1,24 +1,27 @@
-import { GrafanaTheme2 } from '@grafana/data';
-import { css } from '@emotion/css';
-import { LineFilterEditor } from '../ServiceScene/LineFilter/LineFilterEditor';
 import React, { ChangeEvent, KeyboardEvent, useState } from 'react';
+
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
+
 import { LineFilterCaseSensitive } from '../../services/filterTypes';
+import { LineFilterEditor } from '../ServiceScene/LineFilter/LineFilterEditor';
 import { RegexInputValue } from '../ServiceScene/LineFilter/RegexIconButton';
 
 export interface LineFilterProps {
-  exclusive: boolean;
-  lineFilter: string;
   caseSensitive: boolean;
+  exclusive: boolean;
+  handleEnter: (e: KeyboardEvent<HTMLInputElement>, lineFilter: string) => void;
+  lineFilter: string;
+  onCaseSensitiveToggle: (caseSensitive: LineFilterCaseSensitive) => void;
+  onClearLineFilter?: () => void;
+  onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onRegexToggle: (regex: RegexInputValue) => void;
+  onSubmitLineFilter?: () => void;
   regex: boolean;
   setExclusive: (exclusive: boolean) => void;
-  onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onCaseSensitiveToggle: (caseSensitive: LineFilterCaseSensitive) => void;
-  onRegexToggle: (regex: RegexInputValue) => void;
   updateFilter: (lineFilter: string, debounced: boolean) => void;
-  handleEnter: (e: KeyboardEvent<HTMLInputElement>, lineFilter: string) => void;
-  onSubmitLineFilter?: () => void;
-  onClearLineFilter?: () => void;
 }
 
 export function LineFilterVariable({ onClick, props }: { onClick: () => void; props: LineFilterProps }) {
@@ -50,16 +53,16 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
 }
 
 const getLineFilterStyles = (theme: GrafanaTheme2) => ({
-  titleWrap: css({
-    display: 'flex',
-    fontSize: theme.typography.bodySmall.fontSize,
-    marginBottom: theme.spacing(0.5),
-    gap: theme.spacing(1),
+  collapseBtn: css({
+    marginLeft: theme.spacing(1),
   }),
   collapseWrap: css({
     display: 'flex',
   }),
-  collapseBtn: css({
-    marginLeft: theme.spacing(1),
+  titleWrap: css({
+    display: 'flex',
+    fontSize: theme.typography.bodySmall.fontSize,
+    gap: theme.spacing(1),
+    marginBottom: theme.spacing(0.5),
   }),
 });

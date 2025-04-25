@@ -1,42 +1,43 @@
 import React from 'react';
 
-import { TableWrap } from 'Components/Table/TableWrap';
 import { AdHocVariableFilter, DataFrame, LogsSortOrder, TimeRange } from '@grafana/data';
-import { QueryContextProvider } from 'Components/Table/Context/QueryContext';
+
 import { parseLogsFrame } from '../../services/logsFrame';
-import { SelectedTableRow } from './LogLineCellComponent';
 import { LogLineState } from './Context/TableColumnsContext';
+import { SelectedTableRow } from './LogLineCellComponent';
+import { QueryContextProvider } from 'Components/Table/Context/QueryContext';
+import { TableWrap } from 'Components/Table/TableWrap';
 
 interface TableProviderProps {
-  dataFrame: DataFrame;
-  setUrlColumns: (columns: string[]) => void;
-  urlColumns: string[];
   addFilter: (filter: AdHocVariableFilter) => void;
-  selectedLine?: SelectedTableRow;
-  timeRange?: TimeRange;
-  panelWrap: React.RefObject<HTMLDivElement | null>;
   clearSelectedLine: () => void;
-  setUrlTableBodyState: (logLineState: LogLineState) => void;
-  urlTableBodyState?: LogLineState;
-  showColumnManagementDrawer: (isActive: boolean) => void;
+  dataFrame: DataFrame;
   isColumnManagementActive: boolean;
   logsSortOrder: LogsSortOrder;
+  panelWrap: React.RefObject<HTMLDivElement | null>;
+  selectedLine?: SelectedTableRow;
+  setUrlColumns: (columns: string[]) => void;
+  setUrlTableBodyState: (logLineState: LogLineState) => void;
+  showColumnManagementDrawer: (isActive: boolean) => void;
+  timeRange?: TimeRange;
+  urlColumns: string[];
+  urlTableBodyState?: LogLineState;
 }
 
 export const TableProvider = ({
-  dataFrame,
-  setUrlColumns,
-  urlColumns,
   addFilter,
-  selectedLine,
-  timeRange,
-  panelWrap,
   clearSelectedLine,
-  setUrlTableBodyState,
-  urlTableBodyState,
-  showColumnManagementDrawer,
+  dataFrame,
   isColumnManagementActive,
   logsSortOrder,
+  panelWrap,
+  selectedLine,
+  setUrlColumns,
+  setUrlTableBodyState,
+  showColumnManagementDrawer,
+  timeRange,
+  urlColumns,
+  urlTableBodyState,
 }: TableProviderProps) => {
   if (!dataFrame) {
     return null;

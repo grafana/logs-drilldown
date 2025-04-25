@@ -14,10 +14,10 @@ expect.extend({
 
 // mock the intersection observer and just say everything is in view
 const mockIntersectionObserver = jest.fn().mockImplementation((callback) => ({
+  disconnect: jest.fn(),
   observe: jest.fn().mockImplementation((elem) => {
-    callback([{ target: elem, isIntersecting: true }]);
+    callback([{ isIntersecting: true, target: elem }]);
   }),
   unobserve: jest.fn(),
-  disconnect: jest.fn(),
 }));
 global.IntersectionObserver = mockIntersectionObserver;

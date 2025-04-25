@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 
-import { SceneApp, useSceneApp } from '@grafana/scenes';
-import { config } from '@grafana/runtime';
 import { Navigate } from 'react-router-dom';
-import { makeIndexPage, makeRedirectPage } from './Pages';
+
+import { config } from '@grafana/runtime';
+import { SceneApp, useSceneApp } from '@grafana/scenes';
+
 import { initializeMetadataService } from '../services/metadata';
+import { makeIndexPage, makeRedirectPage } from './Pages';
 
 const getSceneApp = () =>
   new SceneApp({
