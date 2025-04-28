@@ -16,6 +16,7 @@ import {
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
   SceneRefreshPicker,
+  SceneScopesBridge,
   SceneTimePicker,
   SceneTimeRange,
   SceneTimeRangeLike,
@@ -121,6 +122,7 @@ export interface IndexSceneState extends SceneObjectState {
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
+  scopesBridge?: SceneScopesBridge | undefined;
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
@@ -188,6 +190,34 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
+    const scopesBridge = config.featureToggles.scopeFilters
+      ? new SceneScopesBridge({
+          $behaviors: [
+            () => {
+              if (!scopesBridge) {
+                return;
+              }
+              const sub = scopesBridge.subscribeToValue(() => {});
+
+              return () => {
+                sub.unsubscribe();
+              };
+            },
+          ],
+        })
+      : undefined;
+
+    scopesBridge?.addActivationHandler(() => {
+      if (!scopesBridge) {
+        return;
+      }
+      scopesBridge.setEnabled(true);
+
+      return () => {
+        scopesBridge.setEnabled(false);
+      };
+    });
+
     super({
       $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
@@ -195,6 +225,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       // Need to clear patterns state when the class in constructed
       patterns: [],
       ...state,
+      scopesBridge,
       body: new LayoutScene({}),
     });
 
