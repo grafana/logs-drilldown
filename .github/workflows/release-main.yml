@@ -33,7 +33,7 @@ jobs:
           policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@main
+        uses: grafana/shared-workflows/actions/get-vault-secrets@get-vault-secrets-v1.1.0
         with:
           common_secrets: |
             GCP_UPLOAD_ARTIFACTS_KEY=grafana/integration-artifacts-uploader-service-account:'credentials.json'
@@ -44,7 +44,11 @@ jobs:
           credentials_json: ${{ env.GCP_UPLOAD_ARTIFACTS_KEY }}
 
       - name: 'rename versioned archive to main-archive'
-        run: mv ${{ steps.package-plugin.outputs.archive }} ${{ steps.package-plugin.outputs.plugin-id }}-main.zip
+        env:
+          ARCHIVE_PATH: ${{ steps.package-plugin.outputs.archive }}
+          PLUGIN_ID: ${{ steps.package-plugin.outputs.plugin-id }}
+        run: |
+          mv "$ARCHIVE_PATH" "${PLUGIN_ID}-main.zip"
 
       - id: 'upload-to-gcs'
         name: 'Upload assets to latest'
