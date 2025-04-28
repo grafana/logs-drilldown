@@ -33,7 +33,7 @@ jobs:
           policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@get-vault-secrets-v1.1.0
+        uses: grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760
         with:
           common_secrets: |
             GCP_UPLOAD_ARTIFACTS_KEY=grafana/integration-artifacts-uploader-service-account:'credentials.json'
