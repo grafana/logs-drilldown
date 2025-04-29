@@ -4,6 +4,7 @@ import {
   SceneAppPageLike,
   SceneFlexLayout,
   SceneRouteMatch,
+  SceneScopesBridge,
   SceneTimeRange,
 } from '@grafana/scenes';
 import {
@@ -46,7 +47,7 @@ function getServicesScene(routeMatch: OptionalRouteMatch) {
 export function makeIndexPage() {
   return new SceneAppPage({
     // Top level breadcrumb
-    // useScopes: config.featureToggles.scopeFilters,
+    useScopes: config.featureToggles.scopeFilters && config.featureToggles.logQLScope,
     title: 'Grafana Logs Drilldown',
     url: prefixRoute(PageSlugs.explore),
     layout: PageLayoutType.Custom,
