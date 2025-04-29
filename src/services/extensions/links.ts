@@ -35,6 +35,7 @@ export const ExtensionPoints = {
   MetricInvestigation: 'grafana-lokiexplore-app/investigation/v1',
 } as const;
 
+/* eslint-disable sort/object-properties */
 export type LinkConfigs = Array<
   {
     targets: string | string[];
@@ -46,20 +47,20 @@ export type LinkConfigs = Array<
 // TODO: fix this type when we move to `@grafana/data` 11.3.x
 export const linkConfigs: LinkConfigs = [
   {
-    configure: contextToLink,
-    description,
-    icon,
-    path: createAppUrl(),
     targets: PluginExtensionPoints.DashboardPanelMenu,
     title,
-  },
-  {
-    configure: contextToLink,
     description,
     icon,
     path: createAppUrl(),
+    configure: contextToLink,
+  },
+  {
     targets: PluginExtensionPoints.ExploreToolbarAction,
     title,
+    description,
+    icon,
+    path: createAppUrl(),
+    configure: contextToLink,
   },
 ];
 
@@ -165,8 +166,8 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
         }
       } else {
         const fieldValue: AdHocFieldValue = {
-          parser: field.parser,
           value: field.value,
+          parser: field.parser,
         };
 
         const adHocFilterURLString = `${field.key}|${field.operator}|${escapeURLDelimiters(
@@ -182,8 +183,8 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
 
     for (const field of patternFilters) {
       patterns.push({
-        pattern: stringifyValues(field.value),
         type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
+        pattern: stringifyValues(field.value),
       });
     }
 
@@ -204,15 +205,15 @@ export function createAppUrl(path = '/explore', urlParams?: URLSearchParams): st
 
 export const UrlParameters = {
   DatasourceId: `var-${VAR_DATASOURCE}`,
-  Fields: `var-${VAR_FIELDS}`,
-  Labels: `var-${VAR_LABELS}`,
-  Levels: `var-${VAR_LEVELS}`,
-  LineFilters: `var-${VAR_LINE_FILTERS}`,
-  Metadata: `var-${VAR_METADATA}`,
-  Patterns: VAR_PATTERNS,
-  PatternsVariable: `var-${VAR_PATTERNS}`,
   TimeRangeFrom: 'from',
   TimeRangeTo: 'to',
+  Labels: `var-${VAR_LABELS}`,
+  Fields: `var-${VAR_FIELDS}`,
+  Metadata: `var-${VAR_METADATA}`,
+  Levels: `var-${VAR_LEVELS}`,
+  LineFilters: `var-${VAR_LINE_FILTERS}`,
+  Patterns: VAR_PATTERNS,
+  PatternsVariable: `var-${VAR_PATTERNS}`,
 } as const;
 export type UrlParameterType = (typeof UrlParameters)[keyof typeof UrlParameters];
 

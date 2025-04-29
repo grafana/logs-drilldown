@@ -49,19 +49,20 @@ export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open =
   const displayedFields = getDisplayedFields(indexScene);
   const visualisationType = getLogsVisualizationType();
   const columns = getUrlColumns();
+  /* eslint-disable sort/object-properties */
   const exploreState = JSON.stringify({
     ['loki-explore']: {
-      datasource,
+      range: toURLRange(timeRange.raw),
+      queries: [{ refId: 'logs', expr, datasource }],
       panelsState: {
         logs: {
-          columns,
           displayedFields,
-          labelFieldName: visualisationType === 'table' ? DATAPLANE_LABELS_NAME : undefined,
           visualisationType: visualisationType === 'json' ? 'logs' : visualisationType,
+          columns,
+          labelFieldName: visualisationType === 'table' ? DATAPLANE_LABELS_NAME : undefined,
         },
       },
-      queries: [{ datasource, expr, refId: 'logs' }],
-      range: toURLRange(timeRange.raw),
+      datasource,
     },
   });
   const subUrl = config.appSubUrl ?? '';
