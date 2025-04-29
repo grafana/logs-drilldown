@@ -64,7 +64,7 @@ function getEmbedScene() {
   const dsUID = 'PDDA8E780A17E7EF1';
   const initialStart = 'now-15m';
   const initialEnd = 'now';
-  const query = '{service_name="nginx"}';
+  const query = '{service_name="tempo-ingester"}';
   const onTimeRangeChange = (timeRange: TimeRange) => {
     console.log('onTimeRangeChange', timeRange);
   };
