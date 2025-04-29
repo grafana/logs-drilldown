@@ -34,7 +34,7 @@ jobs:
           echo "archive=${GRAFANA_PLUGIN_ARTIFACT}" >> $GITHUB_OUTPUT
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@main
+        uses: grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760
         with:
           common_secrets: |
             GCP_UPLOAD_ARTIFACTS_KEY=grafana/integration-artifacts-uploader-service-account:'credentials.json'
@@ -44,7 +44,11 @@ jobs:
           credentials_json: ${{ env.GCP_UPLOAD_ARTIFACTS_KEY }}
 
       - id: 'create-latest'
-        run: cp ${{ steps.build-release.outputs.archive }} ${{ steps.metadata.outputs.archive }}
+        env:
+          SOURCE_ARCHIVE: ${{ steps.build-release.outputs.archive }}
+          TARGET_ARCHIVE: ${{ steps.metadata.outputs.archive }}
+        run: |
+          cp "$SOURCE_ARCHIVE" "$TARGET_ARCHIVE"
 
       - id: 'upload-to-gcs'
         name: 'Upload assets to latest'
