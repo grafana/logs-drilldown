@@ -60,6 +60,11 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
         aria-invalid={invalid}
         rows={2}
         width={width}
+        onFocusCapture={(e) => {
+          if (rest.onFocus) {
+            rest.onFocus(e);
+          }
+        }}
         value={value}
         onChange={onChange}
         suffix={
