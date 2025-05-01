@@ -18,13 +18,13 @@ import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/vari
 import React from 'react';
 import { LabelBreakdownScene } from './LabelBreakdownScene';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
-import { ValueSlugs } from '../../../services/routing';
 import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
 import { getFieldsVariable, getLabelGroupByVariable } from '../../../services/variableGetters';
 import { ServiceScene } from '../ServiceScene';
 import { DataFrame, LoadingState } from '@grafana/data';
 import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { ValueSlugs } from '../../../services/enums';
 
 export interface LabelsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;

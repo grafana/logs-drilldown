@@ -24,7 +24,6 @@ import {
 } from '../ServiceScene';
 import React from 'react';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
-import { ValueSlugs } from '../../../services/routing';
 import { DataFrame, LoadingState } from '@grafana/data';
 import {
   buildFieldsQueryString,
@@ -35,12 +34,14 @@ import {
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
+  getJsonFieldsVariable,
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
 import { logger } from '../../../services/logger';
 import { getPanelOption } from '../../../services/store';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { ValueSlugs } from '../../../services/enums';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
@@ -321,7 +322,14 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         .setCustomFieldConfig('pointSize', 0)
         .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
         .setOverrides(setLevelColorOverrides);
-      headerActions.push(new SelectLabelActionScene({ labelName: String(labelName), fieldType: ValueSlugs.field }));
+
+      headerActions.push(
+        new SelectLabelActionScene({
+          labelName: String(labelName),
+          fieldType: ValueSlugs.field,
+          hasNumericFilters: fieldType === 'int',
+        })
+      );
     } else {
       if (panelType === 'histogram') {
         body = PanelBuilders.histogram();
@@ -356,7 +364,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     fieldType?: DetectedFieldType
   ) {
     const fieldsVariable = getFieldsVariable(this);
-    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame);
+    const jsonVariable = getJsonFieldsVariable(this);
+    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
     const query = buildDataQuery(queryString, {
       legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
       refId: optionValue,

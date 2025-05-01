@@ -9,7 +9,7 @@ import {
 } from '@grafana/scenes';
 import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../ServiceScene';
 import { getValueBreakdownLink } from '../../../services/navigate';
-import { getPrimaryLabelFromUrl, ValueSlugs } from '../../../services/routing';
+import { getPrimaryLabelFromUrl } from '../../../services/routing';
 import {
   Button,
   ButtonGroup,
@@ -41,6 +41,7 @@ import { logger } from '../../../services/logger';
 import { testIds } from '../../../services/testIds';
 import { findObjectOfType } from '../../../services/scenes';
 import { syncLevelsVariable } from '../../IndexScene/LevelsVariableScene';
+import { ValueSlugs } from '../../../services/enums';
 
 interface SelectLabelActionSceneState extends SceneObjectState {
   labelName: string;
@@ -276,7 +277,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
     const detectedFieldFrame = getDetectedFieldsFrame(this);
     const fieldType = getDetectedFieldType(this.state.labelName, detectedFieldFrame);
 
-    if (!fieldType || fieldType === 'string' || fieldType === 'boolean' || fieldType === 'int') {
+    if (!fieldType || fieldType === 'string' || fieldType === 'boolean') {
       const error = new Error(`Incorrect field type: ${fieldType}`);
       logger.error(error, { msg: `onClickNumericFilter invalid field type ${fieldType}` });
       throw error;

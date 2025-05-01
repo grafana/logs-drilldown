@@ -320,7 +320,6 @@ test.describe('explore services breakdown page', () => {
     await page.getByTestId('data-testid Panel menu item Explore').click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
-
   test(`should select label ${labelName}, update filters, open in explore`, async ({ page, browser }) => {
     await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
@@ -620,9 +619,6 @@ test.describe('explore services breakdown page', () => {
     // Remove tempo-distributor
     await page.getByLabel('Remove filter with key').first().click();
 
-    await explorePage.assertNotLoading();
-    await explorePage.assertPanelsNotLoading();
-
     // Get panel count to ensure the pod regex filter reduces the result set
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
@@ -641,6 +637,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('=~').nth(3)).toBeVisible();
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
+    await page.pause();
     await expect
       .poll(() =>
         page
@@ -953,8 +950,7 @@ test.describe('explore services breakdown page', () => {
 
   test('should filter logs by bytes range', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', 'bytes', 'pod'],
-      legendFormats: [`{{${levelName}}}`],
+      refIds: ['bytes', 'pod'],
     });
 
     // Wait for pod query to execute
@@ -965,8 +961,8 @@ test.describe('explore services breakdown page', () => {
       (q) => q.expr.includes('pod')
     );
 
-    expect(expressions[0]).toEqual(
-      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""       [$__auto]))'
+    expect(expressions[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!="" [$__auto]))'.replace(/\s+/g, '')
     );
 
     const bytesIncludeButton = page
@@ -1038,8 +1034,11 @@ test.describe('explore services breakdown page', () => {
       (q) => q.expr.includes('pod')
     );
 
-    expect(expressionsAfterNumericFilter[0]).toEqual(
-      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | bytes<=2KB | bytes>500B [$__auto]))'
+    expect(expressionsAfterNumericFilter[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | bytes<=2KB | bytes>500B [$__auto]))'.replace(
+        /\s+/g,
+        ''
+      )
     );
 
     // Assert that the variables were added to the UI
@@ -1053,6 +1052,99 @@ test.describe('explore services breakdown page', () => {
     await expect(
       page.getByTestId('data-testid Panel header bytes').getByTestId('data-testid Panel data error message')
     ).toHaveCount(0);
+
+    await expect(page.getByTestId('data-testid Panel header pod')).toHaveCount(1);
+    await expect(page.getByTestId('data-testid Panel header bytes')).toHaveCount(1);
+  });
+
+  test('should filter logs by int range', async ({ page }) => {
+    explorePage.blockAllQueriesExcept({
+      refIds: ['oldVersion', 'pod'],
+    });
+
+    // Wait for pod query to execute
+    const expressions: string[] = [];
+    await explorePage.waitForRequest(
+      () => page.getByTestId(testIds.exploreServiceDetails.tabFields).click(),
+      (q) => expressions.push(q.expr),
+      (q) => q.expr.includes('pod')
+    );
+
+    expect(expressions[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!="" [$__auto]))'.replace(/\s+/g, '')
+    );
+
+    const bytesIncludeButton = page
+      .getByTestId('data-testid Panel header oldVersion')
+      .getByTestId(testIds.breakdowns.common.filterButtonGroup);
+    await expect(bytesIncludeButton).toHaveText('Add to filter');
+
+    // Show the popover
+    await bytesIncludeButton.click();
+    const popover = page.getByRole('tooltip');
+    await expect(popover).toHaveCount(1);
+
+    // Popover copy assertions
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+    ).toHaveText('Greater than');
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)).toHaveText(
+      'Less than'
+    );
+
+    // Add button should be disabled
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.cancelButton)).not.toBeDisabled();
+
+    // Assert that the first input is focused
+    const expectedFocusedElement = popover
+      .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThan)
+      .locator('input:focus');
+    await expect(expectedFocusedElement).toHaveCount(1);
+
+    // Input 2 for greater than value
+    await page.keyboard.type('2');
+
+    // Submit button should be visible now
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).not.toBeDisabled();
+
+    // input 5 for less than value
+    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThan).click();
+    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThan).pressSequentially('5');
+
+    // Make inclusive
+    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).click();
+    await popover.getByText('Less than or equal').click();
+
+    // Wait for pod query to execute
+    const expressionsAfterNumericFilter: string[] = [];
+    await explorePage.waitForRequest(
+      // Add the filter
+      () => popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton).click(),
+      (q) => expressionsAfterNumericFilter.push(q.expr),
+      (q) => q.expr.includes('pod')
+    );
+
+    expect(expressionsAfterNumericFilter[0].replace(/\s+/g, '')).toEqual(
+      'sum by (pod) (count_over_time({service_name="tempo-distributor"} | pod!=""     | logfmt  | oldVersion<=5 | oldVersion>2 [$__auto]))'.replace(
+        /\s+/g,
+        ''
+      )
+    );
+
+    // Assert that the variables were added to the UI
+    await expect(page.getByText(/^oldVersion > 2$/)).toHaveCount(1);
+    await expect(page.getByText(/^oldVersion <= 5$/)).toHaveCount(1);
+
+    // Assert the pod and bytes panels have data
+    await expect(
+      page.getByTestId('data-testid Panel header pod').getByTestId('data-testid Panel data error message')
+    ).toHaveCount(0);
+    await expect(
+      page.getByTestId('data-testid Panel header oldVersion').getByTestId('data-testid Panel data error message')
+    ).toHaveCount(0);
+
+    await expect(page.getByTestId('data-testid Panel header oldVersion')).toHaveCount(1);
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
@@ -1740,20 +1832,20 @@ test.describe('explore services breakdown page', () => {
 
       // Disable regex - expect no results show
       await page.getByLabel('Disable regex').nth(0).click();
-      await expect(rows).toHaveCount(0);
+      await expect.poll(() => rows.count()).toEqual(0);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
       // Re-enable regex - results should show
       await page.getByLabel('Enable regex').click();
-      await expect(highlightedMatchesInFirstRow).toHaveCount(1);
+      await expect.poll(() => highlightedMatchesInFirstRow.count()).toEqual(1);
       expect(logsCountQueryCount).toEqual(7);
       expect(logsPanelQueryCount).toEqual(7);
 
       // Change the filter in the "saved" variable that will return 0 results
       await firstLineFilterLoc.click();
       await page.keyboard.type('__');
-      await expect(rows).toHaveCount(0);
+      await expect.poll(() => rows.count()).toEqual(0);
       expect(logsCountQueryCount).toEqual(8);
       expect(logsPanelQueryCount).toEqual(8);
     });

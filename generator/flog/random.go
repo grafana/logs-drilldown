@@ -42,3 +42,8 @@ func RandHTTPVersion() string {
 	versions := []string{"HTTP/1.0", "HTTP/1.1", "HTTP/2.0"}
 	return versions[rand.Intn(3)]
 }
+
+func RandShippingMethod() string {
+	versions := []string{"express", "ground", "air", "2-day", "next-day"}
+	return versions[rand.Intn(5)]
+}

@@ -11,6 +11,7 @@ import {
   SceneObjectUrlValues,
   SceneTimeRangeLike,
 } from '@grafana/scenes';
+
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { LogsTableScene } from './LogsTableScene';
 import { css } from '@emotion/css';
@@ -28,6 +29,7 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
+import { LogsJsonScene } from './LogsJsonScene';
 
 export interface LogsListSceneState extends SceneObjectState {
   loading?: boolean;
@@ -45,7 +47,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['urlColumns', 'selectedLine', 'visualizationType', 'displayedFields', 'tableLogLineState'],
   });
+
   private logsPanelScene?: LogsPanelScene = undefined;
+
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
@@ -55,6 +59,20 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
+
+  public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
+    const { panel } = model.useState();
+
+    if (!panel) {
+      return;
+    }
+
+    return (
+      <div className={styles.panelWrapper}>
+        <panel.Component model={panel} />
+      </div>
+    );
+  };
 
   getUrlState() {
     const urlColumns = this.state.urlColumns ?? [];
@@ -88,12 +106,14 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           }
         }
       }
+
       if (typeof values.visualizationType === 'string') {
         const decodedVisualizationType = narrowLogsVisualizationType(JSON.parse(values.visualizationType));
         if (decodedVisualizationType && decodedVisualizationType !== this.state.visualizationType) {
           stateUpdate.visualizationType = decodedVisualizationType;
         }
       }
+
       if (typeof values.displayedFields === 'string') {
         const displayedFields = unknownToStrings(JSON.parse(values.displayedFields));
         if (displayedFields && displayedFields.length) {
@@ -172,7 +192,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.setState({
       panel: this.getVizPanel(),
     });
-
     // Subscribe to line filter state so we can pass the current filter between different viz
     if (this.state.panel) {
       const lineFilterScenes = sceneGraph.findDescendents(this.state.panel, LineFilterScene);
@@ -209,50 +228,45 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   private getVizPanel() {
     this.logsPanelScene = new LogsPanelScene({});
 
+    const children =
+      this.state.visualizationType === 'logs'
+        ? [
+            new SceneFlexLayout({
+              children: [
+                new SceneFlexItem({
+                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                  xSizing: 'fill',
+                }),
+              ],
+            }),
+            new SceneFlexItem({
+              height: 'calc(100vh - 220px)',
+              body: this.logsPanelScene,
+            }),
+          ]
+        : this.state.visualizationType === 'json'
+        ? [
+            new SceneFlexItem({
+              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+              xSizing: 'fill',
+            }),
+            new SceneFlexItem({
+              height: 'calc(100vh - 220px)',
+              body: new LogsJsonScene({}),
+            }),
+          ]
+        : [
+            new SceneFlexItem({
+              height: 'calc(100vh - 220px)',
+              body: new LogsTableScene({}),
+            }),
+          ];
+
     return new SceneFlexLayout({
       direction: 'column',
-      children:
-        this.state.visualizationType === 'logs'
-          ? [
-              new SceneFlexLayout({
-                children: [
-                  new SceneFlexItem({
-                    body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                    xSizing: 'fill',
-                  }),
-                ],
-              }),
-              new SceneFlexItem({
-                height: 'calc(100vh - 220px)',
-                body: this.logsPanelScene,
-              }),
-            ]
-          : [
-              new SceneFlexItem({
-                body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                xSizing: 'fill',
-              }),
-              new SceneFlexItem({
-                height: 'calc(100vh - 220px)',
-                body: new LogsTableScene({}),
-              }),
-            ],
+      children,
     });
   }
-
-  public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
-    const { panel } = model.useState();
-
-    if (!panel) {
-      return;
-    }
-
-    return (
-      <div className={styles.panelWrapper}>
-        <panel.Component model={panel} />
-      </div>
-    );
-  };
 }
 
 const styles = {

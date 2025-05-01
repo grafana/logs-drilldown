@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TableWrap } from 'Components/Table/TableWrap';
-import { AdHocVariableFilter, DataFrame, TimeRange } from '@grafana/data';
+import { AdHocVariableFilter, DataFrame, LogsSortOrder, TimeRange } from '@grafana/data';
 import { QueryContextProvider } from 'Components/Table/Context/QueryContext';
 import { parseLogsFrame } from '../../services/logsFrame';
 import { SelectedTableRow } from './LogLineCellComponent';
@@ -20,6 +20,7 @@ interface TableProviderProps {
   urlTableBodyState?: LogLineState;
   showColumnManagementDrawer: (isActive: boolean) => void;
   isColumnManagementActive: boolean;
+  logsSortOrder: LogsSortOrder;
 }
 
 export const TableProvider = ({
@@ -35,6 +36,7 @@ export const TableProvider = ({
   urlTableBodyState,
   showColumnManagementDrawer,
   isColumnManagementActive,
+  logsSortOrder,
 }: TableProviderProps) => {
   if (!dataFrame) {
     return null;
@@ -56,6 +58,7 @@ export const TableProvider = ({
         clearSelectedLine={clearSelectedLine}
         showColumnManagementDrawer={showColumnManagementDrawer}
         isColumnManagementActive={isColumnManagementActive}
+        logsSortOrder={logsSortOrder}
       />
     </QueryContextProvider>
   );

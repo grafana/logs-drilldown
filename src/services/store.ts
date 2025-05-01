@@ -7,6 +7,8 @@ import { SERVICE_NAME } from './variables';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 import { unknownToStrings } from './narrowing';
 import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { LogsDedupStrategy } from '@grafana/data';
+import { isDedupStrategy } from './guards';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -189,11 +191,11 @@ function getExplorationPrefix(sceneRef: SceneObject) {
   return `${ds}.${serviceName}`;
 }
 
-export function getDisplayedFields(sceneRef: SceneObject) {
+export function getDisplayedFields(sceneRef: SceneObject): string[] {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
   if (storedFields) {
-    return JSON.parse(storedFields);
+    return unknownToStrings(JSON.parse(storedFields)) ?? [];
   }
   return [];
 }
@@ -203,18 +205,38 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
 }
 
+export function getDedupStrategy(sceneRef: SceneObject): LogsDedupStrategy {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  const storedStrategy = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`);
+  if (storedStrategy && isDedupStrategy(storedStrategy)) {
+    return storedStrategy;
+  }
+  return LogsDedupStrategy.none;
+}
+
+export function setDedupStrategy(sceneRef: SceneObject, strategy: LogsDedupStrategy) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`, strategy);
+}
+
 // Log panel options
-const LOG_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.logs.option`;
-export function getLogOption<T>(option: keyof Options, defaultValue: T) {
+export const LOG_OPTIONS_LOCALSTORAGE_KEY = `grafana.explore.logs`;
+export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
-  return localStorageResult ? localStorageResult : defaultValue;
+  // TODO: narrow stored value
+  return localStorageResult ? (localStorageResult as T) : defaultValue;
+}
+
+export function getBooleanLogOption(option: keyof Options, defaultValue: boolean): boolean {
+  const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
+  if (localStorageResult === null) {
+    return defaultValue;
+  }
+  return localStorageResult === '' || localStorageResult === 'false' ? false : true;
 }
 
 export function setLogOption(option: keyof Options, value: string | number | boolean) {
   let storedValue = value.toString();
-  if (typeof value === 'boolean' && !value) {
-    storedValue = '';
-  }
   localStorage.setItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`, storedValue);
 }
 
@@ -234,7 +256,7 @@ export function getLogsVolumeOption(option: 'collapsed') {
 }
 
 // Log visualization options
-export type LogsVisualizationType = 'logs' | 'table';
+export type LogsVisualizationType = 'logs' | 'table' | 'json';
 
 const VISUALIZATION_TYPE_LOCALSTORAGE_KEY = 'grafana.explore.logs.visualisationType';
 export function getLogsVisualizationType(): LogsVisualizationType {
@@ -243,6 +265,8 @@ export function getLogsVisualizationType(): LogsVisualizationType {
     case 'table':
     case 'logs':
       return storedType;
+    case 'json':
+      return 'json';
     default:
       return 'logs';
   }
@@ -250,6 +274,13 @@ export function getLogsVisualizationType(): LogsVisualizationType {
 
 export function setLogsVisualizationType(type: string) {
   localStorage.setItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY, type);
+}
+
+// JSON filter debug mode
+const JSON_PARSER_PROPS_DEBUG_KEY = `${pluginJson.id}.jsonParser.visible`;
+export function getJsonParserVariableVisibility(): boolean {
+  // localStorage.setItem('grafana-lokiexplore-app.jsonParser.visible', true)
+  return !!localStorage.getItem(JSON_PARSER_PROPS_DEBUG_KEY);
 }
 
 // Line filter options

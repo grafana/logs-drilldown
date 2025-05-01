@@ -56,7 +56,7 @@ export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open =
       panelsState: {
         logs: {
           displayedFields,
-          visualisationType,
+          visualisationType: visualisationType === 'json' ? 'logs' : visualisationType,
           columns,
           labelFieldName: visualisationType === 'table' ? DATAPLANE_LABELS_NAME : undefined,
         },

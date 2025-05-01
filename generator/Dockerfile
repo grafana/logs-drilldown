@@ -24,7 +24,7 @@ COPY otel-config.yaml /etc/otel/config.template.yaml
 COPY <<EOF /start.sh
 #!/bin/sh
 # Set default OTLP endpoint if not provided
-OTLP_ENDPOINT=\${OTLP_ENDPOINT:-http://host.docker.internal:3100/otlp}
+export OTLP_ENDPOINT=\${OTLP_ENDPOINT:-http://host.docker.internal:3100/otlp}
 
 # Replace environment variables in the config template
 envsubst < /etc/otel/config.template.yaml > /etc/otel/config.yaml

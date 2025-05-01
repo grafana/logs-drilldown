@@ -6,7 +6,7 @@ import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 
-function hasProp<K extends PropertyKey>(data: object, prop: K): data is Record<K, unknown> {
+export function hasProp<K extends PropertyKey>(data: object, prop: K): data is Record<K, unknown> {
   return prop in data;
 }
 
@@ -128,21 +128,6 @@ export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterO
       return op;
     default:
       throw new NarrowingError('operator is invalid!');
-  }
-}
-
-export function narrowStringsArray(param: unknown): string[] | null {
-  try {
-    // Attempt to parse the string as JSON
-    const parsedParam = JSON.parse(decodeURIComponent(param as string));
-    // Verify the parsed result is an array of strings
-    if (Array.isArray(parsedParam) && parsedParam.every((item) => typeof item === 'string')) {
-      return parsedParam;
-    }
-    return null;
-  } catch (e) {
-    // If parsing fails, it's not a valid JSON string
-    return null;
   }
 }
 
