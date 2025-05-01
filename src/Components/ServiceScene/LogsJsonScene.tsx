@@ -445,7 +445,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
         <div className={styles.container}>
-          {logsControlsSupported && (
+          {logsControlsSupported && lineField?.values && lineField?.values.length > 0 && (
             <LogListControls
               sortOrder={sortOrder}
               onSortOrderChange={model.handleSortChange}
@@ -453,7 +453,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               onScrollToTopClick={onScrollToTopClick}
             />
           )}
-          {dataFrame && lineField?.values && (
+          {dataFrame && lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
               {jsonFiltersSupported === false && (
                 <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
