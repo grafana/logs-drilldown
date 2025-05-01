@@ -227,8 +227,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       }
     };
 
-    console.log('dataFrame', dataFrame);
-
     return (
       <div className={styles.panelWrapper} ref={panelWrap}>
         {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
