@@ -32,7 +32,6 @@ export function LineFilterEditor({
   setFocus,
   type,
 }: LineFilterEditorProps) {
-  console.log('LineFilterEditor', focus);
   const styles = useStyles2((theme) => getStyles(theme, type));
   const [width, setWidth] = useState(INITIAL_INPUT_WIDTH);
 
