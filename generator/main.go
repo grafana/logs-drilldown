@@ -23,7 +23,7 @@ func main() {
 	useOtel := flag.Bool("otel", true, "Ship logs for otel apps to OTel collector")
 	tenantId := flag.String("tenant-id", "", "Loki tenant ID")
 
-	useSyslog := flag.Bool("syslog", false, "Output logs to syslog instead of stdout")
+	useSyslog := flag.Bool("syslog", false, "Output RFC5424 formatted logs to syslog instead of stdout")
 	syslogProtocol := flag.String("syslog-network", "udp", "Syslog network type: 'udp' or 'tcp'")
 	syslogAddr := flag.String("syslog-addr", "127.0.0.1:1514", "Syslog remote address (e.g., '127.0.0.1:1514')")
 
