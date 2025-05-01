@@ -43,8 +43,7 @@
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "prepare": "husky",
     "docs": "cd docs && make docs",
-    "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\"",
-    "alloy:syslog": "docker run -v $(pwd)/config/alloy-syslog.alloy:/etc/alloy/config.alloy -p 12345:12345 -p 1514:1514/udp grafana/alloy:latest run --server.http.listen-addr=127.0.0.1:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy"
+    "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\""
   },
   "author": "Grafana",
   "license": "AGPL-3.0-only",
