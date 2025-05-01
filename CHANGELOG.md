@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.0.14
+
+##### Chores
+
+* **docker-compose:**  update loki to 3.5.0  (#1235) (a1a763c3)
+*  add a few fixes to the logs needed for the GrafanaCon talk (#1231) (02661080)
+*  update version check for controls (#1220) (7fa43723)
+*  otel generator changes (#1206) (60738a68)
+*  add changelog (ac81678c)
+* **zizmor:**  update for template-injection (#1222) (e565937a)
+* **gh actions:**  check pr titles for conventional commits (#1218) (8d6f25df)
+
+##### New Features
+
+*  Use new Log Controls component (#1204) (a58e2762)
+*  JSON Viz (#1209)" (#1210) (5e014e98)
+*  support numeric operators for int fields (#1227) (4f4b7981)
+
+##### Bug Fixes
+
+* **line-filters:**  Expand no longer working. (#1238) (1dbbb75d)
+*  Empty results layout in JSON and Table (#1236) (beb9489e)
+*  Panel menu visibility in json (#1216) (af1ed41a)
+*  JSON - line format containing unsupported chars (#1214) (c2c8bf23)
+* **table:**  missing line filter (#1237) (a1a4ea82)
+* **zizmor:**  fix conventional-commits error (#1229) (93cc282c)
+
 ## 1.0.13
 
 ##### Bug Fixes
