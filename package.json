@@ -20,14 +20,14 @@
   },
   "description": "Query less exploration of log data stored in Loki",
   "scripts": {
-    "build": "webpack -c ./webpack.config.ts --env production",
-    "dev": "webpack -w -c ./webpack.config.ts --env development",
+    "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
+    "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn run lint --fix && prettier --write --list-different .",
-    "e2e": "playwright test -x --trace on",
+    "e2e": "playwright test",
     "e2e:fast": "playwright test --retries=1 --workers=3",
     "e2e:10x": "playwright test -x --trace on --repeat-each=10 --workers 1",
     "e2e:10x:fast": "playwright test --repeat-each=10 --workers 3 --retries=1",
@@ -35,7 +35,7 @@
     "e2e:debug": "playwright test --debug -x --trace on /test",
     "e2e:codegen": "playwright install && playwright codegen",
     "generate-logs": "pushd generator; docker build -t log-generator . && docker run log-generator -url http://host.docker.internal:3100/loki/api/v1/push; popd",
-    "server": "docker compose -f docker-compose.local.yaml up --build",
+    "server": "docker compose up --build",
     "start": "yarn build && docker compose -f docker-compose.local.yaml up --build -d && yarn dev",
     "server:localLoki": "docker compose -f docker-compose-local-loki.dev.yaml up --build",
     "server:ci": "docker compose -f docker-compose.dev.yaml up --build -d",
@@ -51,9 +51,9 @@
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
     "@grafana/eslint-config": "^8.0.0",
-    "@grafana/plugin-e2e": "1.14.2",
+    "@grafana/plugin-e2e": "^1.17.1",
     "@grafana/tsconfig": "^2.0.0",
-    "@playwright/test": "1.49.1",
+    "@playwright/test": "^1.52.0",
     "@stylistic/eslint-plugin-ts": "^2.9.0",
     "@swc/core": "^1.4.2",
     "@swc/helpers": "^0.5.0",
@@ -118,7 +118,7 @@
   },
   "dependencies": {
     "@bsull/augurs": "^0.6.0",
-    "@emotion/css": "^11.10.6",
+    "@emotion/css": "11.10.6",
     "@grafana/data": "^11.6.0",
     "@grafana/lezer-logql": "^0.2.7",
     "@grafana/runtime": "^11.6.0",
@@ -135,7 +135,8 @@
     "react-router-dom": "^6.22.0",
     "rxjs": "7.8.1",
     "tslib": "2.5.3",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "@grafana/schema": "^11.5.3"
   },
   "resolutions": {
     "react-router-dom": "^6.22.0"

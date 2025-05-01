@@ -742,7 +742,7 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@emotion/babel-plugin@^11.13.5":
+"@emotion/babel-plugin@^11.10.6", "@emotion/babel-plugin@^11.13.5":
   version "11.13.5"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.13.5.tgz#eab8d65dbded74e0ecfd28dc218e75607c4e7bc0"
   integrity sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==
@@ -759,7 +759,7 @@
     source-map "^0.5.7"
     stylis "4.2.0"
 
-"@emotion/cache@^11.13.5", "@emotion/cache@^11.14.0", "@emotion/cache@^11.4.0":
+"@emotion/cache@^11.10.5", "@emotion/cache@^11.13.5", "@emotion/cache@^11.14.0", "@emotion/cache@^11.4.0":
   version "11.14.0"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-11.14.0.tgz#ee44b26986eeb93c8be82bb92f1f7a9b21b2ed76"
   integrity sha512-L/B1lc/TViYk4DcpGxtAVbx0ZyiKM5ktoIyafGkH6zg/tj+mA+NE//aPYKG0k8kCHSHVJrpLpcAlOBEXQ3SavA==
@@ -770,7 +770,18 @@
     "@emotion/weak-memoize" "^0.4.0"
     stylis "4.2.0"
 
-"@emotion/css@11.13.5", "@emotion/css@^11.10.6":
+"@emotion/css@11.10.6":
+  version "11.10.6"
+  resolved "https://registry.yarnpkg.com/@emotion/css/-/css-11.10.6.tgz#5d226fdd8ef2a46d28e4eb09f66dc01a3bda5a04"
+  integrity sha512-88Sr+3heKAKpj9PCqq5A1hAmAkoSIvwEq1O2TwDij7fUtsJpdkV4jMTISSTouFeRvsGvXIpuSuDQ4C1YdfNGXw==
+  dependencies:
+    "@emotion/babel-plugin" "^11.10.6"
+    "@emotion/cache" "^11.10.5"
+    "@emotion/serialize" "^1.1.1"
+    "@emotion/sheet" "^1.2.1"
+    "@emotion/utils" "^1.2.0"
+
+"@emotion/css@11.13.5":
   version "11.13.5"
   resolved "https://registry.yarnpkg.com/@emotion/css/-/css-11.13.5.tgz#db2d3be6780293640c082848e728a50544b9dfa4"
   integrity sha512-wQdD0Xhkn3Qy2VNcIzbLP9MR8TafI0MJb7BEAXKp+w4+XqErksWR4OXomuDzPsN4InLdGhVe6EYcn2ZIUCpB8w==
@@ -805,7 +816,7 @@
     "@emotion/weak-memoize" "^0.4.0"
     hoist-non-react-statics "^3.3.1"
 
-"@emotion/serialize@1.3.3", "@emotion/serialize@^1.3.3":
+"@emotion/serialize@1.3.3", "@emotion/serialize@^1.1.1", "@emotion/serialize@^1.3.3":
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/@emotion/serialize/-/serialize-1.3.3.tgz#d291531005f17d704d0463a032fe679f376509e8"
   integrity sha512-EISGqt7sSNWHGI76hC7x1CksiXPahbxEOrC5RjmFRJTqLyEK9/9hZvBbiYn70dw4wuwMKiEMCUlR6ZXTSWQqxA==
@@ -816,7 +827,7 @@
     "@emotion/utils" "^1.4.2"
     csstype "^3.0.2"
 
-"@emotion/sheet@^1.4.0":
+"@emotion/sheet@^1.2.1", "@emotion/sheet@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@emotion/sheet/-/sheet-1.4.0.tgz#c9299c34d248bc26e82563735f78953d2efca83c"
   integrity sha512-fTBW9/8r2w3dXWYM4HCB1Rdp8NLibOw2+XELH5m5+AkWiL/KqYX6dc0kKYlaYyKjrQ6ds33MCdMPEwgs2z1rqg==
@@ -831,7 +842,7 @@
   resolved "https://registry.yarnpkg.com/@emotion/use-insertion-effect-with-fallbacks/-/use-insertion-effect-with-fallbacks-1.2.0.tgz#8a8cb77b590e09affb960f4ff1e9a89e532738bf"
   integrity sha512-yJMtVdH59sxi/aVJBpk9FQq+OR8ll5GT8oWd57UpeaKEVGab41JWaCFA7FRLoMLloOZF/c/wsPoe+bfGmRKgDg==
 
-"@emotion/utils@^1.4.2":
+"@emotion/utils@^1.2.0", "@emotion/utils@^1.4.2":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@emotion/utils/-/utils-1.4.2.tgz#6df6c45881fcb1c412d6688a311a98b7f59c1b52"
   integrity sha512-3vLclRofFziIa3J2wDh9jjbkUz9qk5Vi3IZ/FSTKViB0k+ef0fPV7dYrUIugbgupYDx7v9ud/SjrtEP8Y4xLoA==
@@ -998,10 +1009,20 @@
     uplot "1.6.31"
     xss "^1.0.14"
 
-"@grafana/e2e-selectors@11.6.0", "@grafana/e2e-selectors@^11.5.0-214310":
+"@grafana/e2e-selectors@11.6.0":
   version "11.6.0"
   resolved "https://registry.yarnpkg.com/@grafana/e2e-selectors/-/e2e-selectors-11.6.0.tgz#50ac0cecf09ea680b700bc3a9d3109acb554630e"
   integrity sha512-3nJBRYjOTIi9WbclY6tp0NOj6KUpN7mJW4xBV6nYvqK5X48PWQ8u7SUG+nZyTSYQ/9AY88V2EMZmkCMNfE99hA==
+  dependencies:
+    "@grafana/tsconfig" "^2.0.0"
+    semver "^7.7.0"
+    tslib "2.8.1"
+    typescript "5.7.3"
+
+"@grafana/e2e-selectors@^12.1.0-240060":
+  version "12.1.0-241148"
+  resolved "https://registry.yarnpkg.com/@grafana/e2e-selectors/-/e2e-selectors-12.1.0-241148.tgz#c239cb2d0bc95a63eaf6045b289cc4e680166dff"
+  integrity sha512-31FxPYGWdgyS/jGl8A84Y1gTAvYTRf5CGm0RW9lfwG1pBuFQYkSGOAneuRg07+s+Ha4aJxltSqic0Jz/nOIP0w==
   dependencies:
     "@grafana/tsconfig" "^2.0.0"
     semver "^7.7.0"
@@ -1035,12 +1056,12 @@
   resolved "https://registry.yarnpkg.com/@grafana/lezer-logql/-/lezer-logql-0.2.7.tgz#f04a82ed15dca2095464099a8fae4dab2729674e"
   integrity sha512-c+OkLvE/p0oGTAE71BmYz+gTm3ZCGIJBfbN1JMWdN+10UtyrzJ7yU16QNrH51IkQynit4fbY7R2JfkOseNV7TQ==
 
-"@grafana/plugin-e2e@1.14.2":
-  version "1.14.2"
-  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-1.14.2.tgz#a2e80d7f62a16e29416f70cc9d6804f41d9e426c"
-  integrity sha512-5spd7rhDFC7hjL6vWV9STZgX1IeNjTW41Vxj26hrI5CGocaz3RDiPk9j1Mm4IzV4CMTbm1FDQv9zzYFj+8Y80g==
+"@grafana/plugin-e2e@^1.17.1":
+  version "1.19.9"
+  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-1.19.9.tgz#71c52005121ed0637285f1ac10c1fda7d3eaccee"
+  integrity sha512-f8qBQhqQ6PtqzFgTwiIRlVC3Obbad0sgugEfS4B8C0tziHW9akjjcP2fu0+qtPSlUXqQmDsusyAATZKM2MtiIw==
   dependencies:
-    "@grafana/e2e-selectors" "^11.5.0-214310"
+    "@grafana/e2e-selectors" "^12.1.0-240060"
     semver "^7.5.4"
     uuid "^11.0.2"
     yaml "^2.3.4"
@@ -1079,6 +1100,13 @@
   version "11.6.0"
   resolved "https://registry.yarnpkg.com/@grafana/schema/-/schema-11.6.0.tgz#9c2c7ff5277ecf4f967af308d3aa71308d20bcfc"
   integrity sha512-+kLlXVf9T7Tq6GX19JjCTGNpyE2a13Isd4JHY4wI6fk1mFirbr2yDC09DdGJjCvcoDYVkPwKvntuDRIPheIBhA==
+  dependencies:
+    tslib "2.8.1"
+
+"@grafana/schema@^11.5.3":
+  version "11.6.1"
+  resolved "https://registry.yarnpkg.com/@grafana/schema/-/schema-11.6.1.tgz#a85b44d3e4c73eeb6e8243ab7d78642bc292fc60"
+  integrity sha512-117D6g9TQ3w3ERx01EG61Meokd5Cws5fwVnlkHFvx45zk7HqPtnH0kPYKLj3JyLFN+A8xyuqiUI5rKFZ0MRyjw==
   dependencies:
     tslib "2.8.1"
 
@@ -1675,12 +1703,12 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@playwright/test@1.49.1":
-  version "1.49.1"
-  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.49.1.tgz#55fa360658b3187bfb6371e2f8a64f50ef80c827"
-  integrity sha512-Ky+BVzPz8pL6PQxHqNRW1k3mIyv933LML7HktS8uik0bUXNCdPhoS/kLihiO1tMf/egaJb4IutXd7UywvXEW+g==
+"@playwright/test@^1.52.0":
+  version "1.52.0"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.52.0.tgz#267ec595b43a8f4fa5e444ea503689629e91a5b8"
+  integrity sha512-uh6W7sb55hl7D6vsAeA+V2p5JnlAqzhqFyF0VcJkKZXkgnFcVG9PziERRHQfPLfNGx1C292a4JqbWzhR8L4R1g==
   dependencies:
-    playwright "1.49.1"
+    playwright "1.52.0"
 
 "@polka/url@^1.0.0-next.24":
   version "1.0.0-next.28"
@@ -7373,17 +7401,17 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.49.1:
-  version "1.49.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.49.1.tgz#32c62f046e950f586ff9e35ed490a424f2248015"
-  integrity sha512-BzmpVcs4kE2CH15rWfzpjzVGhWERJfmnXmniSyKeRZUs9Ws65m+RGIi7mjJK/euCegfn3i7jvqWeWyHe9y3Vgg==
+playwright-core@1.52.0:
+  version "1.52.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.52.0.tgz#238f1f0c3edd4ebba0434ce3f4401900319a3dca"
+  integrity sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg==
 
-playwright@1.49.1:
-  version "1.49.1"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.49.1.tgz#830266dbca3008022afa7b4783565db9944ded7c"
-  integrity sha512-VYL8zLoNTBxVOrJBbDuRgDWa3i+mfQgDTrL8Ah9QXZ7ax4Dsj0MSq5bYgytRnDVVe+njoKnfsYkH3HzqVj5UZA==
+playwright@1.52.0:
+  version "1.52.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.52.0.tgz#26cb9a63346651e1c54c8805acfd85683173d4bd"
+  integrity sha512-JAwMNMBlxJ2oD1kce4KPtMkDeKGHQstdpFPcPH3maElAXon/QZeTvtsfXmTMRyO9TslfoYOXkSsvao2nE1ilTw==
   dependencies:
-    playwright-core "1.49.1"
+    playwright-core "1.52.0"
   optionalDependencies:
     fsevents "2.3.2"
 
