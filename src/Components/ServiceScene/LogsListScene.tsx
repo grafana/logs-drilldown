@@ -257,6 +257,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           ]
         : [
             new SceneFlexItem({
+              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+              xSizing: 'fill',
+            }),
+            new SceneFlexItem({
               height: 'calc(100vh - 220px)',
               body: new LogsTableScene({}),
             }),
