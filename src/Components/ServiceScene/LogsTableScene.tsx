@@ -27,6 +27,8 @@ import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { LogListControls } from './LogListControls';
 import { logsControlsSupported } from 'services/panel';
 import { logger } from 'services/logger';
+import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { clearVariables } from '../../services/variableHelpers';
 
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
@@ -34,6 +36,7 @@ interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
   isColumnManagementActive: boolean;
+  emptyScene?: NoMatchingLabelsScene;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
@@ -87,6 +90,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   public onActivate() {
     this.setState({
       menu: new PanelMenu({ addInvestigationsLink: false }),
+      emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
     });
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
@@ -187,7 +191,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, urlColumns, visualizationType, tableLogLineState } = parentModel.useState();
-    const { menu, isColumnManagementActive, sortOrder } = model.useState();
+    const { menu, isColumnManagementActive, sortOrder, emptyScene } = model.useState();
 
     // Get time range
     const timeRange = sceneGraph.getTimeRange(model);
@@ -223,6 +227,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       }
     };
 
+    console.log('dataFrame', dataFrame);
+
     return (
       <div className={styles.panelWrapper} ref={panelWrap}>
         {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
@@ -243,7 +249,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           }
         >
           <div className={styles.container}>
-            {logsControlsSupported && (
+            {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
               <LogListControls
                 sortOrder={sortOrder}
                 onSortOrderChange={model.handleSortChange}
@@ -269,6 +275,9 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 isColumnManagementActive={isColumnManagementActive}
                 logsSortOrder={sortOrder}
               />
+            )}
+            {emptyScene && dataFrame && dataFrame.length === 0 && (
+              <NoMatchingLabelsScene.Component model={emptyScene} />
             )}
           </div>
         </PanelChrome>
