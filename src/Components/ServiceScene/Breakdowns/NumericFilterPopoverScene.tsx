@@ -15,6 +15,8 @@ import { getAdHocFiltersVariable, getValueFromFieldsFilter } from '../../../serv
 import { logger } from '../../../services/logger';
 import { testIds } from '../../../services/testIds';
 
+type ComparisonOperatorTypes = 'float' | 'duration' | 'bytes' | 'int';
+
 export interface NumericFilterPopoverSceneState extends SceneObjectState {
   labelName: string;
   variableType: InterpolatedFilterType;
@@ -22,12 +24,13 @@ export interface NumericFilterPopoverSceneState extends SceneObjectState {
   gte?: boolean;
   lt?: number;
   lte?: boolean;
-  fieldType: 'float' | 'duration' | 'bytes';
+  fieldType: ComparisonOperatorTypes;
   hasExistingFilter?: boolean;
 }
 
 export type NumericFilterPopoverSceneStateTotal =
   | (NumericFilterPopoverSceneState & FloatTypes)
+  | (NumericFilterPopoverSceneState & IntTypes)
   | (NumericFilterPopoverSceneState & DurationTypes)
   | (NumericFilterPopoverSceneState & ByteTypes);
 
@@ -81,6 +84,10 @@ interface FloatTypes extends FloatUnitTypes {
   fieldType: 'float';
 }
 
+interface IntTypes extends FloatUnitTypes {
+  fieldType: 'int';
+}
+
 interface DurationUnitTypes {
   ltu: DisplayDurationUnits;
   gtu: DisplayDurationUnits;
@@ -102,12 +109,12 @@ interface ByteTypes extends ByteUnitTypes {
 export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopoverSceneStateTotal> {
   constructor(state: Omit<NumericFilterPopoverSceneStateTotal, 'gtu' | 'ltu'>) {
     let units: FloatUnitTypes | DurationUnitTypes | ByteUnitTypes;
-    const fieldType: 'float' | 'bytes' | 'duration' = state.fieldType;
+    const fieldType: ComparisonOperatorTypes = state.fieldType;
     if (fieldType === 'bytes') {
       units = { ltu: DisplayByteUnits.B, gtu: DisplayByteUnits.B };
     } else if (fieldType === 'duration') {
       units = { ltu: DisplayDurationUnits.s, gtu: DisplayDurationUnits.s };
-    } else if (fieldType === 'float') {
+    } else if (fieldType === 'float' || fieldType === 'int') {
       units = { ltu: '', gtu: '' };
     } else {
       throw new Error(`field type incorrectly defined: ${fieldType}`);
@@ -151,7 +158,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
         }
       }
     } else {
-      // Floats have no unit
+      // Floats/int have no unit
       if (gtFilter) {
         const extractedValue = getValueFromFieldsFilter(gtFilter).value;
         stateUpdate.gt = Number(extractedValue);
@@ -223,7 +230,8 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
   public static Component = ({ model }: SceneComponentProps<NumericFilterPopoverScene>) => {
     const popoverStyles = useStyles2(getPopoverStyles);
     const { labelName, gt, lt, gte, lte, gtu, ltu, fieldType, hasExistingFilter } = model.useState();
-    const subTitle = fieldType !== 'float' && fieldType !== labelName ? `(${fieldType})` : undefined;
+    const subTitle =
+      fieldType !== 'float' && fieldType !== 'int' && fieldType !== labelName ? `(${fieldType})` : undefined;
 
     const selectLabelActionScene = sceneGraph.getAncestor(model, SelectLabelActionScene);
     const formDisabled = gt === undefined && lt === undefined;
@@ -273,7 +281,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     type={'number'}
                   />
                 </Field>
-                {fieldType !== 'float' && (
+                {fieldType !== 'float' && fieldType !== 'int' && (
                   <Label>
                     <Field
                       data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit}
@@ -330,7 +338,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     type={'number'}
                   />
                 </Field>
-                {fieldType !== 'float' && (
+                {fieldType !== 'float' && fieldType !== 'int' && (
                   <Label>
                     <Field
                       data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit}

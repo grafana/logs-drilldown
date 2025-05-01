@@ -277,7 +277,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
     const detectedFieldFrame = getDetectedFieldsFrame(this);
     const fieldType = getDetectedFieldType(this.state.labelName, detectedFieldFrame);
 
-    if (!fieldType || fieldType === 'string' || fieldType === 'boolean' || fieldType === 'int') {
+    if (!fieldType || fieldType === 'string' || fieldType === 'boolean') {
       const error = new Error(`Incorrect field type: ${fieldType}`);
       logger.error(error, { msg: `onClickNumericFilter invalid field type ${fieldType}` });
       throw error;

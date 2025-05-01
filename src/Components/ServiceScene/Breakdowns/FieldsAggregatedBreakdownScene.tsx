@@ -322,7 +322,14 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         .setCustomFieldConfig('pointSize', 0)
         .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
         .setOverrides(setLevelColorOverrides);
-      headerActions.push(new SelectLabelActionScene({ labelName: String(labelName), fieldType: ValueSlugs.field }));
+
+      headerActions.push(
+        new SelectLabelActionScene({
+          labelName: String(labelName),
+          fieldType: ValueSlugs.field,
+          hasNumericFilters: fieldType === 'int',
+        })
+      );
     } else {
       if (panelType === 'histogram') {
         body = PanelBuilders.histogram();

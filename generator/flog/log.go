@@ -24,7 +24,7 @@ const (
 	RFC5424Log = "<%d>%d %s %s %s %d ID%d %s %s"
 	// CommonLogFormat : {host} {user-identifier} {auth-user-id} [{datetime}] "{method} {request} {protocol}" {response-code} {bytes}
 	CommonLogFormat = "%s - %s [%s] \"%s %s %s\" %d %d"
-	// JSONLogFormat : {"host": "{host}", "user-identifier": "{user-identifier}", "datetime": "{datetime}", "method": "{method}", "request": "{request}", "protocol": "{protocol}", "status": {status}, "bytes": {bytes}, "referer": "{referer}", "_25values": "{_25values}"
+  // JSONLogFormat : {"host": "{host}", "user-identifier": "{user-identifier}", "datetime": "{datetime}", "method": "{method}", "request": "{request}", "protocol": "{protocol}", "status": {status}, "bytes": {bytes}, "referer": "{referer}", "_25values": "{_25values}", "msg": "{msg}", "nested_object": "{nested_object}"}
 	JSONLogFormat         = `{"host":"%s", "user-identifier":"%s", "datetime":"%s", "method": "%s", "request": "%s", "protocol":"%s", "status":%d, "bytes":"%dMB", "referer": "%s", "_25values": %d, "msg":"%s", "nested_object": %s}`
 	ShoppingCartLogFormat = "Order %d successfully placed, customerId: %s, price: %f, paymentMethod: %s, shippingMethod: %s, shippingCountry: %s"
 )
@@ -217,6 +217,7 @@ func NewJSONLogFormat(t time.Time, URI string, statusCode int) string {
 	}
 	nestedJson, _ := json.Marshal(nestedJsonObject)
 
+  // JSONLogFormat : {"host": "{host}", "user-identifier": "{user-identifier}", "datetime": "{datetime}", "method": "{method}", "request": "{request}", "protocol": "{protocol}", "status": {status}, "bytes": {bytes}, "referer": "{referer}", "_25values": "{_25values}", "msg": "{msg}", "nested_object": "{nested_object}"}
 	return fmt.Sprintf(
 		JSONLogFormat,
 		ips[rand.Intn(len(ips))],
@@ -253,16 +254,22 @@ func NewShoppingCartWithMetadata(t time.Time) (string, push.LabelsAdapter) {
 	price := gofakeit.Price(10.0, 1000.0)
 	paymentMethod := gofakeit.CreditCardType()
 	shippingMethod := RandShippingMethod()
-	country := gofakeit.CountryAbr()
+
+  var country string
+  if price > 700.0 { 
+    country = "US"
+  } else {
+	  country = gofakeit.CountryAbr()
+  }
 
 	return fmt.Sprintf(
 			ShoppingCartLogFormat,
-			gofakeit.Number(1, 10000),
-			gofakeit.UUID(),
-			gofakeit.Price(10.0, 1000.0),
-			gofakeit.CreditCardType(),
-			RandShippingMethod(),
-			gofakeit.CountryAbr(),
+			orderId,
+			customerId,
+			price,
+			paymentMethod,
+			shippingMethod,
+			country,
 		), push.LabelsAdapter{
 			{Name: "orderId", Value: fmt.Sprintf("%d", orderId)},
 			{Name: "customerId", Value: customerId},
