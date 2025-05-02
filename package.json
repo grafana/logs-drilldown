@@ -27,7 +27,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn run lint --fix && prettier --write --list-different .",
-    "e2e": "playwright test",
+    "e2e": "playwright test -x --trace on",
     "e2e:fast": "playwright test --retries=1 --workers=3",
     "e2e:10x": "playwright test -x --trace on --repeat-each=10 --workers 1",
     "e2e:10x:fast": "playwright test --repeat-each=10 --workers 3 --retries=1",
