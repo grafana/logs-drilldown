@@ -1375,14 +1375,14 @@ test.describe('explore services breakdown page', () => {
     });
 
     // Check default values
-    await expect(explorePage.getLogsDirectionNewestFirstLocator()).toBeChecked();
-    await expect(explorePage.getLogsDirectionOldestFirstLocator()).not.toBeChecked();
+    expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(true);
+    expect(await explorePage.getLogsDirectionOldestFirstLocator().isChecked()).toBe(false);
 
-    await expect(explorePage.getNowrapLocator()).toBeChecked();
-    await expect(explorePage.getWrapLocator()).not.toBeChecked();
+    expect(await explorePage.getNowrapLocator().isChecked()).toBe(true);
+    expect(await explorePage.getWrapLocator().isChecked()).toBe(false);
 
-    await expect(explorePage.getTableToggleLocator()).not.toBeChecked();
-    await expect(explorePage.getLogsToggleLocator()).toBeChecked();
+    expect(await explorePage.getTableToggleLocator().isChecked()).toBe(false);
+    expect(await explorePage.getLogsToggleLocator().isChecked()).toBe(true);
 
     const firstRow = explorePage.getLogsPanelRow();
     const viewportSize = page.viewportSize();
@@ -1393,16 +1393,16 @@ test.describe('explore services breakdown page', () => {
     // Change line wrap
     await explorePage.getWrapLocator().click();
 
-    await expect(explorePage.getNowrapLocator()).not.toBeChecked();
-    await expect(explorePage.getWrapLocator()).toBeChecked();
+    expect(await explorePage.getNowrapLocator().isChecked()).toBe(false);
+    expect(await explorePage.getWrapLocator().isChecked()).toBe(true);
 
     // Assert that the width is less than or equal to the window width (cannot scroll horizontally)
     expect((await firstRow.boundingBox())?.width).toBeLessThanOrEqual(viewportSize?.width ?? Infinity);
 
     // Reload the page and verify the setting in local storage is applied to the panel
     await page.reload();
-    await expect(explorePage.getNowrapLocator()).not.toBeChecked();
-    await expect(explorePage.getWrapLocator()).toBeChecked();
+    expect(await explorePage.getNowrapLocator().isChecked()).toBe(false);
+    expect(await explorePage.getWrapLocator().isChecked()).toBe(true);
     expect((await firstRow.boundingBox())?.width).toBeLessThanOrEqual(viewportSize?.width ?? Infinity);
   });
 
@@ -1417,14 +1417,14 @@ test.describe('explore services breakdown page', () => {
     const secondRowTimeCell = secondRow.getByRole('cell').nth(2);
 
     // Check default values
-    await expect(explorePage.getLogsDirectionNewestFirstLocator()).toBeChecked();
-    await expect(explorePage.getLogsDirectionOldestFirstLocator()).not.toBeChecked();
+    expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(true);
+    expect(await explorePage.getLogsDirectionOldestFirstLocator().isChecked()).toBe(false);
 
-    await expect(explorePage.getNowrapLocator()).toBeChecked();
-    await expect(explorePage.getWrapLocator()).not.toBeChecked();
+    expect(await explorePage.getNowrapLocator().isChecked()).toBe(true);
+    expect(await explorePage.getWrapLocator().isChecked()).toBe(false);
 
-    await expect(explorePage.getTableToggleLocator()).not.toBeChecked();
-    await expect(explorePage.getLogsToggleLocator()).toBeChecked();
+    expect(await explorePage.getTableToggleLocator().isChecked()).toBe(false);
+    expect(await explorePage.getLogsToggleLocator().isChecked()).toBe(true);
 
     // assert timesstamps are DESC (newest first)
     expect(new Date(await firstRowTimeCell.textContent()).valueOf()).toBeGreaterThanOrEqual(
@@ -1444,8 +1444,8 @@ test.describe('explore services breakdown page', () => {
 
     expect(queryWithForwardDirectionExecuted).toEqual(true);
 
-    await expect(explorePage.getLogsDirectionNewestFirstLocator()).not.toBeChecked();
-    await expect(explorePage.getLogsDirectionOldestFirstLocator()).toBeChecked();
+    expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(false);
+    expect(await explorePage.getLogsDirectionOldestFirstLocator().isChecked()).toBe(true);
 
     // Scroll the whole page to the bottom so the whole logs panel is visible
     await explorePage.scrollToBottom();
@@ -1459,8 +1459,8 @@ test.describe('explore services breakdown page', () => {
     await page.reload();
 
     // Verify options are correct
-    await expect(explorePage.getLogsDirectionNewestFirstLocator()).not.toBeChecked();
-    await expect(explorePage.getLogsDirectionOldestFirstLocator()).toBeChecked();
+    expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(false);
+    expect(await explorePage.getLogsDirectionOldestFirstLocator().isChecked()).toBe(true);
 
     // assert timestamps are still ASC (oldest first)
     expect(new Date(await firstRowTimeCell.textContent()).valueOf()).toBeLessThanOrEqual(
@@ -1474,11 +1474,11 @@ test.describe('explore services breakdown page', () => {
     });
 
     // Check default values
-    await expect(explorePage.getLogsDirectionNewestFirstLocator()).toBeChecked();
-    await expect(explorePage.getLogsDirectionOldestFirstLocator()).not.toBeChecked();
+    expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(true);
+    expect(await explorePage.getLogsDirectionOldestFirstLocator().isChecked()).toBe(false);
 
-    await expect(explorePage.getNowrapLocator()).toBeChecked();
-    await expect(explorePage.getWrapLocator()).not.toBeChecked();
+    expect(await explorePage.getNowrapLocator().isChecked()).toBe(true);
+    expect(await explorePage.getWrapLocator().isChecked()).toBe(false);
 
     const viewportSize = page.viewportSize();
 
@@ -1491,11 +1491,11 @@ test.describe('explore services breakdown page', () => {
     // Check non-default values
     await explorePage.gotoLogsPanel('Ascending', 'true');
 
-    await expect(explorePage.getLogsDirectionNewestFirstLocator()).not.toBeChecked();
-    await expect(explorePage.getLogsDirectionOldestFirstLocator()).toBeChecked();
+    expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(false);
+    expect(await explorePage.getLogsDirectionOldestFirstLocator().isChecked()).toBe(true);
 
-    await expect(explorePage.getNowrapLocator()).not.toBeChecked();
-    await expect(explorePage.getWrapLocator()).toBeChecked();
+    expect(await explorePage.getNowrapLocator().isChecked()).toBe(false);
+    expect(await explorePage.getWrapLocator().isChecked()).toBe(true);
 
     // Check annotation location
     const boundingBoxAsc = await page.getByTestId('data-testid annotation-marker').boundingBox();
