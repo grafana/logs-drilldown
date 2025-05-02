@@ -4,6 +4,7 @@ import {
   SceneAppPageLike,
   SceneFlexLayout,
   SceneRouteMatch,
+  SceneScopesBridge,
   SceneTimeRange,
 } from '@grafana/scenes';
 import {
@@ -24,6 +25,7 @@ import { logger } from '../services/logger';
 import { capitalizeFirstLetter } from '../services/text';
 import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
 import { PageSlugs, ValueSlugs } from '../services/enums';
+import { config } from '@grafana/runtime';
 
 export type RouteProps = { labelName: string; labelValue: string; breakdownLabel?: string };
 export type RouteMatch = SceneRouteMatch<RouteProps>;
@@ -45,6 +47,7 @@ function getServicesScene(routeMatch: OptionalRouteMatch) {
 export function makeIndexPage() {
   return new SceneAppPage({
     // Top level breadcrumb
+    useScopes: config.featureToggles.scopeFilters && config.featureToggles.logQLScope,
     title: 'Grafana Logs Drilldown',
     url: prefixRoute(PageSlugs.explore),
     layout: PageLayoutType.Custom,

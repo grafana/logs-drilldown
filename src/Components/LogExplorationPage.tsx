@@ -1,19 +1,24 @@
 import React, { useEffect } from 'react';
 
-import { SceneApp, useSceneApp } from '@grafana/scenes';
+import { SceneApp, SceneScopesBridge, useSceneApp } from '@grafana/scenes';
 import { config } from '@grafana/runtime';
 import { Navigate } from 'react-router-dom';
 import { makeIndexPage, makeRedirectPage } from './Pages';
 import { initializeMetadataService } from '../services/metadata';
 
-const getSceneApp = () =>
-  new SceneApp({
+const getSceneApp = () => {
+  const scopesBridge =
+    config.featureToggles.scopeFilters && config.featureToggles.logQLScope ? new SceneScopesBridge({}) : undefined;
+
+  return new SceneApp({
+    scopesBridge,
     pages: [makeIndexPage(), makeRedirectPage()],
     urlSyncOptions: {
       createBrowserHistorySteps: true,
       updateUrlOnInit: true,
     },
   });
+};
 
 function LogExplorationView() {
   const [isInitialized, setIsInitialized] = React.useState(false);

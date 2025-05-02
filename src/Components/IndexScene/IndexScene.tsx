@@ -16,6 +16,7 @@ import {
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
   SceneRefreshPicker,
+  SceneScopesBridge,
   SceneTimePicker,
   SceneTimeRange,
   SceneTimeRangeLike,
@@ -121,6 +122,7 @@ export interface IndexSceneState extends SceneObjectState {
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
   ds?: LokiDatasource;
+  scopesBridge?: SceneScopesBridge | undefined;
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
@@ -222,6 +224,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   };
 
   public onActivate() {
+    console.log('IndexScene', this);
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
 
