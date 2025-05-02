@@ -1,6 +1,6 @@
 {
   "name": "grafana-lokiexplore-app",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "bundlewatch": {
     "files": [
       {
