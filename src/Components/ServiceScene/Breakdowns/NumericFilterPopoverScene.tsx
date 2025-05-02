@@ -18,7 +18,7 @@ import {
 } from './AddToFiltersButton';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
 
-type ComparisonOperatorTypes = 'float' | 'duration' | 'bytes' | 'int';
+type ComparisonOperatorTypes = 'bytes' | 'duration' | 'float' | 'int';
 
 export interface NumericFilterPopoverSceneState extends SceneObjectState {
   fieldType: ComparisonOperatorTypes;
@@ -116,9 +116,9 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
     if (fieldType === 'bytes') {
       units = { gtu: DisplayByteUnits.B, ltu: DisplayByteUnits.B };
     } else if (fieldType === 'duration') {
-      units = { ltu: DisplayDurationUnits.s, gtu: DisplayDurationUnits.s };
+      units = { gtu: DisplayDurationUnits.s, ltu: DisplayDurationUnits.s };
     } else if (fieldType === 'float' || fieldType === 'int') {
-      units = { ltu: '', gtu: '' };
+      units = { gtu: '', ltu: '' };
     } else {
       throw new Error(`field type incorrectly defined: ${fieldType}`);
     }
@@ -232,7 +232,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
 
   public static Component = ({ model }: SceneComponentProps<NumericFilterPopoverScene>) => {
     const popoverStyles = useStyles2(getPopoverStyles);
-    const { labelName, gt, lt, gte, lte, gtu, ltu, fieldType, hasExistingFilter } = model.useState();
+    const { fieldType, gt, gte, gtu, hasExistingFilter, labelName, lt, lte, ltu } = model.useState();
     const subTitle =
       fieldType !== 'float' && fieldType !== 'int' && fieldType !== labelName ? `(${fieldType})` : undefined;
 

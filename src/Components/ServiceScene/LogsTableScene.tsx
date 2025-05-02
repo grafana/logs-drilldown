@@ -18,18 +18,18 @@ import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
+import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { TableProvider } from '../Table/TableProvider';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
+import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
 import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
-import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import { clearVariables } from '../../services/variableHelpers';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 
@@ -92,8 +92,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
   public onActivate() {
     this.setState({
-      menu: new PanelMenu({ addInvestigationsLink: false }),
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
+      menu: new PanelMenu({ addInvestigationsLink: false }),
     });
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
@@ -193,8 +193,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { data } = sceneGraph.getData(model).useState();
-    const { selectedLine, urlColumns, visualizationType, tableLogLineState } = parentModel.useState();
-    const { menu, isColumnManagementActive, sortOrder, emptyScene } = model.useState();
+    const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
+    const { emptyScene, isColumnManagementActive, menu, sortOrder } = model.useState();
 
     // Get time range
     const timeRange = sceneGraph.getTimeRange(model);

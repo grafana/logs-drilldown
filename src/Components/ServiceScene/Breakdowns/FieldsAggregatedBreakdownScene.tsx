@@ -327,9 +327,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
       headerActions.push(
         new SelectLabelActionScene({
-          labelName: String(labelName),
           fieldType: ValueSlugs.field,
           hasNumericFilters: fieldType === 'int',
+          labelName: String(labelName),
         })
       );
     } else {
