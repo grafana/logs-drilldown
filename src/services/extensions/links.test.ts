@@ -137,6 +137,27 @@ describe('contextToLink', () => {
         }),
       });
     });
+
+    it('should parse non-regex line-filters containing `\\""`', () => {
+      const target = getTestTarget({
+        //  "\\\\\\"\\"" or `\""`
+        expr: '{cluster="eu-west-1"} |= `\\""` | json | logfmt | drop __error__, __error_details__',
+      });
+      const config = getTestConfig(linkConfigs, target);
+
+      const expectedLabelFiltersUrlString = `&var-filters=${encodeFilter(
+        `cluster|=|${addCustomInputPrefixAndValueLabels('eu-west-1')}`
+      )}`;
+      const expectedLineFiltersUrlString = `&var-lineFilters=${encodeFilter(`caseSensitive,0|__gfp__=|\\""`)}`;
+
+      expect(config).toEqual({
+        path: getPath({
+          slug: 'cluster/eu-west-1',
+          expectedLabelFiltersUrlString,
+          expectedLineFiltersUrlString,
+        }),
+      });
+    });
     it('should parse case insensitive regex line-filters in double quotes and backticks', () => {
       const target = getTestTarget({
         expr: '{cluster="eu-west-1", resource_type!=`gce_firewall_rule`} |~ "(?i)((25[0-5]|(2[0-4]|1\\\\d|[1-9]|)\\\\d)\\\\.?\\\\b){4}" !~ `(?i) ((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}`| json | logfmt | drop __error__, __error_details__',
