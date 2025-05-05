@@ -13,14 +13,16 @@ title: Viewing JSON logs
 weight: 400
 ---
 
-# Viewing JSON Logs
+# JSON log line viewer
 
-If your log lines are formatted in the JSON format, you can view them more easily using Grafana's JSON viewer in the Logs table.
+If your log lines are formatted in the JSON format, you can view them more easily using Grafana's JSON viewer in the Logs table. This view will help you more easily read your JSON style logs, and filter through them to make your related dashboards more relevant and focused.
 
 
 {{< admonition type="note" >}}
-You must be running Loki 3.5.0 or later to use the JSON viewer
+Logs Drilldown JSON Viewer is an experimental feature. Engineering and on-call support is not available. Documentation is either limited or not provided outside of code comments. No SLA is provided. To use this feature, you must be running Loki 3.5.0 or later.
 {{< /admonition >}}
+
+## Viewing JSON logs
 
 To interact with the JSON view, select the **Show Logs** button for your service in Logs Drilldown. 
 
@@ -37,6 +39,8 @@ Users can include and exclude specific log data from their visualizations by sel
 For example, given a set of logs of API requests, selecting the **exclude** button next to a method field with status "GET" will result in the Log Volume dashboard showing only requests of other types (DELETE/PATCH/POST/PUT).
 
 To include them again, simply remove them from the **Fields** filter above the Logs Volume visualization. 
+
+Log lines with only certain fields or metadata structured as JSON not currently supported.
 
 {{< admonition type="note" >}}
 We are keen to improve this feature, so please [contact us](https://forms.gle/1sYWCTPvD72T1dPH9) if there is something that would help you find the signal in the noise.
