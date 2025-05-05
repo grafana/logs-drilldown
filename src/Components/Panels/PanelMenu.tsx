@@ -292,16 +292,6 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
   const extensionPointId = ExtensionPoints.MetricInvestigation;
   const context = addToInvestigation.state.context;
 
-  // `getPluginLinkExtensions` is removed in Grafana v12
-  if (getPluginLinkExtensions !== undefined) {
-    const links = getPluginLinkExtensions({
-      context,
-      extensionPointId,
-    });
-
-    return links.extensions[0];
-  }
-
   // `getObservablePluginLinks` is introduced in Grafana v12
   if (getObservablePluginLinks !== undefined) {
     const links: PluginExtensionLink[] = await firstValueFrom(
