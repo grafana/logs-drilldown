@@ -210,6 +210,10 @@ export class ExplorePage {
     await expect(this.page.getByLabel('Panel loading bar').first()).toBeVisible();
   }
 
+  getExploreCodeQueryLocator() {
+    return this.page.getByRole('code').locator('div').filter({ hasText: 'sum' }).nth(3);
+  }
+
   async assertTabsNotLoading() {
     const tabSelectors = [
       this.page.getByTestId(testIds.exploreServiceDetails.tabLogs),

@@ -1513,7 +1513,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page.getByRole('code').locator('div').filter({ hasText: 'sum(count_over_time({' }).nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       'sum(count_over_time({service_name="tempo-distributor"} | detected_level != "" [$__auto])) by (detected_level)'
@@ -1529,7 +1529,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page.getByRole('code').locator('div').filter({ hasText: 'sum(count_over_time({' }).nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       'sum(count_over_time({service_name="tempo-distributor"} | detected_level != "" [$__auto])) by (detected_level)'
@@ -1544,11 +1544,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page
-      .getByRole('code')
-      .locator('div')
-      .filter({ hasText: `sum by (${fieldName}) (count_over_time({` })
-      .nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       `sum by (${fieldName}) (count_over_time({service_name="tempo-distributor"} | logfmt | ${fieldName}!="" [$__auto]))`
@@ -1567,11 +1563,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page
-      .getByRole('code')
-      .locator('div')
-      .filter({ hasText: `sum by (${fieldName}) (count_over_time({` })
-      .nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       `sum by (${fieldName}) (count_over_time({service_name="tempo-distributor"} | logfmt | ${fieldName}!="" [$__auto]))`
