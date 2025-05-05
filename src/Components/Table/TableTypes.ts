@@ -11,11 +11,11 @@ export type ActiveFieldMeta = {
 };
 
 export type GenericMeta = {
-  percentOfLinesWithLabel: number;
-  type?: 'BODY_FIELD' | 'TIME_FIELD' | 'LINK_FIELD';
   cardinality: number;
-  maxLength?: number;
   fieldType?: FieldType;
+  maxLength?: number;
+  percentOfLinesWithLabel: number;
+  type?: 'BODY_FIELD' | 'LINK_FIELD' | 'TIME_FIELD';
 };
 
 export type FieldNameMeta = (ActiveFieldMeta | InactiveFieldMeta) & GenericMeta;

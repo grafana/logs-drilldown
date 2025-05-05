@@ -1,21 +1,23 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LinkButton, useStyles2 } from '@grafana/ui';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { getDrillDownIndexLink, pushUrlHandler } from '../../services/navigate';
-import { getLabelsVariable } from '../../services/variableGetters';
-import { GrafanaTheme2 } from '@grafana/data';
-import { css } from '@emotion/css';
-import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
-import { FilterOp } from '../../services/filterTypes';
-import { testIds } from '../../services/testIds';
+
 import { addToFavorites } from '../../services/favorites';
+import { FilterOp } from '../../services/filterTypes';
+import { getDrillDownIndexLink, pushUrlHandler } from '../../services/navigate';
+import { testIds } from '../../services/testIds';
+import { getLabelsVariable } from '../../services/variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 export interface SelectServiceButtonState extends SceneObjectState {
-  labelValue: string;
-  labelName: string;
   hidden?: boolean;
+  labelName: string;
+  labelValue: string;
 }
 
 export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonState> {
@@ -77,8 +79,8 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
  */
 function selectLabel(primaryLabelName: string, primaryLabelValue: string, sceneRef: SceneObject) {
   reportAppInteraction(USER_EVENTS_PAGES.service_selection, USER_EVENTS_ACTIONS.service_selection.service_selected, {
-    value: primaryLabelValue,
     label: primaryLabelName,
+    value: primaryLabelValue,
   });
 
   addToFavorites(primaryLabelName, primaryLabelValue, sceneRef);

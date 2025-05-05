@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
+
 import { css } from '@emotion/css';
+import { useResizeObserver } from '@react-aria/utils';
 
 import {
   DataFrame,
@@ -11,32 +13,31 @@ import {
   LogsSortOrder,
 } from '@grafana/data';
 
+import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
 import { FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { useQueryContext } from 'Components/Table/Context/QueryContext';
-import { useResizeObserver } from '@react-aria/utils';
 import { logsControlsSupported } from 'services/panel';
 
 export type SpecialFieldsType = {
-  time: FieldWithIndex;
   body: FieldWithIndex;
   extraFields: FieldWithIndex[];
+  time: FieldWithIndex;
 };
 
 // matches common ISO 8601
 const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3,})?(?:Z|[-+]\d{2}:?\d{2})$/;
 
 interface TableWrapProps {
-  urlColumns: string[];
-  urlTableBodyState?: LogLineState;
-  setUrlColumns: (columns: string[]) => void;
-  panelWrap: React.RefObject<HTMLDivElement | null>;
   clearSelectedLine: () => void;
-  setUrlTableBodyState: (logLineState: LogLineState) => void;
-  showColumnManagementDrawer: (isActive: boolean) => void;
   isColumnManagementActive: boolean;
   logsSortOrder: LogsSortOrder;
+  panelWrap: React.RefObject<HTMLDivElement | null>;
+  setUrlColumns: (columns: string[]) => void;
+  setUrlTableBodyState: (logLineState: LogLineState) => void;
+  showColumnManagementDrawer: (isActive: boolean) => void;
+  urlColumns: string[];
+  urlTableBodyState?: LogLineState;
 }
 
 const getStyles = () => ({
@@ -48,22 +49,22 @@ const getStyles = () => ({
 export const TableWrap = (props: TableWrapProps) => {
   const { logsFrame } = useQueryContext();
 
-  const [panelWrapSize, setPanelWrapSize] = useState({ width: 0, height: 0 });
+  const [panelWrapSize, setPanelWrapSize] = useState({ height: 0, width: 0 });
 
   // Table needs to be positioned absolutely, passing in reference wrapping panelChrome from parent
   useResizeObserver({
-    ref: props.panelWrap,
     onResize: () => {
       const element = props.panelWrap.current;
       if (element) {
         if (panelWrapSize.width !== element.clientWidth || panelWrapSize.height !== element.clientHeight) {
           setPanelWrapSize({
-            width: element.clientWidth,
             height: element.clientHeight,
+            width: element.clientWidth,
           });
         }
       }
     },
+    ref: props.panelWrap,
   });
 
   const styles = getStyles();
@@ -99,9 +100,9 @@ export const TableWrap = (props: TableWrapProps) => {
   // If we have labels and log lines
   let pendingLabelState = mapLabelsToInitialState(logsFrame.raw, labels);
   const specialFields = {
-    time: logsFrame.timeField,
     body: logsFrame.bodyField,
     extraFields: logsFrame.extraFields,
+    time: logsFrame.timeField,
   };
 
   // Normalize the other fields
@@ -154,7 +155,7 @@ type labelName = string;
 type labelValue = string;
 
 export function getCardinalityMapFromLabels(labels: Labels[]) {
-  const cardinalityMap = new Map<labelName, { valueSet: Set<labelValue>; maxLength: number }>();
+  const cardinalityMap = new Map<labelName, { maxLength: number; valueSet: Set<labelValue> }>();
   labels.forEach((fieldLabels) => {
     const labelNames = Object.keys(fieldLabels);
     labelNames.forEach((labelName) => {
@@ -217,30 +218,30 @@ function mapLabelsToInitialState(dataFrame: DataFrame, labels: Labels[]) {
           if (value) {
             if (value?.active) {
               labelMap.set(label, {
-                percentOfLinesWithLabel: value.percentOfLinesWithLabel + 1,
                 active: true,
-                index: value.index,
                 cardinality: cardinalityCount,
+                index: value.index,
                 maxLength: cardinalityMap?.maxLength,
+                percentOfLinesWithLabel: value.percentOfLinesWithLabel + 1,
               });
             } else {
               labelMap.set(label, {
-                percentOfLinesWithLabel: value.percentOfLinesWithLabel + 1,
                 active: false,
-                index: undefined,
                 cardinality: cardinalityCount,
+                index: undefined,
                 maxLength: cardinalityMap?.maxLength,
+                percentOfLinesWithLabel: value.percentOfLinesWithLabel + 1,
               });
             }
           }
           // Otherwise add it
         } else {
           labelMap.set(label, {
-            percentOfLinesWithLabel: 1,
             active: false,
-            index: undefined,
             cardinality: cardinalityCount,
+            index: undefined,
             maxLength: cardinalityMap?.maxLength,
+            percentOfLinesWithLabel: 1,
           });
         }
       });
@@ -279,23 +280,23 @@ function addSpecialLabelsState(
     const index = pendingLabelState[field.name]?.index;
     if (isActive && index !== undefined) {
       pendingLabelState[field.name] = {
+        active: true,
+        cardinality: numberOfLogLines,
+        index: index,
         percentOfLinesWithLabel: normalize(
           field.values.filter((value) => value !== null && value !== undefined).length,
           numberOfLogLines
         ),
-        active: true,
-        index: index,
-        cardinality: numberOfLogLines,
       };
     } else {
       pendingLabelState[field.name] = {
+        active: false,
+        cardinality: numberOfLogLines,
+        index: undefined,
         percentOfLinesWithLabel: normalize(
           field.values.filter((value) => value !== null && value !== undefined).length,
           numberOfLogLines
         ),
-        active: false,
-        index: undefined,
-        cardinality: numberOfLogLines,
       };
     }
   });

@@ -1,12 +1,13 @@
-import { SeriesVisibilityChangeMode } from '@grafana/ui';
-import { getLevelLabelsFromSeries, getVisibleLevels, toggleLevelFromFilter, toggleLevelVisibility } from './levels';
 import { AdHocVariableFilter, FieldType, toDataFrame } from '@grafana/data';
-import { VAR_LEVELS } from './variables';
 import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
+import { SeriesVisibilityChangeMode } from '@grafana/ui';
+
+import { FilterOp } from './filterTypes';
+import { getLevelLabelsFromSeries, getVisibleLevels, toggleLevelFromFilter, toggleLevelVisibility } from './levels';
+import { getLevelsVariable } from './variableGetters';
+import { VAR_LEVELS } from './variables';
 import { addToFilters, replaceFilter } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { LEVEL_NAME } from 'Components/Table/constants';
-import { getLevelsVariable } from './variableGetters';
-import { FilterOp } from './filterTypes';
 
 jest.mock('./variables');
 jest.mock('./variableGetters');
@@ -64,12 +65,12 @@ describe('getLabelsFromSeries', () => {
       fields: [
         { name: 'Time', type: FieldType.time, values: [0] },
         {
-          name: 'Value',
-          type: FieldType.number,
-          values: [1],
           labels: {
             detected_level: 'error',
           },
+          name: 'Value',
+          type: FieldType.number,
+          values: [1],
         },
       ],
     }),
@@ -77,12 +78,12 @@ describe('getLabelsFromSeries', () => {
       fields: [
         { name: 'Time', type: FieldType.time, values: [0] },
         {
-          name: 'Value',
-          type: FieldType.number,
-          values: [1],
           labels: {
             detected_level: 'warn',
           },
+          name: 'Value',
+          type: FieldType.number,
+          values: [1],
         },
       ],
     }),
@@ -90,10 +91,10 @@ describe('getLabelsFromSeries', () => {
       fields: [
         { name: 'Time', type: FieldType.time, values: [0] },
         {
+          labels: {},
           name: 'Value',
           type: FieldType.number,
           values: [1],
-          labels: {},
         },
       ],
     }),
@@ -107,8 +108,8 @@ describe('getVisibleLevels', () => {
   const scene = {} as SceneObject;
   function setup(filters: AdHocVariableFilter[]) {
     const levelsVariable = new AdHocFiltersVariable({
-      name: VAR_LEVELS,
       filters,
+      name: VAR_LEVELS,
     });
     jest.mocked(getLevelsVariable).mockReturnValue(levelsVariable);
   }
@@ -247,8 +248,8 @@ describe('toggleLevelFromFilter', () => {
   const scene = {} as SceneObject;
   function setup(filters: AdHocVariableFilter[]) {
     const levelsVariable = new AdHocFiltersVariable({
-      name: VAR_LEVELS,
       filters,
+      name: VAR_LEVELS,
     });
     jest.mocked(getLevelsVariable).mockReturnValue(levelsVariable);
   }

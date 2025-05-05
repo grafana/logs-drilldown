@@ -1,20 +1,22 @@
-import { IconButton } from '@grafana/ui';
-import { FilterOp } from '../../../services/filterTypes';
 import React, { memo } from 'react';
-import { KeyPath } from '@gtk-grafana/react-json-tree';
+
 import { AdHocFilterWithLabels } from '@grafana/scenes';
+import { IconButton } from '@grafana/ui';
+
+import { FilterOp } from '../../../services/filterTypes';
 import { AddJSONFilter } from '../LogsJsonScene';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 interface Props {
-  label: string | number;
-  value: string;
-  fullKeyPath: KeyPath;
-  fullKey: string;
-  existingFilter?: AdHocFilterWithLabels;
   addFilter: AddJSONFilter;
-  type: 'include' | 'exclude';
+  existingFilter?: AdHocFilterWithLabels;
+  fullKey: string;
+  fullKeyPath: KeyPath;
+  label: string | number;
+  type: 'exclude' | 'include';
+  value: string;
 }
-const JSONFilterValueButton = memo(({ label, value, fullKey, fullKeyPath, existingFilter, addFilter, type }: Props) => {
+const JSONFilterValueButton = memo(({ addFilter, existingFilter, fullKey, fullKeyPath, label, type, value }: Props) => {
   const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
   return (
     <IconButton

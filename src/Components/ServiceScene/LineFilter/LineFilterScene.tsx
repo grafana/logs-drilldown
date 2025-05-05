@@ -1,8 +1,11 @@
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import debounce from 'lodash/debounce';
 import { ChangeEvent, KeyboardEvent, useState } from 'react';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { getLineFiltersVariable, getLineFilterVariable } from '../../../services/variableGetters';
+
+import debounce from 'lodash/debounce';
+
+import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+
+import { LineFilterCaseSensitive, LineFilterOp } from '../../../services/filterTypes';
+import { addCurrentUrlToHistory } from '../../../services/navigate';
 import {
   getLineFilterCase,
   getLineFilterExclusive,
@@ -11,16 +14,16 @@ import {
   setLineFilterExclusive,
   setLineFilterRegex,
 } from '../../../services/store';
-import { RegexInputValue } from './RegexIconButton';
-import { LineFilterCaseSensitive, LineFilterOp } from '../../../services/filterTypes';
+import { getLineFiltersVariable, getLineFilterVariable } from '../../../services/variableGetters';
 import { LineFilterEditor } from './LineFilterEditor';
-import { addCurrentUrlToHistory } from '../../../services/navigate';
+import { RegexInputValue } from './RegexIconButton';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 interface LineFilterState extends SceneObjectState {
-  lineFilter: string;
   caseSensitive: boolean;
-  regex: boolean;
   exclusive: boolean;
+  lineFilter: string;
+  regex: boolean;
 }
 
 /**
@@ -34,10 +37,10 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
    */
   constructor(state?: Partial<LineFilterState>) {
     super({
-      lineFilter: state?.lineFilter ?? '',
       caseSensitive: state?.caseSensitive ?? getLineFilterCase(false),
-      regex: state?.regex ?? getLineFilterRegex(false),
       exclusive: state?.exclusive ?? getLineFilterExclusive(false),
+      lineFilter: state?.lineFilter ?? '',
+      regex: state?.regex ?? getLineFilterRegex(false),
       ...state,
     });
     this.addActivationHandler(this.onActivate);
@@ -54,10 +57,10 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
     }
 
     this.setState({
-      lineFilter: filter.value,
-      regex: filter.operator === LineFilterOp.regex || filter.operator === LineFilterOp.negativeRegex,
       caseSensitive: filter.key === LineFilterCaseSensitive.caseSensitive,
       exclusive: filter.operator === LineFilterOp.negativeMatch || filter.operator === LineFilterOp.negativeRegex,
+      lineFilter: filter.value,
+      regex: filter.operator === LineFilterOp.regex || filter.operator === LineFilterOp.negativeRegex,
     });
 
     return () => {
@@ -253,33 +256,33 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.search_string_in_logs_changed,
       {
-        searchQueryLength: search.length,
+        caseSensitive: filter.key,
         containsLevel: search.toLowerCase().includes('level'),
         operator: filter.operator,
-        caseSensitive: filter.key,
+        searchQueryLength: search.length,
       }
     );
   };
 }
 
 function LineFilterComponent({ model }: SceneComponentProps<LineFilterScene>) {
-  const { lineFilter, caseSensitive, regex, exclusive } = model.useState();
+  const { caseSensitive, exclusive, lineFilter, regex } = model.useState();
   const [focus, setFocus] = useState(false);
   return LineFilterEditor({
-    exclusive,
-    lineFilter,
     caseSensitive,
-    regex,
-    onSubmitLineFilter: model.onSubmitLineFilter,
-    handleEnter: model.handleEnter,
-    onInputChange: model.handleChange,
-    updateFilter: model.updateFilter,
-    onCaseSensitiveToggle: model.onCaseSensitiveToggle,
-    onRegexToggle: model.onRegexToggle,
-    setExclusive: model.onToggleExclusive,
-    onClearLineFilter: model.clearFilter,
+    exclusive,
     focus,
+    handleEnter: model.handleEnter,
+    lineFilter,
+    onCaseSensitiveToggle: model.onCaseSensitiveToggle,
+    onClearLineFilter: model.clearFilter,
+    onInputChange: model.handleChange,
+    onRegexToggle: model.onRegexToggle,
+    onSubmitLineFilter: model.onSubmitLineFilter,
+    regex,
+    setExclusive: model.onToggleExclusive,
     setFocus,
     type: 'editor',
+    updateFilter: model.updateFilter,
   });
 }

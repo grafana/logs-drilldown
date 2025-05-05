@@ -1,3 +1,4 @@
+import { AdHocVariableFilter } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   CustomVariable,
@@ -6,7 +7,12 @@ import {
   SceneObject,
   SceneVariableState,
 } from '@grafana/scenes';
+
+import { AdHocFilterTypes, InterpolatedFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { CustomConstantVariable } from './CustomConstantVariable';
+import { isFilterMetadata } from './filters';
+import { logger } from './logger';
+import { narrowFieldValue, NarrowingError } from './narrowing';
 import {
   AdHocFieldValue,
   FieldValue,
@@ -40,19 +46,14 @@ import {
   VAR_PRIMARY_LABEL,
   VAR_PRIMARY_LABEL_SEARCH,
 } from './variables';
-import { AdHocVariableFilter } from '@grafana/data';
-import { logger } from './logger';
-import { narrowFieldValue, NarrowingError } from './narrowing';
-import { isFilterMetadata } from './filters';
-import { AdHocFilterTypes, InterpolatedFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export function getLogsStreamSelector(options: LogsQueryOptions) {
   const {
-    labelExpressionToAdd = '',
-    structuredMetadataToAdd = '',
     fieldExpressionToAdd = '',
     jsonParserPropToAdd = '',
+    labelExpressionToAdd = '',
     parser = undefined,
+    structuredMetadataToAdd = '',
   } = options;
 
   switch (parser) {
@@ -167,8 +168,8 @@ export function getServiceSelectionSearchVariable(sceneRef: SceneObject) {
 
 export function clearServiceSelectionSearchVariable(sceneRef: SceneObject) {
   getServiceSelectionSearchVariable(sceneRef).setState({
-    value: '.+',
     label: '',
+    value: '.+',
   });
 }
 
@@ -184,10 +185,10 @@ export function setServiceSelectionPrimaryLabelKey(key: string, sceneRef: SceneO
   getServiceSelectionPrimaryLabel(sceneRef).setState({
     filters: [
       {
+        key: key,
+        operator: '=~',
         // the value is replaced by the value in VAR_PRIMARY_LABEL_SEARCH if a search is active, so we just need to set the filter key (label name)
         value: '.+',
-        operator: '=~',
-        key: key,
       },
     ],
   });
@@ -224,8 +225,8 @@ export function getValueFromFieldsFilter(
 ): FieldValue {
   if (isFilterMetadata(filter)) {
     return {
-      value: filter.value,
       parser: 'structuredMetadata',
+      value: filter.value,
     };
   }
 
@@ -249,8 +250,8 @@ export function getValueFromFieldsFilter(
     // If the user has a URL from before 0.1.4 where detected_fields changed the format of the fields value to include the parser, fall back to mixed parser if we have a value
     if (filter.value) {
       return {
-        value: filter.value,
         parser: 'mixed',
+        value: filter.value,
       };
     }
     throw e;

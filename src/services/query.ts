@@ -1,4 +1,12 @@
 import { AdHocVariableFilter, SelectableValue } from '@grafana/data';
+import { AdHocFilterWithLabels, sceneGraph, SceneObject, sceneUtils } from '@grafana/scenes';
+
+import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
+import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
+import { ExpressionBuilder } from './ExpressionBuilder';
+import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
+import { LokiQuery } from './lokiQuery';
+import { PLUGIN_ID } from './plugin';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFiltersWithLabelsAndMeta,
@@ -6,13 +14,6 @@ import {
   VAR_DATASOURCE_EXPR,
   VAR_JSON_FIELDS_EXPR,
 } from './variables';
-import { LokiQuery } from './lokiQuery';
-import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
-import { PLUGIN_ID } from './plugin';
-import { AdHocFilterWithLabels, sceneGraph, SceneObject, sceneUtils } from '@grafana/scenes';
-import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
-import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
-import { ExpressionBuilder } from './ExpressionBuilder';
 
 /**
  * Builds the resource query
@@ -29,8 +30,8 @@ export const buildResourceQuery = (
 ): LokiQuery & SceneDataQueryResourceRequest & { primaryLabel?: string } => {
   return {
     ...defaultQueryParams,
-    resource,
     refId: resource,
+    resource,
     ...queryParamsOverrides,
     datasource: { uid: VAR_DATASOURCE_EXPR },
     expr,
@@ -52,15 +53,15 @@ export const buildDataQuery = (expr: string, queryParamsOverrides?: Partial<Loki
 };
 
 const defaultQueryParams = {
-  refId: 'A',
-  queryType: 'range',
   editorMode: 'code',
+  queryType: 'range',
+  refId: 'A',
   supportingQueryType: PLUGIN_ID,
 };
 
 export const buildVolumeQuery = (
   expr: string,
-  resource: 'volume' | 'patterns' | 'detected_labels' | 'detected_fields' | 'labels',
+  resource: 'detected_fields' | 'detected_labels' | 'labels' | 'patterns' | 'volume',
   primaryLabel: string,
   queryParamsOverrides?: Record<string, unknown>
 ): LokiQuery & SceneDataQueryResourceRequest => {
@@ -94,8 +95,8 @@ export function onAddCustomFieldValue(
   filter: AdHocFiltersWithLabelsAndMeta
 ): { value: string | undefined; valueLabels: string[] } {
   const field: FieldValue = {
-    value: item.value ?? '',
     parser: filter?.meta?.parser ?? 'mixed',
+    value: item.value ?? '',
   };
 
   // metadata is not encoded

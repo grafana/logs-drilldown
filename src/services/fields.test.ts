@@ -1,21 +1,20 @@
 import { createDataFrame, FieldType, toDataFrame } from '@grafana/data';
 
-import { extractParserFromArray } from './fields';
 import {
   DETECTED_FIELDS_CARDINALITY_NAME,
   DETECTED_FIELDS_NAME_FIELD,
   DETECTED_FIELDS_PARSER_NAME,
   DETECTED_FIELDS_TYPE_NAME,
 } from './datasource';
-import { getLabelTypeFromFrame } from './lokiQuery';
+import { extractParserFromArray } from './fields';
 import { LabelType } from './fieldsTypes';
+import { getLabelTypeFromFrame } from './lokiQuery';
 
 jest.mock('./variables');
 
 describe('extractParserFromDetectedFields', () => {
   it('Extracts parser and fields from a detected_field response with only structured metadata', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod'] },
         {
@@ -34,13 +33,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('structuredMetadata');
   });
   it('Extracts parser and fields from a detected_field response with only json', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod'] },
         {
@@ -59,13 +58,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('json');
   });
   it('Extracts parser and fields from a detected_field response with only logfmt ', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod'] },
         {
@@ -84,13 +83,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('logfmt');
   });
   it('Extracts parser and fields from a detected_field response with only mixed ', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod'] },
         {
@@ -109,13 +108,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('mixed');
   });
   it('Extracts parser and fields from a detected_field response with structured metadata and logfmt', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod', 'org'] },
         {
@@ -134,13 +133,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string', 'string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('logfmt');
   });
   it('Extracts parser and fields from a detected_field response with structured metadata, logfmt, and json', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod', 'org', 'greeting'] },
         {
@@ -159,13 +158,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string', 'string', 'string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('mixed');
   });
   it('Extracts parser and fields from a detected_field response with structured metadata, and json', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod', 'org', 'greeting'] },
         {
@@ -184,13 +183,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string', 'string', 'string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('json');
   });
   it('Extracts parser and fields from a detected_field response with structured metadata, json, and mixed', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod', 'org', 'greeting'] },
         {
@@ -209,13 +208,13 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string', 'string', 'string'],
         },
       ],
+      refId: 'A',
     });
 
     expect(extractParserFromArray(dataFrame.fields[2].values)).toEqual('mixed');
   });
   it('Extracts parser and fields from a detected_field response with structured metadata, json, and json mixed with structured metadata', () => {
     const dataFrame = createDataFrame({
-      refId: 'A',
       fields: [
         { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: ['pod', 'org', 'greeting'] },
         {
@@ -234,6 +233,7 @@ describe('extractParserFromDetectedFields', () => {
           values: ['string', 'string', 'string'],
         },
       ],
+      refId: 'A',
     });
 
     //@todo can a field with multiple parsers have structured metadata and json or logfmt? This returns mixed right now, but should probably be json if this can happen?

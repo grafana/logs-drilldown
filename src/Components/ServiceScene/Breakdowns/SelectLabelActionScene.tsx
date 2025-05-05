@@ -1,3 +1,9 @@
+import React, { useRef } from 'react';
+
+import { css } from '@emotion/css';
+import { rest } from 'lodash';
+
+import { AdHocVariableFilter, Field, GrafanaTheme2, Labels, LoadingState, SelectableValue } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
@@ -7,9 +13,6 @@ import {
   SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
-import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../ServiceScene';
-import { getValueBreakdownLink } from '../../../services/navigate';
-import { getPrimaryLabelFromUrl } from '../../../services/routing';
 import {
   Button,
   ButtonGroup,
@@ -20,10 +23,16 @@ import {
   PopoverController,
   useStyles2,
 } from '@grafana/ui';
-import React, { useRef } from 'react';
-import { addToFilters, clearFilters, InterpolatedFilterType } from './AddToFiltersButton';
-import { EMPTY_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE, VAR_FIELDS } from '../../../services/variables';
-import { AdHocVariableFilter, Field, GrafanaTheme2, Labels, LoadingState, SelectableValue } from '@grafana/data';
+
+import { ValueSlugs } from '../../../services/enums';
+import { getDetectedFieldType } from '../../../services/fields';
+import { FilterOp } from '../../../services/filterTypes';
+import { logger } from '../../../services/logger';
+import { LokiQuery } from '../../../services/lokiQuery';
+import { getValueBreakdownLink } from '../../../services/navigate';
+import { getPrimaryLabelFromUrl } from '../../../services/routing';
+import { findObjectOfType } from '../../../services/scenes';
+import { testIds } from '../../../services/testIds';
 import {
   getFieldsVariable,
   getLabelsVariable,
@@ -31,26 +40,20 @@ import {
   getValueFromAdHocVariableFilter,
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
-import { FilterOp } from '../../../services/filterTypes';
-import { LokiQuery } from '../../../services/lokiQuery';
-import { css } from '@emotion/css';
-import { rest } from 'lodash';
-import { NumericFilterPopoverScene } from './NumericFilterPopoverScene';
-import { getDetectedFieldType } from '../../../services/fields';
-import { logger } from '../../../services/logger';
-import { testIds } from '../../../services/testIds';
-import { findObjectOfType } from '../../../services/scenes';
+import { EMPTY_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE, VAR_FIELDS } from '../../../services/variables';
 import { syncLevelsVariable } from '../../IndexScene/LevelsVariableScene';
-import { ValueSlugs } from '../../../services/enums';
+import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../ServiceScene';
+import { addToFilters, clearFilters, InterpolatedFilterType } from './AddToFiltersButton';
+import { NumericFilterPopoverScene } from './NumericFilterPopoverScene';
 
 interface SelectLabelActionSceneState extends SceneObjectState {
-  labelName: string;
   fieldType: ValueSlugs;
-  hideValueDrilldown?: boolean;
-  hasSparseFilters?: boolean;
   hasNumericFilters?: boolean;
-  selectedValue?: SelectableValue<string>;
+  hasSparseFilters?: boolean;
+  hideValueDrilldown?: boolean;
+  labelName: string;
   popover?: NumericFilterPopoverScene;
+  selectedValue?: SelectableValue<string>;
   showPopover: boolean;
 }
 
@@ -88,14 +91,14 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
 
   public static Component = ({ model }: SceneComponentProps<SelectLabelActionScene>) => {
     const {
+      fieldType,
+      hasNumericFilters,
+      hasSparseFilters,
       hideValueDrilldown,
       labelName,
-      hasSparseFilters,
-      hasNumericFilters,
-      selectedValue,
       popover,
+      selectedValue,
       showPopover,
-      fieldType,
     } = model.useState();
     const variable = model.getVariable();
     const variableName = variable.useState().name as InterpolatedFilterType;
@@ -121,20 +124,20 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
     const includeSelected = selectedOptionValue === INCLUDE_VALUE && !numericSelected;
 
     const sparseIncludeOption: SelectableValue<string> = {
-      value: INCLUDE_VALUE,
       component: () => (
         <SelectableValueComponent selected={includeSelected} text={`Include all log lines with ${labelName}`} />
       ),
+      value: INCLUDE_VALUE,
     };
     const sparseExcludeOption: SelectableValue<string> = {
-      value: EXCLUDE_VALUE,
       component: () => <SelectableValueComponent selected={false} text={`Exclude all log lines with ${labelName}`} />,
+      value: EXCLUDE_VALUE,
     };
     const numericFilterOption: SelectableValue<string> = {
-      value: NUMERIC_FILTER_VALUE,
       component: () => (
         <SelectableValueComponent selected={numericSelected} text={`Add an expression, i.e. ${labelName} > 30`} />
       ),
+      value: NUMERIC_FILTER_VALUE,
     };
 
     const options: Array<SelectableValue<string>> = [];
@@ -284,7 +287,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
     }
 
     this.setState({
-      popover: new NumericFilterPopoverScene({ labelName: this.state.labelName, variableType, fieldType }),
+      popover: new NumericFilterPopoverScene({ fieldType, labelName: this.state.labelName, variableType }),
     });
     this.togglePopover();
   };
@@ -394,7 +397,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
   }
 }
 
-function SelectableValueComponent(props: { text: string; selected: boolean }) {
+function SelectableValueComponent(props: { selected: boolean; text: string }) {
   const styles = useStyles2(getSelectableValueComponentStyles);
   return (
     <span className={styles.description}>
@@ -406,44 +409,44 @@ function SelectableValueComponent(props: { text: string; selected: boolean }) {
 
 const getSelectableValueComponentStyles = (theme: GrafanaTheme2) => {
   return {
-    selected: css({
-      label: 'selectable-value-selected',
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        top: '4px',
-        height: 'calc(100% - 8px)',
-        width: '2px',
-        backgroundColor: theme.colors.warning.main,
-      },
-    }),
     description: css({
-      textAlign: 'left',
       fontSize: theme.typography.pxToRem(12),
+      textAlign: 'left',
+    }),
+    selected: css({
+      '&:before': {
+        backgroundColor: theme.colors.warning.main,
+        content: '""',
+        height: 'calc(100% - 8px)',
+        left: 0,
+        position: 'absolute',
+        top: '4px',
+        width: '2px',
+      },
+      label: 'selectable-value-selected',
     }),
   };
 };
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {
-    popover: css({
-      borderRadius: theme.shape.radius.default,
-      boxShadow: theme.shadows.z3,
-      background: theme.colors.background.primary,
-      border: `1px solid ${theme.colors.border.weak}`,
-    }),
-    description: css({
-      textAlign: 'left',
-      fontSize: theme.typography.pxToRem(12),
-    }),
     buttonSelect: css({
       border: `1px solid ${theme.colors.border.strong}`,
+      borderBottomLeftRadius: 0,
       borderLeft: 'none',
       borderTopLeftRadius: 0,
-      borderBottomLeftRadius: 0,
-      padding: 1,
       height: '24px',
+      padding: 1,
+    }),
+    description: css({
+      fontSize: theme.typography.pxToRem(12),
+      textAlign: 'left',
+    }),
+    popover: css({
+      background: theme.colors.background.primary,
+      border: `1px solid ${theme.colors.border.weak}`,
+      borderRadius: theme.shape.radius.default,
+      boxShadow: theme.shadows.z3,
     }),
   };
 };

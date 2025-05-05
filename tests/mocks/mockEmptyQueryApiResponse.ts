@@ -1,8 +1,8 @@
 export const mockEmptyQueryApiResponse = {
   results: {
     tenant: {
-      status: 200,
       frames: [],
+      status: 200,
     },
   },
 };

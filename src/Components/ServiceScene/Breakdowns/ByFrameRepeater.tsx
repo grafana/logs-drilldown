@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+import { map, Observable } from 'rxjs';
+
 import { DataFrame, LoadingState, PanelData } from '@grafana/data';
 import {
   SceneByFrameRepeater,
@@ -14,16 +17,15 @@ import {
   SceneReactObject,
   VizPanel,
 } from '@grafana/scenes';
-import { sortSeries } from 'services/sorting';
-import { fuzzySearch } from '../../../services/search';
-import { getLabelValue } from './SortByScene';
 import { Alert, Button } from '@grafana/ui';
-import { css } from '@emotion/css';
+
+import { logger } from '../../../services/logger';
+import { fuzzySearch } from '../../../services/search';
 import { BreakdownSearchReset } from './BreakdownSearchScene';
-import { map, Observable } from 'rxjs';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { VALUE_SUMMARY_PANEL_KEY } from './Panels/ValueSummary';
-import { logger } from '../../../services/logger';
+import { getLabelValue } from './SortByScene';
+import { sortSeries } from 'services/sorting';
 
 interface ByFrameRepeaterState extends SceneObjectState {
   body: SceneLayout;
@@ -40,11 +42,11 @@ export class ByFrameRepeater extends SceneObjectBase<ByFrameRepeaterState> {
   private sortedSeries: DataFrame[] = [];
   private getFilter: () => string;
   public constructor({
-    sortBy,
     direction,
     getFilter,
+    sortBy,
     ...state
-  }: ByFrameRepeaterState & { sortBy: string; direction: string; getFilter: () => string }) {
+  }: ByFrameRepeaterState & { direction: string; getFilter: () => string; sortBy: string }) {
     super(state);
 
     this.sortBy = sortBy;
@@ -192,7 +194,6 @@ export class ByFrameRepeater extends SceneObjectBase<ByFrameRepeaterState> {
 
 function buildNoResultsScene(filter: string, clearFilter: () => void) {
   return new SceneFlexLayout({
-    direction: 'row',
     children: [
       new SceneFlexItem({
         body: new SceneReactObject({
@@ -209,22 +210,23 @@ function buildNoResultsScene(filter: string, clearFilter: () => void) {
         }),
       }),
     ],
+    direction: 'row',
   });
 }
 
 const styles = {
   alertContainer: css({
-    flexGrow: 1,
-    display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
-  }),
-  noResultsAlert: css({
-    minWidth: '30vw',
-    flexGrow: 0,
+    display: 'flex',
+    flexGrow: 1,
+    justifyContent: 'center',
   }),
   clearButton: css({
     marginLeft: '1.5rem',
+  }),
+  noResultsAlert: css({
+    flexGrow: 0,
+    minWidth: '30vw',
   }),
 };
 

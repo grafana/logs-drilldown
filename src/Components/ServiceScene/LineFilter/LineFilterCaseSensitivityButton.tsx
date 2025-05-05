@@ -1,13 +1,16 @@
-import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
 import React from 'react';
-import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
+
 import { css, cx } from '@emotion/css';
-import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from '../../../services/mixins';
+
+import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
+import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
+
 import { LineFilterCaseSensitive } from '../../../services/filterTypes';
+import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from '../../../services/mixins';
 
 interface Props {
-  onCaseSensitiveToggle: (state: LineFilterCaseSensitive) => void;
   caseSensitive: boolean;
+  onCaseSensitiveToggle: (state: LineFilterCaseSensitive) => void;
 }
 
 export const LineFilterCaseSensitivityButton = (props: Props) => {
@@ -41,37 +44,6 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant = 'secondary
   const hoverSize = 16 + theme.spacing.gridSize;
 
   return {
-    button: css({
-      zIndex: 0,
-      position: 'relative',
-      margin: `0 ${theme.spacing.x0_5} 0 ${theme.spacing.x0_5}`,
-      boxShadow: 'none',
-      border: 'none',
-      display: 'inline-flex',
-      background: 'transparent',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 0,
-      color: theme.colors.text.primary,
-
-      '&:before': {
-        ...getIconButtonBefore(hoverSize, theme),
-        position: 'absolute',
-      },
-
-      '&:hover': {
-        '&:before': {
-          backgroundColor:
-            variant === 'secondary'
-              ? theme.colors.action.hover
-              : colorManipulator.alpha(theme.colors.text.primary, 0.12),
-          opacity: 1,
-        },
-      },
-
-      '&:focus, &:focus-visible': getFocusStyles(theme),
-      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
-    }),
     active: css({
       '&:before': {
         backgroundColor:
@@ -84,6 +56,37 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant = 'secondary
           opacity: 0,
         },
       },
+    }),
+    button: css({
+      '&:before': {
+        ...getIconButtonBefore(hoverSize, theme),
+        position: 'absolute',
+      },
+      '&:focus, &:focus-visible': getFocusStyles(theme),
+      '&:focus:not(:focus-visible)': getMouseFocusStyles(theme),
+      '&:hover': {
+        '&:before': {
+          backgroundColor:
+            variant === 'secondary'
+              ? theme.colors.action.hover
+              : colorManipulator.alpha(theme.colors.text.primary, 0.12),
+          opacity: 1,
+        },
+      },
+      alignItems: 'center',
+      background: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+      color: theme.colors.text.primary,
+      display: 'inline-flex',
+      justifyContent: 'center',
+
+      margin: `0 ${theme.spacing.x0_5} 0 ${theme.spacing.x0_5}`,
+
+      padding: 0,
+
+      position: 'relative',
+      zIndex: 0,
     }),
   };
 };

@@ -1,79 +1,80 @@
 import React, { PropsWithChildren, useRef } from 'react';
+
 import { css } from '@emotion/css';
 
 import { Field, GrafanaTheme2 } from '@grafana/data';
 import { ClickOutsideWrapper, IconButton, Popover, useTheme2 } from '@grafana/ui';
 
-import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
-import { useQueryContext } from './Context/QueryContext';
 import { getBodyName } from '../../services/logsFrame';
+import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from './Context/TableColumnsContext';
+import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
 
 export interface LogsTableHeaderProps extends PropsWithChildren<CustomHeaderRendererProps> {
   fieldIndex: number;
 }
 //@todo delete when released in Grafana core
 export interface CustomHeaderRendererProps {
-  field: Field;
   defaultContent: React.ReactNode;
+  field: Field;
 }
 
 const getStyles = (theme: GrafanaTheme2, isFirstColumn: boolean, isLine: boolean) => ({
-  logLineButton: css({
-    marginLeft: '5px',
-  }),
-  tableHeaderMenu: css({
-    label: 'tableHeaderMenu',
-    width: '100%',
-    minWidth: '250px',
-    height: '100%',
-    maxHeight: '400px',
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(2),
-    margin: theme.spacing(1, 0),
-    boxShadow: theme.shadows.z3,
-    borderRadius: theme.shape.radius.default,
-  }),
-  leftAlign: css({
-    label: 'left-align',
-    display: 'flex',
-    width: 'calc(100% - 20px)',
-  }),
   clearButton: css({
     marginLeft: '5px',
   }),
-  rightAlign: css({
-    label: 'right-align',
-    display: 'flex',
-    marginRight: '5px',
-  }),
-  wrapper: css({
-    label: 'wrapper',
-    display: 'flex',
-    marginLeft: isFirstColumn ? '56px' : '6px',
-    // Body has extra padding then other columns
-    width: isLine ? 'calc(100% + 6px)' : '100%',
-
-    // Hack to show a visible resize indicator, despite 6px of padding on the header in grafana/table
-    borderRight: `1px solid ${theme.colors.border.weak}`,
-    marginRight: '-6px',
-  }),
   defaultContentWrapper: css({
     borderLeft: isFirstColumn ? `1px solid ${theme.colors.border.weak}` : 'none',
+    display: 'flex',
     marginLeft: isFirstColumn ? '-6px' : 0,
     paddingLeft: isFirstColumn ? '12px' : 0,
+  }),
+  leftAlign: css({
     display: 'flex',
+    label: 'left-align',
+    width: 'calc(100% - 20px)',
+  }),
+  logLineButton: css({
+    marginLeft: '5px',
+  }),
+  rightAlign: css({
+    display: 'flex',
+    label: 'right-align',
+    marginRight: '5px',
+  }),
+  tableHeaderMenu: css({
+    backgroundColor: theme.colors.background.primary,
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
+    boxShadow: theme.shadows.z3,
+    height: '100%',
+    label: 'tableHeaderMenu',
+    margin: theme.spacing(1, 0),
+    maxHeight: '400px',
+    minWidth: '250px',
+    padding: theme.spacing(2),
+    width: '100%',
+  }),
+  wrapper: css({
+    // Hack to show a visible resize indicator, despite 6px of padding on the header in grafana/table
+    borderRight: `1px solid ${theme.colors.border.weak}`,
+    display: 'flex',
+    label: 'wrapper',
+    marginLeft: isFirstColumn ? '56px' : '6px',
+
+    marginRight: '-6px',
+    // Body has extra padding then other columns
+    width: isLine ? 'calc(100% + 6px)' : '100%',
   }),
 });
 
 export const LogsTableHeader = (props: LogsTableHeaderProps) => {
-  const { setHeaderMenuActive, isHeaderMenuActive } = useTableHeaderContext();
+  const { isHeaderMenuActive, setHeaderMenuActive } = useTableHeaderContext();
   const { logsFrame } = useQueryContext();
   const referenceElement = useRef<HTMLButtonElement | null>(null);
   const theme = useTheme2();
   const styles = getStyles(theme, props.fieldIndex === 0, props.field.name === getBodyName(logsFrame));
-  const { columnWidthMap, setColumnWidthMap, setBodyState, bodyState } = useTableColumnContext();
+  const { bodyState, columnWidthMap, setBodyState, setColumnWidthMap } = useTableColumnContext();
   const isBodyField = props.field.name === getBodyName(logsFrame);
 
   const onLogTextToggle = () => {

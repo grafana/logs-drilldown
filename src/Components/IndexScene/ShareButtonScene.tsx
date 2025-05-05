@@ -1,3 +1,7 @@
+import React from 'react';
+
+import { AppEvents, toUtc, urlUtil } from '@grafana/data';
+import { config, getAppEvents, getBackendSrv, locationService, reportInteraction } from '@grafana/runtime';
 import {
   SceneComponentProps,
   sceneGraph,
@@ -6,33 +10,31 @@ import {
   SceneTimeRangeLike,
 } from '@grafana/scenes';
 import { ButtonGroup, Dropdown, IconName, Menu, MenuGroup, ToolbarButton } from '@grafana/ui';
-import React from 'react';
-import { config, getAppEvents, getBackendSrv, locationService, reportInteraction } from '@grafana/runtime';
-import { AppEvents, toUtc, urlUtil } from '@grafana/data';
+
 import { copyText } from '../../services/text';
 
 interface ShortLinkMenuItemData {
+  absTime: boolean;
+  getUrl: Function;
+  icon: IconName;
   key: string;
   label: string;
-  icon: IconName;
-  getUrl: Function;
   shorten: boolean;
-  absTime: boolean;
 }
 
 interface ShortLinkGroupData {
+  items: ShortLinkMenuItemData[];
   key: string;
   label: string;
-  items: ShortLinkMenuItemData[];
 }
 
 export interface ShareButtonSceneState extends SceneObjectState {
-  lastSelected: ShortLinkMenuItemData;
-  isOpen: boolean;
   /**
    * Reference to $timeRange
    */
   getSceneTimeRange?: () => SceneTimeRangeLike;
+  isOpen: boolean;
+  lastSelected: ShortLinkMenuItemData;
   /**
    * Callback on link copy
    */
@@ -68,50 +70,45 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
   static MenuActions = ({ model }: SceneComponentProps<ShareButtonScene>) => {
     const menuOptions: ShortLinkGroupData[] = [
       {
+        items: [
+          {
+            absTime: false,
+            getUrl: () => undefined,
+            icon: 'link',
+            key: 'copy-shortened-link',
+            label: 'Copy shortened URL',
+            shorten: true,
+          },
+          {
+            absTime: false,
+            getUrl: () => undefined,
+            icon: 'link',
+            key: 'copy-link',
+            label: 'Copy URL',
+            shorten: false,
+          },
+        ],
         key: 'normal',
         label: 'Normal URL links',
-        items: [
-          {
-            key: 'copy-shortened-link',
-            icon: 'link',
-            label: 'Copy shortened URL',
-            getUrl: () => undefined,
-            shorten: true,
-            absTime: false,
-          },
-          {
-            key: 'copy-link',
-            icon: 'link',
-            label: 'Copy URL',
-            getUrl: () => undefined,
-            shorten: false,
-            absTime: false,
-          },
-        ],
       },
       {
-        key: 'timesync',
-        label: 'Time-sync URL links (share with time range intact)',
         items: [
           {
-            key: 'copy-short-link-abs-time',
+            absTime: true,
+            getUrl: () => {
+              return constructAbsoluteUrl(
+                model.state.getSceneTimeRange !== undefined
+                  ? model.state.getSceneTimeRange()
+                  : sceneGraph.getTimeRange(model)
+              );
+            },
             icon: 'clock-nine',
+            key: 'copy-short-link-abs-time',
             label: 'Copy absolute shortened URL',
             shorten: true,
-            getUrl: () => {
-              return constructAbsoluteUrl(
-                model.state.getSceneTimeRange !== undefined
-                  ? model.state.getSceneTimeRange()
-                  : sceneGraph.getTimeRange(model)
-              );
-            },
-            absTime: true,
           },
           {
-            key: 'copy-link-abs-time',
-            icon: 'clock-nine',
-            label: 'Copy absolute URL',
-            shorten: false,
+            absTime: true,
             getUrl: () => {
               return constructAbsoluteUrl(
                 model.state.getSceneTimeRange !== undefined
@@ -119,9 +116,14 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
                   : sceneGraph.getTimeRange(model)
               );
             },
-            absTime: true,
+            icon: 'clock-nine',
+            key: 'copy-link-abs-time',
+            label: 'Copy absolute URL',
+            shorten: false,
           },
         ],
+        key: 'timesync',
+        label: 'Time-sync URL links (share with time range intact)',
       },
     ];
 
@@ -154,7 +156,7 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
   };
 
   static Component = ({ model }: SceneComponentProps<ShareButtonScene>) => {
-    const { lastSelected, isOpen } = model.useState();
+    const { isOpen, lastSelected } = model.useState();
 
     return (
       <ButtonGroup>
@@ -184,12 +186,12 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
 }
 
 const defaultMode: ShortLinkMenuItemData = {
+  absTime: false,
+  getUrl: () => undefined,
+  icon: 'share-alt',
   key: 'copy-link',
   label: 'Copy shortened URL',
-  icon: 'share-alt',
-  getUrl: () => undefined,
   shorten: true,
-  absTime: false,
 };
 
 // Adapted from grafana/grafana/public/app/core/utils/shortLinks.ts shortLinks.ts
@@ -213,8 +215,8 @@ export const createShortLink = async function (path: string) {
     console.error('Error when creating shortened link: ', err);
 
     appEvents.publish({
-      type: AppEvents.alertError.name,
       payload: ['Error generating shortened link'],
+      type: AppEvents.alertError.name,
     });
   }
 };
@@ -225,13 +227,13 @@ export const createAndCopyShortLink = async (path: string) => {
   if (shortLink) {
     copyText(shortLink);
     appEvents.publish({
-      type: AppEvents.alertSuccess.name,
       payload: ['Shortened link copied to clipboard'],
+      type: AppEvents.alertSuccess.name,
     });
   } else {
     appEvents.publish({
-      type: AppEvents.alertError.name,
       payload: ['Error generating shortened link'],
+      type: AppEvents.alertError.name,
     });
   }
 };

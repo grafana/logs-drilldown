@@ -1,6 +1,14 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
 import { PluginExtensionLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 
+import pluginJson from '../../plugin.json';
+import { LabelType } from '../fieldsTypes';
+import { PatternFilterOp } from '../filterTypes';
+import { getMatcherFromQuery } from '../logqlMatchers';
+import { LokiQuery } from '../lokiQuery';
+import { isOperatorInclusive } from '../operatorHelpers';
+import { renderPatternFilters } from '../renderPatternFilters';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFieldValue,
@@ -17,15 +25,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-import pluginJson from '../../plugin.json';
-import { getMatcherFromQuery } from '../logqlMatchers';
-import { LokiQuery } from '../lokiQuery';
-import { LabelType } from '../fieldsTypes';
-
-import { isOperatorInclusive } from '../operatorHelpers';
-import { PatternFilterOp } from '../filterTypes';
-import { renderPatternFilters } from '../renderPatternFilters';
-import { locationService } from '@grafana/runtime';
 
 const PRODUCT_NAME = 'Grafana Logs Drilldown';
 const title = `Open in ${PRODUCT_NAME}`;
@@ -36,11 +35,12 @@ export const ExtensionPoints = {
   MetricInvestigation: 'grafana-lokiexplore-app/investigation/v1',
 } as const;
 
+/* eslint-disable sort/object-properties */
 export type LinkConfigs = Array<
   {
     targets: string | string[];
     // eslint-disable-next-line deprecation/deprecation
-  } & Omit<PluginExtensionLinkConfig<PluginExtensionPanelContext>, 'type' | 'extensionPointId'>
+  } & Omit<PluginExtensionLinkConfig<PluginExtensionPanelContext>, 'extensionPointId' | 'type'>
 >;
 
 // `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
@@ -103,7 +103,7 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   }
 
   const expr = lokiQuery.expr;
-  const { labelFilters, lineFilters, fields, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
+  const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
   const labelSelector = labelFilters.find((selector) => isOperatorInclusive(selector.operator));
 
   // Require at least one inclusive operator to run a valid Loki query

@@ -8,6 +8,7 @@ import {
   FieldType,
   QueryResultMetaStat,
 } from '@grafana/data';
+
 import { logger } from './logger';
 
 export function combineResponses(currentResult: DataQueryResponse | null, newResult: DataQueryResponse) {
@@ -193,7 +194,7 @@ function getCombinedMetadataStats(
   const sourceStat = sourceStats.find((s) => s.displayName === TOTAL_BYTES_STAT);
 
   if (sourceStat != null && destStat != null) {
-    return [{ value: sourceStat.value + destStat.value, displayName: TOTAL_BYTES_STAT, unit: destStat.unit }];
+    return [{ displayName: TOTAL_BYTES_STAT, unit: destStat.unit, value: sourceStat.value + destStat.value }];
   }
 
   // maybe one of them exist

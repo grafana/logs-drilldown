@@ -1,5 +1,6 @@
-import { css } from '@emotion/css';
 import React from 'react';
+
+import { css } from '@emotion/css';
 
 import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
@@ -14,47 +15,48 @@ import {
   VariableValueOption,
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { getSortByPreference } from 'services/store';
-import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_LABELS } from 'services/variables';
+
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
+import { ValueSlugs } from '../../../services/enums';
 import { navigateToValueBreakdown } from '../../../services/navigate';
 import { checkPrimaryLabel, getPrimaryLabelFromUrl } from '../../../services/routing';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
+import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
+import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
 import { IndexScene } from '../../IndexScene/IndexScene';
 import { getDetectedFieldsFrame, ServiceScene } from '../ServiceScene';
 import { BreakdownSearchReset, BreakdownSearchScene } from './BreakdownSearchScene';
 import { ByFrameRepeater } from './ByFrameRepeater';
+import { EmptyLayoutScene } from './EmptyLayoutScene';
 import { FieldsAggregatedBreakdownScene } from './FieldsAggregatedBreakdownScene';
 import { FieldSelector } from './FieldSelector';
 import { FieldValuesBreakdownScene } from './FieldValuesBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
+import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getFieldOptions } from 'services/filters';
-import { EmptyLayoutScene } from './EmptyLayoutScene';
-import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
-import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
-import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
-import { ValueSlugs } from '../../../services/enums';
+import { getSortByPreference } from 'services/store';
+import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_LABELS } from 'services/variables';
 
 export const averageFields = ['duration', 'count', 'total', 'bytes'];
 export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
 
 export interface FieldsBreakdownSceneState extends SceneObjectState {
+  blockingMessage?: string;
   body?:
     | (NoMatchingLabelsScene & SceneObject)
     | (FieldsAggregatedBreakdownScene & SceneObject)
     | (FieldValuesBreakdownScene & SceneObject)
     | (EmptyLayoutScene & SceneObject);
+  changeFieldCount?: (n: number) => void;
+  error?: string;
+  loading?: boolean;
   search: BreakdownSearchScene;
   sort: SortByScene;
   value?: string;
-  loading?: boolean;
-  error?: string;
-  blockingMessage?: string;
-  changeFieldCount?: (n: number) => void;
 }
 
 export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneState> {
@@ -69,17 +71,17 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         new SceneVariableSet({
           variables: [
             new CustomConstantVariable({
-              name: VAR_FIELD_GROUP_BY,
               defaultToAll: false,
               includeAll: true,
-              value: state.value ?? ALL_VARIABLE_VALUE,
+              name: VAR_FIELD_GROUP_BY,
               options: state.options ?? [],
+              value: state.value ?? ALL_VARIABLE_VALUE,
             }),
           ],
         }),
       loading: true,
-      sort: new SortByScene({ target: 'fields' }),
       search: new BreakdownSearchScene('fields'),
+      sort: new SortByScene({ target: 'fields' }),
       value: state.value ?? ALL_VARIABLE_VALUE,
       ...state,
     });
@@ -115,8 +117,8 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         // If the user changes the primary label
         if (variable.state.value === ALL_VARIABLE_VALUE && newService !== prevService) {
           this.setState({
-            loading: true,
             body: undefined,
+            loading: true,
           });
         }
       })
@@ -168,8 +170,8 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         body = new EmptyLayoutScene({ type: 'fields' });
       }
       this.setState({
-        loading: false,
         body,
+        loading: false,
       });
       return;
     }
@@ -177,8 +179,8 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const variable = getFieldGroupByVariable(this);
     variable.setState({
-      options: getFieldOptions(dataFrame.fields[0].values.map((v) => String(v))),
       loading: false,
+      options: getFieldOptions(dataFrame.fields[0].values.map((v) => String(v))),
       value: serviceScene.state.drillDownLabel ?? ALL_VARIABLE_VALUE,
     });
     this.setState({
@@ -202,9 +204,9 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.value_breakdown_sort_change,
       {
-        target: 'fields',
         criteria: event.sortBy,
         direction: event.direction,
+        target: 'fields',
       }
     );
   };
@@ -257,7 +259,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     }
 
     const variable = getFieldGroupByVariable(this);
-    const { sortBy, direction } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
 
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
@@ -265,9 +267,9 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       {
         field: value,
         previousField: variable.getValueText(),
-        view: 'fields',
         sortBy,
         sortByDirection: direction,
+        view: 'fields',
       }
     );
 
@@ -308,12 +310,12 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
   };
 
   public static Component = ({ model }: SceneComponentProps<FieldsBreakdownScene>) => {
-    const { body, loading, blockingMessage } = model.useState();
+    const { blockingMessage, body, loading } = model.useState();
     const styles = useStyles2(getStyles);
 
     return (
       <div className={styles.container}>
-        <StatusWrapper {...{ isLoading: loading, blockingMessage }}>
+        <StatusWrapper {...{ blockingMessage, isLoading: loading }}>
           {body instanceof FieldsAggregatedBreakdownScene && model && <FieldsBreakdownScene.LabelsMenu model={model} />}
           <div className={styles.content}>{body && <body.Component model={body} />}</div>
         </StatusWrapper>
@@ -323,42 +325,42 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
 }
 
 export const emptyStateStyles = {
-  link: css({
-    textDecoration: 'underline',
-  }),
   button: css({
     marginLeft: '1.5rem',
+  }),
+  link: css({
+    textDecoration: 'underline',
   }),
 };
 
 function getStyles(theme: GrafanaTheme2) {
   return {
     container: css({
-      flexGrow: 1,
       display: 'flex',
-      minHeight: '100%',
       flexDirection: 'column',
+      flexGrow: 1,
       gap: theme.spacing(1),
+      minHeight: '100%',
     }),
     content: css({
-      flexGrow: 1,
       display: 'flex',
+      flexGrow: 1,
       paddingTop: theme.spacing(0),
     }),
     labelsMenuWrapper: css({
-      flexGrow: 0,
-      display: 'flex',
       alignItems: 'top',
-      justifyContent: 'space-between',
+      display: 'flex',
       flexDirection: 'row-reverse',
+      flexGrow: 0,
       gap: theme.spacing(2),
+      justifyContent: 'space-between',
     }),
     valuesMenuWrapper: css({
-      flexGrow: 0,
-      display: 'flex',
       alignItems: 'top',
-      gap: theme.spacing(2),
+      display: 'flex',
       flexDirection: 'row',
+      flexGrow: 0,
+      gap: theme.spacing(2),
     }),
   };
 }

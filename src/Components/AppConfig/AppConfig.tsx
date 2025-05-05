@@ -1,10 +1,13 @@
-import { getBackendSrv, locationService } from '@grafana/runtime';
-import { AppPluginMeta, GrafanaTheme2, PluginConfigPageProps, PluginMeta, rangeUtil } from '@grafana/data';
-import { lastValueFrom } from 'rxjs';
-import { css } from '@emotion/css';
-import { Button, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 import React, { ChangeEvent, useState } from 'react';
+
+import { css } from '@emotion/css';
 import { isNumber } from 'lodash';
+import { lastValueFrom } from 'rxjs';
+
+import { AppPluginMeta, GrafanaTheme2, PluginConfigPageProps, PluginMeta, rangeUtil } from '@grafana/data';
+import { getBackendSrv, locationService } from '@grafana/runtime';
+import { Button, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
+
 import { logger } from '../../services/logger';
 
 export type JsonData = {
@@ -23,7 +26,7 @@ interface Props extends PluginConfigPageProps<AppPluginMeta<JsonData>> {}
 
 const AppConfig = ({ plugin }: Props) => {
   const styles = useStyles2(getStyles);
-  const { enabled, pinned, jsonData } = plugin.meta;
+  const { enabled, jsonData, pinned } = plugin.meta;
 
   const [state, setState] = useState<State>({
     interval: jsonData?.interval ?? '',
@@ -73,10 +76,10 @@ const AppConfig = ({ plugin }: Props) => {
             onClick={() =>
               updatePluginAndReload(plugin.meta.id, {
                 enabled,
-                pinned,
                 jsonData: {
                   interval: state.interval,
                 },
+                pinned,
               })
             }
             disabled={!isValid(state.interval)}
@@ -93,20 +96,20 @@ const getStyles = (theme: GrafanaTheme2) => ({
   colorWeak: css`
     color: ${theme.colors.text.secondary};
   `,
+  icon: css({
+    marginLeft: theme.spacing(1),
+  }),
+  label: css({
+    alignItems: 'center',
+    display: 'flex',
+    marginBottom: theme.spacing(0.75),
+  }),
   marginTop: css`
     margin-top: ${theme.spacing(3)};
   `,
   marginTopXl: css`
     margin-top: ${theme.spacing(6)};
   `,
-  label: css({
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: theme.spacing(0.75),
-  }),
-  icon: css({
-    marginLeft: theme.spacing(1),
-  }),
 });
 
 const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<JsonData>>) => {
@@ -131,9 +134,9 @@ const testIds = {
 
 export const updatePlugin = async (pluginId: string, data: Partial<PluginMeta>) => {
   const response = getBackendSrv().fetch({
-    url: `/api/plugins/${pluginId}/settings`,
-    method: 'POST',
     data,
+    method: 'POST',
+    url: `/api/plugins/${pluginId}/settings`,
   });
 
   const dataResponse = await lastValueFrom(response);

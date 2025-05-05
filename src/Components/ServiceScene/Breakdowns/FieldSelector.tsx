@@ -1,27 +1,28 @@
-import { css } from '@emotion/css';
 import React, { useState } from 'react';
 
+import { css } from '@emotion/css';
+
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { Select, useStyles2, InlineField, Icon, ActionMeta, InputActionMeta } from '@grafana/ui';
-import { testIds } from '../../../services/testIds';
 import { VariableValueOption } from '@grafana/scenes';
+import { ActionMeta, Icon, InlineField, InputActionMeta, Select, useStyles2 } from '@grafana/ui';
 
 import { wrapWildcardSearch } from '../../../services/query';
+import { testIds } from '../../../services/testIds';
 
 type Props<T> = {
+  label: string;
+  onChange: (label: T | undefined) => void;
   options: VariableValueOption[];
   value?: T;
-  onChange: (label: T | undefined) => void;
-  label: string;
 };
 
 export type AsyncFieldSelectorProps = {
-  selectOption: (value: string) => void;
-  isLoading: boolean;
   initialFilter: SelectableValue<string>;
+  isLoading: boolean;
+  selectOption: (value: string) => void;
 } & Props<string>;
 
-export function FieldSelector<T>({ options, value, onChange, label }: Props<T>) {
+export function FieldSelector<T>({ label, onChange, options, value }: Props<T>) {
   const styles = useStyles2(getStyles);
   const [selected, setSelected] = useState(false);
 
@@ -46,13 +47,13 @@ export function FieldSelector<T>({ options, value, onChange, label }: Props<T>) 
 }
 
 export function ServiceFieldSelector({
-  options,
-  value,
-  onChange,
-  label,
-  selectOption,
-  isLoading,
   initialFilter,
+  isLoading,
+  label,
+  onChange,
+  options,
+  selectOption,
+  value,
 }: AsyncFieldSelectorProps) {
   const styles = useStyles2(getStyles);
   const [selected, setSelected] = useState(false);
@@ -113,10 +114,10 @@ export function ServiceFieldSelector({
           // the user closed the menu, with text in search box
           if (meta.action === 'menu-close' && meta.prevInputValue) {
             setCustomOption({
-              value: wrapWildcardSearch(meta.prevInputValue),
-              label: meta.prevInputValue,
-              icon: 'filter',
               __isNew__: true,
+              icon: 'filter',
+              label: meta.prevInputValue,
+              value: wrapWildcardSearch(meta.prevInputValue),
             });
             return onChange(meta.prevInputValue);
           }
@@ -137,17 +138,17 @@ function getStyles(theme: GrafanaTheme2) {
     }),
     selectWrapper: css({
       label: 'field-selector-select-wrapper',
+      marginBottom: 0,
+      marginRight: theme.spacing.x1,
       maxWidth: theme.spacing(62.5),
       minWidth: theme.spacing(20),
-      marginRight: theme.spacing.x1,
-      marginBottom: 0,
     }),
     serviceSceneSelectWrapper: css({
       label: 'service-select-wrapper',
+      marginBottom: 0,
+      marginRight: theme.spacing.x1,
       maxWidth: theme.spacing(62.5),
       minWidth: theme.spacing(20),
-      marginRight: theme.spacing.x1,
-      marginBottom: 0,
     }),
   };
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -7,13 +8,13 @@ import { Checkbox, Icon, useTheme2 } from '@grafana/ui';
 import { FieldNameMeta } from '../TableTypes';
 
 export function LogsTableNavField(props: {
-  label: string;
-  onChange: () => void;
-  labels: Record<string, FieldNameMeta>;
-  draggable?: boolean;
-  showCount?: boolean;
-  setColumnWidthMap?: (map: Record<string, number>) => void;
   columnWidthMap?: Record<string, number>;
+  draggable?: boolean;
+  label: string;
+  labels: Record<string, FieldNameMeta>;
+  onChange: () => void;
+  setColumnWidthMap?: (map: Record<string, number>) => void;
+  showCount?: boolean;
 }): React.JSX.Element | null {
   const theme = useTheme2();
   const styles = getStyles(theme);
@@ -38,7 +39,7 @@ export function LogsTableNavField(props: {
             </div>
           )}
           {props.columnWidthMap && props.setColumnWidthMap && props.columnWidthMap?.[props.label] !== undefined && (
-            <div
+            <button
               onClick={() => {
                 const { [props.label]: omit, ...map } = { ...props.columnWidthMap };
                 props.setColumnWidthMap?.(map);
@@ -48,7 +49,7 @@ export function LogsTableNavField(props: {
             >
               Reset column width
               <Icon name={'x'} />
-            </div>
+            </button>
           )}
         </div>
         {props.draggable && (
@@ -69,42 +70,42 @@ export function LogsTableNavField(props: {
 
 function getStyles(theme: GrafanaTheme2) {
   return {
+    // Hide text that overflows, had to select elements within the Checkbox component, so this is a bit fragile
+    checkboxLabel: css({
+      '> span': {
+        display: 'block',
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      },
+    }),
+    contentWrap: css({
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'space-between',
+      width: '100%',
+    }),
+    customWidthWrap: css({
+      cursor: 'pointer',
+      fontSize: theme.typography.bodySmall.fontSize,
+    }),
     dragIcon: css({
       cursor: 'drag',
       marginLeft: theme.spacing(1),
       opacity: 0.4,
     }),
     labelCount: css({
-      marginLeft: theme.spacing(0.5),
-      marginRight: theme.spacing(0.5),
+      alignItems: 'self-end',
       appearance: 'none',
       background: 'none',
       border: 'none',
-      fontSize: theme.typography.pxToRem(11),
-      opacity: 0.6,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'self-end',
-    }),
-    contentWrap: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-    }),
-    customWidthWrap: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      cursor: 'pointer',
-    }),
-    // Hide text that overflows, had to select elements within the Checkbox component, so this is a bit fragile
-    checkboxLabel: css({
-      '> span': {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        display: 'block',
-        maxWidth: '100%',
-      },
+      fontSize: theme.typography.pxToRem(11),
+      marginLeft: theme.spacing(0.5),
+      marginRight: theme.spacing(0.5),
+      opacity: 0.6,
     }),
   };
 }

@@ -1,29 +1,30 @@
-import { css } from '@emotion/css';
 import React, { useCallback } from 'react';
 
-import { LogsSortOrder } from '@grafana/data';
-import { GrafanaTheme2 } from '@grafana/data/';
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
+
 import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 interface Props {
-  sortOrder: LogsSortOrder;
-  onSortOrderChange(newOrder: LogsSortOrder): void;
-  onManageColumnsClick?(): void;
-  onLineStateClick?(): void;
   lineState?: LogLineState;
-  onScrollToTopClick?(): void;
+  onLineStateClick?(): void;
+  onManageColumnsClick?(): void;
   onScrollToBottomClick?(): void;
+  onScrollToTopClick?(): void;
+  onSortOrderChange(newOrder: LogsSortOrder): void;
+  sortOrder: LogsSortOrder;
 }
 
 export const LogListControls = ({
-  sortOrder,
-  onSortOrderChange,
-  onManageColumnsClick,
-  onLineStateClick,
   lineState,
+  onLineStateClick,
+  onManageColumnsClick,
   onScrollToBottomClick,
   onScrollToTopClick,
+  onSortOrderChange,
+  sortOrder,
 }: Props) => {
   const styles = useStyles2(getStyles);
 
@@ -85,34 +86,34 @@ export const LogListControls = ({
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {
-    navContainer: css({
-      maxHeight: '100%',
-      display: 'flex',
-      gap: theme.spacing(3),
-      flexDirection: 'column',
-      justifyContent: 'flex-start',
-      width: theme.spacing(4),
-      paddingTop: theme.spacing(0.75),
-      paddingLeft: theme.spacing(1),
-      borderLeft: `solid 1px ${theme.colors.border.medium}`,
-      overflow: 'hidden',
-    }),
-    scrollToTopButton: css({
-      margin: 0,
-      marginTop: 'auto',
-      color: theme.colors.text.secondary,
-      height: theme.spacing(2),
-    }),
     controlButton: css({
-      margin: 0,
       color: theme.colors.text.secondary,
       height: theme.spacing(2),
+      margin: 0,
     }),
     divider: css({
       borderTop: `solid 1px ${theme.colors.border.medium}`,
       height: 1,
-      marginTop: theme.spacing(-0.25),
       marginBottom: theme.spacing(-1.75),
+      marginTop: theme.spacing(-0.25),
+    }),
+    navContainer: css({
+      borderLeft: `solid 1px ${theme.colors.border.medium}`,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(3),
+      justifyContent: 'flex-start',
+      maxHeight: '100%',
+      overflow: 'hidden',
+      paddingLeft: theme.spacing(1),
+      paddingTop: theme.spacing(0.75),
+      width: theme.spacing(4),
+    }),
+    scrollToTopButton: css({
+      color: theme.colors.text.secondary,
+      height: theme.spacing(2),
+      margin: 0,
+      marginTop: 'auto',
     }),
   };
 };

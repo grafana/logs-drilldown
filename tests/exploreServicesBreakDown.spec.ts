@@ -1,11 +1,12 @@
 import { expect, test } from '@grafana/plugin-e2e';
-import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
-import { testIds } from '../src/services/testIds';
-import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
-import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
-import { FilterOp } from '../src/services/filterTypes';
-import { SERVICE_NAME } from '../src/services/variables';
+
 import { DEFAULT_URL_COLUMNS } from '../src/Components/Table/constants';
+import { FilterOp } from '../src/services/filterTypes';
+import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
+import { testIds } from '../src/services/testIds';
+import { SERVICE_NAME } from '../src/services/variables';
+import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
+import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 
 const fieldName = 'caller';
 const levelName = 'detected_level';
@@ -21,8 +22,8 @@ test.describe('explore services breakdown page', () => {
     await explorePage.clearLocalStorage();
     await explorePage.gotoServicesBreakdownOldUrl();
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', fieldName],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', fieldName],
     });
     explorePage.captureConsoleLogs();
   });
@@ -43,8 +44,8 @@ test.describe('explore services breakdown page', () => {
 
   test(`should replace service_name with ${labelName} in url`, async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${labelName}}}`, `{{service_name}}`],
+      refIds: ['logsPanelQuery'],
     });
     await explorePage.goToLabelsTab();
 
@@ -320,11 +321,11 @@ test.describe('explore services breakdown page', () => {
     await page.getByTestId('data-testid Panel menu item Explore').click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
-  test(`should select label ${labelName}, update filters, open in explore`, async ({ page, browser }) => {
+  test(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
     await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${labelName}}}`],
+      refIds: ['logsPanelQuery'],
     });
     const valueName = 'eu-west-1';
     await explorePage.goToLabelsTab();
@@ -355,7 +356,7 @@ test.describe('explore services breakdown page', () => {
     // Click on open in logs explore
     await openInExploreLocator.click();
 
-    const openInThisTabButtonLoc = page.getByRole('button', { name: 'Open', exact: true });
+    const openInThisTabButtonLoc = page.getByRole('button', { exact: true, name: 'Open' });
     await expect(openInThisTabButtonLoc).toBeVisible();
     // Click to open in this tab
     await openInThisTabButtonLoc.click();
@@ -430,8 +431,8 @@ test.describe('explore services breakdown page', () => {
 
   test('should search for tenant field, changing sort order updates value breakdown position', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery'],
     });
     await explorePage.goToFieldsTab();
 
@@ -679,7 +680,7 @@ test.describe('explore services breakdown page', () => {
       // Otherwise let the request go through normally
       const response = await route.fetch();
       const json = await response.json();
-      return route.fulfill({ response, json });
+      return route.fulfill({ json, response });
     });
     // Navigate to fields tab
     await explorePage.goToFieldsTab();
@@ -720,9 +721,9 @@ test.describe('explore services breakdown page', () => {
 
     await page.route('**/resources/patterns**', async (route) => {
       await route.fulfill({
-        status: 404,
-        contentType: 'text/plain',
         body: '{"message":"","traceID":"abc123"}',
+        contentType: 'text/plain',
+        status: 404,
       });
     });
     await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
@@ -1231,8 +1232,8 @@ test.describe('explore services breakdown page', () => {
   test('should open logs context', async ({ page }) => {
     let responses = [];
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', /log-row-context-query.+/],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', /log-row-context-query.+/],
       responses: responses,
     });
     const logRow = page.getByTitle('See log details').nth(1);
@@ -1285,8 +1286,8 @@ test.describe('explore services breakdown page', () => {
 
   test('should not see maximum of series limit reached after changing filters', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', 'content', 'version'],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', 'content', 'version'],
     });
 
     const panelErrorLocator = page.getByTestId('data-testid Panel status error');
@@ -1504,7 +1505,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('Shortened link copied to')).toBeVisible();
   });
 
-  test('panel menu: label name panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: label name panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToLabelsTab();
     await page.getByTestId('data-testid Panel menu detected_level').click();
 
@@ -1519,7 +1520,7 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('panel menu: label value panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: label value panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
     await page.getByTestId('data-testid Panel menu error').click();
@@ -1535,7 +1536,7 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('panel menu: field name panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: field name panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToFieldsTab();
     await page.getByTestId(`data-testid Panel menu ${fieldName}`).click();
 
@@ -1554,7 +1555,7 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('panel menu: field value panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: field value panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToFieldsTab();
     await page.getByLabel('Select caller').click();
 
@@ -1579,8 +1580,8 @@ test.describe('explore services breakdown page', () => {
 
   test('label value summary panel: text search', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: [],
       legendFormats: [`{{${levelName}}}`],
+      refIds: [],
     });
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
@@ -1651,7 +1652,7 @@ test.describe('explore services breakdown page', () => {
 
     const summaryPanel = page.getByTestId(`data-testid Panel header ${fieldName}`);
     const summaryPanelBody = summaryPanel.getByTestId('data-testid panel content');
-    const summaryPanelCollapseButton = page.getByRole('button', { name: fieldName, exact: true });
+    const summaryPanelCollapseButton = page.getByRole('button', { exact: true, name: fieldName });
 
     const vizPanelMenu = page.getByTestId(`data-testid Panel menu ${fieldName}`);
     const vizPanelMenuExpandOption = page.getByTestId('data-testid Panel menu item Expand');
@@ -1742,8 +1743,8 @@ test.describe('explore services breakdown page', () => {
         logsPanelQueryCount = 0;
 
       explorePage.blockAllQueriesExcept({
-        refIds: ['logsPanelQuery'],
         legendFormats: [],
+        refIds: ['logsPanelQuery'],
       });
 
       // We don't need to mock the response, but it speeds up the test
@@ -1771,7 +1772,7 @@ test.describe('explore services breakdown page', () => {
         // Otherwise let the request go through normally
         const response = await route.fetch();
         const json = await response.json();
-        return route.fulfill({ response, json });
+        return route.fulfill({ json, response });
       });
 
       requestCount = 0;
@@ -1879,8 +1880,8 @@ test.describe('explore services breakdown page', () => {
     });
     test('line filter links', async ({ page }) => {
       explorePage.blockAllQueriesExcept({
-        refIds: ['logsPanelQuery'],
         legendFormats: [],
+        refIds: ['logsPanelQuery'],
       });
 
       // raw logQL query: '{cluster="us-west-1"} |~ "\\\\n" |= "\\n" |= "getBookTitles(Author.java:25)\\n" |~ "getBookTitles\\(Author\\.java:25\\)\\\\n" | json | logfmt | drop __error__, __error_details__'
@@ -1905,7 +1906,7 @@ test.describe('explore services breakdown page', () => {
       const openInExploreLocator = page.getByLabel('Open in Grafana Logs Drilldown').first();
       await expect(openInExploreLocator).toBeVisible();
       await openInExploreLocator.click();
-      await page.getByRole('button', { name: 'Open', exact: true }).click();
+      await page.getByRole('button', { exact: true, name: 'Open' }).click();
 
       // Assert query returned results after nav
       const firstExploreLogsRow = page

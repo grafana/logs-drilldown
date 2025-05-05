@@ -3,31 +3,31 @@
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 export interface FieldValue {
-  value: string;
   parser: ParserType;
+  value: string;
 }
 
 export interface AdHocFieldValue {
-  value?: string;
   parser?: ParserType;
+  value?: string;
 }
 export interface AppliedPattern {
   pattern: string;
-  type: 'include' | 'exclude';
+  type: 'exclude' | 'include';
 }
 
-export type ParserType = 'logfmt' | 'json' | 'mixed' | 'structuredMetadata';
-export type DetectedFieldType = 'int' | 'float' | 'duration' | 'bytes' | 'boolean' | 'string';
+export type ParserType = 'json' | 'logfmt' | 'mixed' | 'structuredMetadata';
+export type DetectedFieldType = 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string';
 export type AdHocFilterWithLabelsMeta = { parser?: ParserType; type?: DetectedFieldType };
 export type AdHocFiltersWithLabelsAndMeta = AdHocFilterWithLabels<AdHocFilterWithLabelsMeta>;
 
 export type LogsQueryOptions = {
-  labelExpressionToAdd?: string;
-  structuredMetadataToAdd?: string;
   fieldExpressionToAdd?: string;
-  jsonParserPropToAdd?: string;
-  parser?: ParserType;
   fieldType?: DetectedFieldType;
+  jsonParserPropToAdd?: string;
+  labelExpressionToAdd?: string;
+  parser?: ParserType;
+  structuredMetadataToAdd?: string;
 };
 
 export const VAR_LABELS = 'filters';

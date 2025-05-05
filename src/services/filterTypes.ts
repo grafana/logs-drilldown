@@ -26,16 +26,16 @@ export const FilterOp = { ...LabelFilterOp, ...NumericFilterOp };
 export type IndexedLabelFilter = {
   key: string;
   operator: FilterOpType;
-  value: string;
   type?: LabelType;
+  value: string;
 };
 
 export type FieldFilter = {
   key: string;
   operator: FilterOpType;
-  value: string;
-  type?: LabelType;
   parser?: ParserType;
+  type?: LabelType;
+  value: string;
 };
 
 export type LineFilterType = {

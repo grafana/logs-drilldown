@@ -1,10 +1,11 @@
 import { ConsoleMessage, Locator, Page, TestInfo } from '@playwright/test';
-import pluginJson from '../../src/plugin.json';
-import { testIds } from '../../src/services/testIds';
+
 import { expect } from '@grafana/plugin-e2e';
 
-import { LokiQuery } from '../../src/services/lokiQuery';
+import pluginJson from '../../src/plugin.json';
 import { FilterOp, FilterOpType } from '../../src/services/filterTypes';
+import { LokiQuery } from '../../src/services/lokiQuery';
+import { testIds } from '../../src/services/testIds';
 
 export interface PlaywrightRequest {
   post: any;
@@ -102,7 +103,7 @@ export class ExplorePage {
   }
 
   async setDefaultViewportSize() {
-    await this.page.setViewportSize({ width: 1280, height: 680 });
+    await this.page.setViewportSize({ height: 680, width: 1280 });
   }
 
   async setExtraTallViewportSize() {
@@ -147,7 +148,7 @@ export class ExplorePage {
     const main = this.page.locator('html');
 
     // Scroll the page container to the bottom, smoothly
-    await main.evaluate((main) => main.scrollTo({ left: 0, top: main.scrollHeight, behavior: 'smooth' }));
+    await main.evaluate((main) => main.scrollTo({ behavior: 'smooth', left: 0, top: main.scrollHeight }));
   }
 
   async goToLogsTab() {
@@ -273,17 +274,17 @@ export class ExplorePage {
 
   async gotoLogsPanel(
     sortOrder: 'Ascending' | 'Descending' = 'Descending',
-    wrapLogMessage: 'true' | 'false' = 'false'
+    wrapLogMessage: 'false' | 'true' = 'false'
   ) {
     const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=now-5m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
     await this.page.goto(url);
   }
 
   blockAllQueriesExcept(options: {
-    refIds?: Array<string | RegExp>;
     legendFormats?: string[];
-    responses?: Array<{ [refIDOrLegendFormat: string]: any }>;
+    refIds?: Array<string | RegExp>;
     requests?: PlaywrightRequest[];
+    responses?: Array<{ [refIDOrLegendFormat: string]: any }>;
   }) {
     // Let's not wait for all these queries
     this.page.route('**/ds/query**', async (route) => {
@@ -312,7 +313,7 @@ export class ExplorePage {
             options?.requests?.push(requestObject);
           }
 
-          await route.fulfill({ response, json });
+          await route.fulfill({ json, response });
         } else {
           await route.continue();
         }
@@ -338,7 +339,7 @@ export class ExplorePage {
     }
 
     // Select detected_level key
-    await this.page.getByRole('option', { name: labelName, exact: true }).click();
+    await this.page.getByRole('option', { exact: true, name: labelName }).click();
     await expect(this.getOperatorLocator(operator)).toHaveCount(1);
     await expect(this.getOperatorLocator(operator)).toBeVisible();
     // Select operator
@@ -397,13 +398,13 @@ export class ExplorePage {
   getOperatorLocator(filter: FilterOpType): Locator {
     switch (filter) {
       case FilterOp.Equal:
-        return this.page.getByRole('option', { name: E2EComboboxStrings.operatorNames.equal, exact: true });
+        return this.page.getByRole('option', { exact: true, name: E2EComboboxStrings.operatorNames.equal });
       case FilterOp.NotEqual:
-        return this.page.getByRole('option', { name: E2EComboboxStrings.operatorNames.notEqual, exact: true });
+        return this.page.getByRole('option', { exact: true, name: E2EComboboxStrings.operatorNames.notEqual });
       case FilterOp.RegexEqual:
-        return this.page.getByRole('option', { name: E2EComboboxStrings.operatorNames.regexEqual, exact: true });
+        return this.page.getByRole('option', { exact: true, name: E2EComboboxStrings.operatorNames.regexEqual });
       case FilterOp.RegexNotEqual:
-        return this.page.getByRole('option', { name: E2EComboboxStrings.operatorNames.regexNotEqual, exact: true });
+        return this.page.getByRole('option', { exact: true, name: E2EComboboxStrings.operatorNames.regexNotEqual });
       default:
         throw new Error('invalid filter op');
     }
@@ -412,7 +413,6 @@ export class ExplorePage {
 
 export const E2EComboboxStrings = {
   editByKey: (keyName: string) => `Edit filter with key ${keyName}`,
-  removeByKey: (keyName: string) => `Remove filter with key ${keyName}`,
   labels: {
     removeServiceLabel: 'Remove filter with key service_name',
   },
@@ -422,6 +422,7 @@ export const E2EComboboxStrings = {
     regexEqual: '=~ Matches regex',
     regexNotEqual: '!~ Does not match regex',
   },
+  removeByKey: (keyName: string) => `Remove filter with key ${keyName}`,
 };
 
 export const levelTextMatch = /error|warn|info|debug/;

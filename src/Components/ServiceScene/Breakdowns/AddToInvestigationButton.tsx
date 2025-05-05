@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { DataFrame, FieldConfig, FieldConfigSource, TimeRange } from '@grafana/data';
 import { usePluginLinks } from '@grafana/runtime';
 import {
@@ -10,36 +12,35 @@ import {
 } from '@grafana/scenes';
 import { DataSourceRef } from '@grafana/schema';
 import { IconButton } from '@grafana/ui';
-import React from 'react';
-import { ExtensionPoints } from 'services/extensions/links';
-import { findObjectOfType, getLokiDatasource } from 'services/scenes';
 
 import LokiLogo from '../../../img/logo.svg';
 import { LokiDatasource, LokiQuery } from '../../../services/lokiQuery';
+import { ExtensionPoints } from 'services/extensions/links';
+import { findObjectOfType, getLokiDatasource } from 'services/scenes';
 
 export interface AddToInvestigationButtonState extends SceneObjectState {
+  context?: ExtensionContext;
+  ds?: LokiDatasource;
+  fieldName?: string;
   frame?: DataFrame;
   labelName?: string;
-  fieldName?: string;
-  ds?: LokiDatasource;
-  context?: ExtensionContext;
   queries: LokiQuery[];
   type?: 'timeseries' | 'logs' | undefined;
 }
 
 type ExtensionContext = {
-  timeRange: TimeRange;
-  queries: LokiQuery[];
   datasource: DataSourceRef;
-  origin: string;
-  url: string;
-  type: string;
-  title: string;
+  drillDownLabel?: string;
+  fieldConfig?: FieldConfigSource;
   id: string;
   logoPath: string;
   note?: string;
-  drillDownLabel?: string;
-  fieldConfig?: FieldConfigSource;
+  origin: string;
+  queries: LokiQuery[];
+  timeRange: TimeRange;
+  title: string;
+  type: string;
+  url: string;
 };
 
 export class AddToInvestigationButton extends SceneObjectBase<AddToInvestigationButtonState> {
@@ -74,9 +75,9 @@ export class AddToInvestigationButton extends SceneObjectBase<AddToInvestigation
       const filter = this.state.frame ? getFilter(this.state.frame) : null;
       const queries = queryRunner.state.queries.map((q) => ({
         ...q,
+        datasource: q.datasource ?? undefined,
         expr: sceneGraph.interpolate(queryRunner, q.expr),
         legendFormat: filter?.name ? `{{ ${filter.name} }}` : sceneGraph.interpolate(queryRunner, q.legendFormat),
-        datasource: q.datasource ?? undefined,
       }));
 
       if (JSON.stringify(queries) !== JSON.stringify(this.state.queries)) {
@@ -127,24 +128,24 @@ export class AddToInvestigationButton extends SceneObjectBase<AddToInvestigation
 
   private getContext = () => {
     const fieldConfig = this.getFieldConfig();
-    const { queries, ds, labelName, fieldName, type } = this.state;
+    const { ds, fieldName, labelName, queries, type } = this.state;
     const timeRange = sceneGraph.getTimeRange(this);
 
     if (!timeRange || !queries || !ds?.uid) {
       return;
     }
     const ctx = {
-      origin: 'Grafana Logs Drilldown',
-      type: type ?? 'timeseries',
-      queries,
-      timeRange: { ...timeRange.state.value },
       datasource: { uid: ds.uid },
-      url: window.location.href,
-      id: `${JSON.stringify(queries)}${labelName}${fieldName}`,
-      title: `${labelName}${fieldName ? ` > ${fieldName}` : ''}`,
-      logoPath: LokiLogo,
       drillDownLabel: fieldName,
       fieldConfig: fieldConfig,
+      id: `${JSON.stringify(queries)}${labelName}${fieldName}`,
+      logoPath: LokiLogo,
+      origin: 'Grafana Logs Drilldown',
+      queries,
+      timeRange: { ...timeRange.state.value },
+      title: `${labelName}${fieldName ? ` > ${fieldName}` : ''}`,
+      type: type ?? 'timeseries',
+      url: window.location.href,
     };
     if (JSON.stringify(ctx) !== JSON.stringify(this.state.context)) {
       this.setState({ context: ctx });
@@ -153,7 +154,7 @@ export class AddToInvestigationButton extends SceneObjectBase<AddToInvestigation
 
   public static Component = ({ model }: SceneComponentProps<AddToInvestigationButton>) => {
     const { context } = model.useState();
-    const { links } = usePluginLinks({ extensionPointId: ExtensionPoints.MetricInvestigation, context });
+    const { links } = usePluginLinks({ context, extensionPointId: ExtensionPoints.MetricInvestigation });
 
     return (
       <>

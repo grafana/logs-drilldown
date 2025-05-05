@@ -1,5 +1,6 @@
-import { css } from '@emotion/css';
 import React from 'react';
+
+import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
@@ -12,33 +13,33 @@ const getStyles = (theme: GrafanaTheme2) => ({
     color: theme.colors.primary.text,
     position: 'relative',
   }),
+  logsStatsRowBar: css({
+    background: theme.colors.text.disabled,
+    height: theme.spacing(0.5),
+    overflow: 'hidden',
+  }),
+  logsStatsRowCount: css({
+    marginLeft: theme.spacing(0.75),
+    textAlign: 'right',
+  }),
+  logsStatsRowInnerBar: css({
+    background: theme.colors.primary.main,
+    height: theme.spacing(0.5),
+    overflow: 'hidden',
+  }),
   logsStatsRowLabel: css({
     display: 'flex',
     marginBottom: '1px',
   }),
-  logsStatsRowValue: css({
-    flex: 1,
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-  }),
-  logsStatsRowCount: css({
-    textAlign: 'right',
-    marginLeft: theme.spacing(0.75),
-  }),
   logsStatsRowPercent: css({
-    textAlign: 'right',
     marginLeft: theme.spacing(0.75),
+    textAlign: 'right',
     width: theme.spacing(4.5),
   }),
-  logsStatsRowBar: css({
-    height: theme.spacing(0.5),
+  logsStatsRowValue: css({
+    flex: 1,
     overflow: 'hidden',
-    background: theme.colors.text.disabled,
-  }),
-  logsStatsRowInnerBar: css({
-    height: theme.spacing(0.5),
-    overflow: 'hidden',
-    background: theme.colors.primary.main,
+    textOverflow: 'ellipsis',
   }),
 });
 

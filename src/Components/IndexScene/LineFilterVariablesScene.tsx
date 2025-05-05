@@ -1,14 +1,17 @@
-import { AdHocFilterWithLabels, SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import React, { ChangeEvent, KeyboardEvent } from 'react';
-import { getLineFiltersVariable } from '../../services/variableGetters';
-import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { debounce } from 'lodash';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
+import { debounce } from 'lodash';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { AdHocFilterWithLabels, SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
-import { LineFilterProps, LineFilterVariable } from './LineFilterVariable';
+
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
 import { addCurrentUrlToHistory } from '../../services/navigate';
+import { getLineFiltersVariable } from '../../services/variableGetters';
+import { LineFilterProps, LineFilterVariable } from './LineFilterVariable';
 
 interface LineFilterRendererState extends SceneObjectState {}
 
@@ -31,11 +34,14 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
       <div className={styles.lineFiltersWrap}>
         {filters.map((filter) => {
           const props: LineFilterProps = {
-            lineFilter: filter.value,
-            regex: filter.operator === LineFilterOp.regex || filter.operator === LineFilterOp.negativeRegex,
             caseSensitive: filter.key === LineFilterCaseSensitive.caseSensitive,
             exclusive: model.isFilterExclusive(filter),
             handleEnter: (e, lineFilter) => model.handleEnter(e, filter.value, filter),
+            lineFilter: filter.value,
+            onCaseSensitiveToggle: () => model.onCaseSensitiveToggle(filter),
+            onInputChange: (e) => model.onInputChange(e, filter),
+            onRegexToggle: () => model.onRegexToggle(filter),
+            regex: filter.operator === LineFilterOp.regex || filter.operator === LineFilterOp.negativeRegex,
             setExclusive: () => model.onToggleExclusive(filter),
             updateFilter: (lineFilter, debounced) =>
               model.updateFilter(
@@ -46,9 +52,6 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
                 },
                 debounced
               ),
-            onRegexToggle: () => model.onRegexToggle(filter),
-            onInputChange: (e) => model.onInputChange(e, filter),
-            onCaseSensitiveToggle: () => model.onCaseSensitiveToggle(filter),
           };
           return <LineFilterVariable key={filter.keyLabel} onClick={() => model.removeFilter(filter)} props={props} />;
         })}
@@ -195,24 +198,24 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     variable.updateFilters(
       [
         {
-          keyLabel: existingFilter.keyLabel,
           key: filterUpdate.key,
+          keyLabel: existingFilter.keyLabel,
           operator: filterUpdate.operator,
           value: filterUpdate.value,
         },
         ...otherFilters,
       ],
-      { skipPublish, forcePublish }
+      { forcePublish, skipPublish }
     );
 
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.search_string_in_variables_changed,
       {
-        searchQueryLength: existingFilter.value.length,
+        caseSensitive: filterUpdate.key,
         containsLevel: existingFilter.value.toLowerCase().includes('level'),
         operator: filterUpdate.operator,
-        caseSensitive: filterUpdate.key,
+        searchQueryLength: existingFilter.value.length,
       }
     );
   };
@@ -243,10 +246,10 @@ export function sortLineFilters(filters: AdHocFilterWithLabels[]) {
 function getStyles(theme: GrafanaTheme2) {
   return {
     lineFiltersWrap: css({
-      label: 'lineFiltersWrap',
       display: 'flex',
       flexWrap: 'wrap',
       gap: `${theme.spacing(0.25)} ${theme.spacing(2)}`,
+      label: 'lineFiltersWrap',
     }),
   };
 }

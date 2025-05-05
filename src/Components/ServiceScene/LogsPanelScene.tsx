@@ -1,3 +1,7 @@
+import React, { MouseEvent } from 'react';
+
+import { DataFrame, getValueFormat, LoadingState, LogRowModel, PanelData } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -10,55 +14,53 @@ import {
   SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
-import { DataFrame, getValueFormat, LoadingState, LogRowModel, PanelData } from '@grafana/data';
+import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
+import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
+import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getVariableForLabel } from '../../services/fields';
+import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
+import { logger } from '../../services/logger';
+import { narrowLogsSortOrder } from '../../services/narrowing';
 import {
-  getLogOption,
-  getLogsVolumeOption,
-  setDisplayedFields,
-  LOG_OPTIONS_LOCALSTORAGE_KEY,
   getBooleanLogOption,
   getDedupStrategy,
+  getLogOption,
+  getLogsVolumeOption,
+  LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
+  setDisplayedFields,
 } from '../../services/store';
-import React, { MouseEvent } from 'react';
-import { LogsListScene } from './LogsListScene';
-import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
-import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
-import { getVariableForLabel } from '../../services/fields';
-import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import {
   getAdHocFiltersVariable,
   getLineFiltersVariable,
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
-import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
+import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
+import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
+import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
-import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
-import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { ServiceScene } from './ServiceScene';
-import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
-import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
-import { locationService } from '@grafana/runtime';
-import { narrowLogsSortOrder } from '../../services/narrowing';
-import { logger } from '../../services/logger';
-import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
-import { getPrettyQueryExpr } from 'services/scenes';
+import { LogsListScene } from './LogsListScene';
 import { LogsPanelError } from './LogsPanelError';
-import { clearVariables } from 'services/variableHelpers';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { ServiceScene } from './ServiceScene';
+import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
-import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
+import { getPrettyQueryExpr } from 'services/scenes';
+import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
+import { clearVariables } from 'services/variableHelpers';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
+  dedupStrategy: LogsDedupStrategy;
   error?: string;
   logsVolumeCollapsedByError?: boolean;
-  sortOrder: LogsSortOrder;
   prettifyLogMessage: boolean;
+  sortOrder: LogsSortOrder;
   wrapLogMessage: boolean;
-  dedupStrategy: LogsDedupStrategy;
 }
 
 export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
@@ -68,11 +70,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
-      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
       dedupStrategy: LogsDedupStrategy.none,
       error: undefined,
+      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
       ...state,
     });
 
@@ -83,17 +85,17 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
 
     this.updateFromUrl({
+      prettifyLogMessage: searchParams.get('prettifyLogMessage'),
       sortOrder: searchParams.get('sortOrder'),
       wrapLogMessage: searchParams.get('wrapLogMessage'),
-      prettifyLogMessage: searchParams.get('prettifyLogMessage'),
     });
   }
 
   getUrlState() {
     return {
+      prettifyLogMessage: JSON.stringify(this.state.prettifyLogMessage),
       sortOrder: JSON.stringify(this.state.sortOrder),
       wrapLogMessage: JSON.stringify(this.state.wrapLogMessage),
-      prettifyLogMessage: JSON.stringify(this.state.prettifyLogMessage),
     };
   }
 
@@ -313,7 +315,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('displayedFields', parentModel.state.displayedFields)
       .setMenu(
         new PanelMenu({
-          investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
+          investigationOptions: { getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}`, type: 'logs' },
         })
       )
       .setOption('showLogContextToggle', true)
@@ -322,7 +324,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onNewLogsReceived', this.updateVisibleRange)
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
       .setHeaderActions(
-        new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
+        new LogOptionsScene({ onChangeVisualizationType: parentModel.setVisualizationType, visualizationType })
       )
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
@@ -392,7 +394,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         generateLogShortlink(
           'panelState',
           {
-            logs: { id: row.uid, displayedFields: parent.state.displayedFields },
+            logs: { displayedFields: parent.state.displayedFields, id: row.uid },
           },
           timeRange
         )
@@ -451,10 +453,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         filters: [
           ...lineFiltersVar.state.filters,
           {
-            operator: LineFilterOp.negativeMatch,
-            value,
             key: LineFilterCaseSensitive.caseSensitive,
             keyLabel: lineFiltersVar.state.filters.length.toString(),
+            operator: LineFilterOp.negativeMatch,
+            value,
           },
         ],
       });
@@ -475,10 +477,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         filters: [
           ...lineFiltersVar.state.filters,
           {
-            operator: LineFilterOp.match,
-            value,
             key: LineFilterCaseSensitive.caseSensitive,
             keyLabel: lineFiltersVar.state.filters.length.toString(),
+            operator: LineFilterOp.match,
+            value,
           },
         ],
       });
@@ -500,9 +502,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.logs_detail_filter_applied,
       {
+        action: operator,
         filterType: variableType,
         key,
-        action: operator,
       }
     );
   }

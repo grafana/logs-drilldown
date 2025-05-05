@@ -1,11 +1,14 @@
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import React, { ChangeEvent } from 'react';
-import { Field } from '@grafana/ui';
+
 import { css } from '@emotion/css';
-import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { Field } from '@grafana/ui';
+
+import { areArraysEqual } from '../../../../services/comparison';
 import { debouncedFuzzySearch, fuzzySearch } from '../../../../services/search';
 import { SearchInput } from '../SearchInput';
-import { areArraysEqual } from '../../../../services/comparison';
+import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 
 export interface PatternsViewTextSearchState extends SceneObjectState {}
 

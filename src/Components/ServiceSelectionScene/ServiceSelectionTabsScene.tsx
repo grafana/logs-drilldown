@@ -1,51 +1,54 @@
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 import React, { useRef } from 'react';
-import { Icon, Popover, PopoverController, Tab, TabsBar, Tooltip, useStyles2 } from '@grafana/ui';
-import { GrafanaTheme2, LoadingState, SelectableValue } from '@grafana/data';
+
 import { css, cx } from '@emotion/css';
-import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
-import { truncateText } from '../../services/text';
 import { rest } from 'lodash';
-import { ServiceSelectionScene } from './ServiceSelectionScene';
+
+import { GrafanaTheme2, LoadingState, SelectableValue } from '@grafana/data';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
+import { Icon, Popover, PopoverController, Tab, TabsBar, Tooltip, useStyles2 } from '@grafana/ui';
+
 import { getSceneQueryRunner } from '../../services/panel';
 import { buildResourceQuery } from '../../services/query';
-import { TabPopoverScene } from './TabPopoverScene';
-import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from '../../services/variableGetters';
 import { getFavoriteTabsFromStorage, removeTabFromLocalStorage } from '../../services/store';
+import { truncateText } from '../../services/text';
+import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from '../../services/variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
+import { ServiceSelectionScene } from './ServiceSelectionScene';
+import { TabPopoverScene } from './TabPopoverScene';
 
 export interface TabOption extends SelectableValue<string> {
-  label: string;
-  value: string;
   active?: boolean;
+  label: string;
   saved?: boolean;
   savedIndex?: number;
+  value: string;
 }
 
 export interface ServiceSelectionTabsSceneState extends SceneObjectState {
-  tabOptions: TabOption[];
-  showPopover: boolean;
   $labelsData: SceneQueryRunner;
   popover?: TabPopoverScene;
+  showPopover: boolean;
+  tabOptions: TabOption[];
 }
 
 interface LabelOptions {
-  label: string;
   cardinality: number;
+  label: string;
 }
 
 export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionTabsSceneState> {
   constructor(state: Partial<ServiceSelectionTabsSceneState>) {
     super({
-      showPopover: false,
       $labelsData: getSceneQueryRunner({
         queries: [buildResourceQuery('', 'detected_labels')],
         runQueriesMode: 'manual',
       }),
+      showPopover: false,
       tabOptions: [
         {
           label: SERVICE_UI_LABEL,
-          value: SERVICE_NAME,
           saved: true,
+          value: SERVICE_NAME,
         },
       ],
       ...state,
@@ -56,7 +59,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionTabsScene>) => {
     // Scene vars
-    const { tabOptions, showPopover, popover, $labelsData } = model.useState();
+    const { $labelsData, popover, showPopover, tabOptions } = model.useState();
     const { data } = $labelsData.useState();
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const primaryLabel = getServiceSelectionPrimaryLabel(model);
@@ -195,8 +198,8 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
   getLabelsFromQueryRunnerState(state = this.state.$labelsData?.state): LabelOptions[] | undefined {
     return state.data?.series[0].fields.map((f) => {
       return {
-        label: f.name,
         cardinality: f.values[0],
+        label: f.name,
       };
     });
   }
@@ -210,11 +213,11 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
       .map((l) => {
         const savedIndex = savedTabs.indexOf(l.label);
         const option: TabOption = {
-          label: l.label === SERVICE_NAME ? SERVICE_UI_LABEL : l.label,
-          value: l.label,
           active: selectedTab === l.label,
+          label: l.label === SERVICE_NAME ? SERVICE_UI_LABEL : l.label,
           saved: savedIndex !== -1,
           savedIndex,
+          value: l.label,
         };
         return option;
       })
@@ -300,20 +303,20 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 }
 
 const getTabsStyles = (theme: GrafanaTheme2) => ({
-  tabs: css({
-    overflowY: 'hidden',
-  }),
   addTab: css({
-    label: 'add-label-tab',
-    color: theme.colors.primary.text,
     '& button': {
       color: theme.colors.primary.text,
     },
+    color: theme.colors.primary.text,
+    label: 'add-label-tab',
   }),
   popover: css({
-    borderRadius: theme.shape.radius.default,
-    boxShadow: theme.shadows.z3,
     background: theme.colors.background.primary,
     border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
+    boxShadow: theme.shadows.z3,
+  }),
+  tabs: css({
+    overflowY: 'hidden',
   }),
 });

@@ -1,3 +1,7 @@
+import React from 'react';
+
+import { AppEvents, DataQueryError, LoadingState } from '@grafana/data';
+import { getAppEvents } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -13,26 +17,16 @@ import {
   SceneQueryRunner,
   SceneReactObject,
 } from '@grafana/scenes';
-import { LayoutSwitcher } from './LayoutSwitcher';
-import { getLabelValue } from './SortByScene';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
-import { getSortByPreference } from '../../../services/store';
-import { AppEvents, DataQueryError, LoadingState } from '@grafana/data';
-import { ByFrameRepeater } from './ByFrameRepeater';
+
+import { areArraysEqual } from '../../../services/comparison';
 import { getFilterBreakdownValueScene } from '../../../services/fields';
-import {
-  ALL_VARIABLE_VALUE,
-  LEVEL_VARIABLE_VALUE,
-  VAR_LABEL_GROUP_BY_EXPR,
-  VAR_LABELS,
-  VAR_LEVELS,
-} from '../../../services/variables';
-import React from 'react';
-import { LabelBreakdownScene } from './LabelBreakdownScene';
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
-import { getAppEvents } from '@grafana/runtime';
+import { logger } from '../../../services/logger';
+import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import { renderLevelsFilter, renderLogQLLabelFilters } from '../../../services/query';
+import { DEFAULT_SORT_BY } from '../../../services/sorting';
+import { getSortByPreference } from '../../../services/store';
 import {
   getFieldsVariable,
   getLabelGroupByVariable,
@@ -42,22 +36,30 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../../services/variableGetters';
-import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
-import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
-import { EmptyLayoutScene } from './EmptyLayoutScene';
-import { IndexScene } from '../../IndexScene/IndexScene';
 import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
+import {
+  ALL_VARIABLE_VALUE,
+  LEVEL_VARIABLE_VALUE,
+  VAR_LABEL_GROUP_BY_EXPR,
+  VAR_LABELS,
+  VAR_LEVELS,
+} from '../../../services/variables';
+import { IndexScene } from '../../IndexScene/IndexScene';
+import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { ByFrameRepeater } from './ByFrameRepeater';
+import { EmptyLayoutScene } from './EmptyLayoutScene';
+import { LabelBreakdownScene } from './LabelBreakdownScene';
+import { LayoutSwitcher } from './LayoutSwitcher';
+import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
-import { renderLevelsFilter, renderLogQLLabelFilters } from '../../../services/query';
-import { logger } from '../../../services/logger';
-import { areArraysEqual } from '../../../services/comparison';
+import { getLabelValue } from './SortByScene';
 
 type DisplayError = DataQueryError & { displayed: boolean };
 type DisplayErrors = Record<string, DisplayError>;
 
 export interface LabelValueBreakdownSceneState extends SceneObjectState {
-  body?: (LayoutSwitcher & SceneObject) | (NoMatchingLabelsScene & SceneObject) | (EmptyLayoutScene & SceneObject);
   $data?: SceneDataProvider;
+  body?: (LayoutSwitcher & SceneObject) | (NoMatchingLabelsScene & SceneObject) | (EmptyLayoutScene & SceneObject);
   errors: DisplayErrors;
 }
 
@@ -90,7 +92,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
   private buildQuery() {
     const query = buildLabelsQuery(this, VAR_LABEL_GROUP_BY_EXPR, String(getLabelGroupByVariable(this).state.value));
     // Manually interpolate query so we don't pollute the variable interpolation for other queries
-    const { variableName, filterExpression } = this.removeValueLabelFromVariableInterpolation();
+    const { filterExpression, variableName } = this.removeValueLabelFromVariableInterpolation();
     query.expr = query.expr.replace(`$\{${variableName}}`, filterExpression);
     return query;
   }
@@ -373,47 +375,43 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
 
     const body = bodyOpts.build();
 
-    const { sortBy, direction } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
 
     const getFilter = () => labelBreakdownScene.state.search.state.filter ?? '';
 
     return new LayoutSwitcher({
-      options: [
-        { value: 'single', label: 'Single' },
-        { value: 'grid', label: 'Grid' },
-        { value: 'rows', label: 'Rows' },
-      ],
       active: 'grid',
       layouts: [
         new SceneFlexLayout({
-          direction: 'column',
           children: [
             new SceneReactObject({ reactNode: <LabelBreakdownScene.LabelsMenu model={labelBreakdownScene} /> }),
             new SceneFlexItem({
-              minHeight: 300,
               body,
+              minHeight: 300,
             }),
           ],
+          direction: 'column',
         }),
         new SceneFlexLayout({
-          direction: 'column',
           children: [
             new SceneReactObject({ reactNode: <LabelBreakdownScene.LabelsMenu model={labelBreakdownScene} /> }),
-            new ValueSummaryPanelScene({ title: tagKey, levelColor: true, tagKey: this.getTagKey(), type: 'label' }),
+            new ValueSummaryPanelScene({ levelColor: true, tagKey: this.getTagKey(), title: tagKey, type: 'label' }),
             new SceneReactObject({ reactNode: <LabelBreakdownScene.ValuesMenu model={labelBreakdownScene} /> }),
             new ByFrameRepeater({
               body: new SceneCSSGridLayout({
+                autoRows: '200px',
+                children: [
+                  new SceneFlexItem({
+                    body: new SceneReactObject({
+                      reactNode: <LoadingPlaceholder text="Loading..." />,
+                    }),
+                  }),
+                ],
                 isLazy: true,
                 templateColumns: LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
-                autoRows: '200px',
-                children: [
-                  new SceneFlexItem({
-                    body: new SceneReactObject({
-                      reactNode: <LoadingPlaceholder text="Loading..." />,
-                    }),
-                  }),
-                ],
               }),
+              direction,
+              getFilter,
               getLayoutChild: getFilterBreakdownValueScene(
                 getLabelValue,
                 DrawStyle.Bars,
@@ -422,20 +420,17 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                 tagKey
               ),
               sortBy,
-              direction,
-              getFilter,
             }),
           ],
+          direction: 'column',
         }),
         new SceneFlexLayout({
-          direction: 'column',
           children: [
             new SceneReactObject({ reactNode: <LabelBreakdownScene.LabelsMenu model={labelBreakdownScene} /> }),
-            new ValueSummaryPanelScene({ title: tagKey, levelColor: true, tagKey: this.getTagKey(), type: 'label' }),
+            new ValueSummaryPanelScene({ levelColor: true, tagKey: this.getTagKey(), title: tagKey, type: 'label' }),
             new SceneReactObject({ reactNode: <LabelBreakdownScene.ValuesMenu model={labelBreakdownScene} /> }),
             new ByFrameRepeater({
               body: new SceneCSSGridLayout({
-                templateColumns: '1fr',
                 autoRows: '200px',
                 children: [
                   new SceneFlexItem({
@@ -444,7 +439,10 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                     }),
                   }),
                 ],
+                templateColumns: '1fr',
               }),
+              direction,
+              getFilter,
               getLayoutChild: getFilterBreakdownValueScene(
                 getLabelValue,
                 DrawStyle.Bars,
@@ -453,11 +451,15 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                 tagKey
               ),
               sortBy,
-              direction,
-              getFilter,
             }),
           ],
+          direction: 'column',
         }),
+      ],
+      options: [
+        { label: 'Single', value: 'single' },
+        { label: 'Grid', value: 'grid' },
+        { label: 'Rows', value: 'rows' },
       ],
     });
   }
@@ -479,8 +481,8 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       // If we don't have any panels the error message will replace the loading state, we want to set it as displayed but not render the toast
       if (!this.activeLayoutContainsNoPanels()) {
         appEvents.publish({
-          type: AppEvents.alertError.name,
           payload: errorArray?.map((err, key) => this.renderError(key, err)),
+          type: AppEvents.alertError.name,
         });
       }
       this.setState({

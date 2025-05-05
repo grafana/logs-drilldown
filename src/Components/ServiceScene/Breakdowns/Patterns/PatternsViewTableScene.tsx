@@ -1,3 +1,10 @@
+import React from 'react';
+
+import { css, cx } from '@emotion/css';
+import { CellProps } from 'react-table';
+
+import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -7,43 +14,39 @@ import {
   SceneObjectBase,
   SceneObjectState,
 } from '@grafana/scenes';
-import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
-import React from 'react';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
 import { AxisPlacement, Column, InteractiveTable, TooltipDisplayMode, useTheme2 } from '@grafana/ui';
-import { CellProps } from 'react-table';
-import { css, cx } from '@emotion/css';
-import { onPatternClick } from './FilterByPatternsButton';
-import { FilterButton } from '../../../FilterButton';
-import { config } from '@grafana/runtime';
-import { testIds } from '../../../../services/testIds';
-import { PatternsFrameScene } from './PatternsFrameScene';
-import { PatternNameLabel } from './PatternNameLabel';
-import { getExplorationFor } from 'services/scenes';
-import { PatternsTableExpandedRow } from './PatternsTableExpandedRow';
+
 import { LINE_LIMIT } from '../../../../services/query';
+import { testIds } from '../../../../services/testIds';
 import { AppliedPattern } from '../../../../services/variables';
+import { FilterButton } from '../../../FilterButton';
+import { IndexScene } from '../../../IndexScene/IndexScene';
+import { onPatternClick } from './FilterByPatternsButton';
+import { PatternNameLabel } from './PatternNameLabel';
+import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+import { PatternsFrameScene } from './PatternsFrameScene';
+import { PatternsTableExpandedRow } from './PatternsTableExpandedRow';
+import { getExplorationFor } from 'services/scenes';
 
 // copied from from grafana repository packages/grafana-data/src/valueFormats/categories.ts
 // that is used in Grafana codebase for "short" units
 const SCALED_UNITS = ['', ' K', ' Mil', ' Bil', ' Tri', ' Quadr', ' Quint', ' Sext', ' Sept'];
 export interface SingleViewTableSceneState extends SceneObjectState {
+  expandedRows?: SceneObject[];
+  maxLines?: number;
+
   // The local copy of the pattern frames, the parent breakdown scene decides if we get the filtered subset or not, in this scene we just present the data
   patternFrames: PatternFrame[] | undefined;
-  expandedRows?: SceneObject[];
-
   // An array of patterns to exclude links
   patternsNotMatchingFilters?: string[];
-  maxLines?: number;
 }
 
 export interface PatternsTableCellData {
-  pattern: string;
   dataFrame: DataFrame;
-  sum: number;
-  includeLink: () => void;
   excludeLink: () => void;
+  includeLink: () => void;
+  pattern: string;
+  sum: number;
   undoLink: () => void;
 }
 
@@ -80,13 +83,11 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
     const timeRange = sceneGraph.getTimeRange(this).state.value;
     const columns: Array<Column<PatternsTableCellData>> = [
       {
-        id: 'volume-samples',
-        header: '',
         cell: (props: CellProps<PatternsTableCellData>) => {
           const panelData: PanelData = {
-            timeRange: timeRange,
             series: [props.cell.row.original.dataFrame],
             state: LoadingState.Done,
+            timeRange: timeRange,
           };
           const dataNode = new SceneDataNode({
             data: panelData,
@@ -114,11 +115,10 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
             </div>
           );
         },
+        header: '',
+        id: 'volume-samples',
       },
       {
-        id: 'count',
-        header: 'Count',
-        sortType: 'number',
         cell: (props) => {
           const value = scaledUnits(1000, SCALED_UNITS)(props.cell.row.original.sum);
           return (
@@ -131,20 +131,21 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
             </div>
           );
         },
+        header: 'Count',
+        id: 'count',
+        sortType: 'number',
       },
       {
-        id: 'percent',
-        header: '%',
-        sortType: 'number',
         cell: (props) => (
           <div className={styles.countTextWrap}>
             <div>{((100 * props.cell.row.original.sum) / total).toFixed(0)}%</div>
           </div>
         ),
+        header: '%',
+        id: 'percent',
+        sortType: 'number',
       },
       {
-        id: 'pattern',
-        header: 'Pattern',
         cell: (props: CellProps<PatternsTableCellData>) => {
           return (
             <div className={cx(getTablePatternTextStyles(), styles.tablePatternTextDefault)}>
@@ -156,11 +157,10 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
             </div>
           );
         },
+        header: 'Pattern',
+        id: 'pattern',
       },
       {
-        id: 'include',
-        header: undefined,
-        disableGrow: true,
         cell: (props: CellProps<PatternsTableCellData>) => {
           if (patternsNotMatchingFilters?.includes(props.cell.row.original.pattern)) {
             return undefined;
@@ -182,6 +182,9 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
             />
           );
         },
+        disableGrow: true,
+        header: undefined,
+        id: 'include',
       },
     ];
     return columns;
@@ -202,25 +205,25 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       .map((pattern: PatternFrame) => {
         return {
           dataFrame: pattern.dataFrame,
-          pattern: pattern.pattern,
-          sum: pattern.sum,
-          includeLink: () =>
-            onPatternClick({
-              pattern: pattern.pattern,
-              type: 'include',
-              indexScene: logExploration,
-            }),
           excludeLink: () =>
             onPatternClick({
+              indexScene: logExploration,
               pattern: pattern.pattern,
               type: 'exclude',
-              indexScene: logExploration,
             }),
+          includeLink: () =>
+            onPatternClick({
+              indexScene: logExploration,
+              pattern: pattern.pattern,
+              type: 'include',
+            }),
+          pattern: pattern.pattern,
+          sum: pattern.sum,
           undoLink: () =>
             onPatternClick({
+              indexScene: logExploration,
               pattern: pattern.pattern,
               type: 'undo',
-              indexScene: logExploration,
             }),
         };
       });
@@ -231,8 +234,8 @@ const theme = config.theme2;
 
 const getTablePatternTextStyles = () => {
   return css({
-    minWidth: '200px',
     fontFamily: theme.typography.fontFamilyMonospace,
+    minWidth: '200px',
     overflow: 'hidden',
     overflowWrap: 'break-word',
   });
@@ -252,9 +255,9 @@ const getTableStyles = (theme: GrafanaTheme2) => {
       },
       // Make table headers sticky
       th: {
-        top: 0,
-        position: 'sticky',
         backgroundColor: theme.colors.background.canvas,
+        position: 'sticky',
+        top: 0,
         zIndex: theme.zIndex.navbarFixed,
       },
     }),
@@ -262,26 +265,26 @@ const getTableStyles = (theme: GrafanaTheme2) => {
 };
 const getColumnStyles = (theme: GrafanaTheme2) => {
   return {
+    countTextWrap: css({
+      fontSize: theme.typography.bodySmall.fontSize,
+      textAlign: 'right',
+    }),
     tablePatternTextDefault: css({
       fontFamily: theme.typography.fontFamilyMonospace,
-      minWidth: '200px',
+      fontSize: theme.typography.bodySmall.fontSize,
       maxWidth: '100%',
+      minWidth: '200px',
       overflow: 'hidden',
       overflowWrap: 'break-word',
-      fontSize: theme.typography.bodySmall.fontSize,
       wordBreak: 'break-word',
-    }),
-    countTextWrap: css({
-      textAlign: 'right',
-      fontSize: theme.typography.bodySmall.fontSize,
-    }),
-    tableTimeSeriesWrap: css({
-      width: '230px',
-      pointerEvents: 'none',
     }),
     tableTimeSeries: css({
       height: '30px',
       overflow: 'hidden',
+    }),
+    tableTimeSeriesWrap: css({
+      pointerEvents: 'none',
+      width: '230px',
     }),
   };
 };

@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 
+import { reportInteraction } from '@grafana/runtime';
 import { ClickOutsideWrapper } from '@grafana/ui';
 
-import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
+import { logger } from '../../../services/logger';
+import { FieldNameMetaStore } from '../TableTypes';
 import { LogsColumnSearch } from 'Components/Table/ColumnSelection/LogsColumnSearch';
 import { LogsTableMultiSelect } from 'Components/Table/ColumnSelection/LogsTableMultiSelect';
-
-import { FieldNameMetaStore } from '../TableTypes';
-import { reportInteraction } from '@grafana/runtime';
-import { logger } from '../../../services/logger';
+import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 
 export function getReorderColumn(setColumns: (cols: FieldNameMetaStore) => void) {
   return (columns: FieldNameMetaStore, sourceIndex: number, destinationIndex: number) => {
@@ -43,20 +42,20 @@ function logError(columnName: string, columns: FieldNameMetaStore) {
   let logContext;
   try {
     logContext = {
-      columns: JSON.stringify(columns),
       columnName: columnName,
+      columns: JSON.stringify(columns),
     };
   } catch (e) {
     logContext = {
-      msg: 'Table: ColumnSelectionDrawerWrap failed to encode context',
       columnName: columnName,
+      msg: 'Table: ColumnSelectionDrawerWrap failed to encode context',
     };
   }
   logger.warn('failed to get column', logContext);
 }
 
 export function ColumnSelectionDrawerWrap() {
-  const { columns, setColumns, setVisible, filteredColumns, setFilteredColumns } = useTableColumnContext();
+  const { columns, filteredColumns, setColumns, setFilteredColumns, setVisible } = useTableColumnContext();
   const [searchValue, setSearchValue] = useState<string>('');
   const toggleColumn = (columnName: string) => {
     if (!columns || !(columnName in columns)) {

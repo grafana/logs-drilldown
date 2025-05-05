@@ -1,9 +1,15 @@
-import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import React from 'react';
+
 import { css, cx } from '@emotion/css';
-import { GiveFeedbackButton } from './GiveFeedbackButton';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { useStyles2 } from '@grafana/ui';
+
+import { getJsonParserVariableVisibility } from '../../services/store';
+import { AppliedPattern } from '../../services/variables';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
-import { PatternControls } from './PatternControls';
+import { GiveFeedbackButton } from './GiveFeedbackButton';
 import { IndexScene } from './IndexScene';
 import {
   CONTROLS_JSON_FIELDS,
@@ -11,12 +17,9 @@ import {
   CONTROLS_VARS_FIELDS_COMBINED,
   LayoutScene,
 } from './LayoutScene';
-import { useStyles2 } from '@grafana/ui';
-import { GrafanaTheme2 } from '@grafana/data';
-import { AppliedPattern } from '../../services/variables';
-import { getJsonParserVariableVisibility } from '../../services/store';
+import { PatternControls } from './PatternControls';
 
-type HeaderPosition = 'sticky' | 'relative';
+type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
   position: HeaderPosition;
 }
@@ -26,7 +29,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const { controls, patterns } = indexScene.useState();
 
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
-    const { lineFilterRenderer, levelsRenderer } = layoutScene.useState();
+    const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
 
     const styles = useStyles2((theme) => getStyles(theme, model.state.position));
 
@@ -129,85 +132,85 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 const grafanaTopBarHeight = 40;
 function getStyles(theme: GrafanaTheme2, position: HeaderPosition) {
   return {
-    firstRowWrapper: css({
-      '& > div > div': {
-        gap: '16px',
-        label: 'first-row-wrapper',
-
-        [theme.breakpoints.down('lg')]: {
-          flexDirection: 'column',
-        },
-      },
+    controlsContainer: css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(1),
+      label: 'controlsContainer',
+      padding: theme.spacing(2),
     }),
     controlsFirstRowContainer: css({
-      label: 'controls-first-row',
-      display: 'flex',
-      gap: theme.spacing(2),
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
       [theme.breakpoints.down('md')]: {
         flexDirection: 'column-reverse',
       },
+      alignItems: 'flex-start',
+      display: 'flex',
+      gap: theme.spacing(2),
+      justifyContent: 'space-between',
+      label: 'controls-first-row',
     }),
     controlsRowContainer: css({
-      '&:empty': {
-        display: 'none',
-      },
-      label: 'controls-row',
-      display: 'flex',
-      // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
-      gap: theme.spacing(2),
-      alignItems: 'flex-start',
       [theme.breakpoints.down('lg')]: {
         flexDirection: 'column',
       },
-    }),
-    stickyControlsContainer: css({
-      position: 'sticky',
-      top: grafanaTopBarHeight,
-      left: 0,
-      background: theme.colors.background.canvas,
-      zIndex: theme.zIndex.navbarFixed,
-      gap: theme.spacing(0),
-      boxShadow: theme.shadows.z1,
-    }),
-    controlsContainer: css({
-      label: 'controlsContainer',
+      '&:empty': {
+        display: 'none',
+      },
+      alignItems: 'flex-start',
       display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-      padding: theme.spacing(2),
-    }),
-    filters: css({
-      label: 'filters',
-      display: 'flex',
-    }),
-    filtersWrap: css({
-      label: 'filtersWrap',
-      display: 'flex',
+      // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
       gap: theme.spacing(2),
-      width: 'calc(100% - 450)',
-      flexWrap: 'wrap',
-      alignItems: 'flex-end',
+      label: 'controls-row',
     }),
     controlsWrapper: css({
-      label: 'controlsWrapper',
       display: 'flex',
       flexDirection: 'column',
+      label: 'controlsWrapper',
       marginTop: theme.spacing(0.375),
     }),
-    timeRangeDatasource: css({
-      label: 'timeRangeDatasource',
+    filters: css({
       display: 'flex',
-      gap: theme.spacing(1),
+      label: 'filters',
+    }),
+    filtersWrap: css({
+      alignItems: 'flex-end',
+      display: 'flex',
       flexWrap: 'wrap',
-      justifyContent: 'flex-end',
+      gap: theme.spacing(2),
+      label: 'filtersWrap',
+      width: 'calc(100% - 450)',
+    }),
+    firstRowWrapper: css({
+      '& > div > div': {
+        [theme.breakpoints.down('lg')]: {
+          flexDirection: 'column',
+        },
+        gap: '16px',
+
+        label: 'first-row-wrapper',
+      },
+    }),
+    stickyControlsContainer: css({
+      background: theme.colors.background.canvas,
+      boxShadow: theme.shadows.z1,
+      gap: theme.spacing(0),
+      left: 0,
+      position: 'sticky',
+      top: grafanaTopBarHeight,
+      zIndex: theme.zIndex.navbarFixed,
     }),
     timeRange: css({
-      label: 'timeRange',
       display: 'flex',
       flexDirection: 'row',
       gap: theme.spacing(1),
+      label: 'timeRange',
+    }),
+    timeRangeDatasource: css({
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: theme.spacing(1),
+      justifyContent: 'flex-end',
+      label: 'timeRangeDatasource',
     }),
   };
 }

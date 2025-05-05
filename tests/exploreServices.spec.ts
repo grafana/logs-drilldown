@@ -1,14 +1,16 @@
-import { test, expect } from '@grafana/plugin-e2e';
+import { Page } from '@playwright/test';
+import { isNumber } from 'lodash';
+
+import { expect, test } from '@grafana/plugin-e2e';
+
+import { testIds } from '../src/services/testIds';
 import {
   E2EComboboxStrings,
   ExplorePage,
   levelTextMatch,
   serviceSelectionPaginationTextMatch,
 } from './fixtures/explore';
-import { testIds } from '../src/services/testIds';
 import { getMockVolumeApiResponse } from './mocks/getMockVolumeApiResponse';
-import { isNumber } from 'lodash';
-import { Page } from '@playwright/test';
 
 test.describe('explore services page', () => {
   let explorePage: ExplorePage;
@@ -18,7 +20,7 @@ test.describe('explore services page', () => {
       explorePage = new ExplorePage(page, testInfo);
 
       // Header sizes may change, bringing up the third row in queries, which will break tests in this suite
-      await page.setViewportSize({ width: 1280, height: 600 });
+      await page.setViewportSize({ height: 600, width: 1280 });
       await explorePage.clearLocalStorage();
       explorePage.captureConsoleLogs();
     });
@@ -548,7 +550,7 @@ test.describe('explore services page', () => {
 
             logsVolumeCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
           await page.route('**/resources/detected_fields*', async (route) => {
             const response = await route.fetch();
@@ -556,7 +558,7 @@ test.describe('explore services page', () => {
 
             detectedFieldsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
           await page.route('**/resources/detected_labels*', async (route) => {
             const response = await route.fetch();
@@ -564,7 +566,7 @@ test.describe('explore services page', () => {
 
             detectedLabelsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
           await page.route('**/resources/patterns*', async (route) => {
             const response = await route.fetch();
@@ -572,7 +574,7 @@ test.describe('explore services page', () => {
 
             patternsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
 
           // Can skip logs query for this test
@@ -665,7 +667,7 @@ test.describe('explore services page', () => {
         await selectLoc.click();
 
         // Change to mimir namespace
-        const optionLoc = page.getByRole('option', { name: 'mimir', exact: true });
+        const optionLoc = page.getByRole('option', { exact: true, name: 'mimir' });
         await expect(optionLoc).toHaveCount(1);
         await optionLoc.click();
 

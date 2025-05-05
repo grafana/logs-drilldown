@@ -1,15 +1,17 @@
-import { css } from '@emotion/css';
-import { Icon, IconButton, Input, useStyles2 } from '@grafana/ui';
 import React, { HTMLProps } from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
 
-interface Props extends Omit<HTMLProps<HTMLInputElement>, 'width' | 'prefix'> {
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Icon, IconButton, Input, useStyles2 } from '@grafana/ui';
+
+interface Props extends Omit<HTMLProps<HTMLInputElement>, 'prefix' | 'width'> {
   onClear?: () => void;
-  suffix?: React.ReactNode;
   prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
 }
 
-export const SearchInput = ({ value, onChange, placeholder, onClear, suffix, ...rest }: Props) => {
+export const SearchInput = ({ onChange, onClear, placeholder, suffix, value, ...rest }: Props) => {
   const styles = useStyles2(getStyles);
   return (
     <Input
@@ -37,11 +39,11 @@ export const SearchInput = ({ value, onChange, placeholder, onClear, suffix, ...
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  suffixWrapper: css({
-    gap: theme.spacing(0.5),
-    display: 'inline-flex',
-  }),
   clearIcon: css({
     cursor: 'pointer',
+  }),
+  suffixWrapper: css({
+    display: 'inline-flex',
+    gap: theme.spacing(0.5),
   }),
 });
