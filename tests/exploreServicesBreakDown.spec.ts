@@ -1836,14 +1836,22 @@ test.describe('explore services breakdown page', () => {
       await page.getByLabel('Disable regex').nth(0).click();
 
       // This is debounced, wait for the state to change
-      await expect.poll(() => page.getByLabel('Enable regex').count()).toBe(1);
+      await expect
+        .poll(() => page.getByLabel('Enable regex').count(), {
+          intervals: [1_001, 50, 100, 250],
+        })
+        .toBe(1);
       await expect.poll(() => rows.count()).toEqual(0);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
       // Re-enable regex - results should show
       await page.getByLabel('Enable regex').click();
-      await expect.poll(() => page.getByLabel('Disable regex').count()).toBe(2);
+      await expect
+        .poll(() => page.getByLabel('Disable regex').count(), {
+          intervals: [1_001, 50, 100, 250],
+        })
+        .toBe(2);
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toEqual(1);
       expect(logsCountQueryCount).toEqual(7);
       expect(logsPanelQueryCount).toEqual(7);
@@ -1851,7 +1859,13 @@ test.describe('explore services breakdown page', () => {
       // Change the filter in the "saved" variable that will return 0 results
       await firstLineFilterLoc.click();
       await page.keyboard.type('__');
-      await expect.poll(() => rows.count()).toEqual(0);
+      await expect
+        .poll(() => rows.count(), {
+          intervals: [500, 1_000, 2_000],
+          message: 'wait for query to return no results',
+          timeout: 0,
+        })
+        .toEqual(0);
       expect(logsCountQueryCount).toEqual(8);
       expect(logsPanelQueryCount).toEqual(8);
     });
