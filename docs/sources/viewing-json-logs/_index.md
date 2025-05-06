@@ -37,7 +37,7 @@ For example: Given a set of logs from am API request service, One can select the
 To include them again, simply remove them from the **Fields** filter above the Logs Volume visualization. 
 
 
-## Supported log types
+## Supported JSON log types
 Log lines entirely formatted as JSON are supported. 
 
 Log lines with only certain fields or metadata structured as JSON not currently supported.
