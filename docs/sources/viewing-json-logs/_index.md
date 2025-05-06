@@ -7,7 +7,7 @@ keywords:
   - Formatting
 menuTitle: Viewing JSON logs
 title: Viewing JSON logs
-weight: 400
+weight: 550
 ---
 
 # Logs Drilldown JSON viewer
