@@ -227,7 +227,7 @@ export class ExplorePage {
       //Assert we can see the tabs
       await expect(loc).toHaveCount(1);
       // Assert that the loading svg is not present
-      await expect(tabsLoadingSelector).toHaveCount(0);
+      await expect.poll(() => tabsLoadingSelector.count(), { timeout: 0 }).toEqual(0);
     }
   }
 

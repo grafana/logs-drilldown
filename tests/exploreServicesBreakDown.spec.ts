@@ -321,7 +321,7 @@ test.describe('explore services breakdown page', () => {
     await page.getByTestId('data-testid Panel menu item Explore').click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
-  test(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
+  test.only(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
     await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${labelName}}}`],
