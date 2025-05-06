@@ -772,8 +772,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     // first nested node padding
     > ul > li > ul {
       // Hackery to keep elements from under the sticky header from being in the scrollable area
-      padding: 3em 0 0 ${theme.spacing(2)};
-      margin-top: -3em;
+      padding: 0 0 0 ${theme.spacing(2)};
     }
 
     // Root node styles
