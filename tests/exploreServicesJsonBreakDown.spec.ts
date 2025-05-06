@@ -89,6 +89,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel('Edit filter with key user_identifier')).toHaveCount(1);
 
       const dateTimeInclude = page.getByLabel(/Include log lines containing datetime=".+"/);
+      // This flakes sometimes locally, looks like playwright scrolls datetime under the sticky header before it tries to click
       await dateTimeInclude.first().click();
       await expect(page.getByLabel('Edit filter with key datetime')).toHaveCount(1);
 
@@ -127,7 +128,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByText('▶Line:{}')).toHaveCount(1);
 
       // Open DeeplyNestedObject
-      await page.pause();
       await page.getByLabel('deeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
 
       // Filter by URL
@@ -178,7 +178,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
 
       // re-root
-      await page.pause();
       await page.getByRole('button', { exact: true, name: 'root' }).click();
       // Open nested_object
       await page.getByLabel('nested_object', { exact: true }).getByRole('button', { name: '▶' }).click();
