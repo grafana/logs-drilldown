@@ -19,8 +19,6 @@ test.describe('navigating app', () => {
   test('mega menu click should reset url params (deprecated url)', async ({ page }) => {
     await explorePage.gotoServicesBreakdownOldUrl();
 
-    // Menu is opened by default in g12
-    // await page.getByLabel('Open menu').click();
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
     await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
     await expect(page).toHaveURL(/var-primary_label=service_name/);
@@ -50,8 +48,6 @@ test.describe('navigating app', () => {
 
     await explorePage.addServiceName();
     await explorePage.clickShowLogs();
-    // Menu is opened by default in g12
-    // await page.getByLabel('Open menu').click();
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
     await expect(page).toHaveURL(/a\/grafana-lokiexplore-app\/explore\?patterns=%5B%5D/);
 

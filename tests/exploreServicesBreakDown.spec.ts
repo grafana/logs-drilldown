@@ -638,7 +638,6 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('=~').nth(3)).toBeVisible();
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
-    await page.pause();
     await expect
       .poll(() =>
         page
@@ -1218,7 +1217,13 @@ test.describe('explore services breakdown page', () => {
     });
 
     // Open the dropdown and change from include to exclude
-    await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
+    await expect
+      .poll(async () => {
+        await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
+        return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
+      })
+      .toBe(1);
+
     await bytesIncludeButton.getByText('Exclude', { exact: true }).click();
 
     // Assert that the panel is no longer rendered
@@ -1809,8 +1814,12 @@ test.describe('explore services breakdown page', () => {
       await page.getByLabel('Remove line filter').click();
       // Enable regex - should not trigger empty query
       await page.getByLabel('Enable regex').click();
+      await expect(page.getByLabel('Enable regex')).toHaveCount(0);
+      await expect(page.getByLabel('Disable regex')).toHaveCount(1);
       // Enable case - should not trigger empty query
       await page.getByLabel('Enable case match').click();
+      await expect(page.getByLabel('Disable case match')).toHaveCount(1);
+      await expect(page.getByLabel('Enable case match')).toHaveCount(0);
       await expect(firstRow).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(4);
       expect(logsPanelQueryCount).toEqual(4);
@@ -1825,12 +1834,16 @@ test.describe('explore services breakdown page', () => {
 
       // Disable regex - expect no results show
       await page.getByLabel('Disable regex').nth(0).click();
+
+      // This is debounced, wait for the state to change
+      await expect.poll(() => page.getByLabel('Enable regex').count()).toBe(1);
       await expect.poll(() => rows.count()).toEqual(0);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
       // Re-enable regex - results should show
       await page.getByLabel('Enable regex').click();
+      await expect.poll(() => page.getByLabel('Disable regex').count()).toBe(2);
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toEqual(1);
       expect(logsCountQueryCount).toEqual(7);
       expect(logsPanelQueryCount).toEqual(7);
