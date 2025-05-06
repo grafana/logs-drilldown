@@ -149,12 +149,13 @@ function parseNonPatternFilters(
   // If quoteString is `, we shouldn't need to un-escape anything
   // But if the quoteString is ", we'll need to remove double escape chars, as these values are re-escaped when building the query expression (but not stored in the value/url)
   if (quoteString === '"' && isRegexSelector) {
+    // replace \\ with \
     const replaceDoubleEscape = new RegExp(/\\\\/, 'g');
     lineFilterValue = lineFilterValue.replace(replaceDoubleEscape, '\\');
   } else if (quoteString === '"') {
-    const replaceDoubleQuoteEscape = new RegExp(/\\\\\"/, 'g');
+    // replace \\\" => "
+    const replaceDoubleQuoteEscape = new RegExp(`\\\\\"`, 'g');
     lineFilterValue = lineFilterValue.replace(replaceDoubleQuoteEscape, '"');
-
     const replaceDoubleEscape = new RegExp(/\\\\/, 'g');
     lineFilterValue = lineFilterValue.replace(replaceDoubleEscape, '\\');
   }
