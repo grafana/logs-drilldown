@@ -342,8 +342,8 @@ test.describe('explore services page', () => {
       test('navigating back will re-run volume query', async ({ page }) => {
         const removeVariableBtn = page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel);
         await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
-        expect(logsVolumeCount).toEqual(1);
-        expect(logsQueryCount).toBeLessThanOrEqual(4);
+        await expect.poll(() => logsVolumeCount).toEqual(1);
+        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(4);
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
         // Click on first service
@@ -359,8 +359,8 @@ test.describe('explore services page', () => {
         // Assert we navigated back
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
-        expect(logsVolumeCount).toEqual(2);
-        expect(logsQueryCount).toBeLessThanOrEqual(6);
+        await expect.poll(() => logsVolumeCount).toEqual(2);
+        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(6);
 
         // Click on first service
         await explorePage.addServiceName();
@@ -380,10 +380,10 @@ test.describe('explore services page', () => {
         await page.waitForTimeout(100);
 
         // Volume should fire initially, after navigating back from breakdown x2
-        expect(logsVolumeCount).toEqual(3);
+        await expect.poll(() => logsVolumeCount).toEqual(3);
 
         // Should fire on breakdown x2
-        expect(logCountQueryCount).toEqual(2);
+        await expect.poll(() => logCountQueryCount).toEqual(2);
       });
 
       test('changing datasource will trigger new queries', async ({ page }) => {
