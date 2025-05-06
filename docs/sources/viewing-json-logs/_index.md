@@ -30,7 +30,7 @@ From there, select **JSON** in the format menu in the top right toolbar. This wi
 
 ## Filtering log lines with the JSON view
 
-Users can include and exclude specific log data from their visualizations by selecting the **Include/Exclude** icons next to a given label. 
+You can include and exclude specific log data from your visualizations by selecting the **Include/Exclude** icons next to a given label. 
 
 For example: Given a set of logs from am API request service, One can select the **exclude** button next the "method" field with status "GET". This  will result in the Log Volume dashboard showing only requests of other method types (DELETE/PATCH/POST/PUT).
 
