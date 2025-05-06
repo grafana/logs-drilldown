@@ -1,6 +1,6 @@
 name: Latest Grafana API compatibility check
-on:
-  workflow_dispatch:
+on: [pull_request]
+
 jobs:
   compatibilitycheck:
     runs-on: ubuntu-latest
