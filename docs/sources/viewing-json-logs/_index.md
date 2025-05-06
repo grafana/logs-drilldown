@@ -24,7 +24,7 @@ To interact with the JSON view, select the **Show Logs** button for your service
 
 {{< figure alt="JSON Table viewer with selector and include exclude highlighted" width="500px" align="center" src="/media/docs/explore-logs/show-logs.png" caption="Select the 'Show Logs' button on your service" >}}
 
-From there, select **JSON** in the format menu in the top right toolbar. This will show your logs in a structured, collapsible way, enabling you to sort, filter, and otherwise adjust your log data in the visualizations for your logs.
+From there, select **JSON** in the Logs format menu. This will show your logs in a structured, collapsible way, enabling you to sort, filter, and otherwise adjust your log data in the visualizations for your logs.
 
 {{< figure alt="Show Logs button on a JSON logging service" width="900px" align="center" src="/media/docs/explore-logs/json-viewer.png" caption="The JSON viewer" >}}
 
