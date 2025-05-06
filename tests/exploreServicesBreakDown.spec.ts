@@ -613,10 +613,28 @@ test.describe('explore services breakdown page', () => {
     await page.getByLabel(`Select ${metadataName}`).click();
 
     // Filter by cluster
-    await explorePage.addCustomValueToCombobox('cluster', FilterOp.RegexEqual, ComboBoxIndex.labels, `.+east-1$`);
+    await explorePage.addCustomValueToCombobox(
+      'cluster',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `.+east-1$`,
+      'clust'
+    );
     // Add both tempo services
-    await explorePage.addCustomValueToCombobox('service_name', FilterOp.RegexEqual, ComboBoxIndex.labels, `tempo.+`);
-    await explorePage.addCustomValueToCombobox('namespace', FilterOp.RegexEqual, ComboBoxIndex.labels, `.+dev.*`);
+    await explorePage.addCustomValueToCombobox(
+      'service_name',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `tempo.+`,
+      'service'
+    );
+    await explorePage.addCustomValueToCombobox(
+      'namespace',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `.+dev.*`,
+      'name'
+    );
     // Remove tempo-distributor
     await page.getByLabel('Remove filter with key').first().click();
 

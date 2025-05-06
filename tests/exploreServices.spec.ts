@@ -389,12 +389,12 @@ test.describe('explore services page', () => {
       test('changing datasource will trigger new queries', async ({ page }) => {
         await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
         await explorePage.assertPanelsNotLoading();
-        expect(logsVolumeCount).toEqual(1);
-        expect(logsQueryCount).toEqual(4);
+        await expect.poll(() => logsVolumeCount).toEqual(1);
+        await expect.poll(() => logsQueryCount).toEqual(4);
         await explorePage.changeDatasource();
         await explorePage.assertPanelsNotLoading();
-        expect(logsVolumeCount).toEqual(2);
-        expect(logCountQueryCount).toEqual(0);
+        await expect.poll(() => logsVolumeCount).toEqual(2);
+        await expect.poll(() => logCountQueryCount).toEqual(0);
       });
 
       test('should re-execute volume query after being redirected back to service selection', async ({ page }) => {
