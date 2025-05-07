@@ -389,12 +389,12 @@ test.describe('explore services page', () => {
       test('changing datasource will trigger new queries', async ({ page }) => {
         await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
         await explorePage.assertPanelsNotLoading();
-        await expect.poll(() => logsVolumeCount).toEqual(1);
-        await expect.poll(() => logsQueryCount).toEqual(4);
+        await expect.poll(() => logsVolumeCount, { timeout: 0 }).toEqual(1);
+        await expect.poll(() => logsQueryCount, { timeout: 0 }).toEqual(4);
         await explorePage.changeDatasource();
         await explorePage.assertPanelsNotLoading();
-        await expect.poll(() => logsVolumeCount).toEqual(2);
-        await expect.poll(() => logCountQueryCount).toEqual(0);
+        await expect.poll(() => logsVolumeCount, { timeout: 0 }).toEqual(2);
+        await expect.poll(() => logCountQueryCount, { timeout: 0 }).toEqual(0);
       });
 
       test('should re-execute volume query after being redirected back to service selection', async ({ page }) => {
@@ -403,8 +403,8 @@ test.describe('explore services page', () => {
         await explorePage.clickShowLogs();
         await expect(explorePage.logVolumeGraph).toBeVisible();
         await explorePage.changeDatasource();
-        expect(logsVolumeCount).toBe(2);
-        expect(logCountQueryCount).toEqual(1);
+        await expect.poll(() => logsVolumeCount).toBe(2);
+        await expect.poll(() => logCountQueryCount).toEqual(1);
       });
     });
 
