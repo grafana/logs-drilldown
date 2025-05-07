@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Field, LoadingState, PanelData } from '@grafana/data';
+import { LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
-  AdHocFilterWithLabels,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -24,14 +23,8 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import { areArraysEqual } from '../../services/comparison';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
-import {
-  clearJsonParserFields,
-  extractParserFromString,
-  getJsonPathArraySyntax,
-  getParserAndPathForField,
-} from '../../services/fields';
+import { clearJsonParserFields } from '../../services/fields';
 import { filterUnusedJSONFilters } from '../../services/filters';
-import { FilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
 import { migrateLineFilterV1 } from '../../services/migrations';
@@ -42,7 +35,6 @@ import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
   getFieldsVariable,
-  getJsonFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
@@ -362,7 +354,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     return fieldsVar.subscribeToState((newState, prevState) => {
       if (!areArraysEqual(newState.filters, prevState.filters)) {
-        this.manageJsonParserProps(newState, prevState);
+        this.removeInactiveJsonParserProps(newState, prevState);
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
       }
@@ -372,7 +364,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   /**
    * If we removed a filter from the ad-hoc variables, we need to remove old json parser props
    */
-  private manageJsonParserProps(newState: AdHocFiltersVariable['state'], prevState: AdHocFiltersVariable['state']) {
+  private removeInactiveJsonParserProps(
+    newState: AdHocFiltersVariable['state'],
+    prevState: AdHocFiltersVariable['state']
+  ) {
     const lineFormatVariable = getLineFormatVariable(this);
     if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
       clearJsonParserFields(this);
@@ -386,39 +381,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
       if (filterDiff.length) {
         filterUnusedJSONFilters(this);
-      }
-
-      // A field was added
-    } else if (newState.filters.length > prevState.filters.length) {
-      const jsonVar = getJsonFieldsVariable(this);
-
-      // Gets any new filters that were added
-      const newFilters = newState.filters.filter(
-        (newFilter) => !prevState.filters.find((prevFilter) => newFilter.key === prevFilter.key)
-      );
-
-      const jsonParserPropsToAdd: AdHocFilterWithLabels[] = [];
-
-      newFilters.forEach((filter) => {
-        const hasJsonFilters = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
-
-        // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
-        if (!hasJsonFilters) {
-          const { parser, path } = getParserAndPathForField(filter.key, this);
-          if ((parser === 'json' || parser === 'mixed') && path) {
-            jsonParserPropsToAdd.push({
-              key: filter.key,
-              operator: FilterOp.Equal,
-              value: path,
-            });
-          }
-        }
-      });
-
-      if (jsonParserPropsToAdd.length) {
-        jsonVar.setState({
-          filters: [...jsonVar.state.filters, ...jsonParserPropsToAdd],
-        });
       }
     }
   }
@@ -555,53 +517,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       const detectedFieldsResponse = newState.data;
       const detectedFieldsFrame = detectedFieldsResponse?.series[0];
 
-      const detectedFieldsNamesField = detectedFieldsFrame?.fields[0];
-      const detectedFieldsParsersField = detectedFieldsFrame?.fields[2];
-      const detectedFieldsJsonPathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
-
       if (updateFieldsCount && newState.data?.state === LoadingState.Done) {
         if (detectedFieldsFrame !== undefined && detectedFieldsFrame.length !== this.state.fieldsCount) {
           this.setState({
             fieldsCount: detectedFieldsFrame.length,
           });
           getMetadataService().setFieldsCount(detectedFieldsFrame.length);
-        }
-      }
-
-      // Sync any fields that are missing json parser props if we have them (loki 3.5.0+)
-      if (
-        detectedFieldsFrame &&
-        newState.data?.state === LoadingState.Done &&
-        detectedFieldsJsonPathField?.values.some((v) => v)
-      ) {
-        const fieldsVar = getFieldsVariable(this);
-        const jsonPathVar = getJsonFieldsVariable(this);
-
-        let jsonFieldsToAdd: AdHocFilterWithLabels[] = [];
-        for (let i = 0; i < detectedFieldsFrame.length; i++) {
-          const parser = extractParserFromString(detectedFieldsParsersField?.values[i]);
-          const jsonPath = detectedFieldsJsonPathField.values[i];
-          const fieldName = detectedFieldsNamesField?.values[i];
-
-          // If there is a json field that doesn't have a json parser prop
-          if (
-            (parser === 'json' || parser === 'mixed') &&
-            fieldsVar.state.filters.some((f) => f.key === fieldName) &&
-            !jsonPathVar.state.filters.some((f) => f.key === fieldName)
-          ) {
-            const path = getJsonPathArraySyntax(jsonPath);
-            jsonFieldsToAdd.push({
-              key: fieldName,
-              operator: FilterOp.Equal,
-              value: path,
-            });
-          }
-        }
-
-        if (jsonFieldsToAdd.length) {
-          jsonPathVar.setState({
-            filters: [...jsonPathVar.state.filters, ...jsonFieldsToAdd],
-          });
         }
       }
     });
