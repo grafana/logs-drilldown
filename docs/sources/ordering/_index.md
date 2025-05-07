@@ -11,7 +11,7 @@ keywords:
   - Analysis
 menuTitle: Sorting and ordering
 title: Sorting and ordering
-weight: 700
+weight: 850
 ---
 
 # Sorting and ordering
