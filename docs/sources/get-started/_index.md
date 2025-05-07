@@ -29,7 +29,7 @@ While you are browsing your log data in Grafana Logs Drilldown, watch for any un
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
 
-{{< figure alt="Grafana Logs Drilldown Service overview page" width="900px" align="center" src="/media/docs/explore-logs/landing_page_index_V1.0.14.png" caption="Overview page" >}}
+{{< figure alt="Grafana Logs Drilldown Service overview page" width="900px" align="center" src="/media/docs/explore-logs/landing_page_index_v1.0.14.png" caption="Overview page" >}}
 
 To take a tour of Grafana Logs Drilldown, follow these steps:
 

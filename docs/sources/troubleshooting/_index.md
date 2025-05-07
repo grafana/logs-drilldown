@@ -49,11 +49,11 @@ If you aren't getting any patterns, you can try the following fixes:
 1. Ensure pattern extraction is enabled by setting `--pattern-ingester.enabled=true` in your Loki config. [Learn about other necessary config](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
 1. It is possible that no patterns were detected, although this is rare - please [open an issue on GitHub](https://github.com/grafana/explore-logs/issues/new) or [get in touch privately](https://forms.gle/1sYWCTPvD72T1dPH9) so we can see what's going on.
 
-## There is no JSON button
+## Cannot filter in JSON panel
 
-If there is no **JSON** button available in the Logs format menu on the **Logs** tab:
+The new dedicated visualization for JSON logs is experimental and was introduced in Loki version 3.5. If you cannot filter on the JSON panel on the **Logs** tab:
 
-1. Ensure that you are on Loki version 3.5. Users running older versions of Loki can view JSON, but cannot filter in the JSON panel as it is an experimental feature introduced in Loki version 3.5.
+1. Ensure that you are on Loki version 3.5. Users running older versions of Loki can view JSON logs, but cannot filter in the JSON panel.
 
 ## I cannot find something
 
