@@ -20,7 +20,7 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
-    await explorePage.gotoServicesBreakdownOldUrl();
+    await explorePage.gotoServicesBreakdown1m();
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
       refIds: ['logsPanelQuery', fieldName],
@@ -1772,7 +1772,7 @@ test.describe('explore services breakdown page', () => {
           const postData = JSON.parse(rawPostData);
           const refId = postData.queries[0].refId;
           // Field subqueries have a refId of the field name
-          if (refId !== 'logsPanelQuery' && refId !== 'A' && refId !== 'logsCountQuery') {
+          if (refId !== 'logsPanelQuery' && refId !== 'logsCountQuery') {
             requestCount++;
             return await route.fulfill({ json: mockResponse });
           }
@@ -1797,7 +1797,6 @@ test.describe('explore services breakdown page', () => {
       // Locators
       const lastLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).last();
       const firstLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).first();
-      // const lineFilters = page.getByTestId(testIds.exploreServiceDetails.searchLogs)
       const logsPanelContent = explorePage.getLogsPanelLocator().getByTestId('data-testid panel content');
       const rows = logsPanelContent.getByRole('row');
       const firstRow = rows.nth(0);
@@ -1824,7 +1823,8 @@ test.describe('explore services breakdown page', () => {
 
       // switch to case-sensitive in the global variable
       await page.getByLabel('Enable case match').nth(0).click();
-      await expect(rows).toHaveCount(0);
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(3);
       expect(logsPanelQueryCount).toEqual(3);
 
@@ -1859,7 +1859,8 @@ test.describe('explore services breakdown page', () => {
           intervals: [1_001, 50, 100, 250],
         })
         .toBe(1);
-      await expect.poll(() => rows.count()).toEqual(0);
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
@@ -1877,13 +1878,9 @@ test.describe('explore services breakdown page', () => {
       // Change the filter in the "saved" variable that will return 0 results
       await firstLineFilterLoc.click();
       await page.keyboard.type('__');
-      await expect
-        .poll(() => rows.count(), {
-          intervals: [500, 1_000, 2_000],
-          message: 'wait for query to return no results',
-          timeout: 0,
-        })
-        .toEqual(0);
+      await expect(page.getByTestId('data-testid search-logs').first()).toHaveValue('[dD]ebug__');
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(8);
       expect(logsPanelQueryCount).toEqual(8);
     });

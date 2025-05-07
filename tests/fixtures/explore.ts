@@ -258,6 +258,12 @@ export class ExplorePage {
     );
   }
 
+  async gotoServicesBreakdown1m(serviceName = 'tempo-distributor') {
+    await this.page.goto(
+      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=now-1m&to=now`
+    );
+  }
+
   async gotoServicesOldUrlLineFilters(
     serviceName = 'tempo-distributor',
     caseSensitive?: boolean,

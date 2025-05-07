@@ -16,7 +16,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
-    await explorePage.gotoServicesBreakdownOldUrl(serviceName);
+    await explorePage.gotoServicesBreakdown1m(serviceName);
   });
 
   test.afterEach(async ({ page }) => {
