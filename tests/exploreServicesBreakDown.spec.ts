@@ -1202,6 +1202,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should exclude all logs that contain bytes field', async ({ page }) => {
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
     await page.route('**/ds/query*', async (route) => {
