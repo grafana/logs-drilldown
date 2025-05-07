@@ -613,10 +613,28 @@ test.describe('explore services breakdown page', () => {
     await page.getByLabel(`Select ${metadataName}`).click();
 
     // Filter by cluster
-    await explorePage.addCustomValueToCombobox('cluster', FilterOp.RegexEqual, ComboBoxIndex.labels, `.+east-1$`);
+    await explorePage.addCustomValueToCombobox(
+      'cluster',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `.+east-1$`,
+      'clust'
+    );
     // Add both tempo services
-    await explorePage.addCustomValueToCombobox('service_name', FilterOp.RegexEqual, ComboBoxIndex.labels, `tempo.+`);
-    await explorePage.addCustomValueToCombobox('namespace', FilterOp.RegexEqual, ComboBoxIndex.labels, `.+dev.*`);
+    await explorePage.addCustomValueToCombobox(
+      'service_name',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `tempo.+`,
+      'service'
+    );
+    await explorePage.addCustomValueToCombobox(
+      'namespace',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `.+dev.*`,
+      'name'
+    );
     // Remove tempo-distributor
     await page.getByLabel('Remove filter with key').first().click();
 
@@ -1148,7 +1166,19 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
     let numberOfQueries = 0;
+    // Let's not wait for all these queries
+    await page.route('**/ds/query*', async (route) => {
+      const post = route.request().postDataJSON();
+      const queries = post.queries as LokiQuery[];
+
+      if (queries[0].refId === 'logsPanelQuery') {
+        await route.continue();
+      } else {
+        await route.fulfill({ json: [] });
+      }
+    });
     // Click on the fields tab
     await explorePage.goToFieldsTab();
     // Selector
@@ -1158,6 +1188,7 @@ test.describe('explore services breakdown page', () => {
 
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
@@ -1168,6 +1199,9 @@ test.describe('explore services breakdown page', () => {
 
       await route.fulfill({ json: [] });
     });
+
+    // assert the filter select is in the document
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Include
     await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
@@ -1184,6 +1218,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should exclude all logs that contain bytes field', async ({ page }) => {
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
     await page.route('**/ds/query*', async (route) => {
@@ -1216,12 +1251,18 @@ test.describe('explore services breakdown page', () => {
       await route.fulfill({ json: [] });
     });
 
+    // assert the filter select is in the document
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Open the dropdown and change from include to exclude
     await expect
-      .poll(async () => {
-        await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
-        return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
-      })
+      .poll(
+        async () => {
+          await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
+          return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
+        },
+        { message: 'attempt to open panel filter dropdown', timeout: 0 }
+      )
       .toBe(1);
 
     await bytesIncludeButton.getByText('Exclude', { exact: true }).click();
@@ -1754,7 +1795,7 @@ test.describe('explore services breakdown page', () => {
           const postData = JSON.parse(rawPostData);
           const refId = postData.queries[0].refId;
           // Field subqueries have a refId of the field name
-          if (refId !== 'logsPanelQuery' && refId !== 'A' && refId !== 'logsCountQuery') {
+          if (refId !== 'logsPanelQuery' && refId !== 'logsCountQuery') {
             requestCount++;
             return await route.fulfill({ json: mockResponse });
           }
@@ -1779,7 +1820,6 @@ test.describe('explore services breakdown page', () => {
       // Locators
       const lastLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).last();
       const firstLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).first();
-      // const lineFilters = page.getByTestId(testIds.exploreServiceDetails.searchLogs)
       const logsPanelContent = explorePage.getLogsPanelLocator().getByTestId('data-testid panel content');
       const rows = logsPanelContent.getByRole('row');
       const firstRow = rows.nth(0);
@@ -1806,7 +1846,8 @@ test.describe('explore services breakdown page', () => {
 
       // switch to case-sensitive in the global variable
       await page.getByLabel('Enable case match').nth(0).click();
-      await expect(rows).toHaveCount(0);
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(3);
       expect(logsPanelQueryCount).toEqual(3);
 
@@ -1836,14 +1877,23 @@ test.describe('explore services breakdown page', () => {
       await page.getByLabel('Disable regex').nth(0).click();
 
       // This is debounced, wait for the state to change
-      await expect.poll(() => page.getByLabel('Enable regex').count()).toBe(1);
-      await expect.poll(() => rows.count()).toEqual(0);
+      await expect
+        .poll(() => page.getByLabel('Enable regex').count(), {
+          intervals: [1_001, 50, 100, 250],
+        })
+        .toBe(1);
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
       // Re-enable regex - results should show
       await page.getByLabel('Enable regex').click();
-      await expect.poll(() => page.getByLabel('Disable regex').count()).toBe(2);
+      await expect
+        .poll(() => page.getByLabel('Disable regex').count(), {
+          intervals: [1_001, 50, 100, 250],
+        })
+        .toBe(2);
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toEqual(1);
       expect(logsCountQueryCount).toEqual(7);
       expect(logsPanelQueryCount).toEqual(7);
@@ -1851,7 +1901,9 @@ test.describe('explore services breakdown page', () => {
       // Change the filter in the "saved" variable that will return 0 results
       await firstLineFilterLoc.click();
       await page.keyboard.type('__');
-      await expect.poll(() => rows.count()).toEqual(0);
+      await expect(page.getByTestId('data-testid search-logs').first()).toHaveValue('[dD]ebug__');
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(8);
       expect(logsPanelQueryCount).toEqual(8);
     });

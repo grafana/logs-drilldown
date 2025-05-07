@@ -75,7 +75,15 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
 
     const renderPopover = () => {
       return (
-        <div className={styles.popover} role="dialog" aria-modal="true" aria-label="Query options">
+        // This is already keyboard accessible, and removing the onClick stopPropagation will break click interactions. Telling eslint to sit down.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events
+        <div
+          className={styles.popover}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Query options"
+          onClick={(evt) => evt.stopPropagation()}
+        >
           <div className={styles.heading}>Query options</div>
           <div className={styles.options}>
             <div
@@ -144,7 +152,6 @@ function getStyles(theme: GrafanaTheme2) {
       flexDirection: 'column',
       marginRight: theme.spacing(2),
       padding: theme.spacing(2),
-      zIndex: 1,
     }),
   };
 }

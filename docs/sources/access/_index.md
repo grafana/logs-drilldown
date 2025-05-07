@@ -13,7 +13,7 @@ weight: 200
 
 # Access or install Grafana Logs Drilldown
 
-To use Grafana Logs Drilldown on your own data, you can either access it in Grafana Cloud or install it in your own Grafana instance.
+To use Grafana Logs Drilldown to view your logs data, you can either access it in Grafana Cloud or install it in your own Grafana instance.
 
 {{< docs/play title="the Grafana Play site" url="https://play.grafana.org/a/grafana-lokiexplore-app/explore?var-ds=ddhr3fttaw8aod&var-patterns=&var-lineFilter=&var-logsFormat=" >}}
 
@@ -22,7 +22,7 @@ To use Grafana Logs Drilldown on your own data, you can either access it in Graf
 To access Grafana Logs Drilldown:
 
 1. Open your Grafana stack in a web browser.
-1. In the main menu, select **Explore** > **Logs**.
+1. In the main menu, select **Drilldown** > **Logs**.
 
 ## Installation
 
@@ -33,15 +33,19 @@ If you are not using Grafana Cloud, you can install Grafana Logs Drilldown in yo
 For Enterprise and OSS Grafana users, you can install Grafana Logs Drilldown via the [Grafana Plugins catalog](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/).
 
 1. Open [https://grafana.com/grafana/plugins/grafana-lokiexplore-app/](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/) in a web browser
-1. Open the **Installation** tab.
+1. Click the **Installation** tab.
 1. Follow the instructions to install the app.
 
 ### Install in Loki
 
 The following Loki and Grafana version and configuration are required:
 
-- Grafana v11.2.0 or later
+- Grafana v11.6.0 or later
 - Loki v3.2.0 or later
+
+   {{< admonition type="note" >}}
+   To get the most recent features, including experimental features, upgrade to Loki 3.5.0 or later.
+   {{< /admonition >}}
 
   - Enable pattern ingestion by setting `pattern-ingester.enabled` to `true`in your Loki configuration file.
   - Enable structured metadata by setting `allow_structured_metadata` to `true` within your Loki config file.
