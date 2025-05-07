@@ -33,3 +33,4 @@ jobs:
       run-playwright-with-skip-grafana-dev-image: true
       run-playwright-with-grafana-dependency: '>=12.0.0'
       upload-playwright-artifacts: true
+      playwright-grafana-url: http://localhost:3001/grafana
