@@ -3,7 +3,10 @@ name: Plugins Platform PR - CI
 on:
   push:
     branches:
-      - l2d2/1202-use-plugin-ci-workflows
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   ci:
