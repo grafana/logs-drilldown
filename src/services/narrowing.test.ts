@@ -1,4 +1,3 @@
-import { SelectedTableRow } from 'Components/Table/LogLineCellComponent';
 import {
   narrowFieldValue,
   narrowLogsVisualizationType,
@@ -6,8 +5,9 @@ import {
   narrowSelectedTableRow,
   unknownToStrings,
 } from './narrowing';
-import { FieldValue, ParserType } from './variables';
 import { LogsVisualizationType } from './store';
+import { FieldValue, ParserType } from './variables';
+import { SelectedTableRow } from 'Components/Table/LogLineCellComponent';
 
 describe('unknownToStrings', () => {
   test.each([
@@ -32,8 +32,8 @@ describe('narrowSelectedTableRow', () => {
     [{ row: '1' }, false],
     [{ id: 1 }, false],
     [
-      { row: 1, id: '1 ' },
-      { row: 1, id: '1 ' },
+      { id: '1 ', row: 1 },
+      { id: '1 ', row: 1 },
     ],
   ])(
     'Processes unknown values and returns SelectedTableRow or false',

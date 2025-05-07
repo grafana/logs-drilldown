@@ -1,4 +1,13 @@
+import React from 'react';
+
+import { css } from '@emotion/css';
+import { firstValueFrom } from 'rxjs';
+
 import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
+// Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
+// We need both imports to support Grafana v11 and v12.
+// @ts-expect-error
+import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -12,27 +21,21 @@ import {
   VizPanel,
   VizPanelMenu,
 } from '@grafana/scenes';
-import React from 'react';
-import { onExploreLinkClick } from '../ServiceScene/GoToExploreButton';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { findObjectOfType, getQueryRunnerFromChildren } from '../../services/scenes';
+
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { logger } from '../../services/logger';
-import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
-// Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
-// We need both imports to support Grafana v11 and v12.
-// @ts-expect-error
-import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import { ExtensionPoints } from '../../services/extensions/links';
+import { logger } from '../../services/logger';
 import { setLevelColorOverrides } from '../../services/panel';
+import { interpolateExpression } from '../../services/query';
+import { findObjectOfType, getQueryRunnerFromChildren } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
+import { IndexScene } from '../IndexScene/IndexScene';
+import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
 import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
-import { css } from '@emotion/css';
-import { firstValueFrom } from 'rxjs';
-import { interpolateExpression } from '../../services/query';
+import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
+import { onExploreLinkClick } from '../ServiceScene/GoToExploreButton';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
@@ -49,20 +52,20 @@ export enum CollapsablePanelText {
 }
 
 interface InvestigationOptions {
-  labelName?: string;
   fieldName?: string;
   frame?: DataFrame;
-  type?: 'timeseries' | 'logs';
   getLabelName?: () => string;
+  labelName?: string;
+  type?: 'logs' | 'timeseries';
 }
 
 interface PanelMenuState extends SceneObjectState {
-  body?: VizPanelMenu;
   addInvestigationsLink?: boolean;
-  investigationsButton?: AddToInvestigationButton;
-  panelType?: AvgFieldPanelType;
-
+  body?: VizPanelMenu;
   investigationOptions?: InvestigationOptions;
+  investigationsButton?: AddToInvestigationButton;
+
+  panelType?: AvgFieldPanelType;
 }
 
 /**
@@ -79,11 +82,11 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           type: 'group',
         },
         {
-          text: 'Explore',
-          iconClassName: 'compass',
           href: getExploreLink(this),
+          iconClassName: 'compass',
           onClick: () => onExploreLinkClickTracking(),
           shortcut: 'p x',
+          text: 'Explore',
         },
       ];
 
@@ -102,11 +105,11 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
       this.setState({
         investigationsButton: new AddToInvestigationButton({
+          fieldName: this.state.investigationOptions?.fieldName,
+          frame: this.state.investigationOptions?.frame,
           labelName: this.state.investigationOptions?.getLabelName
             ? this.state.investigationOptions?.getLabelName()
             : this.state.investigationOptions?.labelName,
-          fieldName: this.state.investigationOptions?.fieldName,
-          frame: this.state.investigationOptions?.frame,
           type: this.state.investigationOptions?.type,
         }),
       });
@@ -180,7 +183,6 @@ function addVisualizationHeader(items: PanelMenuItem[], sceneRef: PanelMenu) {
 function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
   const viz = sceneGraph.getAncestor(menu, VizPanel);
   items.push({
-    text: viz.state.collapsed ? CollapsablePanelText.expanded : CollapsablePanelText.collapsed,
     iconClassName: viz.state.collapsed ? 'table-collapse-all' : 'table-expand-all',
     onClick: () => {
       const newCollapsableState = viz.state.collapsed ? CollapsablePanelText.expanded : CollapsablePanelText.collapsed;
@@ -195,14 +197,13 @@ function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
       });
       setPanelOption('collapsed', newCollapsableState);
     },
+    text: viz.state.collapsed ? CollapsablePanelText.expanded : CollapsablePanelText.collapsed,
   });
 }
 
 function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
-    text: sceneRef.state.panelType !== AvgFieldPanelType.histogram ? 'Histogram' : 'Time series',
     iconClassName: sceneRef.state.panelType !== AvgFieldPanelType.histogram ? 'graph-bar' : 'chart-line',
-
     onClick: () => {
       const gridItem = sceneGraph.getAncestor(sceneRef, SceneCSSGridItem);
       const viz = sceneGraph.getAncestor(sceneRef, VizPanel).clone();
@@ -241,6 +242,8 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
 
       onSwitchVizTypeTracking(newPanelType);
     },
+
+    text: sceneRef.state.panelType !== AvgFieldPanelType.histogram ? 'Histogram' : 'Time series',
   });
 }
 
@@ -292,8 +295,8 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
   // `getPluginLinkExtensions` is removed in Grafana v12
   if (getPluginLinkExtensions !== undefined) {
     const links = getPluginLinkExtensions({
-      extensionPointId,
       context,
+      extensionPointId,
     });
 
     return links.extensions[0];
@@ -303,8 +306,8 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
   if (getObservablePluginLinks !== undefined) {
     const links: PluginExtensionLink[] = await firstValueFrom(
       getObservablePluginLinks({
-        extensionPointId,
         context,
+        extensionPointId,
       })
     );
 
@@ -334,9 +337,9 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
           type: 'group',
         });
         exploreLogsVizPanelMenu.state.body?.addItem({
-          text: ADD_TO_INVESTIGATION_MENU_TEXT,
           iconClassName: 'plus-square',
           onClick: (e) => link.onClick && link.onClick(e),
+          text: ADD_TO_INVESTIGATION_MENU_TEXT,
         });
       } else {
         if (existingAddToExplorationLink) {
@@ -359,11 +362,11 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
   return {
     panelWrapper: css({
-      width: '100%',
+      display: 'flex',
       height: '100%',
       label: 'panel-wrapper',
       position: 'absolute',
-      display: 'flex',
+      width: '100%',
     }),
   };
 };

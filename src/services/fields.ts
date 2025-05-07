@@ -1,5 +1,6 @@
+import { map, Observable } from 'rxjs';
+
 import { DataFrame, Field, ReducerID } from '@grafana/data';
-import { DrawStyle, StackingMode } from '@grafana/ui';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -7,7 +8,23 @@ import {
   SceneDataTransformer,
   SceneObject,
 } from '@grafana/scenes';
-import { AddToFiltersButton, InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { DrawStyle, StackingMode } from '@grafana/ui';
+
+import { PanelMenu } from '../Components/Panels/PanelMenu';
+import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
+import { LabelType } from './fieldsTypes';
+import { logger } from './logger';
+import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
+import { getLabelTypeFromFrame } from './lokiQuery';
+import { setLevelColorOverrides } from './panel';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getLogsStreamSelector,
+  getValueFromFieldsFilter,
+} from './variableGetters';
 import {
   DetectedFieldType,
   LEVEL_VARIABLE_VALUE,
@@ -18,26 +35,11 @@ import {
   VAR_LEVELS,
   VAR_METADATA,
 } from './variables';
-import { setLevelColorOverrides } from './panel';
-import { map, Observable } from 'rxjs';
-import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
-import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLineFormatVariable,
-  getLogsStreamSelector,
-  getValueFromFieldsFilter,
-} from './variableGetters';
-import { logger } from './logger';
-import { PanelMenu } from '../Components/Panels/PanelMenu';
-import { getLabelTypeFromFrame } from './lokiQuery';
-import { LabelType } from './fieldsTypes';
-import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
+import { AddToFiltersButton, InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export type DetectedLabel = {
-  label: string;
   cardinality: number;
+  label: string;
 };
 
 export type DetectedLabelsResponse = {
@@ -45,11 +47,11 @@ export type DetectedLabelsResponse = {
 };
 
 export type DetectedField = {
-  label: string;
   cardinality: number;
-  type: string;
-  parsers: string[] | null;
   jsonPath: string[];
+  label: string;
+  parsers: string[] | null;
+  type: string;
 };
 
 export type DetectedFieldsResponse = {
@@ -205,9 +207,9 @@ export function getFilterBreakdownValueScene(
         })
       )
       .setOverrides(setLevelColorOverrides)
-      .setMenu(new PanelMenu({ investigationOptions: { frame, fieldName: getTitle(frame), labelName: labelKey } }))
+      .setMenu(new PanelMenu({ investigationOptions: { fieldName: getTitle(frame), frame, labelName: labelKey } }))
       .setHeaderActions([
-        new AddToFiltersButton({ frame, variableName, hideExclude: labelKey === LEVEL_VARIABLE_VALUE }),
+        new AddToFiltersButton({ frame, hideExclude: labelKey === LEVEL_VARIABLE_VALUE, variableName }),
       ]);
 
     if (style === DrawStyle.Bars) {
@@ -222,8 +224,8 @@ export function getFilterBreakdownValueScene(
 
     if (reducerID) {
       panel.setOption('legend', {
-        showLegend: true,
         calcs: [reducerID],
+        showLegend: true,
       });
       // These will only have a single series, no need to show the title twice
       panel.setDisplayName(' ');
@@ -294,7 +296,7 @@ export function getFilterTypeFromLabelType(type: LabelType, key: string): Interp
     }
     default: {
       const err = new Error(`Invalid label type for ${key}`);
-      logger.error(err, { type, msg: `Invalid label type for ${key}` });
+      logger.error(err, { msg: `Invalid label type for ${key}`, type });
       throw err;
     }
   }
@@ -390,10 +392,10 @@ export function buildFieldsQueryString(
 
   // is option structured metadata
   const options: LogsQueryOptions = {
-    structuredMetadataToAdd,
     fieldExpressionToAdd,
-    parser: parser,
     fieldType: optionType,
+    parser: parser,
+    structuredMetadataToAdd,
   };
 
   if ((parser === 'json' || parser === 'mixed') && pathForThisField) {

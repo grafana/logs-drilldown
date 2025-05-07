@@ -1,6 +1,8 @@
+import React from 'react';
+
 import { css } from '@emotion/css';
 import { debounce } from 'lodash';
-import React from 'react';
+
 import {
   AdHocVariableFilter,
   DashboardCursorSync,
@@ -10,6 +12,7 @@ import {
   LoadingState,
   TimeRange,
 } from '@grafana/data';
+import { config, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   behaviors,
@@ -27,6 +30,7 @@ import {
   SceneVariableSet,
   VizPanel,
 } from '@grafana/scenes';
+import { VariableHide } from '@grafana/schema';
 import {
   DrawStyle,
   Field,
@@ -36,6 +40,43 @@ import {
   StackingMode,
   useStyles2,
 } from '@grafana/ui';
+
+import { areArraysEqual } from '../../services/comparison';
+import { CustomConstantVariable } from '../../services/CustomConstantVariable';
+import { pushUrlHandler } from '../../services/navigate';
+import { getQueryRunnerFromChildren } from '../../services/scenes';
+import {
+  clearServiceSelectionSearchVariable,
+  getAggregatedMetricsVariable,
+  getDataSourceVariable,
+  getLabelsVariable,
+  getLabelsVariableReplica,
+  getServiceSelectionPrimaryLabel,
+  getServiceSelectionSearchVariable,
+  setServiceSelectionPrimaryLabelKey,
+} from '../../services/variableGetters';
+import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
+import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
+import { ToolbarScene } from '../IndexScene/ToolbarScene';
+import { ServiceFieldSelector } from '../ServiceScene/Breakdowns/FieldSelector';
+import { AddLabelToFiltersHeaderActionScene } from './AddLabelToFiltersHeaderActionScene';
+import { ConfigureVolumeError } from './ConfigureVolumeError';
+import { FavoriteServiceHeaderActionScene } from './FavoriteServiceHeaderActionScene';
+import { NoServiceSearchResults } from './NoServiceSearchResults';
+import { NoServiceVolume } from './NoServiceVolume';
+import { goToLabelDrillDownLink, SelectServiceButton } from './SelectServiceButton';
+import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationScene';
+import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
+import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides } from 'services/panel';
+import {
+  buildDataQuery,
+  buildVolumeQuery,
+  renderLogQLLabelFilters,
+  unwrapWildcardSearch,
+  wrapWildcardSearch,
+} from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
 import {
   EXPLORATION_DS,
@@ -49,44 +90,6 @@ import {
   VAR_PRIMARY_LABEL_EXPR,
   VAR_PRIMARY_LABEL_SEARCH,
 } from 'services/variables';
-import { goToLabelDrillDownLink, SelectServiceButton } from './SelectServiceButton';
-import {
-  buildDataQuery,
-  buildVolumeQuery,
-  renderLogQLLabelFilters,
-  unwrapWildcardSearch,
-  wrapWildcardSearch,
-} from 'services/query';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides } from 'services/panel';
-import { ConfigureVolumeError } from './ConfigureVolumeError';
-import { NoServiceSearchResults } from './NoServiceSearchResults';
-import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
-import { ServiceFieldSelector } from '../ServiceScene/Breakdowns/FieldSelector';
-import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { areArraysEqual } from '../../services/comparison';
-import {
-  clearServiceSelectionSearchVariable,
-  getAggregatedMetricsVariable,
-  getDataSourceVariable,
-  getLabelsVariable,
-  getLabelsVariableReplica,
-  getServiceSelectionPrimaryLabel,
-  getServiceSelectionSearchVariable,
-  setServiceSelectionPrimaryLabelKey,
-} from '../../services/variableGetters';
-import { config, locationService } from '@grafana/runtime';
-import { VariableHide } from '@grafana/schema';
-import { ToolbarScene } from '../IndexScene/ToolbarScene';
-import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
-import { FavoriteServiceHeaderActionScene } from './FavoriteServiceHeaderActionScene';
-import { pushUrlHandler } from '../../services/navigate';
-import { NoServiceVolume } from './NoServiceVolume';
-import { getQueryRunnerFromChildren } from '../../services/scenes';
-import { AddLabelToFiltersHeaderActionScene } from './AddLabelToFiltersHeaderActionScene';
-import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
-import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationScene';
 
 const aggregatedMetricsEnabled: boolean | undefined = config.featureToggles.exploreLogsAggregatedMetrics;
 // Don't export AGGREGATED_SERVICE_NAME, we want to rename things so the rest of the application is agnostic to how we got the services
@@ -96,23 +99,23 @@ const AGGREGATED_SERVICE_NAME = '__aggregated_metric__';
 export const AGGREGATED_METRIC_START_DATE = dateTime('2024-08-30', 'YYYY-MM-DD');
 
 interface ServiceSelectionSceneState extends SceneObjectState {
-  // The body of the component
-  body: SceneCSSGridLayout;
-  // Show logs of a certain level for a given service
-  serviceLevel: Map<string, string[]>;
   // Logs volume API response as dataframe with SceneQueryRunner
   $data: SceneQueryRunner;
-  tabs?: ServiceSelectionTabsScene;
+  // The body of the component
+  body: SceneCSSGridLayout;
   // Pagination options
   countPerPage: number;
   currentPage: number;
   paginationScene?: ServiceSelectionPaginationScene;
-
+  // Show logs of a certain level for a given service
+  serviceLevel: Map<string, string[]>;
   showPopover: boolean;
+
   tabOptions: Array<{
     label: string;
     value: string;
   }>;
+  tabs?: ServiceSelectionTabsScene;
 }
 
 function renderPrimaryLabelFilters(filters: AdHocVariableFilter[]): string {
@@ -134,70 +137,70 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   constructor(state: Partial<ServiceSelectionSceneState>) {
     super({
-      body: new SceneCSSGridLayout({ children: [] }),
+      $data: getSceneQueryRunner({
+        queries: [],
+        runQueriesMode: 'manual',
+      }),
       $variables: new SceneVariableSet({
         variables: [
           // Service search variable
           new CustomConstantVariable({
-            name: VAR_PRIMARY_LABEL_SEARCH,
-            label: 'Service',
             hide: VariableHide.hideVariable,
+            label: 'Service',
+            name: VAR_PRIMARY_LABEL_SEARCH,
             skipUrlSync: true,
             value: '.+',
           }),
           // variable that stores if aggregated metrics are supported for the query
           new CustomConstantVariable({
-            name: VAR_AGGREGATED_METRICS,
-            label: '',
             hide: VariableHide.hideLabel,
-            value: SERVICE_NAME,
-            skipUrlSync: true,
+            label: '',
+            name: VAR_AGGREGATED_METRICS,
             options: [
               {
-                value: SERVICE_NAME,
                 label: SERVICE_NAME,
+                value: SERVICE_NAME,
               },
               {
-                value: AGGREGATED_SERVICE_NAME,
                 label: AGGREGATED_SERVICE_NAME,
+                value: AGGREGATED_SERVICE_NAME,
               },
             ],
+            skipUrlSync: true,
+            value: SERVICE_NAME,
           }),
           // The active tab expression, hidden variable
           new AdHocFiltersVariable({
-            name: VAR_PRIMARY_LABEL,
-            hide: VariableHide.hideLabel,
             expressionBuilder: (filters) => {
               return renderPrimaryLabelFilters(filters);
             },
             filters: [
               {
                 key: getSelectedTabFromUrl().key ?? SERVICE_NAME,
-                value: '.+',
                 operator: '=~',
+                value: '.+',
               },
             ],
+            hide: VariableHide.hideLabel,
+            name: VAR_PRIMARY_LABEL,
           }),
           new AdHocFiltersVariable({
-            name: VAR_LABELS_REPLICA,
             datasource: EXPLORATION_DS,
-            layout: 'vertical',
-            filters: [],
             expressionBuilder: renderLogQLLabelFilters,
+            filters: [],
             hide: VariableHide.hideVariable,
             key: 'adhoc_service_filter_replica',
+            layout: 'vertical',
+            name: VAR_LABELS_REPLICA,
             skipUrlSync: true,
           }),
         ],
       }),
-      $data: getSceneQueryRunner({
-        queries: [],
-        runQueriesMode: 'manual',
-      }),
-      serviceLevel: new Map<string, string[]>(),
+      body: new SceneCSSGridLayout({ children: [] }),
       // pagination
       countPerPage: getServiceSelectionPageCount() ?? 20,
       currentPage: 1,
+      serviceLevel: new Map<string, string[]>(),
 
       showPopover: false,
       tabOptions: [
@@ -214,7 +217,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionScene>) => {
     const styles = useStyles2(getStyles);
-    const { body, $data, tabs, paginationScene } = model.useState();
+    const { $data, body, paginationScene, tabs } = model.useState();
     const { data } = $data.useState();
     const selectedTab = model.getSelectedTab();
 
@@ -246,9 +249,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             <div className={styles.searchWrapper}>
               <ServiceFieldSelector
                 initialFilter={{
+                  icon: 'filter',
                   label: customLabel,
                   value: customValue,
-                  icon: 'filter',
                 }}
                 isLoading={isLogVolumeLoading}
                 value={customValue ? customValue : label}
@@ -259,8 +262,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
                 label={filterLabel}
                 options={
                   labelsToQuery?.map((serviceName) => ({
-                    value: serviceName,
                     label: serviceName,
+                    value: serviceName,
                   })) ?? []
                 }
               />
@@ -314,8 +317,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const newSearchString = primaryLabelSearch ? wrapWildcardSearch(primaryLabelSearch) : '.+';
     if (newSearchString !== searchVar.state.value) {
       searchVar.setState({
-        value: primaryLabelSearch ? wrapWildcardSearch(primaryLabelSearch) : '.+',
         label: primaryLabelSearch ?? '',
+        value: primaryLabelSearch ? wrapWildcardSearch(primaryLabelSearch) : '.+',
       });
     }
 
@@ -395,7 +398,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
    * @param replace
    */
   addLabelChangeToBrowserHistory(newKey: string, replace = false) {
-    const { key: primaryLabelRaw, search, location } = getSelectedTabFromUrl();
+    const { key: primaryLabelRaw, location, search } = getSelectedTabFromUrl();
     if (primaryLabelRaw) {
       const primaryLabelSplit = primaryLabelRaw?.split('|');
       const keyInUrl = primaryLabelSplit?.[0];
@@ -452,7 +455,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const headerActions = [];
 
     if (this.isAggregatedMetricsActive()) {
-      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+      headerActions.push(new SelectServiceButton({ labelName: primaryLabelName, labelValue: primaryLabelValue }));
     } else {
       headerActions.push(
         new AddLabelToFiltersHeaderActionScene({
@@ -460,7 +463,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           value: primaryLabelValue,
         })
       );
-      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+      headerActions.push(new SelectServiceButton({ labelName: primaryLabelName, labelValue: primaryLabelValue }));
     }
     const panel = PanelBuilders.timeseries()
       // If service was previously selected, we show it in the title
@@ -470,8 +473,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           [
             buildDataQuery(this.getMetricExpression(primaryLabelValue, serviceLabelVar, primaryLabelVar), {
               legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
-              splitDuration,
               refId: `ts-${primaryLabelValue}`,
+              splitDuration,
               step: serviceLabelVar.state.value === AGGREGATED_SERVICE_NAME ? '10s' : undefined,
             }),
           ],
@@ -486,10 +489,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       .setUnit('short')
       .setOverrides(setLevelColorOverrides)
       .setOption('legend', {
-        showLegend: true,
         calcs: ['sum'],
-        placement: 'right',
         displayMode: LegendDisplayMode.Table,
+        placement: 'right',
+        showLegend: true,
       })
       .setHeaderActions([
         new FavoriteServiceHeaderActionScene({
@@ -838,8 +841,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
       // Hide combobox and reset filters if aggregated metrics is enabled
       labelsVar.setState({
-        hide: VariableHide.hideVariable,
         filters: [],
+        hide: VariableHide.hideVariable,
       });
 
       // Hide the show logs button
@@ -969,15 +972,15 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       }
 
       this.state.body.setState({
+        autoRows: '200px',
         children: newChildren,
         isLazy: true,
-        templateColumns: 'repeat(auto-fit, minmax(350px, 1fr) minmax(300px, calc(70vw - 100px)))',
-        autoRows: '200px',
         md: {
-          templateColumns: '1fr',
-          rowGap: 1,
           columnGap: 1,
+          rowGap: 1,
+          templateColumns: '1fr',
         },
+        templateColumns: 'repeat(auto-fit, minmax(350px, 1fr) minmax(300px, calc(70vw - 100px)))',
       });
     }
   }
@@ -1076,22 +1079,26 @@ function getSelectedTabFromUrl() {
   const primaryLabelRaw = search.get(primaryLabelUrlKey);
   const primaryLabelSplit = primaryLabelRaw?.split('|');
   const key = primaryLabelSplit?.[0];
-  return { key, search, location };
+  return { key, location, search };
 }
 
 function getStyles(theme: GrafanaTheme2) {
   return {
+    body: css({
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+    }),
+    bodyWrapper: css({
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+    }),
     container: css({
       display: 'flex',
       flexDirection: 'column',
       flexGrow: 1,
       position: 'relative',
-    }),
-    headingWrapper: css({
-      marginTop: theme.spacing(1),
-    }),
-    loadingText: css({
-      margin: 0,
     }),
     header: css({
       position: 'absolute',
@@ -1099,40 +1106,36 @@ function getStyles(theme: GrafanaTheme2) {
       top: '4px',
       zIndex: 2,
     }),
-    bodyWrapper: css({
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
+    headingWrapper: css({
+      marginTop: theme.spacing(1),
     }),
-    body: css({
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
-    }),
-    searchPaginationWrap: css({
-      label: 'search-pagination-wrap',
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      flex: '1 0 auto',
-      [theme.breakpoints.down('md')]: {
-        marginTop: theme.spacing(1),
-        width: '100%',
-      },
-    }),
-    searchWrapper: css({
-      label: 'search-wrapper',
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      [theme.breakpoints.down('md')]: {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-      },
+    loadingText: css({
+      margin: 0,
     }),
     searchField: css({
       marginTop: theme.spacing(1),
       position: 'relative',
+    }),
+    searchPaginationWrap: css({
+      [theme.breakpoints.down('md')]: {
+        marginTop: theme.spacing(1),
+        width: '100%',
+      },
+      alignItems: 'center',
+      display: 'flex',
+      flex: '1 0 auto',
+      flexWrap: 'wrap',
+      label: 'search-pagination-wrap',
+    }),
+    searchWrapper: css({
+      [theme.breakpoints.down('md')]: {
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+      },
+      alignItems: 'center',
+      display: 'flex',
+      flexWrap: 'wrap',
+      label: 'search-wrapper',
     }),
   };
 }

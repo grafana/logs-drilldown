@@ -1,5 +1,3 @@
-import { logger } from './logger';
-import { LokiDatasource, LokiQuery } from './lokiQuery';
 import {
   DataSourceGetTagKeysOptions,
   getDefaultTimeRange,
@@ -9,14 +7,17 @@ import {
   ScopedVars,
   TimeRange,
 } from '@grafana/data';
-import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { getDataSource } from './scenes';
-import { LABELS_TO_REMOVE } from './filters';
-import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
-import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
+import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
+
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
+import { LABELS_TO_REMOVE } from './filters';
+import { logger } from './logger';
+import { LokiDatasource, LokiQuery } from './lokiQuery';
+import { getDataSource } from './scenes';
+import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
+import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
 
 export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): Promise<{
   replace?: boolean;
@@ -50,19 +51,19 @@ export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): 
 
 type DetectedFieldQueryOptions = {
   expr: string;
-  timeRange?: TimeRange;
   limit?: number;
-  scopedVars?: ScopedVars;
   sceneRef: SceneObject;
+  scopedVars?: ScopedVars;
+  timeRange?: TimeRange;
   variableType: UIVariableFilterType;
 };
 
 export async function getFieldsKeysProvider({
-  limit,
-  timeRange,
-  scopedVars,
   expr,
+  limit,
   sceneRef,
+  scopedVars,
+  timeRange,
   variableType,
 }: DetectedFieldQueryOptions): Promise<{
   replace?: boolean;
@@ -78,11 +79,11 @@ export async function getFieldsKeysProvider({
 
   const options: DetectedFieldQueryOptions = {
     expr,
-    timeRange,
-    scopedVars,
-    variableType,
-    sceneRef,
     limit,
+    sceneRef,
+    scopedVars,
+    timeRange,
+    variableType,
   };
 
   // @todo delete after min supported grafana is upgraded to >=11.6
@@ -126,13 +127,13 @@ export async function getFieldsKeysProvider({
           const type = field.type;
 
           return {
-            text: field.label,
-            value: field.label,
             group: parser,
             meta: {
               parser,
               type,
             },
+            text: field.label,
+            value: field.label,
           };
         }
 
@@ -179,13 +180,13 @@ async function fetchDetectedFields(
   const url = `detected_fields`;
   const range = queryOptions?.timeRange ?? getDefaultTimeRange();
   const rangeParams = datasource.getTimeRangeParams(range);
-  const { start, end } = rangeParams;
-  const params: KeyValue<string | number> = { start, end, limit: queryOptions?.limit ?? 1000 };
+  const { end, start } = rangeParams;
+  const params: KeyValue<string | number> = { end, limit: queryOptions?.limit ?? 1000, start };
   params.query = interpolatedExpr;
 
   return new Promise(async (resolve, reject) => {
     try {
-      const data: { limit: number; fields: DetectedFieldsResult } = await datasource.getResource(
+      const data: { fields: DetectedFieldsResult; limit: number } = await datasource.getResource(
         url,
         params,
         requestOptions

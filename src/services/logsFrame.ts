@@ -17,16 +17,18 @@ export type LogFrameLabels = Record<string, unknown>;
 // the attributes-access is a little awkward, but it's necessary
 // because there are multiple,very different dataFrame-representations.
 export type LogsFrame = {
-  timeField: FieldWithIndex;
   bodyField: FieldWithIndex;
-  timeNanosecondField: FieldWithIndex | null;
-  severityField: FieldWithIndex | null;
-  idField: FieldWithIndex | null;
-  getLogFrameLabels: () => LogFrameLabels[] | null; // may be slow, so we only do it when asked for it explicitly
-  getLogFrameLabelsAsLabels: () => Labels[] | null; // temporarily exists to make the labels=>attributes migration simpler
-  getLabelFieldName: () => string | null;
   extraFields: FieldWithIndex[];
+  // temporarily exists to make the labels=>attributes migration simpler
+  getLabelFieldName: () => string | null;
+  getLogFrameLabels: () => LogFrameLabels[] | null;
+  // may be slow, so we only do it when asked for it explicitly
+  getLogFrameLabelsAsLabels: () => Labels[] | null;
+  idField: FieldWithIndex | null;
   raw: DataFrame;
+  severityField: FieldWithIndex | null;
+  timeField: FieldWithIndex;
+  timeNanosecondField: FieldWithIndex | null;
 };
 
 function getField(cache: FieldCache, name: string, fieldType: FieldType): FieldWithIndex | undefined {
@@ -90,16 +92,16 @@ export function parseDataplaneLogsFrame(frame: DataFrame): LogsFrame | null {
   );
 
   return {
-    raw: frame,
-    timeField: timestampField,
     bodyField,
-    severityField,
-    idField,
-    getLogFrameLabels: () => labels,
-    timeNanosecondField: null,
-    getLogFrameLabelsAsLabels: () => (labels !== null ? labels.map(logFrameLabelsToLabels) : null),
-    getLabelFieldName: () => (labelsField !== null ? labelsField.name : null),
     extraFields,
+    getLabelFieldName: () => (labelsField !== null ? labelsField.name : null),
+    getLogFrameLabels: () => labels,
+    getLogFrameLabelsAsLabels: () => (labels !== null ? labels.map(logFrameLabelsToLabels) : null),
+    idField,
+    raw: frame,
+    severityField,
+    timeField: timestampField,
+    timeNanosecondField: null,
   };
 }
 
@@ -135,16 +137,16 @@ export function parseLegacyLogsFrame(frame: DataFrame): LogsFrame | null {
   );
 
   return {
-    timeField,
     bodyField,
-    timeNanosecondField,
-    severityField,
-    idField,
+    extraFields,
+    getLabelFieldName: () => labelsField?.name ?? null,
     getLogFrameLabels: getL,
     getLogFrameLabelsAsLabels: getL,
-    getLabelFieldName: () => labelsField?.name ?? null,
-    extraFields,
+    idField,
     raw: frame,
+    severityField,
+    timeField,
+    timeNanosecondField,
   };
 }
 
@@ -203,18 +205,18 @@ export function getSeriesVisibleRange(series: DataFrame[]) {
     start = oldestFirst ? values[0] : values[values.length - 1];
     end = oldestFirst ? values[values.length - 1] : values[0];
   }
-  return { start, end };
+  return { end, start };
 }
 
 export const VISIBLE_RANGE_NAME = 'Visible range';
 export function getVisibleRangeFrame(start: number, end: number) {
   const frame = arrayToDataFrame([
     {
-      time: start,
-      timeEnd: end,
+      color: 'rgba(58, 113, 255, 0.3)',
       isRegion: true,
       text: 'Range from oldest to newest logs in display',
-      color: 'rgba(58, 113, 255, 0.3)',
+      time: start,
+      timeEnd: end,
     },
   ]);
   frame.name = VISIBLE_RANGE_NAME;

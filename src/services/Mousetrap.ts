@@ -29,33 +29,33 @@ interface ExtendedKeyboardEvent extends KeyboardEvent {
 type MousetrapCallback = (e: ExtendedKeyboardEvent, combo: string) => boolean | void;
 
 interface KeyInfo {
+  action: string;
   key: string;
   modifiers: string[];
-  action: string;
 }
 
 interface CallbackInfo {
   /**
-   * Modifiers (such as `ctrl`) involved in this binding
+   * The event type, such as keydown, keyup, or keypress
    */
-  modifiers: string[];
+  action: string;
+
+  callback: MousetrapCallback;
 
   /**
    * A single key press binding, such as `t` (for `t v`) or  `ctrl + z`
    */
   combo: string;
 
+  level: number | undefined;
+  /**
+   * Modifiers (such as `ctrl`) involved in this binding
+   */
+  modifiers: string[];
   /**
    * If this binding is a part of a sequence (`t v`, but not `ctrl + z`), this is the full sequence
    */
   seq?: string;
-
-  /**
-   * The event type, such as keydown, keyup, or keypress
-   */
-  action: string;
-  level: number | undefined;
-  callback: MousetrapCallback;
 }
 
 /**
@@ -124,25 +124,25 @@ let KEYCODE_MAP: Record<string, string> = {
  * note that this will only work reliably on US keyboards
  */
 let SHIFT_MAP: Record<string, string> = {
-  '~': '`',
   '!': '1',
-  '@': '2',
+  '"': "'",
   '#': '3',
   $: '4',
   '%': '5',
-  '^': '6',
   '&': '7',
-  '*': '8',
   '(': '9',
   ')': '0',
-  _: '-',
+  '*': '8',
   '+': '=',
   ':': ';',
-  '"': "'",
   '<': ',',
   '>': '.',
   '?': '/',
+  '@': '2',
+  '^': '6',
+  _: '-',
   '|': '\\',
+  '~': '`',
 };
 
 /**
@@ -150,12 +150,12 @@ let SHIFT_MAP: Record<string, string> = {
  * to modifier keys when you specify your keyboard shortcuts
  */
 let SPECIAL_ALIASES: Record<string, string> = {
-  option: 'alt',
   command: 'meta',
-  return: 'enter',
   escape: 'esc',
-  plus: '+',
   mod: /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'meta' : 'ctrl',
+  option: 'alt',
+  plus: '+',
+  return: 'enter',
 };
 
 /**
@@ -387,9 +387,9 @@ function getKeyInfo(combination: string, action?: string): KeyInfo {
   action = pickBestAction(key, modifiers, action);
 
   return {
+    action: action,
     key: key,
     modifiers: modifiers,
-    action: action,
   };
 }
 
@@ -496,7 +496,7 @@ export class Mousetrap {
   private _getMatches = (
     character: string,
     modifiers: string[],
-    event: Pick<KeyboardEvent, 'type' | 'metaKey' | 'ctrlKey'>,
+    event: Pick<KeyboardEvent, 'ctrlKey' | 'metaKey' | 'type'>,
     sequenceName?: string,
     combination?: string,
     level?: number
@@ -822,16 +822,16 @@ export class Mousetrap {
     this._callbacks[info.key] = this._callbacks[info.key] || [];
 
     // remove an existing match if there is one
-    const eventLike = { type: info.action, metaKey: false, ctrlKey: false };
+    const eventLike = { ctrlKey: false, metaKey: false, type: info.action };
     this._getMatches(info.key, info.modifiers, eventLike, sequenceName, combination, level);
 
     const callbackInfo: CallbackInfo = {
-      callback: callback,
-      modifiers: info.modifiers,
       action: info.action,
-      seq: sequenceName,
-      level: level,
+      callback: callback,
       combo: combination,
+      level: level,
+      modifiers: info.modifiers,
+      seq: sequenceName,
     };
 
     // add this call back to the array

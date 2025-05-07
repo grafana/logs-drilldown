@@ -1,7 +1,8 @@
-import { css } from '@emotion/css';
 import React from 'react';
 
-import { LogLabelStatsModel, GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2, LogLabelStatsModel } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
 //Components
@@ -13,29 +14,29 @@ const getStyles = (theme: GrafanaTheme2) => ({
   logsStats: css({
     background: 'inherit',
     color: theme.colors.text.primary,
-    wordBreak: 'break-all',
-    width: 'fit-content',
+    marginTop: theme.spacing(1),
     maxHeight: '40vh',
     overflowY: 'auto',
-    marginTop: theme.spacing(1),
+    width: 'fit-content',
+    wordBreak: 'break-all',
+  }),
+  logsStatsBody: css({
+    padding: '5px 0px',
+  }),
+  logsStatsClose: css({
+    cursor: 'pointer',
   }),
   logsStatsHeader: css({
     borderBottom: `1px solid ${theme.colors.border.medium}`,
     display: 'flex',
   }),
   logsStatsTitle: css({
+    display: 'inline-block',
+    flexGrow: 1,
     fontWeight: theme.typography.fontWeightMedium,
     paddingRight: theme.spacing(2),
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    flexGrow: 1,
-  }),
-  logsStatsClose: css({
-    cursor: 'pointer',
-  }),
-  logsStatsBody: css({
-    padding: '5px 0px',
+    whiteSpace: 'nowrap',
   }),
 });
 
@@ -69,7 +70,7 @@ export const PatternFieldLabelStats = (props: PatternFieldLabelStatsProps) => {
 
   // If there's an "Other" category, add it to combinedRows
   if (otherCount > 0) {
-    combinedRows.push({ value: 'Other', count: otherCount, proportion: otherCount / total });
+    combinedRows.push({ count: otherCount, proportion: otherCount / total, value: 'Other' });
   }
 
   // Sort combinedRows by count in descending order

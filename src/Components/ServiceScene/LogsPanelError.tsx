@@ -1,6 +1,8 @@
 import React from 'react';
-import { GrotError } from 'Components/GrotError';
+
 import { Button } from '@grafana/ui';
+
+import { GrotError } from 'Components/GrotError';
 
 interface Props {
   clearFilters(): void;

@@ -1,8 +1,10 @@
 import React from 'react';
-import { useStyles2, useTheme2 } from '@grafana/ui';
-import SVG from 'react-inlinesvg';
-import { GrafanaTheme2, locationUtil } from '@grafana/data';
+
 import { css } from '@emotion/css';
+import SVG from 'react-inlinesvg';
+
+import { GrafanaTheme2, locationUtil } from '@grafana/data';
+import { useStyles2, useTheme2 } from '@grafana/ui';
 
 export const NoLokiSplash = () => {
   const styles = useStyles2(getStyles);
@@ -53,45 +55,45 @@ export const NoLokiSplash = () => {
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     graphicContainer: css({
-      display: 'flex',
-      justifyContent: 'center',
-      margin: '0 auto',
-      width: '200px',
-      height: '250px',
-      padding: theme.spacing(1),
       [theme.breakpoints.up('md')]: {
         alignSelf: 'flex-end',
-        width: '300px',
         height: 'auto',
         padding: theme.spacing(1),
+        width: '300px',
       },
       [theme.breakpoints.up('lg')]: {
         alignSelf: 'flex-end',
-        width: '400px',
         height: 'auto',
         padding: theme.spacing(1),
+        width: '400px',
       },
+      display: 'flex',
+      height: '250px',
+      justifyContent: 'center',
+      margin: '0 auto',
+      padding: theme.spacing(1),
+      width: '200px',
     }),
 
     text: css({
-      display: 'flex',
-      justifyContent: 'center',
       alignItems: 'center',
+      display: 'flex',
       flexDirection: 'column',
+      justifyContent: 'center',
     }),
     title: css({
       marginBottom: '1.5rem',
     }),
     wrap: css({
       [theme.breakpoints.up('md')]: {
-        margin: '4rem auto auto auto',
         flexDirection: 'row',
+        margin: '4rem auto auto auto',
       },
-      padding: '2rem',
-      margin: '0 auto auto auto',
-      display: 'flex',
       alignItems: 'center',
+      display: 'flex',
       flexDirection: 'column',
+      margin: '0 auto auto auto',
+      padding: '2rem',
       textAlign: 'center',
     }),
   };

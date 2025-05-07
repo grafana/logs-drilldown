@@ -1,11 +1,11 @@
 import React from 'react';
+
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
 import { FieldNameMeta } from '../TableTypes';
-
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
 
@@ -13,20 +13,20 @@ const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
 function getLogsFieldsStyles(theme: GrafanaTheme2) {
   return {
-    wrap: css({
-      marginTop: theme.spacing(0.25),
-      marginBottom: theme.spacing(0.25),
-      display: 'flex',
-      background: theme.colors.background.primary,
-      borderBottom: `1px solid ${theme.colors.background.canvas}`,
-    }),
-    dragging: css({
-      background: theme.colors.background.secondary,
-    }),
     columnWrapper: css({
       marginBottom: theme.spacing(1.5),
       // need some space or the outline of the checkbox is cut off
       paddingLeft: theme.spacing(0.5),
+    }),
+    dragging: css({
+      background: theme.colors.background.secondary,
+    }),
+    wrap: css({
+      background: theme.colors.background.primary,
+      borderBottom: `1px solid ${theme.colors.background.canvas}`,
+      display: 'flex',
+      marginBottom: theme.spacing(0.25),
+      marginTop: theme.spacing(0.25),
     }),
   };
 }
@@ -52,10 +52,10 @@ function sortLabels(labels: Record<string, FieldNameMeta>) {
 
 export const LogsTableAvailableFields = (props: {
   labels: Record<string, FieldNameMeta>;
-  valueFilter: (value: string) => boolean;
   toggleColumn: (columnName: string) => void;
+  valueFilter: (value: string) => boolean;
 }): React.ReactElement => {
-  const { labels, valueFilter, toggleColumn } = props;
+  const { labels, toggleColumn, valueFilter } = props;
   const theme = useTheme2();
   const styles = getLogsFieldsStyles(theme);
   const labelKeys = Object.keys(labels).filter((labelName) => valueFilter(labelName));

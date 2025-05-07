@@ -1,7 +1,9 @@
 import React from 'react';
-import { Icon, useStyles2 } from '@grafana/ui';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Icon, useStyles2 } from '@grafana/ui';
 
 export const GiveFeedbackButton = () => {
   const styles = useStyles2(getStyles);
@@ -22,20 +24,20 @@ export const GiveFeedbackButton = () => {
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {
-    wrapper: css({
-      display: 'flex',
-      marginLeft: 'auto',
-      gap: theme.spacing(1),
-      position: 'relative',
-      top: theme.spacing(-1),
-    }),
     feedback: css({
-      alignSelf: 'center',
-      color: theme.colors.text.secondary,
-      fontSize: theme.typography.bodySmall.fontSize,
       '&:hover': {
         color: theme.colors.text.link,
       },
+      alignSelf: 'center',
+      color: theme.colors.text.secondary,
+      fontSize: theme.typography.bodySmall.fontSize,
+    }),
+    wrapper: css({
+      display: 'flex',
+      gap: theme.spacing(1),
+      marginLeft: 'auto',
+      position: 'relative',
+      top: theme.spacing(-1),
     }),
   };
 };

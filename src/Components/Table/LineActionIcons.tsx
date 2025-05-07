@@ -1,42 +1,45 @@
-import { ClipboardButton, IconButton, Modal, useTheme2 } from '@grafana/ui';
 import React, { useCallback, useState } from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
-import { useQueryContext } from 'Components/Table/Context/QueryContext';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { ClipboardButton, IconButton, Modal, useTheme2 } from '@grafana/ui';
+
 import { testIds } from '../../services/testIds';
+import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { generateLogShortlink } from 'services/text';
 
 export const getStyles = (theme: GrafanaTheme2, bgColor?: string) => ({
   clipboardButton: css({
-    padding: 0,
     height: '100%',
     lineHeight: '1',
+    padding: 0,
     width: '20px',
   }),
-  inspectButton: css({
-    display: 'inline-flex',
-    verticalAlign: 'middle',
-    margin: 0,
-    overflow: 'hidden',
-    borderRadius: '5px',
-  }),
   iconWrapper: css({
-    height: '35px',
-    position: 'sticky',
-    left: 0,
-    display: 'flex',
     background: theme.colors.background.secondary,
-    padding: `0 ${theme.spacing(0.5)}`,
-    zIndex: 1,
     boxShadow: theme.shadows.z2,
+    display: 'flex',
+    height: '35px',
+    left: 0,
+    padding: `0 ${theme.spacing(0.5)}`,
+    position: 'sticky',
+    zIndex: 1,
   }),
   inspect: css({
-    padding: '5px 3px',
-
     '&:hover': {
       color: theme.colors.text.link,
       cursor: 'pointer',
     },
+
+    padding: '5px 3px',
+  }),
+  inspectButton: css({
+    borderRadius: '5px',
+    display: 'inline-flex',
+    margin: 0,
+    overflow: 'hidden',
+    verticalAlign: 'middle',
   }),
 });
 export function LineActionIcons(props: { rowIndex: number; value: unknown }) {

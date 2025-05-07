@@ -1,10 +1,13 @@
 import React from 'react';
-import { getLogOption, setLogOption } from 'services/store';
+
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LogsListScene } from './LogsListScene';
-import { sceneGraph } from '@grafana/scenes';
+
 import { LogsSortOrder } from '@grafana/data';
+import { sceneGraph } from '@grafana/scenes';
+
+import { LogsListScene } from './LogsListScene';
+import { getLogOption, setLogOption } from 'services/store';
 
 jest.mock('services/store');
 jest.mock('./LogsListScene');
@@ -67,7 +70,7 @@ describe('LogOptionsScene', () => {
     expect(setLogOption).toHaveBeenCalledTimes(2);
     expect(setLogOption).toHaveBeenCalledWith('wrapLogMessage', true);
     expect(setLogOption).toHaveBeenCalledWith('prettifyLogMessage', true);
-    expect(scene.setLogsVizOption).toHaveBeenCalledWith({ wrapLogMessage: true, prettifyLogMessage: true });
+    expect(scene.setLogsVizOption).toHaveBeenCalledWith({ prettifyLogMessage: true, wrapLogMessage: true });
   });
 
   test('Does not show the clear fields button with no fields in display', async () => {

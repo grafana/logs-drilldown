@@ -1,6 +1,8 @@
-import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { IconButton } from '@grafana/ui';
 import React, { memo } from 'react';
+
+import { IconButton } from '@grafana/ui';
+
+import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 const ReRootJSONButton = memo(
   ({ keyPath, setNewRootNode }: { keyPath: KeyPath; setNewRootNode: (keyPath: KeyPath) => void }) => {

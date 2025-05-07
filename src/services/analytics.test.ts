@@ -1,5 +1,6 @@
 import { reportInteraction } from '@grafana/runtime';
-import { USER_EVENTS_PAGES, USER_EVENTS_ACTIONS, reportAppInteraction } from './analytics';
+
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from './analytics';
 
 jest.mock('@grafana/runtime');
 

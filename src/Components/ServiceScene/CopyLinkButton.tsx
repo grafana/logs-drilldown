@@ -1,6 +1,7 @@
+import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
+
 import { LogRowModel } from '@grafana/data';
 import { IconButton } from '@grafana/ui';
-import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 interface Props {
   onClick(event: MouseEvent<HTMLElement>, row?: LogRowModel): void;

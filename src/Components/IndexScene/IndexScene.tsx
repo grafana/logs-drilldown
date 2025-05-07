@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil } from '@grafana/data';
+import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -22,6 +23,72 @@ import {
   SceneTimeRangeState,
   SceneVariableSet,
 } from '@grafana/scenes';
+import { VariableHide } from '@grafana/schema';
+import { LoadingPlaceholder } from '@grafana/ui';
+
+import { plugin } from '../../module';
+import { reportAppInteraction } from '../../services/analytics';
+import { areArraysEqual } from '../../services/comparison';
+import { CustomConstantVariable } from '../../services/CustomConstantVariable';
+import { PageSlugs } from '../../services/enums';
+import { getFieldsTagValuesExpression } from '../../services/expressions';
+import { isFilterMetadata } from '../../services/filters';
+import { FilterOp } from '../../services/filterTypes';
+import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
+import { logger } from '../../services/logger';
+import { LokiDatasource } from '../../services/lokiQuery';
+import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { lineFilterOperators, operators } from '../../services/operators';
+import { renderPatternFilters } from '../../services/renderPatternFilters';
+import { getDrilldownSlug } from '../../services/routing';
+import { getLokiDatasource } from '../../services/scenes';
+import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
+import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
+import {
+  getDataSourceVariable,
+  getFieldsAndMetadataVariable,
+  getFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+  getMetadataVariable,
+  getPatternsVariable,
+  getUrlParamNameForVariable,
+} from '../../services/variableGetters';
+import { operatorFunction } from '../../services/variableHelpers';
+import { JsonData } from '../AppConfig/AppConfig';
+import { NoLokiSplash } from '../NoLokiSplash';
+import { DEFAULT_TIME_RANGE, OptionalRouteMatch } from '../Pages';
+import { ServiceScene } from '../ServiceScene/ServiceScene';
+import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelectionScene';
+import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
+import {
+  CONTROLS_JSON_FIELDS,
+  CONTROLS_VARS_DATASOURCE,
+  CONTROLS_VARS_FIELDS,
+  CONTROLS_VARS_FIELDS_COMBINED,
+  CONTROLS_VARS_FIRST_ROW_KEY,
+  CONTROLS_VARS_LABELS,
+  CONTROLS_VARS_METADATA_ROW_KEY,
+  CONTROLS_VARS_REFRESH,
+  CONTROLS_VARS_TIMEPICKER,
+  CONTROLS_VARS_TOOLBAR,
+  LayoutScene,
+} from './LayoutScene';
+import { ShowLogsButtonScene } from './ShowLogsButtonScene';
+import { ToolbarScene } from './ToolbarScene';
+import {
+  getJsonParserExpressionBuilder,
+  getLineFormatExpressionBuilder,
+  interpolateExpression,
+  onAddCustomAdHocValue,
+  onAddCustomFieldValue,
+  renderLevelsFilter,
+  renderLogQLFieldFilters,
+  renderLogQLLabelFilters,
+  renderLogQLLineFilter,
+  renderLogQLMetadataFilters,
+} from 'services/query';
+import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
 import {
   AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
@@ -43,137 +110,70 @@ import {
   VAR_PATTERNS,
 } from 'services/variables';
 
-import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
-import { ServiceScene } from '../ServiceScene/ServiceScene';
-import {
-  CONTROLS_JSON_FIELDS,
-  CONTROLS_VARS_DATASOURCE,
-  CONTROLS_VARS_FIELDS,
-  CONTROLS_VARS_FIELDS_COMBINED,
-  CONTROLS_VARS_FIRST_ROW_KEY,
-  CONTROLS_VARS_LABELS,
-  CONTROLS_VARS_METADATA_ROW_KEY,
-  CONTROLS_VARS_REFRESH,
-  CONTROLS_VARS_TIMEPICKER,
-  CONTROLS_VARS_TOOLBAR,
-  LayoutScene,
-} from './LayoutScene';
-import { getDrilldownSlug } from '../../services/routing';
-import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelectionScene';
-import { LoadingPlaceholder } from '@grafana/ui';
-import { config, getAppEvents, locationService } from '@grafana/runtime';
-import {
-  getJsonParserExpressionBuilder,
-  getLineFormatExpressionBuilder,
-  interpolateExpression,
-  onAddCustomAdHocValue,
-  onAddCustomFieldValue,
-  renderLevelsFilter,
-  renderLogQLFieldFilters,
-  renderLogQLLabelFilters,
-  renderLogQLLineFilter,
-  renderLogQLMetadataFilters,
-} from 'services/query';
-import { VariableHide } from '@grafana/schema';
-import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import {
-  getDataSourceVariable,
-  getFieldsAndMetadataVariable,
-  getFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-  getMetadataVariable,
-  getPatternsVariable,
-  getUrlParamNameForVariable,
-} from '../../services/variableGetters';
-import { ToolbarScene } from './ToolbarScene';
-import { DEFAULT_TIME_RANGE, OptionalRouteMatch } from '../Pages';
-import { plugin } from '../../module';
-import { JsonData } from '../AppConfig/AppConfig';
-import { reportAppInteraction } from '../../services/analytics';
-import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
-import { logger } from '../../services/logger';
-import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
-import { getLokiDatasource } from '../../services/scenes';
-import { ShowLogsButtonScene } from './ShowLogsButtonScene';
-import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
-import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
-import { LokiDatasource } from '../../services/lokiQuery';
-import { lineFilterOperators, operators } from '../../services/operators';
-import { operatorFunction } from '../../services/variableHelpers';
-import { FilterOp } from '../../services/filterTypes';
-import { areArraysEqual } from '../../services/comparison';
-import { isFilterMetadata } from '../../services/filters';
-import { getFieldsTagValuesExpression } from '../../services/expressions';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { renderPatternFilters } from '../../services/renderPatternFilters';
-import { NoLokiSplash } from '../NoLokiSplash';
-import { PageSlugs } from '../../services/enums';
-
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 export interface IndexSceneState extends SceneObjectState {
+  body?: LayoutScene;
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
   controls: SceneObject[];
-  body?: LayoutScene;
+  ds?: LokiDatasource;
   initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
-  ds?: LokiDatasource;
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
   public constructor(state: Partial<IndexSceneState>) {
-    const { variablesScene, unsub } = getVariableSet(
+    const { unsub, variablesScene } = getVariableSet(
       getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
       state.initialFilters
     );
 
     const controls: SceneObject[] = [
       new SceneFlexLayout({
-        key: CONTROLS_VARS_FIRST_ROW_KEY,
-        direction: 'row',
         children: [
           new SceneFlexItem({
             body: new CustomVariableValueSelectors({
+              include: [VAR_LABELS],
               key: CONTROLS_VARS_LABELS,
               layout: 'vertical',
-              include: [VAR_LABELS],
             }),
           }),
           new ShowLogsButtonScene({
-            key: showLogsButtonSceneKey,
             disabled: true,
+            key: showLogsButtonSceneKey,
           }),
         ],
+        direction: 'row',
+        key: CONTROLS_VARS_FIRST_ROW_KEY,
       }),
       new CustomVariableValueSelectors({
+        include: [VAR_METADATA],
         key: CONTROLS_VARS_METADATA_ROW_KEY,
         layout: 'vertical',
-        include: [VAR_METADATA],
       }),
       new CustomVariableValueSelectors({
+        include: [VAR_FIELDS],
         key: CONTROLS_VARS_FIELDS,
         layout: 'vertical',
-        include: [VAR_FIELDS],
       }),
       new CustomVariableValueSelectors({
+        include: [VAR_DATASOURCE],
         key: CONTROLS_VARS_DATASOURCE,
         layout: 'horizontal',
-        include: [VAR_DATASOURCE],
       }),
       new CustomVariableValueSelectors({
+        include: [VAR_FIELDS_AND_METADATA],
         key: CONTROLS_VARS_FIELDS_COMBINED,
         layout: 'vertical',
-        include: [VAR_FIELDS_AND_METADATA],
       }),
       new CustomVariableValueSelectors({
+        include: [VAR_JSON_FIELDS, VAR_LINE_FORMAT],
         key: CONTROLS_JSON_FIELDS,
         layout: 'vertical',
-        include: [VAR_JSON_FIELDS, VAR_LINE_FORMAT],
       }),
       new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER }),
       new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
@@ -182,8 +182,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
       controls.push(
         new ToolbarScene({
-          key: CONTROLS_VARS_TOOLBAR,
           isOpen: false,
+          key: CONTROLS_VARS_TOOLBAR,
         })
       );
     }
@@ -310,16 +310,16 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     if (timeRange && newRange) {
       timeRange.setState({
-        value: newRange,
-        to,
         from,
+        to,
+        value: newRange,
       });
     } else {
       logger.error(new Error('Invalid time range from clipboard'), {
+        from: from ?? '',
         msg: 'Invalid time range from clipboard',
         sceneTimeRange: typeof timeRange,
         to: to ?? '',
-        from: from ?? '',
       });
     }
   };
@@ -343,23 +343,23 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
             const prevInterval = prevState.value.to.diff(prevState.value.from, 'seconds');
             if (timeRangeInterval <= prevInterval) {
               timeRange.setState({
-                value: prevState.value,
                 from: prevState.from,
                 to: prevState.to,
+                value: prevState.value,
               });
             } else {
               const defaultRange = new SceneTimeRange(DEFAULT_TIME_RANGE);
               timeRange.setState({
-                value: defaultRange.state.value,
                 from: defaultRange.state.from,
                 to: defaultRange.state.to,
+                value: defaultRange.state.value,
               });
             }
 
             const appEvents = getAppEvents();
             appEvents.publish({
-              type: AppEvents.alertWarning.name,
               payload: [`Time range interval exceeds maximum interval configured by the administrator.`],
+              type: AppEvents.alertWarning.name,
             });
 
             reportAppInteraction('all', 'interval_too_long', {
@@ -381,8 +381,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     fieldsCombinedVariable._getOperators = () => operatorFunction(fieldsCombinedVariable);
 
     levelsVariable.setState({
-      getTagValuesProvider: this.getLevelsTagValuesProvider(),
       getTagKeysProvider: this.getLevelsTagKeysProvider(),
+      getTagValuesProvider: this.getLevelsTagValuesProvider(),
     });
 
     fieldsCombinedVariable.setState({
@@ -568,15 +568,15 @@ function getContentScene(drillDownLabel?: string) {
 
 function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[]) {
   const labelVariable = new AdHocFiltersVariable({
-    name: VAR_LABELS,
-    datasource: EXPLORATION_DS,
-    layout: 'combobox',
-    label: 'Labels',
     allowCustomValue: true,
-    filters: initialFilters ?? [],
+    datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
+    filters: initialFilters ?? [],
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
+    label: 'Labels',
+    layout: 'combobox',
+    name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
   });
 
@@ -585,13 +585,13 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
   };
 
   const fieldsVariable = new AdHocFiltersVariable({
-    name: VAR_FIELDS,
-    label: 'Detected fields',
+    allowCustomValue: true,
     applyMode: 'manual',
-    layout: 'combobox',
     expressionBuilder: renderLogQLFieldFilters,
     hide: VariableHide.hideVariable,
-    allowCustomValue: true,
+    label: 'Detected fields',
+    layout: 'combobox',
+    name: VAR_FIELDS,
   });
 
   fieldsVariable._getOperators = () => {
@@ -599,13 +599,13 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
   };
 
   const metadataVariable = new AdHocFiltersVariable({
-    name: VAR_METADATA,
-    label: 'Metadata',
+    allowCustomValue: true,
     applyMode: 'manual',
-    layout: 'combobox',
     expressionBuilder: (filters: AdHocFilterWithLabels[]) => renderLogQLMetadataFilters(filters),
     hide: VariableHide.hideVariable,
-    allowCustomValue: true,
+    label: 'Metadata',
+    layout: 'combobox',
+    name: VAR_METADATA,
   });
 
   metadataVariable._getOperators = () => {
@@ -619,33 +619,33 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
    * Not saved in the URL state, as on init we pull the values from the fields/metadata variables
    */
   const fieldsAndMetadataVariable = new AdHocFiltersVariable({
-    name: VAR_FIELDS_AND_METADATA,
-    label: 'Fields',
-    applyMode: 'manual',
-    layout: 'combobox',
-    hide: VariableHide.hideVariable,
     allowCustomValue: true,
+    applyMode: 'manual',
+    hide: VariableHide.hideVariable,
+    label: 'Fields',
+    layout: 'combobox',
+    name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
     skipUrlSync: true,
   });
 
   const levelsVariable = new AdHocFiltersVariable({
-    name: VAR_LEVELS,
-    label: 'Error levels',
     applyMode: 'manual',
-    layout: 'vertical',
     expressionBuilder: renderLevelsFilter,
     hide: VariableHide.hideVariable,
+    label: 'Error levels',
+    layout: 'vertical',
+    name: VAR_LEVELS,
     supportsMultiValueOperators: true,
   });
 
   const lineFiltersVariable = new AdHocFiltersVariable({
-    name: VAR_LINE_FILTERS,
-    hide: VariableHide.hideVariable,
+    expressionBuilder: renderLogQLLineFilter,
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: renderLogQLLineFilter,
+    hide: VariableHide.hideVariable,
     layout: 'horizontal',
+    name: VAR_LINE_FILTERS,
   });
 
   lineFiltersVariable._getOperators = () => {
@@ -653,10 +653,10 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
   };
 
   const dsVariable = new DataSourceVariable({
-    name: VAR_DATASOURCE,
     label: 'Data source',
-    value: initialDatasourceUid,
+    name: VAR_DATASOURCE,
     pluginId: 'loki',
+    value: initialDatasourceUid,
   });
 
   const unsub = dsVariable.subscribeToState((newState) => {
@@ -665,24 +665,25 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
   });
 
   const jsonFieldsVar = new AdHocFiltersVariable({
-    name: VAR_JSON_FIELDS,
     // debugging
     allowCustomValue: true,
+    expressionBuilder: getJsonParserExpressionBuilder(),
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: getJsonParserExpressionBuilder(),
+    name: VAR_JSON_FIELDS,
   });
 
   const lineFormatVariable = new AdHocFiltersVariable({
-    name: VAR_LINE_FORMAT,
-    layout: 'horizontal',
     allowCustomValue: true,
+    expressionBuilder: getLineFormatExpressionBuilder(),
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
-    expressionBuilder: getLineFormatExpressionBuilder(),
+    layout: 'horizontal',
+    name: VAR_LINE_FORMAT,
   });
 
   return {
+    unsub,
     variablesScene: new SceneVariableSet({
       variables: [
         lineFormatVariable,
@@ -694,27 +695,26 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
         jsonFieldsVar,
         fieldsAndMetadataVariable,
         new CustomVariable({
+          hide: VariableHide.hideVariable,
           name: VAR_PATTERNS,
           value: '',
-          hide: VariableHide.hideVariable,
         }),
         new AdHocFiltersVariable({
-          name: VAR_LINE_FILTER,
-          hide: VariableHide.hideVariable,
           expressionBuilder: renderLogQLLineFilter,
+          hide: VariableHide.hideVariable,
+          name: VAR_LINE_FILTER,
         }),
         lineFiltersVariable,
 
         // This variable is a hack to get logs context working, this variable should never be used or updated
         new CustomConstantVariable({
-          name: VAR_LOGS_FORMAT,
-          value: MIXED_FORMAT_EXPR,
-          skipUrlSync: true,
           hide: VariableHide.hideVariable,
-          options: [{ value: MIXED_FORMAT_EXPR, label: MIXED_FORMAT_EXPR }],
+          name: VAR_LOGS_FORMAT,
+          options: [{ label: MIXED_FORMAT_EXPR, value: MIXED_FORMAT_EXPR }],
+          skipUrlSync: true,
+          value: MIXED_FORMAT_EXPR,
         }),
       ],
     }),
-    unsub,
   };
 }

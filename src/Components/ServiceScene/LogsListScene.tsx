@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
+import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneFlexItem,
@@ -11,36 +14,34 @@ import {
   SceneObjectUrlValues,
   SceneTimeRangeLike,
 } from '@grafana/scenes';
+import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { SelectedTableRow } from '../Table/LogLineCellComponent';
-import { LogsTableScene } from './LogsTableScene';
-import { css } from '@emotion/css';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { locationService } from '@grafana/runtime';
+import { logger } from '../../services/logger';
+import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
+import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { SelectedTableRow } from '../Table/LogLineCellComponent';
+import { LineFilterScene } from './LineFilter/LineFilterScene';
+import { LogsJsonScene } from './LogsJsonScene';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsTableScene } from './LogsTableScene';
 import {
   getDisplayedFields,
   getLogsVisualizationType,
   LogsVisualizationType,
   setLogsVisualizationType,
 } from 'services/store';
-import { logger } from '../../services/logger';
-import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
-import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
-import { LogLineState } from '../Table/Context/TableColumnsContext';
-import { LineFilterScene } from './LineFilter/LineFilterScene';
-import { LogsJsonScene } from './LogsJsonScene';
 
 export interface LogsListSceneState extends SceneObjectState {
-  loading?: boolean;
-  panel?: SceneFlexLayout;
-  visualizationType: LogsVisualizationType;
-  urlColumns?: string[];
-  tableLogLineState?: LogLineState;
-  selectedLine?: SelectedTableRow;
   $timeRange?: SceneTimeRangeLike;
   displayedFields: string[];
   lineFilter?: string;
+  loading?: boolean;
+  panel?: SceneFlexLayout;
+  selectedLine?: SelectedTableRow;
+  tableLogLineState?: LogLineState;
+  urlColumns?: string[];
+  visualizationType: LogsVisualizationType;
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
@@ -53,8 +54,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
-      visualizationType: getLogsVisualizationType(),
       displayedFields: [],
+      visualizationType: getLogsVisualizationType(),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -80,11 +81,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const visualizationType = this.state.visualizationType;
     const displayedFields = this.state.displayedFields ?? getDisplayedFields(this) ?? [];
     return {
-      urlColumns: JSON.stringify(urlColumns),
-      selectedLine: JSON.stringify(selectedLine),
-      visualizationType: JSON.stringify(visualizationType),
       displayedFields: JSON.stringify(displayedFields),
+      selectedLine: JSON.stringify(selectedLine),
       tableLogLineState: JSON.stringify(this.state.tableLogLineState),
+      urlColumns: JSON.stringify(urlColumns),
+      visualizationType: JSON.stringify(visualizationType),
     };
   }
 
@@ -174,11 +175,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const tableLogLineState = searchParams.get('tableLogLineState');
 
     this.updateFromUrl({
+      displayedFields: displayedFieldsUrl,
       selectedLine: selectedLineUrl,
+      tableLogLineState,
       urlColumns: urlColumnsUrl,
       vizType: vizTypeUrl,
-      displayedFields: displayedFieldsUrl,
-      tableLogLineState,
     });
   }
 
@@ -240,8 +241,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               ],
             }),
             new SceneFlexItem({
-              height: 'calc(100vh - 220px)',
               body: this.logsPanelScene,
+              height: 'calc(100vh - 220px)',
             }),
           ]
         : this.state.visualizationType === 'json'
@@ -251,8 +252,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               xSizing: 'fill',
             }),
             new SceneFlexItem({
-              height: 'calc(100vh - 220px)',
               body: new LogsJsonScene({}),
+              height: 'calc(100vh - 220px)',
             }),
           ]
         : [
@@ -261,14 +262,14 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               xSizing: 'fill',
             }),
             new SceneFlexItem({
-              height: 'calc(100vh - 220px)',
               body: new LogsTableScene({}),
+              height: 'calc(100vh - 220px)',
             }),
           ];
 
     return new SceneFlexLayout({
-      direction: 'column',
       children,
+      direction: 'column',
     });
   }
 }

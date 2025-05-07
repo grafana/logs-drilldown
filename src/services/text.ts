@@ -1,6 +1,7 @@
-import { config, locationService } from '@grafana/runtime';
-import { logger } from './logger';
 import { dateTime, LogRowModel, TimeRange, urlUtil } from '@grafana/data';
+import { config, locationService } from '@grafana/runtime';
+
+import { logger } from './logger';
 
 export const copyText = (string: string) => {
   if (navigator.clipboard && window.isSecureContext) {
@@ -27,8 +28,8 @@ type PermalinkDataType =
     }
   | {
       logs: {
-        id: string;
         displayedFields: string[];
+        id: string;
       };
     };
 
@@ -65,11 +66,11 @@ export function resolveRowTimeRangeForSharing(row: LogRowModel): TimeRange {
 
   const range = {
     from,
-    to,
     raw: {
       from,
       to,
     },
+    to,
   };
 
   return range;

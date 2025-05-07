@@ -1,25 +1,30 @@
 import React from 'react';
+
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
+import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
 import { LogsTableActiveFields } from 'Components/Table/ColumnSelection/LogsTableActiveFields';
 import { LogsTableAvailableFields } from 'Components/Table/ColumnSelection/LogsTableAvailableFields';
 
-import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
-
 function getStyles(theme: GrafanaTheme2) {
   return {
-    sidebarWrap: css({
-      overflowY: 'scroll',
-      height: 'calc(100% - 50px)',
-      /* Hide scrollbar for Chrome, Safari, and Opera */
-      '&::-webkit-scrollbar': {
-        display: 'none',
-      },
-      /* Hide scrollbar for Firefox */
-      scrollbarWidth: 'none',
+    columnHeader: css({
+      background: theme.colors.background.secondary,
+      display: 'flex',
+      fontSize: theme.typography.h6.fontSize,
+      justifyContent: 'space-between',
+      left: 0,
+      marginBottom: theme.spacing(2),
+      paddingBottom: theme.spacing(0.75),
+      paddingLeft: theme.spacing(1.5),
+      paddingRight: theme.spacing(0.75),
+      paddingTop: theme.spacing(0.75),
+      position: 'sticky',
+      top: 0,
+      zIndex: 3,
     }),
     columnHeaderButton: css({
       appearance: 'none',
@@ -27,30 +32,25 @@ function getStyles(theme: GrafanaTheme2) {
       border: 'none',
       fontSize: theme.typography.pxToRem(11),
     }),
-    columnHeader: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: theme.typography.h6.fontSize,
-      background: theme.colors.background.secondary,
-      position: 'sticky',
-      top: 0,
-      left: 0,
-      paddingTop: theme.spacing(0.75),
-      paddingRight: theme.spacing(0.75),
-      paddingBottom: theme.spacing(0.75),
-      paddingLeft: theme.spacing(1.5),
-      zIndex: 3,
-      marginBottom: theme.spacing(2),
+    sidebarWrap: css({
+      /* Hide scrollbar for Chrome, Safari, and Opera */
+      '&::-webkit-scrollbar': {
+        display: 'none',
+      },
+      height: 'calc(100% - 50px)',
+      overflowY: 'scroll',
+      /* Hide scrollbar for Firefox */
+      scrollbarWidth: 'none',
     }),
   };
 }
 
 export const LogsTableMultiSelect = (props: {
-  toggleColumn: (columnName: string) => void;
-  filteredColumnsWithMeta: Record<string, FieldNameMeta> | undefined;
-  columnsWithMeta: Record<string, FieldNameMeta>;
   clear: () => void;
+  columnsWithMeta: Record<string, FieldNameMeta>;
+  filteredColumnsWithMeta: Record<string, FieldNameMeta> | undefined;
   reorderColumn: (cols: FieldNameMetaStore, oldIndex: number, newIndex: number) => void;
+  toggleColumn: (columnName: string) => void;
 }) => {
   const theme = useTheme2();
   const styles = getStyles(theme);

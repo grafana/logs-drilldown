@@ -1,4 +1,5 @@
 import { AdHocFilterWithLabels } from '@grafana/scenes';
+
 import { LabelFilterOp } from './filterTypes';
 import { tagValuesFilterAdHocFilters } from './TagValuesProviders';
 

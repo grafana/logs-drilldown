@@ -1,67 +1,66 @@
-import { DashboardCursorSync } from '@grafana/schema';
 import { behaviors, SceneFlexItem, SceneFlexLayout, SceneObject } from '@grafana/scenes';
+import { DashboardCursorSync } from '@grafana/schema';
 
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { testIds } from '../../services/testIds';
+import { FieldsBreakdownScene } from './Breakdowns/FieldsBreakdownScene';
+import { LabelBreakdownScene } from './Breakdowns/LabelBreakdownScene';
+import { PatternsBreakdownScene } from './Breakdowns/Patterns/PatternsBreakdownScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsVolumePanel } from './LogsVolumePanel';
-import { LabelBreakdownScene } from './Breakdowns/LabelBreakdownScene';
-import { FieldsBreakdownScene } from './Breakdowns/FieldsBreakdownScene';
-import { PatternsBreakdownScene } from './Breakdowns/Patterns/PatternsBreakdownScene';
-
-import { testIds } from '../../services/testIds';
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 
 interface ValueBreakdownViewDefinition {
   displayName: string;
-  value: ValueSlugs;
-  testId: string;
   getScene: (value: string) => SceneObject;
+  testId: string;
+  value: ValueSlugs;
 }
 
 export interface BreakdownViewDefinition {
   displayName: TabNames;
-  value: PageSlugs;
-  testId: string;
   getScene: (changeFields: (f: number) => void) => SceneObject;
+  testId: string;
+  value: PageSlugs;
 }
 
 export const breakdownViewsDefinitions: BreakdownViewDefinition[] = [
   {
     displayName: TabNames.logs,
-    value: PageSlugs.logs,
     getScene: () => buildLogsListScene(),
     testId: testIds.exploreServiceDetails.tabLogs,
+    value: PageSlugs.logs,
   },
   {
     displayName: TabNames.labels,
-    value: PageSlugs.labels,
     getScene: () => buildLabelBreakdownActionScene(),
     testId: testIds.exploreServiceDetails.tabLabels,
+    value: PageSlugs.labels,
   },
   {
     displayName: TabNames.fields,
-    value: PageSlugs.fields,
     getScene: (f) => buildFieldsBreakdownActionScene(f),
     testId: testIds.exploreServiceDetails.tabFields,
+    value: PageSlugs.fields,
   },
   {
     displayName: TabNames.patterns,
-    value: PageSlugs.patterns,
     getScene: () => buildPatternsScene(),
     testId: testIds.exploreServiceDetails.tabPatterns,
+    value: PageSlugs.patterns,
   },
 ];
 export const valueBreakdownViews: ValueBreakdownViewDefinition[] = [
   {
     displayName: 'Label',
-    value: ValueSlugs.label,
     getScene: (value: string) => buildLabelValuesBreakdownActionScene(value),
     testId: testIds.exploreServiceDetails.tabLabels,
+    value: ValueSlugs.label,
   },
   {
     displayName: 'Field',
-    value: ValueSlugs.field,
     getScene: (value: string) => buildFieldValuesBreakdownActionScene(value),
     testId: testIds.exploreServiceDetails.tabFields,
+    value: ValueSlugs.field,
   },
 ];
 
@@ -110,17 +109,17 @@ function buildLabelValuesBreakdownActionScene(value: string) {
 
 function buildLogsListScene() {
   return new SceneFlexLayout({
-    direction: 'column',
     children: [
       new SceneFlexItem({
         body: new LogsVolumePanel({}),
       }),
       new SceneFlexItem({
-        minHeight: '470px',
-        height: 'calc(100vh - 500px)',
         body: new LogsListScene({}),
+        height: 'calc(100vh - 500px)',
+        minHeight: '470px',
       }),
     ],
+    direction: 'column',
   });
 }
 

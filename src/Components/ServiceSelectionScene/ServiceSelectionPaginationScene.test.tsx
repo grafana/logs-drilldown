@@ -4,33 +4,33 @@ describe('getCountOptionsFromTotal()', () => {
   test('Generates pagination options', () => {
     const options = getCountOptionsFromTotal(61);
     expect(options).toEqual([
-      { value: '20', label: '20' },
-      { value: '40', label: '40' },
-      { value: '60', label: '60' },
+      { label: '20', value: '20' },
+      { label: '40', value: '40' },
+      { label: '60', value: '60' },
     ]);
   });
 
   test('Generates pagination options up to the total count', () => {
     expect(getCountOptionsFromTotal(60)).toEqual([
-      { value: '20', label: '20' },
-      { value: '40', label: '40' },
-      { value: '60', label: '60' },
+      { label: '20', value: '20' },
+      { label: '40', value: '40' },
+      { label: '60', value: '60' },
     ]);
     expect(getCountOptionsFromTotal(59)).toEqual([
-      { value: '20', label: '20' },
-      { value: '40', label: '40' },
-      { value: '60', label: '59' },
+      { label: '20', value: '20' },
+      { label: '40', value: '40' },
+      { label: '59', value: '60' },
     ]);
     expect(getCountOptionsFromTotal(40)).toEqual([
-      { value: '20', label: '20' },
-      { value: '40', label: '40' },
+      { label: '20', value: '20' },
+      { label: '40', value: '40' },
     ]);
     expect(getCountOptionsFromTotal(39)).toEqual([
-      { value: '20', label: '20' },
-      { value: '40', label: '39' },
+      { label: '20', value: '20' },
+      { label: '39', value: '40' },
     ]);
-    expect(getCountOptionsFromTotal(20)).toEqual([{ value: '20', label: '20' }]);
-    expect(getCountOptionsFromTotal(19)).toEqual([{ value: '20', label: '19' }]);
-    expect(getCountOptionsFromTotal(1)).toEqual([{ value: '20', label: '1' }]);
+    expect(getCountOptionsFromTotal(20)).toEqual([{ label: '20', value: '20' }]);
+    expect(getCountOptionsFromTotal(19)).toEqual([{ label: '19', value: '20' }]);
+    expect(getCountOptionsFromTotal(1)).toEqual([{ label: '1', value: '20' }]);
   });
 });

@@ -1,11 +1,12 @@
 import { dateTime, PluginExtensionPanelContext } from '@grafana/data';
-import { LokiQuery } from '../lokiQuery';
-import { LinkConfigs, linkConfigs } from './links';
+
 import {
   ValidByteUnitValues,
   validDurationValues,
 } from '../../Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
+import { LokiQuery } from '../lokiQuery';
 import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from '../variables';
+import { LinkConfigs, linkConfigs } from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
 
 function getTestConfig(
@@ -14,19 +15,19 @@ function getTestConfig(
   context?: Partial<PluginExtensionPanelContext>
 ) {
   return links?.[0].configure?.({
-    timeRange: {
-      from: dateTime('2023-02-08T04:00:00.000Z'),
-      to: dateTime('2023-02-08T11:00:00.000Z'),
-    },
-    pluginId: 'grafana-lokiexplore-app',
-    timeZone: 'browser',
-    id: 0,
-    title: 'test',
     dashboard: {
       tags: [],
       title: 'test',
       uid: 'test',
     },
+    id: 0,
+    pluginId: 'grafana-lokiexplore-app',
+    timeRange: {
+      from: dateTime('2023-02-08T04:00:00.000Z'),
+      to: dateTime('2023-02-08T11:00:00.000Z'),
+    },
+    timeZone: 'browser',
+    title: 'test',
     ...context,
     targets: [target],
   });
@@ -34,11 +35,11 @@ function getTestConfig(
 
 function getTestTarget(lokiQuery?: Partial<LokiQuery>): Partial<LokiQuery> & { refId: string } {
   return {
-    expr: '{cluster="eu-west-1"} |= "\\\\n" ',
     datasource: {
       type: 'loki',
       uid: '123abc',
     },
+    expr: '{cluster="eu-west-1"} |= "\\\\n" ',
     ...lokiQuery,
     refId: lokiQuery?.refId ?? 'A', // Ensure refId is defined
   };
@@ -53,10 +54,10 @@ describe('contextToLink', () => {
 
     expect(config).toEqual({
       path: getPath({
-        slug: 'service/cloud-gcp',
         expectedLabelFiltersUrlString:
           `&var-filters=${encodeFilter(`service_name|=|${addCustomInputPrefixAndValueLabels('cloud/gcp')}`)}` +
           `&var-filters=${encodeFilter(`resource_type|!=|${addCustomInputPrefixAndValueLabels('gce_firewall_rule')}`)}`,
+        slug: 'service/cloud-gcp',
       }),
     });
   });
@@ -79,9 +80,9 @@ describe('contextToLink', () => {
         `&var-levels=${encodeFilter(`detected_level|=~|warn__gfp__info`)}`;
       expect(config).toEqual({
         path: getPath({
-          slug: 'service/nginx.+',
           expectedLabelFiltersUrlString,
           expectedLevelsFilterUrlString,
+          slug: 'service/nginx.+',
         }),
       });
     });
@@ -107,9 +108,9 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -128,6 +129,27 @@ describe('contextToLink', () => {
         '__gfp__' +
         `&var-lineFilters=${encodeFilter('caseSensitive,1|__gfp__=| (?i)caller__gfc__')}` +
         '__gfc__';
+
+      expect(config).toEqual({
+        path: getPath({
+          expectedLabelFiltersUrlString,
+          expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
+        }),
+      });
+    });
+
+    it('should parse non-regex line-filters containing `\\""`', () => {
+      const target = getTestTarget({
+        //  "\\\\\\"\\"" or `\""`
+        expr: '{cluster="eu-west-1"} |= `\\""` | json | logfmt | drop __error__, __error_details__',
+      });
+      const config = getTestConfig(linkConfigs, target);
+
+      const expectedLabelFiltersUrlString = `&var-filters=${encodeFilter(
+        `cluster|=|${addCustomInputPrefixAndValueLabels('eu-west-1')}`
+      )}`;
+      const expectedLineFiltersUrlString = `&var-lineFilters=${encodeFilter(`caseSensitive,0|__gfp__=|\\""`)}`;
 
       expect(config).toEqual({
         path: getPath({
@@ -157,9 +179,9 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -179,9 +201,9 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -198,9 +220,9 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -215,9 +237,9 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -259,10 +281,10 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'service/grafana-.*',
+          expectedFieldsUrlString,
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
-          expectedFieldsUrlString,
+          slug: 'service/grafana-.*',
         }),
       });
     });
@@ -305,10 +327,10 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
+          expectedFieldsUrlString,
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
-          expectedFieldsUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -334,10 +356,10 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
-          expectedPatternsVariable,
           expectedPatterns,
+          expectedPatternsVariable,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -360,10 +382,10 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
-          expectedPatternsVariable,
           expectedPatterns,
+          expectedPatternsVariable,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -379,8 +401,8 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });
@@ -401,9 +423,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -427,10 +449,10 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/C:-Grafana-logs-log.txt',
+            expectedFieldsUrlString,
             expectedLabelFiltersUrlString,
             expectedMetadataString,
-            expectedFieldsUrlString,
+            slug: 'cluster/C:-Grafana-logs-log.txt',
           }),
         });
       });
@@ -449,9 +471,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/C:-Grafana-logs-log.txt',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/C:-Grafana-logs-log.txt',
           }),
         });
       });
@@ -470,9 +492,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -491,9 +513,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
-            expectedLabelFiltersUrlString,
             expectedFieldsUrlString,
+            expectedLabelFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -512,9 +534,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -535,9 +557,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -559,9 +581,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -582,9 +604,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -605,9 +627,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -634,9 +656,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -663,9 +685,9 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -690,10 +712,10 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
             expectedMetadataString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -715,10 +737,10 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
             expectedMetadataString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -740,10 +762,10 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
             expectedMetadataString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -765,10 +787,10 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
             expectedMetadataString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -794,10 +816,10 @@ describe('contextToLink', () => {
 
         expect(config).toEqual({
           path: getPath({
-            slug: 'cluster/eu-west-1',
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
             expectedMetadataString,
+            slug: 'cluster/eu-west-1',
           }),
         });
       });
@@ -824,10 +846,10 @@ describe('contextToLink', () => {
 
             expect(config).toEqual({
               path: getPath({
-                slug: 'cluster/eu-west-1',
                 expectedLabelFiltersUrlString,
                 expectedLineFiltersUrlString,
                 expectedMetadataString,
+                slug: 'cluster/eu-west-1',
               }),
             });
           });
@@ -873,10 +895,10 @@ describe('contextToLink', () => {
 
           expect(config).toEqual({
             path: getPath({
-              slug: 'cluster/eu-west-1',
               expectedLabelFiltersUrlString,
               expectedLineFiltersUrlString,
               expectedMetadataString,
+              slug: 'cluster/eu-west-1',
             }),
           });
         });

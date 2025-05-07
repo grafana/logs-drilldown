@@ -1,14 +1,15 @@
-import pluginJson from '../plugin.json';
-import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
-import { SceneObject, VariableValue } from '@grafana/scenes';
-import { getDataSourceName, getServiceName } from './variableGetters';
-import { logger } from './logger';
-import { SERVICE_NAME } from './variables';
-import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
-import { unknownToStrings } from './narrowing';
-import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
 import { LogsDedupStrategy } from '@grafana/data';
+import { SceneObject, VariableValue } from '@grafana/scenes';
+import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
+
+import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import pluginJson from '../plugin.json';
 import { isDedupStrategy } from './guards';
+import { logger } from './logger';
+import { unknownToStrings } from './narrowing';
+import { getDataSourceName, getServiceName } from './variableGetters';
+import { SERVICE_NAME } from './variables';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -167,15 +168,15 @@ export function getSortByPreference(
   target: string,
   defaultSortBy: SortBy,
   defaultDirection: SortDirection
-): { sortBy: SortBy | ''; direction: SortDirection } {
+): { direction: SortDirection; sortBy: SortBy | '' } {
   const preference = localStorage.getItem(`${SORT_BY_LOCALSTORAGE_KEY}.${target}.by`) ?? '';
   const parts = preference.split('.');
   if (!parts[0] || !parts[1]) {
-    return { sortBy: defaultSortBy, direction: defaultDirection };
+    return { direction: defaultDirection, sortBy: defaultSortBy };
   }
   const sortBy = parts[0] as SortBy;
   const direction = parts[1] as SortDirection;
-  return { sortBy, direction };
+  return { direction, sortBy };
 }
 
 export function setSortByPreference(target: string, sortBy: string, direction: string) {
@@ -256,7 +257,7 @@ export function getLogsVolumeOption(option: 'collapsed') {
 }
 
 // Log visualization options
-export type LogsVisualizationType = 'logs' | 'table' | 'json';
+export type LogsVisualizationType = 'json' | 'logs' | 'table';
 
 const VISUALIZATION_TYPE_LOCALSTORAGE_KEY = 'grafana.explore.logs.visualisationType';
 export function getLogsVisualizationType(): LogsVisualizationType {
@@ -330,8 +331,8 @@ export function getLineFilterExclusive(defaultValue: boolean): boolean {
 // Panel options
 const PANEL_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.panel.option`;
 export interface PanelOptions {
-  panelType: AvgFieldPanelType;
   collapsed: CollapsablePanelText;
+  panelType: AvgFieldPanelType;
 }
 export function getPanelOption<K extends keyof PanelOptions, V extends PanelOptions[K]>(
   option: K,

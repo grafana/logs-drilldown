@@ -1,11 +1,12 @@
 import { AdHocFiltersVariable, sceneGraph, SceneObject, SceneVariable } from '@grafana/scenes';
-import { CustomConstantVariable } from './CustomConstantVariable';
-import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
+
 import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { getPrimaryLabelFromUrl } from './routing';
+import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
-import { includeOperators, numericOperators, operators } from './operators';
 import { isOperatorInclusive } from './operatorHelpers';
+import { includeOperators, numericOperators, operators } from './operators';
+import { getPrimaryLabelFromUrl } from './routing';
+import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
 
 export function getVariablesThatCanBeCleared(indexScene: IndexScene) {
   const variables = sceneGraph.getVariables(indexScene);
@@ -47,8 +48,8 @@ export function clearVariables(sceneRef: SceneObject) {
       });
     } else if (variable instanceof CustomConstantVariable) {
       variable.setState({
-        value: '',
         text: '',
+        value: '',
       });
     }
   });

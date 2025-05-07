@@ -1,8 +1,10 @@
 import React from 'react';
-import { PatternControls } from './PatternControls';
+
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import { AppliedPattern } from '../../services/variables';
+import { PatternControls } from './PatternControls';
 
 const originalWidth = global.window.innerWidth;
 beforeAll(() => {

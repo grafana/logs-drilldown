@@ -1,7 +1,8 @@
 import { LogContext } from '@grafana/faro-web-sdk';
 import { FetchError, logError, logInfo, logWarning } from '@grafana/runtime';
-import pluginJson from '../plugin.json';
+
 import packageJson from '../../package.json';
+import pluginJson from '../plugin.json';
 import { isRecord } from './narrowing';
 
 const defaultContext = {
@@ -10,6 +11,11 @@ const defaultContext = {
 };
 
 export const logger = {
+  error: (err: Error | unknown, context?: LogContext) => {
+    const ctx = { ...defaultContext, ...context };
+    console.error(err, ctx);
+    attemptFaroErr(err, ctx);
+  },
   info: (msg: string, context?: LogContext) => {
     const ctx = { ...defaultContext, ...context };
     console.log(msg, ctx);
@@ -19,11 +25,6 @@ export const logger = {
     const ctx = { ...defaultContext, ...context };
     console.warn(msg, ctx);
     attemptFaroWarn(msg, ctx);
-  },
-  error: (err: Error | unknown, context?: LogContext) => {
-    const ctx = { ...defaultContext, ...context };
-    console.error(err, ctx);
-    attemptFaroErr(err, ctx);
   },
 };
 
@@ -39,7 +40,7 @@ const attemptFaroWarn = (msg: string, context?: LogContext) => {
   try {
     logWarning(msg, context);
   } catch (e) {
-    console.warn('Failed to log faro warning!', { msg, context });
+    console.warn('Failed to log faro warning!', { context, msg });
   }
 };
 /**
@@ -91,7 +92,7 @@ const attemptFaroErr = (err: Error | FetchError | unknown, context2: LogContext)
       logError(new Error('unknown error'), context);
     }
   } catch (e) {
-    console.error('Failed to log faro error!', { err, context });
+    console.error('Failed to log faro error!', { context, err });
   }
 };
 

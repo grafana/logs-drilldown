@@ -1,6 +1,8 @@
-import { GrotError } from '../../../GrotError';
-import { TextLink } from '@grafana/ui';
 import React from 'react';
+
+import { TextLink } from '@grafana/ui';
+
+import { GrotError } from '../../../GrotError';
 import { PATTERNS_MAX_AGE_HOURS } from './PatternsBreakdownScene';
 
 export function PatternsNotDetected() {

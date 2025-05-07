@@ -1,4 +1,19 @@
 import React, { useCallback, useRef } from 'react';
+
+import { css } from '@emotion/css';
+import { isNumber } from 'lodash';
+
+import {
+  DataFrame,
+  Field,
+  FieldType,
+  getTimeZone,
+  GrafanaTheme2,
+  LoadingState,
+  LogsSortOrder,
+  PanelData,
+} from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -11,57 +26,22 @@ import {
   SceneObjectUrlValues,
   SceneQueryRunner,
 } from '@grafana/scenes';
-import {
-  DataFrame,
-  Field,
-  FieldType,
-  getTimeZone,
-  GrafanaTheme2,
-  LoadingState,
-  LogsSortOrder,
-  PanelData,
-} from '@grafana/data';
 import { Alert, Badge, Button, Icon, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isNumber } from 'lodash';
-import { css } from '@emotion/css';
-import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
-
-import { LogsListScene } from './LogsListScene';
-import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
-import { PanelMenu } from '../Panels/PanelMenu';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
-import ReRootJSONButton from './JSONPanel/ReRootJSONButton';
-
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import {
   clearJsonParserFields,
   getDetectedFieldsJsonPathField,
   getDetectedFieldsParserField,
   isLogLineField,
 } from '../../services/fields';
-import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
-import { getPrettyQueryExpr } from '../../services/scenes';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLineFormatVariable,
-  getValueFromFieldsFilter,
-} from '../../services/variableGetters';
-import { hasProp, narrowLogsSortOrder } from '../../services/narrowing';
 import {
   addJsonParserFieldValue,
   EMPTY_AD_HOC_FILTER_VALUE,
   getJsonKey,
   removeLineFormatFilters,
 } from '../../services/filters';
-import { addCurrentUrlToHistory } from '../../services/navigate';
-import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
-import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
-import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import { clearVariables } from '../../services/variableHelpers';
-import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
-import JSONFilterValueButton from './JSONPanel/JSONFilterValueButton';
+import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
 import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
@@ -72,25 +52,45 @@ import {
   renderJSONVizTimeStamp,
   rootNodeItemString,
 } from '../../services/JSONViz';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { logsControlsSupported } from 'services/panel';
+import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
+import { hasProp, narrowLogsSortOrder } from '../../services/narrowing';
+import { addCurrentUrlToHistory } from '../../services/navigate';
+import { getPrettyQueryExpr } from '../../services/scenes';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getValueFromFieldsFilter,
+} from '../../services/variableGetters';
+import { clearVariables } from '../../services/variableHelpers';
+import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from '../../services/variables';
+import { PanelMenu } from '../Panels/PanelMenu';
+import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
+import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
+import JSONFilterValueButton from './JSONPanel/JSONFilterValueButton';
+import ReRootJSONButton from './JSONPanel/ReRootJSONButton';
 import { LogListControls } from './LogListControls';
-import { getLogOption, setLogOption } from 'services/store';
-import { locationService } from '@grafana/runtime';
+import { LogsListScene } from './LogsListScene';
+import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
+import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
+import { logsControlsSupported } from 'services/panel';
+import { getLogOption, setLogOption } from 'services/store';
 
 interface LogsJsonSceneState extends SceneObjectState {
-  menu?: PanelMenu;
   data?: PanelData;
+  emptyScene?: NoMatchingLabelsScene;
+  hasJsonFields?: boolean;
   // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   jsonFiltersSupported?: boolean;
-  hasJsonFields?: boolean;
-  emptyScene?: NoMatchingLabelsScene;
+  menu?: PanelMenu;
   sortOrder: LogsSortOrder;
 }
 
-export type NodeTypeLoc = 'String' | 'Boolean' | 'Number' | 'Custom' | 'Object' | 'Array';
+export type NodeTypeLoc = 'Array' | 'Boolean' | 'Custom' | 'Number' | 'Object' | 'String';
 export type AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => void;
 
 const DataFrameTimeName = 'Time';
@@ -145,10 +145,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
     this.setState({
-      menu: new PanelMenu({
-        investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
-      }),
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
+      menu: new PanelMenu({
+        investigationOptions: { getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}`, type: 'logs' },
+      }),
     });
 
     const $data = sceneGraph.getData(this);
@@ -201,8 +201,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     // the third field is the parser, see datasource.ts:getDetectedFields for more info
     if (getDetectedFieldsParserField(detectedFieldFrame)?.values.some((v) => v === 'json' || v === 'mixed')) {
       this.setState({
-        jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
         hasJsonFields: true,
+        jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
       });
     } else {
       this.setState({
@@ -282,7 +282,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    */
   private setNewRootNode = (keyPath: KeyPath) => {
     addCurrentUrlToHistory();
-    const { fullPathFilters, fullKeyPath } = this.getFullKeyPath(keyPath);
+    const { fullKeyPath, fullPathFilters } = this.getFullKeyPath(keyPath);
     // If keyPath length is greater than 3 we're drilling down (root, line index, line)
     if (keyPath.length > 3) {
       addJsonParserFieldValue(this, fullKeyPath);
@@ -344,7 +344,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     // the last 3 in the key path are always array
     const fullKeyPath = [...fullPathFilters.map((filter) => filter.key).reverse(), ...keyPath.slice(-3)];
-    return { fullPathFilters, fullKeyPath };
+    return { fullKeyPath, fullPathFilters };
   }
 
   /**
@@ -364,9 +364,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
       {
+        action: filterType,
         filterType: 'json',
         key,
-        action: filterType,
       }
     );
   };
@@ -394,7 +394,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
     // const styles = getStyles(grafanaTheme)
-    const { menu, data, jsonFiltersSupported, hasJsonFields, emptyScene, sortOrder } = model.useState();
+    const { data, emptyScene, hasJsonFields, jsonFiltersSupported, menu, sortOrder } = model.useState();
     const $data = sceneGraph.getData(model);
     // Rerender on data change
     $data.useState();
@@ -729,8 +729,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       }
 
                       return {
-                        [DataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                         [DataFrameLineName]: parsed,
+                        [DataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                         // @todo add support for structured metadata
                         // Labels: labels?.values?.[0],
                       };
@@ -754,9 +754,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     display: 'flex',
     flexDirection: 'row-reverse',
-    paddingRight: theme.spacing(1),
     height: '100%',
     paddingBottom: theme.spacing(1),
+    paddingRight: theme.spacing(1),
   }),
   JSONTreeWrap: css`
     // override css variables
@@ -771,6 +771,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     width: 100%;
     // first nested node padding
     > ul > li > ul {
+      // Hackery to keep elements from under the sticky header from being in the scrollable area
       padding: 0 0 0 ${theme.spacing(2)};
     }
 

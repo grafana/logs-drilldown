@@ -4,7 +4,8 @@ The Grafana Logs Drilldown app offers a queryless experience for browsing Loki l
 
 ## Requirements
 
-Requires Grafana 11.3.0 or newer.
+Requires Grafana 11.6.0 or newer.
+Requires Loki 3.2 or newer.
 
 ## Getting Started
 

@@ -1,6 +1,9 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
 import { ConfigOverrideRule, FieldColor, LoadingState } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -12,22 +15,21 @@ import {
   VizPanel,
 } from '@grafana/scenes';
 import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode } from '@grafana/ui';
-import { ServiceScene } from '../../ServiceScene';
-import { onPatternClick } from './FilterByPatternsButton';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { PatternsViewTableScene } from './PatternsViewTableScene';
-import { config } from '@grafana/runtime';
-import { css } from '@emotion/css';
-import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+
 import { areArraysEqual } from '../../../../services/comparison';
 import { logger } from '../../../../services/logger';
+import { IndexScene } from '../../../IndexScene/IndexScene';
+import { ServiceScene } from '../../ServiceScene';
+import { onPatternClick } from './FilterByPatternsButton';
+import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+import { PatternsViewTableScene } from './PatternsViewTableScene';
 
 const palette = config.theme2.visualization.palette;
 
 export interface PatternsFrameSceneState extends SceneObjectState {
   body?: SceneCSSGridLayout;
-  loading?: boolean;
   legendSyncPatterns: Set<string>;
+  loading?: boolean;
 }
 
 export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState> {
@@ -159,16 +161,16 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
     const timeSeries = this.getTimeSeries(patternFrames);
 
     return new SceneCSSGridLayout({
-      templateColumns: '100%',
       autoRows: '200px',
-      isLazy: true,
-
       children: [
         timeSeries,
         new PatternsViewTableScene({
           patternFrames,
         }),
       ],
+      isLazy: true,
+
+      templateColumns: '100%',
     });
   }
 
@@ -179,37 +181,37 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
       .setData(this.getTimeseriesDataNode(patternFrames))
       .setOption('legend', {
         asTable: true,
-        showLegend: true,
         displayMode: LegendDisplayMode.Table,
         placement: 'right',
+        showLegend: true,
         width: 200,
       })
       .setHoverHeader(true)
       .setUnit('short')
       .setLinks([
         {
-          url: '#',
-          targetBlank: false,
           onClick: (event) => {
             onPatternClick({
+              indexScene: logExploration,
               pattern: event.origin.labels.name,
               type: 'include',
-              indexScene: logExploration,
             });
           },
+          targetBlank: false,
           title: 'Include',
+          url: '#',
         },
         {
-          url: '#',
-          targetBlank: false,
           onClick: (event) => {
             onPatternClick({
+              indexScene: logExploration,
               pattern: event.origin.labels.name,
               type: 'exclude',
-              indexScene: logExploration,
             });
           },
+          targetBlank: false,
           title: 'Exclude',
+          url: '#',
         },
       ])
       .build();
@@ -242,17 +244,17 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
 export function overrideToFixedColor(key: keyof typeof palette): FieldColor {
   return {
-    mode: 'fixed',
     fixedColor: palette[key] as string,
+    mode: 'fixed',
   };
 }
 
 const styles = {
   container: css({
-    width: '100%',
     // Hide header on hover hack
     '.show-on-hover': {
       display: 'none',
     },
+    width: '100%',
   }),
 };

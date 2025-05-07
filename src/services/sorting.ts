@@ -1,9 +1,11 @@
 import { ChangepointDetector } from '@bsull/augurs/changepoint';
 import { OutlierDetector, OutlierOutput } from '@bsull/augurs/outlier';
-import { DataFrame, doStandardCalcs, fieldReducers, FieldType, outerJoinDataFrames, ReducerID } from '@grafana/data';
-import { getLabelValueFromDataFrame } from './levels';
 import { memoize } from 'lodash';
+
+import { DataFrame, doStandardCalcs, fieldReducers, FieldType, outerJoinDataFrames, ReducerID } from '@grafana/data';
+
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from './analytics';
+import { getLabelValueFromDataFrame } from './levels';
 import { logger } from './logger';
 
 export const DEFAULT_SORT_BY = 'changepoint';
@@ -39,8 +41,8 @@ export const sortSeries = memoize(
     };
 
     const seriesCalcs = series.map((dataFrame) => ({
-      value: reducer(dataFrame),
       dataFrame: dataFrame,
+      value: reducer(dataFrame),
     }));
 
     seriesCalcs.sort((a, b) => {

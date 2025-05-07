@@ -1,16 +1,19 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { useReturnToPrevious } from '@grafana/runtime';
-import { OpenInLogsDrilldownButtonProps } from './types';
-import OpenInLogsDrilldownButton from './OpenInLogsDrilldownButton';
+
+import { fireEvent, render, screen } from '@testing-library/react';
+
 import { AbstractLabelOperator } from '@grafana/data';
+import { useReturnToPrevious } from '@grafana/runtime';
+
+import OpenInLogsDrilldownButton from './OpenInLogsDrilldownButton';
+import { OpenInLogsDrilldownButtonProps } from './types';
 import { addCustomInputPrefixAndValueLabels, encodeFilter } from 'services/extensions/utils';
 
 jest.mock('@grafana/runtime', () => ({
-  useReturnToPrevious: jest.fn(),
   locationService: {
     getLocation: jest.fn(),
   },
+  useReturnToPrevious: jest.fn(),
 }));
 
 describe('OpenInLogsDrilldownButton', () => {
@@ -23,8 +26,8 @@ describe('OpenInLogsDrilldownButton', () => {
   it('should render the button with correct href (Equal operator)', () => {
     const props: OpenInLogsDrilldownButtonProps = {
       datasourceUid: 'test-datasource',
-      streamSelectors: [{ name: 'job', value: 'test-job', operator: AbstractLabelOperator.Equal }],
       from: 'now-1h',
+      streamSelectors: [{ name: 'job', operator: AbstractLabelOperator.Equal, value: 'test-job' }],
       to: 'now',
     };
 
@@ -43,8 +46,8 @@ describe('OpenInLogsDrilldownButton', () => {
   it('should handle NotEqual operator correctly', () => {
     const props: OpenInLogsDrilldownButtonProps = {
       streamSelectors: [
-        { name: 'job', value: 'test-job', operator: AbstractLabelOperator.Equal },
-        { name: 'test_label_key', value: 'test-label-value', operator: AbstractLabelOperator.NotEqual },
+        { name: 'job', operator: AbstractLabelOperator.Equal, value: 'test-job' },
+        { name: 'test_label_key', operator: AbstractLabelOperator.NotEqual, value: 'test-label-value' },
       ],
     };
 
@@ -62,8 +65,8 @@ describe('OpenInLogsDrilldownButton', () => {
   it('should handle EqualRegEx operator with properly encoded PromQL values', () => {
     const props: OpenInLogsDrilldownButtonProps = {
       streamSelectors: [
-        { name: 'job', value: 'test-job', operator: AbstractLabelOperator.Equal },
-        { name: 'test_label_key', value: 'special.(char)+|value$', operator: AbstractLabelOperator.EqualRegEx },
+        { name: 'job', operator: AbstractLabelOperator.Equal, value: 'test-job' },
+        { name: 'test_label_key', operator: AbstractLabelOperator.EqualRegEx, value: 'special.(char)+|value$' },
       ],
     };
 
@@ -83,8 +86,8 @@ describe('OpenInLogsDrilldownButton', () => {
   it('should handle NotEqualRegEx operator with properly encoded PromQL values', () => {
     const props: OpenInLogsDrilldownButtonProps = {
       streamSelectors: [
-        { name: 'job', value: 'test-job', operator: AbstractLabelOperator.Equal },
-        { name: 'test_label_key', value: 'special.(char)+|value$', operator: AbstractLabelOperator.NotEqualRegEx },
+        { name: 'job', operator: AbstractLabelOperator.Equal, value: 'test-job' },
+        { name: 'test_label_key', operator: AbstractLabelOperator.NotEqualRegEx, value: 'special.(char)+|value$' },
       ],
     };
 
@@ -108,8 +111,8 @@ describe('OpenInLogsDrilldownButton', () => {
 
   it('should call setReturnToPrevious on click', () => {
     const props: OpenInLogsDrilldownButtonProps = {
-      streamSelectors: [{ name: 'job', value: 'test-job', operator: AbstractLabelOperator.Equal }],
       returnToPreviousSource: 'test-source',
+      streamSelectors: [{ name: 'job', operator: AbstractLabelOperator.Equal, value: 'test-job' }],
     };
 
     render(<OpenInLogsDrilldownButton {...props} />);
@@ -124,8 +127,8 @@ describe('OpenInLogsDrilldownButton', () => {
     const renderButtonMock = jest.fn(({ href }) => <a href={href}>Custom Button</a>);
 
     const props: OpenInLogsDrilldownButtonProps = {
-      streamSelectors: [{ name: 'job', value: 'test-job', operator: AbstractLabelOperator.Equal }],
       renderButton: renderButtonMock,
+      streamSelectors: [{ name: 'job', operator: AbstractLabelOperator.Equal, value: 'test-job' }],
     };
 
     render(<OpenInLogsDrilldownButton {...props} />);

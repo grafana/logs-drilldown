@@ -1,11 +1,12 @@
 import { expect, test } from '@grafana/plugin-e2e';
-import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
-import { testIds } from '../src/services/testIds';
-import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
-import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
-import { FilterOp } from '../src/services/filterTypes';
-import { SERVICE_NAME } from '../src/services/variables';
+
 import { DEFAULT_URL_COLUMNS } from '../src/Components/Table/constants';
+import { FilterOp } from '../src/services/filterTypes';
+import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
+import { testIds } from '../src/services/testIds';
+import { SERVICE_NAME } from '../src/services/variables';
+import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
+import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 
 const fieldName = 'caller';
 const levelName = 'detected_level';
@@ -21,8 +22,8 @@ test.describe('explore services breakdown page', () => {
     await explorePage.clearLocalStorage();
     await explorePage.gotoServicesBreakdownOldUrl();
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', fieldName],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', fieldName],
     });
     explorePage.captureConsoleLogs();
   });
@@ -43,8 +44,8 @@ test.describe('explore services breakdown page', () => {
 
   test(`should replace service_name with ${labelName} in url`, async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${labelName}}}`, `{{service_name}}`],
+      refIds: ['logsPanelQuery'],
     });
     await explorePage.goToLabelsTab();
 
@@ -320,11 +321,11 @@ test.describe('explore services breakdown page', () => {
     await page.getByTestId('data-testid Panel menu item Explore').click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
-  test(`should select label ${labelName}, update filters, open in explore`, async ({ page, browser }) => {
+  test(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
     await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${labelName}}}`],
+      refIds: ['logsPanelQuery'],
     });
     const valueName = 'eu-west-1';
     await explorePage.goToLabelsTab();
@@ -355,7 +356,7 @@ test.describe('explore services breakdown page', () => {
     // Click on open in logs explore
     await openInExploreLocator.click();
 
-    const openInThisTabButtonLoc = page.getByRole('button', { name: 'Open', exact: true });
+    const openInThisTabButtonLoc = page.getByRole('button', { exact: true, name: 'Open' });
     await expect(openInThisTabButtonLoc).toBeVisible();
     // Click to open in this tab
     await openInThisTabButtonLoc.click();
@@ -430,8 +431,8 @@ test.describe('explore services breakdown page', () => {
 
   test('should search for tenant field, changing sort order updates value breakdown position', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery'],
     });
     await explorePage.goToFieldsTab();
 
@@ -612,10 +613,28 @@ test.describe('explore services breakdown page', () => {
     await page.getByLabel(`Select ${metadataName}`).click();
 
     // Filter by cluster
-    await explorePage.addCustomValueToCombobox('cluster', FilterOp.RegexEqual, ComboBoxIndex.labels, `.+east-1$`);
+    await explorePage.addCustomValueToCombobox(
+      'cluster',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `.+east-1$`,
+      'clust'
+    );
     // Add both tempo services
-    await explorePage.addCustomValueToCombobox('service_name', FilterOp.RegexEqual, ComboBoxIndex.labels, `tempo.+`);
-    await explorePage.addCustomValueToCombobox('namespace', FilterOp.RegexEqual, ComboBoxIndex.labels, `.+dev.*`);
+    await explorePage.addCustomValueToCombobox(
+      'service_name',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `tempo.+`,
+      'service'
+    );
+    await explorePage.addCustomValueToCombobox(
+      'namespace',
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `.+dev.*`,
+      'name'
+    );
     // Remove tempo-distributor
     await page.getByLabel('Remove filter with key').first().click();
 
@@ -637,7 +656,6 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('=~').nth(3)).toBeVisible();
     await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
-    await page.pause();
     await expect
       .poll(() =>
         page
@@ -679,7 +697,7 @@ test.describe('explore services breakdown page', () => {
       // Otherwise let the request go through normally
       const response = await route.fetch();
       const json = await response.json();
-      return route.fulfill({ response, json });
+      return route.fulfill({ json, response });
     });
     // Navigate to fields tab
     await explorePage.goToFieldsTab();
@@ -720,9 +738,9 @@ test.describe('explore services breakdown page', () => {
 
     await page.route('**/resources/patterns**', async (route) => {
       await route.fulfill({
-        status: 404,
-        contentType: 'text/plain',
         body: '{"message":"","traceID":"abc123"}',
+        contentType: 'text/plain',
+        status: 404,
       });
     });
     await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
@@ -1148,7 +1166,19 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
     let numberOfQueries = 0;
+    // Let's not wait for all these queries
+    await page.route('**/ds/query*', async (route) => {
+      const post = route.request().postDataJSON();
+      const queries = post.queries as LokiQuery[];
+
+      if (queries[0].refId === 'logsPanelQuery') {
+        await route.continue();
+      } else {
+        await route.fulfill({ json: [] });
+      }
+    });
     // Click on the fields tab
     await explorePage.goToFieldsTab();
     // Selector
@@ -1158,6 +1188,7 @@ test.describe('explore services breakdown page', () => {
 
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
@@ -1168,6 +1199,9 @@ test.describe('explore services breakdown page', () => {
 
       await route.fulfill({ json: [] });
     });
+
+    // assert the filter select is in the document
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Include
     await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
@@ -1184,6 +1218,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should exclude all logs that contain bytes field', async ({ page }) => {
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
     await page.route('**/ds/query*', async (route) => {
@@ -1216,8 +1251,20 @@ test.describe('explore services breakdown page', () => {
       await route.fulfill({ json: [] });
     });
 
+    // assert the filter select is in the document
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Open the dropdown and change from include to exclude
-    await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
+    await expect
+      .poll(
+        async () => {
+          await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
+          return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
+        },
+        { message: 'attempt to open panel filter dropdown', timeout: 0 }
+      )
+      .toBe(1);
+
     await bytesIncludeButton.getByText('Exclude', { exact: true }).click();
 
     // Assert that the panel is no longer rendered
@@ -1231,8 +1278,8 @@ test.describe('explore services breakdown page', () => {
   test('should open logs context', async ({ page }) => {
     let responses = [];
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', /log-row-context-query.+/],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', /log-row-context-query.+/],
       responses: responses,
     });
     const logRow = page.getByTitle('See log details').nth(1);
@@ -1285,8 +1332,8 @@ test.describe('explore services breakdown page', () => {
 
   test('should not see maximum of series limit reached after changing filters', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', 'content', 'version'],
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', 'content', 'version'],
     });
 
     const panelErrorLocator = page.getByTestId('data-testid Panel status error');
@@ -1504,7 +1551,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('Shortened link copied to')).toBeVisible();
   });
 
-  test('panel menu: label name panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: label name panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToLabelsTab();
     await page.getByTestId('data-testid Panel menu detected_level').click();
 
@@ -1512,14 +1559,14 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page.getByRole('code').locator('div').filter({ hasText: 'sum(count_over_time({' }).nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       'sum(count_over_time({service_name="tempo-distributor"} | detected_level != "" [$__auto])) by (detected_level)'
     );
   });
 
-  test('panel menu: label value panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: label value panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
     await page.getByTestId('data-testid Panel menu error').click();
@@ -1528,14 +1575,14 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page.getByRole('code').locator('div').filter({ hasText: 'sum(count_over_time({' }).nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       'sum(count_over_time({service_name="tempo-distributor"} | detected_level != "" [$__auto])) by (detected_level)'
     );
   });
 
-  test('panel menu: field name panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: field name panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToFieldsTab();
     await page.getByTestId(`data-testid Panel menu ${fieldName}`).click();
 
@@ -1543,18 +1590,14 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page
-      .getByRole('code')
-      .locator('div')
-      .filter({ hasText: `sum by (${fieldName}) (count_over_time({` })
-      .nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       `sum by (${fieldName}) (count_over_time({service_name="tempo-distributor"} | logfmt | ${fieldName}!="" [$__auto]))`
     );
   });
 
-  test('panel menu: field value panel should open links in explore', async ({ page, context }) => {
+  test('panel menu: field value panel should open links in explore', async ({ context, page }) => {
     await explorePage.goToFieldsTab();
     await page.getByLabel('Select caller').click();
 
@@ -1566,11 +1609,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId('data-testid Panel menu item Explore')).toHaveAttribute('href');
     await page.getByTestId('data-testid Panel menu item Explore').click();
 
-    const newPageCodeEditor = page
-      .getByRole('code')
-      .locator('div')
-      .filter({ hasText: `sum by (${fieldName}) (count_over_time({` })
-      .nth(4);
+    const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
     await expect(newPageCodeEditor).toContainText(
       `sum by (${fieldName}) (count_over_time({service_name="tempo-distributor"} | logfmt | ${fieldName}!="" [$__auto]))`
@@ -1579,8 +1618,8 @@ test.describe('explore services breakdown page', () => {
 
   test('label value summary panel: text search', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
-      refIds: [],
       legendFormats: [`{{${levelName}}}`],
+      refIds: [],
     });
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
@@ -1651,7 +1690,7 @@ test.describe('explore services breakdown page', () => {
 
     const summaryPanel = page.getByTestId(`data-testid Panel header ${fieldName}`);
     const summaryPanelBody = summaryPanel.getByTestId('data-testid panel content');
-    const summaryPanelCollapseButton = page.getByRole('button', { name: fieldName, exact: true });
+    const summaryPanelCollapseButton = page.getByRole('button', { exact: true, name: fieldName });
 
     const vizPanelMenu = page.getByTestId(`data-testid Panel menu ${fieldName}`);
     const vizPanelMenuExpandOption = page.getByTestId('data-testid Panel menu item Expand');
@@ -1742,8 +1781,8 @@ test.describe('explore services breakdown page', () => {
         logsPanelQueryCount = 0;
 
       explorePage.blockAllQueriesExcept({
-        refIds: ['logsPanelQuery'],
         legendFormats: [],
+        refIds: ['logsPanelQuery'],
       });
 
       // We don't need to mock the response, but it speeds up the test
@@ -1756,7 +1795,7 @@ test.describe('explore services breakdown page', () => {
           const postData = JSON.parse(rawPostData);
           const refId = postData.queries[0].refId;
           // Field subqueries have a refId of the field name
-          if (refId !== 'logsPanelQuery' && refId !== 'A' && refId !== 'logsCountQuery') {
+          if (refId !== 'logsPanelQuery' && refId !== 'logsCountQuery') {
             requestCount++;
             return await route.fulfill({ json: mockResponse });
           }
@@ -1771,7 +1810,7 @@ test.describe('explore services breakdown page', () => {
         // Otherwise let the request go through normally
         const response = await route.fetch();
         const json = await response.json();
-        return route.fulfill({ response, json });
+        return route.fulfill({ json, response });
       });
 
       requestCount = 0;
@@ -1781,7 +1820,6 @@ test.describe('explore services breakdown page', () => {
       // Locators
       const lastLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).last();
       const firstLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).first();
-      // const lineFilters = page.getByTestId(testIds.exploreServiceDetails.searchLogs)
       const logsPanelContent = explorePage.getLogsPanelLocator().getByTestId('data-testid panel content');
       const rows = logsPanelContent.getByRole('row');
       const firstRow = rows.nth(0);
@@ -1808,7 +1846,8 @@ test.describe('explore services breakdown page', () => {
 
       // switch to case-sensitive in the global variable
       await page.getByLabel('Enable case match').nth(0).click();
-      await expect(rows).toHaveCount(0);
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(3);
       expect(logsPanelQueryCount).toEqual(3);
 
@@ -1816,8 +1855,12 @@ test.describe('explore services breakdown page', () => {
       await page.getByLabel('Remove line filter').click();
       // Enable regex - should not trigger empty query
       await page.getByLabel('Enable regex').click();
+      await expect(page.getByLabel('Enable regex')).toHaveCount(0);
+      await expect(page.getByLabel('Disable regex')).toHaveCount(1);
       // Enable case - should not trigger empty query
       await page.getByLabel('Enable case match').click();
+      await expect(page.getByLabel('Disable case match')).toHaveCount(1);
+      await expect(page.getByLabel('Enable case match')).toHaveCount(0);
       await expect(firstRow).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(4);
       expect(logsPanelQueryCount).toEqual(4);
@@ -1832,12 +1875,25 @@ test.describe('explore services breakdown page', () => {
 
       // Disable regex - expect no results show
       await page.getByLabel('Disable regex').nth(0).click();
-      await expect.poll(() => rows.count()).toEqual(0);
+
+      // This is debounced, wait for the state to change
+      await expect
+        .poll(() => page.getByLabel('Enable regex').count(), {
+          intervals: [1_001, 50, 100, 250],
+        })
+        .toBe(1);
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
       // Re-enable regex - results should show
       await page.getByLabel('Enable regex').click();
+      await expect
+        .poll(() => page.getByLabel('Disable regex').count(), {
+          intervals: [1_001, 50, 100, 250],
+        })
+        .toBe(2);
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toEqual(1);
       expect(logsCountQueryCount).toEqual(7);
       expect(logsPanelQueryCount).toEqual(7);
@@ -1845,7 +1901,9 @@ test.describe('explore services breakdown page', () => {
       // Change the filter in the "saved" variable that will return 0 results
       await firstLineFilterLoc.click();
       await page.keyboard.type('__');
-      await expect.poll(() => rows.count()).toEqual(0);
+      await expect(page.getByTestId('data-testid search-logs').first()).toHaveValue('[dD]ebug__');
+      await explorePage.assertTabsNotLoading();
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(8);
       expect(logsPanelQueryCount).toEqual(8);
     });
@@ -1879,8 +1937,8 @@ test.describe('explore services breakdown page', () => {
     });
     test('line filter links', async ({ page }) => {
       explorePage.blockAllQueriesExcept({
-        refIds: ['logsPanelQuery'],
         legendFormats: [],
+        refIds: ['logsPanelQuery'],
       });
 
       // raw logQL query: '{cluster="us-west-1"} |~ "\\\\n" |= "\\n" |= "getBookTitles(Author.java:25)\\n" |~ "getBookTitles\\(Author\\.java:25\\)\\\\n" | json | logfmt | drop __error__, __error_details__'
@@ -1905,7 +1963,7 @@ test.describe('explore services breakdown page', () => {
       const openInExploreLocator = page.getByLabel('Open in Grafana Logs Drilldown').first();
       await expect(openInExploreLocator).toBeVisible();
       await openInExploreLocator.click();
-      await page.getByRole('button', { name: 'Open', exact: true }).click();
+      await page.getByRole('button', { exact: true, name: 'Open' }).click();
 
       // Assert query returned results after nav
       const firstExploreLogsRow = page

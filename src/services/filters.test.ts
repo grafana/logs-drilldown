@@ -1,4 +1,5 @@
 import { SelectableValue } from '@grafana/data';
+
 import { DetectedLabel } from './fields';
 import { getFieldOptions, getLabelOptions, sortLabelsByCardinality } from './filters';
 import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from './variables';
@@ -6,50 +7,50 @@ import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from './variables';
 describe('sortLabelsByCardinality', () => {
   it('should move labels with cardinality 1 to the end', () => {
     const labels: DetectedLabel[] = [
-      { label: 'Label A', cardinality: 3 },
-      { label: 'Label B', cardinality: 1 },
-      { label: 'Label C', cardinality: 2 },
+      { cardinality: 3, label: 'Label A' },
+      { cardinality: 1, label: 'Label B' },
+      { cardinality: 2, label: 'Label C' },
     ];
 
     const sortedLabels = labels.sort(sortLabelsByCardinality);
 
     expect(sortedLabels).toEqual([
-      { label: 'Label C', cardinality: 2 },
-      { label: 'Label A', cardinality: 3 },
-      { label: 'Label B', cardinality: 1 },
+      { cardinality: 2, label: 'Label C' },
+      { cardinality: 3, label: 'Label A' },
+      { cardinality: 1, label: 'Label B' },
     ]);
   });
 
   it('should sort labels by cardinality in ascending order, except those with cardinality 1', () => {
     const labels: DetectedLabel[] = [
-      { label: 'Label A', cardinality: 5 },
-      { label: 'Label B', cardinality: 1 },
-      { label: 'Label C', cardinality: 3 },
-      { label: 'Label D', cardinality: 1 },
-      { label: 'Label E', cardinality: 2 },
+      { cardinality: 5, label: 'Label A' },
+      { cardinality: 1, label: 'Label B' },
+      { cardinality: 3, label: 'Label C' },
+      { cardinality: 1, label: 'Label D' },
+      { cardinality: 2, label: 'Label E' },
     ];
 
     const sortedLabels = labels.sort(sortLabelsByCardinality);
 
     expect(sortedLabels).toEqual([
-      { label: 'Label E', cardinality: 2 },
-      { label: 'Label C', cardinality: 3 },
-      { label: 'Label A', cardinality: 5 },
-      { label: 'Label B', cardinality: 1 },
-      { label: 'Label D', cardinality: 1 },
+      { cardinality: 2, label: 'Label E' },
+      { cardinality: 3, label: 'Label C' },
+      { cardinality: 5, label: 'Label A' },
+      { cardinality: 1, label: 'Label B' },
+      { cardinality: 1, label: 'Label D' },
     ]);
   });
 
   it('should return 0 if both labels have the same cardinality and are not 1', () => {
-    const labelA: DetectedLabel = { label: 'Label A', cardinality: 3 };
-    const labelB: DetectedLabel = { label: 'Label B', cardinality: 3 };
+    const labelA: DetectedLabel = { cardinality: 3, label: 'Label A' };
+    const labelB: DetectedLabel = { cardinality: 3, label: 'Label B' };
 
     expect(sortLabelsByCardinality(labelA, labelB)).toBe(0);
   });
 
   it('should place label with cardinality 1 at the end if only one label has cardinality 1', () => {
-    const labelA: DetectedLabel = { label: 'Label A', cardinality: 1 };
-    const labelB: DetectedLabel = { label: 'Label B', cardinality: 2 };
+    const labelA: DetectedLabel = { cardinality: 1, label: 'Label A' };
+    const labelB: DetectedLabel = { cardinality: 2, label: 'Label B' };
 
     expect(sortLabelsByCardinality(labelA, labelB)).toBe(1);
     expect(sortLabelsByCardinality(labelB, labelA)).toBe(-1);

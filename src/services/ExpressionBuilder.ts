@@ -1,12 +1,14 @@
-import { AdHocFilterWithLabels, sceneUtils } from '@grafana/scenes';
-import { AdHocVariableFilter } from '@grafana/data';
-import { FilterOp, FilterOpType, LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { Dictionary, groupBy, trim } from 'lodash';
-import { EMPTY_VARIABLE_VALUE, isAdHocFilterValueUserInput, stripAdHocFilterUserInputPrefix } from './variables';
-import { getValueFromFieldsFilter } from './variableGetters';
-import { isOperatorExclusive, isOperatorInclusive, isOperatorNumeric, isOperatorRegex } from './operatorHelpers';
+
+import { AdHocVariableFilter } from '@grafana/data';
+import { AdHocFilterWithLabels, sceneUtils } from '@grafana/scenes';
+
+import { FilterOp, FilterOpType, LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { narrowFilterOperator } from './narrowing';
+import { isOperatorExclusive, isOperatorInclusive, isOperatorNumeric, isOperatorRegex } from './operatorHelpers';
 import { getExpressionBuilderDebug } from './store';
+import { getValueFromFieldsFilter } from './variableGetters';
+import { EMPTY_VARIABLE_VALUE, isAdHocFilterValueUserInput, stripAdHocFilterUserInputPrefix } from './variables';
 
 type Key = string;
 type Value = string;
@@ -22,14 +24,21 @@ interface Options {
   debug?: boolean;
 
   /**
+   * Sets if the values are JSON encoded
+   */
+  decodeFilters: boolean;
+
+  /**
    * Separator between filters with different keys or operators
    */
   filterSeparator?: string;
 
+  filterType: 'field' | 'indexed';
+
   /**
-   * Prefix of the logQL expression
+   * Keys to ignore
    */
-  prefix?: string;
+  ignoreKeys?: string[];
 
   /**
    * Sets if match filters join values together in a regex filter
@@ -38,16 +47,9 @@ interface Options {
   joinMatchFilters: boolean;
 
   /**
-   * Sets if the values are JSON encoded
+   * Prefix of the logQL expression
    */
-  decodeFilters: boolean;
-
-  /**
-   * Keys to ignore
-   */
-  ignoreKeys?: string[];
-
-  filterType: 'indexed' | 'field';
+  prefix?: string;
 }
 
 export class ExpressionBuilder {
@@ -58,7 +60,7 @@ export class ExpressionBuilder {
 
   constructor(
     filters: AdHocFilterWithLabels[],
-    options: Options = { joinMatchFilters: true, decodeFilters: false, filterType: 'field' }
+    options: Options = { decodeFilters: false, filterType: 'field', joinMatchFilters: true }
   ) {
     this.filters = filters;
     this.options = options;
@@ -97,37 +99,37 @@ export class ExpressionBuilder {
   protected getExpr(): string {
     let {
       equalsFilters,
+      gteFilters,
+      gtFilters,
+      lteFilters,
+      ltFilters,
       notEqualsFilters,
       regexEqualFilters,
       regexNotEqualFilters,
-      ltFilters,
-      lteFilters,
-      gtFilters,
-      gteFilters,
     } = this.getCombinedLabelFilters();
 
     if (this.options.debug) {
       console.info('combined filters after merge', {
         equalsFilters,
+        gteFilters,
+        gtFilters,
+        lteFilters,
+        ltFilters,
         notEqualsFilters,
         regexEqualFilters,
         regexNotEqualFilters,
-        ltFilters,
-        lteFilters,
-        gtFilters,
-        gteFilters,
       });
     }
 
     const filtersString = this.buildLabelsLogQLFromFilters({
       equalsFilters,
+      gteFilters,
+      gtFilters,
+      lteFilters,
+      ltFilters,
       notEqualsFilters,
       regexEqualFilters,
       regexNotEqualFilters,
-      ltFilters,
-      lteFilters,
-      gtFilters,
-      gteFilters,
     });
 
     if (filtersString) {
@@ -139,7 +141,7 @@ export class ExpressionBuilder {
   }
 
   public getLabelsExpr(options?: Partial<Options>): string {
-    const defaultOptions: Options = { joinMatchFilters: true, decodeFilters: false, filterType: 'indexed' };
+    const defaultOptions: Options = { decodeFilters: false, filterType: 'indexed', joinMatchFilters: true };
     this.options = { ...defaultOptions, ...options };
     return this.getExpr();
   }
@@ -149,11 +151,11 @@ export class ExpressionBuilder {
    */
   public getMetadataExpr(options?: Partial<Options>): string {
     const defaultOptions: Options = {
-      filterSeparator: ' |',
-      prefix: '| ',
-      joinMatchFilters: false,
       decodeFilters: false,
+      filterSeparator: ' |',
       filterType: 'field',
+      joinMatchFilters: false,
+      prefix: '| ',
     };
     this.options = { ...defaultOptions, ...options };
     return this.getExpr();
@@ -164,11 +166,11 @@ export class ExpressionBuilder {
    */
   public getLevelsExpr(options?: Partial<Options>): string {
     const defaultOptions: Options = {
-      filterSeparator: ' |',
-      prefix: '| ',
-      joinMatchFilters: false,
       decodeFilters: false,
+      filterSeparator: ' |',
       filterType: 'field',
+      joinMatchFilters: false,
+      prefix: '| ',
     };
 
     this.options = { ...defaultOptions, ...options };
@@ -181,11 +183,11 @@ export class ExpressionBuilder {
    */
   public getFieldsExpr(options?: Partial<Options>): string {
     const defaultOptions: Options = {
-      filterSeparator: ' |',
-      prefix: '| ',
-      joinMatchFilters: false,
       decodeFilters: true,
+      filterSeparator: ' |',
       filterType: 'field',
+      joinMatchFilters: false,
+      prefix: '| ',
     };
     this.options = { ...defaultOptions, ...options };
     return this.getExpr();
@@ -196,22 +198,22 @@ export class ExpressionBuilder {
    */
   private buildLabelsLogQLFromFilters({
     equalsFilters,
+    gteFilters,
+    gtFilters,
+    lteFilters,
+    ltFilters,
     notEqualsFilters,
     regexEqualFilters,
     regexNotEqualFilters,
-    ltFilters,
-    lteFilters,
-    gtFilters,
-    gteFilters,
   }: {
     equalsFilters: CombinedFiltersValuesByKey | undefined;
+    gteFilters: CombinedFiltersValuesByKey | undefined;
+    gtFilters: CombinedFiltersValuesByKey | undefined;
+    lteFilters: CombinedFiltersValuesByKey | undefined;
+    ltFilters: CombinedFiltersValuesByKey | undefined;
     notEqualsFilters: CombinedFiltersValuesByKey | undefined;
     regexEqualFilters: CombinedFiltersValuesByKey | undefined;
     regexNotEqualFilters: CombinedFiltersValuesByKey | undefined;
-    ltFilters: CombinedFiltersValuesByKey | undefined;
-    lteFilters: CombinedFiltersValuesByKey | undefined;
-    gtFilters: CombinedFiltersValuesByKey | undefined;
-    gteFilters: CombinedFiltersValuesByKey | undefined;
   }) {
     let equalFiltersStrings: CombinedOperatorFilters | OperatorFilters;
     let notEqualsFiltersStrings: CombinedOperatorFilters | OperatorFilters;
@@ -262,15 +264,15 @@ export class ExpressionBuilder {
 
     if (this.options.debug) {
       console.info('combined filters after stringify', {
+        allFilters,
         equalFiltersStrings,
+        gteFiltersStrings,
+        gtFiltersStrings,
+        lteFiltersStrings,
+        ltFiltersStrings,
         notEqualsFiltersStrings,
         regexEqualFiltersStrings,
         regexNotEqualFiltersStrings,
-        ltFiltersStrings,
-        lteFiltersStrings,
-        gtFiltersStrings,
-        gteFiltersStrings,
-        allFilters,
       });
     }
 
@@ -352,13 +354,13 @@ export class ExpressionBuilder {
 
     return {
       equalsFilters,
+      gteFilters,
+      gtFilters,
+      lteFilters,
+      ltFilters,
       notEqualsFilters,
       regexEqualFilters,
       regexNotEqualFilters,
-      ltFilters,
-      lteFilters,
-      gtFilters,
-      gteFilters,
     };
   }
 
@@ -423,14 +425,14 @@ export class ExpressionBuilder {
   ) {
     const convertedEqualsFilters = Object.keys(filtersFrom)
       .filter((key) => filtersFrom[key].operator === operatorTo)
-      .map((key) => ({ values: filtersFrom[key].values, key }));
+      .map((key) => ({ key, values: filtersFrom[key].values }));
 
     convertedEqualsFilters.forEach((valuesToMove) => {
       if (filtersTo === undefined) {
-        filtersTo = { [valuesToMove.key]: { values: [], operator: operatorTo } };
+        filtersTo = { [valuesToMove.key]: { operator: operatorTo, values: [] } };
       }
       if (filtersTo[valuesToMove.key] === undefined) {
-        filtersTo[valuesToMove.key] = { values: [], operator: operatorTo };
+        filtersTo[valuesToMove.key] = { operator: operatorTo, values: [] };
       }
       filtersTo[valuesToMove.key].values.push(
         ...this.mergeCombinedFiltersValues(filtersFrom[valuesToMove.key], operatorTo)
@@ -515,7 +517,7 @@ export class ExpressionBuilder {
       const updatedOperator = multipleValuesOperator ?? currentOperator;
       const firstFilter = filtersByKey[key][0];
 
-      updatedOperatorAndEscapedValues[key] = { values: [], operator: updatedOperator };
+      updatedOperatorAndEscapedValues[key] = { operator: updatedOperator, values: [] };
 
       // Only one value for this key
       if (filtersByKey[key].length === 1) {
@@ -583,8 +585,8 @@ export class ExpressionBuilder {
       if (this.options.debug) {
         console.info('ESCAPE: user input - exact selector', {
           operator,
-          value,
           result: sceneUtils.escapeLabelValueInExactSelector(stripAdHocFilterUserInputPrefix(value)),
+          value,
         });
       }
       return sceneUtils.escapeLabelValueInExactSelector(stripAdHocFilterUserInputPrefix(value));

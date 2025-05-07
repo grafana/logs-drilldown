@@ -1,18 +1,21 @@
+import React from 'react';
+
+import { css } from '@emotion/css';
+
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, useStyles2 } from '@grafana/ui';
-import { testIds } from '../../services/testIds';
-import { addToFilters, FilterType } from '../ServiceScene/Breakdowns/AddToFiltersButton';
-import { VAR_LABELS } from '../../services/variables';
-import { getLabelsVariable, getValueFromAdHocVariableFilter } from '../../services/variableGetters';
+
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { css } from '@emotion/css';
-import React from 'react';
 import { FilterOp } from '../../services/filterTypes';
+import { testIds } from '../../services/testIds';
+import { getLabelsVariable, getValueFromAdHocVariableFilter } from '../../services/variableGetters';
+import { VAR_LABELS } from '../../services/variables';
+import { addToFilters, FilterType } from '../ServiceScene/Breakdowns/AddToFiltersButton';
 
 export interface AddLabelToFiltersHeaderActionSceneState extends SceneObjectState {
+  included: boolean | null;
   name: string;
   value: string;
-  included: boolean | null;
 }
 
 export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabelToFiltersHeaderActionSceneState> {
@@ -57,7 +60,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
   };
 
   public static Component = ({ model }: SceneComponentProps<AddLabelToFiltersHeaderActionScene>) => {
-    const { value, included } = model.useState();
+    const { included, value } = model.useState();
 
     const styles = useStyles2(getStyles);
     return (
@@ -89,10 +92,10 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
 
     const variable = getLabelsVariable(this);
     reportAppInteraction(USER_EVENTS_PAGES.service_selection, USER_EVENTS_ACTIONS.service_selection.add_to_filters, {
-      filterType: 'index-filters',
-      key: filter.name,
       action: type,
       filtersLength: variable?.state.filters.length || 0,
+      filterType: 'index-filters',
+      key: filter.name,
     });
 
     this.setState({ ...this.isSelected() });
@@ -109,10 +112,10 @@ const getStyles = () => {
       borderRadius: 0,
     }),
     wrapper: css({
+      alignSelf: 'center',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
-      alignSelf: 'center',
     }),
   };
 };

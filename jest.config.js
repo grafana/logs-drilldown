@@ -14,9 +14,9 @@ module.exports = {
     '/@bsull\/augurs\/changepoint/': '@bsull/augurs/changepoint.js',
     '/@bsull\/augurs\/outlier/': '@bsull/augurs/outlier.js',
   },
-  transformIgnorePatterns: [nodeModulesToTransform([...grafanaESModules, '@bsull/augurs'])],
   transform: {
     ...config.transform,
     '^.+\\.svg$': '<rootDir>/.config/svgTransform.js'
-  }
+  },
+  transformIgnorePatterns: [nodeModulesToTransform([...grafanaESModules, '@bsull/augurs'])]
 };

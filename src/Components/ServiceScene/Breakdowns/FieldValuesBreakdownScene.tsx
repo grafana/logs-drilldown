@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { DataQueryError, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -13,25 +16,21 @@ import {
   SceneQueryRunner,
   SceneReactObject,
 } from '@grafana/scenes';
-import { buildDataQuery, renderLogQLFieldFilters, renderLogQLMetadataFilters } from '../../../services/query';
-import { getSortByPreference } from '../../../services/store';
-import { DataQueryError, LoadingState } from '@grafana/data';
-import { LayoutSwitcher } from './LayoutSwitcher';
-import { getQueryRunner } from '../../../services/panel';
-import { ByFrameRepeater } from './ByFrameRepeater';
 import { Alert, DrawStyle, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+
+import { areArraysEqual } from '../../../services/comparison';
 import {
   buildFieldsQueryString,
   getFilterBreakdownValueScene,
   getParserForField,
   getParserFromFieldsFilters,
 } from '../../../services/fields';
-import { getLabelValue } from './SortByScene';
-import { ParserType, VAR_FIELDS, VAR_METADATA } from '../../../services/variables';
-import React from 'react';
-import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
-import { getDetectedFieldsFrame } from '../ServiceScene';
+import { logger } from '../../../services/logger';
+import { LokiQuery } from '../../../services/lokiQuery';
+import { getQueryRunner } from '../../../services/panel';
+import { buildDataQuery, renderLogQLFieldFilters, renderLogQLMetadataFilters } from '../../../services/query';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
+import { getSortByPreference } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
@@ -42,15 +41,18 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../../services/variableGetters';
-import { LokiQuery } from '../../../services/lokiQuery';
+import { ParserType, VAR_FIELDS, VAR_METADATA } from '../../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { getDetectedFieldsFrame } from '../ServiceScene';
+import { ByFrameRepeater } from './ByFrameRepeater';
+import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
+import { LayoutSwitcher } from './LayoutSwitcher';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
-import { areArraysEqual } from '../../../services/comparison';
-import { logger } from '../../../services/logger';
+import { getLabelValue } from './SortByScene';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
-  body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject);
   $data?: SceneDataProvider;
+  body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject);
 }
 
 export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakdownSceneState> {
@@ -88,8 +90,8 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
 
     // Set query runner
     this.setState({
-      body: this.build(query),
       $data: this.buildQueryRunner(),
+      body: this.build(query),
     });
 
     // Subscribe to data query changes
@@ -118,7 +120,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     const jsonVariable = getJsonFieldsVariable(this);
     const queryString = buildFieldsQueryString(tagKey, fieldsVariable, detectedFieldsFrame, jsonVariable);
     // Manually interpolate query so we don't pollute the variable interpolation for other queries
-    const { variableName, filterExpression } = this.removeFieldLabelFromVariableInterpolation();
+    const { filterExpression, variableName } = this.removeFieldLabelFromVariableInterpolation();
     const expression = sceneGraph.interpolate(this, queryString.replace(`$\{${variableName}}`, filterExpression));
 
     return buildDataQuery(expression, { legendFormat: `{{${tagKey}}}`, refId: tagKey });
@@ -355,50 +357,43 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
    */
   private build(query: LokiQuery) {
     const { optionValue, parser } = this.getParserForThisField();
-    const { sortBy, direction } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     const getFilter = () => fieldsBreakdownScene.state.search.state.filter ?? '';
 
     return new LayoutSwitcher({
-      options: [
-        { value: 'single', label: 'Single' },
-        { value: 'grid', label: 'Grid' },
-        { value: 'rows', label: 'Rows' },
-      ],
       active: 'grid',
       layouts: [
         // Single
         new SceneFlexLayout({
-          direction: 'column',
           children: [
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />,
             }),
             new SceneFlexItem({
-              minHeight: 300,
               body: PanelBuilders.timeseries()
                 .setTitle(optionValue)
                 .setShowMenuAlways(true)
                 .setMenu(new PanelMenu({}))
                 .build(),
+              minHeight: 300,
             }),
           ],
+          direction: 'column',
         }),
 
         // Grid
         new SceneFlexLayout({
-          direction: 'column',
           children: [
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />,
             }),
-            new ValueSummaryPanelScene({ title: optionValue, type: 'field', tagKey: this.getTagKey() }),
+            new ValueSummaryPanelScene({ tagKey: this.getTagKey(), title: optionValue, type: 'field' }),
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.ValuesMenu model={fieldsBreakdownScene} />,
             }),
             new ByFrameRepeater({
               body: new SceneCSSGridLayout({
-                templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
                 autoRows: '200px',
                 children: [
                   new SceneFlexItem({
@@ -408,7 +403,10 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
                   }),
                 ],
                 isLazy: true,
+                templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
               }),
+              direction,
+              getFilter,
               getLayoutChild: getFilterBreakdownValueScene(
                 getLabelValue,
                 query?.expr.includes('count_over_time') ? DrawStyle.Bars : DrawStyle.Line,
@@ -417,26 +415,23 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
                 optionValue
               ),
               sortBy,
-              direction,
-              getFilter,
             }),
           ],
+          direction: 'column',
         }),
 
         // Rows
         new SceneFlexLayout({
-          direction: 'column',
           children: [
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />,
             }),
-            new ValueSummaryPanelScene({ title: optionValue, type: 'field', tagKey: this.getTagKey() }),
+            new ValueSummaryPanelScene({ tagKey: this.getTagKey(), title: optionValue, type: 'field' }),
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.ValuesMenu model={fieldsBreakdownScene} />,
             }),
             new ByFrameRepeater({
               body: new SceneCSSGridLayout({
-                templateColumns: '1fr',
                 autoRows: '200px',
                 children: [
                   new SceneFlexItem({
@@ -446,7 +441,10 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
                   }),
                 ],
                 isLazy: true,
+                templateColumns: '1fr',
               }),
+              direction,
+              getFilter,
               getLayoutChild: getFilterBreakdownValueScene(
                 getLabelValue,
                 query?.expr.includes('count_over_time') ? DrawStyle.Bars : DrawStyle.Line,
@@ -455,11 +453,15 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
                 optionValue
               ),
               sortBy,
-              direction,
-              getFilter,
             }),
           ],
+          direction: 'column',
         }),
+      ],
+      options: [
+        { label: 'Single', value: 'single' },
+        { label: 'Grid', value: 'grid' },
+        { label: 'Rows', value: 'rows' },
       ],
     });
   }

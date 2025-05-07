@@ -1,7 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
-import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 import { LokiQuery } from '../src/services/lokiQuery';
+import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const mixedFieldName = 'method';
 const logFmtFieldName = 'caller';

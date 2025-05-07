@@ -1,5 +1,6 @@
-import { dateTimeFormat, GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
+
+import { dateTimeFormat, GrafanaTheme2 } from '@grafana/data';
 
 export function getJSONVizNestedProperty(obj: Record<string, any>, props: Array<string | number>): any {
   if (props.length === 1) {
@@ -13,28 +14,28 @@ export function getJSONVizNestedProperty(obj: Record<string, any>, props: Array<
 
 export const renderJSONVizTimeStamp = (epochMs: number, timeZone?: string) => {
   return dateTimeFormat(epochMs, {
-    timeZone: timeZone,
     defaultWithMS: true,
+    timeZone: timeZone,
   });
 };
 
 export const getJSONVizValueLabelStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
-    display: 'inline-flex',
     color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
   }),
   labelWrap: jsonLabelWrapStyles,
 });
 
 export const jsonLabelWrapStyles = css({
+  alignItems: 'center',
   color: 'var(--json-tree-label-color)',
   display: 'inline-flex',
-  alignItems: 'center',
 });
 
 export const drillUpWrapperStyle = css({
-  display: 'flex',
   alignItems: 'center',
+  display: 'flex',
   overflowX: 'auto',
 });
 export const breadCrumbDelimiter = css({
@@ -47,7 +48,7 @@ export const itemStringDelimiter = css({
 export const rootNodeItemString = css({
   display: 'flex',
   flexWrap: 'nowrap',
-  textWrap: 'nowrap',
   // Match small button font size
   fontSize: '12px',
+  textWrap: 'nowrap',
 });

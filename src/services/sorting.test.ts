@@ -1,16 +1,17 @@
-import { toDataFrame, FieldType, ReducerID } from '@grafana/data';
+import { FieldType, ReducerID, toDataFrame } from '@grafana/data';
+
 import { sortSeries } from './sorting';
 
 const frameA = toDataFrame({
   fields: [
     { name: 'Time', type: FieldType.time, values: [0] },
     {
-      name: 'Value',
-      type: FieldType.number,
-      values: [0, 1, 0],
       labels: {
         test: 'C',
       },
+      name: 'Value',
+      type: FieldType.number,
+      values: [0, 1, 0],
     },
   ],
 });
@@ -18,12 +19,12 @@ const frameB = toDataFrame({
   fields: [
     { name: 'Time', type: FieldType.time, values: [0] },
     {
-      name: 'Value',
-      type: FieldType.number,
-      values: [1, 1, 1],
       labels: {
         test: 'A',
       },
+      name: 'Value',
+      type: FieldType.number,
+      values: [1, 1, 1],
     },
   ],
 });
@@ -31,12 +32,12 @@ const frameC = toDataFrame({
   fields: [
     { name: 'Time', type: FieldType.time, values: [0] },
     {
-      name: 'Value',
-      type: FieldType.number,
-      values: [100, 9999, 100],
       labels: {
         test: 'B',
       },
+      name: 'Value',
+      type: FieldType.number,
+      values: [100, 9999, 100],
     },
   ],
 });

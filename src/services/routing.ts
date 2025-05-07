@@ -1,4 +1,13 @@
 import { UrlQueryMap, urlUtil } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
+import { SceneObject } from '@grafana/scenes';
+
+import { RouteMatch, RouteProps } from '../Components/Pages';
+import { PageSlugs, ValueSlugs } from './enums';
+import { replaceSlash } from './extensions/links';
+import { logger } from './logger';
+import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
+import { getLabelsVariable } from './variableGetters';
 import {
   SERVICE_NAME,
   SERVICE_UI_LABEL,
@@ -15,14 +24,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from './variables';
-import { locationService } from '@grafana/runtime';
-import { RouteMatch, RouteProps } from '../Components/Pages';
-import { replaceSlash } from './extensions/links';
-import { SceneObject } from '@grafana/scenes';
-import { getLabelsVariable } from './variableGetters';
-import { logger } from './logger';
-import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
-import { PageSlugs, ValueSlugs } from './enums';
 
 export type ParentDrilldownSlugs =
   | PageSlugs.explore
@@ -34,33 +35,33 @@ export type ChildDrilldownSlugs = ValueSlugs.field | ValueSlugs.label;
 
 export const ROUTES = {
   explore: () => prefixRoute(PageSlugs.explore),
-  logs: (labelValue: string, labelName = 'service') =>
-    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.logs}`),
   fields: (labelValue: string, labelName = 'service') =>
     prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.fields}`),
-  patterns: (labelValue: string, labelName = 'service') =>
-    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.patterns}`),
   labels: (labelValue: string, labelName = 'service') =>
     prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.labels}`),
+  logs: (labelValue: string, labelName = 'service') =>
+    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.logs}`),
+  patterns: (labelValue: string, labelName = 'service') =>
+    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.patterns}`),
 };
 
 export const SUB_ROUTES = {
-  label: (labelValue: string, labelName = 'service', breakdownLabelName: string) =>
-    prefixRoute(
-      `${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${ValueSlugs.label}/${breakdownLabelName}`
-    ),
   field: (labelValue: string, labelName = 'service', breakdownLabelName: string) =>
     prefixRoute(
       `${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${ValueSlugs.field}/${breakdownLabelName}`
+    ),
+  label: (labelValue: string, labelName = 'service', breakdownLabelName: string) =>
+    prefixRoute(
+      `${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${ValueSlugs.label}/${breakdownLabelName}`
     ),
 };
 
 export const ROUTE_DEFINITIONS: Record<keyof typeof PageSlugs, string> = {
   explore: `${PageSlugs.explore}/*`,
-  logs: `:labelName/:labelValue/${PageSlugs.logs}`,
   fields: `:labelName/:labelValue/${PageSlugs.fields}`,
-  patterns: `:labelName/:labelValue/${PageSlugs.patterns}`,
   labels: `:labelName/:labelValue/${PageSlugs.labels}`,
+  logs: `:labelName/:labelValue/${PageSlugs.logs}`,
+  patterns: `:labelName/:labelValue/${PageSlugs.patterns}`,
 };
 
 export const CHILD_ROUTE_DEFINITIONS: Record<keyof typeof ValueSlugs, string> = {
@@ -122,7 +123,7 @@ export function getPrimaryLabelFromUrl(): RouteProps {
   if (labelName === SERVICE_NAME) {
     labelName = SERVICE_UI_LABEL;
   }
-  return { labelName, labelValue, breakdownLabel };
+  return { breakdownLabel, labelName, labelValue };
 }
 
 export function getDrilldownValueSlug() {
@@ -137,9 +138,9 @@ export function buildServicesUrl(path: string, extraQueryParams?: UrlQueryMap): 
 }
 export function extractValuesFromRoute(routeMatch: RouteMatch): RouteProps {
   return {
+    breakdownLabel: routeMatch.params.breakdownLabel,
     labelName: routeMatch.params.labelName,
     labelValue: routeMatch.params.labelValue,
-    breakdownLabel: routeMatch.params.breakdownLabel,
   };
 }
 

@@ -1,17 +1,20 @@
+import React from 'react';
+
 import { css, cx } from '@emotion/css';
+
 import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
-import React from 'react';
+
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { getDrillDownTabLink } from '../../services/navigate';
 import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
 import { IndexScene } from '../IndexScene/IndexScene';
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
-import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 
 export interface ActionBarSceneState extends SceneObjectState {
   maxLines?: number;
@@ -57,7 +60,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     }
 
     const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
-    const { loading, $data, logsCount, totalLogsCount, ...state } = serviceScene.useState();
+    const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
     const { maxLines } = model.useState();
 
     const loadingStates = state.loadingStates;
@@ -124,14 +127,14 @@ const getCounter = (tab: BreakdownViewDefinition, state: ServiceSceneCustomState
 function getStyles(theme: GrafanaTheme2) {
   return {
     actions: css({
-      display: 'flex',
-      justifyContent: 'flex-end',
-
       [theme.breakpoints.up(theme.breakpoints.values.md)]: {
         position: 'absolute',
         right: 0,
         zIndex: 2,
       },
+      display: 'flex',
+
+      justifyContent: 'flex-end',
     }),
   };
 }
@@ -172,19 +175,19 @@ function getLogsCountStyles(theme: GrafanaTheme2) {
     emptyCountStyles: css({
       display: 'inline-block',
       fontSize: theme.typography.bodySmall.fontSize,
-      minWidth: '1em',
       marginLeft: theme.spacing(1),
+      minWidth: '1em',
       padding: theme.spacing(0.25, 1),
     }),
     logsCountStyles: css({
+      backgroundColor: theme.colors.action.hover,
+      borderRadius: theme.spacing(3),
+      color: theme.colors.text.secondary,
       fontSize: theme.typography.bodySmall.fontSize,
+      fontWeight: theme.typography.fontWeightMedium,
       label: 'counter',
       marginLeft: theme.spacing(1),
-      borderRadius: theme.spacing(3),
-      backgroundColor: theme.colors.action.hover,
       padding: theme.spacing(0.25, 1),
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightMedium,
     }),
   };
 }

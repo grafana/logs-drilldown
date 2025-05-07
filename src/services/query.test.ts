@@ -1,6 +1,7 @@
 import { AdHocVariableFilter } from '@grafana/data';
-import { buildDataQuery, renderLogQLLineFilter, unwrapWildcardSearch, wrapWildcardSearch } from './query';
+
 import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
+import { buildDataQuery, renderLogQLLineFilter, unwrapWildcardSearch, wrapWildcardSearch } from './query';
 
 describe('buildDataQuery', () => {
   test('Given an expression outputs a Loki query', () => {

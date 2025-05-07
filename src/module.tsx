@@ -1,7 +1,9 @@
 import { lazy } from 'react';
+
 import { AppPlugin } from '@grafana/data';
-import { linkConfigs } from 'services/extensions/links';
+
 import { exposedComponents } from 'services/extensions/exposedComponents';
+import { linkConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -27,10 +29,10 @@ const AppConfig = lazy(async () => {
 });
 
 export const plugin = new AppPlugin<{}>().setRootPage(App).addConfigPage({
-  title: 'Configuration',
-  icon: 'cog',
   body: AppConfig,
+  icon: 'cog',
   id: 'configuration',
+  title: 'Configuration',
 });
 
 for (const linkConfig of linkConfigs) {

@@ -1,6 +1,8 @@
 import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
 import { select } from 'react-select-event';
+
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { setSortByPreference } from 'services/store';
 

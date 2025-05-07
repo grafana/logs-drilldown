@@ -1,6 +1,8 @@
-import { LinkButton } from '@grafana/ui';
-import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 import React, { lazy, Suspense } from 'react';
+
+import { LinkButton } from '@grafana/ui';
+
+import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 const OpenInLogsDrilldownButton = lazy(() => import('Components/OpenInLogsDrilldownButton/OpenInLogsDrilldownButton'));
 
 function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
@@ -19,9 +21,9 @@ function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProp
 
 export const exposedComponents = [
   {
+    component: SuspendedOpenInLogsDrilldownButton,
+    description: 'A button that opens a logs view in the Logs Drilldown app.',
     id: `grafana-lokiexplore-app/open-in-explore-logs-button/v1`,
     title: 'Open in Logs Drilldown button',
-    description: 'A button that opens a logs view in the Logs Drilldown app.',
-    component: SuspendedOpenInLogsDrilldownButton,
   },
 ];
