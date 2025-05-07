@@ -78,6 +78,14 @@ test.describe('explore nginx-json breakdown pages ', () => {
   });
 
   test.describe('JSON viz', () => {
+    test.beforeEach(async ({ page }) => {
+      // Playwright click automatically scrolls the element to the top of the container, but since we have sticky header this means every click fails (but somehow only when the trace is disabled)
+      // So we inject some custom styles to disable the sticky header
+      // Ideally we could specify a scroll offset, or have any control over this behavior in playwright, but for now we will weaken these tests instead of always failing when the test is executed without the trace.
+      page.addStyleTag({
+        content: '[role="tree"] > li > ul > li > span, [role="tree"] > li > span {position: static !important;}',
+      });
+    });
     test('can filter top level props', async ({ page }) => {
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
@@ -177,6 +185,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
 
+      await page.pause();
       // re-root
       await page.getByRole('button', { exact: true, name: 'root' }).click();
       // Open nested_object

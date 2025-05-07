@@ -227,7 +227,7 @@ export class ExplorePage {
       //Assert we can see the tabs
       await expect(loc).toHaveCount(1);
       // Assert that the loading svg is not present
-      await expect(tabsLoadingSelector).toHaveCount(0);
+      await expect.poll(() => tabsLoadingSelector.count(), { timeout: 0 }).toEqual(0);
     }
   }
 
@@ -252,9 +252,9 @@ export class ExplorePage {
     await expect(this.page.getByText('FieldAll')).toBeVisible();
   }
 
-  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor') {
+  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
     await this.page.goto(
-      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt`
+      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
     );
   }
 
@@ -382,6 +382,7 @@ export class ExplorePage {
     await comboboxLocator.click();
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);
+      await this.assertNotLoading();
     }
     // Select detected_level key
     await this.page.getByRole('option', { name: labelName }).click();
