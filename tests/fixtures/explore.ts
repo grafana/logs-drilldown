@@ -382,6 +382,7 @@ export class ExplorePage {
     await comboboxLocator.click();
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);
+      await this.assertNotLoading();
     }
     // Select detected_level key
     await this.page.getByRole('option', { name: labelName }).click();
