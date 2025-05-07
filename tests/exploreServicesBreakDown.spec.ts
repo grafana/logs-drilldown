@@ -1166,7 +1166,19 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
     let numberOfQueries = 0;
+    // Let's not wait for all these queries
+    await page.route('**/ds/query*', async (route) => {
+      const post = route.request().postDataJSON();
+      const queries = post.queries as LokiQuery[];
+
+      if (queries[0].refId === 'logsPanelQuery') {
+        await route.continue();
+      } else {
+        await route.fulfill({ json: [] });
+      }
+    });
     // Click on the fields tab
     await explorePage.goToFieldsTab();
     // Selector
@@ -1176,6 +1188,7 @@ test.describe('explore services breakdown page', () => {
 
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
@@ -1186,6 +1199,9 @@ test.describe('explore services breakdown page', () => {
 
       await route.fulfill({ json: [] });
     });
+
+    // assert the filter select is in the document
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Include
     await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
