@@ -252,15 +252,9 @@ export class ExplorePage {
     await expect(this.page.getByText('FieldAll')).toBeVisible();
   }
 
-  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor') {
+  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
     await this.page.goto(
-      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt`
-    );
-  }
-
-  async gotoServicesBreakdown1m(serviceName = 'tempo-distributor') {
-    await this.page.goto(
-      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=now-1m&to=now`
+      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
     );
   }
 

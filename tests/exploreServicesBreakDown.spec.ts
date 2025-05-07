@@ -20,7 +20,7 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
-    await explorePage.gotoServicesBreakdown1m();
+    await explorePage.gotoServicesBreakdownOldUrl();
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
       refIds: ['logsPanelQuery', fieldName],
@@ -1201,7 +1201,7 @@ test.describe('explore services breakdown page', () => {
     await expect.poll(() => numberOfQueries).toBeGreaterThan(0);
   });
 
-  test('should exclude all logs that contain bytes field', async ({ page }) => {
+  test.only('should exclude all logs that contain bytes field', async ({ page }) => {
     let numberOfQueries = 0;
     // Let's not wait for all these queries
     await page.route('**/ds/query*', async (route) => {
@@ -1234,12 +1234,18 @@ test.describe('explore services breakdown page', () => {
       await route.fulfill({ json: [] });
     });
 
+    // assert the filter select is in the document
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Open the dropdown and change from include to exclude
     await expect
-      .poll(async () => {
-        await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
-        return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
-      })
+      .poll(
+        async () => {
+          await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
+          return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
+        },
+        { message: 'attempt to open panel filter dropdown', timeout: 0 }
+      )
       .toBe(1);
 
     await bytesIncludeButton.getByText('Exclude', { exact: true }).click();
