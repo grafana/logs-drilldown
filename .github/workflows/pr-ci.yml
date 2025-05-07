@@ -1,0 +1,19 @@
+name: Plugins Platform PR - CI
+
+on:
+  push:
+    branches:
+      - l2d2/1202-use-plugin-ci-workflows
+
+jobs:
+  ci:
+    name: CI
+    uses: grafana/plugin-ci-workflows/.github/workflows/ci.yml@main
+    with:
+      plugin-version-suffix: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || '' }}
+      # Same settings as publish
+      run-playwright-with-skip-grafana-dev-image: true
+      run-playwright-with-grafana-dependency: '>=12.0.0'
+      upload-playwright-artifacts: true
+      playwright-docker-compose-file: docker-compose.dev.yaml
+      playwright-grafana-url: http://localhost:3001/grafana
