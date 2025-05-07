@@ -48,8 +48,8 @@ The following Loki and Grafana version and configuration are required:
    {{< /admonition >}}
 
   - Enable pattern ingestion by setting `pattern-ingester.enabled` to `true`in your Loki configuration file.
-  - Enable structured metadata by setting `allow_structured_metadata` to `true` within your Loki config file.
-  - Enable the volume endpoint by setting `volume_enabled` to `true` within your Loki config file.
+  - Enable structured metadata by setting `allow_structured_metadata` to `true` within your Loki configuration file.
+  - Enable the volume endpoint by setting `volume_enabled` to `true` within your Loki configuration file.
 
     ```yaml
     pattern_ingester:
@@ -61,7 +61,7 @@ The following Loki and Grafana version and configuration are required:
 
 ### Install via environment variable
 
-If you want to [install the app in a docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), you need to configure the following environment variable:
+If you want to [install the app in a Docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), you need to configure the following environment variable:
 
 ```sh
 GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app
@@ -69,7 +69,7 @@ GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-
 
 ### Install using grafana-cli
 
-You can install Grafana Logs Drilldown in your own Grafana instance using `grafana-cli`. For more information about `grafana-cli` refer to the [documentation](https://grafana.com/docs/grafana/latest/cli/.)
+You can install Grafana Logs Drilldown in your own Grafana instance using `grafana-cli`. For more information about `grafana-cli` refer to the [Grafana CLI documentation](https://grafana.com/docs/grafana/latest/cli/.)
 
 Using `grafana-cli` run the following command:
 
@@ -87,9 +87,9 @@ curl -L https://github.com/grafana/explore-logs/raw/main/scripts/run.sh | sh
 
 This will download the [run.sh](https://github.com/grafana/explore-logs/blob/main/scripts/run.sh) file and execute it.
 
-That shell file will download some configuration files into your `/tmp/explore-logs` directory and start the docker containers via `docker compose` from there.
+That shell file will download some configuration files into your `/tmp/explore-logs` directory and start the Docker containers via `docker compose` from there.
 
-Once the docker container has started, navigate to `http://localhost:3000/a/grafana-lokiexplore-app/explore` to access Grafana Logs Drilldown.
+Once the Docker container has started, navigate to `http://localhost:3000/a/grafana-lokiexplore-app/explore` to access Grafana Logs Drilldown.
 
 ## Having trouble?
 

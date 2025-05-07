@@ -7,7 +7,7 @@ keywords:
   - Formatting
 menuTitle: Viewing JSON logs
 title: Logs Drilldown JSON viewer
-weight: 550
+weight: 800
 ---
 
 # Logs Drilldown JSON viewer
@@ -22,7 +22,7 @@ Logs Drilldown JSON Viewer is an experimental feature. Engineering and on-call s
 
 To interact with the JSON view, select the **Show Logs** button for your service in Logs Drilldown.
 
-{{< figure alt="JSON Table viewer with selector and include exclude highlighted" width="500px" align="center" src="/media/docs/explore-logs/show-logs.png" caption="Select the 'Show Logs' button on your service" >}}
+{{< figure alt="JSON Table viewer with selector and include exclude highlighted" caption="Show Logs button" width="500px" align="center" src="/media/docs/explore-logs/show-logs.png" >}}
 
 From there, select **JSON** in the Logs format menu. This will show your logs in a structured, collapsible way, enabling you to sort, filter, and otherwise adjust your log data in the visualizations for your logs.
 
@@ -40,7 +40,7 @@ To include filtered log data again, remove the excluded data from the **Fields**
 
 Log lines entirely formatted as JSON are supported.
 
-Log lines with only certain fields or metadata structured as JSON not currently supported.
+Log lines with only certain fields or metadata structured as JSON are not currently supported.
 
 {{< admonition type="note" >}}
 We are keen to improve this feature, so please [contact us](https://forms.gle/1sYWCTPvD72T1dPH9) if there is something that would help you find the signal in the noise.
