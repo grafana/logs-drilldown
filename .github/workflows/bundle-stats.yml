@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - l2d2/1165-cp-gha-bundle-stats
 
 permissions:
   contents: write
