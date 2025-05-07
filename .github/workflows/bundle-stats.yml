@@ -2,13 +2,6 @@ name: Bundle Stats
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to run bundle stats on'
-        required: true
-        default: 'main'
-        type: string
-
   pull_request:
     branches:
       - main
