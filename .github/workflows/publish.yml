@@ -30,6 +30,7 @@ jobs:
       docs-only: ${{ fromJSON(github.event.inputs.docs-only) }}
       attestation: true
       # Same settings as PR-CI
+      run-playwright-with-skip-grafana-dev-image: true
       run-playwright-with-grafana-dependency: '>=12.0.0'
       upload-playwright-artifacts: true
       playwright-docker-compose-file: docker-compose.dev.yaml
