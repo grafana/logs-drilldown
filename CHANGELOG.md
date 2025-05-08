@@ -14,7 +14,6 @@
 
 ##### Documentation Changes
 
-*  Addressing review comments #1248 (#1251) (713251e1)
 *  Updating screenshots and docs (#1248) (a1db542d)
 *  update the versions in the README (#1249) (6f4c3c48)
 *  JSON viewer documentation (#1243) (a78469d9)
