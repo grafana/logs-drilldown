@@ -10,7 +10,6 @@
 * **bundle-stats:**  swap bundlewatch for cp gha bundle-stats (#1252) (2121df39)
 * **e2e:**  clean up & flake prevention (#1247) (0ee52382)
 * **eslint:**  sort, a11y, cleanup husky, lint (#1219) (f3505456)
-* **release:**  release 1.0.14 (#1239) (88f7e480)
 
 ##### Documentation Changes
 
