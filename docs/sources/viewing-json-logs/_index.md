@@ -12,7 +12,7 @@ weight: 800
 
 # Logs Drilldown JSON viewer
 
-You can easily view and interact with your JSON formatted logs using the Logs Drilldown JSON viewer. This view will help you read your JSON style logs, and filter through them to make your related dashboards more relevant and focused.
+You can easily view and interact with your JSON formatted logs using the Logs Drilldown JSON viewer. This view will help you read your JSON style logs, and filter through them to make your related visualizations more relevant and focused.
 
 {{< admonition type="note" >}}
 Logs Drilldown JSON Viewer is an experimental feature. Engineering and on-call support is not available. Documentation is either limited or not provided outside of code comments. No SLA is provided. To use this feature, you must be running Loki 3.5.0 or later.
