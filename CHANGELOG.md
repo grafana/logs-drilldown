@@ -20,7 +20,7 @@
 
 ##### Bug Fixes
 
-*  move automatic json parser management to json viz scene (#1253) (f8882f08)
+*  Fix field filters causing fields to disappear from table & logs panel (#1253) (f8882f08)
 * **aggregated-metric:**  Dropdown broken on click (#1246) (bf4f021d)
 * **links:**  Single escaped doublequote bug (#1242) (cd8168ac)
 
