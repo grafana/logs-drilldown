@@ -1,5 +1,30 @@
 # Changelog
 
+#### 1.0.15
+
+##### Chores
+
+*  (plugin-ci-workflows) - init vanilla plugin-ci-workflows (#1215) (ea21ded8)
+*  bump @grafana/create-plugin configuration to 5.19.8 (#1232) (9ffc46f6)
+* **plugin-ci-workflows:**  temporarily disable release.yml (#1256) (8517cc0f)
+* **bundle-stats:**  swap bundlewatch for cp gha bundle-stats (#1252) (2121df39)
+* **e2e:**  clean up & flake prevention (#1247) (0ee52382)
+* **eslint:**  sort, a11y, cleanup husky, lint (#1219) (f3505456)
+* **release:**  release 1.0.14 (#1239) (88f7e480)
+
+##### Documentation Changes
+
+*  Addressing review comments #1248 (#1251) (713251e1)
+*  Updating screenshots and docs (#1248) (a1db542d)
+*  update the versions in the README (#1249) (6f4c3c48)
+*  JSON viewer documentation (#1243) (a78469d9)
+
+##### Bug Fixes
+
+*  move automatic json parser management to json viz scene (#1253) (f8882f08)
+* **aggregated-metric:**  Dropdown broken on click (#1246) (bf4f021d)
+* **links:**  Single escaped doublequote bug (#1242) (cd8168ac)
+
 ## 1.0.14
 
 ##### Chores
