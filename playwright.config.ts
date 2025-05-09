@@ -46,7 +46,6 @@ export default defineConfig<PluginOptions>({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: `http://localhost:3001${E2ESubPath}`,
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     // Turn on when debugging local tests

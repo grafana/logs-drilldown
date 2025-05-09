@@ -254,7 +254,7 @@ test.describe('explore services page', () => {
 
       // assert we navigated
       await expect(
-        page.getByTestId('data-testid Panel header Log volume').getByTestId('header-container')
+        page.getByTestId(/data-testid Panel header Log volume/).getByTestId('header-container')
       ).toBeVisible();
 
       // assert the filters are still visible in the combobox
