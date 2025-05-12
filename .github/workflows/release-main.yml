@@ -58,3 +58,12 @@ jobs:
           destination: 'integration-artifacts/grafana-lokiexplore-app/'
           glob: '*.zip'
           parent: false
+
+      - id: 'upload-to-gcs-main'
+        name: 'Upload assets to latest'
+        uses: google-github-actions/upload-cloud-storage@e95a15f226403ed658d3e65f40205649f342ba2c # v1.0.3
+        with:
+          path: ./
+          destination: 'integration-artifacts/grafana-lokiexplore-app/release/main/any/'
+          glob: '*.zip'
+          parent: false

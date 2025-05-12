@@ -42,6 +42,7 @@ ci/
 
 # generator go vendoring
 generator/vendor/
+generator/generator
 
 # Environment variables
 .env

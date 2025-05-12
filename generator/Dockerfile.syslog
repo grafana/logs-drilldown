@@ -1,0 +1,15 @@
+# Final stage
+FROM golang:1.24
+
+WORKDIR /go/src/app
+
+# Copy and build the log generator
+COPY go.mod go.sum ./
+COPY *.go ./
+COPY flog/ flog/
+COPY log/ log/
+
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -o /generator
+
+ENTRYPOINT ["/generator"]

@@ -1,11 +1,11 @@
+version: '3.0'
+# Assumes you are running loki and the generator locally
 services:
   grafana:
     container_name: 'grafana-logsapp'
     environment:
-      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
+      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane      
       - GF_PLUGINS_PREINSTALL_DISABLED=true
-      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     build:
       context: ./.config
       args:
@@ -18,8 +18,9 @@ services:
       - ./provisioning:/etc/grafana/provisioning
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+
   loki:
-    image: grafana/loki:3.5.0
+    image: grafana/loki:main-c40053a
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -29,9 +30,25 @@ services:
       - ./config/loki-config.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
     restart: on-failure
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  alloy:
+    image: grafana/alloy:latest
+    ports:
+      - '12345:12345'
+      - '1514:1514/udp'
+    volumes:
+      - ./config/alloy-syslog.alloy:/etc/alloy/config.alloy
+    command: run --server.http.listen-addr=127.0.0.1:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    restart: on-failure
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
   generator:
     build:
       context: ./generator
-    command: -url http://loki:3100/loki/api/v1/push
-    environment:
-    - OTLP_ENDPOINT=http://loki:3100/otlp
+      dockerfile: Dockerfile.syslog
+    command: -otel=false -syslog=true -syslog-network=udp -syslog-addr=alloy:1514
+    depends_on:
+      - alloy

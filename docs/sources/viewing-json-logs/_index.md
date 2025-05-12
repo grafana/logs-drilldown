@@ -12,7 +12,7 @@ weight: 800
 
 # Logs Drilldown JSON viewer
 
-You can easily view and interact with your JSON formatted logs using the Logs Drilldown JSON viewer. This view will help you read your JSON style logs, and filter through them to make your related dashboards more relevant and focused.
+You can easily view and interact with your JSON formatted logs using the Logs Drilldown JSON viewer. This view will help you read your JSON style logs, and filter through them to make your related visualizations more relevant and focused.
 
 {{< admonition type="note" >}}
 Logs Drilldown JSON Viewer is an experimental feature. Engineering and on-call support is not available. Documentation is either limited or not provided outside of code comments. No SLA is provided. To use this feature, you must be running Loki 3.5.0 or later.
@@ -32,7 +32,7 @@ From there, select **JSON** in the Logs format menu. This will show your logs in
 
 You can include and exclude specific log data from your visualizations by selecting the **Include/Exclude** icons next to a given label.
 
-For example: Given a set of logs from am API request service, you can select the **Exclude** button next the `method` field with status "GET". This will result in the Log Volume dashboard showing only requests of other method types (DELETE/PATCH/POST/PUT).
+For example: Given a set of logs from am API request service, you can select the **Exclude** button next the `method` field with status "GET". This will result in the Log Volume visualization showing only requests of other method types (DELETE/PATCH/POST/PUT).
 
 To include filtered log data again, remove the excluded data from the **Fields** filter above the Logs Volume visualization.
 
