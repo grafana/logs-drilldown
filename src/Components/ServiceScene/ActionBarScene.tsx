@@ -15,6 +15,7 @@ import { IndexScene } from '../IndexScene/IndexScene';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
+import { narrowPageSlug } from '../../services/narrowing';
 
 export interface ActionBarSceneState extends SceneObjectState {
   embedded?: boolean;
@@ -44,14 +45,24 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       });
     }
   }
+
+  getPageSlug() {
+    const route = getDrilldownSlug();
+    if (route !== PageSlugs.embed) {
+      return route;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const narrowedSlug = narrowPageSlug(serviceScene.state.drillDownLabel);
+    if (narrowedSlug) {
+      return narrowedSlug;
+    }
+
+    throw new Error(`invalid page slug ${narrowedSlug}!`);
+  }
+
   public static Component = ({ model }: SceneComponentProps<ActionBarScene>) => {
     const styles = useStyles2(getStyles);
-
-    // if (model.state.embedded) {
-    //   return null;
-    // }
-
-    let currentBreakdownViewSlug = getDrilldownSlug();
+    let currentBreakdownViewSlug = model.getPageSlug();
     let allowNavToParent = false;
 
     if (!Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {

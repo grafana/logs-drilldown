@@ -136,6 +136,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   public onActivate() {
+    console.log('LogsPanelScene: onActivate');
     // Need viz to set options, but setting options will trigger query
     this.setStateFromUrl();
 

@@ -142,7 +142,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       this.updateOptions(detectedFieldsFrame);
     }
 
-    checkPrimaryLabel(this);
+    // checkPrimaryLabel(this);
   }
 
   private variableChanged = (newState: CustomConstantVariableState, oldState: CustomConstantVariableState) => {

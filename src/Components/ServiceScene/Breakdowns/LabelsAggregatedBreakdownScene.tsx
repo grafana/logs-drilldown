@@ -42,6 +42,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
   }
 
   onActivate() {
+    console.log('LogsPanelScene: onActivate');
     const fields = getFieldsVariable(this);
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const $detectedLabels = serviceScene.state.$detectedLabelsData;

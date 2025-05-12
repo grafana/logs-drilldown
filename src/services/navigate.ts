@@ -95,6 +95,18 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
   if (urlLabelValue) {
     const fullUrl = prefixRoute(`${PageSlugs.explore}/${urlLabelName}/${replaceSlash(urlLabelValue)}/${path}`);
     return buildDrilldownPageUrl(fullUrl, extraQueryParams);
+  } else {
+    // URL not defined, use url params
+
+    if (extraQueryParams === undefined) {
+      extraQueryParams = {};
+    }
+    // extraQueryParams['tab'] = path;
+    extraQueryParams['drillDownLabel'] = path;
+
+    const fullUrl = prefixRoute(PageSlugs.embed);
+    const pendingUrl = buildDrilldownPageUrl(fullUrl, extraQueryParams);
+    return pendingUrl;
   }
   return '';
 }

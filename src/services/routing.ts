@@ -105,6 +105,7 @@ export const DRILLDOWN_URL_KEYS = [
 export function getDrilldownSlug() {
   const location = locationService.getLocation();
   const slug = location.pathname.slice(location.pathname.lastIndexOf('/') + 1, location.pathname.length);
+  console.log('getDrilldownSlug', slug);
   return slug as PageSlugs;
 }
 
@@ -165,6 +166,7 @@ export function buildServicesRoute(extraQueryParams?: UrlQueryMap): UrlQueryMap 
  * These don't cause errors or render empty UIs, but shouldn't be possible when routing within the app
  * If we see these logged in production it indicates we're navigating users incorrectly
  * @param sceneRef
+ * @deprecated with embedding we won't have routes, so this warning will fire whenever this is called when embedding
  */
 export function checkPrimaryLabel(sceneRef: SceneObject) {
   const labelsVariable = getLabelsVariable(sceneRef);

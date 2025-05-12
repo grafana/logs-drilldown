@@ -4,6 +4,7 @@ import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
+import { PageSlugs, TabNames } from './enums';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 
@@ -130,6 +131,29 @@ export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterO
     default:
       throw new NarrowingError('operator is invalid!');
   }
+}
+
+export function narrowTabName(input: unknown): TabNames | false {
+  return (
+    (input === TabNames.fields ||
+      input === TabNames.labels ||
+      input === TabNames.logs ||
+      input === TabNames.patterns) &&
+    input
+  );
+}
+
+export function narrowPageSlug(input: unknown): PageSlugs | false {
+  if (typeof input === 'string') {
+    input = input.toLowerCase();
+  }
+  return (
+    (input === PageSlugs.fields ||
+      input === PageSlugs.labels ||
+      input === PageSlugs.logs ||
+      input === PageSlugs.patterns) &&
+    input
+  );
 }
 
 export class NarrowingError extends Error {}

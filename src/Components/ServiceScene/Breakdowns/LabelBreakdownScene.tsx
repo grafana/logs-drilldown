@@ -116,7 +116,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
       this.updateOptions(detectedLabelsFrame);
     }
 
-    checkPrimaryLabel(this);
+    // checkPrimaryLabel(this);
   }
 
   private onGroupByVariableChange(newState: CustomConstantVariableState, prevState: CustomConstantVariableState) {

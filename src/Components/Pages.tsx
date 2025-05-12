@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
 import { usePluginComponent } from '@grafana/runtime';
@@ -54,13 +54,8 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
     'grafana-lokiexplore-app/embedded-logs-exploration/v1'
   );
 
-  console.log('Component', { isLoading, LogsDrilldownComponent });
-
-  return isLoading || !LogsDrilldownComponent ? (
-    <LoadingPlaceholder text={'Loading...'} />
-  ) : (
-    <LogsDrilldownComponent {...props} />
-  );
+  const Component = useMemo(() => LogsDrilldownComponent, [isLoading]);
+  return isLoading || !Component ? <LoadingPlaceholder text={'Loading...'} /> : <Component {...props} />;
 }
 
 function getEmbedScene() {

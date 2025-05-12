@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil } from '@grafana/data';
+import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -30,7 +30,7 @@ import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { PageSlugs } from '../../services/enums';
+import { PageSlugs, TabNames } from '../../services/enums';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
@@ -109,6 +109,7 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
+import { narrowPageSlug, narrowTabName } from '../../services/narrowing';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
@@ -229,7 +230,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   };
 
   public onActivate() {
-    console.log('routeMatch', this.state.routeMatch);
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
 
@@ -279,10 +279,17 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     };
   }
 
-  private getContentScene() {
+  public getContentScene() {
     if (this.state.embedded) {
+      const searchParams = urlUtil.getUrlSearchParams();
+      const activeTab = narrowPageSlug(
+        Array.isArray(searchParams['drillDownLabel'])
+          ? searchParams['drillDownLabel'][0]
+          : searchParams['drillDownLabel']
+      );
       return new ServiceScene({
         embedded: true,
+        drillDownLabel: activeTab ? activeTab : TabNames.logs,
       });
     }
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
