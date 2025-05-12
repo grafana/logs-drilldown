@@ -1,5 +1,8 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
 
+import { NodeType, SyntaxNode, Tree } from '@lezer/common';
+
+import { PluginExtensionPanelContext } from '@grafana/data';
 import {
   Bytes,
   Duration,
@@ -28,7 +31,8 @@ import {
   Selector,
   String,
 } from '@grafana/lezer-logql';
-import { NodeType, SyntaxNode, Tree } from '@lezer/common';
+
+import { LabelType } from './fieldsTypes';
 import {
   FieldFilter,
   FilterOp as FilterOperator,
@@ -40,9 +44,7 @@ import {
   PatternFilterOp,
   PatternFilterType,
 } from './filterTypes';
-import { PluginExtensionPanelContext } from '@grafana/data';
 import { getLabelTypeFromFrame, LokiQuery } from './lokiQuery';
-import { LabelType } from './fieldsTypes';
 import { ParserType } from './variables';
 
 export class NodePosition {
@@ -128,8 +130,8 @@ function parseLabelFilters(query: string, filter: IndexedLabelFilter[]) {
     filter.push({
       key,
       operator,
-      value,
       type: LabelType.Indexed,
+      value,
     });
   }
 }
@@ -147,12 +149,13 @@ function parseNonPatternFilters(
   // If quoteString is `, we shouldn't need to un-escape anything
   // But if the quoteString is ", we'll need to remove double escape chars, as these values are re-escaped when building the query expression (but not stored in the value/url)
   if (quoteString === '"' && isRegexSelector) {
+    // replace \\ with \
     const replaceDoubleEscape = new RegExp(/\\\\/, 'g');
     lineFilterValue = lineFilterValue.replace(replaceDoubleEscape, '\\');
   } else if (quoteString === '"') {
-    const replaceDoubleQuoteEscape = new RegExp(/\\\\\"/, 'g');
+    // replace \\\" => "
+    const replaceDoubleQuoteEscape = new RegExp(`\\\\\"`, 'g');
     lineFilterValue = lineFilterValue.replace(replaceDoubleQuoteEscape, '"');
-
     const replaceDoubleEscape = new RegExp(/\\\\/, 'g');
     lineFilterValue = lineFilterValue.replace(replaceDoubleEscape, '\\');
   }
@@ -343,8 +346,8 @@ function parseFields(
       fields.push({
         key: fieldName,
         operator: operator,
-        type: labelType ?? LabelType.Parsed,
         parser,
+        type: labelType ?? LabelType.Parsed,
         value: fieldValue,
       });
     }
@@ -356,9 +359,9 @@ export function getMatcherFromQuery(
   context?: PluginExtensionPanelContext,
   lokiQuery?: LokiQuery
 ): {
+  fields?: FieldFilter[];
   labelFilters: IndexedLabelFilter[];
   lineFilters?: LineFilterType[];
-  fields?: FieldFilter[];
   patternFilters?: PatternFilterType[];
 } {
   const filter: IndexedLabelFilter[] = [];
@@ -378,7 +381,7 @@ export function getMatcherFromQuery(
   parseLineFilters(query, lineFilters, patternFilters);
   parseFields(query, fields, context, lokiQuery);
 
-  return { labelFilters: filter, lineFilters, fields, patternFilters };
+  return { fields, labelFilters: filter, lineFilters, patternFilters };
 }
 
 export function isQueryWithNode(query: string, nodeType: number): boolean {

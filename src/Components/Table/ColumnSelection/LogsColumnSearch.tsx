@@ -1,13 +1,14 @@
 import React from 'react';
+
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { reportInteraction } from '@grafana/runtime';
 import { Field, Input, useTheme2 } from '@grafana/ui';
 
+import { debouncedFuzzySearch } from '../../../services/search';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { reportInteraction } from '@grafana/runtime';
-import { debouncedFuzzySearch } from '../../../services/search';
 
 function getStyles(theme: GrafanaTheme2) {
   return {

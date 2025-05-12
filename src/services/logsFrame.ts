@@ -17,16 +17,18 @@ export type LogFrameLabels = Record<string, unknown>;
 // the attributes-access is a little awkward, but it's necessary
 // because there are multiple,very different dataFrame-representations.
 export type LogsFrame = {
-  timeField: FieldWithIndex;
   bodyField: FieldWithIndex;
-  timeNanosecondField: FieldWithIndex | null;
-  severityField: FieldWithIndex | null;
-  idField: FieldWithIndex | null;
-  getLogFrameLabels: () => LogFrameLabels[] | null; // may be slow, so we only do it when asked for it explicitly
-  getLogFrameLabelsAsLabels: () => Labels[] | null; // temporarily exists to make the labels=>attributes migration simpler
-  getLabelFieldName: () => string | null;
   extraFields: FieldWithIndex[];
+  // temporarily exists to make the labels=>attributes migration simpler
+  getLabelFieldName: () => string | null;
+  getLogFrameLabels: () => LogFrameLabels[] | null;
+  // may be slow, so we only do it when asked for it explicitly
+  getLogFrameLabelsAsLabels: () => Labels[] | null;
+  idField: FieldWithIndex | null;
   raw: DataFrame;
+  severityField: FieldWithIndex | null;
+  timeField: FieldWithIndex;
+  timeNanosecondField: FieldWithIndex | null;
 };
 
 function getField(cache: FieldCache, name: string, fieldType: FieldType): FieldWithIndex | undefined {
@@ -39,7 +41,8 @@ function getField(cache: FieldCache, name: string, fieldType: FieldType): FieldW
 }
 
 export const DATAPLANE_TIMESTAMP_NAME = 'timestamp';
-export const DATAPLANE_BODY_NAME = 'body';
+export const DATAPLANE_BODY_NAME_LEGACY = 'body';
+export const DATAPLANE_LINE_NAME = 'Line';
 export const DATAPLANE_SEVERITY_NAME = 'severity';
 export const DATAPLANE_ID_NAME = 'id';
 export const DATAPLANE_LABELS_NAME = 'labels';
@@ -66,7 +69,7 @@ export function parseDataplaneLogsFrame(frame: DataFrame): LogsFrame | null {
   const cache = new FieldCache(frame);
 
   const timestampField = getField(cache, DATAPLANE_TIMESTAMP_NAME, FieldType.time);
-  const bodyField = getField(cache, DATAPLANE_BODY_NAME, FieldType.string);
+  const bodyField = getField(cache, DATAPLANE_BODY_NAME_LEGACY, FieldType.string);
 
   // these two are mandatory
   if (timestampField === undefined || bodyField === undefined) {
@@ -89,16 +92,16 @@ export function parseDataplaneLogsFrame(frame: DataFrame): LogsFrame | null {
   );
 
   return {
-    raw: frame,
-    timeField: timestampField,
     bodyField,
-    severityField,
-    idField,
-    getLogFrameLabels: () => labels,
-    timeNanosecondField: null,
-    getLogFrameLabelsAsLabels: () => (labels !== null ? labels.map(logFrameLabelsToLabels) : null),
-    getLabelFieldName: () => (labelsField !== null ? labelsField.name : null),
     extraFields,
+    getLabelFieldName: () => (labelsField !== null ? labelsField.name : null),
+    getLogFrameLabels: () => labels,
+    getLogFrameLabelsAsLabels: () => (labels !== null ? labels.map(logFrameLabelsToLabels) : null),
+    idField,
+    raw: frame,
+    severityField,
+    timeField: timestampField,
+    timeNanosecondField: null,
   };
 }
 
@@ -134,16 +137,16 @@ export function parseLegacyLogsFrame(frame: DataFrame): LogsFrame | null {
   );
 
   return {
-    timeField,
     bodyField,
-    timeNanosecondField,
-    severityField,
-    idField,
+    extraFields,
+    getLabelFieldName: () => labelsField?.name ?? null,
     getLogFrameLabels: getL,
     getLogFrameLabelsAsLabels: getL,
-    getLabelFieldName: () => labelsField?.name ?? null,
-    extraFields,
+    idField,
     raw: frame,
+    severityField,
+    timeField,
+    timeNanosecondField,
   };
 }
 
@@ -184,7 +187,7 @@ export function getTimeName(logsFrame?: LogsFrame) {
 }
 
 export function getBodyName(logsFrame?: LogsFrame | null): string {
-  return logsFrame?.bodyField.name ?? DATAPLANE_BODY_NAME;
+  return logsFrame?.bodyField.name ?? DATAPLANE_BODY_NAME_LEGACY;
 }
 
 export function getIdName(logsFrame?: LogsFrame): string {
@@ -202,18 +205,18 @@ export function getSeriesVisibleRange(series: DataFrame[]) {
     start = oldestFirst ? values[0] : values[values.length - 1];
     end = oldestFirst ? values[values.length - 1] : values[0];
   }
-  return { start, end };
+  return { end, start };
 }
 
 export const VISIBLE_RANGE_NAME = 'Visible range';
 export function getVisibleRangeFrame(start: number, end: number) {
   const frame = arrayToDataFrame([
     {
-      time: start,
-      timeEnd: end,
+      color: 'rgba(58, 113, 255, 0.3)',
       isRegion: true,
       text: 'Range from oldest to newest logs in display',
-      color: 'rgba(58, 113, 255, 0.3)',
+      time: start,
+      timeEnd: end,
     },
   ]);
   frame.name = VISIBLE_RANGE_NAME;

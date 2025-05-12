@@ -1,4 +1,5 @@
 import React, { PropsWithChildren } from 'react';
+
 import { css, cx } from '@emotion/css';
 
 import { Field, GrafanaTheme2 } from '@grafana/data';
@@ -9,30 +10,30 @@ import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
 interface DefaultCellWrapComponentProps {}
 
 interface Props extends PropsWithChildren<DefaultCellWrapComponentProps> {
-  rowIndex: number;
   field: Field;
   onClick?: () => void;
   onMouseIn?: () => void;
   onMouseOut?: () => void;
+  rowIndex: number;
 }
 
 const getStyles = (theme: GrafanaTheme2, bgColor?: string, numberOfMenuItems?: number) => ({
   active: css({
+    background: 'transparent',
     // Save 20px for context menu
     height: `calc(${100}% + 36px)`,
     zIndex: theme.zIndex.tooltip,
-    background: 'transparent',
   }),
   wrap: css({
-    position: 'absolute',
-    overflowX: 'hidden',
-    whiteSpace: 'nowrap',
-    width: '100%',
+    background: bgColor ?? 'transparent',
     height: '100%',
     left: 0,
-    top: 0,
     margin: 'auto',
-    background: bgColor ?? 'transparent',
+    overflowX: 'hidden',
+    position: 'absolute',
+    top: 0,
+    whiteSpace: 'nowrap',
+    width: '100%',
   }),
 });
 
@@ -65,6 +66,13 @@ const CellWrapInnerComponent = (props: Props) => {
           ? cx(styles.wrap, styles.active)
           : styles.wrap
       }
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          props.onClick?.();
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       {props.children}
     </div>

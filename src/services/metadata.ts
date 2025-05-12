@@ -50,13 +50,13 @@ export class MetadataService {
 
   public setServiceSceneState(state: ServiceSceneCustomState) {
     this.serviceSceneState = {
-      patternsCount: state.patternsCount,
-      labelsCount: state.labelsCount,
+      embedded: state.embedded,
       fieldsCount: state.fieldsCount,
+      labelsCount: state.labelsCount,
       loading: state.loading,
       logsCount: state.logsCount,
+      patternsCount: state.patternsCount,
       totalLogsCount: state.totalLogsCount,
-      embedded: state.embedded,
     };
   }
 }

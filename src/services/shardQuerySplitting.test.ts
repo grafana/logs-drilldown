@@ -2,10 +2,9 @@ import { of } from 'rxjs';
 
 import { DataQueryRequest, DataQueryResponse, dateTime, LoadingState } from '@grafana/data';
 
-import { runShardSplitQuery } from './shardQuerySplitting';
-
-import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { getMockFrames } from './combineResponses.test';
+import { LokiDatasource, LokiQuery } from './lokiQuery';
+import { runShardSplitQuery } from './shardQuerySplitting';
 
 jest.mock('uuid', () => ({
   v4: jest.fn().mockReturnValue('uuid'),
@@ -27,19 +26,19 @@ describe('runShardSplitQuery()', () => {
   let datasource: LokiDatasource;
   const range = {
     from: dateTime('2023-02-08T04:00:00.000Z'),
-    to: dateTime('2023-02-08T11:00:00.000Z'),
     raw: {
       from: dateTime('2023-02-08T04:00:00.000Z'),
       to: dateTime('2023-02-08T11:00:00.000Z'),
     },
+    to: dateTime('2023-02-08T11:00:00.000Z'),
   };
 
   const createRequest = (targets: Array<Partial<LokiQuery>>, overrides?: Partial<DataQueryRequest<LokiQuery>>) => {
     let request = {
-      range,
-      targets,
       intervalMs: 60000,
+      range,
       requestId: 'TEST',
+      targets,
     } as DataQueryRequest<LokiQuery>;
 
     Object.assign(request, overrides);
@@ -66,7 +65,7 @@ describe('runShardSplitQuery()', () => {
 
   test('Does not report missing data while streaming', async () => {
     // @ts-expect-error
-    jest.spyOn(datasource, 'runQuery').mockReturnValue(of({ status: 200, data: [] }));
+    jest.spyOn(datasource, 'runQuery').mockReturnValue(of({ data: [], status: 200 }));
     await expect(runShardSplitQuery(datasource, request)).toEmitValuesWith((response: DataQueryResponse[]) => {
       // 4 shard requests
       // @ts-expect-error
@@ -156,7 +155,7 @@ describe('runShardSplitQuery()', () => {
     jest
       // @ts-expect-error
       .spyOn(datasource, 'runQuery')
-      .mockReturnValueOnce(of({ state: LoadingState.Error, error: { refId: 'A', message: 'timeout' }, data: [] }));
+      .mockReturnValueOnce(of({ data: [], error: { message: 'timeout', refId: 'A' }, state: LoadingState.Error }));
     // @ts-expect-error
     jest.spyOn(global, 'setTimeout').mockImplementationOnce((callback) => {
       callback();
@@ -174,7 +173,7 @@ describe('runShardSplitQuery()', () => {
     jest
       // @ts-expect-error
       .spyOn(datasource, 'runQuery')
-      .mockReturnValue(of({ state: LoadingState.Error, error: { refId: 'A', message: 'parse error' }, data: [] }));
+      .mockReturnValue(of({ data: [], error: { message: 'parse error', refId: 'A' }, state: LoadingState.Error }));
     await expect(runShardSplitQuery(datasource, request)).toEmitValuesWith((response: DataQueryResponse[]) => {
       expect(response[0].state).toBe(LoadingState.Error);
     });
@@ -184,11 +183,11 @@ describe('runShardSplitQuery()', () => {
     const request = createRequest([{ expr: 'count_over_time($SELECTOR[1m])', refId: 'A' }], {
       range: {
         from: dateTime('2024-11-13T05:00:00.000Z'),
-        to: dateTime('2024-11-14T06:00:00.000Z'),
         raw: {
           from: dateTime('2024-11-13T05:00:00.000Z'),
           to: dateTime('2024-11-14T06:00:00.000Z'),
         },
+        to: dateTime('2024-11-14T06:00:00.000Z'),
       },
     });
 
@@ -243,7 +242,7 @@ describe('runShardSplitQuery()', () => {
     jest
       // @ts-expect-error
       .mocked(datasource.runQuery)
-      .mockReturnValueOnce(of({ state: LoadingState.Error, error: { refId: 'A', message: 'timeout' }, data: [] }));
+      .mockReturnValueOnce(of({ data: [], error: { message: 'timeout', refId: 'A' }, state: LoadingState.Error }));
 
     // +10%
     // @ts-expect-error
@@ -428,8 +427,6 @@ describe('runShardSplitQuery()', () => {
 
 function createLokiDatasource() {
   return {
-    query: jest.fn(),
-    runQuery: jest.fn(),
     interpolateVariablesInQueries: jest.fn().mockImplementation((queries: LokiQuery[]) => {
       return queries.map((query) => {
         query.expr = query.expr.replace('$SELECTOR', '{a="b"}');
@@ -439,5 +436,7 @@ function createLokiDatasource() {
     languageProvider: {
       fetchLabelValues: jest.fn(),
     },
+    query: jest.fn(),
+    runQuery: jest.fn(),
   } as unknown as LokiDatasource;
 }

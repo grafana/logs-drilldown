@@ -1,16 +1,17 @@
-import { css } from '@emotion/css';
 import React, { ReactNode } from 'react';
+
+import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 type Props = {
   blockingMessage?: string;
-  isLoading?: boolean;
   children?: ReactNode;
+  isLoading?: boolean;
 };
 
-export function StatusWrapper({ blockingMessage, isLoading, children }: Props) {
+export function StatusWrapper({ blockingMessage, children, isLoading }: Props) {
   const styles = useStyles2(getStyles);
 
   if (isLoading && !blockingMessage) {

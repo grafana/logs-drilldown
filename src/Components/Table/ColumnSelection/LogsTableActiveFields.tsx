@@ -1,31 +1,31 @@
 import React, { ReactElement } from 'react';
-import { DragDropContext, Draggable, DraggableProvided, Droppable, DropResult } from '@hello-pangea/dnd';
+
 import { css, cx } from '@emotion/css';
+import { DragDropContext, Draggable, DraggableProvided, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
 import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
-
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 
 export function getLogsFieldsStyles(theme: GrafanaTheme2) {
   return {
-    wrap: css({
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-      display: 'flex',
-      background: theme.colors.background.primary,
-    }),
-    dragging: css({
-      background: theme.colors.background.secondary,
-    }),
     columnWrapper: css({
       marginBottom: theme.spacing(1.5),
       // need some space or the outline of the checkbox is cut off
       paddingLeft: theme.spacing(0.5),
+    }),
+    dragging: css({
+      background: theme.colors.background.secondary,
+    }),
+    wrap: css({
+      background: theme.colors.background.primary,
+      display: 'flex',
+      marginBottom: theme.spacing(1),
+      marginTop: theme.spacing(1),
     }),
   };
 }
@@ -46,14 +46,14 @@ function sortLabels(labels: Record<string, FieldNameMeta>) {
 }
 
 export const LogsTableActiveFields = (props: {
-  labels: Record<string, FieldNameMeta>;
-  valueFilter: (value: string) => boolean;
-  toggleColumn: (columnName: string) => void;
-  reorderColumn: (cols: FieldNameMetaStore, sourceIndex: number, destinationIndex: number) => void;
   id: string;
+  labels: Record<string, FieldNameMeta>;
+  reorderColumn: (cols: FieldNameMetaStore, sourceIndex: number, destinationIndex: number) => void;
+  toggleColumn: (columnName: string) => void;
+  valueFilter: (value: string) => boolean;
 }): ReactElement => {
   const { columnWidthMap, setColumnWidthMap } = useTableColumnContext();
-  const { reorderColumn, labels, valueFilter, toggleColumn } = props;
+  const { labels, reorderColumn, toggleColumn, valueFilter } = props;
   const theme = useTheme2();
   const { columns } = useTableColumnContext();
   const styles = getLogsFieldsStyles(theme);

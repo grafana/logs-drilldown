@@ -1,13 +1,26 @@
 import React from 'react';
-import { getLogOption, setLogOption } from 'services/store';
+
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LogsListScene } from './LogsListScene';
-import { sceneGraph } from '@grafana/scenes';
+
 import { LogsSortOrder } from '@grafana/data';
+import { sceneGraph } from '@grafana/scenes';
+
+import { LogsListScene } from './LogsListScene';
+import { getLogOption, setLogOption } from 'services/store';
 
 jest.mock('services/store');
 jest.mock('./LogsListScene');
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  config: {
+    ...jest.requireActual('@grafana/runtime').config,
+    buildInfo: {
+      ...jest.requireActual('@grafana/runtime').config.buildInfo,
+      version: '11.6',
+    },
+  },
+}));
 
 describe('LogOptionsScene', () => {
   beforeEach(() => {
@@ -54,9 +67,10 @@ describe('LogOptionsScene', () => {
     expect(screen.getByTitle('Enable wrapping of long log lines')).toBeInTheDocument();
     expect(screen.getByTitle('Disable wrapping of long log lines')).toBeInTheDocument();
     await act(async () => userEvent.click(screen.getByTitle('Enable wrapping of long log lines')));
-    expect(setLogOption).toHaveBeenCalledTimes(1);
+    expect(setLogOption).toHaveBeenCalledTimes(2);
     expect(setLogOption).toHaveBeenCalledWith('wrapLogMessage', true);
-    expect(scene.setLogsVizOption).toHaveBeenCalledWith({ wrapLogMessage: true });
+    expect(setLogOption).toHaveBeenCalledWith('prettifyLogMessage', true);
+    expect(scene.setLogsVizOption).toHaveBeenCalledWith({ prettifyLogMessage: true, wrapLogMessage: true });
   });
 
   test('Does not show the clear fields button with no fields in display', async () => {

@@ -1,5 +1,10 @@
 import React from 'react';
+
+import { css } from '@emotion/css';
+
 import { RadioButtonGroup } from '@grafana/ui';
+
+import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType } from 'services/store';
 
 /**
@@ -8,26 +13,39 @@ import { LogsVisualizationType } from 'services/store';
  * @constructor
  */
 export function LogsPanelHeaderActions(props: {
-  vizType: LogsVisualizationType;
   onChange: (type: LogsVisualizationType) => void;
+  vizType: LogsVisualizationType;
 }) {
   return (
-    <RadioButtonGroup
-      options={[
-        {
-          label: 'Logs',
-          value: 'logs',
-          description: 'Show results in logs visualisation',
-        },
-        {
-          label: 'Table',
-          value: 'table',
-          description: 'Show results in table visualisation',
-        },
-      ]}
-      size="sm"
-      value={props.vizType}
-      onChange={props.onChange}
-    />
+    <div className={logsControlsSupported ? styles.container : undefined}>
+      <RadioButtonGroup
+        options={[
+          {
+            description: 'Show results in logs visualisation',
+            label: 'Logs',
+            value: 'logs',
+          },
+          {
+            description: 'Show results in table visualisation',
+            label: 'Table',
+            value: 'table',
+          },
+          {
+            description: 'Show results in json visualisation',
+            label: 'JSON',
+            value: 'json',
+          },
+        ]}
+        size="sm"
+        value={props.vizType}
+        onChange={props.onChange}
+      />
+    </div>
   );
 }
+
+const styles = {
+  container: css({
+    paddingRight: 6,
+  }),
+};

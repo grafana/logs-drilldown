@@ -1,9 +1,10 @@
-import { getDrillDownIndexLink, navigateToDrilldownPage, navigateToValueBreakdown } from './navigate';
-import { PageSlugs, ValueSlugs } from './routing';
-import { ServiceScene, ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
 import { locationService } from '@grafana/runtime';
+
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { ServiceScene, ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
+import { PageSlugs, ValueSlugs } from './enums';
 import { getMetadataService, initializeMetadataService } from './metadata';
+import { getDrillDownIndexLink, navigateToDrilldownPage, navigateToValueBreakdown } from './navigate';
 
 const locationSpy = jest.spyOn(locationService, 'push');
 let mockIndexScene: IndexScene;
@@ -26,22 +27,22 @@ describe('navigate', () => {
       mockIndexScene = {
         state: {
           routeMatch: {
-            path: '',
             isExact: true,
-            url: '',
             params: {
-              labelValue: serviceLabel,
-              labelName: 'service',
               breakdownLabel: drillDownLabel,
+              labelName: 'service',
+              labelValue: serviceLabel,
             },
+            path: '',
+            url: '',
           },
         },
       } as IndexScene;
 
       mockServiceSceneState = {
-        patternsCount: 2,
         fieldsCount: 2,
         loading: true,
+        patternsCount: 2,
       };
     });
     test.each(Object.values(ValueSlugs))('should push value slug %s and update metadata', (slug) => {
@@ -61,13 +62,13 @@ describe('navigate', () => {
       mockIndexScene = {
         state: {
           routeMatch: {
-            path: '',
             isExact: true,
-            url: '',
             params: {
               labelName: 'service',
               labelValue: serviceLabel,
             },
+            path: '',
+            url: '',
           },
         },
       } as IndexScene;

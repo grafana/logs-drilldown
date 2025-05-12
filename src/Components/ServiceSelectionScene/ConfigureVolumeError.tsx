@@ -1,6 +1,8 @@
 import React from 'react';
+
+import { Text, TextLink } from '@grafana/ui';
+
 import { GrotError } from 'Components/GrotError';
-import { TextLink, Text } from '@grafana/ui';
 
 export const ConfigureVolumeError = () => {
   return (

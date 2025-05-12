@@ -1,14 +1,16 @@
-import { test, expect } from '@grafana/plugin-e2e';
+import { Page } from '@playwright/test';
+import { isNumber } from 'lodash';
+
+import { expect, test } from '@grafana/plugin-e2e';
+
+import { testIds } from '../src/services/testIds';
 import {
   E2EComboboxStrings,
   ExplorePage,
   levelTextMatch,
   serviceSelectionPaginationTextMatch,
 } from './fixtures/explore';
-import { testIds } from '../src/services/testIds';
 import { getMockVolumeApiResponse } from './mocks/getMockVolumeApiResponse';
-import { isNumber } from 'lodash';
-import { Page } from '@playwright/test';
 
 test.describe('explore services page', () => {
   let explorePage: ExplorePage;
@@ -18,7 +20,7 @@ test.describe('explore services page', () => {
       explorePage = new ExplorePage(page, testInfo);
 
       // Header sizes may change, bringing up the third row in queries, which will break tests in this suite
-      await page.setViewportSize({ width: 1280, height: 600 });
+      await page.setViewportSize({ height: 600, width: 1280 });
       await explorePage.clearLocalStorage();
       explorePage.captureConsoleLogs();
     });
@@ -49,10 +51,10 @@ test.describe('explore services page', () => {
       await expect(page.getByLabel('Edit filter with key')).toHaveText('service_name = nginx');
 
       // Click on nav to return to service selection
-      await page.getByRole('link', { name: 'Logs' }).click();
+      await page.getByRole('link', { name: 'Logs' }).first().click();
 
       // Clear the existing search filter added above
-      await page.getByLabel('select-clear-value').click();
+      await page.getByLabel('Clear value').click();
 
       // Assert there is more then one result now
       await expect(page.getByTestId('header-container').nth(1)).toBeVisible();
@@ -252,7 +254,7 @@ test.describe('explore services page', () => {
 
       // assert we navigated
       await expect(
-        page.getByTestId('data-testid Panel header Log volume').getByTestId('header-container')
+        page.getByTestId(/data-testid Panel header Log volume/).getByTestId('header-container')
       ).toBeVisible();
 
       // assert the filters are still visible in the combobox
@@ -340,8 +342,8 @@ test.describe('explore services page', () => {
       test('navigating back will re-run volume query', async ({ page }) => {
         const removeVariableBtn = page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel);
         await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
-        expect(logsVolumeCount).toEqual(1);
-        expect(logsQueryCount).toBeLessThanOrEqual(4);
+        await expect.poll(() => logsVolumeCount).toEqual(1);
+        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(4);
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
         // Click on first service
@@ -357,8 +359,8 @@ test.describe('explore services page', () => {
         // Assert we navigated back
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
-        expect(logsVolumeCount).toEqual(2);
-        expect(logsQueryCount).toBeLessThanOrEqual(6);
+        await expect.poll(() => logsVolumeCount).toEqual(2);
+        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(6);
 
         // Click on first service
         await explorePage.addServiceName();
@@ -378,21 +380,21 @@ test.describe('explore services page', () => {
         await page.waitForTimeout(100);
 
         // Volume should fire initially, after navigating back from breakdown x2
-        expect(logsVolumeCount).toEqual(3);
+        await expect.poll(() => logsVolumeCount).toEqual(3);
 
         // Should fire on breakdown x2
-        expect(logCountQueryCount).toEqual(2);
+        await expect.poll(() => logCountQueryCount).toEqual(2);
       });
 
       test('changing datasource will trigger new queries', async ({ page }) => {
         await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
         await explorePage.assertPanelsNotLoading();
-        expect(logsVolumeCount).toEqual(1);
-        expect(logsQueryCount).toEqual(4);
+        await expect.poll(() => logsVolumeCount, { timeout: 0 }).toEqual(1);
+        await expect.poll(() => logsQueryCount, { timeout: 0 }).toEqual(4);
         await explorePage.changeDatasource();
         await explorePage.assertPanelsNotLoading();
-        expect(logsVolumeCount).toEqual(2);
-        expect(logCountQueryCount).toEqual(0);
+        await expect.poll(() => logsVolumeCount, { timeout: 0 }).toEqual(2);
+        await expect.poll(() => logCountQueryCount, { timeout: 0 }).toEqual(0);
       });
 
       test('should re-execute volume query after being redirected back to service selection', async ({ page }) => {
@@ -401,8 +403,8 @@ test.describe('explore services page', () => {
         await explorePage.clickShowLogs();
         await expect(explorePage.logVolumeGraph).toBeVisible();
         await explorePage.changeDatasource();
-        expect(logsVolumeCount).toBe(2);
-        expect(logCountQueryCount).toEqual(1);
+        await expect.poll(() => logsVolumeCount).toBe(2);
+        await expect.poll(() => logCountQueryCount).toEqual(1);
       });
     });
 
@@ -431,7 +433,7 @@ test.describe('explore services page', () => {
           await expect(selectNewLabelSelect).toContainText('Search labels');
 
           // Add "namespace" as a new tab
-          await page.getByText(/namespace/).click();
+          await page.getByText('namespace', { exact: true }).click();
           await expect(newNamespaceTabLoc).toHaveCount(1);
 
           // Click "New" tab
@@ -548,7 +550,7 @@ test.describe('explore services page', () => {
 
             logsVolumeCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
           await page.route('**/resources/detected_fields*', async (route) => {
             const response = await route.fetch();
@@ -556,7 +558,7 @@ test.describe('explore services page', () => {
 
             detectedFieldsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
           await page.route('**/resources/detected_labels*', async (route) => {
             const response = await route.fetch();
@@ -564,7 +566,7 @@ test.describe('explore services page', () => {
 
             detectedLabelsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
           await page.route('**/resources/patterns*', async (route) => {
             const response = await route.fetch();
@@ -572,7 +574,7 @@ test.describe('explore services page', () => {
 
             patternsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ response, json });
+            await route.fulfill({ json, response });
           }),
 
           // Can skip logs query for this test
@@ -605,7 +607,7 @@ test.describe('explore services page', () => {
         await expect(selectNewLabelSelect).toContainText('Search labels');
 
         // Add "namespace" as a new tab
-        await page.getByText(/namespace/).click();
+        await page.getByText('namespace', { exact: true }).click();
         const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
         await expect(newNamespaceTabLoc).toHaveCount(1);
 
@@ -665,7 +667,7 @@ test.describe('explore services page', () => {
         await selectLoc.click();
 
         // Change to mimir namespace
-        const optionLoc = page.getByRole('option', { name: 'mimir', exact: true });
+        const optionLoc = page.getByRole('option', { exact: true, name: 'mimir' });
         await expect(optionLoc).toHaveCount(1);
         await optionLoc.click();
 

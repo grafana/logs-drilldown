@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, EmptyState } from '@grafana/ui';
+import { EmptyState, useStyles2 } from '@grafana/ui';
 
 type Props = {
   children?: React.ReactNode;

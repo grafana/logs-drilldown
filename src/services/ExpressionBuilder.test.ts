@@ -1,9 +1,10 @@
 import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
+
 import { ExpressionBuilder } from './ExpressionBuilder';
-import { addAdHocFilterUserInputPrefix, FieldValue } from './variables';
 import { FilterOp } from './filterTypes';
 import { renderLogQLFieldFilters, renderLogQLLabelFilters, renderLogQLMetadataFilters } from './query';
+import { addAdHocFilterUserInputPrefix, FieldValue } from './variables';
 
 describe('renderLogQLFieldFilters', () => {
   test('Renders positive filters', () => {
@@ -12,16 +13,16 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'info',
           parser: 'logfmt',
+          value: 'info',
         } as FieldValue),
       },
       {
         key: 'cluster',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'lil-cluster',
           parser: 'logfmt',
+          value: 'lil-cluster',
         } as FieldValue),
       },
     ];
@@ -33,48 +34,48 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.NotEqual,
         value: JSON.stringify({
+          parser: 'logfmt',
           value: 'info',
-          parser: 'logfmt',
         } as FieldValue),
       },
       {
         key: 'cluster',
         operator: FilterOp.NotEqual,
         value: JSON.stringify({
+          parser: 'logfmt',
           value: 'lil-cluster',
-          parser: 'logfmt',
         } as FieldValue),
       },
       {
         key: 'cluster',
         operator: FilterOp.NotEqual,
         value: JSON.stringify({
-          value: 'lil-cluster-2',
           parser: 'logfmt',
+          value: 'lil-cluster-2',
         } as FieldValue),
       },
       {
         key: 'filename',
         operator: FilterOp.NotEqual,
         value: JSON.stringify({
+          parser: 'logfmt',
           value: 'C:\\Grafana\\logs\\logs.txt',
-          parser: 'logfmt',
         } as FieldValue),
       },
       {
         key: 'pod',
         operator: FilterOp.Equal,
         value: JSON.stringify({
+          parser: 'logfmt',
           value: 'pod-1',
-          parser: 'logfmt',
         } as FieldValue),
       },
       {
         key: 'pod',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'pod-2',
           parser: 'logfmt',
+          value: 'pod-2',
         } as FieldValue),
       },
     ];
@@ -89,16 +90,16 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'info',
           parser: 'logfmt',
+          value: 'info',
         } as FieldValue),
       },
       {
         key: 'level',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'error',
           parser: 'logfmt',
+          value: 'error',
         } as FieldValue),
       },
     ];
@@ -111,40 +112,40 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'info',
           parser: 'logfmt',
+          value: 'info',
         } as FieldValue),
       },
       {
         key: 'component',
         operator: FilterOp.NotEqual,
         value: JSON.stringify({
-          value: 'comp1',
           parser: 'logfmt',
+          value: 'comp1',
         } as FieldValue),
       },
       {
         key: 'level',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'error',
           parser: 'logfmt',
+          value: 'error',
         } as FieldValue),
       },
       {
         key: 'cluster',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: 'lil-cluster',
           parser: 'logfmt',
+          value: 'lil-cluster',
         } as FieldValue),
       },
       {
         key: 'pod',
         operator: FilterOp.NotEqual,
         value: JSON.stringify({
-          value: 'pod1',
           parser: 'logfmt',
+          value: 'pod1',
         } as FieldValue),
       },
     ];
@@ -159,16 +160,16 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.RegexEqual,
         value: JSON.stringify({
-          value: 'info',
           parser: 'logfmt',
+          value: 'info',
         } as FieldValue),
       },
       {
         key: 'cluster',
         operator: FilterOp.RegexEqual,
         value: JSON.stringify({
-          value: 'lil"-cluster',
           parser: 'logfmt',
+          value: 'lil"-cluster',
         } as FieldValue),
       },
     ];
@@ -183,8 +184,8 @@ describe('renderLogQLFieldFilters', () => {
         operator: FilterOp.RegexEqual,
         value: addAdHocFilterUserInputPrefix(
           JSON.stringify({
-            value: '((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}',
             parser: 'logfmt',
+            value: '((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}',
           } as FieldValue)
         ),
       },
@@ -192,8 +193,8 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.RegexEqual,
         value: JSON.stringify({
-          value: 'error',
           parser: 'logfmt',
+          value: 'error',
         } as FieldValue),
       },
     ];
@@ -209,8 +210,8 @@ describe('renderLogQLFieldFilters', () => {
         operator: FilterOp.RegexNotEqual,
         value: addAdHocFilterUserInputPrefix(
           JSON.stringify({
-            value: 'in.+',
             parser: 'logfmt',
+            value: 'in.+',
           } as FieldValue)
         ),
       },
@@ -218,16 +219,16 @@ describe('renderLogQLFieldFilters', () => {
         key: 'level',
         operator: FilterOp.RegexNotEqual,
         value: JSON.stringify({
-          value: 'info',
           parser: 'logfmt',
+          value: 'info',
         } as FieldValue),
       },
       {
         key: 'cluster',
         operator: FilterOp.RegexNotEqual,
         value: JSON.stringify({
-          value: 'lil-cluster',
           parser: 'logfmt',
+          value: 'lil-cluster',
         } as FieldValue),
       },
     ];
@@ -240,16 +241,16 @@ describe('renderLogQLFieldFilters', () => {
         key: 'duration',
         operator: FilterOp.lte,
         value: JSON.stringify({
-          value: '20s',
           parser: 'logfmt',
+          value: '20s',
         } as FieldValue),
       },
       {
         key: 'duration',
         operator: FilterOp.gt,
         value: JSON.stringify({
-          value: '10s',
           parser: 'logfmt',
+          value: '10s',
         } as FieldValue),
       },
       {
@@ -257,8 +258,8 @@ describe('renderLogQLFieldFilters', () => {
         operator: FilterOp.RegexNotEqual,
         value: addAdHocFilterUserInputPrefix(
           JSON.stringify({
-            value: 'in.+',
             parser: 'logfmt',
+            value: 'in.+',
           } as FieldValue)
         ),
       },
@@ -271,24 +272,24 @@ describe('renderLogQLFieldFilters', () => {
         key: 'duration',
         operator: FilterOp.lt,
         value: JSON.stringify({
-          value: '20s',
           parser: 'logfmt',
+          value: '20s',
         } as FieldValue),
       },
       {
         key: 'duration',
         operator: FilterOp.gte,
         value: JSON.stringify({
-          value: '10s',
           parser: 'logfmt',
+          value: '10s',
         } as FieldValue),
       },
       {
         key: 'file',
         operator: FilterOp.RegexNotEqual,
         value: JSON.stringify({
-          value: 'C:\\grafana\\dir\\file.txt',
           parser: 'logfmt',
+          value: 'C:\\grafana\\dir\\file.txt',
         } as FieldValue),
       },
     ];
@@ -302,8 +303,8 @@ describe('renderLogQLFieldFilters', () => {
         key: 'bytes',
         operator: FilterOp.Equal,
         value: JSON.stringify({
-          value: '""',
           parser: 'logfmt',
+          value: '""',
         } as FieldValue),
       },
     ];
@@ -525,8 +526,8 @@ describe('getJoinedLabelsFilters', () => {
       filters: [
         {
           key: 'file',
-          value: 'C:\\Grafana\\Logs\\log.txt',
           operator: '=',
+          value: 'C:\\Grafana\\Logs\\log.txt',
         },
       ],
     });
@@ -535,8 +536,8 @@ describe('getJoinedLabelsFilters', () => {
     expect(result).toEqual([
       {
         key: 'file',
-        value: 'C:\\\\Grafana\\\\Logs\\\\log.txt',
         operator: '=',
+        value: 'C:\\\\Grafana\\\\Logs\\\\log.txt',
       },
     ]);
   });
@@ -545,8 +546,8 @@ describe('getJoinedLabelsFilters', () => {
       filters: [
         {
           key: 'file',
-          value: 'C:\\Grafana\\Logs\\log.txt',
           operator: '=~',
+          value: 'C:\\Grafana\\Logs\\log.txt',
         },
       ],
     });
@@ -555,8 +556,8 @@ describe('getJoinedLabelsFilters', () => {
     expect(result).toEqual([
       {
         key: 'file',
-        value: 'C:\\\\\\\\Grafana\\\\\\\\Logs\\\\\\\\log\\\\.txt',
         operator: '=~',
+        value: 'C:\\\\\\\\Grafana\\\\\\\\Logs\\\\\\\\log\\\\.txt',
       },
     ]);
   });
@@ -565,18 +566,18 @@ describe('getJoinedLabelsFilters', () => {
       filters: [
         {
           key: 'filename',
-          value: 'C:\\Grafana\\logs\\logs.txt',
           operator: '=',
+          value: 'C:\\Grafana\\logs\\logs.txt',
         },
         {
           key: 'filename',
-          value: 'C:\\Grafana\\logs\\logs2.txt',
           operator: '=',
+          value: 'C:\\Grafana\\logs\\logs2.txt',
         },
         {
           key: 'filename_2',
-          value: 'C:\\Grafana\\more-logs\\logs2.txt',
           operator: '=',
+          value: 'C:\\Grafana\\more-logs\\logs2.txt',
         },
       ],
     });
@@ -585,13 +586,13 @@ describe('getJoinedLabelsFilters', () => {
     expect(result).toEqual([
       {
         key: 'filename_2',
-        value: 'C:\\\\Grafana\\\\more-logs\\\\logs2.txt',
         operator: '=',
+        value: 'C:\\\\Grafana\\\\more-logs\\\\logs2.txt',
       },
       {
         key: 'filename',
-        value: 'C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs\\\\.txt|C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs2\\\\.txt',
         operator: '=~',
+        value: 'C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs\\\\.txt|C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs2\\\\.txt',
       },
     ]);
   });
@@ -599,18 +600,18 @@ describe('getJoinedLabelsFilters', () => {
     const filters = [
       {
         key: 'not_service_name',
-        value: 'not_service_name_value',
         operator: '=',
+        value: 'not_service_name_value',
       },
       {
         key: 'service_name',
+        operator: '!=',
         value: 'service_value',
-        operator: '!=',
       },
       {
         key: 'service_name',
-        value: 'service_value_2',
         operator: '!=',
+        value: 'service_value_2',
       },
     ];
 
@@ -622,13 +623,13 @@ describe('getJoinedLabelsFilters', () => {
     expect(result).toEqual([
       {
         key: 'not_service_name',
-        value: 'not_service_name_value',
         operator: '=',
+        value: 'not_service_name_value',
       },
       {
         key: 'service_name',
-        value: 'service_value|service_value_2',
         operator: '!~',
+        value: 'service_value|service_value_2',
       },
     ]);
   });
@@ -637,18 +638,18 @@ describe('getJoinedLabelsFilters', () => {
       filters: [
         {
           key: 'service_name',
-          value: addAdHocFilterUserInputPrefix(`service_value.+`),
           operator: '=~',
+          value: addAdHocFilterUserInputPrefix(`service_value.+`),
         },
         {
           key: 'service_name',
-          value: addAdHocFilterUserInputPrefix(`service_value_2$`),
           operator: '=~',
+          value: addAdHocFilterUserInputPrefix(`service_value_2$`),
         },
         {
           key: 'not_service_name',
-          value: 'C:\\Grafana Logs\\logfile.txt',
           operator: '=',
+          value: 'C:\\Grafana Logs\\logfile.txt',
         },
       ],
     });
@@ -657,13 +658,13 @@ describe('getJoinedLabelsFilters', () => {
     expect(result).toEqual([
       {
         key: 'not_service_name',
-        value: 'C:\\\\Grafana Logs\\\\logfile.txt',
         operator: '=',
+        value: 'C:\\\\Grafana Logs\\\\logfile.txt',
       },
       {
         key: 'service_name',
-        value: `service_value.+|service_value_2$`,
         operator: '=~',
+        value: `service_value.+|service_value_2$`,
       },
     ]);
   });
@@ -671,18 +672,18 @@ describe('getJoinedLabelsFilters', () => {
     const filters = [
       {
         key: 'not_service_name',
+        operator: '!~',
         value: 'not_service_name_value',
-        operator: '!~',
       },
       {
         key: 'service_name',
+        operator: '!~',
         value: 'service_value',
-        operator: '!~',
       },
       {
         key: 'service_name',
-        value: 'service_value_2',
         operator: '!~',
+        value: 'service_value_2',
       },
     ];
 
@@ -694,13 +695,13 @@ describe('getJoinedLabelsFilters', () => {
     expect(result).toEqual([
       {
         key: 'not_service_name',
-        value: 'not_service_name_value',
         operator: '!~',
+        value: 'not_service_name_value',
       },
       {
         key: 'service_name',
-        value: 'service_value|service_value_2',
         operator: '!~',
+        value: 'service_value|service_value_2',
       },
     ]);
   });

@@ -1,13 +1,15 @@
-import { LoadingState } from '@grafana/data';
-import { sceneGraph } from '@grafana/scenes';
+import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { of } from 'rxjs';
+
+import { LoadingState } from '@grafana/data';
+import { sceneGraph } from '@grafana/scenes';
+
 import { PatternNameLabel } from './PatternNameLabel';
 
 const mockResult = {
-  state: LoadingState.Done,
   data: [
     {
       fields: [
@@ -22,6 +24,7 @@ const mockResult = {
       ],
     },
   ],
+  state: LoadingState.Done,
 };
 
 jest.mock('@grafana/scenes', () => {

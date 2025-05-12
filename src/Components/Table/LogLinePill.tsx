@@ -1,79 +1,82 @@
 import React, { useMemo } from 'react';
-import { Row } from 'react-table';
+
 import { css, cx } from '@emotion/css';
+import { Row } from 'react-table';
 
 import { DataFrame, Field, FieldType, getLinksSupplier, GrafanaTheme2, LinkModel } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import { getCellLinks, useTheme2 } from '@grafana/ui';
 
-import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
+import { LEVEL_NAME } from './constants';
 import { CellContextMenu } from 'Components/Table/CellContextMenu';
+import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
+import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { getFieldMappings } from 'Components/Table/Table';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
-import { getTemplateSrv } from '@grafana/runtime';
-import { LEVEL_NAME } from './constants';
+import { useSharedStyles } from 'styles/shared-styles';
 
 interface LogLinePillProps {
-  originalField?: Field;
-  field?: Field;
   columns: FieldNameMetaStore;
-  label: string;
-  showColumns: () => void;
-  rowIndex: number;
+  field?: Field;
   frame: DataFrame;
-  originalFrame: DataFrame | undefined;
   isDerivedField: boolean;
+  label: string;
+  originalField?: Field;
+  originalFrame: DataFrame | undefined;
+  rowIndex: number;
+  showColumns: () => void;
   value: string;
 }
 
 const getStyles = (theme: GrafanaTheme2, levelColor?: string) => ({
+  activePill: css({}),
   pill: css({
+    display: 'inline-flex',
     flex: '0 1 auto',
+    flexDirection: 'column',
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
+    marginTop: theme.spacing(0.5),
     padding: `${theme.spacing(0.25)} ${theme.spacing(0.25)}`,
     position: 'relative',
-    display: 'inline-flex',
-    flexDirection: 'column',
-    marginTop: theme.spacing(0.5),
   }),
-  activePill: css({}),
   valueWrap: css({
-    border: `1px solid ${theme.colors.background.secondary}`,
-    boxShadow: `-2px 2px 5px 0px ${theme.colors.background.secondary}`,
-    backgroundColor: 'transparent',
-    cursor: 'pointer',
-    position: 'relative',
-
-    paddingRight: `${theme.spacing(0.5)}`,
-    paddingLeft: levelColor ? `${theme.spacing(0.75)}` : `${theme.spacing(0.5)}`,
-
     '&:before': {
-      content: '""',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      height: '100%',
-      width: `${theme.spacing(0.25)}`,
       backgroundColor: levelColor,
+      content: '""',
+      height: '100%',
+      left: 0,
+      position: 'absolute',
+      top: 0,
+      width: `${theme.spacing(0.25)}`,
     },
-
     '&:hover': {
       border: `1px solid ${theme.colors.border.strong}`,
     },
+    backgroundColor: 'transparent',
+    border: `1px solid ${theme.colors.background.secondary}`,
+    boxShadow: `-2px 2px 5px 0px ${theme.colors.background.secondary}`,
+
+    cursor: 'pointer',
+    paddingLeft: levelColor ? `${theme.spacing(0.75)}` : `${theme.spacing(0.5)}`,
+
+    paddingRight: `${theme.spacing(0.5)}`,
+
+    position: 'relative',
   }),
 });
 
 function LogLinePillValue(props: {
   fieldType?: 'derived';
-  onClick: () => void;
   label: string;
-  value: string;
-  menuActive: boolean;
-  onClickAdd: () => void;
   links?: LinkModel[];
+  menuActive: boolean;
+  onClick: () => void;
+  onClickAdd: () => void;
+  value: string;
 }) {
   const theme = useTheme2();
+  const { linkButton } = useSharedStyles();
 
   let levelColor;
   if (props.label === LEVEL_NAME) {
@@ -86,7 +89,10 @@ function LogLinePillValue(props: {
   const styles = getStyles(theme, levelColor);
 
   return (
-    <span className={cx(styles.pill, props.menuActive ? styles.activePill : undefined)} onClick={props.onClick}>
+    <button
+      className={cx(linkButton, styles.pill, props.menuActive ? styles.activePill : undefined)}
+      onClick={props.onClick}
+    >
       <span className={styles.valueWrap}>
         {props.label}={props.value}
       </span>
@@ -100,7 +106,7 @@ function LogLinePillValue(props: {
           showColumn={props.onClickAdd}
         />
       )}
-    </span>
+    </button>
   );
 }
 
@@ -164,10 +170,10 @@ export const LogLinePill = (props: LogLinePillProps) => {
         }
 
         return setActiveCellIndex({
-          index: props.rowIndex,
           fieldName: field.name,
-          subFieldName: label,
+          index: props.rowIndex,
           numberOfMenuItems: props.isDerivedField ? 2 : 3,
+          subFieldName: label,
         });
       }}
       menuActive={

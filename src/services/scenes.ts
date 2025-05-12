@@ -1,16 +1,17 @@
 import { urlUtil } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { sceneGraph, SceneObject, SceneObjectUrlValues, SceneQueryRunner, SceneTimePicker } from '@grafana/scenes';
+
+import { logger } from './logger';
+import { LokiDatasource } from './lokiQuery';
+import { EXPLORATIONS_ROUTE } from './routing';
 import {
   LOG_STREAM_SELECTOR_EXPR,
   PRETTY_LOG_STREAM_SELECTOR_EXPR,
   VAR_DATASOURCE_EXPR,
   VAR_LABELS_EXPR,
 } from './variables';
-import { EXPLORATIONS_ROUTE } from './routing';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { logger } from './logger';
-import { LokiDatasource } from './lokiQuery';
 
 export function getExplorationFor(model: SceneObject): IndexScene {
   return sceneGraph.getAncestor(model, IndexScene);

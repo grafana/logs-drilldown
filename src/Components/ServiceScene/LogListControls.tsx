@@ -1,0 +1,119 @@
+import React, { useCallback } from 'react';
+
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { IconButton, useStyles2 } from '@grafana/ui';
+
+import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
+
+interface Props {
+  lineState?: LogLineState;
+  onLineStateClick?(): void;
+  onManageColumnsClick?(): void;
+  onScrollToBottomClick?(): void;
+  onScrollToTopClick?(): void;
+  onSortOrderChange(newOrder: LogsSortOrder): void;
+  sortOrder: LogsSortOrder;
+}
+
+export const LogListControls = ({
+  lineState,
+  onLineStateClick,
+  onManageColumnsClick,
+  onScrollToBottomClick,
+  onScrollToTopClick,
+  onSortOrderChange,
+  sortOrder,
+}: Props) => {
+  const styles = useStyles2(getStyles);
+
+  const toggleSortOrder = useCallback(() => {
+    onSortOrderChange(sortOrder === LogsSortOrder.Ascending ? LogsSortOrder.Descending : LogsSortOrder.Ascending);
+  }, [onSortOrderChange, sortOrder]);
+
+  return (
+    <div className={styles.navContainer}>
+      {onScrollToBottomClick && (
+        <IconButton
+          name="arrow-down"
+          className={styles.controlButton}
+          variant="secondary"
+          onClick={onScrollToBottomClick}
+          tooltip={'Scroll to bottom'}
+          size="lg"
+        />
+      )}
+      <IconButton
+        name={sortOrder === LogsSortOrder.Descending ? 'sort-amount-up' : 'sort-amount-down'}
+        className={styles.controlButton}
+        onClick={toggleSortOrder}
+        tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
+        size="lg"
+      />
+      {onManageColumnsClick && (
+        <IconButton
+          name="columns"
+          className={styles.controlButton}
+          onClick={onManageColumnsClick}
+          tooltip={'Manage columns'}
+          size="lg"
+        />
+      )}
+      {onLineStateClick && lineState && (
+        <IconButton
+          name={lineState === LogLineState.text ? 'brackets-curly' : 'text-fields'}
+          className={styles.controlButton}
+          onClick={onLineStateClick}
+          tooltip={lineState === LogLineState.text ? 'Show labels' : 'Show log text'}
+          size="lg"
+        />
+      )}
+      {onScrollToTopClick && (
+        <IconButton
+          name="arrow-up"
+          data-testid="scrollToTop"
+          className={styles.scrollToTopButton}
+          variant="secondary"
+          onClick={onScrollToTopClick}
+          tooltip="Scroll to top"
+          size="lg"
+        />
+      )}
+    </div>
+  );
+};
+
+const getStyles = (theme: GrafanaTheme2) => {
+  return {
+    controlButton: css({
+      color: theme.colors.text.secondary,
+      height: theme.spacing(2),
+      margin: 0,
+    }),
+    divider: css({
+      borderTop: `solid 1px ${theme.colors.border.medium}`,
+      height: 1,
+      marginBottom: theme.spacing(-1.75),
+      marginTop: theme.spacing(-0.25),
+    }),
+    navContainer: css({
+      borderLeft: `solid 1px ${theme.colors.border.medium}`,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(3),
+      justifyContent: 'flex-start',
+      maxHeight: '100%',
+      overflow: 'hidden',
+      paddingLeft: theme.spacing(1),
+      paddingTop: theme.spacing(0.75),
+      width: theme.spacing(4),
+    }),
+    scrollToTopButton: css({
+      color: theme.colors.text.secondary,
+      height: theme.spacing(2),
+      margin: 0,
+      marginTop: 'auto',
+    }),
+  };
+};

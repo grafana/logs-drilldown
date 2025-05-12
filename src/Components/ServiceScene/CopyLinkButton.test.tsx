@@ -1,7 +1,9 @@
-import { act, render, screen } from '@testing-library/react';
-import { CopyLinkButton } from './CopyLinkButton';
 import React from 'react';
+
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import { CopyLinkButton } from './CopyLinkButton';
 
 beforeAll(() => {
   jest.useFakeTimers();

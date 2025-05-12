@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
+import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneFlexItem,
@@ -11,50 +14,66 @@ import {
   SceneObjectUrlValues,
   SceneTimeRangeLike,
 } from '@grafana/scenes';
-import { SelectedTableRow } from '../Table/LogLineCellComponent';
-import { LogsTableScene } from './LogsTableScene';
-import { css } from '@emotion/css';
+import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
+
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { locationService } from '@grafana/runtime';
+import { logger } from '../../services/logger';
+import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
+import { LogLineState } from '../Table/Context/TableColumnsContext';
+import { SelectedTableRow } from '../Table/LogLineCellComponent';
+import { LineFilterScene } from './LineFilter/LineFilterScene';
+import { LogsJsonScene } from './LogsJsonScene';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsTableScene } from './LogsTableScene';
 import {
   getDisplayedFields,
   getLogsVisualizationType,
   LogsVisualizationType,
   setLogsVisualizationType,
 } from 'services/store';
-import { logger } from '../../services/logger';
-import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
-import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
-import { LogLineState } from '../Table/Context/TableColumnsContext';
-import { LineFilterScene } from './LineFilter/LineFilterScene';
 
 export interface LogsListSceneState extends SceneObjectState {
-  loading?: boolean;
-  panel?: SceneFlexLayout;
-  visualizationType: LogsVisualizationType;
-  urlColumns?: string[];
-  tableLogLineState?: LogLineState;
-  selectedLine?: SelectedTableRow;
   $timeRange?: SceneTimeRangeLike;
   displayedFields: string[];
   lineFilter?: string;
+  loading?: boolean;
+  panel?: SceneFlexLayout;
+  selectedLine?: SelectedTableRow;
+  tableLogLineState?: LogLineState;
+  urlColumns?: string[];
+  visualizationType: LogsVisualizationType;
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['urlColumns', 'selectedLine', 'visualizationType', 'displayedFields', 'tableLogLineState'],
   });
+
   private logsPanelScene?: LogsPanelScene = undefined;
+
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
-      visualizationType: getLogsVisualizationType(),
       displayedFields: [],
+      visualizationType: getLogsVisualizationType(),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
+
+  public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
+    const { panel } = model.useState();
+
+    if (!panel) {
+      return;
+    }
+
+    return (
+      <div className={styles.panelWrapper}>
+        <panel.Component model={panel} />
+      </div>
+    );
+  };
 
   getUrlState() {
     const urlColumns = this.state.urlColumns ?? [];
@@ -62,11 +81,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const visualizationType = this.state.visualizationType;
     const displayedFields = this.state.displayedFields ?? getDisplayedFields(this) ?? [];
     return {
-      urlColumns: JSON.stringify(urlColumns),
-      selectedLine: JSON.stringify(selectedLine),
-      visualizationType: JSON.stringify(visualizationType),
       displayedFields: JSON.stringify(displayedFields),
+      selectedLine: JSON.stringify(selectedLine),
       tableLogLineState: JSON.stringify(this.state.tableLogLineState),
+      urlColumns: JSON.stringify(urlColumns),
+      visualizationType: JSON.stringify(visualizationType),
     };
   }
 
@@ -88,12 +107,14 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           }
         }
       }
+
       if (typeof values.visualizationType === 'string') {
         const decodedVisualizationType = narrowLogsVisualizationType(JSON.parse(values.visualizationType));
         if (decodedVisualizationType && decodedVisualizationType !== this.state.visualizationType) {
           stateUpdate.visualizationType = decodedVisualizationType;
         }
       }
+
       if (typeof values.displayedFields === 'string') {
         const displayedFields = unknownToStrings(JSON.parse(values.displayedFields));
         if (displayedFields && displayedFields.length) {
@@ -154,11 +175,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const tableLogLineState = searchParams.get('tableLogLineState');
 
     this.updateFromUrl({
+      displayedFields: displayedFieldsUrl,
       selectedLine: selectedLineUrl,
+      tableLogLineState,
       urlColumns: urlColumnsUrl,
       vizType: vizTypeUrl,
-      displayedFields: displayedFieldsUrl,
-      tableLogLineState,
     });
   }
 
@@ -172,7 +193,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.setState({
       panel: this.getVizPanel(),
     });
-
     // Subscribe to line filter state so we can pass the current filter between different viz
     if (this.state.panel) {
       const lineFilterScenes = sceneGraph.findDescendents(this.state.panel, LineFilterScene);
@@ -209,50 +229,49 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   private getVizPanel() {
     this.logsPanelScene = new LogsPanelScene({});
 
+    const children =
+      this.state.visualizationType === 'logs'
+        ? [
+            new SceneFlexLayout({
+              children: [
+                new SceneFlexItem({
+                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                  xSizing: 'fill',
+                }),
+              ],
+            }),
+            new SceneFlexItem({
+              body: this.logsPanelScene,
+              height: 'calc(100vh - 220px)',
+            }),
+          ]
+        : this.state.visualizationType === 'json'
+        ? [
+            new SceneFlexItem({
+              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+              xSizing: 'fill',
+            }),
+            new SceneFlexItem({
+              body: new LogsJsonScene({}),
+              height: 'calc(100vh - 220px)',
+            }),
+          ]
+        : [
+            new SceneFlexItem({
+              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+              xSizing: 'fill',
+            }),
+            new SceneFlexItem({
+              body: new LogsTableScene({}),
+              height: 'calc(100vh - 220px)',
+            }),
+          ];
+
     return new SceneFlexLayout({
+      children,
       direction: 'column',
-      children:
-        this.state.visualizationType === 'logs'
-          ? [
-              new SceneFlexLayout({
-                children: [
-                  new SceneFlexItem({
-                    body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                    xSizing: 'fill',
-                  }),
-                ],
-              }),
-              new SceneFlexItem({
-                height: 'calc(100vh - 220px)',
-                body: this.logsPanelScene,
-              }),
-            ]
-          : [
-              new SceneFlexItem({
-                body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                xSizing: 'fill',
-              }),
-              new SceneFlexItem({
-                height: 'calc(100vh - 220px)',
-                body: new LogsTableScene({}),
-              }),
-            ],
     });
   }
-
-  public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
-    const { panel } = model.useState();
-
-    if (!panel) {
-      return;
-    }
-
-    return (
-      <div className={styles.panelWrapper}>
-        <panel.Component model={panel} />
-      </div>
-    );
-  };
 }
 
 const styles = {

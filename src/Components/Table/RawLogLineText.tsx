@@ -1,7 +1,10 @@
 import React from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
+
 import { testIds } from '../../services/testIds';
 
 export function RawLogLineText(props: { value: unknown }) {
@@ -17,10 +20,10 @@ export function RawLogLineText(props: { value: unknown }) {
 export const getStyles = (theme: GrafanaTheme2, bgColor?: string) => ({
   rawLogLine: css({
     fontFamily: theme.typography.fontFamilyMonospace,
+    fontSize: theme.typography.bodySmall.fontSize,
     height: '35px',
     lineHeight: '35px',
-    paddingRight: theme.spacing(1.5),
     paddingLeft: theme.spacing(1),
-    fontSize: theme.typography.bodySmall.fontSize,
+    paddingRight: theme.spacing(1.5),
   }),
 });

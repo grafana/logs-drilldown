@@ -1,10 +1,12 @@
+import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import { GoToExploreButton } from './GoToExploreButton';
-import { getDisplayedFields, getLogsVisualizationType } from 'services/store';
-import { getDataSource, getQueryExpr } from 'services/scenes';
-import React from 'react';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { getDataSource, getQueryExpr } from 'services/scenes';
+import { getDisplayedFields, getLogsVisualizationType } from 'services/store';
 
 jest.mock('services/analytics', () => ({
   ...jest.requireActual('services/analytics'),
@@ -19,7 +21,7 @@ jest.mock('@grafana/scenes', () => {
     sceneGraph: {
       ...actualScenes.sceneGraph,
       getTimeRange: jest.fn().mockReturnValue({
-        state: { value: { from: 'now-1h', to: 'now', raw: { from: 123456789, to: 987654321 } } },
+        state: { value: { from: 'now-1h', raw: { from: 123456789, to: 987654321 }, to: 'now' } },
       }),
     },
   };

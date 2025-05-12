@@ -2,11 +2,11 @@ import uFuzzy from '@leeoniya/ufuzzy';
 import { debounce as debounceLodash } from 'lodash';
 
 const uf = new uFuzzy({
-  intraMode: 1,
+  intraDel: 1,
   intraIns: 1,
+  intraMode: 1,
   intraSub: 1,
   intraTrn: 1,
-  intraDel: 1,
 });
 
 export function fuzzySearch(haystack: string[], query: string, callback: (data: string[][]) => void) {

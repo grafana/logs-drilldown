@@ -1,7 +1,8 @@
 import { MetricExpr, parser, Selector } from '@grafana/lezer-logql';
-import { LokiQuery } from './lokiQuery';
-import { getNodesFromQuery } from './logqlMatchers';
+
 import { SceneDataQueryRequest } from './datasourceTypes';
+import { getNodesFromQuery } from './logqlMatchers';
+import { LokiQuery } from './lokiQuery';
 
 export function isQueryWithNode(query: string, nodeType: number): boolean {
   let isQueryWithNode = false;

@@ -1,17 +1,19 @@
 import { AdHocVariableFilter, SelectableValue } from '@grafana/data';
+import { AdHocFilterWithLabels, sceneGraph, SceneObject, sceneUtils } from '@grafana/scenes';
+
+import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
+import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
+import { ExpressionBuilder } from './ExpressionBuilder';
+import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
+import { LokiQuery } from './lokiQuery';
+import { PLUGIN_ID } from './plugin';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFiltersWithLabelsAndMeta,
   FieldValue,
   VAR_DATASOURCE_EXPR,
+  VAR_JSON_FIELDS_EXPR,
 } from './variables';
-import { LokiQuery } from './lokiQuery';
-import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
-import { PLUGIN_ID } from './plugin';
-import { AdHocFilterWithLabels, sceneUtils } from '@grafana/scenes';
-import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
-import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
-import { ExpressionBuilder } from './ExpressionBuilder';
 
 /**
  * Builds the resource query
@@ -28,8 +30,8 @@ export const buildResourceQuery = (
 ): LokiQuery & SceneDataQueryResourceRequest & { primaryLabel?: string } => {
   return {
     ...defaultQueryParams,
-    resource,
     refId: resource,
+    resource,
     ...queryParamsOverrides,
     datasource: { uid: VAR_DATASOURCE_EXPR },
     expr,
@@ -51,15 +53,15 @@ export const buildDataQuery = (expr: string, queryParamsOverrides?: Partial<Loki
 };
 
 const defaultQueryParams = {
-  refId: 'A',
-  queryType: 'range',
   editorMode: 'code',
+  queryType: 'range',
+  refId: 'A',
   supportingQueryType: PLUGIN_ID,
 };
 
 export const buildVolumeQuery = (
   expr: string,
-  resource: 'volume' | 'patterns' | 'detected_labels' | 'detected_fields' | 'labels',
+  resource: 'detected_fields' | 'detected_labels' | 'labels' | 'patterns' | 'volume',
   primaryLabel: string,
   queryParamsOverrides?: Record<string, unknown>
 ): LokiQuery & SceneDataQueryResourceRequest => {
@@ -93,8 +95,8 @@ export function onAddCustomFieldValue(
   filter: AdHocFiltersWithLabelsAndMeta
 ): { value: string | undefined; valueLabels: string[] } {
   const field: FieldValue = {
-    value: item.value ?? '',
     parser: filter?.meta?.parser ?? 'mixed',
+    value: item.value ?? '',
   };
 
   // metadata is not encoded
@@ -195,6 +197,42 @@ export function unwrapWildcardSearch(input: string) {
 
 export function sanitizeStreamSelector(expression: string) {
   return expression.replace(/\s*,\s*}/, '}');
+}
+
+/**
+ * Variables that contain other variables are not interpolated, until interpolate is called again.
+ */
+export function interpolateExpression(sceneObject: SceneObject, uninterpolatedExpr: string | undefined) {
+  let expr = sceneGraph.interpolate(sceneObject, uninterpolatedExpr);
+
+  // interpolate doesn't interpolate nested variables, so we check to see if the un-interpolated variable is still present and run it again.
+  if (expr.includes(VAR_JSON_FIELDS_EXPR)) {
+    expr = sceneGraph.interpolate(sceneObject, expr);
+  }
+
+  return expr;
+}
+
+export function getJsonParserExpressionBuilder() {
+  return (filters: AdHocFilterWithLabels[]) => {
+    return filters
+      .map((filter) => {
+        return `${filter.key}${filter.operator}"${filter.value}"`;
+      })
+      .join(',');
+  };
+}
+
+export function getLineFormatExpressionBuilder() {
+  return (filters: AdHocFilterWithLabels[]) => {
+    if (filters.length) {
+      // We should only have a single line_format, which saves the state of where we're currently "drilled in"
+      // we're using an-ad-hoc variable instead of a regular text variable because we need to be able to delete the json parser value associated with this "drilldown",
+      const key = filters.map((filter) => filter.key).join('_');
+      return `| line_format "{{.${key}}}"`;
+    }
+    return '';
+  };
 }
 
 // default line limit; each data source can define it's own line limit too

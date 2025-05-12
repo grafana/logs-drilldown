@@ -1,5 +1,6 @@
-import { FilterOp, LineFilterOp } from './filterTypes';
 import { SelectableValue } from '@grafana/data';
+
+import { FilterOp, LineFilterOp } from './filterTypes';
 import { getOperatorDescription } from './getOperatorDescription';
 
 export const operators = [FilterOp.Equal, FilterOp.NotEqual, FilterOp.RegexEqual, FilterOp.RegexNotEqual].map<

@@ -9,6 +9,21 @@ import {
   SceneObjectState,
 } from '@grafana/scenes';
 import { VariableHide } from '@grafana/schema';
+
+import { areArraysEqual } from '../../../services/comparison';
+import { addToFavorites } from '../../../services/favorites';
+import { getParserForField } from '../../../services/fields';
+import { isFilterMetadata } from '../../../services/filters';
+import { FilterOp, NumericFilterOp } from '../../../services/filterTypes';
+import { logger } from '../../../services/logger';
+import { addCurrentUrlToHistory } from '../../../services/navigate';
+import {
+  getAdHocFiltersVariable,
+  getFieldsAndMetadataVariable,
+  getValueFromAdHocVariableFilter,
+} from '../../../services/variableGetters';
+import { getDetectedLabelsFrame } from '../ServiceScene';
+import { FilterButton } from 'Components/FilterButton';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import {
   LEVEL_VARIABLE_VALUE,
@@ -19,33 +34,18 @@ import {
   VAR_LEVELS,
   VAR_METADATA,
 } from 'services/variables';
-import { FilterButton } from 'Components/FilterButton';
-import { getDetectedLabelsFrame } from '../ServiceScene';
-import { getParserForField } from '../../../services/fields';
-import {
-  getAdHocFiltersVariable,
-  getFieldsAndMetadataVariable,
-  getValueFromAdHocVariableFilter,
-} from '../../../services/variableGetters';
-import { FilterOp, NumericFilterOp } from '../../../services/filterTypes';
-
-import { addToFavorites } from '../../../services/favorites';
-import { areArraysEqual } from '../../../services/comparison';
-import { logger } from '../../../services/logger';
-import { isFilterMetadata } from '../../../services/filters';
-import { addCurrentUrlToHistory } from '../../../services/navigate';
 
 export interface AddToFiltersButtonState extends SceneObjectState {
   frame: DataFrame;
-  variableName: InterpolatedFilterType;
   hideExclude?: boolean;
-  isIncluded?: boolean;
   isExcluded?: boolean;
+  isIncluded?: boolean;
+  variableName: InterpolatedFilterType;
 }
 
 export class AddFilterEvent extends BusEventBase {
   constructor(
-    public source: 'legend' | 'filterButton' | 'variable',
+    public source: 'filterButton' | 'legend' | 'variable',
     public operator: FilterType | NumericFilterType,
     public key: string,
     public value?: string
@@ -70,7 +70,7 @@ export type NumericFilterType = NumericFilterOp.gt | NumericFilterOp.gte | Numer
  * - clear: remove filter if exists
  * - toggle: if the filter does not exist, add as include; if exists, remove
  */
-export type FilterType = 'include' | 'clear' | 'exclude' | 'toggle';
+export type FilterType = 'clear' | 'exclude' | 'include' | 'toggle';
 
 export function addAdHocFilter(filter: AdHocVariableFilter, scene: SceneObject, variableType: InterpolatedFilterType) {
   const type: FilterType = filter.operator === '=' ? 'include' : 'exclude';
@@ -164,8 +164,8 @@ export function addNumericFilter(
   let valueObject: string | undefined = undefined;
   if (variableType === VAR_FIELDS) {
     valueObject = JSON.stringify({
-      value,
       parser: getParserForField(key, scene),
+      value,
     });
   }
 
@@ -202,10 +202,15 @@ export function addToFilters(
   value: string,
   operator: FilterType,
   scene: SceneObject,
-  variableType: InterpolatedFilterType
+  variableType: InterpolatedFilterType,
+  addToHistory = true,
+  // JSON nested nodes will not exist in the detected_fields response, so if this is being called from the json viz, assume JSON parser
+  jsonParser = false
 ) {
   // Add the current url to browser history before the state is changed so the user can revert their change.
-  addCurrentUrlToHistory();
+  if (addToHistory) {
+    addCurrentUrlToHistory();
+  }
 
   if (variableType === VAR_LABELS) {
     addToFavorites(key, value, scene);
@@ -217,8 +222,8 @@ export function addToFilters(
   let valueLabel = value;
   if (variableType === VAR_FIELDS) {
     valueObject = JSON.stringify({
+      parser: jsonParser ? 'json' : getParserForField(key, scene),
       value,
-      parser: getParserForField(key, scene),
     });
   } else if (variableType === VAR_LEVELS && operator === 'exclude') {
     valueLabel = `!${value}`;
@@ -264,7 +269,7 @@ export function addToFilters(
 export function replaceFilter(
   key: string,
   value: string,
-  operator: Extract<FilterType, 'include' | 'exclude'>,
+  operator: Extract<FilterType, 'exclude' | 'include'>,
   scene: SceneObject,
   variableType: InterpolatedFilterType
 ) {
@@ -322,8 +327,8 @@ export class AddToFiltersButton extends SceneObjectBase<AddToFiltersButtonState>
     const filter = getFilter(this.state.frame);
     if (!filter) {
       this.setState({
-        isIncluded: false,
         isExcluded: false,
+        isIncluded: false,
       });
       return;
     }
@@ -337,15 +342,15 @@ export class AddToFiltersButton extends SceneObjectBase<AddToFiltersButtonState>
 
     if (!filterInSelectedFilters) {
       this.setState({
-        isIncluded: false,
         isExcluded: false,
+        isIncluded: false,
       });
       return;
     }
 
     this.setState({
-      isIncluded: filterInSelectedFilters.operator === FilterOp.Equal,
       isExcluded: filterInSelectedFilters.operator === FilterOp.NotEqual,
+      isIncluded: filterInSelectedFilters.operator === FilterOp.Equal,
     });
   }
 
@@ -362,10 +367,10 @@ export class AddToFiltersButton extends SceneObjectBase<AddToFiltersButtonState>
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.add_to_filters_in_breakdown_clicked,
       {
-        filterType: this.state.variableName,
-        key: filter.name,
         action: type,
         filtersLength: variable?.state.filters.length || 0,
+        filterType: this.state.variableName,
+        key: filter.name,
       }
     );
   };

@@ -1,18 +1,20 @@
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import React from 'react';
-import { BusEventBase, DataFrame, FieldReducerInfo, ReducerID, SelectableValue, fieldReducers } from '@grafana/data';
-import { getLabelValueFromDataFrame } from 'services/levels';
+
+import { BusEventBase, DataFrame, FieldReducerInfo, fieldReducers, ReducerID, SelectableValue } from '@grafana/data';
+import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { InlineField, Select } from '@grafana/ui';
-import { getSortByPreference, setSortByPreference } from 'services/store';
-import { testIds } from '../../../services/testIds';
+
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
+import { testIds } from '../../../services/testIds';
+import { getLabelValueFromDataFrame } from 'services/levels';
+import { getSortByPreference, setSortByPreference } from 'services/store';
 
 export type SortBy = 'changepoint' | 'outliers' | ReducerID | '';
 export type SortDirection = 'asc' | 'desc';
 export interface SortBySceneState extends SceneObjectState {
-  target: 'fields' | 'labels';
-  sortBy: SortBy;
   direction: SortDirection;
+  sortBy: SortBy;
+  target: 'fields' | 'labels';
 }
 
 export class SortCriteriaChanged extends BusEventBase {
@@ -28,39 +30,39 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
       label: '',
       options: [
         {
-          value: 'changepoint',
-          label: 'Most relevant',
           description: 'Smart ordering of graphs based on the most significant spikes in the data',
+          label: 'Most relevant',
+          value: 'changepoint',
         },
         {
-          value: 'outliers',
-          label: 'Outlying values',
           description: 'Order by the amount of outlying values in the data',
+          label: 'Outlying values',
+          value: 'outliers',
         },
         {
-          value: ReducerID.stdDev,
-          label: 'Widest spread',
           description: 'Sort graphs by deviation from the average value',
+          label: 'Widest spread',
+          value: ReducerID.stdDev,
         },
         {
-          value: 'alphabetical',
-          label: 'Name',
           description: 'Alphabetical order',
+          label: 'Name',
+          value: 'alphabetical',
         },
         {
-          value: ReducerID.sum,
-          label: 'Count',
           description: 'Sort graphs by total number of logs',
+          label: 'Count',
+          value: ReducerID.sum,
         },
         {
-          value: ReducerID.max,
-          label: 'Highest spike',
           description: 'Sort graphs by the highest values (max)',
+          label: 'Highest spike',
+          value: ReducerID.max,
         },
         {
-          value: ReducerID.min,
-          label: 'Lowest dip',
           description: 'Sort graphs by the smallest values (min)',
+          label: 'Lowest dip',
+          value: ReducerID.min,
         },
       ],
     },
@@ -71,11 +73,11 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
   ];
 
   constructor(state: Pick<SortBySceneState, 'target'>) {
-    const { sortBy, direction } = getSortByPreference(state.target, DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference(state.target, DEFAULT_SORT_BY, 'desc');
     super({
-      target: state.target,
-      sortBy,
       direction,
+      sortBy,
+      target: state.target,
     });
   }
 
@@ -98,7 +100,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
   };
 
   public static Component = ({ model }: SceneComponentProps<SortByScene>) => {
-    const { sortBy, direction } = model.useState();
+    const { direction, sortBy } = model.useState();
     const group = model.sortingOptions.find((group) =>
       group.options.find((option: SelectableValue<SortBy>) => option.value === sortBy)
     );

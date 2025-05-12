@@ -1,6 +1,7 @@
 package log
 
 import (
+	"log"
 	"time"
 
 	"github.com/grafana/loki/pkg/push"
@@ -32,7 +33,10 @@ func (app *AppLogger) Log(level model.LabelValue, t time.Time, message string) {
 	if !ok {
 		labels = app.labels
 	}
-	_ = app.logger.Handle(labels, t, message)
+	err := app.logger.Handle(labels, t, message)
+	if err != nil {
+		log.Printf("Error logging message: %s", err)
+	}
 }
 
 func (app *AppLogger) LogWithMetadata(level model.LabelValue, t time.Time, message string, metadata push.LabelsAdapter) {
@@ -40,5 +44,8 @@ func (app *AppLogger) LogWithMetadata(level model.LabelValue, t time.Time, messa
 	if !ok {
 		labels = app.labels
 	}
-	_ = app.logger.HandleWithMetadata(labels, t, message, metadata)
+	err := app.logger.HandleWithMetadata(labels, t, message, metadata)
+	if err != nil {
+		log.Printf("Error logging message: %s", err)
+	}
 }

@@ -1,10 +1,11 @@
-import { locationService } from '@grafana/runtime';
-import { getLineFiltersVariable } from './variableGetters';
-import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { urlUtil } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
+
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
+import { getLineFiltersVariable } from './variableGetters';
 
 function removeEscapeChar(value: string, caseSensitive: boolean) {
   const charsEscapedByEscapeRegExp = ['^', '$', '.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|'];
@@ -48,9 +49,9 @@ export function migrateLineFilterV1(serviceScene: ServiceScene) {
         filters: [
           {
             key: LineFilterCaseSensitive.caseSensitive,
+            keyLabel: '0',
             operator: LineFilterOp.match,
             value: removeEscapeChar(caseSensitiveMatches[1], true),
-            keyLabel: '0',
           },
         ],
       });
@@ -63,9 +64,9 @@ export function migrateLineFilterV1(serviceScene: ServiceScene) {
       globalLineFilterVars.updateFilters([
         {
           key: LineFilterCaseSensitive.caseInsensitive,
+          keyLabel: '0',
           operator: LineFilterOp.match,
           value: removeEscapeChar(caseInsensitiveMatches[1], false),
-          keyLabel: '0',
         },
       ]);
     });

@@ -1,16 +1,15 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - master
-      - main
-  pull_request:
-    branches:
-      - master
-      - main
-env:
-  BUNDLEWATCH_GITHUB_TOKEN: ${{secrets.BUNDLEWATCH_GITHUB_TOKEN}}
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - master
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - master
+  #     - main
 
 jobs:
   build:
@@ -59,8 +58,6 @@ jobs:
         run: yarn test:ci
       - name: Build frontend
         run: yarn build
-      - name: Check bundlesize
-        run: yarn run bundlewatch
       - name: Start grafana docker
         run: yarn server:ci
       - name: Install Playwright Browsers
@@ -76,6 +73,17 @@ jobs:
         with:
           name: playwright-report-${{github.run_id}}
           path: playwright-report/
+          retention-days: 5
+      - name: Capture Docker logs
+        id: capture-docker-logs
+        if: ${{ (always() && steps.run-tests.outcome == 'success') || (failure() && steps.run-tests.outcome == 'failure') }}
+        run: docker compose -f docker-compose.dev.yaml logs > docker-compose-logs.txt
+      - name: Upload Docker logs
+        if: ${{ always() && steps.capture-docker-logs.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: docker-logs-${{github.run_id}}
+          path: docker-compose-logs.txt
           retention-days: 5
       - name: Stop grafana docker
         run: docker compose down
@@ -127,9 +135,12 @@ jobs:
 
       - name: Package plugin
         id: package-plugin
+        env:
+          PLUGIN_ID: ${{ steps.metadata.outputs.plugin-id }}
+          PLUGIN_ARCHIVE: ${{ steps.metadata.outputs.archive }}
         run: |
-          mv dist ${{ steps.metadata.outputs.plugin-id }}
-          zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
+          mv "dist" "$PLUGIN_ID"
+          zip "$PLUGIN_ARCHIVE" "$PLUGIN_ID" -r
 
       - name: Archive Build
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

@@ -24,8 +24,8 @@ type OtelLogger struct {
 }
 
 // NewOtelLogger creates a new OpenTelemetry-aware logger
-func NewOtelLogger(svcName string) *OtelLogger {
-	provider, err := loggingProvider(svcName)
+func NewOtelLogger(svcName string, labels model.LabelSet) *OtelLogger {
+	provider, err := loggingProvider(svcName, labels)
 	if err != nil {
 		return nil
 	}
@@ -46,9 +46,16 @@ func (o *OtelLogger) HandleWithMetadata(labels model.LabelSet, timestamp time.Ti
 
 	// Add all labels as attributes
 	for k, v := range labels {
+		// Skip indexed labels, they've already been added as resource attributes
+		switch k {
+		case "cluster", "namespace", "env", "service_name":
+			continue
+		}
+
 		attrs = append(attrs, slog.String(string(k), string(v)))
 	}
 
+	//
 	// Add metadata if present
 	if metadata != nil {
 		for _, label := range metadata {
@@ -103,7 +110,7 @@ func getSlogLevel(labels model.LabelSet) slog.Level {
 	return slog.LevelInfo
 }
 
-func loggingProvider(svcName string) (*sdk.LoggerProvider, error) {
+func loggingProvider(svcName string, labels model.LabelSet) (*sdk.LoggerProvider, error) {
 	ctx := context.Background()
 
 	// Get collector endpoint from env var or use default
@@ -119,11 +126,26 @@ func loggingProvider(svcName string) (*sdk.LoggerProvider, error) {
 		return nil, fmt.Errorf("failed to connect to collector: %w", err)
 	}
 
-	// Create resource with service information
+	var cluster, namespace, env string
+	for k, v := range labels {
+		switch k {
+		case "cluster":
+			cluster = string(v)
+		case "namespace":
+			namespace = string(v)
+		case "env":
+			env = string(v)
+		}
+	}
+
+	// Create resource with service information and indexed labels
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			semconv.ServiceName(svcName),
 			semconv.ServiceVersion("1.0.0"),
+			semconv.K8SNamespaceName(namespace),
+			semconv.K8SClusterName(cluster),
+			semconv.DeploymentEnvironment(env),
 		),
 	)
 	if err != nil {

@@ -1,34 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { RegexIconButton } from './RegexIconButton';
-import { Button, Field, Select, useStyles2 } from '@grafana/ui';
-import { testIds } from '../../../services/testIds';
+
 import { css, cx } from '@emotion/css';
-import { LineFilterCaseSensitivityButton } from './LineFilterCaseSensitivityButton';
+
 import { GrafanaTheme2 } from '@grafana/data';
-import { LineFilterInput } from '../Breakdowns/LineFilterInput';
+import { Button, Field, Select, useStyles2 } from '@grafana/ui';
+
+import { testIds } from '../../../services/testIds';
 import { LineFilterProps } from '../../IndexScene/LineFilterVariable';
+import { LineFilterInput } from '../Breakdowns/LineFilterInput';
+import { LineFilterCaseSensitivityButton } from './LineFilterCaseSensitivityButton';
+import { RegexIconButton } from './RegexIconButton';
 
 export interface LineFilterEditorProps extends LineFilterProps {
   focus: boolean;
   setFocus: (focus: boolean) => void;
-  type: 'variable' | 'editor';
+  type: 'editor' | 'variable';
 }
 
 const INITIAL_INPUT_WIDTH = 30;
 
 export function LineFilterEditor({
-  exclusive,
-  lineFilter,
   caseSensitive,
-  setExclusive,
-  regex,
-  onInputChange,
-  onCaseSensitiveToggle,
-  onRegexToggle,
-  handleEnter,
-  onSubmitLineFilter,
-  onClearLineFilter,
+  exclusive,
   focus,
+  handleEnter,
+  lineFilter,
+  onCaseSensitiveToggle,
+  onClearLineFilter,
+  onInputChange,
+  onRegexToggle,
+  onSubmitLineFilter,
+  regex,
+  setExclusive,
   setFocus,
   type,
 }: LineFilterEditorProps) {
@@ -55,12 +58,12 @@ export function LineFilterEditor({
           value={exclusive ? 'exclusive' : 'inclusive'}
           options={[
             {
-              value: 'exclusive',
               label: 'Exclude',
+              value: 'exclusive',
             },
             {
-              value: 'inclusive',
               label: 'Include',
+              value: 'inclusive',
             },
           ]}
           onChange={() => setExclusive(!exclusive)}
@@ -126,82 +129,82 @@ export function LineFilterEditor({
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, type: 'variable' | 'editor') => ({
-  inputNoBorderRight: css({
-    input: {
-      borderTopRightRadius: 0,
-      borderBottomRightRadius: 0,
-    },
-  }),
-  suffix: css({
-    display: 'inline-flex',
-    gap: theme.spacing(0.5),
-  }),
-  removeBtn: css({
-    borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 0,
-  }),
+const getStyles = (theme: GrafanaTheme2, type: 'editor' | 'variable') => ({
   buttonWrap: css({
     display: 'flex',
     justifyContent: 'center',
   }),
-  includeButton: css({
-    borderLeft: 'none',
-    borderRadius: 0,
-    borderRight: 'none',
-    '&[disabled]': {
-      borderRight: 'none',
-    },
-  }),
   excludeButton: css({
-    borderRadius: `0 ${theme.shape.radius.default} ${theme.shape.radius.default} 0`,
-    borderLeft: 'none',
     '&[disabled]': {
       borderLeft: 'none',
     },
-  }),
-  submit: css({
-    borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 0,
-  }),
-  select: css({
-    label: 'line-filter-exclusion',
-    marginLeft: 0,
-    paddingLeft: 0,
-    height: 'auto',
-    borderBottomRightRadius: '0',
-    borderTopRightRadius: '0',
-    borderRight: 'none',
-    minHeight: '30px',
-    minWidth: '95px',
-    maxWidth: '95px',
-    outline: 'none',
-  }),
-  wrapper: css({
-    display: 'flex',
-    width: '100%',
-  }),
-  input: css({
-    label: 'line-filter-input-wrapper',
-    minWidth: '200px',
-
-    // Keeps the input from overflowing container on resize
-    maxWidth: type === 'editor' ? 'calc(100vw - 198px)' : 'calc(100vw - 288px)',
-
-    input: {
-      borderTopLeftRadius: 0,
-      borderBottomLeftRadius: 0,
-      fontFamily: 'monospace',
-      fontSize: theme.typography.bodySmall.fontSize,
-      width: '100%',
-    },
+    borderLeft: 'none',
+    borderRadius: `0 ${theme.shape.radius.default} ${theme.shape.radius.default} 0`,
   }),
   exclusiveBtn: css({
     marginRight: '1rem',
   }),
   field: css({
-    label: 'field',
     flex: '0 1 auto',
+    label: 'field',
     marginBottom: 0,
+  }),
+  includeButton: css({
+    '&[disabled]': {
+      borderRight: 'none',
+    },
+    borderLeft: 'none',
+    borderRadius: 0,
+    borderRight: 'none',
+  }),
+  input: css({
+    input: {
+      borderBottomLeftRadius: 0,
+      borderTopLeftRadius: 0,
+      fontFamily: 'monospace',
+      fontSize: theme.typography.bodySmall.fontSize,
+      width: '100%',
+    },
+    label: 'line-filter-input-wrapper',
+
+    // Keeps the input from overflowing container on resize
+    maxWidth: type === 'editor' ? 'calc(100vw - 198px)' : 'calc(100vw - 288px)',
+
+    minWidth: '200px',
+  }),
+  inputNoBorderRight: css({
+    input: {
+      borderBottomRightRadius: 0,
+      borderTopRightRadius: 0,
+    },
+  }),
+  removeBtn: css({
+    borderBottomLeftRadius: 0,
+    borderTopLeftRadius: 0,
+  }),
+  select: css({
+    borderBottomRightRadius: '0',
+    borderRight: 'none',
+    borderTopRightRadius: '0',
+    height: 'auto',
+    label: 'line-filter-exclusion',
+    marginLeft: 0,
+    maxWidth: '95px',
+    minHeight: '30px',
+    minWidth: '95px',
+    outline: 'none',
+    paddingLeft: 0,
+  }),
+  submit: css({
+    borderBottomLeftRadius: 0,
+    borderTopLeftRadius: 0,
+  }),
+  suffix: css({
+    display: 'inline-flex',
+    gap: theme.spacing(0.5),
+  }),
+  wrapper: css({
+    display: 'flex',
+    width: '100%',
   }),
 });

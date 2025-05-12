@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { DataFrame, LoadingState } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -10,8 +13,12 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { CollapsablePanelText, PanelMenu } from '../../../Panels/PanelMenu';
 import { DrawStyle, PanelContext, SeriesVisibilityChangeMode, StackingMode } from '@grafana/ui';
+
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../../services/analytics';
+import { toggleFieldFromFilter, toggleLabelFromFilter } from '../../../../services/labels';
+import { toggleLevelFromFilter } from '../../../../services/levels';
+import { logger } from '../../../../services/logger';
 import {
   setLevelColorOverrides,
   syncFieldsValueSummaryVisibleSeries,
@@ -19,28 +26,23 @@ import {
   syncLevelsVisibleSeries,
 } from '../../../../services/panel';
 import { getPanelOption, setPanelOption } from '../../../../services/store';
-import React from 'react';
 import {
   getFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getMetadataVariable,
 } from '../../../../services/variableGetters';
-import { toggleLevelFromFilter } from '../../../../services/levels';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../../services/analytics';
-import { DataFrame, LoadingState } from '@grafana/data';
 import { LEVEL_VARIABLE_VALUE } from '../../../../services/variables';
-import { logger } from '../../../../services/logger';
+import { CollapsablePanelText, PanelMenu } from '../../../Panels/PanelMenu';
 import { FilterType } from '../AddToFiltersButton';
-import { toggleFieldFromFilter, toggleLabelFromFilter } from '../../../../services/labels';
 
 const SUMMARY_PANEL_SERIES_LIMIT = 100;
 
 interface ValueSummaryPanelSceneState extends SceneObjectState {
   body?: SceneFlexLayout;
-  title: string;
   levelColor?: boolean;
   tagKey: string;
+  title: string;
   type: 'field' | 'label';
 }
 export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSceneState> {
@@ -75,16 +77,16 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
 
     this.setState({
       body: new SceneFlexLayout({
-        key: VALUE_SUMMARY_PANEL_KEY,
-        minHeight: height,
-        height: height,
-        maxHeight: height,
-        wrap: 'nowrap',
         children: [
           new SceneFlexItem({
             body: viz,
           }),
         ],
+        height: height,
+        key: VALUE_SUMMARY_PANEL_KEY,
+        maxHeight: height,
+        minHeight: height,
+        wrap: 'nowrap',
       }),
     });
 
@@ -150,8 +152,8 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.label_in_panel_summary_clicked,
         {
-          label: value,
           action,
+          label: value,
         }
       );
     };
@@ -252,9 +254,9 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
 export function setValueSummaryHeight(vizPanelFlexLayout: SceneFlexLayout, collapsableState: CollapsablePanelText) {
   const height = getValueSummaryHeight(collapsableState);
   vizPanelFlexLayout.setState({
-    minHeight: height,
     height: height,
     maxHeight: height,
+    minHeight: height,
   });
 }
 

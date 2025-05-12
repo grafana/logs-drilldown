@@ -1,11 +1,13 @@
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import React, { ChangeEvent } from 'react';
-import { ByFrameRepeater } from './ByFrameRepeater';
-import { SearchInput } from './SearchInput';
-import { LabelBreakdownScene } from './LabelBreakdownScene';
-import { FieldsBreakdownScene } from './FieldsBreakdownScene';
+
 import { BusEventBase } from '@grafana/data';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+
 import { logger } from '../../../services/logger';
+import { ByFrameRepeater } from './ByFrameRepeater';
+import { FieldsBreakdownScene } from './FieldsBreakdownScene';
+import { LabelBreakdownScene } from './LabelBreakdownScene';
+import { SearchInput } from './SearchInput';
 
 export class BreakdownSearchReset extends BusEventBase {
   public static type = 'breakdown-search-reset';
@@ -68,8 +70,8 @@ export class BreakdownSearchScene extends SceneObjectBase<BreakdownSearchSceneSt
       });
     } else {
       logger.warn('unable to find Breakdown scene', {
-        typeofBody: typeof breakdownScene,
         filter,
+        typeofBody: typeof breakdownScene,
       });
     }
   }

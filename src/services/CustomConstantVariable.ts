@@ -1,8 +1,9 @@
 import { Observable, of } from 'rxjs';
+
 import {
+  MultiOrSingleValueSelect,
   MultiValueVariable,
   MultiValueVariableState,
-  MultiOrSingleValueSelect,
   SceneComponentProps,
   VariableGetOptionsArgs,
   VariableValueOption,
@@ -10,18 +11,18 @@ import {
 } from '@grafana/scenes';
 
 export interface CustomConstantVariableState extends MultiValueVariableState {
-  value: VariableValueSingle;
   isMulti?: false;
+  value: VariableValueSingle;
 }
 
 export class CustomConstantVariable extends MultiValueVariable<CustomConstantVariableState> {
   public constructor(initialState: Partial<CustomConstantVariableState>) {
     super({
+      name: '',
+      options: [],
+      text: '',
       type: 'custom',
       value: '',
-      text: '',
-      options: [],
-      name: '',
       ...initialState,
     });
   }

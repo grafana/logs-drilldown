@@ -1,0 +1,51 @@
+discovery.relabel "syslog" {
+	targets = []
+
+	rule {
+		source_labels = ["__syslog_message_hostname"]
+		target_label  = "hostname"
+	}
+
+	rule {
+		source_labels = ["__syslog_message_severity"]
+		target_label  = "level"
+	}
+
+	rule {
+		source_labels = ["__syslog_message_app_name"]
+		target_label  = "service_name"
+	}
+
+	rule {
+		source_labels = ["__syslog_message_facility"]
+		target_label  = "facility"
+	}
+
+	rule {
+		source_labels = ["__syslog_connection_hostname"]
+		target_label  = "connection_hostname"
+	}
+}
+
+loki.source.syslog "local" {
+	listener {
+		address      = "0.0.0.0:1514"
+		protocol     = "udp"
+		idle_timeout = "1m0s"
+		labels       = {
+			job = "syslog",
+		}
+	}
+	forward_to    = [loki.process.default.receiver]
+	relabel_rules = discovery.relabel.syslog.rules
+}
+
+loki.process "default" {
+	forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+	endpoint {
+		url = "http://host.docker.internal:3100/loki/api/v1/push"
+	}
+}

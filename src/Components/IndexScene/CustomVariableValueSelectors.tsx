@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   ControlsLayout,
   SceneComponentProps,
@@ -6,12 +8,11 @@ import {
   SceneObjectState,
   VariableValueSelectWrapper,
 } from '@grafana/scenes';
-import React from 'react';
 
 export interface VariableValueSelectorsState extends SceneObjectState {
-  layout?: ControlsLayout;
-  include?: string[];
   exclude?: string[];
+  include?: string[];
+  layout?: ControlsLayout;
 }
 
 export class CustomVariableValueSelectors extends SceneObjectBase<VariableValueSelectorsState> {

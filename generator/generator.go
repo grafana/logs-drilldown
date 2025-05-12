@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/brianvoe/gofakeit"
 	"github.com/grafana/explore-logs/generator/flog"
 	"github.com/grafana/explore-logs/generator/log"
 	"github.com/grafana/loki/pkg/push"
@@ -95,6 +96,78 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 		"loki-querier-otel":       lokiOtelPod("loki-querier-otel"),
 		"loki-queryfrontend-otel": lokiOtelPod("loki-queryfrontend-otel"),
 		"loki-distributor-otel":   lokiOtelPod("loki-distributor-otel"),
+	},
+	"grafanacon": {
+		"grafanacon-json-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+		"grafanacon-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+	},
+	"e-commerce": {
+		"shopping-cart-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+
+					var logLine string
+					if level == log.WARN {
+						logLine = fmt.Sprintf("order %d is not valid", gofakeit.Number(1, 10000))
+					} else if level == log.ERROR {
+						logLine = fmt.Sprintf("error processing order %d", gofakeit.Number(1, 10000))
+					} else {
+						logLine = flog.NewShoppingCart(t)
+					}
+					logger.LogWithMetadata(level, t, logLine, metadata)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
+		"shopping-cart-structured-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
+			go func() {
+				for ctx.Err() == nil {
+					level := log.RandLevel()
+					t := time.Now()
+
+					var logLine string
+					newLabels := metadata
+					if level == log.WARN {
+						logLine = fmt.Sprintf("order %d is not valid", gofakeit.Number(1, 10000))
+					} else if level == log.ERROR {
+						logLine = fmt.Sprintf("error processing order %d", gofakeit.Number(1, 10000))
+					} else {
+						var labels push.LabelsAdapter
+						logLine, labels = flog.NewShoppingCartWithMetadata(t)
+						newLabels = make(push.LabelsAdapter, len(labels)+len(metadata))
+						for _, label := range labels {
+							newLabels = append(newLabels, label)
+						}
+						for _, v := range metadata {
+							newLabels = append(newLabels, v)
+						}
+					}
+
+					logger.LogWithMetadata(level, t, logLine, newLabels)
+					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+				}
+			}()
+		},
 	},
 }
 
