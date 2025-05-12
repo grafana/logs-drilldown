@@ -1,7 +1,9 @@
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { GrotError } from '../../GrotError';
-import { Alert, Button } from '@grafana/ui';
 import React from 'react';
+
+import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { Alert, Button } from '@grafana/ui';
+
+import { GrotError } from '../../GrotError';
 import { emptyStateStyles } from './FieldsBreakdownScene';
 
 export interface ClearFiltersLayoutSceneState extends SceneObjectState {

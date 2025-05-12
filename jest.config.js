@@ -11,12 +11,12 @@ module.exports = {
   ...config,
   moduleNameMapper: {
     ...config.moduleNameMapper,
-    '/@bsull\/augurs\/changepoint/': '@bsull/augurs/changepoint.js',
-    '/@bsull\/augurs\/outlier/': '@bsull/augurs/outlier.js',
+    '/@bsull/augurs/changepoint/': '@bsull/augurs/changepoint.js',
+    '/@bsull/augurs/outlier/': '@bsull/augurs/outlier.js',
   },
-  transformIgnorePatterns: [nodeModulesToTransform([...grafanaESModules, '@bsull/augurs'])],
   transform: {
     ...config.transform,
-    '^.+\\.svg$': '<rootDir>/.config/svgTransform.js'
-  }
+    '^.+\\.svg$': '<rootDir>/.config/svgTransform.js',
+  },
+  transformIgnorePatterns: [nodeModulesToTransform([...grafanaESModules, '@bsull/augurs'])],
 };

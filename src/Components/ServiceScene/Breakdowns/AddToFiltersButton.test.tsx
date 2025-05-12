@@ -1,9 +1,13 @@
 import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
-import { addAdHocFilter, addToFilters, AddToFiltersButton, FilterType } from './AddToFiltersButton';
-import { BusEvent, createDataFrame, Field, FieldType, LoadingState, PanelData } from '@grafana/data';
 import userEvent from '@testing-library/user-event';
+
+import { BusEvent, createDataFrame, Field, FieldType, LoadingState, PanelData } from '@grafana/data';
 import { AdHocFiltersVariable, sceneGraph, SceneObject, SceneQueryRunner } from '@grafana/scenes';
+
+import { ServiceScene, ServiceSceneState } from '../ServiceScene';
+import { addAdHocFilter, addToFilters, AddToFiltersButton, FilterType } from './AddToFiltersButton';
 import {
   FieldValue,
   LEVEL_VARIABLE_VALUE,
@@ -12,13 +16,12 @@ import {
   VAR_LABELS,
   VAR_LEVELS,
 } from 'services/variables';
-import { ServiceScene, ServiceSceneState } from '../ServiceScene';
 
 jest.mock('services/favorites', () => {
   return {
-    rerenderFavorites: () => {},
     addToFavorites: () => {},
     removeFromFavorites: () => {},
+    rerenderFavorites: () => {},
   };
 });
 
@@ -28,7 +31,6 @@ describe('AddToFiltersButton', () => {
   it('updates correct variable passed to AddToFiltersButton', async () => {
     const button = new AddToFiltersButton({
       frame: createDataFrame({
-        name: 'frame1',
         fields: [
           {
             name: 'time',
@@ -36,14 +38,15 @@ describe('AddToFiltersButton', () => {
             values: [0],
           },
           {
-            name: 'value',
-            type: FieldType.number,
-            values: [100],
             labels: {
               test: 'error',
             },
+            name: 'value',
+            type: FieldType.number,
+            values: [100],
           },
         ],
+        name: 'frame1',
       }),
       variableName: 'filters',
     });
@@ -58,7 +61,6 @@ describe('AddToFiltersButton', () => {
     labels[LEVEL_VARIABLE_VALUE] = 'error';
     const button = new AddToFiltersButton({
       frame: createDataFrame({
-        name: 'frame2',
         fields: [
           {
             name: 'time',
@@ -66,12 +68,13 @@ describe('AddToFiltersButton', () => {
             values: [0],
           },
           {
+            labels,
             name: 'value',
             type: FieldType.number,
             values: [100],
-            labels,
           },
         ],
+        name: 'frame2',
       }),
       variableName: VAR_LEVELS,
     });
@@ -88,8 +91,8 @@ describe('addToFilters and addAdHocFilter', () => {
   beforeEach(() => {
     const labels = [
       {
-        label: 'indexed',
         cardinality: 1,
+        label: 'indexed',
       },
     ];
     const detectedLabelFields: Array<Partial<Field>> = labels?.map((label) => {
@@ -99,12 +102,12 @@ describe('addToFilters and addAdHocFilter', () => {
       };
     });
     const dataFrame = createDataFrame({
-      refId: 'detected_labels',
       fields: detectedLabelFields ?? [],
+      refId: 'detected_labels',
     });
     const panelData: Partial<PanelData> = {
-      state: LoadingState.Done,
       series: [dataFrame],
+      state: LoadingState.Done,
     };
     const state: Partial<ServiceSceneState> = {
       $detectedLabelsData: {
@@ -119,18 +122,18 @@ describe('addToFilters and addAdHocFilter', () => {
       state: state,
     });
     adHocVariable = new AdHocFiltersVariable({
-      name: VAR_FIELDS,
       filters: [
         {
           key: 'existing',
           operator: '=',
           value: JSON.stringify({
-            value: 'existingValue',
             parser: 'mixed',
+            value: 'existingValue',
           }),
           valueLabels: ['existingValue'],
         },
       ],
+      name: VAR_FIELDS,
     });
 
     serviceScene = {
@@ -154,8 +157,8 @@ describe('addToFilters and addAdHocFilter', () => {
           key: 'existing',
           operator: '=',
           value: JSON.stringify({
-            value: 'existingValue',
             parser: 'mixed',
+            value: 'existingValue',
           } as FieldValue),
           valueLabels: ['existingValue'],
         },
@@ -163,8 +166,8 @@ describe('addToFilters and addAdHocFilter', () => {
           key: 'key',
           operator: type === 'include' ? '=' : '!=',
           value: JSON.stringify({
-            value: 'value',
             parser: 'mixed',
+            value: 'value',
           } as FieldValue),
           valueLabels: ['value'],
         },
@@ -205,8 +208,8 @@ describe('addToFilters and addAdHocFilter', () => {
           key: 'existing',
           operator: '=',
           value: JSON.stringify({
-            value: 'existingValue',
             parser: 'mixed',
+            value: 'existingValue',
           }),
           valueLabels: ['existingValue'],
         },
@@ -231,7 +234,7 @@ describe('addToFilters and addAdHocFilter', () => {
     it.each(['=', '!='])('allows to add an %s filter', (operator: string) => {
       const lookupVariable = jest.spyOn(sceneGraph, 'lookupVariable').mockReturnValue(adHocVariable);
       jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue(serviceScene);
-      addAdHocFilter({ key: 'key', value: 'value', operator }, scene, VAR_FIELDS);
+      addAdHocFilter({ key: 'key', operator, value: 'value' }, scene, VAR_FIELDS);
 
       expect(lookupVariable).toHaveBeenCalledWith(VAR_FIELDS_AND_METADATA, expect.anything());
       expect(adHocVariable.state.filters).toEqual([
@@ -239,8 +242,8 @@ describe('addToFilters and addAdHocFilter', () => {
           key: 'existing',
           operator: '=',
           value: JSON.stringify({
-            value: 'existingValue',
             parser: 'mixed',
+            value: 'existingValue',
           }),
           valueLabels: ['existingValue'],
         },
@@ -248,8 +251,8 @@ describe('addToFilters and addAdHocFilter', () => {
           key: 'key',
           operator,
           value: JSON.stringify({
-            value: 'value',
             parser: 'mixed',
+            value: 'value',
           }),
           valueLabels: ['value'],
         },
@@ -259,7 +262,7 @@ describe('addToFilters and addAdHocFilter', () => {
     it('allows to specify the variable to write to', () => {
       const lookupVariable = jest.spyOn(sceneGraph, 'lookupVariable').mockReturnValue(adHocVariable);
       jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue(serviceScene);
-      addAdHocFilter({ key: 'key', value: 'value', operator: '=' }, scene, VAR_FIELDS);
+      addAdHocFilter({ key: 'key', operator: '=', value: 'value' }, scene, VAR_FIELDS);
 
       expect(lookupVariable).toHaveBeenCalledWith(VAR_FIELDS_AND_METADATA, expect.anything());
     });
@@ -274,8 +277,8 @@ describe('addToFilters and addAdHocFilter', () => {
           key: 'existing',
           operator: '=',
           value: JSON.stringify({
-            value: 'existingValue',
             parser: 'mixed',
+            value: 'existingValue',
           }),
           valueLabels: ['existingValue'],
         },
@@ -291,7 +294,7 @@ describe('addToFilters and addAdHocFilter', () => {
     it(`uses the correct name when filtering for ${LEVEL_VARIABLE_VALUE}`, () => {
       const lookupVariable = jest.spyOn(sceneGraph, 'lookupVariable').mockReturnValue(adHocVariable);
       jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue(serviceScene);
-      addAdHocFilter({ key: LEVEL_VARIABLE_VALUE, value: 'info', operator: '=' }, scene, VAR_LEVELS);
+      addAdHocFilter({ key: LEVEL_VARIABLE_VALUE, operator: '=', value: 'info' }, scene, VAR_LEVELS);
 
       expect(lookupVariable).toHaveBeenCalledWith(VAR_LEVELS, expect.anything());
     });

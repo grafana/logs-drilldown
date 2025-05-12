@@ -1,8 +1,9 @@
 import { sceneGraph, SceneObjectState } from '@grafana/scenes';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+
 import { logger } from '../../../../services/logger';
 import { addCurrentUrlToHistory } from '../../../../services/navigate';
+import { IndexScene } from '../../../IndexScene/IndexScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 export interface FilterByPatternsButtonState extends SceneObjectState {
   pattern: string;
@@ -32,9 +33,9 @@ export function onPatternClick(props: FilterByPatternsState) {
   const includePatternsLength = filteredPatterns.filter((p) => p.type === 'include')?.length ?? 0;
   const excludePatternsLength = filteredPatterns.filter((p) => p.type === 'exclude')?.length ?? 0;
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.pattern_selected, {
-    type: type,
-    includePatternsLength: includePatternsLength + (type === 'include' ? 1 : 0),
     excludePatternsLength: excludePatternsLength + (type === 'exclude' ? 1 : 0),
+    includePatternsLength: includePatternsLength + (type === 'include' ? 1 : 0),
+    type: type,
   });
 
   // If we have type undo, then we don't need to add the pattern

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { LoadingState, PanelData } from '@grafana/data';
 import {
+  AdHocFiltersVariable,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -16,10 +17,40 @@ import {
   SceneVariableValueChangedEvent,
   VariableDependencyConfig,
 } from '@grafana/scenes';
+import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
+
+import { areArraysEqual } from '../../services/comparison';
+import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { replaceSlash } from '../../services/extensions/links';
+import { clearJsonParserFields } from '../../services/fields';
+import { filterUnusedJSONFilters } from '../../services/filters';
+import { logger } from '../../services/logger';
+import { getMetadataService } from '../../services/metadata';
+import { migrateLineFilterV1 } from '../../services/migrations';
+import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
+import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
+import {
+  getDataSourceVariable,
+  getFieldsAndMetadataVariable,
+  getFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+  getLineFormatVariable,
+  getMetadataVariable,
+  getPatternsVariable,
+} from '../../services/variableGetters';
+import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
+import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
+import { ActionBarScene } from './ActionBarScene';
+import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import {
+  DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
@@ -34,36 +65,6 @@ import {
   VAR_LEVELS,
   VAR_PATTERNS,
 } from 'services/variables';
-import { getMetadataService } from '../../services/metadata';
-import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
-import { areArraysEqual } from '../../services/comparison';
-import { ActionBarScene } from './ActionBarScene';
-import { breakdownViewsDefinitions, TabNames, valueBreakdownViews } from './BreakdownViews';
-import {
-  getDataSourceVariable,
-  getFieldsAndMetadataVariable,
-  getFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-  getMetadataVariable,
-  getPatternsVariable,
-} from '../../services/variableGetters';
-import { logger } from '../../services/logger';
-import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import {
-  getDrilldownSlug,
-  getDrilldownValueSlug,
-  getPrimaryLabelFromUrl,
-  PageSlugs,
-  ValueSlugs,
-} from '../../services/routing';
-import { replaceSlash } from '../../services/extensions/links';
-import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
-import { migrateLineFilterV1 } from '../../services/migrations';
-import { VariableHide } from '@grafana/schema';
-import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
 
 export const LOGS_PANEL_QUERY_REFID = 'logsPanelQuery';
 export const LOGS_COUNT_QUERY_REFID = 'logsCountQuery';
@@ -78,23 +79,23 @@ type ServiceSceneLoadingStates = {
 };
 
 export interface ServiceSceneCustomState {
-  labelsCount?: number;
-  patternsCount?: number;
-  fieldsCount?: number;
-  loading?: boolean;
-  totalLogsCount?: number;
-  logsCount?: number;
   embedded?: boolean;
+  fieldsCount?: number;
+  labelsCount?: number;
+  loading?: boolean;
+  logsCount?: number;
+  patternsCount?: number;
+  totalLogsCount?: number;
 }
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
-  body: SceneFlexLayout | undefined;
-  drillDownLabel?: string;
   $data: SceneDataProvider | undefined;
+  $detectedFieldsData: SceneQueryRunner | undefined;
+  $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
   $patternsData: SceneQueryRunner | undefined;
-  $detectedLabelsData: SceneQueryRunner | undefined;
-  $detectedFieldsData: SceneQueryRunner | undefined;
+  body: SceneFlexLayout | undefined;
+  drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
 }
 
@@ -135,29 +136,29 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   public constructor(
     state: MakeOptional<
       ServiceSceneState,
-      | 'body'
       | '$data'
-      | '$patternsData'
-      | '$detectedLabelsData'
       | '$detectedFieldsData'
-      | 'loadingStates'
+      | '$detectedLabelsData'
       | '$logsCount'
+      | '$patternsData'
+      | 'body'
+      | 'loadingStates'
     >
   ) {
     super({
+      $data: getServiceSceneQueryRunner(),
+      $detectedFieldsData: getDetectedFieldsQueryRunner(),
+      $detectedLabelsData: getDetectedLabelsQueryRunner(),
+      $logsCount: getLogCountQueryRunner(),
+      $patternsData: getPatternsQueryRunner(),
+      body: state.body ?? buildGraphScene(),
+      loading: true,
       loadingStates: {
         [TabNames.patterns]: false,
         [TabNames.labels]: false,
         [TabNames.fields]: false,
         [TabNames.logs]: false,
       },
-      loading: true,
-      body: state.body,
-      $data: getServiceSceneQueryRunner(),
-      $patternsData: getPatternsQueryRunner(),
-      $detectedLabelsData: getDetectedLabelsQueryRunner(),
-      $detectedFieldsData: getDetectedFieldsQueryRunner(),
-      $logsCount: getLogCountQueryRunner(),
       ...state,
     });
 
@@ -177,7 +178,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
 
         // If we remove the service name filter, we should redirect to the start
-        let { labelName, labelValue, breakdownLabel } = this.getPrimaryLabel();
+        let { breakdownLabel, labelName, labelValue } = this.getPrimaryLabel();
 
         // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
         if (labelName === SERVICE_UI_LABEL) {
@@ -202,15 +203,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
             indexScene.setState({
               routeMatch: {
                 ...prevRouteMatch,
+                isExact: prevRouteMatch?.isExact ?? true,
                 params: {
                   ...prevRouteMatch?.params,
                   labelName: newPrimaryLabel.key === SERVICE_NAME ? SERVICE_UI_LABEL : newPrimaryLabel.key,
                   // If there are a bunch of values separated by pipe, like labels that come from explore, let's truncate the value so the slug doesn't get too long
                   labelValue: newPrimaryLabelValue.split('|')[0],
                 },
-                url: prevRouteMatch?.url ?? '',
                 path: prevRouteMatch?.path ?? '',
-                isExact: prevRouteMatch?.isExact ?? true,
+                url: prevRouteMatch?.url ?? '',
               },
             });
 
@@ -247,15 +248,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       // Clear ongoing queries
       this.setState({
         $data: undefined,
-        $logsCount: undefined,
-        body: undefined,
-        $patternsData: undefined,
-        $detectedLabelsData: undefined,
         $detectedFieldsData: undefined,
-        patternsCount: undefined,
-        labelsCount: undefined,
+        $detectedLabelsData: undefined,
+        $logsCount: undefined,
+        $patternsData: undefined,
+        body: undefined,
         fieldsCount: undefined,
+        labelsCount: undefined,
         logsCount: undefined,
+        patternsCount: undefined,
         totalLogsCount: undefined,
       });
       getMetadataService().setServiceSceneState(this.state);
@@ -373,12 +374,38 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private subscribeToFieldsVariable() {
     const fieldsVar = getFieldsVariable(this);
+
     return fieldsVar.subscribeToState((newState, prevState) => {
       if (!areArraysEqual(newState.filters, prevState.filters)) {
+        this.removeInactiveJsonParserProps(newState, prevState);
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
       }
     });
+  }
+
+  /**
+   * If we removed a filter from the ad-hoc variables, we need to remove old json parser props
+   */
+  private removeInactiveJsonParserProps(
+    newState: AdHocFiltersVariable['state'],
+    prevState: AdHocFiltersVariable['state']
+  ) {
+    const lineFormatVariable = getLineFormatVariable(this);
+    if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
+      clearJsonParserFields(this);
+
+      // A field was removed
+    } else if (newState.filters.length < prevState.filters.length) {
+      // If no other field filter has the same key, then we can remove the json parser
+      const filterDiff = prevState.filters.filter(
+        (prevFilter) => !newState.filters.find((newFilter) => newFilter.key === prevFilter.key)
+      );
+
+      if (filterDiff.length) {
+        filterUnusedJSONFilters(this);
+      }
+    }
   }
 
   private subscribeToMetadataVariable() {
@@ -510,15 +537,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private subscribeToDetectedFieldsQuery(updateFieldsCount: boolean) {
     return this.state.$detectedFieldsData?.subscribeToState((newState) => {
       this.updateLoadingState(newState, TabNames.fields);
-      if (updateFieldsCount && newState.data?.state === LoadingState.Done) {
-        const detectedFieldsResponse = newState.data;
-        const detectedFieldsFields = detectedFieldsResponse.series[0];
+      const detectedFieldsResponse = newState.data;
+      const detectedFieldsFrame = detectedFieldsResponse?.series[0];
 
-        if (detectedFieldsFields !== undefined && detectedFieldsFields.length !== this.state.fieldsCount) {
+      if (updateFieldsCount && newState.data?.state === LoadingState.Done) {
+        if (detectedFieldsFrame !== undefined && detectedFieldsFrame.length !== this.state.fieldsCount) {
           this.setState({
-            fieldsCount: detectedFieldsFields.length,
+            fieldsCount: detectedFieldsFrame.length,
           });
-          getMetadataService().setFieldsCount(detectedFieldsFields.length);
+          getMetadataService().setFieldsCount(detectedFieldsFrame.length);
         }
       }
     });
@@ -574,15 +601,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private buildGraphScene() {
     return new SceneFlexLayout({
-      direction: 'column',
       children: [
         new SceneFlexItem({
-          ySizing: 'content',
           body: new ActionBarScene({
             embedded: this.state.embedded,
           }),
+          ySizing: 'content',
         }),
       ],
+      direction: 'column',
     });
   }
 
@@ -632,6 +659,18 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   };
 }
 
+function buildGraphScene() {
+  return new SceneFlexLayout({
+    children: [
+      new SceneFlexItem({
+        body: new ActionBarScene({}),
+        ySizing: 'content',
+      }),
+    ],
+    direction: 'column',
+  });
+}
+
 function getPatternsQueryRunner() {
   return getResourceQueryRunner([
     buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'patterns', { refId: PATTERNS_QUERY_REFID }),
@@ -646,7 +685,7 @@ function getDetectedLabelsQueryRunner() {
 
 function getDetectedFieldsQueryRunner() {
   return getResourceQueryRunner([
-    buildResourceQuery(LOG_STREAM_SELECTOR_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
+    buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
   ]);
 }
 
@@ -658,8 +697,8 @@ function getLogCountQueryRunner() {
   const queryRunner = getQueryRunner(
     [
       buildDataQuery(`sum(count_over_time(${LOG_STREAM_SELECTOR_EXPR}[$__auto]))`, {
-        refId: LOGS_COUNT_QUERY_REFID,
         queryType: 'instant',
+        refId: LOGS_COUNT_QUERY_REFID,
       }),
     ],
     { runQueriesMode: 'manual' } // for some reason when this query is set to auto, it doesn't run on time range update, looks like there is different behavior with data providers not in the special $data prop

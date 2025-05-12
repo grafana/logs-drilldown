@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'generator/**/*'
-  pull_request:   
+  pull_request:
     paths:
       - 'generator/**/*'
 

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollSync } from 'react-scroll-sync';
+
 import { css } from '@emotion/css';
+import { debounce } from 'lodash';
+import { ScrollSync } from 'react-scroll-sync';
 import { lastValueFrom } from 'rxjs';
 
 import {
@@ -14,37 +16,38 @@ import {
   FieldWithIndex,
   Labels,
   MappingType,
+  sortDataFrame,
   transformDataFrame,
   ValueMap,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-import { TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
+import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
 import { Drawer, Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
-import { TableCellContextProvider } from 'Components/Table/Context/TableCellContext';
-import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
-import { TableHeaderContextProvider } from 'Components/Table/Context/TableHeaderContext';
+import { getBodyName, getIdName, getTimeName, LogsFrame } from '../../services/logsFrame';
+import { testIds } from '../../services/testIds';
+import { useQueryContext } from './Context/QueryContext';
 import {
   ColumnSelectionDrawerWrap,
   getReorderColumn,
 } from 'Components/Table/ColumnSelection/ColumnSelectionDrawerWrap';
+import { TableCellContextProvider } from 'Components/Table/Context/TableCellContext';
+import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
+import { TableHeaderContextProvider } from 'Components/Table/Context/TableHeaderContext';
 import { DefaultCellComponent } from 'Components/Table/DefaultCellComponent';
 import { LogLineCellComponent } from 'Components/Table/LogLineCellComponent';
 import { CustomHeaderRendererProps } from 'Components/Table/LogsTableHeader';
+import { LogsTableHeaderWrap } from 'Components/Table/LogsTableHeaderWrap';
 import { FieldName, FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 import { guessLogsFieldTypeForValue } from 'Components/Table/TableWrap';
-import { LogsTableHeaderWrap } from 'Components/Table/LogsTableHeaderWrap';
-import { getBodyName, getIdName, getTimeName, LogsFrame } from '../../services/logsFrame';
-import { useQueryContext } from './Context/QueryContext';
-import { testIds } from '../../services/testIds';
-import { debounce } from 'lodash';
 
 interface Props {
   height: number;
-  timeZone: string;
-  logsFrame: LogsFrame;
-  width: number;
   labels: Labels[];
+  logsFrame: LogsFrame;
+  logsSortOrder: LogsSortOrder;
+  timeZone: string;
+  width: number;
 }
 
 const getStyles = () => ({
@@ -62,40 +65,43 @@ const getStyles = () => ({
 function TableAndContext(props: {
   data: DataFrame;
   height: number;
-  width: number;
-  selectedLine?: number;
   logsFrame: LogsFrame;
+  logsSortOrder: LogsSortOrder;
   onResize: (fieldDisplayName: string, width: number) => void;
+  selectedLine?: number;
+  width: number;
 }) {
   return (
     <GrafanaTable
       onColumnResize={props.onResize}
-      initialSortBy={[{ displayName: getTimeName(props.logsFrame), desc: true }]}
+      initialSortBy={[
+        { desc: props.logsSortOrder === LogsSortOrder.Descending, displayName: getTimeName(props.logsFrame) },
+      ]}
       initialRowIndex={props.selectedLine}
       cellHeight={TableCellHeight.Sm}
       data={props.data}
       height={props.height}
       width={props.width}
-      footerOptions={{ show: true, reducer: ['count'], countRows: true }}
+      footerOptions={{ countRows: true, reducer: ['count'], show: true }}
     />
   );
 }
 
 export const Table = (props: Props) => {
-  const { height, timeZone, logsFrame, width, labels } = props;
+  const { height, labels, logsFrame, timeZone, width } = props;
   const theme = useTheme2();
   const styles = getStyles();
 
   const [tableFrame, setTableFrame] = useState<DataFrame | undefined>(undefined);
   const {
-    columns,
-    visible,
-    setVisible,
-    setFilteredColumns,
-    setColumns,
     clearSelectedLine,
+    columns,
     columnWidthMap,
+    setColumns,
     setColumnWidthMap,
+    setFilteredColumns,
+    setVisible,
+    visible,
   } = useTableColumnContext();
 
   const { selectedLine } = useQueryContext();
@@ -107,24 +113,27 @@ export const Table = (props: Props) => {
 
   const templateSrv = getTemplateSrv();
   const replace = useMemo(() => templateSrv.replace.bind(templateSrv), [templateSrv]);
+  const timeIndex = logsFrame?.timeField.index;
 
   const prepareTableFrame = useCallback(
-    (frame: DataFrame): DataFrame => {
-      if (!frame.length) {
-        return frame;
+    (rawFrame: DataFrame): DataFrame => {
+      if (!rawFrame.length) {
+        return rawFrame;
       }
+
+      const frame = sortDataFrame(rawFrame, timeIndex, props.logsSortOrder === LogsSortOrder.Descending);
 
       const [frameWithOverrides] = applyFieldOverrides({
         data: [frame],
-        timeZone: timeZone,
-        theme: theme,
-        replaceVariables: replace,
         fieldConfig: {
           defaults: {
             custom: {},
           },
           overrides: [],
         },
+        replaceVariables: replace,
+        theme: theme,
+        timeZone: timeZone,
       });
 
       // `getLinks` and `applyFieldOverrides` are taken from TableContainer.tsx
@@ -137,7 +146,7 @@ export const Table = (props: Props) => {
           ...field.config,
 
           custom: {
-            inspect: true,
+            cellOptions: getTableCellOptions(field, index, labels, logsFrame),
             filterable: true, // This sets the columns to be filterable
             headerComponent: (props: CustomHeaderRendererProps) => (
               <TableHeaderContextProvider>
@@ -162,10 +171,10 @@ export const Table = (props: Props) => {
                 />
               </TableHeaderContextProvider>
             ),
+            inspect: true,
             width:
               columnWidthMap[field.name] ??
               getInitialFieldWidth(field, index, columns, width, frameWithOverrides.fields.length, logsFrame),
-            cellOptions: getTableCellOptions(field, index, labels, logsFrame),
             ...field.config.custom,
           },
           // This sets the individual field value as filterable
@@ -196,16 +205,16 @@ export const Table = (props: Props) => {
         transformations.push(labelFiltersTransform);
       } else {
         const specialFields = {
-          time: logsFrame.timeField,
           body: logsFrame.bodyField,
           extraFields: logsFrame.extraFields,
+          time: logsFrame.timeField,
         };
         if (specialFields && specialFields.body !== undefined && specialFields.time !== undefined) {
           transformations.push(
             getDefaultStateOrganizeFieldsTransform(
               specialFields as {
-                time: FieldWithIndex;
                 body: FieldWithIndex;
+                time: FieldWithIndex;
               }
             )
           );
@@ -278,6 +287,7 @@ export const Table = (props: Props) => {
               height={height}
               width={width}
               onResize={debounce(onResize, 100)}
+              logsSortOrder={props.logsSortOrder}
             />
           </ScrollSync>
         </TableCellContextProvider>
@@ -286,17 +296,17 @@ export const Table = (props: Props) => {
   );
 };
 
-function getDefaultStateOrganizeFieldsTransform(specialFields: { time: FieldWithIndex; body: FieldWithIndex }) {
+function getDefaultStateOrganizeFieldsTransform(specialFields: { body: FieldWithIndex; time: FieldWithIndex }) {
   return {
     id: 'organize',
     options: {
-      indexByName: {
-        [specialFields.time.name]: 0,
-        [specialFields.body.name]: 1,
-      },
       includeByName: {
         [specialFields.body.name]: true,
         [specialFields.time.name]: true,
+      },
+      indexByName: {
+        [specialFields.time.name]: 0,
+        [specialFields.body.name]: 1,
       },
     },
   };
@@ -326,45 +336,45 @@ function guessLogsFieldTypeForField(field: Field): FieldType | undefined {
 export const getFieldMappings = (): ValueMap => {
   return {
     options: {
-      critical: {
-        color: '#705da0',
-        index: 0,
-      },
       crit: {
         color: '#705da0',
         index: 1,
       },
-      error: {
-        color: '#e24d42',
-        index: 2,
-      },
-      err: {
-        color: '#e24d42',
-        index: 3,
-      },
-      eror: {
-        color: '#e24d42',
-        index: 4,
-      },
-      warning: {
-        color: '#FF9900',
-        index: 5,
-      },
-      warn: {
-        color: '#FF9900',
-        index: 6,
-      },
-      info: {
-        color: '#7eb26d',
-        index: 7,
+      critical: {
+        color: '#705da0',
+        index: 0,
       },
       debug: {
         color: '#1f78c1',
         index: 8,
       },
+      eror: {
+        color: '#e24d42',
+        index: 4,
+      },
+      err: {
+        color: '#e24d42',
+        index: 3,
+      },
+      error: {
+        color: '#e24d42',
+        index: 2,
+      },
+      info: {
+        color: '#7eb26d',
+        index: 7,
+      },
       trace: {
         color: '#6ed0e0',
         index: 9,
+      },
+      warn: {
+        color: '#FF9900',
+        index: 6,
+      },
+      warning: {
+        color: '#FF9900',
+        index: 5,
       },
     },
     type: MappingType.ValueToText,
@@ -398,8 +408,8 @@ function getOrganizeFieldsTransform(labelFilters: Record<FieldName, number>) {
     return {
       id: 'organize',
       options: {
-        indexByName: labelFilters,
         includeByName: labelFiltersInclude,
+        indexByName: labelFilters,
       },
     };
   }

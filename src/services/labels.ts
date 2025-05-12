@@ -1,6 +1,10 @@
+import { DataFrame } from '@grafana/data';
 import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
-import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
+
+import { addToFilters, FilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { getParserForField, getParserFromFieldsFilters } from './fields';
+import { getLabelValueFromDataFrame } from './levels';
+import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
 import { buildDataQuery } from './query';
 import {
   getFieldsAndMetadataVariable,
@@ -10,10 +14,7 @@ import {
   getMetadataVariable,
   getValueFromFieldsFilter,
 } from './variableGetters';
-import { addToFilters, FilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
-import { getLabelValueFromDataFrame } from './levels';
-import { DataFrame } from '@grafana/data';
+import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
 
 export const LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
 
@@ -33,8 +34,8 @@ export function buildLabelsQuery(sceneRef: SceneObject, optionValue: string, opt
   return buildDataQuery(
     `sum(count_over_time(${getLogsStreamSelector({
       labelExpressionToAdd,
-      structuredMetadataToAdd,
       parser,
+      structuredMetadataToAdd,
     })} [$__auto])) by (${optionValue})`,
     { legendFormat: `{{${optionValue}}}`, refId: 'LABEL_BREAKDOWN_VALUES' }
   );
@@ -113,3 +114,7 @@ export function getVisibleFilters(key: string, allLabels: string[], variable: Ad
     return inclusiveFilters.length === 0 || inclusiveFilters.includes(label);
   });
 }
+
+// Regex that grabs invalid chars in a loki label name
+// From https://grafana.com/docs/loki/latest/get-started/labels/#label-format
+export const LABEL_NAME_INVALID_CHARS = /[^a-zA-Z0-9_:]/g;

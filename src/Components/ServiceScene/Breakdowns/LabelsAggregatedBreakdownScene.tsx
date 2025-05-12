@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { DataFrame, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -11,19 +14,18 @@ import {
   VariableValueOption,
   VizPanel,
 } from '@grafana/scenes';
-import { LayoutSwitcher } from './LayoutSwitcher';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
-import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/variables';
-import React from 'react';
-import { LabelBreakdownScene } from './LabelBreakdownScene';
-import { SelectLabelActionScene } from './SelectLabelActionScene';
-import { ValueSlugs } from '../../../services/routing';
+
+import { ValueSlugs } from '../../../services/enums';
 import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
+import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
 import { getFieldsVariable, getLabelGroupByVariable } from '../../../services/variableGetters';
-import { ServiceScene } from '../ServiceScene';
-import { DataFrame, LoadingState } from '@grafana/data';
+import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { ServiceScene } from '../ServiceScene';
+import { LabelBreakdownScene } from './LabelBreakdownScene';
+import { LayoutSwitcher } from './LayoutSwitcher';
+import { SelectLabelActionScene } from './SelectLabelActionScene';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 
 export interface LabelsAggregatedBreakdownSceneState extends SceneObjectState {
@@ -175,24 +177,24 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
     const childrenClones = children.map((child) => child.clone());
 
     return new LayoutSwitcher({
-      options: [
-        { value: 'grid', label: 'Grid' },
-        { value: 'rows', label: 'Rows' },
-      ],
       active: 'grid',
       layouts: [
         new SceneCSSGridLayout({
-          isLazy: true,
-          templateColumns: LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
           autoRows: '200px',
           children: children,
+          isLazy: true,
+          templateColumns: LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          isLazy: true,
-          templateColumns: '1fr',
           autoRows: '200px',
           children: childrenClones,
+          isLazy: true,
+          templateColumns: '1fr',
         }),
+      ],
+      options: [
+        { label: 'Grid', value: 'grid' },
+        { label: 'Rows', value: 'rows' },
       ],
     });
   }
@@ -213,7 +215,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
           body: PanelBuilders.timeseries()
             .setTitle(optionValue)
             .setData(queryRunner)
-            .setHeaderActions([new SelectLabelActionScene({ labelName: optionValue, fieldType: ValueSlugs.label })])
+            .setHeaderActions([new SelectLabelActionScene({ fieldType: ValueSlugs.label, labelName: optionValue })])
             .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
             .setCustomFieldConfig('fillOpacity', 100)
             .setCustomFieldConfig('lineWidth', 0)

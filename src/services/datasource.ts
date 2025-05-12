@@ -1,3 +1,5 @@
+import { Observable, Subscriber } from 'rxjs';
+
 import {
   createDataFrame,
   DataFrame,
@@ -11,18 +13,18 @@ import {
 import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
-import { Observable, Subscriber } from 'rxjs';
-import { getDataSource } from './scenes';
+
+import { SceneDataQueryRequest, SceneDataQueryResourceRequest, VolumeRequestProps } from './datasourceTypes';
 import { DetectedFieldsResponse, DetectedLabelsResponse } from './fields';
 import { FIELDS_TO_REMOVE, LABELS_TO_REMOVE, sortLabelsByCardinality } from './filters';
-import { SERVICE_NAME } from './variables';
-import { runShardSplitQuery } from './shardQuerySplitting';
+import { logger } from './logger';
 import { requestSupportsSharding } from './logql';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
-import { SceneDataQueryRequest, SceneDataQueryResourceRequest, VolumeRequestProps } from './datasourceTypes';
-import { logger } from './logger';
 import { PLUGIN_ID } from './plugin';
 import { sanitizeStreamSelector } from './query';
+import { getDataSource } from './scenes';
+import { runShardSplitQuery } from './shardQuerySplitting';
+import { SERVICE_NAME } from './variables';
 
 export const WRAPPED_LOKI_DS_UID = 'wrapped-loki-ds-uid';
 
@@ -31,8 +33,8 @@ type VolumeCount = string;
 type VolumeValue = [TimeStampOfVolumeEval, VolumeCount];
 type VolumeResult = {
   metric: {
-    service_name?: string;
     __aggregated_metric__?: string;
+    service_name?: string;
     [index: string]: string | undefined;
   };
   value: VolumeValue;
@@ -45,8 +47,8 @@ type IndexVolumeResponse = {
 };
 
 type LabelsResponse = {
-  status: string;
   data: string[];
+  status: string;
 };
 
 type SampleTimeStamp = number;
@@ -69,6 +71,7 @@ export const DETECTED_FIELDS_CARDINALITY_NAME = 'cardinality';
 export const DETECTED_FIELDS_PARSER_NAME = 'parser';
 
 export const DETECTED_FIELDS_TYPE_NAME = 'type';
+export const DETECTED_FIELDS_PATH_NAME = 'jsonPath';
 
 export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   constructor(pluginId: string, uid: string) {
@@ -145,8 +148,8 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       ...request,
       targets: ds.interpolateVariablesInQueries(request.targets, request.scopedVars).map((target) => ({
         ...target,
-        resource: undefined,
         expr: sanitizeStreamSelector(target.expr),
+        resource: undefined,
       })),
     };
 
@@ -172,23 +175,23 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
     if (targets.length !== 1) {
       throw new Error('Patterns query can only have a single target!');
     }
-    const { interpolatedTarget, expression } = this.interpolate(ds, targets, request);
+    const { expression, interpolatedTarget } = this.interpolate(ds, targets, request);
     subscriber.next({ data: [], state: LoadingState.Loading });
 
     try {
       const dsResponse = ds.getResource(
         'patterns',
         {
+          end: request.range.to.utc().toISOString(),
           query: expression,
           start: request.range.from.utc().toISOString(),
-          end: request.range.to.utc().toISOString(),
           step: request.interval,
         },
         {
-          requestId: request.requestId ?? 'patterns',
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          requestId: request.requestId ?? 'patterns',
         }
       );
       const response: PatternsResponse = await dsResponse;
@@ -220,28 +223,28 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
             sum += count;
           });
           return createDataFrame({
-            refId: interpolatedTarget.refId,
-            name: pattern.pattern,
             fields: [
               {
+                config: {},
                 name: 'time',
                 type: FieldType.time,
                 values: timeValues,
-                config: {},
               },
               {
+                config: {},
                 name: pattern.pattern,
                 type: FieldType.number,
                 values: countValues,
-                config: {},
               },
             ],
             meta: {
-              preferredVisualisationType: 'graph',
               custom: {
                 sum,
               },
+              preferredVisualisationType: 'graph',
             },
+            name: pattern.pattern,
+            refId: interpolatedTarget.refId,
           });
         }) ?? [];
 
@@ -265,7 +268,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
     }
     const interpolatedTarget = targetsInterpolated[0];
     const expression = sanitizeStreamSelector(interpolatedTarget.expr);
-    return { interpolatedTarget, expression };
+    return { expression, interpolatedTarget };
   }
 
   private async getDetectedLabels(
@@ -281,7 +284,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       throw new Error('Detected labels query can only have a single target!');
     }
 
-    let { interpolatedTarget, expression } = this.interpolate(ds, targets, request);
+    let { expression, interpolatedTarget } = this.interpolate(ds, targets, request);
 
     // Detected_labels is a bit different then other queries that interpolate the labels variable, it can be empty, but if it is empty it must be completely empty or we'll get the "queries require at least one regexp or equality" error from Loki
     if (expression === `{}`) {
@@ -294,15 +297,15 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       const response = await ds.getResource<DetectedLabelsResponse>(
         'detected_labels',
         {
+          end: request.range.to.utc().toISOString(),
           query: expression,
           start: request.range.from.utc().toISOString(),
-          end: request.range.to.utc().toISOString(),
         },
         {
-          requestId: request.requestId ?? 'detected_labels',
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          requestId: request.requestId ?? 'detected_labels',
         }
       );
 
@@ -318,8 +321,8 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       });
 
       const dataFrame = createDataFrame({
-        refId: interpolatedTarget.refId,
         fields: detectedLabelFields ?? [],
+        refId: interpolatedTarget.refId,
       });
 
       subscriber.next({ data: [dataFrame], state: LoadingState.Done });
@@ -345,33 +348,34 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
 
     subscriber.next({ data: [], state: LoadingState.Loading });
 
-    const { interpolatedTarget, expression } = this.interpolate(ds, targets, request);
+    const { expression, interpolatedTarget } = this.interpolate(ds, targets, request);
 
     try {
       const response = await ds.getResource<DetectedFieldsResponse>(
         'detected_fields',
         {
+          end: request.range.to.utc().toISOString(),
           query: expression,
           start: request.range.from.utc().toISOString(),
-          end: request.range.to.utc().toISOString(),
         },
         {
-          requestId: request.requestId ?? 'detected_fields',
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          requestId: request.requestId ?? 'detected_fields',
         }
       );
 
-      const nameField: Field = { name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: [], config: {} };
+      const nameField: Field = { config: {}, name: DETECTED_FIELDS_NAME_FIELD, type: FieldType.string, values: [] };
       const cardinalityField: Field = {
+        config: {},
         name: DETECTED_FIELDS_CARDINALITY_NAME,
         type: FieldType.number,
         values: [],
-        config: {},
       };
-      const parserField: Field = { name: DETECTED_FIELDS_PARSER_NAME, type: FieldType.string, values: [], config: {} };
-      const typeField: Field = { name: DETECTED_FIELDS_TYPE_NAME, type: FieldType.string, values: [], config: {} };
+      const parserField: Field = { config: {}, name: DETECTED_FIELDS_PARSER_NAME, type: FieldType.string, values: [] };
+      const typeField: Field = { config: {}, name: DETECTED_FIELDS_TYPE_NAME, type: FieldType.string, values: [] };
+      const pathField: Field = { config: {}, name: DETECTED_FIELDS_PATH_NAME, type: FieldType.string, values: [] };
 
       response.fields?.forEach((field) => {
         if (!FIELDS_TO_REMOVE.includes(field.label)) {
@@ -379,12 +383,13 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           cardinalityField.values.push(field.cardinality);
           parserField.values.push(field.parsers?.length ? field.parsers.join(', ') : 'structuredMetadata');
           typeField.values.push(field.type);
+          pathField.values.push(field.jsonPath);
         }
       });
 
       const dataFrame = createDataFrame({
+        fields: [nameField, cardinalityField, parserField, typeField, pathField],
         refId: interpolatedTarget.refId,
-        fields: [nameField, cardinalityField, parserField, typeField],
       });
 
       subscriber.next({ data: [dataFrame], state: LoadingState.Done });
@@ -421,16 +426,16 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       const volumeResponse: IndexVolumeResponse = await ds.getResource(
         'index/volume',
         {
-          query: expression,
-          start: request.range.from.utc().toISOString(),
           end: request.range.to.utc().toISOString(),
           limit: 5000,
+          query: expression,
+          start: request.range.from.utc().toISOString(),
         },
         {
-          requestId: request.requestId ?? 'volume',
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          requestId: request.requestId ?? 'volume',
         }
       );
       volumeResponse?.data.result.sort((lhs: VolumeResult, rhs: VolumeResult) => {
@@ -477,14 +482,14 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       const labelsResponse: LabelsResponse = await ds.getResource(
         'labels',
         {
-          start: request.range.from.utc().toISOString(),
           end: request.range.to.utc().toISOString(),
+          start: request.range.from.utc().toISOString(),
         },
         {
-          requestId: request.requestId ?? 'labels',
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          requestId: request.requestId ?? 'labels',
         }
       );
 
@@ -503,7 +508,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 
   testDatasource(): Promise<TestDataSourceResponse> {
-    return Promise.resolve({ status: 'success', message: 'Data source is working', title: 'Success' });
+    return Promise.resolve({ message: 'Data source is working', status: 'success', title: 'Success' });
   }
 }
 

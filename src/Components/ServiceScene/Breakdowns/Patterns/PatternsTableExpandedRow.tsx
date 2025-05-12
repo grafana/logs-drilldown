@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
+
 import { PatternsLogsSampleScene } from './PatternsLogsSampleScene';
 import { PatternsTableCellData, PatternsViewTableScene } from './PatternsViewTableScene';
 
 interface ExpandedRowProps {
-  tableViz: PatternsViewTableScene;
   row: PatternsTableCellData;
+  tableViz: PatternsViewTableScene;
 }
 
-export function PatternsTableExpandedRow({ tableViz, row }: ExpandedRowProps) {
+export function PatternsTableExpandedRow({ row, tableViz }: ExpandedRowProps) {
   const { expandedRows } = tableViz.useState();
 
   const rowScene = expandedRows?.find((scene) => scene.state.key === row.pattern);
@@ -24,7 +25,7 @@ export function PatternsTableExpandedRow({ tableViz, row }: ExpandedRowProps) {
 
 function buildExpandedRowScene(pattern: string) {
   return new PatternsLogsSampleScene({
-    pattern: pattern,
     key: pattern,
+    pattern: pattern,
   });
 }

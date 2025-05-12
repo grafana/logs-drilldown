@@ -20,8 +20,8 @@ describe('areArraysEqual', () => {
     expect(
       areArraysEqual(
         [
-          { d: 'd', c: 'c' },
-          { b: 'b', a: 'a' },
+          { c: 'c', d: 'd' },
+          { a: 'a', b: 'b' },
         ],
         [
           { a: 'a', b: 'b' },
@@ -36,9 +36,9 @@ describe('areArraysEqual', () => {
       areArraysEqual(
         [
           {
-            a: { b: 'b', a: 'a' },
+            a: { a: 'a', b: 'b' },
           },
-          { b: 'b', a: 'a' },
+          { a: 'a', b: 'b' },
         ],
         [
           {
@@ -55,18 +55,18 @@ describe('areArraysEqual', () => {
       areArraysEqual(
         [
           {
-            a: { b: 'b', a: 'a' },
+            a: { a: 'a', b: 'b' },
           },
           {
-            b: 'b',
             a: 'a',
+            b: 'b',
           },
         ],
         [
           {
             a: {
-              c: 'b',
               a: 'a',
+              c: 'b',
             },
           },
           {
@@ -84,20 +84,20 @@ describe('areArraysEqual', () => {
         [
           {
             a: {
-              b: 'b',
               a: 'a',
+              b: 'b',
             },
           },
           {
-            b: 'b',
             a: 'a',
+            b: 'b',
           },
         ],
         [
           {
             a: {
-              c: 'b',
               a: 'a',
+              c: 'b',
               e: 'e',
             },
           },
@@ -130,8 +130,8 @@ describe('areArraysStrictlyEqual', () => {
     expect(
       areArraysStrictlyEqual(
         [
-          { d: 'd', c: 'c' },
-          { b: 'b', a: 'a' },
+          { c: 'c', d: 'd' },
+          { a: 'a', b: 'b' },
         ],
         [
           { a: 'a', b: 'b' },
@@ -146,9 +146,9 @@ describe('areArraysStrictlyEqual', () => {
       areArraysEqual(
         [
           {
-            a: { b: 'b', a: 'a' },
+            a: { a: 'a', b: 'b' },
           },
-          { b: 'b', a: 'a' },
+          { a: 'a', b: 'b' },
         ],
         [
           {
@@ -165,18 +165,18 @@ describe('areArraysStrictlyEqual', () => {
       areArraysEqual(
         [
           {
-            a: { b: 'b', a: 'a' },
+            a: { a: 'a', b: 'b' },
           },
           {
-            b: 'b',
             a: 'a',
+            b: 'b',
           },
         ],
         [
           {
             a: {
-              c: 'b',
               a: 'a',
+              c: 'b',
             },
           },
           {
@@ -194,20 +194,20 @@ describe('areArraysStrictlyEqual', () => {
         [
           {
             a: {
-              b: 'b',
               a: 'a',
+              b: 'b',
             },
           },
           {
-            b: 'b',
             a: 'a',
+            b: 'b',
           },
         ],
         [
           {
             a: {
-              c: 'b',
               a: 'a',
+              c: 'b',
               e: 'e',
             },
           },

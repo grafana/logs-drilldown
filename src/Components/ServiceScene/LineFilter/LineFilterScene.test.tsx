@@ -1,11 +1,14 @@
 import React from 'react';
+
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { LineFilterScene } from './LineFilterScene';
 import userEvent from '@testing-library/user-event';
+
 import { AdHocFiltersVariable, SceneVariableSet } from '@grafana/scenes';
-import { VAR_LINE_FILTER, VAR_LINE_FILTERS } from 'services/variables';
+
 import { LineFilterCaseSensitive, LineFilterOp } from '../../../services/filterTypes';
 import { renderLogQLLineFilter } from '../../../services/query';
+import { LineFilterScene } from './LineFilterScene';
+import { VAR_LINE_FILTER, VAR_LINE_FILTERS } from 'services/variables';
 
 let location = {} as Location;
 jest.mock('lodash/debounce', () => (fn: { cancel: jest.Mock<any, any, any>; flush: jest.Mock<any, any, any> }) => {
@@ -16,8 +19,8 @@ jest.mock('lodash/debounce', () => (fn: { cancel: jest.Mock<any, any, any>; flus
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
   locationService: {
-    getSearch: () => new URLSearchParams(location.search),
     getLocation: () => location,
+    getSearch: () => new URLSearchParams(location.search),
     replace: jest.fn(),
   },
 }));
@@ -30,19 +33,19 @@ describe('LineFilter', () => {
   describe('case insensitive, no regex', () => {
     beforeEach(() => {
       lineFilterVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTER,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTER,
       });
       lineFiltersVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTERS,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTERS,
       });
       scene = new LineFilterScene({
-        caseSensitive: false,
-        regex: false,
         $variables: new SceneVariableSet({
           variables: [lineFilterVariable, lineFiltersVariable],
         }),
+        caseSensitive: false,
+        regex: false,
       });
     });
 
@@ -75,18 +78,18 @@ describe('LineFilter', () => {
   describe('case sensitive, no regex', () => {
     beforeEach(() => {
       lineFilterVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTER,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTER,
       });
       lineFiltersVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTERS,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTERS,
       });
       scene = new LineFilterScene({
-        caseSensitive: true,
         $variables: new SceneVariableSet({
           variables: [lineFilterVariable, lineFiltersVariable],
         }),
+        caseSensitive: true,
       });
     });
 
@@ -120,19 +123,19 @@ describe('LineFilter', () => {
   describe('case insensitive, regex', () => {
     beforeEach(() => {
       lineFilterVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTER,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTER,
       });
       lineFiltersVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTERS,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTERS,
       });
       scene = new LineFilterScene({
-        caseSensitive: false,
-        regex: true,
         $variables: new SceneVariableSet({
           variables: [lineFilterVariable, lineFiltersVariable],
         }),
+        caseSensitive: false,
+        regex: true,
       });
     });
 
@@ -168,19 +171,19 @@ describe('LineFilter', () => {
   describe('case sensitive, regex', () => {
     beforeEach(() => {
       lineFilterVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTER,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTER,
       });
       lineFiltersVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTERS,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTERS,
       });
       scene = new LineFilterScene({
-        caseSensitive: true,
-        regex: true,
         $variables: new SceneVariableSet({
           variables: [lineFilterVariable, lineFiltersVariable],
         }),
+        caseSensitive: true,
+        regex: true,
       });
     });
 
@@ -217,20 +220,20 @@ describe('LineFilter', () => {
   describe('regex validation', () => {
     beforeEach(() => {
       lineFilterVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTER,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTER,
       });
       lineFiltersVariable = new AdHocFiltersVariable({
-        name: VAR_LINE_FILTERS,
         expressionBuilder: renderLogQLLineFilter,
+        name: VAR_LINE_FILTERS,
       });
       scene = new LineFilterScene({
-        caseSensitive: true,
-        regex: true,
-        lineFilter: '(',
         $variables: new SceneVariableSet({
           variables: [lineFilterVariable, lineFiltersVariable],
         }),
+        caseSensitive: true,
+        lineFilter: '(',
+        regex: true,
       });
     });
 

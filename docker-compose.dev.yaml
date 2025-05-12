@@ -1,5 +1,3 @@
-version: '3.0'
-
 services:
   grafana:
     container_name: 'grafana-logsapp'
@@ -21,7 +19,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   loki:
-    image: grafana/loki:3.3.2
+    image: grafana/loki:3.5.0
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -35,3 +33,5 @@ services:
     build:
       context: ./generator
     command: -url http://loki:3100/loki/api/v1/push
+    environment:
+      - OTLP_ENDPOINT=http://loki:3100/otlp

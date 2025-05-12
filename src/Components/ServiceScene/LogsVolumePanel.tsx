@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { DataFrame, getValueFormat, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -10,23 +11,23 @@ import {
   VizPanel,
 } from '@grafana/scenes';
 import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode, useStyles2 } from '@grafana/ui';
+
+import { areArraysEqual } from '../../services/comparison';
+import { getTimeSeriesExpr } from '../../services/expressions';
+import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from '../../services/variableGetters';
+import { IndexScene } from '../IndexScene/IndexScene';
+import { LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
+import { AddFilterEvent } from './Breakdowns/AddToFiltersButton';
+import { LogsVolumeActions } from './LogsVolumeActions';
+import { ServiceScene } from './ServiceScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { toggleLevelFromFilter } from 'services/levels';
+import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getQueryRunner, setLogsVolumeFieldConfigs, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
-import { LEVEL_VARIABLE_VALUE } from 'services/variables';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { getTimeSeriesExpr } from '../../services/expressions';
-import { toggleLevelFromFilter } from 'services/levels';
-import { DataFrame, getValueFormat, LoadingState } from '@grafana/data';
-import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from '../../services/variableGetters';
-import { areArraysEqual } from '../../services/comparison';
-import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { ServiceScene } from './ServiceScene';
-import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { LogsVolumeActions } from './LogsVolumeActions';
-import { AddFilterEvent } from './Breakdowns/AddToFiltersButton';
-import { LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
   panel?: VizPanel;
@@ -113,7 +114,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
-      .setOption('legend', { showLegend: true, calcs: ['sum'], displayMode: LegendDisplayMode.List })
+      .setOption('legend', { calcs: ['sum'], displayMode: LegendDisplayMode.List, showLegend: true })
       .setUnit('short')
       .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
       .setCollapsible(true)
@@ -189,9 +190,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const containerLayout = sceneGraph.getAncestor(panel, SceneFlexLayout);
     const height = panel.state.collapsed ? 35 : Math.max(Math.round(window.innerHeight * 0.2), 100);
     containerLayout.setState({
-      minHeight: height,
       height: height,
       maxHeight: height,
+      minHeight: height,
     });
   }
 
@@ -241,8 +242,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.level_in_logs_volume_clicked,
         {
-          level: label,
           action,
+          level: label,
         }
       );
     };

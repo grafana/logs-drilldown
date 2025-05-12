@@ -1,10 +1,13 @@
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { css } from '@emotion/css';
-import { IconButton, Pagination, Select, useStyles2 } from '@grafana/ui';
 import React, { useEffect } from 'react';
-import { ServiceSelectionScene } from './ServiceSelectionScene';
+
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { IconButton, Pagination, Select, useStyles2 } from '@grafana/ui';
+
 import { setServiceSelectionPageCount } from '../../services/store';
+import { ServiceSelectionScene } from './ServiceSelectionScene';
 
 export interface ServiceSelectionPaginationSceneState extends SceneObjectState {}
 
@@ -67,8 +70,8 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
         },
         [theme.breakpoints.down('lg')]: {
           display: 'flex',
-          justifyContent: 'flex-end',
           flex: '1 0 auto',
+          justifyContent: 'flex-end',
         },
       }),
       paginationWrapMd: css({
@@ -77,8 +80,8 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
         },
         [theme.breakpoints.up('lg')]: {
           display: 'flex',
-          justifyContent: 'flex-end',
           flex: '1 0 auto',
+          justifyContent: 'flex-end',
         },
       }),
     });
@@ -125,22 +128,22 @@ function getPageCountStyles(theme: GrafanaTheme2) {
       color: theme.colors.text.disabled,
       marginLeft: theme.spacing.x1,
     }),
-    searchPageCountWrap: css({
-      display: 'flex',
-      alignItems: 'center',
-    }),
-    select: css({
-      maxWidth: '65px',
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    }),
     searchFieldPlaceholderText: css({
-      fontSize: theme.typography.bodySmall.fontSize,
-      color: theme.colors.text.disabled,
       alignItems: 'center',
+      color: theme.colors.text.disabled,
       display: 'flex',
       flex: '1 0 auto',
+      fontSize: theme.typography.bodySmall.fontSize,
       textWrapMode: 'nowrap',
+    }),
+    searchPageCountWrap: css({
+      alignItems: 'center',
+      display: 'flex',
+    }),
+    select: css({
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+      maxWidth: '65px',
     }),
   };
 }
@@ -159,8 +162,8 @@ export function getCountOptionsFromTotal(totalCount: number) {
       label = totalCount.toString();
     }
     options.push({
-      value: count.toString(),
       label,
+      value: count.toString(),
     });
   }
 

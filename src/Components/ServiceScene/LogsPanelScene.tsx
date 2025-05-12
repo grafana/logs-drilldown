@@ -1,3 +1,7 @@
+import React, { MouseEvent } from 'react';
+
+import { DataFrame, getValueFormat, LoadingState, LogRowModel, PanelData } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -10,55 +14,67 @@ import {
   SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
-import { DataFrame, getValueFormat, LoadingState, LogRowModel, PanelData } from '@grafana/data';
-import { getLogOption, getLogsVolumeOption, setDisplayedFields } from '../../services/store';
-import React, { MouseEvent } from 'react';
-import { LogsListScene } from './LogsListScene';
+import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
+import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
-import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
-import { getVariableForLabel } from '../../services/fields';
-import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
+
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getVariableForLabel } from '../../services/fields';
+import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
+import { logger } from '../../services/logger';
+import { narrowLogsSortOrder } from '../../services/narrowing';
+import {
+  getBooleanLogOption,
+  getDedupStrategy,
+  getLogOption,
+  getLogsVolumeOption,
+  LOG_OPTIONS_LOCALSTORAGE_KEY,
+  setDedupStrategy,
+  setDisplayedFields,
+} from '../../services/store';
 import {
   getAdHocFiltersVariable,
   getLineFiltersVariable,
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
-import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
-import { CopyLinkButton } from './CopyLinkButton';
-import { getLogsPanelSortOrderFromStore, LogOptionsScene } from './LogOptionsScene';
-import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { ServiceScene } from './ServiceScene';
-import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
-import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
-import { locationService } from '@grafana/runtime';
-import { narrowLogsSortOrder } from '../../services/narrowing';
-import { logger } from '../../services/logger';
-import { LogsSortOrder } from '@grafana/schema';
-import { getPrettyQueryExpr } from 'services/scenes';
+import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
+import { CopyLinkButton } from './CopyLinkButton';
+import { LogOptionsScene } from './LogOptionsScene';
+import { LogsListScene } from './LogsListScene';
 import { LogsPanelError } from './LogsPanelError';
-import { clearVariables } from 'services/variableHelpers';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { ServiceScene } from './ServiceScene';
+import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { isEmptyLogsResult } from 'services/logsFrame';
+import { logsControlsSupported } from 'services/panel';
+import { getPrettyQueryExpr } from 'services/scenes';
+import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
+import { clearVariables } from 'services/variableHelpers';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
+  dedupStrategy: LogsDedupStrategy;
   error?: string;
   logsVolumeCollapsedByError?: boolean;
-  sortOrder?: LogsSortOrder;
-  wrapLogMessage?: boolean;
+  prettifyLogMessage: boolean;
+  sortOrder: LogsSortOrder;
+  wrapLogMessage: boolean;
 }
 
 export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['sortOrder', 'wrapLogMessage'],
+    keys: ['sortOrder', 'wrapLogMessage', 'prettifyLogMessage'],
   });
 
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
-      sortOrder: getLogsPanelSortOrderFromStore(),
-      wrapLogMessage: Boolean(getLogOption<boolean>('wrapLogMessage', false)),
+      dedupStrategy: LogsDedupStrategy.none,
       error: undefined,
+      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
       ...state,
     });
 
@@ -69,6 +85,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
 
     this.updateFromUrl({
+      prettifyLogMessage: searchParams.get('prettifyLogMessage'),
       sortOrder: searchParams.get('sortOrder'),
       wrapLogMessage: searchParams.get('wrapLogMessage'),
     });
@@ -76,6 +93,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
   getUrlState() {
     return {
+      prettifyLogMessage: JSON.stringify(this.state.prettifyLogMessage),
       sortOrder: JSON.stringify(this.state.sortOrder),
       wrapLogMessage: JSON.stringify(this.state.wrapLogMessage),
     };
@@ -88,25 +106,32 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
         if (decodedSortOrder) {
           stateUpdate.sortOrder = decodedSortOrder;
-          this.setLogsVizOption({ sortOrder: decodedSortOrder });
         }
       }
-
+      if (typeof values.prettifyLogMessage === 'string' && values.prettifyLogMessage) {
+        const decodedPrettifyLogMessage = JSON.parse(values.prettifyLogMessage);
+        if (typeof decodedPrettifyLogMessage === 'boolean') {
+          stateUpdate.prettifyLogMessage = decodedPrettifyLogMessage;
+        }
+      }
       if (typeof values.wrapLogMessage === 'string' && values.wrapLogMessage) {
         const decodedWrapLogMessage = JSON.parse(values.wrapLogMessage);
         if (typeof decodedWrapLogMessage === 'boolean') {
           stateUpdate.wrapLogMessage = decodedWrapLogMessage;
-          this.setLogsVizOption({ wrapLogMessage: decodedWrapLogMessage });
-          this.setLogsVizOption({ prettifyLogMessage: decodedWrapLogMessage });
+          // Before controls, wrapLogMessage was synced with prettifyLogMessage
+          if (!logsControlsSupported) {
+            stateUpdate.prettifyLogMessage = decodedWrapLogMessage;
+          }
         }
       }
     } catch (e) {
       // URL Params can be manually changed and it will make JSON.parse() fail.
-      logger.error(e, { msg: 'LogOptionsScene: updateFromUrl unexpected error' });
+      logger.error(e, { msg: 'LogsPanelScene: updateFromUrl unexpected error' });
     }
 
     if (Object.keys(stateUpdate).length) {
       this.setState({ ...stateUpdate });
+      this.setLogsVizOption({ ...stateUpdate });
     }
   }
 
@@ -114,13 +139,15 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     // Need viz to set options, but setting options will trigger query
     this.setStateFromUrl();
 
+    if (getDedupStrategy(this)) {
+      this.setState({
+        dedupStrategy: getDedupStrategy(this),
+      });
+    }
+
     if (!this.state.body) {
       this.setState({
-        body: this.getLogsPanel({
-          wrapLogMessage: this.state.wrapLogMessage,
-          prettifyLogMessage: this.state.wrapLogMessage,
-          sortOrder: this.state.sortOrder,
-        }),
+        body: this.getLogsPanel(),
       });
     }
 
@@ -140,11 +167,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         if (newState.logsCount !== prevState.logsCount) {
           if (!this.state.body) {
             this.setState({
-              body: this.getLogsPanel({
-                wrapLogMessage: this.state.wrapLogMessage,
-                prettifyLogMessage: this.state.wrapLogMessage,
-                sortOrder: this.state.sortOrder,
-              }),
+              body: this.getLogsPanel(),
             });
           } else {
             this.state.body.setState({
@@ -276,13 +299,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
   }
 
-  private getLogsPanel(options: Partial<Options>) {
+  private getLogsPanel = () => {
     const parentModel = this.getParentScene();
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    return PanelBuilders.logs()
+    const panel = PanelBuilders.logs()
       .setTitle(this.getTitle(serviceScene.state.logsCount))
-      .setOption('showTime', true)
       .setOption('onClickFilterLabel', this.handleLabelFilterClick)
       .setOption('onClickFilterOutLabel', this.handleLabelFilterOutClick)
       .setOption('isFilterLabelActive', this.handleIsFilterLabelActive)
@@ -291,15 +313,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onClickShowField', this.onClickShowField)
       .setOption('onClickHideField', this.onClickHideField)
       .setOption('displayedFields', parentModel.state.displayedFields)
-      .setOption('sortOrder', options.sortOrder ?? getLogsPanelSortOrderFromStore())
-      .setOption('wrapLogMessage', options.wrapLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false)))
-      .setOption(
-        'prettifyLogMessage',
-        options.prettifyLogMessage ?? Boolean(getLogOption<boolean>('wrapLogMessage', false))
-      )
       .setMenu(
         new PanelMenu({
-          investigationOptions: { type: 'logs', getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}` },
+          investigationOptions: { getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}`, type: 'logs' },
         })
       )
       .setOption('showLogContextToggle', true)
@@ -308,10 +324,45 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onNewLogsReceived', this.updateVisibleRange)
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
       .setHeaderActions(
-        new LogOptionsScene({ visualizationType, onChangeVisualizationType: parentModel.setVisualizationType })
+        new LogOptionsScene({ onChangeVisualizationType: parentModel.setVisualizationType, visualizationType })
       )
-      .build();
-  }
+      .setOption('sortOrder', this.state.sortOrder)
+      .setOption('wrapLogMessage', this.state.wrapLogMessage)
+      .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
+      .setOption('dedupStrategy', this.state.dedupStrategy);
+
+    if (!logsControlsSupported) {
+      panel.setOption('showTime', true);
+    } else {
+      panel
+        .setOption('showTime', getBooleanLogOption('showTime', true))
+        // @ts-expect-error Requires Grafana 12.1
+        .setOption('showControls', true)
+        // @ts-expect-error Requires Grafana 12.1
+        .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
+        // @ts-expect-error Requires Grafana 12.1
+        .setOption('onLogOptionsChange', this.handleLogOptionsChange);
+    }
+
+    return panel.build();
+  };
+
+  private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {
+    if (option === 'sortOrder' && isLogsSortOrder(value)) {
+      this.setState({ sortOrder: value });
+      this.setLogsVizOption({ sortOrder: value });
+    } else if (option === 'wrapLogMessage' && typeof value === 'boolean') {
+      this.setState({ wrapLogMessage: value });
+      this.setLogsVizOption({ wrapLogMessage: value });
+    } else if (option === 'prettifyLogMessage' && typeof value === 'boolean') {
+      this.setState({ prettifyLogMessage: value });
+      this.setLogsVizOption({ prettifyLogMessage: value });
+    } else if (option === 'dedupStrategy' && isDedupStrategy(value)) {
+      setDedupStrategy(this, value);
+      this.setState({ dedupStrategy: value });
+      this.setLogsVizOption({ dedupStrategy: value });
+    }
+  };
 
   private updateVisibleRange = (newLogs: DataFrame[]) => {
     // Update logs count
@@ -343,7 +394,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         generateLogShortlink(
           'panelState',
           {
-            logs: { id: row.uid, displayedFields: parent.state.displayedFields },
+            logs: { displayedFields: parent.state.displayedFields, id: row.uid },
           },
           timeRange
         )
@@ -402,10 +453,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         filters: [
           ...lineFiltersVar.state.filters,
           {
-            operator: LineFilterOp.negativeMatch,
-            value,
             key: LineFilterCaseSensitive.caseSensitive,
             keyLabel: lineFiltersVar.state.filters.length.toString(),
+            operator: LineFilterOp.negativeMatch,
+            value,
           },
         ],
       });
@@ -426,10 +477,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         filters: [
           ...lineFiltersVar.state.filters,
           {
-            operator: LineFilterOp.match,
-            value,
             key: LineFilterCaseSensitive.caseSensitive,
             keyLabel: lineFiltersVar.state.filters.length.toString(),
+            operator: LineFilterOp.match,
+            value,
           },
         ],
       });
@@ -451,9 +502,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.logs_detail_filter_applied,
       {
+        action: operator,
         filterType: variableType,
         key,
-        action: operator,
       }
     );
   }

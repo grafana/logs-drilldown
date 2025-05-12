@@ -1,24 +1,27 @@
+import React from 'react';
+
+import { css } from '@emotion/css';
+
 import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
-import React from 'react';
-import { IndexScene } from './IndexScene';
-import { css } from '@emotion/css';
-import { InterceptBanner } from './InterceptBanner';
 
-import { PLUGIN_ID } from '../../services/plugin';
+import { PageSlugs } from '../../services/enums';
 import { logger } from '../../services/logger';
+import { PLUGIN_ID } from '../../services/plugin';
+import { getDrilldownSlug } from '../../services/routing';
+import { IndexScene } from './IndexScene';
+import { InterceptBanner } from './InterceptBanner';
+import { LevelsVariableScene } from './LevelsVariableScene';
 import { LineFilterVariablesScene } from './LineFilterVariablesScene';
 import { VariableLayoutScene } from './VariableLayoutScene';
-import { LevelsVariableScene } from './LevelsVariableScene';
-import { getDrilldownSlug, PageSlugs } from '../../services/routing';
 
 interface LayoutSceneState extends SceneObjectState {
-  interceptDismissed: boolean;
-  lineFilterRenderer?: LineFilterVariablesScene;
-  levelsRenderer?: LevelsVariableScene;
-  variableLayout?: SceneObject;
   embedded?: boolean;
+  interceptDismissed: boolean;
+  levelsRenderer?: LevelsVariableScene;
+  lineFilterRenderer?: LineFilterVariablesScene;
+  variableLayout?: SceneObject;
 }
 
 const interceptBannerStorageKey = `${PLUGIN_ID}.interceptBannerStorageKey`;
@@ -28,6 +31,7 @@ export const CONTROLS_VARS_METADATA_ROW_KEY = 'vars-metadata';
 export const CONTROLS_VARS_LEVELS_ROW_KEY = 'vars-levels';
 export const CONTROLS_VARS_FIELDS = 'vars-fields';
 export const CONTROLS_VARS_FIELDS_COMBINED = 'vars-fields-metadata';
+export const CONTROLS_JSON_FIELDS = 'vars-json-fields';
 export const CONTROLS_VARS_TIMEPICKER = 'vars-timepicker';
 export const CONTROLS_VARS_REFRESH = 'vars-refresh';
 export const CONTROLS_VARS_TOOLBAR = 'vars-toolbar';
@@ -78,8 +82,8 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
   public onActivate() {
     const slug = getDrilldownSlug();
     this.setState({
-      lineFilterRenderer: new LineFilterVariablesScene({}),
       levelsRenderer: new LevelsVariableScene({}),
+      lineFilterRenderer: new LineFilterVariablesScene({}),
       variableLayout: new VariableLayoutScene({ position: slug === PageSlugs.explore ? 'sticky' : 'relative' }),
     });
   }
@@ -94,32 +98,32 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
 
 function getStyles(theme: GrafanaTheme2) {
   return {
-    bodyContainer: css({
-      flexGrow: 1,
-      display: 'flex',
-      minHeight: '100%',
-      flexDirection: 'column',
-    }),
-    container: css({
-      flexGrow: 1,
-      display: 'flex',
-      minHeight: '100%',
-      flexDirection: 'column',
-      maxWidth: '100vw',
-    }),
     body: css({
-      label: 'body-wrapper',
-      flexGrow: 1,
       display: 'flex',
       flexDirection: 'column',
+      flexGrow: 1,
       gap: theme.spacing(1),
+      label: 'body-wrapper',
       padding: `0 ${theme.spacing(2)} ${theme.spacing(2)}`,
     }),
+    bodyContainer: css({
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      minHeight: '100%',
+    }),
+    container: css({
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      maxWidth: '100vw',
+      minHeight: '100%',
+    }),
     controlsContainer: css({
-      label: 'controlsContainer',
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(1),
+      label: 'controlsContainer',
     }),
   };
 }

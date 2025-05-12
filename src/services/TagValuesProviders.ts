@@ -1,51 +1,53 @@
-import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
+import { isArray } from 'lodash';
+
 import { DataSourceGetTagValuesOptions, GetTagResponse, MetricFindValue, ScopedVars, TimeRange } from '@grafana/data';
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { getDataSource } from './scenes';
-import { logger } from './logger';
-import { LokiDatasource, LokiQuery } from './lokiQuery';
-import { getDataSourceVariable, getValueFromFieldsFilter } from './variableGetters';
-import { AdHocFiltersWithLabelsAndMeta, DetectedFieldType, VAR_LEVELS } from './variables';
-import { isArray } from 'lodash';
-import { FilterOp } from './filterTypes';
-import { getFavoriteLabelValuesFromStorage } from './store';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
+
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
+import { FilterOp } from './filterTypes';
+import { logger } from './logger';
+import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { isOperatorInclusive, isOperatorRegex } from './operatorHelpers';
+import { getDataSource } from './scenes';
+import { getFavoriteLabelValuesFromStorage } from './store';
+import { getDataSourceVariable, getValueFromFieldsFilter } from './variableGetters';
+import { AdHocFiltersWithLabelsAndMeta, DetectedFieldType, VAR_LEVELS } from './variables';
 
 type FetchDetectedLabelValuesOptions = {
   expr?: string;
-  timeRange?: TimeRange;
   limit?: number;
   scopedVars?: ScopedVars;
   throwError: boolean;
+  timeRange?: TimeRange;
 };
 
 export type FetchDetectedFieldsOptions = {
   expr: string;
-  timeRange?: TimeRange;
   limit?: number;
   scopedVars?: ScopedVars;
+  timeRange?: TimeRange;
 };
 
 export type DetectedFieldsResult = Array<{
-  label: string;
-  type: DetectedFieldType;
   cardinality: number;
-  parsers: Array<'logfmt' | 'json'> | null;
+  label: string;
+  parsers: Array<'json' | 'logfmt'> | null;
+  type: DetectedFieldType;
 }>;
 
 export interface LokiLanguageProviderWithDetectedLabelValues {
+  fetchDetectedFields: (
+    queryOptions?: FetchDetectedFieldsOptions,
+    requestOptions?: Partial<BackendSrvRequest>
+  ) => Promise<DetectedFieldsResult | Error>;
+
   fetchDetectedLabelValues: (
     labelName: string,
     queryOptions?: FetchDetectedLabelValuesOptions,
     requestOptions?: Partial<BackendSrvRequest>
   ) => Promise<string[] | Error>;
-
-  fetchDetectedFields: (
-    queryOptions?: FetchDetectedFieldsOptions,
-    requestOptions?: Partial<BackendSrvRequest>
-  ) => Promise<DetectedFieldsResult | Error>;
 }
 
 export const getDetectedFieldValuesTagValuesProvider = async (
@@ -77,8 +79,8 @@ export const getDetectedFieldValuesTagValuesProvider = async (
     const options: FetchDetectedLabelValuesOptions = {
       expr,
       limit: 1000,
-      timeRange,
       throwError: true,
+      timeRange,
     };
 
     const requestOptions: Partial<BackendSrvRequest> = {
@@ -118,8 +120,8 @@ export const getDetectedFieldValuesTagValuesProvider = async (
               values: filteredResults.map((v) => ({
                 text: v,
                 value: JSON.stringify({
-                  value: v,
                   parser: valueDecoded.parser,
+                  value: v,
                 }),
               })),
             };
@@ -130,8 +132,8 @@ export const getDetectedFieldValuesTagValuesProvider = async (
               values: filteredResults.map((v) => ({
                 text: v,
                 value: JSON.stringify({
-                  value: v,
                   parser: filter.meta?.parser ?? 'mixed',
+                  value: v,
                 }),
               })),
             };
@@ -196,8 +198,8 @@ export async function getLabelsTagValuesProvider(
     const filtersFiltered = tagValuesFilterAdHocFilters(filters, filter);
 
     const options: DataSourceGetTagValuesOptions<LokiQuery> = {
-      key: filter.key,
       filters: filtersFiltered,
+      key: filter.key,
     };
 
     let results = await datasource.getTagValues(options);

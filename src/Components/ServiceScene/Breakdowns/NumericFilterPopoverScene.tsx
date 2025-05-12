@@ -1,33 +1,39 @@
+import React from 'react';
+
+import { css, cx } from '@emotion/css';
+
+import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, ClickOutsideWrapper, Field, FieldSet, Input, Label, Select, Stack, useStyles2 } from '@grafana/ui';
-import React from 'react';
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { css, cx } from '@emotion/css';
-import { SelectLabelActionScene } from './SelectLabelActionScene';
-import {
-  addNumericFilter,
-  removeNumericFilter,
-  validateVariableNameForField,
-  InterpolatedFilterType,
-} from './AddToFiltersButton';
+
 import { FilterOp } from '../../../services/filterTypes';
-import { getAdHocFiltersVariable, getValueFromFieldsFilter } from '../../../services/variableGetters';
 import { logger } from '../../../services/logger';
 import { testIds } from '../../../services/testIds';
+import { getAdHocFiltersVariable, getValueFromFieldsFilter } from '../../../services/variableGetters';
+import {
+  addNumericFilter,
+  InterpolatedFilterType,
+  removeNumericFilter,
+  validateVariableNameForField,
+} from './AddToFiltersButton';
+import { SelectLabelActionScene } from './SelectLabelActionScene';
+
+type ComparisonOperatorTypes = 'bytes' | 'duration' | 'float' | 'int';
 
 export interface NumericFilterPopoverSceneState extends SceneObjectState {
-  labelName: string;
-  variableType: InterpolatedFilterType;
+  fieldType: ComparisonOperatorTypes;
   gt?: number;
   gte?: boolean;
+  hasExistingFilter?: boolean;
+  labelName: string;
   lt?: number;
   lte?: boolean;
-  fieldType: 'float' | 'duration' | 'bytes';
-  hasExistingFilter?: boolean;
+  variableType: InterpolatedFilterType;
 }
 
 export type NumericFilterPopoverSceneStateTotal =
   | (NumericFilterPopoverSceneState & FloatTypes)
+  | (NumericFilterPopoverSceneState & IntTypes)
   | (NumericFilterPopoverSceneState & DurationTypes)
   | (NumericFilterPopoverSceneState & ByteTypes);
 
@@ -73,17 +79,21 @@ export enum ValidByteUnitValues {
 }
 
 interface FloatUnitTypes {
-  ltu: '';
   gtu: '';
+  ltu: '';
 }
 
 interface FloatTypes extends FloatUnitTypes {
   fieldType: 'float';
 }
 
+interface IntTypes extends FloatUnitTypes {
+  fieldType: 'int';
+}
+
 interface DurationUnitTypes {
-  ltu: DisplayDurationUnits;
   gtu: DisplayDurationUnits;
+  ltu: DisplayDurationUnits;
 }
 
 interface DurationTypes extends DurationUnitTypes {
@@ -91,8 +101,8 @@ interface DurationTypes extends DurationUnitTypes {
 }
 
 interface ByteUnitTypes {
-  ltu: DisplayByteUnits;
   gtu: DisplayByteUnits;
+  ltu: DisplayByteUnits;
 }
 
 interface ByteTypes extends ByteUnitTypes {
@@ -102,13 +112,13 @@ interface ByteTypes extends ByteUnitTypes {
 export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopoverSceneStateTotal> {
   constructor(state: Omit<NumericFilterPopoverSceneStateTotal, 'gtu' | 'ltu'>) {
     let units: FloatUnitTypes | DurationUnitTypes | ByteUnitTypes;
-    const fieldType: 'float' | 'bytes' | 'duration' = state.fieldType;
+    const fieldType: ComparisonOperatorTypes = state.fieldType;
     if (fieldType === 'bytes') {
-      units = { ltu: DisplayByteUnits.B, gtu: DisplayByteUnits.B };
+      units = { gtu: DisplayByteUnits.B, ltu: DisplayByteUnits.B };
     } else if (fieldType === 'duration') {
-      units = { ltu: DisplayDurationUnits.s, gtu: DisplayDurationUnits.s };
-    } else if (fieldType === 'float') {
-      units = { ltu: '', gtu: '' };
+      units = { gtu: DisplayDurationUnits.s, ltu: DisplayDurationUnits.s };
+    } else if (fieldType === 'float' || fieldType === 'int') {
+      units = { gtu: '', ltu: '' };
     } else {
       throw new Error(`field type incorrectly defined: ${fieldType}`);
     }
@@ -151,7 +161,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
         }
       }
     } else {
-      // Floats have no unit
+      // Floats/int have no unit
       if (gtFilter) {
         const extractedValue = getValueFromFieldsFilter(gtFilter).value;
         stateUpdate.gt = Number(extractedValue);
@@ -222,8 +232,9 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
 
   public static Component = ({ model }: SceneComponentProps<NumericFilterPopoverScene>) => {
     const popoverStyles = useStyles2(getPopoverStyles);
-    const { labelName, gt, lt, gte, lte, gtu, ltu, fieldType, hasExistingFilter } = model.useState();
-    const subTitle = fieldType !== 'float' && fieldType !== labelName ? `(${fieldType})` : undefined;
+    const { fieldType, gt, gte, gtu, hasExistingFilter, labelName, lt, lte, ltu } = model.useState();
+    const subTitle =
+      fieldType !== 'float' && fieldType !== 'int' && fieldType !== labelName ? `(${fieldType})` : undefined;
 
     const selectLabelActionScene = sceneGraph.getAncestor(model, SelectLabelActionScene);
     const formDisabled = gt === undefined && lt === undefined;
@@ -262,6 +273,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                 >
                   <Input
                     onKeyDownCapture={model.onInputKeydown}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={true}
                     onChange={(e) => {
                       model.setState({
@@ -273,7 +285,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     type={'number'}
                   />
                 </Field>
-                {fieldType !== 'float' && (
+                {fieldType !== 'float' && fieldType !== 'int' && (
                   <Label>
                     <Field
                       data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit}
@@ -330,7 +342,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     type={'number'}
                   />
                 </Field>
-                {fieldType !== 'float' && (
+                {fieldType !== 'float' && fieldType !== 'int' && (
                   <Label>
                     <Field
                       data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit}
@@ -407,7 +419,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
 export function extractValueFromString(
   inputString: string,
   inputType: 'bytes' | 'duration'
-): { value: number; unit: DisplayByteUnits | DisplayDurationUnits } | undefined {
+): { unit: DisplayByteUnits | DisplayDurationUnits; value: number } | undefined {
   if (inputType === 'duration') {
     const durationValues = Object.values(DisplayDurationUnits);
 
@@ -454,15 +466,15 @@ export function extractValueFromString(
 }
 
 function getUnitOptions(
-  fieldType: 'duration' | 'bytes'
+  fieldType: 'bytes' | 'duration'
 ): Array<SelectableValue<DisplayDurationUnits | DisplayByteUnits>> {
   if (fieldType === 'duration') {
     const keys = Object.keys(DisplayDurationUnits) as Array<keyof typeof DisplayDurationUnits>;
     return keys.map((key) => {
       return {
+        label: key,
         text: key,
         value: DisplayDurationUnits[key],
-        label: key,
       };
     });
   }
@@ -471,9 +483,9 @@ function getUnitOptions(
     const keys = Object.keys(DisplayByteUnits) as Array<keyof typeof DisplayByteUnits>;
     return keys.map((key) => {
       return {
+        label: key,
         text: key,
         value: DisplayByteUnits[key],
-        label: key,
       };
     });
   }
@@ -485,60 +497,60 @@ function getUnitOptions(
 
 const getPopoverStyles = (theme: GrafanaTheme2) => ({
   card: {
+    body: css({
+      padding: theme.spacing(2),
+    }),
     buttons: css({
       display: 'flex',
       flexWrap: 'wrap',
-      justifyContent: 'flex-end',
       gap: theme.spacing(1.5),
+      justifyContent: 'flex-end',
       marginTop: theme.spacing(1),
     }),
-    inclusiveInput: css({
-      minWidth: '185px',
+    field: css({
+      alignItems: 'center',
+      display: 'flex',
+      marginBottom: theme.spacing(1),
     }),
-    selectInput: css({
-      minWidth: '65px',
-    }),
-    numberInput: css({
-      width: '75px',
+    fieldset: css({
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: 0,
+      width: '100%',
     }),
     fieldWrap: css({
       display: 'flex',
       flexDirection: 'column',
-      paddingTop: theme.spacing(2),
       paddingBottom: 0,
-    }),
-    field: css({
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: theme.spacing(1),
+      paddingTop: theme.spacing(2),
     }),
     inclusiveField: css({
       marginRight: theme.spacing(1),
     }),
-    unitFieldLabel: css({
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(1.5),
+    inclusiveInput: css({
+      minWidth: '185px',
     }),
     numberFieldLabel: css({
       width: '100px',
+    }),
+    numberInput: css({
+      width: '75px',
+    }),
+    p: css({
+      maxWidth: 300,
+    }),
+    selectInput: css({
+      minWidth: '65px',
     }),
     switchFieldLabel: css({
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(1),
     }),
-    fieldset: css({
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-      marginBottom: 0,
-    }),
     title: css({}),
-    body: css({
-      padding: theme.spacing(2),
-    }),
-    p: css({
-      maxWidth: 300,
+    unitFieldLabel: css({
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(1.5),
     }),
   },
 });

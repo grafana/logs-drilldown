@@ -1,21 +1,24 @@
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import React from 'react';
-import { Icon, ToolbarButton, useStyles2 } from '@grafana/ui';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
-import { getFavoriteLabelValuesFromStorage } from '../../services/store';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { Icon, ToolbarButton, useStyles2 } from '@grafana/ui';
+
 import { addToFavorites, removeFromFavorites } from '../../services/favorites';
+import { getFavoriteLabelValuesFromStorage } from '../../services/store';
 
 export interface FavoriteServiceHeaderActionSceneState extends SceneObjectState {
-  labelValue: string;
-  labelName: string;
   ds: string;
   hover?: boolean;
+  labelName: string;
+  labelValue: string;
 }
 
 export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteServiceHeaderActionSceneState> {
   public static Component = ({ model }: SceneComponentProps<FavoriteServiceHeaderActionScene>) => {
-    const { ds, labelValue, labelName, hover } = model.useState();
+    const { ds, hover, labelName, labelValue } = model.useState();
     const isFavorite = getFavoriteLabelValuesFromStorage(ds, labelName).includes(labelValue);
     const styles = useStyles2((theme) => getStyles(theme, isFavorite, hover));
     const tooltipCopy = isFavorite ? `Remove  ${labelValue} from favorites` : `Add ${labelValue} to favorites`;
@@ -58,10 +61,10 @@ export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteSe
 function getStyles(theme: GrafanaTheme2, isFavorite: boolean, hover = false) {
   return {
     wrapper: css({
+      alignSelf: 'center',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
-      alignSelf: 'center',
     }),
   };
 }

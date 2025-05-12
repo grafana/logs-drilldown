@@ -33,7 +33,7 @@ jobs:
           policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
 
       - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@main
+        uses: grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760
         with:
           common_secrets: |
             GCP_UPLOAD_ARTIFACTS_KEY=grafana/integration-artifacts-uploader-service-account:'credentials.json'
@@ -44,7 +44,11 @@ jobs:
           credentials_json: ${{ env.GCP_UPLOAD_ARTIFACTS_KEY }}
 
       - name: 'rename versioned archive to main-archive'
-        run: mv ${{ steps.package-plugin.outputs.archive }} ${{ steps.package-plugin.outputs.plugin-id }}-main.zip
+        env:
+          ARCHIVE_PATH: ${{ steps.package-plugin.outputs.archive }}
+          PLUGIN_ID: ${{ steps.package-plugin.outputs.plugin-id }}
+        run: |
+          mv "$ARCHIVE_PATH" "${PLUGIN_ID}-main.zip"
 
       - id: 'upload-to-gcs'
         name: 'Upload assets to latest'
@@ -52,5 +56,14 @@ jobs:
         with:
           path: ./
           destination: 'integration-artifacts/grafana-lokiexplore-app/'
+          glob: '*.zip'
+          parent: false
+
+      - id: 'upload-to-gcs-main'
+        name: 'Upload assets to latest'
+        uses: google-github-actions/upload-cloud-storage@e95a15f226403ed658d3e65f40205649f342ba2c # v1.0.3
+        with:
+          path: ./
+          destination: 'integration-artifacts/grafana-lokiexplore-app/release/main/any/'
           glob: '*.zip'
           parent: false

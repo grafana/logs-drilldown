@@ -1,13 +1,15 @@
+import React from 'react';
+
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LinkButton, useStyles2 } from '@grafana/ui';
-import React from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
-import { css } from '@emotion/css';
-import { getDrillDownIndexLink } from '../../services/navigate';
-import { getLabelsVariable } from '../../services/variableGetters';
-import { testIds } from '../../services/testIds';
 
+import { getDrillDownIndexLink } from '../../services/navigate';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { testIds } from '../../services/testIds';
+import { getLabelsVariable } from '../../services/variableGetters';
 
 export interface ShowLogsButtonSceneState extends SceneObjectState {
   disabled?: boolean;
@@ -79,8 +81,8 @@ function getStyles(theme: GrafanaTheme2) {
         alignSelf: 'flex-end',
       },
       [theme.breakpoints.down('md')]: {
-        marginTop: theme.spacing(1),
         alignSelf: 'flex-start',
+        marginTop: theme.spacing(1),
       },
 
       alignSelf: 'flex-start',

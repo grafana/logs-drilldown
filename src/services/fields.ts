@@ -1,5 +1,6 @@
+import { map, Observable } from 'rxjs';
+
 import { DataFrame, Field, ReducerID } from '@grafana/data';
-import { DrawStyle, StackingMode } from '@grafana/ui';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
@@ -7,7 +8,23 @@ import {
   SceneDataTransformer,
   SceneObject,
 } from '@grafana/scenes';
-import { AddToFiltersButton, InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { DrawStyle, StackingMode } from '@grafana/ui';
+
+import { PanelMenu } from '../Components/Panels/PanelMenu';
+import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
+import { LabelType } from './fieldsTypes';
+import { logger } from './logger';
+import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
+import { getLabelTypeFromFrame } from './lokiQuery';
+import { setLevelColorOverrides } from './panel';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLineFormatVariable,
+  getLogsStreamSelector,
+  getValueFromFieldsFilter,
+} from './variableGetters';
 import {
   DetectedFieldType,
   LEVEL_VARIABLE_VALUE,
@@ -18,19 +35,11 @@ import {
   VAR_LEVELS,
   VAR_METADATA,
 } from './variables';
-import { setLevelColorOverrides } from './panel';
-import { map, Observable } from 'rxjs';
-import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
-import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
-import { getLogsStreamSelector, getValueFromFieldsFilter } from './variableGetters';
-import { logger } from './logger';
-import { PanelMenu } from '../Components/Panels/PanelMenu';
-import { getLabelTypeFromFrame } from './lokiQuery';
-import { LabelType } from './fieldsTypes';
+import { AddToFiltersButton, InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export type DetectedLabel = {
-  label: string;
   cardinality: number;
+  label: string;
 };
 
 export type DetectedLabelsResponse = {
@@ -38,10 +47,11 @@ export type DetectedLabelsResponse = {
 };
 
 export type DetectedField = {
-  label: string;
   cardinality: number;
-  type: string;
+  jsonPath: string[];
+  label: string;
   parsers: string[] | null;
+  type: string;
 };
 
 export type DetectedFieldsResponse = {
@@ -112,10 +122,31 @@ export function extractParserFromArray(parsers?: string[]): ParserType {
   return 'mixed';
 }
 
+export function getDetectedFieldsNamesField(detectedFieldsFrame?: DataFrame) {
+  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
+  return namesField;
+}
+export function getDetectedFieldsCardinalityField(detectedFieldsFrame?: DataFrame) {
+  const cardinalityField: Field<string> | undefined = detectedFieldsFrame?.fields[1];
+  return cardinalityField;
+}
+export function getDetectedFieldsParserField(detectedFieldsFrame?: DataFrame) {
+  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
+  return parserField;
+}
+export function getDetectedFieldsTypeField(detectedFieldsFrame?: DataFrame) {
+  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  return parserField;
+}
+export function getDetectedFieldsJsonPathField(detectedFieldsFrame?: DataFrame) {
+  const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
+  return pathField;
+}
+
 export function getParserForField(fieldName: string, sceneRef: SceneObject): ParserType | undefined {
   const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
-  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
 
   const index = namesField?.values.indexOf(fieldName);
   const parser =
@@ -126,6 +157,34 @@ export function getParserForField(fieldName: string, sceneRef: SceneObject): Par
     return 'mixed';
   }
   return parser;
+}
+
+export function getParserAndPathForField(
+  fieldName: string,
+  sceneRef: SceneObject
+): { parser: ParserType | undefined; path: string | undefined } {
+  const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
+
+  const index = namesField?.values.indexOf(fieldName);
+  const parser =
+    index !== undefined && index !== -1 ? extractParserFromString(parserField?.values?.[index] ?? '') : undefined;
+  const pathArray = index !== undefined ? pathField?.values?.[index] : undefined;
+  const path = pathArray ? getJsonPathArraySyntax(pathArray) : undefined;
+
+  if (parser === undefined) {
+    logger.warn('missing parser, using mixed format for', { fieldName });
+    return {
+      parser: 'mixed',
+      path,
+    };
+  }
+  return {
+    parser,
+    path,
+  };
 }
 
 export function getFilterBreakdownValueScene(
@@ -148,9 +207,9 @@ export function getFilterBreakdownValueScene(
         })
       )
       .setOverrides(setLevelColorOverrides)
-      .setMenu(new PanelMenu({ investigationOptions: { frame, fieldName: getTitle(frame), labelName: labelKey } }))
+      .setMenu(new PanelMenu({ investigationOptions: { fieldName: getTitle(frame), frame, labelName: labelKey } }))
       .setHeaderActions([
-        new AddToFiltersButton({ frame, variableName, hideExclude: labelKey === LEVEL_VARIABLE_VALUE }),
+        new AddToFiltersButton({ frame, hideExclude: labelKey === LEVEL_VARIABLE_VALUE, variableName }),
       ]);
 
     if (style === DrawStyle.Bars) {
@@ -165,8 +224,8 @@ export function getFilterBreakdownValueScene(
 
     if (reducerID) {
       panel.setOption('legend', {
-        showLegend: true,
         calcs: [reducerID],
+        showLegend: true,
       });
       // These will only have a single series, no need to show the title twice
       panel.setDisplayName(' ');
@@ -237,7 +296,7 @@ export function getFilterTypeFromLabelType(type: LabelType, key: string): Interp
     }
     default: {
       const err = new Error(`Invalid label type for ${key}`);
-      logger.error(err, { type, msg: `Invalid label type for ${key}` });
+      logger.error(err, { msg: `Invalid label type for ${key}`, type });
       throw err;
     }
   }
@@ -277,8 +336,8 @@ export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions)
  * @param detectedFieldsFrame
  */
 export function getDetectedFieldType(optionValue: string, detectedFieldsFrame?: DataFrame) {
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
-  const typesField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
   const index = namesField?.values.indexOf(optionValue);
   return index !== undefined && index !== -1 ? extractFieldTypeFromString(typesField?.values?.[index]) : undefined;
 }
@@ -286,11 +345,13 @@ export function getDetectedFieldType(optionValue: string, detectedFieldsFrame?: 
 export function buildFieldsQueryString(
   optionValue: string,
   fieldsVariable: AdHocFiltersVariable,
-  detectedFieldsFrame?: DataFrame
+  detectedFieldsFrame?: DataFrame,
+  jsonVariable?: AdHocFiltersVariable
 ) {
-  const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[2];
-  const namesField: Field<string> | undefined = detectedFieldsFrame?.fields[0];
-  const typesField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
   const index = namesField?.values.indexOf(optionValue);
 
   const parserForThisField =
@@ -298,6 +359,8 @@ export function buildFieldsQueryString(
 
   const optionType =
     index !== undefined && index !== -1 ? extractFieldTypeFromString(typesField?.values?.[index]) : undefined;
+
+  const pathForThisField = index !== undefined && index !== -1 ? pathField?.values?.[index] : undefined;
 
   // Get the parser from the json payload of each filter
   const parsers = fieldsVariable.state.filters.map((filter) => {
@@ -329,11 +392,28 @@ export function buildFieldsQueryString(
 
   // is option structured metadata
   const options: LogsQueryOptions = {
-    structuredMetadataToAdd,
     fieldExpressionToAdd,
-    parser: parser,
     fieldType: optionType,
+    parser: parser,
+    structuredMetadataToAdd,
   };
+
+  if ((parser === 'json' || parser === 'mixed') && pathForThisField) {
+    const jsonPath = getJsonPathArraySyntax(pathForThisField);
+    const fieldFilters = fieldsVariable.state.filters;
+    const jsonFilters = jsonVariable?.state.filters;
+    // Only add JSON path args if every field filter already has a json parser prop
+    if (fieldFilters.every((fieldFilter) => jsonFilters?.some((jsonFilter) => fieldFilter.key === jsonFilter.key))) {
+      options.jsonParserPropToAdd = jsonVariable?.state.filters.length
+        ? `${optionValue}="${jsonPath}",`
+        : `${optionValue}="${jsonPath}"`;
+    } else {
+      logger.warn('missing json path for field filters', {
+        fieldFilters: JSON.stringify(fieldFilters),
+        jsonFilters: JSON.stringify(jsonFilters),
+      });
+    }
+  }
 
   return buildFieldsQuery(optionValue, options);
 }
@@ -344,4 +424,32 @@ export function lokiRegularEscape<T>(value: T) {
     return value.replace(/'/g, "\\\\'");
   }
   return value;
+}
+
+export function isLogLineField(fieldName: string) {
+  return fieldName === DATAPLANE_LINE_NAME || fieldName === DATAPLANE_BODY_NAME_LEGACY;
+}
+
+/**
+ * Housekeeping: clears json parsers if there is not any field or line format filters
+ */
+export function clearJsonParserFields(sceneRef: SceneObject) {
+  const fieldsVariable = getFieldsVariable(sceneRef);
+  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const lineFormatVariable = getLineFormatVariable(sceneRef);
+
+  // If there are no active filters, and no line format (drilldowns), clear the json
+  if (!fieldsVariable.state.filters.length && !lineFormatVariable.state.filters.length) {
+    jsonVar.setState({
+      filters: [],
+    });
+  }
+}
+
+export function getJsonPathArraySyntax(path: string[]) {
+  return path
+    .map((path) => {
+      return `[\\"${path}\\"]`;
+    })
+    ?.join('');
 }

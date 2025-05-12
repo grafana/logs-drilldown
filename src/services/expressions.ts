@@ -1,3 +1,9 @@
+import { SceneObject } from '@grafana/scenes';
+
+import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { getParserFromFieldsFilters } from './fields';
+import { logger } from './logger';
+import { getFieldsVariable } from './variableGetters';
 import {
   DETECTED_FIELD_AND_METADATA_VALUES_EXPR,
   DETECTED_LEVELS_VALUES_EXPR,
@@ -10,14 +16,10 @@ import {
   VAR_LABELS_EXPR,
   VAR_LEVELS,
   VAR_LINE_FILTERS_EXPR,
+  VAR_LINE_FORMAT_EXPR,
   VAR_METADATA_EXPR,
   VAR_PATTERNS_EXPR,
 } from './variables';
-import { SceneObject } from '@grafana/scenes';
-import { getParserFromFieldsFilters } from './fields';
-import { getFieldsVariable } from './variableGetters';
-import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { logger } from './logger';
 
 /**
  * Crafts count over time query that excludes empty values for stream selector name
@@ -43,16 +45,16 @@ export function getTimeSeriesExpr(sceneRef: SceneObject, streamSelectorName: str
   // if we have fields, we also need to add parsers
   if (fieldFilters.length) {
     if (parser === 'mixed') {
-      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR} [$__auto])) by (${streamSelectorName})`;
+      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }
     if (parser === 'json') {
-      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${VAR_FIELDS_EXPR} [$__auto])) by (${streamSelectorName})`;
+      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }
     if (parser === 'logfmt') {
-      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} [$__auto])) by (${streamSelectorName})`;
+      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }
   }
-  return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_FIELDS_EXPR} [$__auto])) by (${streamSelectorName})`;
+  return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
 }
 
 /**
@@ -68,8 +70,8 @@ export function getFieldsTagValuesExpression(variableType: UIVariableFilterType)
     default:
       const error = new Error(`Unknown variable type: ${variableType}`);
       logger.error(error, {
-        variableType,
         msg: `getFieldsTagValuesExpression: Unknown variable type: ${variableType}`,
+        variableType,
       });
       throw error;
   }

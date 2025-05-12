@@ -1,23 +1,24 @@
 import React from 'react';
 
 import { SceneComponentProps, SceneFlexLayout, SceneObjectBase } from '@grafana/scenes';
-import { LogsListSceneState } from '../LogsListScene';
+
 import { LogOptionsScene } from '../LogOptionsScene';
+import { LogsListSceneState } from '../LogsListScene';
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
-      visualizationType: 'logs',
+      displayedFields: state.displayedFields ?? [],
       panel: new SceneFlexLayout({
         children: [
           new LogOptionsScene({
-            visualizationType: 'logs',
             onChangeVisualizationType: () => {},
+            visualizationType: 'logs',
           }),
         ],
       }),
-      displayedFields: state.displayedFields ?? [],
+      visualizationType: 'logs',
     });
   }
 

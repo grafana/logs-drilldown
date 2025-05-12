@@ -1,3 +1,5 @@
+import { map, Observable } from 'rxjs';
+
 import {
   DataFrame,
   FieldColorModeId,
@@ -6,6 +8,7 @@ import {
   FieldType,
   getFieldDisplayName,
 } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import {
   FieldConfigBuilder,
   FieldConfigBuilders,
@@ -18,17 +21,18 @@ import {
   SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
-import { map, Observable } from 'rxjs';
 import { HideSeriesConfig, LogsSortOrder } from '@grafana/schema';
-import { WRAPPED_LOKI_DS_UID } from './datasource';
-import { LogsSceneQueryRunner } from './LogsSceneQueryRunner';
 import { DrawStyle, StackingMode } from '@grafana/ui';
-import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
-import { LokiQuery, LokiQueryDirection } from './lokiQuery';
+
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
-import { getLogsPanelSortOrderFromStore, getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
-import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
+import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
+import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
+import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
+import { LogsSceneQueryRunner } from './LogsSceneQueryRunner';
+import { LokiQuery, LokiQueryDirection } from './lokiQuery';
+import { getLogOption } from './store';
+import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
@@ -40,28 +44,28 @@ export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
   overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
-    mode: 'fixed',
     fixedColor: 'semi-dark-green',
+    mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
-    mode: 'fixed',
     fixedColor: 'semi-dark-blue',
+    mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
-    mode: 'fixed',
     fixedColor: 'semi-dark-orange',
+    mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
-    mode: 'fixed',
     fixedColor: 'semi-dark-red',
+    mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
-    mode: 'fixed',
     fixedColor: '#705da0',
+    mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
-    mode: 'fixed',
     fixedColor: 'darkgray',
+    mode: 'fixed',
   });
 }
 
@@ -124,7 +128,7 @@ export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sc
   const config = setLogsVolumeFieldConfigs(FieldConfigBuilders.timeseries()).setOverrides(
     setLabelSeriesOverrides.bind(null, focusedLevels)
   );
-  if (config instanceof FieldConfigBuilder) {
+  if (config instanceof FieldConfigBuilder && panel.getPlugin()) {
     panel.onFieldConfigChange(config.build(), true);
   }
 }
@@ -195,10 +199,10 @@ function setColorByDisplayNameTransformation() {
                 ...f,
                 config: {
                   ...f.config,
-                  displayName,
                   color: {
                     mode: FieldColorModeId.PaletteClassicByName,
                   },
+                  displayName,
                 },
               };
             }),
@@ -301,7 +305,8 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
     queries = queries.map((query) => ({
       ...query,
       get direction() {
-        const sortOrder = getLogsPanelSortOrderFromURL() || getLogsPanelSortOrderFromStore();
+        const sortOrder =
+          getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
         return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
       },
     }));
@@ -333,3 +338,7 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
+export const logsControlsSupported =
+  // @ts-expect-error Requires Grafana 12.1
+  config.featureToggles.logsPanelControls &&
+  (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));

@@ -1,8 +1,36 @@
 {
-  "extends": "./.config/.eslintrc",
+  "extends": [
+    "./.config/.eslintrc",
+    "plugin:jsx-a11y/strict",
+    "plugin:sort/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "plugins": ["jsx-a11y", "sort", "import"],
   "rules": {
     // throw error when using global location object, use Grafana's LocationService instead!
-    "no-restricted-globals": ["error", "location"]
+    "no-restricted-globals": ["error", "location"],
+    "no-cond-assign": ["error", "except-parens"],
+    "import/no-duplicates": "error",
+    "import/no-unresolved": "off",
+    "sort/imports": [
+      "error",
+      {
+        "groups": [
+          { "type": "side-effect", "order": 20 },
+          { "regex": "^@grafana", "order": 30 },
+          { "regex": "^react$", "order": 10 },
+          { "type": "dependency", "order": 15 },
+          { "regex": "^.+\\.s?css$", "order": 50 },
+          { "type": "other", "order": 40 }
+        ],
+        "separator": "\n"
+      }
+    ],
+    "sort/type-properties": "error",
+    "sort/string-unions": "error",
+    "sort/exports": "off"
   },
   "overrides": [
     {

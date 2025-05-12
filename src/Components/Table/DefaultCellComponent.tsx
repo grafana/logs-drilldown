@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { Row } from 'react-table';
+
 import { css } from '@emotion/css';
+import { Row } from 'react-table';
 
 import { FieldType, formattedValueToString, GrafanaTheme2 } from '@grafana/data';
 import { CustomCellRendererProps, DataLinksContextMenu, getCellLinks, useTheme2 } from '@grafana/ui';
@@ -12,25 +13,25 @@ import { DefaultPill } from 'Components/Table/DefaultPill';
 import { LineActionIcons } from 'Components/Table/LineActionIcons';
 
 const getStyles = (theme: GrafanaTheme2, fieldType?: FieldType) => ({
-  flexWrap: css({
+  content: css({
     display: 'flex',
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  }),
+  flexWrap: css({
     alignItems: 'flex-start',
+    display: 'flex',
     flexDirection: fieldType === FieldType.number ? 'row-reverse' : 'row',
     textAlign: fieldType === FieldType.number ? 'right' : 'left',
   }),
-  content: css({
-    position: 'relative',
-    overflow: 'hidden',
-    display: 'flex',
-    height: '100%',
-  }),
   linkWrapper: css({
-    color: theme.colors.text.link,
-    marginTop: '7px',
-    marginLeft: '7px',
     '&:hover': {
       textDecoration: 'underline',
     },
+    color: theme.colors.text.link,
+    marginLeft: '7px',
+    marginTop: '7px',
   }),
 });
 
@@ -80,7 +81,7 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
         if (props.rowIndex === cellIndex.index && props.field.name === cellIndex.fieldName) {
           return setActiveCellIndex({ index: null });
         }
-        return setActiveCellIndex({ index: props.rowIndex, fieldName: props.field.name, numberOfMenuItems: 3 });
+        return setActiveCellIndex({ fieldName: props.field.name, index: props.rowIndex, numberOfMenuItems: 3 });
       }}
       field={props.field}
       rowIndex={props.rowIndex}
@@ -96,14 +97,14 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
             {(api) => {
               if (api.openMenu) {
                 return (
-                  <div className={styles.linkWrapper} onClick={api.openMenu}>
-                    <>{value}</>
-                  </div>
+                  <button className={styles.linkWrapper} onClick={api.openMenu}>
+                    <>{value as React.ReactNode}</>
+                  </button>
                 );
               } else {
                 return (
                   <div className={styles.linkWrapper}>
-                    <>{value}</>
+                    <>{value as React.ReactNode}</>
                   </div>
                 );
               }

@@ -2,10 +2,10 @@ import React, { createContext, ReactNode, useCallback, useContext, useState } fr
 
 export type CellIndex = {
   fieldName?: string;
-  // If the field contains labels (like log line), we need to know which field (line) and which label (e.g. level)
-  subFieldName?: string;
   index: number | null;
   numberOfMenuItems?: number;
+  // If the field contains labels (like log line), we need to know which field (line) and which label (e.g. level)
+  subFieldName?: string;
 };
 
 type TableCellContextType = {

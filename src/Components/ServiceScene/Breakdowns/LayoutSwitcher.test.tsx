@@ -1,11 +1,13 @@
 import React from 'react';
+
 import { SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+
 import { LayoutSwitcher, LayoutType, LayoutTypeEnum } from './LayoutSwitcher';
-import { setSceneLayout, getSceneLayout } from 'services/store';
+import { getSceneLayout, setSceneLayout } from 'services/store';
 
 jest.mock('services/store', () => ({
-  setSceneLayout: jest.fn(),
   getSceneLayout: jest.fn(),
+  setSceneLayout: jest.fn(),
 }));
 
 class MockSceneObject extends SceneObjectBase<SceneObjectState> {
@@ -25,9 +27,9 @@ describe('LayoutSwitcher', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     layoutSwitcher = new LayoutSwitcher({
+      active: 'grid',
       layouts: mockLayouts,
       options: mockOptions,
-      active: 'grid',
     });
   });
 

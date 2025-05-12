@@ -1,21 +1,24 @@
-import { css } from '@emotion/css';
-import { Icon, IconButton, Input, Tooltip, useStyles2 } from '@grafana/ui';
 import React, { HTMLProps, useCallback, useEffect, useState } from 'react';
+
+import { css } from '@emotion/css';
+
 import { GrafanaTheme2 } from '@grafana/data';
+import { Icon, IconButton, Input, Tooltip, useStyles2 } from '@grafana/ui';
+
 import { narrowErrorMessage } from '../../../services/narrowing';
 
-interface Props extends Omit<HTMLProps<HTMLInputElement>, 'width' | 'prefix' | 'invalid' | 'onInvalid'> {
+interface Props extends Omit<HTMLProps<HTMLInputElement>, 'invalid' | 'onInvalid' | 'prefix' | 'width'> {
   onClear?: () => void;
-  suffix?: React.ReactNode;
   prefix?: React.ReactNode;
-  width?: number;
   regex: boolean;
+  suffix?: React.ReactNode;
   value: string;
+  width?: number;
 }
 
 let re2JS: typeof import('re2js').RE2JS | undefined | null = undefined;
 
-export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix, width, regex, ...rest }: Props) => {
+export const LineFilterInput = ({ onChange, onClear, placeholder, regex, suffix, value, width, ...rest }: Props) => {
   const styles = useStyles2(getStyles);
   const [invalid, setInvalid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -60,6 +63,11 @@ export const LineFilterInput = ({ value, onChange, placeholder, onClear, suffix,
         aria-invalid={invalid}
         rows={2}
         width={width}
+        onFocusCapture={(e) => {
+          if (rest.onFocus) {
+            rest.onFocus(e);
+          }
+        }}
         value={value}
         onChange={onChange}
         suffix={
@@ -90,11 +98,11 @@ const load = async () => {
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  suffixWrapper: css({
-    gap: theme.spacing(0.5),
-    display: 'inline-flex',
-  }),
   clearIcon: css({
     cursor: 'pointer',
+  }),
+  suffixWrapper: css({
+    display: 'inline-flex',
+    gap: theme.spacing(0.5),
   }),
 });

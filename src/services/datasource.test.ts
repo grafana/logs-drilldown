@@ -1,4 +1,5 @@
-import { WrappedLokiDatasource } from './datasource';
+import { Observable } from 'rxjs';
+
 import {
   DataFrame,
   DataQueryRequest,
@@ -7,11 +8,12 @@ import {
   dateTime,
   LoadingState,
 } from '@grafana/data';
-import { Observable } from 'rxjs';
 import { DataSourceWithBackend } from '@grafana/runtime';
+
+import { WrappedLokiDatasource } from './datasource';
+import { SceneDataQueryResourceRequest } from './datasourceTypes';
 import { DetectedFieldsResponse } from './fields';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
-import { SceneDataQueryResourceRequest } from './datasourceTypes';
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
@@ -23,17 +25,17 @@ jest.mock('@grafana/runtime', () => ({
 }));
 
 let datasource = new DataSourceWithBackend<LokiQuery>({
-  name: '',
-  type: '',
   access: 'direct',
   id: 0,
   jsonData: {},
   meta: {} as DataSourcePluginMeta,
+  name: '',
   readOnly: false,
+  type: '',
   uid: '',
 }) as LokiDatasource;
 datasource.interpolateString = (s) => s;
-datasource.getTimeRangeParams = () => ({ start: 0, end: 0 });
+datasource.getTimeRangeParams = () => ({ end: 0, start: 0 });
 
 jest.mock('./scenes', () => ({
   ...jest.requireActual('./scenes'),
@@ -46,16 +48,18 @@ describe('datasource', () => {
       detectedFieldsResponse = {
         fields: [
           {
-            label: 'caller',
-            type: 'string',
             cardinality: 2,
+            jsonPath: ['caller'],
+            label: 'caller',
             parsers: ['logfmt'],
+            type: 'string',
           },
           {
-            label: 'detected_level',
-            type: 'string',
             cardinality: 4,
+            jsonPath: ['detected-level'],
+            label: 'detected_level',
             parsers: ['logfmt'],
+            type: 'string',
           },
         ],
       };
@@ -72,23 +76,23 @@ describe('datasource', () => {
         app: 'logs-explore',
         range: {
           from: dateTime(),
-          to: dateTime(),
           raw: {
             from: dateTime(),
             to: dateTime(),
           },
+          to: dateTime(),
         },
         scopedVars: {
           __sceneObject: {},
         },
         targets: [
           {
-            expr: '',
-            refId: '',
             datasource: '',
-            resource: 'detected_fields',
-            queryType: '',
             editorMode: 'code',
+            expr: '',
+            queryType: '',
+            refId: '',
+            resource: 'detected_fields',
             supportingQueryType: '',
           },
         ],
@@ -109,22 +113,25 @@ describe('datasource', () => {
       detectedFieldsResponse = {
         fields: [
           {
-            label: 'caller',
-            type: 'string',
             cardinality: 2,
+            jsonPath: ['caller'],
+            label: 'caller',
             parsers: ['logfmt'],
+            type: 'string',
           },
           {
+            cardinality: 4,
+            jsonPath: ['level_extracted'],
             label: 'level_extracted',
-            type: 'string',
-            cardinality: 4,
             parsers: ['logfmt'],
+            type: 'string',
           },
           {
-            label: 'level',
-            type: 'string',
             cardinality: 4,
+            jsonPath: ['level'],
+            label: 'level',
             parsers: ['logfmt'],
+            type: 'string',
           },
         ],
       };
@@ -133,23 +140,23 @@ describe('datasource', () => {
         app: 'logs-explore',
         range: {
           from: dateTime(),
-          to: dateTime(),
           raw: {
             from: dateTime(),
             to: dateTime(),
           },
+          to: dateTime(),
         },
         scopedVars: {
           __sceneObject: {},
         },
         targets: [
           {
-            expr: '',
-            refId: '',
             datasource: '',
-            resource: 'detected_fields',
-            queryType: '',
             editorMode: 'code',
+            expr: '',
+            queryType: '',
+            refId: '',
+            resource: 'detected_fields',
             supportingQueryType: '',
           },
         ],

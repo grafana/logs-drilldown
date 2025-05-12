@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { GrotError } from 'Components/GrotError';
 
 export const NoServiceSearchResults = () => {

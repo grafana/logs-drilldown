@@ -1,5 +1,6 @@
-import pluginJson from '../src/plugin.json';
 import { expect, test } from '@grafana/plugin-e2e';
+
+import pluginJson from '../src/plugin.json';
 import { ExplorePage } from './fixtures/explore';
 
 test.describe('navigating app', () => {
@@ -17,16 +18,17 @@ test.describe('navigating app', () => {
 
   test('mega menu click should reset url params (deprecated url)', async ({ page }) => {
     await explorePage.gotoServicesBreakdownOldUrl();
-    await page.getByLabel('Open menu').click();
+
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
     await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
     await expect(page).toHaveURL(/var-primary_label=service_name/);
-    await expect(page.getByTestId('data-testid button-filter-include').first()).toHaveCount(1);
+    await page.pause();
+    await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
 
     // assert panels are showing
     const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
     const expectedSearchParams = new URLSearchParams(
-      '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=&var-fields=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C.%2B'
+      '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=&var-jsonFields&var-fields=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-lineFormat=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C.%2B'
     );
     actualSearchParams.sort();
     expectedSearchParams.sort();
@@ -47,15 +49,14 @@ test.describe('navigating app', () => {
 
     await explorePage.addServiceName();
     await explorePage.clickShowLogs();
-    await page.getByLabel('Open menu').click();
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
-    await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
+    await expect(page).toHaveURL(/a\/grafana-lokiexplore-app\/explore\?patterns=%5B%5D/);
 
     // assert panels are showing
     await expect(page.getByTestId('data-testid button-filter-include').first()).toHaveCount(1);
     const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
     const expectedSearchParams = new URLSearchParams(
-      '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name%7C%3D%7Ctempo-ingester&var-fields=&var-filters_replica=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C%28%3Fi%29.%2ATempo-i.%2A'
+      '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name%7C%3D%7Ctempo-ingester&var-lineFormat=&var-jsonFields=&var-fields=&var-filters_replica=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C%28%3Fi%29.%2ATempo-i.%2A'
     );
     actualSearchParams.sort();
     expectedSearchParams.sort();

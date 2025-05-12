@@ -1,12 +1,13 @@
+import { LogsSortOrder, RawTimeRange } from '@grafana/data';
+
 import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
+import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
-import { LogsSortOrder, RawTimeRange } from '@grafana/data';
-import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 
-function hasProp<K extends PropertyKey>(data: object, prop: K): data is Record<K, unknown> {
+export function hasProp<K extends PropertyKey>(data: object, prop: K): data is Record<K, unknown> {
   return prop in data;
 }
 
@@ -31,7 +32,7 @@ export function narrowSelectedTableRow(o: unknown): SelectedTableRow | false {
     const row = typeof narrowed.row === 'number' && narrowed.row;
     const id = typeof narrowed.id === 'string' && narrowed.id;
     if (id !== false && row !== false) {
-      return { row, id };
+      return { id, row };
     }
   }
 
@@ -100,7 +101,7 @@ export function narrowTimeRange(unknownRange: unknown): RawTimeRange | undefined
     const to = isString(range.to);
     const from = isString(range.from);
     if (to && from) {
-      return { to, from };
+      return { from, to };
     }
   }
 

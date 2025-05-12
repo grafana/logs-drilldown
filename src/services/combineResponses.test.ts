@@ -1,7 +1,8 @@
+import { cloneDeep } from 'lodash';
+
 import { DataFrame, DataFrameType, DataQueryResponse, Field, FieldType, QueryResultMetaStat } from '@grafana/data';
 
 import { cloneQueryResponse, combineResponses } from './combineResponses';
-import { cloneDeep } from 'lodash';
 
 describe('cloneQueryResponse', () => {
   const { logFrameA } = getMockFrames();
@@ -186,17 +187,16 @@ describe('combineResponses', () => {
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
               labels: {
                 level: 'debug',
               },
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
             },
           ],
           length: 4,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -204,9 +204,10 @@ describe('combineResponses', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
-          refId: 'A',
           name: '{"level":"debug"}',
+          refId: 'A',
         },
       ],
     });
@@ -232,17 +233,16 @@ describe('combineResponses', () => {
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
               labels: {
                 level: 'debug',
               },
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
             },
           ],
           length: 4,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -250,9 +250,10 @@ describe('combineResponses', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
-          refId: 'A',
           name: '{"level":"debug"}',
+          refId: 'A',
         },
         metricFrameC,
       ],
@@ -263,13 +264,13 @@ describe('combineResponses', () => {
     const { metricFrameA, metricFrameB } = getMockFrames();
     const dataFrameA = {
       ...metricFrameA,
-      refId: 'A',
       name: 'A',
+      refId: 'A',
     };
     const dataFrameB = {
       ...metricFrameB,
-      refId: 'B',
       name: 'A',
+      refId: 'B',
     };
     const responseA: DataQueryResponse = {
       data: [dataFrameA],
@@ -380,9 +381,9 @@ describe('combineResponses', () => {
             {
               config: {},
               name: 'Time',
+              nanos: [111111, 222222, 333333, 444444],
               type: 'time',
               values: [1, 2, 3, 4],
-              nanos: [111111, 222222, 333333, 444444],
             },
             {
               config: {},
@@ -455,9 +456,9 @@ describe('combineResponses', () => {
             {
               config: {},
               name: 'Time',
+              nanos: [111111, 222222, 0, 0],
               type: 'time',
               values: [1, 2, 3, 4],
-              nanos: [111111, 222222, 0, 0],
             },
             {
               config: {},
@@ -598,22 +599,22 @@ describe('combineResponses', () => {
     const { metricFrameA, metricFrameB } = getMockFrames();
 
     metricFrameA.fields.push({
-      name: 'Value',
-      type: FieldType.number,
       config: {},
-      values: [9, 8],
       labels: {
         test: 'true',
       },
+      name: 'Value',
+      type: FieldType.number,
+      values: [9, 8],
     });
     metricFrameB.fields.push({
-      name: 'Value',
-      type: FieldType.number,
       config: {},
-      values: [11, 10],
       labels: {
         test: 'true',
       },
+      name: 'Value',
+      type: FieldType.number,
+      values: [11, 10],
     });
 
     const responseA: DataQueryResponse = {
@@ -635,26 +636,25 @@ describe('combineResponses', () => {
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
               labels: {
                 level: 'debug',
               },
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [11, 10, 9, 8],
               labels: {
                 test: 'true',
               },
+              name: 'Value',
+              type: 'number',
+              values: [11, 10, 9, 8],
             },
           ],
           length: 4,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -662,9 +662,10 @@ describe('combineResponses', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
-          refId: 'A',
           name: '{"level":"debug"}',
+          refId: 'A',
         },
       ],
     });
@@ -677,15 +678,15 @@ describe('combineResponses', () => {
     delete metricFrameB.fields[1].labels;
 
     metricFrameA.fields.push({
+      config: {},
       name: 'Value',
       type: FieldType.number,
-      config: {},
       values: [9, 8],
     });
     metricFrameB.fields.push({
+      config: {},
       name: 'Value',
       type: FieldType.number,
-      config: {},
       values: [11, 10],
     });
 
@@ -721,7 +722,6 @@ describe('combineResponses', () => {
           ],
           length: 4,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -729,6 +729,7 @@ describe('combineResponses', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
           refId: 'A',
         },
@@ -758,17 +759,16 @@ describe('mergeFrames', () => {
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
               labels: {
                 level: 'debug',
               },
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
             },
           ],
           length: 4,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -776,9 +776,10 @@ describe('mergeFrames', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
-          refId: 'A',
           name: '{"level":"debug"}',
+          refId: 'A',
         },
       ],
     });
@@ -808,17 +809,16 @@ describe('mergeFrames', () => {
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [10, 10, 10],
               labels: {
                 level: 'debug',
               },
+              name: 'Value',
+              type: 'number',
+              values: [10, 10, 10],
             },
           ],
           length: 3,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -826,9 +826,10 @@ describe('mergeFrames', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
-          refId: 'A',
           name: '{"level":"debug"}',
+          refId: 'A',
         },
       ],
     });
@@ -854,17 +855,16 @@ describe('mergeFrames', () => {
             },
             {
               config: {},
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
               labels: {
                 level: 'debug',
               },
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
             },
           ],
           length: 4,
           meta: {
-            type: 'timeseries-multi',
             stats: [
               {
                 displayName: 'Summary: total bytes processed',
@@ -872,9 +872,10 @@ describe('mergeFrames', () => {
                 value: 33,
               },
             ],
+            type: 'timeseries-multi',
           },
-          refId: 'A',
           name: '{"level":"debug"}',
+          refId: 'A',
         },
         metricFrameC,
       ],
@@ -983,9 +984,9 @@ describe('mergeFrames', () => {
             {
               config: {},
               name: 'Time',
+              nanos: [222222, 333333, 444444],
               type: 'time',
               values: [2, 3, 4],
-              nanos: [222222, 333333, 444444],
             },
             {
               config: {},
@@ -1093,9 +1094,9 @@ describe('mergeFrames', () => {
             {
               config: {},
               name: 'Time',
+              nanos: [222222, 333333, 333333, 444444],
               type: 'time',
               values: [1, 1, 2, 2],
-              nanos: [222222, 333333, 333333, 444444],
             },
             {
               config: {},
@@ -1167,13 +1168,13 @@ describe('mergeFrames', () => {
       data: [
         {
           ...logFrameB,
+          length: 2,
           meta: {
             custom: {
               frameType: 'LabeledTimeValues',
             },
             stats: [{ displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 22 }],
           },
-          length: 2,
         },
       ],
     });
@@ -1212,24 +1213,23 @@ describe('mergeFrames', () => {
 
 export function getMockFrames() {
   const logFrameA: DataFrame = {
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [3, 4],
       },
       {
+        config: {},
         name: 'Line',
         type: FieldType.string,
-        config: {},
         values: ['line1', 'line2'],
       },
       {
+        config: {},
         name: 'labels',
         type: FieldType.other,
-        config: {},
         values: [
           {
             label: 'value',
@@ -1240,18 +1240,19 @@ export function getMockFrames() {
         ],
       },
       {
+        config: {},
         name: 'tsNs',
         type: FieldType.string,
-        config: {},
         values: ['3000000', '4000000'],
       },
       {
+        config: {},
         name: 'id',
         type: FieldType.string,
-        config: {},
         values: ['id1', 'id2'],
       },
     ],
+    length: 2,
     meta: {
       custom: {
         frameType: 'LabeledTimeValues',
@@ -1261,28 +1262,27 @@ export function getMockFrames() {
         { displayName: 'Ingester: total reached', value: 1 },
       ],
     },
-    length: 2,
+    refId: 'A',
   };
 
   const logFrameB: DataFrame = {
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [1, 2],
       },
       {
+        config: {},
         name: 'Line',
         type: FieldType.string,
-        config: {},
         values: ['line3', 'line4'],
       },
       {
+        config: {},
         name: 'labels',
         type: FieldType.other,
-        config: {},
         values: [
           {
             otherLabel: 'other value',
@@ -1290,18 +1290,19 @@ export function getMockFrames() {
         ],
       },
       {
+        config: {},
         name: 'tsNs',
         type: FieldType.string,
-        config: {},
         values: ['1000000', '2000000'],
       },
       {
+        config: {},
         name: 'id',
         type: FieldType.string,
-        config: {},
         values: ['id3', 'id4'],
       },
     ],
+    length: 2,
     meta: {
       custom: {
         frameType: 'LabeledTimeValues',
@@ -1311,28 +1312,27 @@ export function getMockFrames() {
         { displayName: 'Ingester: total reached', value: 2 },
       ],
     },
-    length: 2,
+    refId: 'A',
   };
 
   const logFrameAB: DataFrame = {
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [1, 2, 3, 4],
       },
       {
+        config: {},
         name: 'Line',
         type: FieldType.string,
-        config: {},
         values: ['line3', 'line4', 'line1', 'line2'],
       },
       {
+        config: {},
         name: 'labels',
         type: FieldType.other,
-        config: {},
         values: [
           {
             otherLabel: 'other value',
@@ -1347,18 +1347,19 @@ export function getMockFrames() {
         ],
       },
       {
+        config: {},
         name: 'tsNs',
         type: FieldType.string,
-        config: {},
         values: ['1000000', '2000000', '3000000', '4000000'],
       },
       {
+        config: {},
         name: 'id',
         type: FieldType.string,
-        config: {},
         values: ['id3', 'id4', 'id1', 'id2'],
       },
     ],
+    length: 4,
     meta: {
       custom: {
         frameType: 'LabeledTimeValues',
@@ -1371,131 +1372,131 @@ export function getMockFrames() {
         },
       ],
     },
-    length: 4,
+    refId: 'A',
   };
 
   const metricFrameA: DataFrame = {
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [3000000, 4000000],
       },
       {
-        name: 'Value',
-        type: FieldType.number,
         config: {},
-        values: [5, 4],
         labels: {
           level: 'debug',
         },
+        name: 'Value',
+        type: FieldType.number,
+        values: [5, 4],
       },
     ],
+    length: 2,
     meta: {
-      type: DataFrameType.TimeSeriesMulti,
       stats: [
         { displayName: 'Ingester: total reached', value: 1 },
         { displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 11 },
       ],
+      type: DataFrameType.TimeSeriesMulti,
     },
-    length: 2,
+    refId: 'A',
   };
 
   const metricFrameB: DataFrame = {
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [1000000, 2000000],
       },
       {
-        name: 'Value',
-        type: FieldType.number,
         config: {},
-        values: [6, 7],
         labels: {
           level: 'debug',
         },
+        name: 'Value',
+        type: FieldType.number,
+        values: [6, 7],
       },
     ],
+    length: 2,
     meta: {
-      type: DataFrameType.TimeSeriesMulti,
       stats: [
         { displayName: 'Ingester: total reached', value: 2 },
         { displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 22 },
       ],
+      type: DataFrameType.TimeSeriesMulti,
     },
-    length: 2,
+    refId: 'A',
   };
 
   const metricFrameC: DataFrame = {
-    refId: 'A',
-    name: 'some-time-series',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [3000000, 4000000],
       },
       {
-        name: 'Value',
-        type: FieldType.number,
         config: {},
-        values: [6, 7],
         labels: {
           level: 'error',
         },
+        name: 'Value',
+        type: FieldType.number,
+        values: [6, 7],
       },
     ],
+    length: 2,
     meta: {
-      type: DataFrameType.TimeSeriesMulti,
       stats: [
         { displayName: 'Ingester: total reached', value: 2 },
         { displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 33 },
       ],
+      type: DataFrameType.TimeSeriesMulti,
     },
-    length: 2,
+    name: 'some-time-series',
+    refId: 'A',
   };
 
   const emptyFrame: DataFrame = {
-    refId: 'A',
     fields: [
       {
+        config: {},
         name: 'Time',
         type: FieldType.time,
-        config: {},
         values: [],
       },
       {
+        config: {},
         name: 'Line',
         type: FieldType.string,
-        config: {},
         values: [],
       },
       {
+        config: {},
         name: 'labels',
         type: FieldType.other,
-        config: {},
         values: [],
       },
       {
+        config: {},
         name: 'tsNs',
         type: FieldType.string,
-        config: {},
         values: [],
       },
       {
+        config: {},
         name: 'id',
         type: FieldType.string,
-        config: {},
         values: [],
       },
     ],
+    length: 2,
     meta: {
       custom: {
         frameType: 'LabeledTimeValues',
@@ -1505,16 +1506,16 @@ export function getMockFrames() {
         { displayName: 'Ingester: total reached', value: 0 },
       ],
     },
-    length: 2,
+    refId: 'A',
   };
 
   return {
+    emptyFrame,
     logFrameA,
-    logFrameB,
     logFrameAB,
+    logFrameB,
     metricFrameA,
     metricFrameB,
     metricFrameC,
-    emptyFrame,
   };
 }

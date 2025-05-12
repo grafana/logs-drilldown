@@ -1,3 +1,8 @@
+import React from 'react';
+
+import { css } from '@emotion/css';
+
+import { MetricFindValue, SelectableValue } from '@grafana/data';
 import {
   ControlsLabel,
   SceneComponentProps,
@@ -7,28 +12,26 @@ import {
   SceneObjectState,
   SceneVariableValueChangedEvent,
 } from '@grafana/scenes';
-import React from 'react';
-import { getLevelsVariable } from '../../services/variableGetters';
-import { MetricFindValue, SelectableValue } from '@grafana/data';
-import { css } from '@emotion/css';
 import { Icon, MultiSelect, useStyles2 } from '@grafana/ui';
-import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
+
 import { FilterOp } from '../../services/filterTypes';
-import { testIds } from '../../services/testIds';
 import { addCurrentUrlToHistory } from '../../services/navigate';
+import { testIds } from '../../services/testIds';
+import { getLevelsVariable } from '../../services/variableGetters';
+import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
 
 type ChipOption = MetricFindValue & { selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
-  options?: ChipOption[];
-  isLoading: boolean;
-  visible: boolean;
-  isOpen: boolean;
   embedded?: boolean;
+  isLoading: boolean;
+  isOpen: boolean;
+  options?: ChipOption[];
+  visible: boolean;
 }
 export const LEVELS_VARIABLE_SCENE_KEY = 'levels-var-custom-renderer';
 export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneState> {
   constructor(state: Partial<LevelsVariableSceneState>) {
-    super({ ...state, isLoading: false, visible: false, key: LEVELS_VARIABLE_SCENE_KEY, isOpen: false });
+    super({ ...state, isLoading: false, isOpen: false, key: LEVELS_VARIABLE_SCENE_KEY, visible: false });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -47,8 +50,8 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     const levelsVar = getLevelsVariable(this);
     this.setState({
       options: levelsVar.state.filters.map((filter) => ({
-        text: filter.valueLabels?.[0] ?? filter.value,
         selected: true,
+        text: filter.valueLabels?.[0] ?? filter.value,
         value: filter.value,
       })),
     });
@@ -67,9 +70,9 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           isLoading: false,
           options: response.values.map((value) => {
             return {
+              selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
               text: value.text,
               value: value.value ?? value.text,
-              selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
             };
           }),
         });
@@ -87,7 +90,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         operator: FilterOp.Equal,
         value: filterOpt.text,
       })) ?? [],
-      { skipPublish, forcePublish }
+      { forcePublish, skipPublish }
     );
   };
 
@@ -122,7 +125,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
   };
 
   static Component = ({ model }: SceneComponentProps<LevelsVariableScene>) => {
-    const { options, isLoading, visible, isOpen } = model.useState();
+    const { isLoading, isOpen, options, visible } = model.useState();
     const styles = useStyles2(getStyles);
     const levelsVar = getLevelsVariable(model);
     levelsVar.useState();
@@ -154,8 +157,8 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           hideSelectedOptions={false}
           value={options?.filter((v) => v.selected)}
           options={options?.map((val) => ({
-            value: val.value,
             label: val.text,
+            value: val.value,
           }))}
         />
       </div>

@@ -1,3 +1,4 @@
+import { AdHocVariableFilter } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   CustomVariable,
@@ -6,15 +7,18 @@ import {
   SceneObject,
   SceneVariableState,
 } from '@grafana/scenes';
+
+import { AdHocFilterTypes, InterpolatedFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { CustomConstantVariable } from './CustomConstantVariable';
+import { isFilterMetadata } from './filters';
+import { logger } from './logger';
+import { narrowFieldValue, NarrowingError } from './narrowing';
 import {
   AdHocFieldValue,
   FieldValue,
   isAdHocFilterValueUserInput,
-  JSON_FORMAT_EXPR,
   LOGS_FORMAT_EXPR,
   LogsQueryOptions,
-  MIXED_FORMAT_EXPR,
   SERVICE_NAME,
   stripAdHocFilterUserInputPrefix,
   VAR_AGGREGATED_METRICS,
@@ -23,6 +27,8 @@ import {
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
   VAR_FIELDS_EXPR,
+  VAR_JSON_FIELDS,
+  VAR_JSON_FIELDS_EXPR,
   VAR_LABEL_GROUP_BY,
   VAR_LABELS,
   VAR_LABELS_EXPR,
@@ -32,6 +38,7 @@ import {
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
   VAR_LINE_FILTERS_EXPR,
+  VAR_LINE_FORMAT,
   VAR_METADATA,
   VAR_METADATA_EXPR,
   VAR_PATTERNS,
@@ -39,29 +46,25 @@ import {
   VAR_PRIMARY_LABEL,
   VAR_PRIMARY_LABEL_SEARCH,
 } from './variables';
-import { AdHocVariableFilter } from '@grafana/data';
-import { logger } from './logger';
-import { narrowFieldValue, NarrowingError } from './narrowing';
-import { isFilterMetadata } from './filters';
-import { AdHocFilterTypes, InterpolatedFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export function getLogsStreamSelector(options: LogsQueryOptions) {
   const {
-    labelExpressionToAdd = '',
-    structuredMetadataToAdd = '',
     fieldExpressionToAdd = '',
+    jsonParserPropToAdd = '',
+    labelExpressionToAdd = '',
     parser = undefined,
+    structuredMetadataToAdd = '',
   } = options;
 
   switch (parser) {
     case 'structuredMetadata':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'json':
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | drop __error__, __error_details__ ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'logfmt':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     default:
-      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
+      return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${jsonParserPropToAdd} ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__  ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
   }
 }
 
@@ -165,8 +168,8 @@ export function getServiceSelectionSearchVariable(sceneRef: SceneObject) {
 
 export function clearServiceSelectionSearchVariable(sceneRef: SceneObject) {
   getServiceSelectionSearchVariable(sceneRef).setState({
-    value: '.+',
     label: '',
+    value: '.+',
   });
 }
 
@@ -182,13 +185,29 @@ export function setServiceSelectionPrimaryLabelKey(key: string, sceneRef: SceneO
   getServiceSelectionPrimaryLabel(sceneRef).setState({
     filters: [
       {
+        key: key,
+        operator: '=~',
         // the value is replaced by the value in VAR_PRIMARY_LABEL_SEARCH if a search is active, so we just need to set the filter key (label name)
         value: '.+',
-        operator: '=~',
-        key: key,
       },
     ],
   });
+}
+
+export function getLineFormatVariable(sceneRef: SceneObject) {
+  const variable = sceneGraph.lookupVariable(VAR_LINE_FORMAT, sceneRef);
+  if (!(variable instanceof AdHocFiltersVariable)) {
+    throw new Error('VAR_JSON_PARSER not found!');
+  }
+  return variable;
+}
+
+export function getJsonFieldsVariable(sceneRef: SceneObject) {
+  const variable = sceneGraph.lookupVariable(VAR_JSON_FIELDS, sceneRef);
+  if (!(variable instanceof AdHocFiltersVariable)) {
+    throw new Error('VAR_JSON_FIELDS not found!');
+  }
+  return variable;
 }
 
 export function getUrlParamNameForVariable(variableName: string) {
@@ -206,8 +225,8 @@ export function getValueFromFieldsFilter(
 ): FieldValue {
   if (isFilterMetadata(filter)) {
     return {
-      value: filter.value,
       parser: 'structuredMetadata',
+      value: filter.value,
     };
   }
 
@@ -231,8 +250,8 @@ export function getValueFromFieldsFilter(
     // If the user has a URL from before 0.1.4 where detected_fields changed the format of the fields value to include the parser, fall back to mixed parser if we have a value
     if (filter.value) {
       return {
-        value: filter.value,
         parser: 'mixed',
+        value: filter.value,
       };
     }
     throw e;

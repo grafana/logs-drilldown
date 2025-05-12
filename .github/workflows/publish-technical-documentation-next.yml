@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "docs/sources/**"
+      - 'docs/sources/**'
   workflow_dispatch:
 jobs:
   sync:

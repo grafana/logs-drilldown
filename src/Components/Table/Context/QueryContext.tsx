@@ -1,44 +1,46 @@
 import React, { createContext, ReactNode, useContext } from 'react';
-import { LogsFrame } from '../../../services/logsFrame';
+
 import { AdHocVariableFilter, TimeRange } from '@grafana/data';
+
+import { LogsFrame } from '../../../services/logsFrame';
 import { SelectedTableRow } from '../LogLineCellComponent';
 
-export type Label = { name: string; values: string[]; indexed: boolean };
+export type Label = { indexed: boolean; name: string; values: string[] };
 
 export type QueryContextType = {
-  logsFrame: LogsFrame | null;
   addFilter: (filter: AdHocVariableFilter) => void;
+  logsFrame: LogsFrame | null;
   selectedLine?: SelectedTableRow;
   timeRange?: TimeRange;
 };
 
 export const initialState = {
-  logsFrame: null,
   addFilter: (filter: AdHocVariableFilter) => {},
-  timeRange: undefined,
+  logsFrame: null,
   selectedLine: undefined,
+  timeRange: undefined,
 };
 
 export const QueryContext = createContext<QueryContextType>(initialState);
 
 export const QueryContextProvider = ({
+  addFilter,
   children,
   logsFrame,
-  addFilter,
   selectedLine,
   timeRange,
 }: {
+  addFilter: (filter: AdHocVariableFilter) => void;
   children: ReactNode;
   logsFrame: LogsFrame;
-  addFilter: (filter: AdHocVariableFilter) => void;
   selectedLine?: SelectedTableRow;
   timeRange?: TimeRange;
 }) => {
   return (
     <QueryContext.Provider
       value={{
-        logsFrame,
         addFilter,
+        logsFrame,
         selectedLine,
         timeRange,
       }}

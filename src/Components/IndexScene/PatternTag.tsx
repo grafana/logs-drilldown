@@ -1,7 +1,10 @@
-import { css } from '@emotion/css';
-import { Button, Icon, Tag, useStyles2 } from '@grafana/ui';
-import { GrafanaTheme2 } from '@grafana/data';
 import React, { useState } from 'react';
+
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, Icon, Tag, useStyles2 } from '@grafana/ui';
+
 import { testIds } from 'services/testIds';
 
 interface Props {
@@ -10,13 +13,24 @@ interface Props {
   size?: PatternSize;
 }
 
-type PatternSize = 'sm' | 'lg';
+type PatternSize = 'lg' | 'sm';
 
 export const PatternTag = ({ onRemove, pattern, size = 'lg' }: Props) => {
   const styles = useStyles2(getStyles);
   const [expanded, setExpanded] = useState(false);
   return (
-    <div className={styles.pattern} onClick={() => setExpanded(!expanded)} onMouseLeave={() => setExpanded(false)}>
+    <div
+      className={styles.pattern}
+      onClick={() => setExpanded(!expanded)}
+      onMouseLeave={() => setExpanded(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          setExpanded(!expanded);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+    >
       <Tag
         title={pattern}
         key={pattern}
@@ -38,8 +52,8 @@ export const PatternTag = ({ onRemove, pattern, size = 'lg' }: Props) => {
 };
 
 const PREVIEW_WIDTH: Record<PatternSize, number> = {
-  sm: 50,
   lg: Math.round(window.innerWidth / 8),
+  sm: 50,
 };
 
 function getPatternPreview(pattern: string, size: PatternSize) {
@@ -56,26 +70,26 @@ function getPatternPreview(pattern: string, size: PatternSize) {
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     pattern: css({
+      cursor: 'pointer',
       display: 'flex',
       fontFamily: 'monospace',
       gap: theme.spacing(0.25),
-      cursor: 'pointer',
       overflow: 'hidden',
-    }),
-    tag: css({
-      borderTopRightRadius: 0,
-      borderBottomRightRadius: 0,
-      backgroundColor: theme.colors.secondary.main,
-      border: `solid 1px ${theme.colors.secondary.border}`,
-      color: theme.colors.secondary.text,
-      boxSizing: 'border-box',
-      padding: theme.spacing(0.25, 0.75),
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
     }),
     removeButton: css({
       paddingLeft: 2.5,
       paddingRight: 2.5,
+    }),
+    tag: css({
+      backgroundColor: theme.colors.secondary.main,
+      border: `solid 1px ${theme.colors.secondary.border}`,
+      borderBottomRightRadius: 0,
+      borderTopRightRadius: 0,
+      boxSizing: 'border-box',
+      color: theme.colors.secondary.text,
+      overflow: 'hidden',
+      padding: theme.spacing(0.25, 0.75),
+      textOverflow: 'ellipsis',
     }),
   };
 };
