@@ -17,26 +17,24 @@ jobs:
   build-latest-version:
     runs-on: ubuntu-latest
 
-    env:
-      GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_SIGNING_KEY }} # Requires a Grafana API key from Grafana.com.
-
     outputs:
       upload-folder: ${{ steps.metadata.outputs.upload-folder }}
 
     steps:
+      - id: get-secrets
+        uses: grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760
+        with:
+          common_secrets: |
+            GRAFANA_ACCESS_POLICY_TOKEN=plugins/sign-plugin-access-policy-token:token
+            GCP_UPLOAD_ARTIFACTS_KEY=grafana/integration-artifacts-uploader-service-account:'credentials.json'
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: bump package version
         run: npm version --no-git-tag-version patch && npm version --no-git-tag-version `npm version --json | jq -r '."grafana-lokiexplore-app"'`-`git rev-parse --short HEAD`
       - uses: grafana/plugin-actions/package-plugin@main
         id: 'package-plugin'
         with:
-          policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-
-      - id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760
-        with:
-          common_secrets: |
-            GCP_UPLOAD_ARTIFACTS_KEY=grafana/integration-artifacts-uploader-service-account:'credentials.json'
+          policy_token: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN }}
 
       - id: 'auth'
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7
