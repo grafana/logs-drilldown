@@ -18,7 +18,6 @@ import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownV
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
 
 export interface ActionBarSceneState extends SceneObjectState {
-  embedded?: boolean;
   maxLines?: number;
   shareButtonScene?: ShareButtonScene;
 }

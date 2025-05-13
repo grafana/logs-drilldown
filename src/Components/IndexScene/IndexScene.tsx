@@ -293,8 +293,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         Array.isArray(searchParams['pageSlug']) ? searchParams['pageSlug'][0] : searchParams['pageSlug']
       );
 
-      console.log('getContentScene', drillDownLabel);
-
       return new ServiceScene({
         drillDownLabel: drillDownLabel ? drillDownLabel : undefined,
         embedded: true,
