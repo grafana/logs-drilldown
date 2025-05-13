@@ -20,9 +20,10 @@ By default the graphs are sorted by most relevant, where we prioritise graphs wi
 
 Some pages in Grafana Logs Drilldown can display a large number of graphs. You may want to sort the graphs differently, depending on what you're looking for.
 
-On the **Label** tab, you can use the **Newest first** and **Oldest first** buttons to change the direction of the sort in the Logs view. 
+On the **Label** tab, you can use the **Newest first** and **Oldest first** buttons to change the direction of the sort in the Logs view.
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
+
 {{< figure alt="Sort by many" caption="Sort by menu" width="900px" align="center" src="/media/docs/explore-logs/sort-by-menu_v1.0.14.png" >}}
 
 Once you select a specific label or field, you can sort the graphs. When you have the option to sort graphs, there are several different ways you can sort your log data.

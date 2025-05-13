@@ -39,6 +39,7 @@ The top navigation bar is common across the Grafana interface.
 The next section is common across all the Logs Drilldown pages.
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
+
 {{< figure alt="Grafana Logs Drilldown Labels tab" caption="Labels tab" width="900px" align="center" src="/media/docs/explore-logs/labels_v1.0.14.png" >}}
 
 Labels tab user interface:
@@ -70,6 +71,7 @@ The top navigation bar is common across the Grafana interface.
 The next section is common across all the Logs Drilldown pages.
 
 <!-- Lets make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets you know the last time the screenshots were updated.-->
+
 {{< figure alt="Grafana Logs Drilldown Fields tab" caption="Fields tab" width="900px" align="center" src="/media/docs/explore-logs/fields_v1.0.14.png" >}}
 
 Fields tab user interface:

@@ -75,6 +75,7 @@ The top navigation bar is common across the Grafana interface.
 The next section is common across all the Logs Drilldown pages.
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
+
 {{< figure alt="Grafana Logs Drilldown Patterns tab" caption="Patterns tab" width="900px" align="center" src="/media/docs/explore-logs/patterns_v1.0.14.png" >}}
 
 Patterns tab user interface:
