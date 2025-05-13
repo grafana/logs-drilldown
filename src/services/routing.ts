@@ -6,6 +6,7 @@ import { RouteMatch, RouteProps } from '../Components/Pages';
 import { PageSlugs, ValueSlugs } from './enums';
 import { replaceSlash } from './extensions/links';
 import { logger } from './logger';
+import { narrowValueSlug } from './narrowing';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
 import { getLabelsVariable } from './variableGetters';
 import {
@@ -105,8 +106,15 @@ export const DRILLDOWN_URL_KEYS = [
 export function getDrilldownSlug() {
   const location = locationService.getLocation();
   const slug = location.pathname.slice(location.pathname.lastIndexOf('/') + 1, location.pathname.length);
-  console.log('getDrilldownSlug', slug);
   return slug as PageSlugs;
+}
+
+export function getUILabelName(labelName: string) {
+  if (labelName === SERVICE_NAME) {
+    // Keep urls the same
+    labelName = SERVICE_UI_LABEL;
+  }
+  return labelName;
 }
 
 /**
@@ -123,18 +131,14 @@ export function getPrimaryLabelFromUrl(): RouteProps {
   let labelName = routeParams[0];
   const labelValue = routeParams[1];
   const breakdownLabel = routeParams[3];
-  // Keep urls the same
-  if (labelName === SERVICE_NAME) {
-    labelName = SERVICE_UI_LABEL;
-  }
-  return { breakdownLabel, labelName, labelValue };
+
+  return { breakdownLabel, labelName: getUILabelName(labelName), labelValue };
 }
 
 export function getDrilldownValueSlug() {
   const location = locationService.getLocation();
   const locationArray = location.pathname.split('/');
-  const slug = locationArray[locationArray.length - 2];
-  return slug as ValueSlugs;
+  return narrowValueSlug(locationArray[locationArray.length - 2]);
 }
 
 export function buildServicesUrl(path: string, extraQueryParams?: UrlQueryMap): string {

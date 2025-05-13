@@ -45,7 +45,6 @@ export function buildLogsExplorationFromState({
 
 export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   const [exploration, setExploration] = useState<IndexScene | null>(null);
-  console.log('EmbeddedLogsExploration', props);
 
   useEffect(() => {
     if (!exploration) {

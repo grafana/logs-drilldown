@@ -54,6 +54,8 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
     'grafana-lokiexplore-app/embedded-logs-exploration/v1'
   );
 
+  // We don't want to re-render the entire app every time the props change, only once when the plugin component is done loading
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const Component = useMemo(() => LogsDrilldownComponent, [isLoading]);
   return isLoading || !Component ? <LoadingPlaceholder text={'Loading...'} /> : <Component {...props} />;
 }

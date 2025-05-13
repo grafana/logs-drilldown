@@ -1,10 +1,10 @@
 import { LogsSortOrder, RawTimeRange } from '@grafana/data';
 
 import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
+import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
-import { PageSlugs, TabNames } from './enums';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 
@@ -141,6 +141,14 @@ export function narrowTabName(input: unknown): TabNames | false {
       input === TabNames.patterns) &&
     input
   );
+}
+
+export function narrowPageOrValueSlug(input: unknown): ValueSlugs | PageSlugs | false {
+  return narrowPageSlug(input) || narrowValueSlug(input);
+}
+
+export function narrowValueSlug(input: unknown): ValueSlugs | false {
+  return (input === ValueSlugs.field || input === ValueSlugs.label) && input;
 }
 
 export function narrowPageSlug(input: unknown): PageSlugs | false {

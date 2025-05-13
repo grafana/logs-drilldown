@@ -34,7 +34,7 @@ import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLabelOptions } from 'services/filters';
-import { checkPrimaryLabel, getPrimaryLabelFromUrl } from 'services/routing';
+import { getPrimaryLabelFromUrl } from 'services/routing';
 import { getSortByPreference } from 'services/store';
 import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
 
@@ -115,8 +115,6 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     if (detectedLabelsFrame) {
       this.updateOptions(detectedLabelsFrame);
     }
-
-    // checkPrimaryLabel(this);
   }
 
   private onGroupByVariableChange(newState: CustomConstantVariableState, prevState: CustomConstantVariableState) {

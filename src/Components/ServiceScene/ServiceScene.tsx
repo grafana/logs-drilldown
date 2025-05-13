@@ -30,6 +30,7 @@ import { filterUnusedJSONFilters } from '../../services/filters';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
 import { migrateLineFilterV1 } from '../../services/migrations';
+import { narrowPageSlug, narrowValueSlug } from '../../services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
@@ -99,6 +100,8 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
+  pageSlug?: PageSlugs | ValueSlugs;
+  valueSlug?: string;
 }
 
 export function getLogsPanelFrame(data: PanelData | undefined) {
@@ -135,7 +138,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     variableNames: [VAR_DATASOURCE, VAR_LABELS, VAR_FIELDS, VAR_PATTERNS, VAR_LEVELS],
   });
 
-  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['drillDownLabel'] });
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['pageSlug', 'drillDownLabel'] });
 
   public constructor(
     state: MakeOptional<
@@ -222,9 +225,19 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
             this.resetTabCount();
 
             if (!breakdownLabel) {
-              navigateToDrilldownPage(this.getDrilldownPage(), this);
+              const slug = this.getDrilldownPage();
+              if (slug) {
+                navigateToDrilldownPage(slug, this);
+              } else {
+                throw new Error(`Invalid page slug ${slug}`);
+              }
             } else {
-              navigateToValueBreakdown(getDrilldownValueSlug(), breakdownLabel, this);
+              const valueSlug = this.getDrilldownValueSlug();
+              if (valueSlug) {
+                navigateToValueBreakdown(valueSlug, breakdownLabel, this);
+              } else {
+                throw new Error(`Invalid value slug ${valueSlug}`);
+              }
             }
           } else {
             this.redirectToStart();
@@ -252,11 +265,31 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (drilldownSlug !== PageSlugs.embed) {
       return drilldownSlug;
     }
-    if (this.state.drillDownLabel) {
-      return this.state.drillDownLabel;
+    const narrowedPageSlug = narrowPageSlug(this.state.pageSlug);
+    if (narrowedPageSlug) {
+      return narrowedPageSlug;
     }
 
-    throw new Error('unable to get slug from url or state!');
+    return undefined;
+  }
+
+  private getDrilldownValueSlug() {
+    const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
+    if (drilldownValueSlug) {
+      console.log('drilldownValueSlug', drilldownValueSlug);
+      return drilldownValueSlug;
+    }
+    return undefined;
+  }
+
+  private getDrilldownPageSlug() {
+    const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
+    if (drilldownValueSlug) {
+      console.log('drilldownValueSlug', drilldownValueSlug);
+      return drilldownValueSlug;
+    }
+    console.log('embedded', this.state.drillDownLabel);
+    return this.state.pageSlug;
   }
 
   private redirectToStart() {
@@ -309,21 +342,34 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   getUrlState() {
+    console.log('getUrlState', {
+      drillDownLabel: this.state.drillDownLabel,
+      pageSlug: this.state.pageSlug,
+    });
+
     return {
       drillDownLabel: this.state.drillDownLabel,
+      pageSlug: this.state.pageSlug,
     };
   }
 
   updateFromUrl(values: SceneObjectUrlValues) {
+    console.log('updateFromUrl', values);
     const stateUpdate: Partial<ServiceSceneState> = {};
 
-    if (values && typeof values.drillDownLabel === 'string' && values.drillDownLabel !== this.state.drillDownLabel) {
-      if (values.drillDownLabel) {
-        stateUpdate.drillDownLabel = values.drillDownLabel;
+    if (values && typeof values.pageSlug === 'string' && values.pageSlug !== this.state.pageSlug) {
+      const pageSlug = narrowPageSlug(values.pageSlug);
+      if (pageSlug) {
+        stateUpdate.pageSlug = pageSlug;
       }
     }
 
+    if (values && typeof values.drillDownLabel === 'string' && values.drillDownLabel !== this.state.drillDownLabel) {
+      stateUpdate.drillDownLabel = values.drillDownLabel;
+    }
+
     if (Object.keys(stateUpdate).length) {
+      console.log('updateFromUrlState', stateUpdate);
       this.setState(stateUpdate);
       const indexScene = sceneGraph.getAncestor(this, IndexScene);
       indexScene.setState({
@@ -481,7 +527,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private runQueries() {
     const slug = this.getDrilldownPage();
-    const parentSlug = getDrilldownValueSlug();
+    const parentSlug = this.getDrilldownPageSlug();
 
     // If we don't have a patterns count in the tabs, or we are activating the patterns scene, run the pattern query
     if (slug === PageSlugs.patterns || this.state.patternsCount === undefined) {
@@ -631,7 +677,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private getBreakdownView() {
-    return this.getDrilldownPage().toLowerCase();
+    return this.getDrilldownPage();
   }
 
   private buildGraphScene() {
@@ -651,7 +697,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   public setBreakdownView() {
     const { body } = this.state;
     const breakdownView = this.getBreakdownView();
-    console.log('breakdownView', breakdownView);
     const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === breakdownView);
 
     if (!body) {
@@ -672,9 +717,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         ],
       });
     } else {
-      const valueBreakdownView = getDrilldownValueSlug();
-      console.log('valueBreakdownView', valueBreakdownView);
+      const valueBreakdownView = this.getDrilldownPageSlug();
       const valueBreakdownViewDef = valueBreakdownViews.find((v) => v.value === valueBreakdownView);
+
+      console.log('valueBreakdownView', valueBreakdownView);
+      console.log('valueBreakdownViewDef', valueBreakdownViewDef);
 
       if (valueBreakdownViewDef && this.state.drillDownLabel) {
         body.setState({
@@ -688,7 +735,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
     const { body } = model.useState();
-    console.log('serviceScene body', body);
     if (body) {
       return <body.Component model={body} />;
     }

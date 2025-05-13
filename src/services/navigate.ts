@@ -25,6 +25,12 @@ function buildValueBreakdownUrl(label: string, newPath: ValueSlugs, labelValue: 
   }
 }
 
+function buildEmbedValueBreakdownUrl(label: string, newPath: ValueSlugs, queryPrams: UrlQueryMap): string {
+  queryPrams['pageSlug'] = newPath;
+  queryPrams['drillDownLabel'] = label;
+  return urlUtil.renderUrl(ROUTES.embed(), queryPrams);
+}
+
 export function buildDrilldownPageUrl(path: PageSlugs | string, extraQueryParams?: UrlQueryMap): string {
   return urlUtil.renderUrl(path, buildDrilldownPageRoute(extraQueryParams));
 }
@@ -58,9 +64,10 @@ export function getValueBreakdownLink(newPath: ValueSlugs, label: string, servic
     }
 
     return fullUrl;
+  } else {
+    const searchParams = urlUtil.getUrlSearchParams();
+    return buildEmbedValueBreakdownUrl(label, newPath, searchParams);
   }
-
-  return '';
 }
 
 /**
@@ -81,10 +88,10 @@ export function navigateToValueBreakdown(newPath: ValueSlugs, label: string, ser
  * This function will route users to the initial (logs) page from the service selection view, which will populate the service scene state with the selected service string.
  * @param labelName
  * @param labelValue
+ * @param labelFilters
  */
 export function getDrillDownIndexLink(labelName: string, labelValue: string, labelFilters?: UrlQueryMap) {
-  const breakdownUrl = buildDrilldownPageUrl(ROUTES.logs(labelValue, labelName), labelFilters);
-  return breakdownUrl;
+  return buildDrilldownPageUrl(ROUTES.logs(labelValue, labelName), labelFilters);
 }
 
 export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene, extraQueryParams?: UrlQueryMap) {
@@ -97,18 +104,15 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
     return buildDrilldownPageUrl(fullUrl, extraQueryParams);
   } else {
     // URL not defined, use url params
-
     if (extraQueryParams === undefined) {
       extraQueryParams = {};
     }
     // extraQueryParams['tab'] = path;
-    extraQueryParams['drillDownLabel'] = path;
+    extraQueryParams['pageSlug'] = path;
 
     const fullUrl = prefixRoute(PageSlugs.embed);
-    const pendingUrl = buildDrilldownPageUrl(fullUrl, extraQueryParams);
-    return pendingUrl;
+    return buildDrilldownPageUrl(fullUrl, extraQueryParams);
   }
-  return '';
 }
 
 /**

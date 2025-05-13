@@ -30,13 +30,14 @@ import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { PageSlugs, TabNames } from '../../services/enums';
+import { PageSlugs } from '../../services/enums';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
+import { narrowPageOrValueSlug } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
@@ -109,7 +110,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-import { narrowPageSlug, narrowTabName } from '../../services/narrowing';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
@@ -282,16 +282,26 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   public getContentScene() {
     if (this.state.embedded) {
       const searchParams = urlUtil.getUrlSearchParams();
-      const activeTab = narrowPageSlug(
-        Array.isArray(searchParams['drillDownLabel'])
+      const drillDownLabel =
+        Array.isArray(searchParams['drillDownLabel']) &&
+        searchParams['drillDownLabel'][0] &&
+        typeof searchParams['drillDownLabel'][0] === 'string'
           ? searchParams['drillDownLabel'][0]
-          : searchParams['drillDownLabel']
+          : typeof searchParams['drillDownLabel'] === 'string' && searchParams['drillDownLabel'];
+
+      const pageSlug = narrowPageOrValueSlug(
+        Array.isArray(searchParams['pageSlug']) ? searchParams['pageSlug'][0] : searchParams['pageSlug']
       );
+
+      console.log('getContentScene', drillDownLabel);
+
       return new ServiceScene({
+        drillDownLabel: drillDownLabel ? drillDownLabel : undefined,
         embedded: true,
-        drillDownLabel: activeTab ? activeTab : TabNames.logs,
+        pageSlug: pageSlug ? pageSlug : PageSlugs.logs,
       });
     }
+
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
   }
 

@@ -8,6 +8,7 @@ import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { narrowPageSlug } from '../../services/narrowing';
 import { getDrillDownTabLink } from '../../services/navigate';
 import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
@@ -15,7 +16,6 @@ import { IndexScene } from '../IndexScene/IndexScene';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
-import { narrowPageSlug } from '../../services/narrowing';
 
 export interface ActionBarSceneState extends SceneObjectState {
   embedded?: boolean;
@@ -52,12 +52,12 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       return route;
     }
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    const narrowedSlug = narrowPageSlug(serviceScene.state.drillDownLabel);
+    const narrowedSlug = narrowPageSlug(serviceScene.state.pageSlug);
     if (narrowedSlug) {
       return narrowedSlug;
     }
 
-    throw new Error(`invalid page slug ${narrowedSlug}!`);
+    return undefined;
   }
 
   public static Component = ({ model }: SceneComponentProps<ActionBarScene>) => {
@@ -65,7 +65,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     let currentBreakdownViewSlug = model.getPageSlug();
     let allowNavToParent = false;
 
-    if (!Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {
+    if (!currentBreakdownViewSlug || !Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {
       const drilldownValueSlug = getDrilldownValueSlug();
       allowNavToParent = true;
       if (drilldownValueSlug === ValueSlugs.field) {
