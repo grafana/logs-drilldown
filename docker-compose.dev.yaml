@@ -34,4 +34,4 @@ services:
       context: ./generator
     command: -url http://loki:3100/loki/api/v1/push
     environment:
-      - OTLP_ENDPOINT=http://loki:3100/otlp
+    - OTLP_ENDPOINT=http://loki:3100/otlp

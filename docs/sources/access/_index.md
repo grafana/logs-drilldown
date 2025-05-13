@@ -43,9 +43,9 @@ The following Loki and Grafana version and configuration are required:
 - Grafana v11.6.0 or later
 - Loki v3.2.0 or later
 
-  {{< admonition type="note" >}}
-  To get the most recent features, including experimental features, upgrade to Loki 3.5.0 or later.
-  {{< /admonition >}}
+   {{< admonition type="note" >}}
+   To get the most recent features, including experimental features, upgrade to Loki 3.5.0 or later.
+   {{< /admonition >}}
 
   - Enable pattern ingestion by setting `pattern-ingester.enabled` to `true`in your Loki configuration file.
   - Enable structured metadata by setting `allow_structured_metadata` to `true` within your Loki configuration file.
