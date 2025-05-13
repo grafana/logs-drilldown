@@ -153,9 +153,9 @@ describe('contextToLink', () => {
 
       expect(config).toEqual({
         path: getPath({
-          slug: 'cluster/eu-west-1',
           expectedLabelFiltersUrlString,
           expectedLineFiltersUrlString,
+          slug: 'cluster/eu-west-1',
         }),
       });
     });

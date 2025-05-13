@@ -34,7 +34,7 @@ jobs:
       - uses: grafana/plugin-actions/package-plugin@main
         id: 'package-plugin'
         with:
-          policy_token: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN }}      
+          policy_token: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN }}
 
       - id: 'auth'
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7
