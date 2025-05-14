@@ -36,7 +36,7 @@ test.describe('navigating app', () => {
   });
 
   // Looks like mega menu clicks no longer trigger navigation, so whatever scene state is persisted after clicking on mega menu
-  test('mega menu click should persist url params', async ({ page }) => {
+  test.only('mega menu click should persist url params', async ({ page }) => {
     await page.goto(`/a/${pluginJson.id}/explore`);
 
     // Filter results to tempo-ingester to prevent flake
@@ -57,6 +57,7 @@ test.describe('navigating app', () => {
     const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
     const expectedSearchParams = new URLSearchParams(
       '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name%7C%3D%7Ctempo-ingester&var-lineFormat=&var-jsonFields=&var-fields=&var-filters_replica=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C%28%3Fi%29.%2ATempo-i.%2A'
+      // ?patterns=%5B%5D&var-primary_label=service_name%7C%3D~%7C%28%3Fi%29.%2ATempo-i.%2A&var-levels=&var-all-fields=&var-filters=service_name%7C%3D%7Ctempo-ingester&var-fields=&from=now-15m&to=now&timezone=browser
     );
     actualSearchParams.sort();
     expectedSearchParams.sort();

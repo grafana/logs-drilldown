@@ -61,21 +61,24 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<ActionBarScene>) => {
     const styles = useStyles2(getStyles);
-    let currentBreakdownViewSlug = model.getPageSlug();
+    let currentBreakdownViewSlug: PageSlugs | ValueSlugs | undefined;
     let allowNavToParent = false;
+    const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
 
-    if (!currentBreakdownViewSlug || !Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {
-      const drilldownValueSlug = getDrilldownValueSlug();
-      allowNavToParent = true;
-      if (drilldownValueSlug === ValueSlugs.field) {
-        currentBreakdownViewSlug = PageSlugs.fields;
-      }
-      if (drilldownValueSlug === ValueSlugs.label) {
-        currentBreakdownViewSlug = PageSlugs.labels;
+    if (serviceScene.state.embedded && serviceScene.state.pageSlug) {
+      currentBreakdownViewSlug = getActiveTabSlug(serviceScene.state.pageSlug);
+    } else {
+      currentBreakdownViewSlug = model.getPageSlug();
+
+      if (!currentBreakdownViewSlug || !Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {
+        const drilldownValueSlug = getDrilldownValueSlug();
+        allowNavToParent = true;
+        if (drilldownValueSlug) {
+          currentBreakdownViewSlug = getActiveTabSlug(drilldownValueSlug);
+        }
       }
     }
 
-    const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
     const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
     const { maxLines } = model.useState();
 
@@ -126,6 +129,16 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       </Box>
     );
   };
+}
+
+function getActiveTabSlug(drilldownValueSlug: PageSlugs | ValueSlugs) {
+  if (drilldownValueSlug === ValueSlugs.field) {
+    return PageSlugs.fields;
+  }
+  if (drilldownValueSlug === ValueSlugs.label) {
+    return PageSlugs.labels;
+  }
+  return drilldownValueSlug;
 }
 const getCounter = (tab: BreakdownViewDefinition, state: ServiceSceneCustomState) => {
   switch (tab.value) {

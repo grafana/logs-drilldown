@@ -28,7 +28,8 @@ function buildValueBreakdownUrl(label: string, newPath: ValueSlugs, labelValue: 
 function buildEmbedValueBreakdownUrl(label: string, newPath: ValueSlugs, queryPrams: UrlQueryMap): string {
   queryPrams['pageSlug'] = newPath;
   queryPrams['drillDownLabel'] = label;
-  return urlUtil.renderUrl(ROUTES.embed(), queryPrams);
+  const location = locationService.getLocation();
+  return buildDrilldownPageUrl(location.pathname, queryPrams);
 }
 
 export function buildDrilldownPageUrl(path: PageSlugs | string, extraQueryParams?: UrlQueryMap): string {
@@ -102,16 +103,18 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
   if (urlLabelValue) {
     const fullUrl = prefixRoute(`${PageSlugs.explore}/${urlLabelName}/${replaceSlash(urlLabelValue)}/${path}`);
     return buildDrilldownPageUrl(fullUrl, extraQueryParams);
-  } else {
+  } else if (serviceScene.state.embedded) {
+    const location = locationService.getLocation();
     // URL not defined, use url params
     if (extraQueryParams === undefined) {
-      extraQueryParams = {};
+      extraQueryParams = urlUtil.getUrlSearchParams();
     }
-    // extraQueryParams['tab'] = path;
     extraQueryParams['pageSlug'] = path;
+    extraQueryParams['drillDownLabel'] = undefined;
 
-    const fullUrl = prefixRoute(PageSlugs.embed);
-    return buildDrilldownPageUrl(fullUrl, extraQueryParams);
+    return buildDrilldownPageUrl(location.pathname, extraQueryParams);
+  } else {
+    throw new Error('Unable to build drilldown tab link!');
   }
 }
 

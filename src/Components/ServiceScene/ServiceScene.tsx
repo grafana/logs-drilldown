@@ -260,8 +260,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private getDrilldownPage() {
-    const drilldownSlug = getDrilldownSlug();
-    if (drilldownSlug !== PageSlugs.embed) {
+    const drilldownSlug = narrowPageSlug(getDrilldownSlug());
+    if (drilldownSlug && drilldownSlug !== PageSlugs.embed) {
       return drilldownSlug;
     }
     const narrowedPageSlug = narrowPageSlug(this.state.pageSlug);
@@ -717,6 +717,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       if (valueBreakdownViewDef && this.state.drillDownLabel) {
         body.setState({
           children: [...body.state.children.slice(0, 1), valueBreakdownViewDef.getScene(this.state.drillDownLabel)],
+        });
+      } else if (this.state.embedded) {
+        // Must be embedded with unexpected slug
+        const breakdown = breakdownViewsDefinitions[0];
+        body.setState({
+          children: [...body.state.children.slice(0, 1), breakdown.getScene((length) => {})],
         });
       } else {
         logger.error(new Error('not setting breakdown view'), { msg: 'setBreakdownView error' });
