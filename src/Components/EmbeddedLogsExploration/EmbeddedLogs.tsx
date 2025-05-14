@@ -8,7 +8,7 @@ import initRuntimeDs from 'services/datasource';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
 
-function buildLogsExplorationFromState({
+export function buildLogsExplorationFromState({
   onTimeRangeChange,
   query,
   timeRangeState,

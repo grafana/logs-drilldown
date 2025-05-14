@@ -6,14 +6,14 @@ import { config } from '@grafana/runtime';
 import { SceneApp, useSceneApp } from '@grafana/scenes';
 
 import { initializeMetadataService } from '../services/metadata';
-import { makeIndexPage, makeRedirectPage } from './Pages';
+import { makeEmbedPage, makeIndexPage, makeRedirectPage } from './Pages';
 
 const getSceneApp = () =>
   new SceneApp({
-    pages: [makeIndexPage(), makeRedirectPage()],
+    pages: [makeIndexPage(), makeEmbedPage(), makeRedirectPage()],
     urlSyncOptions: {
-      createBrowserHistorySteps: true,
-      updateUrlOnInit: true,
+      createBrowserHistorySteps: false,
+      updateUrlOnInit: false,
     },
   });
 
