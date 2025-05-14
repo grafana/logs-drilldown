@@ -229,7 +229,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   };
 
   public onActivate() {
-    console.log('routeMatch', this.state.routeMatch);
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
 

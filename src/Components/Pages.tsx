@@ -54,8 +54,6 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
     'grafana-lokiexplore-app/embedded-logs-exploration/v1'
   );
 
-  console.log('Component', { isLoading, LogsDrilldownComponent });
-
   return isLoading || !LogsDrilldownComponent ? (
     <LoadingPlaceholder text={'Loading...'} />
   ) : (
