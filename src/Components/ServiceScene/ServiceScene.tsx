@@ -339,6 +339,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<ServiceSceneState> = {};
 
+    // pageSlug and drillDownLabel url params are only used when embedded
+    if (!this.state.embedded) {
+      return;
+    }
+
     if (values && typeof values.pageSlug === 'string' && values.pageSlug !== this.state.pageSlug) {
       const pageSlug = narrowPageOrValueSlug(values.pageSlug);
       if (pageSlug) {
@@ -355,6 +360,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     if (Object.keys(stateUpdate).length) {
       this.setState(stateUpdate);
+      // Need to manually
       this.updateContentScene();
     }
   }
