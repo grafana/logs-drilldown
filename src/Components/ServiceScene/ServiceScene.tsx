@@ -33,7 +33,7 @@ import { migrateLineFilterV1 } from '../../services/migrations';
 import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from '../../services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
+import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -45,7 +45,6 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
-import { getPrimaryLabelFromScene } from '../../services/variableHelpers';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
@@ -185,7 +184,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
 
         // If we remove the service name filter, we should redirect to the start
-        let { breakdownLabel, labelName, labelValue } = this.getPrimaryLabel();
+        let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
 
         // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
         if (labelName === SERVICE_UI_LABEL) {
@@ -250,13 +249,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
       })
     );
-  }
-
-  private getPrimaryLabel() {
-    if (this.state.embedded) {
-      return getPrimaryLabelFromScene(this);
-    }
-    return getPrimaryLabelFromUrl();
   }
 
   private getDrilldownPage() {

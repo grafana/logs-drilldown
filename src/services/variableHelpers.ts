@@ -6,7 +6,7 @@ import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
 import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
-import { getPrimaryLabelFromUrl } from './routing';
+import { getRouteParams } from './routing';
 import { getLabelsVariable } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
 
@@ -36,8 +36,8 @@ export function clearVariables(sceneRef: SceneObject) {
 
   variablesToClear.forEach((variable) => {
     if (variable instanceof AdHocFiltersVariable && variable.state.key === 'adhoc_service_filter') {
-      let { labelName } = getPrimaryLabelFromUrl();
-      // getPrimaryLabelFromUrl returns the label name that exists in the URL, which is "service" not "service_name"
+      let { labelName } = getRouteParams(sceneRef);
+      // labelName is the label that exists in the URL, which is "service" not "service_name"
       if (labelName === SERVICE_UI_LABEL) {
         labelName = SERVICE_NAME;
       }

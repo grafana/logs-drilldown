@@ -34,7 +34,7 @@ import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLabelOptions } from 'services/filters';
-import { getPrimaryLabelFromUrl } from 'services/routing';
+import { getRouteParams } from 'services/routing';
 import { getSortByPreference } from 'services/store';
 import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
 
@@ -133,7 +133,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     newState: SceneVariableState & { filters: AdHocVariableFilter[] },
     prevState: SceneVariableState & { filters: AdHocVariableFilter[] }
   ) {
-    let { labelName } = getPrimaryLabelFromUrl();
+    let { labelName } = getRouteParams(this);
     if (labelName === SERVICE_UI_LABEL) {
       labelName = SERVICE_NAME;
     }
