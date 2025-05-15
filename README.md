@@ -103,6 +103,6 @@ Service Selection is the entry step where users can choose a service. List of fe
 **2. Showing of services** - Services are shown based on volume and are lazy-loaded. Metrics and logs are queried only for services that are scrolled to.
 
 **3. Previously selected services** - Previously selected services are displayed at the top of the list for easier access.
-* Services can also be manually "favorited" by clicking the star on the service. Favorite services are not shared between users.
+* Services can also be manually "favorited" by clicking the star on the service. Previously selected services are not shared between users.
 
 **4. Searching of services** - The search input can be used to filter services that include the specified string.
