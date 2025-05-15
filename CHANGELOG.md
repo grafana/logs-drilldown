@@ -1,5 +1,23 @@
 # Changelog
 
+#### 1.0.16
+
+##### Chores
+
+*  Call interpolateExpression (#1276) (796cacee)
+*  Run lint (#1274) (fa1d3b7d)
+*  Update Grafana assets to 11.6.1 (#1270) (505a307a)
+*  Add option to output to syslog from the generator (#1240) (14057e9f)
+* **vault:**  Use vault, remove old gha (#1272) (b4b9a896)
+* **plugin-ci-workflows:**
+  *  Publish skip playwright (#1263) (5becc84a)
+  *  Playwright skip dev image (#1262) (99ef2c9b)
+
+##### Documentation Changes
+
+*  Add favorites docs to readme (#1277) (cd64dbfc)
+*  Dashboards > Visualizations (#1261) (216b9256)
+
 #### 1.0.15
 
 ##### Chores
