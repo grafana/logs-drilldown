@@ -116,22 +116,26 @@ export interface IndexSceneState extends SceneObjectState {
   body?: LayoutScene;
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
-  controls: SceneObject[];
+  controls?: SceneObject[];
   ds?: LokiDatasource;
+  embedded?: boolean;
   initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
 }
 
+interface EmbeddedIndexSceneConstructor {
+  datasourceUid?: string;
+}
+
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
-  public constructor(state: Partial<IndexSceneState>) {
-    const { unsub, variablesScene } = getVariableSet(
-      getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
-      state.initialFilters
-    );
-
+  public constructor({
+    datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
+    ...state
+  }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
+    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.initialFilters, state.embedded);
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -192,10 +196,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
       controls: state.controls ?? controls,
+      embedded: state.embedded ?? false,
       // Need to clear patterns state when the class in constructed
       patterns: [],
       ...state,
-      body: new LayoutScene({}),
+      body: new LayoutScene({
+        embedded: state.embedded ?? false,
+      }),
     });
 
     this._subs.add(unsub);
@@ -230,14 +237,17 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     showLogsButton.setState({ hidden: false });
 
     if (!this.state.contentScene) {
-      stateUpdate.contentScene = getContentScene(this.state.routeMatch?.params.breakdownLabel);
+      stateUpdate.contentScene = this.getContentScene();
     }
     this.setTagProviders();
     this.setState(stateUpdate);
 
     this.updatePatterns(this.state, getPatternsVariable(this));
-    this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
-    this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+
+    if (!this.state.embedded) {
+      this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
+      this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+    }
 
     this._subs.add(
       this.subscribeToState((newState) => {
@@ -266,6 +276,15 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
     };
+  }
+
+  private getContentScene() {
+    if (this.state.embedded) {
+      return new ServiceScene({
+        embedded: true,
+      });
+    }
+    return getContentScene(this.state.routeMatch?.params.breakdownLabel);
   }
 
   private subscribeToCombinedFieldsVariable = (
@@ -566,7 +585,7 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[]) {
+function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded?: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
@@ -653,6 +672,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
   };
 
   const dsVariable = new DataSourceVariable({
+    hide: embedded ? VariableHide.hideVariable : VariableHide.dontHide,
     label: 'Data source',
     name: VAR_DATASOURCE,
     pluginId: 'loki',

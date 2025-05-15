@@ -43,7 +43,7 @@ import {
 
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { pushUrlHandler } from '../../services/navigate';
+import { isEmbedded, pushUrlHandler } from '../../services/navigate';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
   clearServiceSelectionSearchVariable,
@@ -399,6 +399,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
    */
   addLabelChangeToBrowserHistory(newKey: string, replace = false) {
     const { key: primaryLabelRaw, location, search } = getSelectedTabFromUrl();
+    if (isEmbedded()) {
+      return;
+    }
     if (primaryLabelRaw) {
       const primaryLabelSplit = primaryLabelRaw?.split('|');
       const keyInUrl = primaryLabelSplit?.[0];
@@ -804,7 +807,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   private getQueryOptionsToolbar() {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    return indexScene.state.controls.find((control) => control instanceof ToolbarScene) as ToolbarScene | undefined;
+    return indexScene.state.controls?.find((control) => control instanceof ToolbarScene) as ToolbarScene | undefined;
   }
 
   private onSupportedAggregatedMetricTimeRange() {
