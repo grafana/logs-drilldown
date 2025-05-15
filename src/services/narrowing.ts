@@ -1,6 +1,7 @@
 import { LogsSortOrder, RawTimeRange } from '@grafana/data';
 
 import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
+import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
@@ -130,6 +131,37 @@ export function narrowFilterOperator(op: string): LabelFilterOp | NumericFilterO
     default:
       throw new NarrowingError('operator is invalid!');
   }
+}
+
+export function narrowTabName(input: unknown): TabNames | false {
+  return (
+    (input === TabNames.fields ||
+      input === TabNames.labels ||
+      input === TabNames.logs ||
+      input === TabNames.patterns) &&
+    input
+  );
+}
+
+export function narrowPageOrValueSlug(input: unknown): ValueSlugs | PageSlugs | false {
+  return narrowPageSlug(input) || narrowValueSlug(input);
+}
+
+export function narrowValueSlug(input: unknown): ValueSlugs | false {
+  return (input === ValueSlugs.field || input === ValueSlugs.label) && input;
+}
+
+export function narrowPageSlug(input: unknown): PageSlugs | false {
+  if (typeof input === 'string') {
+    input = input.toLowerCase();
+  }
+  return (
+    (input === PageSlugs.fields ||
+      input === PageSlugs.labels ||
+      input === PageSlugs.logs ||
+      input === PageSlugs.patterns) &&
+    input
+  );
 }
 
 export class NarrowingError extends Error {}

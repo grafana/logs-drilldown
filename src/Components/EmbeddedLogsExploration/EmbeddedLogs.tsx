@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { AdHocFilterWithLabels, SceneTimeRange } from '@grafana/scenes';
+import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
@@ -57,5 +57,9 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
     return null;
   }
 
-  return <exploration.Component model={exploration} />;
+  return (
+    <UrlSyncContextProvider scene={exploration} updateUrlOnInit={false} createBrowserHistorySteps={true}>
+      <exploration.Component model={exploration} />
+    </UrlSyncContextProvider>
+  );
 }

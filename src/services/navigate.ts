@@ -25,6 +25,13 @@ function buildValueBreakdownUrl(label: string, newPath: ValueSlugs, labelValue: 
   }
 }
 
+function buildEmbedValueBreakdownUrl(label: string, newPath: ValueSlugs, queryPrams: UrlQueryMap): string {
+  queryPrams['pageSlug'] = newPath;
+  queryPrams['drillDownLabel'] = label;
+  const location = locationService.getLocation();
+  return buildDrilldownPageUrl(location.pathname, queryPrams);
+}
+
 export function buildDrilldownPageUrl(path: PageSlugs | string, extraQueryParams?: UrlQueryMap): string {
   return urlUtil.renderUrl(path, buildDrilldownPageRoute(extraQueryParams));
 }
@@ -58,9 +65,10 @@ export function getValueBreakdownLink(newPath: ValueSlugs, label: string, servic
     }
 
     return fullUrl;
+  } else {
+    const searchParams = urlUtil.getUrlSearchParams();
+    return buildEmbedValueBreakdownUrl(label, newPath, searchParams);
   }
-
-  return '';
 }
 
 /**
@@ -81,10 +89,10 @@ export function navigateToValueBreakdown(newPath: ValueSlugs, label: string, ser
  * This function will route users to the initial (logs) page from the service selection view, which will populate the service scene state with the selected service string.
  * @param labelName
  * @param labelValue
+ * @param labelFilters
  */
 export function getDrillDownIndexLink(labelName: string, labelValue: string, labelFilters?: UrlQueryMap) {
-  const breakdownUrl = buildDrilldownPageUrl(ROUTES.logs(labelValue, labelName), labelFilters);
-  return breakdownUrl;
+  return buildDrilldownPageUrl(ROUTES.logs(labelValue, labelName), labelFilters);
 }
 
 export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene, extraQueryParams?: UrlQueryMap) {
@@ -95,8 +103,19 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
   if (urlLabelValue) {
     const fullUrl = prefixRoute(`${PageSlugs.explore}/${urlLabelName}/${replaceSlash(urlLabelValue)}/${path}`);
     return buildDrilldownPageUrl(fullUrl, extraQueryParams);
+  } else if (serviceScene.state.embedded) {
+    const location = locationService.getLocation();
+    // URL not defined, use url params
+    if (extraQueryParams === undefined) {
+      extraQueryParams = urlUtil.getUrlSearchParams();
+    }
+    extraQueryParams['pageSlug'] = path;
+    extraQueryParams['drillDownLabel'] = undefined;
+
+    return buildDrilldownPageUrl(location.pathname, extraQueryParams);
+  } else {
+    throw new Error('Unable to build drilldown tab link!');
   }
-  return '';
 }
 
 /**
@@ -132,19 +151,15 @@ export function isEmbedded(): boolean {
 }
 
 export function pushUrlHandler(newUrl: string) {
-  if (!isEmbedded()) {
-    previousRoute = newUrl;
-    locationService.push(newUrl);
-  }
+  previousRoute = newUrl;
+  locationService.push(newUrl);
 }
 
 export function addCurrentUrlToHistory() {
   // Don't push location when embedded
-  if (!isEmbedded()) {
-    // Add the current url to browser history before the state is changed so the user can revert their change.
-    const location = locationService.getLocation();
-    locationService.push(location.pathname + location.search);
-  }
+  // Add the current url to browser history before the state is changed so the user can revert their change.
+  const location = locationService.getLocation();
+  locationService.push(location.pathname + location.search);
 }
 
 /**

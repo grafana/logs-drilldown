@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil } from '@grafana/data';
+import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -37,6 +37,7 @@ import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
+import { narrowPageOrValueSlug } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
@@ -278,12 +279,27 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     };
   }
 
-  private getContentScene() {
+  public getContentScene() {
     if (this.state.embedded) {
+      const searchParams = urlUtil.getUrlSearchParams();
+      const drillDownLabel =
+        Array.isArray(searchParams['drillDownLabel']) &&
+        searchParams['drillDownLabel'][0] &&
+        typeof searchParams['drillDownLabel'][0] === 'string'
+          ? searchParams['drillDownLabel'][0]
+          : typeof searchParams['drillDownLabel'] === 'string' && searchParams['drillDownLabel'];
+
+      const pageSlug = narrowPageOrValueSlug(
+        Array.isArray(searchParams['pageSlug']) ? searchParams['pageSlug'][0] : searchParams['pageSlug']
+      );
+
       return new ServiceScene({
+        drillDownLabel: drillDownLabel ? drillDownLabel : undefined,
         embedded: true,
+        pageSlug: pageSlug ? pageSlug : PageSlugs.logs,
       });
     }
+
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
   }
 

@@ -30,7 +30,7 @@ import { FilterOp } from '../../../services/filterTypes';
 import { logger } from '../../../services/logger';
 import { LokiQuery } from '../../../services/lokiQuery';
 import { getValueBreakdownLink } from '../../../services/navigate';
-import { getPrimaryLabelFromUrl } from '../../../services/routing';
+import { getRouteParams } from '../../../services/routing';
 import { findObjectOfType } from '../../../services/scenes';
 import { testIds } from '../../../services/testIds';
 import {
@@ -240,7 +240,8 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
   };
 
   private getExistingFilter(variable?: AdHocFiltersVariable): AdHocVariableFilter | undefined {
-    let { labelName } = getPrimaryLabelFromUrl();
+    let { labelName } = getRouteParams(this);
+
     if (this.state.labelName !== labelName) {
       return variable?.state.filters.find((filter) => {
         return filter.key === this.state.labelName;
