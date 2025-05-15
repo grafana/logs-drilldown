@@ -1,11 +1,13 @@
 import { AdHocFiltersVariable, sceneGraph, SceneObject, SceneVariable } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
 import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
 import { getPrimaryLabelFromUrl } from './routing';
+import { getLabelsVariable } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
 
 export function getVariablesThatCanBeCleared(indexScene: IndexScene) {
@@ -85,3 +87,15 @@ export const operatorFunction = function (variable: AdHocFiltersVariable) {
 
   return operators;
 };
+
+/**
+ * For embedded contexts, return the first label as primary label
+ */
+export function getPrimaryLabelFromScene(scene: ServiceScene) {
+  const variable = getLabelsVariable(scene);
+  return {
+    breakdownLabel: scene.state.drillDownLabel,
+    labelName: variable.state.filters[0].key,
+    labelValue: variable.state.filters[0].value,
+  };
+}

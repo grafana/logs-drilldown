@@ -23,7 +23,11 @@ import { navigateToValueBreakdown } from '../../../services/navigate';
 import { getPrimaryLabelFromUrl, getUILabelName } from '../../../services/routing';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
-import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
+import {
+  clearVariables,
+  getPrimaryLabelFromScene,
+  getVariablesThatCanBeCleared,
+} from '../../../services/variableHelpers';
 import { IndexScene } from '../../IndexScene/IndexScene';
 import { RouteProps } from '../../Pages';
 import { getDetectedFieldsFrame, ServiceScene } from '../ServiceScene';
@@ -145,7 +149,13 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
   }
 
   private getPrimaryLabel(): RouteProps {
-    let { breakdownLabel, labelName, labelValue } = getPrimaryLabelFromUrl();
+    let labelValue: string, labelName: string, breakdownLabel: string | undefined;
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    if (serviceScene.state.embedded) {
+      ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromScene(serviceScene));
+    } else {
+      ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromUrl());
+    }
     if (!labelName) {
       const variable = getLabelsVariable(this);
       labelName = variable.state.filters[0].key;

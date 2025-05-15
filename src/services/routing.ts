@@ -125,12 +125,18 @@ export function getUILabelName(labelName: string) {
 export function getPrimaryLabelFromUrl(): RouteProps {
   const location = locationService.getLocation();
   const startOfUrl = '/a/grafana-lokiexplore-app/explore';
-  const endOfUrl = location.pathname.slice(location.pathname.indexOf(startOfUrl) + startOfUrl.length + 1);
+  const startOfUrlIndex = location.pathname.indexOf(startOfUrl);
+  if (startOfUrlIndex === -1) {
+    throw new Error('Cannot get primary label from URL when embedded!');
+  }
+  const endOfUrl = location.pathname.slice(startOfUrlIndex + startOfUrl.length + 1);
   const routeParams = endOfUrl.split('/');
 
   let labelName = routeParams[0];
   const labelValue = routeParams[1];
   const breakdownLabel = routeParams[3];
+
+  console.log('getPrimaryLabelFromUrl', { breakdownLabel, labelName: getUILabelName(labelName), labelValue });
 
   return { breakdownLabel, labelName: getUILabelName(labelName), labelValue };
 }

@@ -45,6 +45,7 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
+import { getPrimaryLabelFromScene } from '../../services/variableHelpers';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
@@ -253,8 +254,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private getPrimaryLabel() {
     if (this.state.embedded) {
-      const variable = getLabelsVariable(this);
-      return { labelName: variable.state.filters[0].key, labelValue: variable.state.filters[0].value };
+      return getPrimaryLabelFromScene(this);
     }
     return getPrimaryLabelFromUrl();
   }
