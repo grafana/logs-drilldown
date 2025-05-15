@@ -15,6 +15,7 @@ import { IconButton } from '@grafana/ui';
 
 import LokiLogo from '../../../img/logo.svg';
 import { LokiDatasource, LokiQuery } from '../../../services/lokiQuery';
+import { interpolateExpression } from '../../../services/query';
 import { ExtensionPoints } from 'services/extensions/links';
 import { findObjectOfType, getLokiDatasource } from 'services/scenes';
 
@@ -76,7 +77,7 @@ export class AddToInvestigationButton extends SceneObjectBase<AddToInvestigation
       const queries = queryRunner.state.queries.map((q) => ({
         ...q,
         datasource: q.datasource ?? undefined,
-        expr: sceneGraph.interpolate(queryRunner, q.expr),
+        expr: interpolateExpression(queryRunner, q.expr),
         legendFormat: filter?.name ? `{{ ${filter.name} }}` : sceneGraph.interpolate(queryRunner, q.legendFormat),
       }));
 
