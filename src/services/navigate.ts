@@ -151,19 +151,15 @@ export function isEmbedded(): boolean {
 }
 
 export function pushUrlHandler(newUrl: string) {
-  if (!isEmbedded()) {
-    previousRoute = newUrl;
-    locationService.push(newUrl);
-  }
+  previousRoute = newUrl;
+  locationService.push(newUrl);
 }
 
 export function addCurrentUrlToHistory() {
   // Don't push location when embedded
-  if (!isEmbedded()) {
-    // Add the current url to browser history before the state is changed so the user can revert their change.
-    const location = locationService.getLocation();
-    locationService.push(location.pathname + location.search);
-  }
+  // Add the current url to browser history before the state is changed so the user can revert their change.
+  const location = locationService.getLocation();
+  locationService.push(location.pathname + location.search);
 }
 
 /**

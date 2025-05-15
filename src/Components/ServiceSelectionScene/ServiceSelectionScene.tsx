@@ -43,7 +43,7 @@ import {
 
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { isEmbedded, pushUrlHandler } from '../../services/navigate';
+import { pushUrlHandler } from '../../services/navigate';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
   clearServiceSelectionSearchVariable,
@@ -399,9 +399,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
    */
   addLabelChangeToBrowserHistory(newKey: string, replace = false) {
     const { key: primaryLabelRaw, location, search } = getSelectedTabFromUrl();
-    if (isEmbedded()) {
-      return;
-    }
     if (primaryLabelRaw) {
       const primaryLabelSplit = primaryLabelRaw?.split('|');
       const keyInUrl = primaryLabelSplit?.[0];

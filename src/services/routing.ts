@@ -6,10 +6,8 @@ import { RouteMatch, RouteProps } from '../Components/Pages';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { PageSlugs, ValueSlugs } from './enums';
 import { replaceSlash } from './extensions/links';
-import { logger } from './logger';
 import { narrowValueSlug } from './narrowing';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
-import { getLabelsVariable } from './variableGetters';
 import { getPrimaryLabelFromScene } from './variableHelpers';
 import {
   SERVICE_NAME,
