@@ -46,6 +46,9 @@ cards:
 # Grafana Logs Drilldown
 
 Welcome to our new experience for Loki. Grafana Logs Drilldown lets you automatically visualize and explore your logs without having to write queries.
+
+{{< docs/learning-journeys title="Explore logs using Logs Drilldown" url="https://grafana.com/docs/learning-journeys/drilldown-logs/" >}}
+
 Using Grafana Logs Drilldown you can:
 
 - Easily find logs and log volumes for all of your services.
