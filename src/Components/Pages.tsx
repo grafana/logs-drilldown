@@ -61,14 +61,9 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
 }
 
 function getEmbedScene() {
-  // @todo form field inputs?
-  const dsUID = 'PDDA8E780A17E7EF1';
   const initialStart = 'now-15m';
   const initialEnd = 'now';
   const query = '{service_name="tempo-ingester"}';
-  const onTimeRangeChange = (timeRange: TimeRange) => {
-    console.log('onTimeRangeChange', timeRange);
-  };
 
   const from = dateTimeParse(initialStart);
   const to = dateTimeParse(initialEnd);
@@ -89,9 +84,7 @@ function getEmbedScene() {
   });
 
   const props: EmbeddedLogsExplorationProps = {
-    datasourceUid: dsUID,
     embedded: true,
-    onTimeRangeChange,
     query,
     timeRangeState: $timeRange.state,
   };
