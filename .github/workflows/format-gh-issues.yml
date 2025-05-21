@@ -1,0 +1,25 @@
+name: Format github issues
+on:
+  issues:
+    types:
+      - opened
+     
+jobs:
+  label-chore:
+    name: Add common labels and project to issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add common labels and project to issues
+        run: 
+            gh issue edit "$NUMBER" --add-label "$LABELS"
+            gh project item-add --project "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          LABELS: needs-triage
+          PROJECT_NUMBER: 702
+          PROJECT_OWNER: grafana

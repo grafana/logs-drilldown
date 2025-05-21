@@ -1,0 +1,10 @@
+CHANGELOG.md
+README.md
+dist/
+node_modules/
+package.json
+./.gitignore
+.config/
+.eslintignore
+.prettierignore
+.husky/

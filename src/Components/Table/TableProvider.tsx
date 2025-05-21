@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-import { AdHocVariableFilter, DataFrame, LogsSortOrder, TimeRange } from '@grafana/data';
+import { AdHocVariableFilter, DataFrame, FieldType, LogsSortOrder, sortDataFrame, TimeRange } from '@grafana/data';
 
 import { parseLogsFrame } from '../../services/logsFrame';
 import { LogLineState } from './Context/TableColumnsContext';
@@ -39,11 +39,16 @@ export const TableProvider = ({
   urlColumns,
   urlTableBodyState,
 }: TableProviderProps) => {
-  if (!dataFrame) {
-    return null;
-  }
+  const logsFrame = useMemo(() => {
+    if (!dataFrame) {
+      return null;
+    }
+    const timeIndex = dataFrame.fields.findIndex((field) => field.type === FieldType.time);
+    const sortedFrame = sortDataFrame(dataFrame, timeIndex, logsSortOrder === LogsSortOrder.Descending);
+    const logsFrame = parseLogsFrame(sortedFrame);
+    return logsFrame;
+  }, [dataFrame, logsSortOrder]);
 
-  const logsFrame = parseLogsFrame(dataFrame);
   if (!logsFrame) {
     return null;
   }

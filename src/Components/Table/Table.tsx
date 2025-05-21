@@ -16,7 +16,6 @@ import {
   FieldWithIndex,
   Labels,
   MappingType,
-  sortDataFrame,
   transformDataFrame,
   ValueMap,
 } from '@grafana/data';
@@ -24,7 +23,7 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
 import { Drawer, Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
-import { getBodyName, getIdName, getTimeName, LogsFrame } from '../../services/logsFrame';
+import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
 import { testIds } from '../../services/testIds';
 import { useQueryContext } from './Context/QueryContext';
 import {
@@ -74,9 +73,6 @@ function TableAndContext(props: {
   return (
     <GrafanaTable
       onColumnResize={props.onResize}
-      initialSortBy={[
-        { desc: props.logsSortOrder === LogsSortOrder.Descending, displayName: getTimeName(props.logsFrame) },
-      ]}
       initialRowIndex={props.selectedLine}
       cellHeight={TableCellHeight.Sm}
       data={props.data}
@@ -113,15 +109,12 @@ export const Table = (props: Props) => {
 
   const templateSrv = getTemplateSrv();
   const replace = useMemo(() => templateSrv.replace.bind(templateSrv), [templateSrv]);
-  const timeIndex = logsFrame?.timeField.index;
 
   const prepareTableFrame = useCallback(
-    (rawFrame: DataFrame): DataFrame => {
-      if (!rawFrame.length) {
-        return rawFrame;
+    (frame: DataFrame): DataFrame => {
+      if (!frame.length) {
+        return frame;
       }
-
-      const frame = sortDataFrame(rawFrame, timeIndex, props.logsSortOrder === LogsSortOrder.Descending);
 
       const [frameWithOverrides] = applyFieldOverrides({
         data: [frame],
