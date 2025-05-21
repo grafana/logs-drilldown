@@ -5,7 +5,14 @@ import { AdHocFiltersVariable, DataSourceVariable, SceneTimeRangeLike } from '@g
 
 import pluginJson from '../../plugin.json';
 import { LabelType } from '../fieldsTypes';
-import { FieldFilter, FilterOp, IndexedLabelFilter, LineFilterType, PatternFilterOp } from '../filterTypes';
+import {
+  FieldFilter,
+  FilterOp,
+  IndexedLabelFilter,
+  LineFilterType,
+  PatternFilterOp,
+  PatternFilterType,
+} from '../filterTypes';
 import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
@@ -157,6 +164,22 @@ function setLineFilterUrlParams(lineFilters: LineFilterType[], params: URLSearch
   return params;
 }
 
+export function setUrlParamsFromPatterns(patternFilters: PatternFilterType[], params: URLSearchParams) {
+  const patterns: AppliedPattern[] = [];
+
+  for (const field of patternFilters) {
+    patterns.push({
+      type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
+      pattern: stringifyValues(field.value),
+    });
+  }
+
+  let patternsString = renderPatternFilters(patterns);
+
+  params = appendUrlParameter(UrlParameters.Patterns, JSON.stringify(patterns), params);
+  return appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
+}
+
 function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   if (!context) {
     return undefined;
@@ -194,19 +217,7 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
     params = setUrlParamsFromFieldFilters(fields, params);
   }
   if (patternFilters?.length) {
-    const patterns: AppliedPattern[] = [];
-
-    for (const field of patternFilters) {
-      patterns.push({
-        type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
-        pattern: stringifyValues(field.value),
-      });
-    }
-
-    let patternsString = renderPatternFilters(patterns);
-
-    params = appendUrlParameter(UrlParameters.Patterns, JSON.stringify(patterns), params);
-    params = appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
+    params = setUrlParamsFromPatterns(patternFilters, params);
   }
 
   return {
@@ -294,7 +305,7 @@ export function getOpenInDrilldownURL(
   if (!dataSourceUID) {
     throw new Error('Datasource is not defined!');
   }
-  const { fields, labelFilters, lineFilters } = getMatcherFromQuery(expr);
+  const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr);
 
   let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUID, new URLSearchParams());
   params = appendUrlParameter(UrlParameters.TimeRangeFrom, timeRange.state.from, params);
@@ -310,6 +321,9 @@ export function getOpenInDrilldownURL(
   }
   if (fields?.length) {
     params = setUrlParamsFromFieldFilters(fields, params);
+  }
+  if (patternFilters?.length) {
+    params = setUrlParamsFromPatterns(patternFilters, params);
   }
   return createAppUrl(`/explore/${replaceSlash(labelName)}/${replaceSlash(labelValue)}/logs`, params);
 }

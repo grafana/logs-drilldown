@@ -4,19 +4,11 @@ import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
-import { getOpenInDrilldownURL } from '../../services/extensions/links';
 import { getJsonParserVariableVisibility } from '../../services/store';
-import {
-  getDataSourceVariable,
-  getFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-  getMetadataVariable,
-} from '../../services/variableGetters';
-import { AppliedPattern, LOG_STREAM_SELECTOR_EXPR } from '../../services/variables';
+import { AppliedPattern } from '../../services/variables';
+import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { GiveFeedbackButton } from './GiveFeedbackButton';
 import { IndexScene } from './IndexScene';
@@ -30,29 +22,30 @@ import { PatternControls } from './PatternControls';
 
 type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
+  embeddedLink?: EmbeddedLinkScene;
   position: HeaderPosition;
 }
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
+  constructor(props: VariableLayoutSceneState) {
+    super(props);
+
+    this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  public onActivate() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    if (indexScene.state.embedded) {
+      this.setState({
+        embeddedLink: new EmbeddedLinkScene({}),
+      });
+    }
+  }
+
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { controls, patterns } = indexScene.useState();
-
-    const labelsVar = getLabelsVariable(model);
-
-    // To generate the correct link we must re-render this component whenever a filter is added or removed.
-    labelsVar.useState();
-    getFieldsVariable(model).useState();
-    getLevelsVariable(model).useState();
-    getMetadataVariable(model).useState();
-    getLineFiltersVariable(model).useState();
-
-    const timeRange = sceneGraph.getTimeRange(model);
-    const dataSourceVariable = getDataSourceVariable(model);
-
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
-    const queryExpr = sceneGraph.interpolate(model, LOG_STREAM_SELECTOR_EXPR);
-
     const styles = useStyles2((theme) => getStyles(theme, model.state.position));
 
     return (
@@ -78,15 +71,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
-                  {indexScene.state.embedded && (
-                    <LinkButton
-                      href={getOpenInDrilldownURL(dataSourceVariable, queryExpr, labelsVar, timeRange)}
-                      variant="secondary"
-                      icon="arrow-right"
-                    >
-                      Logs Drilldown
-                    </LinkButton>
-                  )}
+                  {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
                   {controls.map((control) => {
                     return control.state.key === CONTROLS_VARS_DATASOURCE ? (
