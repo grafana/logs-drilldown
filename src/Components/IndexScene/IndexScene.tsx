@@ -201,9 +201,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       // Need to clear patterns state when the class in constructed
       patterns: [],
       ...state,
-      body: new LayoutScene({
-        embedded: state.embedded ?? false,
-      }),
+      body: new LayoutScene({}),
     });
 
     this._subs.add(unsub);
