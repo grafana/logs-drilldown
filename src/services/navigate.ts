@@ -101,7 +101,7 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
   const urlLabelValue = indexScene.state.routeMatch?.params.labelValue;
   const urlLabelName = indexScene.state.routeMatch?.params.labelName;
 
-  if (urlLabelValue) {
+  if (urlLabelValue && !serviceScene.state.embedded) {
     const fullUrl = prefixRoute(`${PageSlugs.explore}/${urlLabelName}/${replaceSlash(urlLabelValue)}/${path}`);
     return buildDrilldownPageUrl(fullUrl, extraQueryParams);
   } else if (serviceScene.state.embedded) {
@@ -110,8 +110,8 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
     if (extraQueryParams === undefined) {
       extraQueryParams = urlUtil.getUrlSearchParams();
     }
-    extraQueryParams['pageSlug'] = path;
-    extraQueryParams['drillDownLabel'] = undefined;
+    extraQueryParams[pageSlugUrlKey] = path;
+    extraQueryParams[drilldownLabelUrlKey] = undefined;
 
     return buildDrilldownPageUrl(location.pathname, extraQueryParams);
   } else {
