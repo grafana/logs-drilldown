@@ -17,7 +17,6 @@ import { LineFilterVariablesScene } from './LineFilterVariablesScene';
 import { VariableLayoutScene } from './VariableLayoutScene';
 
 interface LayoutSceneState extends SceneObjectState {
-  embedded?: boolean;
   interceptDismissed: boolean;
   levelsRenderer?: LevelsVariableScene;
   lineFilterRenderer?: LineFilterVariablesScene;

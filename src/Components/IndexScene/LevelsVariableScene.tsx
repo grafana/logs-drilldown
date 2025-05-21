@@ -22,7 +22,6 @@ import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
 
 type ChipOption = MetricFindValue & { selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
-  embedded?: boolean;
   isLoading: boolean;
   isOpen: boolean;
   options?: ChipOption[];
