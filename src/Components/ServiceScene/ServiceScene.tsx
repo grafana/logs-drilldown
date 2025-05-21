@@ -50,6 +50,7 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import {
@@ -131,9 +132,6 @@ export const getDetectedFieldsParsersFromQueryRunnerState = (state: QueryRunnerS
   // The third field, DETECTED_FIELDS_PARSER_NAME, has the list of parsers of the detected fields
   return state.data?.series?.[0]?.fields?.[2];
 };
-
-export const pageSlugUrlKey = 'pageSlug';
-export const drilldownLabelUrlKey = 'drillDownLabel';
 
 export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   protected _variableDependency = new VariableDependencyConfig(this, {

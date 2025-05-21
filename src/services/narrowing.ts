@@ -1,6 +1,6 @@
 import { LogsSortOrder, RawTimeRange, UrlQueryMap } from '@grafana/data';
 
-import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceScene';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceSceneConstants';
 import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
 import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';

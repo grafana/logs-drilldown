@@ -3,7 +3,8 @@ import { locationService } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { drilldownLabelUrlKey, pageSlugUrlKey, ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceSceneConstants';
 import { PageSlugs, ValueSlugs } from './enums';
 import { replaceSlash } from './extensions/links';
 import { getMetadataService } from './metadata';
