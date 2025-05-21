@@ -1,6 +1,6 @@
 {
   "name": "grafana-lokiexplore-app",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Query less exploration of log data stored in Loki",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
@@ -8,8 +8,8 @@
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "yarn run lint --fix && prettier --write --list-different .",
+    "lint": "eslint . --cache --ignore-path ./.eslintignore",
+    "lint:fix": "yarn run lint --fix && prettier --write --list-different . --ignore-path ./.prettierignore",
     "e2e": "playwright test -x --trace on",
     "e2e:fast": "playwright test --retries=1 --workers=3",
     "e2e:10x": "playwright test -x --trace on --repeat-each=10 --workers 1",
