@@ -1,5 +1,18 @@
 # Changelog
 
+#### 1.0.17
+
+##### Chores
+
+* **gh issues:**
+  *  format issues with labels and project (#1291) (8e4777c1)
+  *  update issue templates (#1290) (ffe12ffb)
+* **lint:**  lint all the things, except ignore (#1289) (5798dec4)
+
+##### Bug Fixes
+
+* **table:**  move sorting and remove initial sorting from table (#1284) (f0561406)
+
 #### 1.0.16
 
 ##### Chores
