@@ -192,7 +192,6 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     variable.setState({
       loading: false,
       options: getFieldOptions(dataFrame.fields[0].values.map((v) => String(v))),
-      // @here
       value: serviceScene.state.drillDownLabel ?? ALL_VARIABLE_VALUE,
     });
     this.setState({
