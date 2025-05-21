@@ -18,15 +18,19 @@ import { LOG_STREAM_SELECTOR_EXPR } from '../../services/variables';
 export class EmbeddedLinkScene extends SceneObjectBase {
   public static Component = ({ model }: SceneComponentProps<EmbeddedLinkScene>) => {
     const labelsVar = getLabelsVariable(model);
+    const timeRange = sceneGraph.getTimeRange(model);
+
+    // Rerender this scene whenever any dependent variables are updated
+    // @todo how do we keep this up to date if new variables are added?
     labelsVar.useState();
     getFieldsVariable(model).useState();
     getLevelsVariable(model).useState();
     getMetadataVariable(model).useState();
     getLineFiltersVariable(model).useState();
     getPatternsVariable(model).useState();
+    timeRange.useState();
     const dataSourceVariable = getDataSourceVariable(model);
     const queryExpr = sceneGraph.interpolate(model, LOG_STREAM_SELECTOR_EXPR);
-    const timeRange = sceneGraph.getTimeRange(model);
 
     return (
       <LinkButton
