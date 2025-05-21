@@ -1,5 +1,6 @@
-import { LogsSortOrder, RawTimeRange } from '@grafana/data';
+import { LogsSortOrder, RawTimeRange, UrlQueryMap } from '@grafana/data';
 
+import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceScene';
 import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
 import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
@@ -161,6 +162,20 @@ export function narrowPageSlug(input: unknown): PageSlugs | false {
       input === PageSlugs.logs ||
       input === PageSlugs.patterns) &&
     input
+  );
+}
+
+export function narrowDrilldownLabelFromSearchParams(searchParams: UrlQueryMap) {
+  return Array.isArray(searchParams[drilldownLabelUrlKey]) &&
+    searchParams[drilldownLabelUrlKey][0] &&
+    typeof searchParams[drilldownLabelUrlKey][0] === 'string'
+    ? searchParams[drilldownLabelUrlKey][0]
+    : typeof searchParams[drilldownLabelUrlKey] === 'string' && searchParams[drilldownLabelUrlKey];
+}
+
+export function narrowPageSlugFromSearchParams(searchParams: UrlQueryMap) {
+  return narrowPageOrValueSlug(
+    Array.isArray(searchParams[pageSlugUrlKey]) ? searchParams[pageSlugUrlKey][0] : searchParams[pageSlugUrlKey]
   );
 }
 

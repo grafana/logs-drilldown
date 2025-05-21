@@ -21,14 +21,6 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
   );
 }
 
-export const exposedComponents = [
-  {
-    component: SuspendedOpenInLogsDrilldownButton,
-    description: 'A button that opens a logs view in the Logs Drilldown app.',
-    id: `grafana-lokiexplore-app/open-in-explore-logs-button/v1`,
-    title: 'Open in Logs Drilldown button',
-  },
-];
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   return (
     <Suspense fallback={<div>Loading...</div>}>

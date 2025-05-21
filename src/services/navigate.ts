@@ -3,7 +3,7 @@ import { locationService } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { drilldownLabelUrlKey, pageSlugUrlKey, ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { PageSlugs, ValueSlugs } from './enums';
 import { replaceSlash } from './extensions/links';
 import { getMetadataService } from './metadata';
@@ -26,8 +26,8 @@ function buildValueBreakdownUrl(label: string, newPath: ValueSlugs, labelValue: 
 }
 
 function buildEmbedValueBreakdownUrl(label: string, newPath: ValueSlugs, queryPrams: UrlQueryMap): string {
-  queryPrams['pageSlug'] = newPath;
-  queryPrams['drillDownLabel'] = label;
+  queryPrams[pageSlugUrlKey] = newPath;
+  queryPrams[drilldownLabelUrlKey] = label;
   const location = locationService.getLocation();
   return buildDrilldownPageUrl(location.pathname, queryPrams);
 }

@@ -132,12 +132,15 @@ export const getDetectedFieldsParsersFromQueryRunnerState = (state: QueryRunnerS
   return state.data?.series?.[0]?.fields?.[2];
 };
 
+export const pageSlugUrlKey = 'pageSlug';
+export const drilldownLabelUrlKey = 'drillDownLabel';
+
 export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   protected _variableDependency = new VariableDependencyConfig(this, {
     variableNames: [VAR_DATASOURCE, VAR_LABELS, VAR_FIELDS, VAR_PATTERNS, VAR_LEVELS],
   });
 
-  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['pageSlug', 'drillDownLabel'] });
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: [pageSlugUrlKey, drilldownLabelUrlKey] });
 
   public constructor(
     state: MakeOptional<
@@ -224,7 +227,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
             this.resetTabCount();
 
             if (!breakdownLabel) {
-              const slug = this.getDrilldownPage();
+              const slug = this.getPageSlug();
               if (slug) {
                 navigateToDrilldownPage(slug, this);
               } else {
@@ -251,7 +254,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     );
   }
 
-  private getDrilldownPage() {
+  private getPageSlug() {
     const drilldownSlug = narrowPageSlug(getDrilldownSlug());
     if (drilldownSlug && drilldownSlug !== PageSlugs.embed) {
       return drilldownSlug;
@@ -264,20 +267,20 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     return undefined;
   }
 
-  private getDrilldownValueSlug() {
-    const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
-    if (drilldownValueSlug) {
-      return drilldownValueSlug;
-    }
-    return undefined;
-  }
-
   private getDrilldownPageSlug() {
     const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
     if (drilldownValueSlug) {
       return drilldownValueSlug;
     }
     return this.state.pageSlug;
+  }
+
+  private getDrilldownValueSlug() {
+    const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
+    if (drilldownValueSlug) {
+      return drilldownValueSlug;
+    }
+    return undefined;
   }
 
   private redirectToStart() {
@@ -360,7 +363,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     if (Object.keys(stateUpdate).length) {
       this.setState(stateUpdate);
-      // Need to manually
+      // Need to manually re-render content scene when updated
       this.updateContentScene();
     }
   }
@@ -393,7 +396,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToDetectedLabelsQuery());
 
     // Fields tab will update its own count, and update count when a query fails
-    this._subs.add(this.subscribeToDetectedFieldsQuery(this.getDrilldownPage() !== PageSlugs.fields));
+    this._subs.add(this.subscribeToDetectedFieldsQuery(this.getPageSlug() !== PageSlugs.fields));
     this._subs.add(this.subscribeToLogsQuery());
     this._subs.add(this.subscribeToLogsCountQuery());
 
@@ -520,7 +523,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private runQueries() {
-    const slug = this.getDrilldownPage();
+    const slug = this.getPageSlug();
     const parentSlug = this.getDrilldownPageSlug();
 
     // If we don't have a patterns count in the tabs, or we are activating the patterns scene, run the pattern query
@@ -670,10 +673,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
-  private getBreakdownView() {
-    return this.getDrilldownPage();
-  }
-
   private buildGraphScene() {
     return new SceneFlexLayout({
       children: [
@@ -688,8 +687,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   public setBreakdownView() {
     const { body } = this.state;
-    const breakdownView = this.getBreakdownView();
-    const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === breakdownView);
+    const pageSlug = this.getPageSlug();
+    const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === pageSlug);
 
     if (!body) {
       const err = new Error('body is not defined in setBreakdownView!');

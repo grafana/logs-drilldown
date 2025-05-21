@@ -37,7 +37,7 @@ import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
-import { narrowPageOrValueSlug } from '../../services/narrowing';
+import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
@@ -280,16 +280,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   public getContentScene() {
     if (this.state.embedded) {
       const searchParams = urlUtil.getUrlSearchParams();
-      const drillDownLabel =
-        Array.isArray(searchParams['drillDownLabel']) &&
-        searchParams['drillDownLabel'][0] &&
-        typeof searchParams['drillDownLabel'][0] === 'string'
-          ? searchParams['drillDownLabel'][0]
-          : typeof searchParams['drillDownLabel'] === 'string' && searchParams['drillDownLabel'];
-
-      const pageSlug = narrowPageOrValueSlug(
-        Array.isArray(searchParams['pageSlug']) ? searchParams['pageSlug'][0] : searchParams['pageSlug']
-      );
+      const drillDownLabel = narrowDrilldownLabelFromSearchParams(searchParams);
+      const pageSlug = narrowPageSlugFromSearchParams(searchParams);
 
       return new ServiceScene({
         drillDownLabel: drillDownLabel ? drillDownLabel : undefined,
