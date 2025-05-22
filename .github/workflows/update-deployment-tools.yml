@@ -71,32 +71,40 @@ jobs:
       - name: Map input environment to libsonnet path
         id: libsonnet-file
         run: |
-          if [ "${{ inputs.env }}" = "all" ]; then
+          # Sanitize inputs
+          ENV_INPUT="${INPUTS_ENV}"
+          VERSION_INPUT="${INPUTS_VERSION}"
+
+          if [ "$ENV_INPUT" = "all" ]; then
             # Create comma-separated string of all paths
             paths="${{ env.DEV_LIBSONNET_PATH }},${{ env.STAGING_LIBSONNET_PATH }},${{ env.PROD_CANARY_LIBSONNET_PATH }},${{ env.PROD_LIBSONNET_PATH }}"
             echo "paths=$paths" >> $GITHUB_OUTPUT
-          elif [ "${{ inputs.env }}" = "dev" ]; then
+          elif [ "$ENV_INPUT" = "dev" ]; then
             echo "path=${{ env.DEV_LIBSONNET_PATH }}" >> $GITHUB_OUTPUT
-          elif [ "${{ inputs.env }}" = "staging" ]; then
+          elif [ "$ENV_INPUT" = "staging" ]; then
             echo "path=${{ env.STAGING_LIBSONNET_PATH }}" >> $GITHUB_OUTPUT
-          elif [ "${{ inputs.env }}" = "prod-canary" ]; then
+          elif [ "$ENV_INPUT" = "prod-canary" ]; then
             echo "path=${{ env.PROD_CANARY_LIBSONNET_PATH }}" >> $GITHUB_OUTPUT
-          elif [ "${{ inputs.env }}" = "prod" ]; then
+          elif [ "$ENV_INPUT" = "prod" ]; then
             echo "path=${{ env.PROD_LIBSONNET_PATH }}" >> $GITHUB_OUTPUT
           fi
 
       # Update version in the libsonnet file(s)
       - name: Update libsonnet
         run: |
+          # Sanitize inputs
+          ENV_INPUT="${INPUTS_ENV}"
+          VERSION_INPUT="${INPUTS_VERSION}"
+
           # Update all environments
-          if [ "${{ inputs.env }}" = "all" ]; then
+          if [ "$ENV_INPUT" = "all" ]; then
             # Split the comma-separated paths into an array
             IFS=',' read -ra paths <<< "${{ steps.libsonnet-file.outputs.paths }}"
             for path in "${paths[@]}"; do
               echo "Updating $path"
               count=$(grep -c "version: '.*'," "$path")
               if [ "$count" -eq 1 ]; then
-                sed -i "s/version: '.*',/version: '${{ inputs.version }}',/" "$path"
+                sed -i "s/version: '.*',/version: '$VERSION_INPUT',/" "$path"
                 git add "$path"
               else
                 echo "Not making any changes to $path;"
@@ -109,7 +117,7 @@ jobs:
             echo "Updating $path"
             count=$(grep -c "version: '.*'," "$path")
             if [ "$count" -eq 1 ]; then
-              sed -i "s/version: '.*',/version: '${{ inputs.version }}',/" "$path"
+              sed -i "s/version: '.*',/version: '$VERSION_INPUT',/" "$path"
               git add "$path"
             else
               echo "Not making any changes to $path;"
