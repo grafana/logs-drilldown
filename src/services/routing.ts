@@ -8,7 +8,7 @@ import { PageSlugs, ValueSlugs } from './enums';
 import { replaceSlash } from './extensions/links';
 import { narrowValueSlug } from './narrowing';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
-import { getPrimaryLabelFromScene } from './variableHelpers';
+import { getPrimaryLabelFromEmbeddedScene } from './variableHelpers';
 import {
   SERVICE_NAME,
   SERVICE_UI_LABEL,
@@ -175,7 +175,7 @@ export function getRouteParams(sceneObject: SceneObject) {
   let breakdownLabel, labelName, labelValue;
   const serviceScene = sceneGraph.getAncestor(sceneObject, ServiceScene);
   if (serviceScene.state.embedded) {
-    ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromScene(serviceScene));
+    ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromEmbeddedScene(serviceScene));
   } else {
     ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromUrl());
   }

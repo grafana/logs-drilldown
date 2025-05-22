@@ -14,7 +14,7 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
-import { getPrimaryLabelFromScene } from '../../services/variableHelpers';
+import { getPrimaryLabelFromEmbeddedScene } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { ServiceScene } from '../ServiceScene/ServiceScene';
 
@@ -40,7 +40,7 @@ export class EmbeddedLinkScene extends SceneObjectBase {
       return null;
     }
     const params = sceneUtils.getUrlState(indexScene);
-    const { labelName, labelValue } = getPrimaryLabelFromScene(serviceScene, labelsVar);
+    const { labelName, labelValue } = getPrimaryLabelFromEmbeddedScene(serviceScene, labelsVar);
 
     return (
       <LinkButton
