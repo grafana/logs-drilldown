@@ -596,7 +596,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
-    filters: initialLabels ?? [],
+    filters: (initialLabels ?? []).map((f) => ({ ...f, readOnly: true })),
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
     label: 'Labels',
