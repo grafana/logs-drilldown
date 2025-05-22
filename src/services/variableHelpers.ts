@@ -91,8 +91,7 @@ export const operatorFunction = function (variable: AdHocFiltersVariable) {
 /**
  * For embedded contexts, return the first label as primary label
  */
-export function getPrimaryLabelFromScene(scene: ServiceScene) {
-  const variable = getLabelsVariable(scene);
+export function getPrimaryLabelFromScene(scene: ServiceScene, variable = getLabelsVariable(scene)) {
   return {
     breakdownLabel: scene.state.drillDownLabel,
     labelName: variable.state.filters[0].key,

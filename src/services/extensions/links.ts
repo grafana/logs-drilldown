@@ -1,18 +1,10 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
 import { PluginExtensionLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
-import { AdHocFiltersVariable, DataSourceVariable, SceneTimeRangeLike } from '@grafana/scenes';
 
 import pluginJson from '../../plugin.json';
 import { LabelType } from '../fieldsTypes';
-import {
-  FieldFilter,
-  FilterOp,
-  IndexedLabelFilter,
-  LineFilterType,
-  PatternFilterOp,
-  PatternFilterType,
-} from '../filterTypes';
+import { FieldFilter, IndexedLabelFilter, LineFilterType, PatternFilterOp, PatternFilterType } from '../filterTypes';
 import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
@@ -292,38 +284,4 @@ export function escapeUrlPipeDelimiters(value: string | undefined): string {
 
 export function escapeURLDelimiters(value: string | undefined): string {
   return escapeUrlCommaDelimiters(escapeUrlPipeDelimiters(value));
-}
-
-export function getOpenInDrilldownURL(
-  datasource: DataSourceVariable,
-  expr: string,
-  labelsVar: AdHocFiltersVariable,
-  timeRange: SceneTimeRangeLike
-) {
-  const dataSourceUID = datasource.getValue()?.toString();
-
-  if (!dataSourceUID) {
-    throw new Error('Datasource is not defined!');
-  }
-  const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr);
-
-  let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUID, new URLSearchParams());
-  params = appendUrlParameter(UrlParameters.TimeRangeFrom, timeRange.state.from, params);
-  params = appendUrlParameter(UrlParameters.TimeRangeTo, timeRange.state.to, params);
-  params = setUrlParamsFromLabelFilters(labelFilters, params);
-
-  const primaryLabel = labelsVar.state.filters.find((filter) => filter.operator === FilterOp.Equal);
-  const labelName = primaryLabel?.keyLabel ?? primaryLabel?.key ?? '';
-  const labelValue = primaryLabel?.valueLabels?.[0] ?? primaryLabel?.value ?? '';
-
-  if (lineFilters?.length) {
-    params = setLineFilterUrlParams(lineFilters, params);
-  }
-  if (fields?.length) {
-    params = setUrlParamsFromFieldFilters(fields, params);
-  }
-  if (patternFilters?.length) {
-    params = setUrlParamsFromPatterns(patternFilters, params);
-  }
-  return createAppUrl(`/explore/${replaceSlash(labelName)}/${replaceSlash(labelValue)}/logs`, params);
 }

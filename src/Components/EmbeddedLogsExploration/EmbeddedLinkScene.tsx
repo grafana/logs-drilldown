@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { SceneComponentProps, sceneGraph, SceneObjectBase } from '@grafana/scenes';
+import { urlUtil } from '@grafana/data';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, sceneUtils } from '@grafana/scenes';
 import { LinkButton } from '@grafana/ui';
 
-import { getOpenInDrilldownURL } from '../../services/extensions/links';
+import { logger } from '../../services/logger';
+import { ROUTES } from '../../services/routing';
 import {
-  getDataSourceVariable,
   getFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
@@ -13,7 +14,9 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
-import { LOG_STREAM_SELECTOR_EXPR } from '../../services/variables';
+import { getPrimaryLabelFromScene } from '../../services/variableHelpers';
+import { IndexScene } from '../IndexScene/IndexScene';
+import { ServiceScene } from '../ServiceScene/ServiceScene';
 
 export class EmbeddedLinkScene extends SceneObjectBase {
   public static Component = ({ model }: SceneComponentProps<EmbeddedLinkScene>) => {
@@ -29,12 +32,19 @@ export class EmbeddedLinkScene extends SceneObjectBase {
     getLineFiltersVariable(model).useState();
     getPatternsVariable(model).useState();
     timeRange.useState();
-    const dataSourceVariable = getDataSourceVariable(model);
-    const queryExpr = sceneGraph.interpolate(model, LOG_STREAM_SELECTOR_EXPR);
+
+    const indexScene = sceneGraph.getAncestor(model, IndexScene);
+    const serviceScene = indexScene.getContentScene();
+    if (!(serviceScene instanceof ServiceScene) || !serviceScene.state.embedded) {
+      logger.error(new Error('Service scene does not exist, or is not embedded!'));
+      return null;
+    }
+    const params = sceneUtils.getUrlState(indexScene);
+    const { labelName, labelValue } = getPrimaryLabelFromScene(serviceScene, labelsVar);
 
     return (
       <LinkButton
-        href={getOpenInDrilldownURL(dataSourceVariable, queryExpr, labelsVar, timeRange)}
+        href={urlUtil.renderUrl(ROUTES.logs(labelValue, labelName), params)}
         variant="secondary"
         icon="arrow-right"
       >

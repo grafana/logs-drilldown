@@ -591,12 +591,12 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[], embedded?: boolean) {
+function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVariableFilter[], embedded?: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
-    filters: initialFilters ?? [],
+    filters: initialLabels ?? [],
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
     label: 'Labels',
