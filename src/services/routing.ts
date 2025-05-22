@@ -89,7 +89,6 @@ export const DRILLDOWN_URL_KEYS = [
   'panelState',
   VAR_PATTERNS,
   `var-${VAR_PATTERNS}`,
-  `var-${VAR_DATASOURCE}`,
   `var-${VAR_LABELS}`,
   `var-${VAR_FIELDS}`,
   `var-${VAR_LEVELS}`,

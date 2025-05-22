@@ -54,7 +54,6 @@ export function getValueBreakdownLink(newPath: ValueSlugs, label: string, servic
   const indexScene = sceneGraph.getAncestor(serviceScene, IndexScene);
   const urlLabelName = indexScene.state.routeMatch?.params.labelName;
   const urlLabelValue = indexScene.state.routeMatch?.params.labelValue;
-  console.log('getValueBreakdownLink', indexScene.state.embedded);
 
   if (!indexScene.state.embedded && urlLabelName && urlLabelValue) {
     let urlPath = buildValueBreakdownUrl(label, newPath, urlLabelValue, urlLabelName);
