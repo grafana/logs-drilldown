@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Version bump
-        uses: grafana/plugin-ci-workflows/actions/plugin/version-bump-changelog@main # zizmor: ignore[unpinned-uses]
+        uses: grafana/plugin-ci-workflows/actions/plugins/version-bump-changelog@main # zizmor: ignore[unpinned-uses]
         with:
           generate-changelog: ${{ inputs.generate-changelog }}
           version: ${{ inputs.version }}
