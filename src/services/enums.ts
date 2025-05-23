@@ -12,6 +12,7 @@ export enum PageSlugs {
   labels = 'labels',
   patterns = 'patterns',
   fields = 'fields',
+  embed = 'embed',
 }
 
 export enum ValueSlugs {
