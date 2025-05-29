@@ -14,6 +14,7 @@ import (
 	"github.com/grafana/explore-logs/generator/log"
 	"github.com/grafana/loki-client-go/loki"
 	"github.com/grafana/loki/pkg/push"
+	"github.com/prometheus/common/config"
 	"github.com/prometheus/common/model"
 )
 
@@ -22,6 +23,7 @@ func main() {
 	dry := flag.Bool("dry", false, "Dry run: log to stdout instead of Loki")
 	useOtel := flag.Bool("otel", true, "Ship logs for otel apps to OTel collector")
 	tenantId := flag.String("tenant-id", "", "Loki tenant ID")
+	token := flag.String("token", "", "GEL token")
 
 	useSyslog := flag.Bool("syslog", false, "Output RFC5424 formatted logs to syslog instead of stdout")
 	syslogProtocol := flag.String("syslog-network", "udp", "Syslog network type: 'udp' or 'tcp'")
@@ -39,6 +41,14 @@ func main() {
 
 	if *tenantId != "" {
 		cfg.TenantID = *tenantId
+	}
+
+	if *token != "" {
+		t := config.Secret(*token)
+		cfg.Client.BasicAuth = &config.BasicAuth{
+			Username: *tenantId,
+			Password: t,
+		}
 	}
 
 	client, err := loki.New(cfg)
