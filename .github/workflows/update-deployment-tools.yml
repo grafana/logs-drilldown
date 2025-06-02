@@ -1,0 +1,142 @@
+name: Update Deployment Tools
+description: |
+  Updates the version of a plugin in deployment_tools libsonnet files.
+  This action can update a single environment or all environments at once.
+  If provisioning from the plugins catalog, set catalog to true.
+  Be mindful if there is a mix of catalog and non-catalog plugins in the same environment, all will not work as intended.
+  It will modify the version string in the specified libsonnet files and create a commit with the changes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Plugin version to update deployment_tools to in the format 1.0.0'
+        required: true
+        type: string
+      env:
+        description: 'Environment to update'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod-canary
+          - prod
+          - all
+      catalog:
+        description: 'Provision from the plugins catalog'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  PLUGIN_ID: grafana-lokiexplore-app
+
+jobs:
+  build-latest-version:
+    runs-on: ubuntu-latest
+    env:
+      ENV_INPUT: ${{ inputs.env }}
+      VERSION_INPUT: ${{ inputs.version }}
+      CATALOG_INPUT: ${{ inputs.catalog }}
+    steps:
+      - name: Compute libsonnet paths
+        id: compute-paths
+        run: |
+          set -euo pipefail
+          echo "DEV_LIBSONNET_PATH=ksonnet/environments/hosted-grafana/waves/provisioned-plugins/$PLUGIN_ID/dev.libsonnet" >> "$GITHUB_ENV"
+          echo "STAGING_LIBSONNET_PATH=ksonnet/environments/hosted-grafana/waves/provisioned-plugins/$PLUGIN_ID/staging.libsonnet" >> "$GITHUB_ENV"
+          echo "PROD_CANARY_LIBSONNET_PATH=ksonnet/environments/hosted-grafana/waves/provisioned-plugins/$PLUGIN_ID/prod-canary.libsonnet" >> "$GITHUB_ENV"
+          echo "PROD_LIBSONNET_PATH=ksonnet/environments/hosted-grafana/waves/provisioned-plugins/$PLUGIN_ID/prod.libsonnet" >> "$GITHUB_ENV"
+
+      - name: Get secrets from Vault
+        id: get-secrets
+        uses: grafana/shared-workflows/actions/get-vault-secrets@main # zizmor: ignore[unpinned-uses]
+        env:
+          VAULT_INSTANCE: ops
+        with:
+          vault_instance: ${{ env.VAULT_INSTANCE }}
+          common_secrets: |
+            GITHUB_APP_ID=DrilldownBot:app_id
+            GITHUB_APP_PRIVATE_KEY=DrilldownBot:key
+
+      - name: Generate GitHub token
+        id: generate-github-token
+        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        with:
+          app-id: ${{ env.GITHUB_APP_ID }}
+          private-key: ${{ env.GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Check out deployment_tools repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: grafana/deployment_tools
+          ref: 'master'
+          token: ${{ steps.generate-github-token.token }}
+
+      # Map the selected environment to the corresponding libsonnet path(s)
+      - name: Map input environment to libsonnet path
+        id: libsonnet-file
+        run: |
+          set -euo pipefail
+          if [ "$ENV_INPUT" = "all" ]; then
+            echo "paths=$DEV_LIBSONNET_PATH,$STAGING_LIBSONNET_PATH,$PROD_CANARY_LIBSONNET_PATH,$PROD_LIBSONNET_PATH" >> $GITHUB_OUTPUT
+          else
+            case "$ENV_INPUT" in
+              dev) echo "path=$DEV_LIBSONNET_PATH" >> $GITHUB_OUTPUT ;;
+              staging) echo "path=$STAGING_LIBSONNET_PATH" >> $GITHUB_OUTPUT ;;
+              prod-canary) echo "path=$PROD_CANARY_LIBSONNET_PATH" >> $GITHUB_OUTPUT ;;
+              prod) echo "path=$PROD_LIBSONNET_PATH" >> $GITHUB_OUTPUT ;;
+            esac
+          fi
+
+      # Update version/catalog in the libsonnet file(s)
+      - name: Update libsonnet
+        run: |
+          set -euo pipefail
+          if [ "$ENV_INPUT" = "all" ]; then
+            IFS=',' read -ra paths <<< "${{ steps.libsonnet-file.outputs.paths }}"
+          else
+            paths=("${{ steps.libsonnet-file.outputs.path }}")
+          fi
+
+          for path in "${paths[@]}"; do
+            echo "Updating $path"
+            if [ "$CATALOG_INPUT" = "true" ]; then
+              count=$(grep -c "_catalog_version: '.*'," "$path")
+              if [ "$count" -eq 1 ]; then
+                sed -i "s/_catalog_version: '.*',/_catalog_version: '${VERSION_INPUT}',/" "$path"
+              else
+                echo "Unexpected format in $path; skipping"
+                exit 1
+              fi
+            else
+              count=$(grep -c "version: '.*'," "$path")
+              if [ "$count" -eq 1 ]; then
+                sed -i "s/version: '.*',/version: '${VERSION_INPUT}',/" "$path"
+              else
+                echo "Unexpected format in $path; skipping"
+                exit 1
+              fi
+            fi
+            git add "$path"
+          done
+
+      - name: Prepare commit message
+        id: commit-msg
+        run: |
+          set -euo pipefail
+          SUFFIX=""
+          if [ "$CATALOG_INPUT" = "true" ]; then
+            SUFFIX=" (catalog)"
+          fi
+          echo "message=chore: update $PLUGIN_ID version in $ENV_INPUT to [$VERSION_INPUT]$SUFFIX DrillDown[BOT]" >> $GITHUB_OUTPUT
+
+      - name: Commit update
+        id: commit-update
+        uses: grafana/github-api-commit-action@ccf9b520c5698380ad3b9619c5add427369b7ef1 # v0.2.0
+        with:
+          token: ${{ steps.generate-github-token.outputs.token }}
+          commit-message: ${{ steps.commit-msg.outputs.message }}
+          use-checkout-repo: true
