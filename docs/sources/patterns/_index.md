@@ -80,7 +80,7 @@ The next section is common across all the Logs Drilldown pages.
 
 Patterns tab user interface:
 
-- **Search** patterns field: Lets you search for text that appears in patterns, for example HTTP methods or response codes.
+- **Search patterns** field: Lets you search for text that appears in patterns, for example HTTP methods or response codes.
 - **>** : Expand or collapse the pattern row to view log lines with that pattern.
 - **Patterns** graph: The graph shows you the patterns alongside their log volumes.
 - **Include** and **Exclude** buttons: Lets you include or exclude the log pattern from the log view.
