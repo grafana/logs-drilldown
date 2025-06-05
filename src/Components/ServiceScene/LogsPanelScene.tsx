@@ -341,7 +341,14 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         // @ts-expect-error Requires Grafana 12.1
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         // @ts-expect-error Requires Grafana 12.1
-        .setOption('onLogOptionsChange', this.handleLogOptionsChange);
+        .setOption('onLogOptionsChange', this.handleLogOptionsChange)
+        // @ts-expect-error Requires Grafana 12.2
+        .setOption('logLineMenuCustomItems', [
+          {
+            label: 'Copy link to log line',
+            onClick: this.handleShareLogLine,
+          },
+        ]);
     }
 
     return panel.build();
@@ -387,19 +394,26 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   };
 
   private handleShareLogLineClick = (event: MouseEvent<HTMLElement>, row?: LogRowModel) => {
-    if (row?.rowId && this.state.body) {
-      const parent = this.getParentScene();
-      const timeRange = resolveRowTimeRangeForSharing(row);
-      copyText(
-        generateLogShortlink(
-          'panelState',
-          {
-            logs: { displayedFields: parent.state.displayedFields, id: row.uid },
-          },
-          timeRange
-        )
-      );
+    if (row) {
+      this.handleShareLogLine(row);
     }
+  };
+
+  private handleShareLogLine = (row: LogRowModel) => {
+    if (!this.state.body) {
+      return;
+    }
+    const parent = this.getParentScene();
+    const timeRange = resolveRowTimeRangeForSharing(row);
+    copyText(
+      generateLogShortlink(
+        'panelState',
+        {
+          logs: { displayedFields: parent.state.displayedFields, id: row.uid },
+        },
+        timeRange
+      )
+    );
   };
 
   private handleLabelFilterClick = (key: string, value: string, frame?: DataFrame) => {
