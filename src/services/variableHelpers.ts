@@ -1,11 +1,13 @@
 import { AdHocFiltersVariable, sceneGraph, SceneObject, SceneVariable } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
 import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
-import { getPrimaryLabelFromUrl } from './routing';
+import { getRouteParams } from './routing';
+import { getLabelsVariable } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
 
 export function getVariablesThatCanBeCleared(indexScene: IndexScene) {
@@ -34,8 +36,8 @@ export function clearVariables(sceneRef: SceneObject) {
 
   variablesToClear.forEach((variable) => {
     if (variable instanceof AdHocFiltersVariable && variable.state.key === 'adhoc_service_filter') {
-      let { labelName } = getPrimaryLabelFromUrl();
-      // getPrimaryLabelFromUrl returns the label name that exists in the URL, which is "service" not "service_name"
+      let { labelName } = getRouteParams(sceneRef);
+      // labelName is the label that exists in the URL, which is "service" not "service_name"
       if (labelName === SERVICE_UI_LABEL) {
         labelName = SERVICE_NAME;
       }
@@ -85,3 +87,17 @@ export const operatorFunction = function (variable: AdHocFiltersVariable) {
 
   return operators;
 };
+
+/**
+ * For embedded contexts, return the first label as primary label
+ */
+export function getPrimaryLabelFromEmbeddedScene(scene: ServiceScene, variable = getLabelsVariable(scene)) {
+  if (!scene.state.embedded) {
+    throw new Error('getPrimaryLabelFromUrl should be used instead when embedded!');
+  }
+  return {
+    breakdownLabel: scene.state.drillDownLabel,
+    labelName: variable.state.filters[0].key,
+    labelValue: variable.state.filters[0].value,
+  };
+}

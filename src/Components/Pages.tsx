@@ -1,12 +1,17 @@
-import { PageLayoutType, urlUtil } from '@grafana/data';
+import React, { useMemo } from 'react';
+
+import { dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
+import { usePluginComponent } from '@grafana/runtime';
 import {
   EmbeddedScene,
   SceneAppPage,
   SceneAppPageLike,
   SceneFlexLayout,
+  SceneReactObject,
   SceneRouteMatch,
   SceneTimeRange,
 } from '@grafana/scenes';
+import { LoadingPlaceholder } from '@grafana/ui';
 
 import { PageSlugs, ValueSlugs } from '../services/enums';
 import { logger } from '../services/logger';
@@ -24,6 +29,7 @@ import {
   SUB_ROUTES,
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
+import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
 import { IndexScene } from './IndexScene/IndexScene';
 
 export type RouteProps = { breakdownLabel?: string; labelName: string; labelValue: string };
@@ -39,6 +45,70 @@ function getServicesScene(routeMatch: OptionalRouteMatch) {
       $timeRange: new SceneTimeRange(DEFAULT_TIME_RANGE),
       routeMatch,
     }),
+  });
+}
+
+function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
+  // Component is always null, doesn't look like we can embed something from the same app?
+  const { component: LogsDrilldownComponent, isLoading } = usePluginComponent<EmbeddedLogsExplorationProps>(
+    'grafana-lokiexplore-app/embedded-logs-exploration/v1'
+  );
+
+  // We don't want to re-render the entire app every time the props change, only once when the plugin component is done loading
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const Component = useMemo(() => LogsDrilldownComponent, [isLoading]);
+  return isLoading || !Component ? <LoadingPlaceholder text={'Loading...'} /> : <Component {...props} />;
+}
+
+function getEmbedScene() {
+  const initialStart = 'now-15m';
+  const initialEnd = 'now';
+  const query = '{service_name="tempo-distributor"}';
+
+  const from = dateTimeParse(initialStart);
+  const to = dateTimeParse(initialEnd);
+
+  const timeRange: TimeRange = {
+    from,
+    raw: {
+      from: initialStart,
+      to: initialEnd,
+    },
+    to,
+  };
+
+  const $timeRange = new SceneTimeRange({
+    from: initialStart,
+    to: initialEnd,
+    value: timeRange,
+  });
+
+  const props: EmbeddedLogsExplorationProps = {
+    embedded: true,
+    query,
+    timeRangeState: $timeRange.state,
+  };
+
+  return new EmbeddedScene({
+    body: new SceneReactObject({
+      reactNode: <EmbeddedSceneWrapper {...props} />,
+    }),
+  });
+}
+
+export function makeEmbedPage() {
+  return new SceneAppPage({
+    drilldowns: [
+      {
+        getPage: (routeMatch: RouteMatch, parent) => makeBreakdownPage(routeMatch, parent, PageSlugs.embed),
+        routePath: ROUTE_DEFINITIONS.embed,
+      },
+    ],
+    getScene: (routeMatch) => getEmbedScene(),
+    layout: PageLayoutType.Custom,
+    routePath: `${PageSlugs.embed}`,
+    title: 'Grafana Logs Drilldown — Embedded',
+    url: prefixRoute(PageSlugs.embed),
   });
 }
 
@@ -70,10 +140,6 @@ export function makeIndexPage() {
       {
         getPage: (routeMatch: RouteMatch, parent) => makeBreakdownValuePage(routeMatch, parent, ValueSlugs.field),
         routePath: CHILD_ROUTE_DEFINITIONS.field,
-      },
-      {
-        getPage: () => makeRedirectPage(),
-        routePath: '*',
       },
     ],
     getScene: (routeMatch) => getServicesScene(routeMatch),

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil } from '@grafana/data';
+import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -37,6 +37,7 @@ import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
+import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
@@ -116,22 +117,26 @@ export interface IndexSceneState extends SceneObjectState {
   body?: LayoutScene;
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
-  controls: SceneObject[];
+  controls?: SceneObject[];
   ds?: LokiDatasource;
+  embedded?: boolean;
   initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
   routeMatch?: OptionalRouteMatch;
 }
 
+interface EmbeddedIndexSceneConstructor {
+  datasourceUid?: string;
+}
+
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
-  public constructor(state: Partial<IndexSceneState>) {
-    const { unsub, variablesScene } = getVariableSet(
-      getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
-      state.initialFilters
-    );
-
+  public constructor({
+    datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
+    ...state
+  }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
+    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.initialFilters, state.embedded);
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -192,6 +197,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
       controls: state.controls ?? controls,
+      embedded: state.embedded ?? false,
       // Need to clear patterns state when the class in constructed
       patterns: [],
       ...state,
@@ -230,14 +236,17 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     showLogsButton.setState({ hidden: false });
 
     if (!this.state.contentScene) {
-      stateUpdate.contentScene = getContentScene(this.state.routeMatch?.params.breakdownLabel);
+      stateUpdate.contentScene = this.getContentScene();
     }
     this.setTagProviders();
     this.setState(stateUpdate);
 
     this.updatePatterns(this.state, getPatternsVariable(this));
-    this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
-    this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+
+    if (!this.state.embedded) {
+      this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
+      this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+    }
 
     this._subs.add(
       this.subscribeToState((newState) => {
@@ -266,6 +275,22 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
     };
+  }
+
+  public getContentScene() {
+    if (this.state.embedded) {
+      const searchParams = urlUtil.getUrlSearchParams();
+      const drillDownLabel = narrowDrilldownLabelFromSearchParams(searchParams);
+      const pageSlug = narrowPageSlugFromSearchParams(searchParams);
+
+      return new ServiceScene({
+        drillDownLabel: drillDownLabel ? drillDownLabel : undefined,
+        embedded: true,
+        pageSlug: pageSlug ? pageSlug : PageSlugs.logs,
+      });
+    }
+
+    return getContentScene(this.state.routeMatch?.params.breakdownLabel);
   }
 
   private subscribeToCombinedFieldsVariable = (
@@ -566,12 +591,12 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVariableFilter[]) {
+function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVariableFilter[], embedded?: boolean) {
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
-    filters: initialFilters ?? [],
+    filters: (initialLabels ?? []).map((f) => ({ ...f, readOnly: true })),
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
     label: 'Labels',
@@ -653,6 +678,7 @@ function getVariableSet(initialDatasourceUid: string, initialFilters?: AdHocVari
   };
 
   const dsVariable = new DataSourceVariable({
+    hide: embedded ? VariableHide.hideVariable : VariableHide.dontHide,
     label: 'Data source',
     name: VAR_DATASOURCE,
     pluginId: 'loki',
