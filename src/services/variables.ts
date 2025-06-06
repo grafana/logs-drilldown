@@ -30,6 +30,7 @@ export type LogsQueryOptions = {
   structuredMetadataToAdd?: string;
 };
 
+export const EMBEDDED_VARIABLE_NAMESPACE = 'ld';
 export const VAR_LABELS = 'filters';
 export const VAR_LABELS_EXPR = '${filters}';
 export const VAR_LABELS_REPLICA = 'filters_replica';
