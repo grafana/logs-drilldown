@@ -603,6 +603,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   labelVariable._getOperators = function () {
@@ -617,6 +618,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     label: 'Detected fields',
     layout: 'combobox',
     name: VAR_FIELDS,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   fieldsVariable._getOperators = () => {
@@ -631,6 +633,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     label: 'Metadata',
     layout: 'combobox',
     name: VAR_METADATA,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   metadataVariable._getOperators = () => {
@@ -652,6 +655,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
     skipUrlSync: true,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   const levelsVariable = new AdHocFiltersVariable({
@@ -662,6 +666,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     layout: 'vertical',
     name: VAR_LEVELS,
     supportsMultiValueOperators: true,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   const lineFiltersVariable = new AdHocFiltersVariable({
@@ -671,6 +676,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     hide: VariableHide.hideVariable,
     layout: 'horizontal',
     name: VAR_LINE_FILTERS,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   lineFiltersVariable._getOperators = () => {
@@ -682,6 +688,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     label: 'Data source',
     name: VAR_DATASOURCE,
     pluginId: 'loki',
+    urlNamespace: embedded ? 'ds' : undefined,
     value: initialDatasourceUid,
   });
 
@@ -697,6 +704,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     name: VAR_JSON_FIELDS,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   const lineFormatVariable = new AdHocFiltersVariable({
@@ -706,6 +714,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     layout: 'horizontal',
     name: VAR_LINE_FORMAT,
+    urlNamespace: embedded ? 'ds' : undefined,
   });
 
   return {
@@ -723,12 +732,14 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
         new CustomVariable({
           hide: VariableHide.hideVariable,
           name: VAR_PATTERNS,
+          urlNamespace: embedded ? 'ds' : undefined,
           value: '',
         }),
         new AdHocFiltersVariable({
           expressionBuilder: renderLogQLLineFilter,
           hide: VariableHide.hideVariable,
           name: VAR_LINE_FILTER,
+          urlNamespace: embedded ? 'ds' : undefined,
         }),
         lineFiltersVariable,
 
@@ -738,6 +749,7 @@ function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVaria
           name: VAR_LOGS_FORMAT,
           options: [{ label: MIXED_FORMAT_EXPR, value: MIXED_FORMAT_EXPR }],
           skipUrlSync: true,
+          urlNamespace: embedded ? 'ds' : undefined,
           value: MIXED_FORMAT_EXPR,
         }),
       ],
