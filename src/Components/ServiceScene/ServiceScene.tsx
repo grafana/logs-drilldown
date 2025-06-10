@@ -431,10 +431,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
 
-    if (this.state.embedded && !getMetadataService().getServiceSceneState()?.embedded) {
-      getMetadataService().setEmbedded(this.state.embedded);
-    }
-
     // Migrations
     migrateLineFilterV1(this);
   }

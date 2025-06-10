@@ -37,6 +37,7 @@ import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
+import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
@@ -271,6 +272,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(fieldsAndMetadataVariable.subscribeToState(this.subscribeToCombinedFieldsVariable));
 
     const clearKeyBindings = setupKeyboardShortcuts(this);
+
+    // If there is a mismatch between the cached singleton and the current state, make sure we update the singleton before the children scenes are activated
+    if (
+      this.state.embedded !== undefined &&
+      this.state.embedded !== getMetadataService().getServiceSceneState()?.embedded
+    ) {
+      getMetadataService().setEmbedded(this.state.embedded);
+    }
 
     return () => {
       clearKeyBindings();
