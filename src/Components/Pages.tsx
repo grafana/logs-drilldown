@@ -67,7 +67,7 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
   return null;
 }
 
-function getEmbedScene() {
+function getEmbeddedScene() {
   const initialStart = 'now-15m';
   const initialEnd = 'now';
   const query = '{service_name="tempo-distributor"}';
@@ -111,7 +111,7 @@ export function makeEmbedPage() {
         routePath: ROUTE_DEFINITIONS.embed,
       },
     ],
-    getScene: (routeMatch) => getEmbedScene(),
+    getScene: (routeMatch) => getEmbeddedScene(),
     layout: PageLayoutType.Custom,
     routePath: `${PageSlugs.embed}`,
     title: 'Grafana Logs Drilldown — Embedded',
