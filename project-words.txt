@@ -526,3 +526,8 @@ PROCID
 MSGID
 noninteractive
 favorited
+envsubst
+gettext
+otelcol
+patsubst
+shellcheck
