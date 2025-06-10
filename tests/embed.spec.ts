@@ -57,7 +57,7 @@ async function assertLogsTabActive(page: Page) {
   await expect(page).toHaveURL((url) => url.search.includes(`pageSlug=${PageSlugs.logs}`));
 }
 
-test.describe.only('embed', () => {
+test.describe('embed', () => {
   let explorePage: ExplorePage;
 
   test.beforeEach(async ({ page }, testInfo) => {
