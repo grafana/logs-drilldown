@@ -103,7 +103,7 @@ function getEmbeddedScene() {
   });
 }
 
-export function makeEmbedPage() {
+export function makeEmbeddedPage() {
   return new SceneAppPage({
     drilldowns: [
       {
