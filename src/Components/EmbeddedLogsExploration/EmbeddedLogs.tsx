@@ -40,7 +40,7 @@ export function buildLogsExplorationFromState({
     ...state,
     $timeRange,
     embedded: true,
-    initialFilters: initialLabels,
+    readOnlyLabelFilters: initialLabels,
   });
 }
 

@@ -120,8 +120,8 @@ export interface IndexSceneState extends SceneObjectState {
   controls?: SceneObject[];
   ds?: LokiDatasource;
   embedded?: boolean;
-  initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
+  readOnlyLabelFilters?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
 }
 
@@ -136,7 +136,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
     ...state
   }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.initialFilters, state.embedded);
+    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.readOnlyLabelFilters, state.embedded);
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -591,12 +591,16 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVariableFilter[], embedded?: boolean) {
+function getVariableSet(
+  initialDatasourceUid: string,
+  readOnlyLabelFilters?: AdHocVariableFilter[],
+  embedded?: boolean
+) {
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
-    filters: (initialLabels ?? []).map((f) => ({ ...f, readOnly: true })),
+    filters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, readOnly: true })),
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
     label: 'Labels',
