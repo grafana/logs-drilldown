@@ -11,12 +11,4 @@ interface EmbeddedLogsExplorationFromQuery extends IndexSceneState {
   timeRangeState: SceneTimeRangeState;
 }
 
-interface EmbeddedLogsExplorationFromFilters extends IndexSceneState {
-  datasourceUid?: string;
-  onTimeRangeChange: (timeRange: TimeRange) => void;
-  query?: never;
-  streamSelectors: AbstractLabelMatcher[];
-  timeRangeState?: SceneTimeRangeState;
-}
-
-export type EmbeddedLogsExplorationProps = EmbeddedLogsExplorationFromQuery | EmbeddedLogsExplorationFromFilters;
+export type EmbeddedLogsExplorationProps = EmbeddedLogsExplorationFromQuery;

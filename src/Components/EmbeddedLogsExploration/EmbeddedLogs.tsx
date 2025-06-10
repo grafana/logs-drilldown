@@ -22,6 +22,7 @@ export function buildLogsExplorationFromState({
   });
 
   if (!query) {
+    console.error('No query parameter found! Please pass in a valid logQL query string when embedding Logs Drilldown.');
     return null;
   }
 
