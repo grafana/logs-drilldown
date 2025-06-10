@@ -4,6 +4,7 @@ export interface LabelFiltersVariableProps extends Partial<AdHocFiltersVariable[
   readonlyFilters?: AdHocFilterWithLabels[];
 }
 
+// @todo - can we fix readonly filters persisting upstream in scenes instead of extending the AdHocFiltersVariable?
 export class LabelFiltersVariable extends AdHocFiltersVariable {
   private readonlyFilters?: AdHocFilterWithLabels[];
 
