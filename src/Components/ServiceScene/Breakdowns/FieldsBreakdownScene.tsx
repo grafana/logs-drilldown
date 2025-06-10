@@ -146,7 +146,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
 
   private getPrimaryLabel(): RouteProps {
     let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
-    if (!labelName) {
+    if (!labelName || !labelValue) {
       const variable = getLabelsVariable(this);
       labelName = variable.state.filters[0].key;
       labelValue = variable.state.filters[0].value;
