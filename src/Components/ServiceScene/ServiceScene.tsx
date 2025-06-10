@@ -323,8 +323,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
       navigateToIndex();
     } else {
-      // @todo set initial labels?
-      console.warn('Cannot redirect when embedded');
+      // Initial label set should be locked, so this should never happen when in an embedded state unless something has gone very wrong.
+      console.error('Cannot redirect to start when embedded');
     }
   }
 
