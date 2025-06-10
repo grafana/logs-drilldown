@@ -64,6 +64,10 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
   if (Component) {
     return <Component {...props} />;
   }
+
+  console.error(
+    'No grafana-lokiexplore-app/embedded-logs-exploration/v1 component found in the Grafana registry! You might need to restart your Grafana instance?'
+  );
   return null;
 }
 
