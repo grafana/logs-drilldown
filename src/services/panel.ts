@@ -29,7 +29,6 @@ import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
-// import { LogsSceneQueryRunner } from './LogsSceneQueryRunner';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
 import { getLogOption } from './store';
 import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
