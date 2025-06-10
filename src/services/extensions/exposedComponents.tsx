@@ -23,7 +23,7 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
 
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
       <EmbeddedLogsExploration {...props} />
     </Suspense>
   );
