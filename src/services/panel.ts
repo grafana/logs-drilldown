@@ -29,7 +29,7 @@ import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
-import { LogsSceneQueryRunner } from './LogsSceneQueryRunner';
+// import { LogsSceneQueryRunner } from './LogsSceneQueryRunner';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
 import { getLogOption } from './store';
 import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
@@ -264,7 +264,7 @@ export function sortLevelTransformation() {
 }
 
 export function getResourceQueryRunner(queries: LokiQuery[]) {
-  return new LogsSceneQueryRunner({
+  return new SceneQueryRunner({
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: queries,
   });

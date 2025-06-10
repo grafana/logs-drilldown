@@ -96,6 +96,7 @@ function getEmbeddedScene() {
 
   const props: EmbeddedLogsExplorationProps = {
     embedded: true,
+    embedderName: 'EmbeddedLogs',
     query,
     timeRangeState: $timeRange.state,
   };

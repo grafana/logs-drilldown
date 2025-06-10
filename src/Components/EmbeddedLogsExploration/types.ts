@@ -4,6 +4,7 @@ import { SceneTimeRangeState } from '@grafana/scenes';
 import { IndexSceneState } from 'Components/IndexScene/IndexScene';
 
 interface EmbeddedLogsCommonProps extends IndexSceneState {
+  embedderName: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   query: string;
   timeRangeState: SceneTimeRangeState;
