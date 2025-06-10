@@ -9,7 +9,7 @@ export class LabelFiltersVariable extends AdHocFiltersVariable {
 
   constructor(props: LabelFiltersVariableProps) {
     const { readonlyFilters, ...state } = props;
-    super(state);
+    super({ filters: readonlyFilters, ...state });
 
     this.readonlyFilters = readonlyFilters;
 
