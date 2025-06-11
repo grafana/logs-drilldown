@@ -2,6 +2,7 @@ import { AppEvents } from '@grafana/data';
 import { getAppEvents } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
+import { areArraysEqual } from './comparison';
 import { addFiltersToSet, getFilterSetKey } from './variableHelpers';
 
 export interface LabelFiltersVariableProps extends Partial<AdHocFiltersVariable['state']> {
@@ -18,8 +19,8 @@ export class ReadOnlyAdHocFiltersVariable extends AdHocFiltersVariable {
 
     this.readonlyFilters = readonlyFilters;
 
-    this.subscribeToState((newState) => {
-      if (this.readonlyFilters?.length) {
+    this.subscribeToState((newState, prevState) => {
+      if (this.readonlyFilters?.length && !areArraysEqual(newState.filters, prevState.filters)) {
         this.addReadonlyFilters(newState);
         this.setReadOnlyFilters(newState);
       }

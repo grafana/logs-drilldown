@@ -53,7 +53,7 @@ export function clearVariables(sceneRef: SceneObject) {
 
   variablesToClear.forEach((variable) => {
     if (variable instanceof ReadOnlyAdHocFiltersVariable) {
-      let { labelName } = getRouteParams(sceneRef);
+      let { labelName, labelValue } = getRouteParams(sceneRef);
       // labelName is the label that exists in the URL, which is "service" not "service_name"
       if (labelName === SERVICE_UI_LABEL) {
         labelName = SERVICE_NAME;
@@ -61,11 +61,13 @@ export function clearVariables(sceneRef: SceneObject) {
       const readonlyFilters = variable.getReadonlyFilters();
       const readonlyFiltersSet = new Set<string>();
       addFiltersToSet(readonlyFilters ?? [], readonlyFiltersSet);
-      variable.setState({
-        filters: variable.state.filters.filter((filter) => {
-          return filter.key === labelName || readonlyFiltersSet.has(getFilterSetKey(filter));
-        }),
+      const filters = variable.state.filters.filter((filter) => {
+        return (
+          (filter.key === labelName && isOperatorInclusive(filter.operator) && filter.value === labelValue) ||
+          readonlyFiltersSet.has(getFilterSetKey(filter))
+        );
       });
+      variable.setState({ filters });
     } else if (variable instanceof AdHocFiltersVariable) {
       variable.setState({
         filters: [],

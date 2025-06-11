@@ -198,7 +198,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         // The "primary" label used in the URL is no longer active, pick a new one
         if (
           !newState.filters.some(
-            (f) => f.key === labelName && isOperatorInclusive(f.operator) && replaceSlash(f.value) === labelValue
+            (f) =>
+              f.key === labelName &&
+              isOperatorInclusive(f.operator) &&
+              replaceSlash(f.value) === replaceSlash(labelValue)
           )
         ) {
           const newPrimaryLabel = newState.filters.find(
