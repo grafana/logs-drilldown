@@ -56,7 +56,6 @@ export class ReadOnlyAdHocFiltersVariable extends AdHocFiltersVariable {
 
     // Only update if there are actual changes
     if (hasChanges) {
-      console.log('has changes', updatedFilters);
       this.setState({ filters: updatedFilters });
     }
   };
