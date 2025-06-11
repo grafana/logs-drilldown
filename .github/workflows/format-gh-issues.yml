@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      contents: read
     steps:
       - name: Get secrets from Vault
         id: get-secrets
@@ -38,7 +39,7 @@ jobs:
         run: |
           gh issue edit "$NUMBER" --add-label "$LABELS"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.issue.number }}
           LABELS: needs-triage
