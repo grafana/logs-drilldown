@@ -68,6 +68,7 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
   console.error(
     'No grafana-lokiexplore-app/embedded-logs-exploration/v1 component found in the Grafana registry! You might need to restart your Grafana instance?'
   );
+
   return null;
 }
 
@@ -103,7 +104,8 @@ function getEmbeddedScene() {
 
   return new EmbeddedScene({
     body: new SceneReactObject({
-      reactNode: <EmbeddedSceneWrapper {...props} />,
+      component: EmbeddedSceneWrapper,
+      props,
     }),
   });
 }
