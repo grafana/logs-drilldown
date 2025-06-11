@@ -19,12 +19,14 @@ export class ReadOnlyAdHocFiltersVariable extends AdHocFiltersVariable {
 
     this.readonlyFilters = readonlyFilters;
 
-    this.subscribeToState((newState, prevState) => {
-      if (this.readonlyFilters?.length && !areArraysEqual(newState.filters, prevState.filters)) {
-        this.addReadonlyFilters(newState);
-        this.setReadOnlyFilters(newState);
-      }
-    });
+    this._subs.add(
+      this.subscribeToState((newState, prevState) => {
+        if (this.readonlyFilters?.length && !areArraysEqual(newState.filters, prevState.filters)) {
+          this.addReadonlyFilters(newState);
+          this.setReadOnlyFilters(newState);
+        }
+      })
+    );
   }
 
   /**
