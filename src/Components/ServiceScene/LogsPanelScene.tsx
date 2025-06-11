@@ -214,8 +214,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
   showLogsError(error: string) {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
-
-    // @here
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const clearableVariables = getVariablesThatCanBeCleared(indexScene);
     this.setState({ canClearFilters: clearableVariables.length > 0, error, logsVolumeCollapsedByError });
