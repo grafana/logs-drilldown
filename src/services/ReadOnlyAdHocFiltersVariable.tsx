@@ -5,7 +5,7 @@ import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 import { areArraysEqual } from './comparison';
 import { addFiltersToSet, getFilterSetKey } from './variableHelpers';
 
-export interface LabelFiltersVariableProps extends Partial<AdHocFiltersVariable['state']> {
+export interface ReadOnlyAdHocFiltersVariableProps extends Partial<AdHocFiltersVariable['state']> {
   readonlyFilters?: AdHocFilterWithLabels[];
 }
 
@@ -13,7 +13,7 @@ export interface LabelFiltersVariableProps extends Partial<AdHocFiltersVariable[
 export class ReadOnlyAdHocFiltersVariable extends AdHocFiltersVariable {
   private readonly readonlyFilters?: AdHocFilterWithLabels[];
 
-  constructor(props: LabelFiltersVariableProps) {
+  constructor(props: ReadOnlyAdHocFiltersVariableProps) {
     const { readonlyFilters, ...state } = props;
     super({ filters: readonlyFilters, ...state });
 
@@ -80,7 +80,6 @@ export class ReadOnlyAdHocFiltersVariable extends AdHocFiltersVariable {
           }
         });
 
-        console.warn('Cannot remove readonly filters!');
         this.setState({ filters: dedupedFiltersWithReadonly });
 
         const appEvents = getAppEvents();
