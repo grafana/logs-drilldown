@@ -1,3 +1,5 @@
+import { AppEvents } from '@grafana/data';
+import { getAppEvents } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
 export interface LabelFiltersVariableProps extends Partial<AdHocFiltersVariable['state']> {
@@ -16,7 +18,39 @@ export class LabelFiltersVariable extends AdHocFiltersVariable {
 
     // Subscribe to state changes to update readOnly and origin for matching filters
     this.subscribeToState((newState) => {
-      if (newState.filters && this.readonlyFilters?.length) {
+      if (this.readonlyFilters?.length) {
+        // If readonly filters were somehow removed, let's add them back in
+        if (
+          !this.readonlyFilters.every((readonlyFilter) =>
+            newState.filters.find(
+              (filter) =>
+                filter.operator === readonlyFilter.operator &&
+                filter.value === readonlyFilter.value &&
+                filter.key === readonlyFilter.key
+            )
+          )
+        ) {
+          const filterSet = new Set();
+          const dedupedFiltersWithReadonly = [...this.readonlyFilters, ...newState.filters].filter((filter) => {
+            const filterKey = filter.key + '_' + filter.operator + '_' + filter.value;
+            if (filterSet.has(filterKey)) {
+              return false;
+            } else {
+              filterSet.add(filterKey);
+              return true;
+            }
+          });
+
+          console.warn('Cannot remove readonly filters!');
+          this.setState({ filters: dedupedFiltersWithReadonly });
+
+          const appEvents = getAppEvents();
+          appEvents.publish({
+            payload: [`Cannot remove ${this.readonlyFilters?.[0]?.origin} managed filters!`],
+            type: AppEvents.alertError.name,
+          });
+        }
+
         let hasChanges = false;
         const updatedFilters = newState.filters.map((filter) => {
           // Check if this filter matches any of the initial filters
@@ -43,6 +77,7 @@ export class LabelFiltersVariable extends AdHocFiltersVariable {
 
         // Only update if there are actual changes
         if (hasChanges) {
+          console.log('has changes', updatedFilters);
           this.setState({ filters: updatedFilters });
         }
       }
