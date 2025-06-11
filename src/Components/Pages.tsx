@@ -75,7 +75,7 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
 function getEmbeddedScene() {
   const initialStart = 'now-15m';
   const initialEnd = 'now';
-  const query = '{service_name="tempo-distributorsss", yo_momma="so-nice"}';
+  const query = '{service_name="tempo-distributor"}';
 
   const from = dateTimeParse(initialStart);
   const to = dateTimeParse(initialEnd);

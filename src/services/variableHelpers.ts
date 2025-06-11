@@ -52,14 +52,24 @@ export function clearVariables(sceneRef: SceneObject) {
   const variablesToClear = getVariablesThatCanBeCleared(indexScene);
 
   variablesToClear.forEach((variable) => {
-    if (variable instanceof AdHocFiltersVariable && variable.state.key === 'adhoc_service_filter') {
+    if (variable instanceof LabelFiltersVariable) {
       let { labelName } = getRouteParams(sceneRef);
       // labelName is the label that exists in the URL, which is "service" not "service_name"
       if (labelName === SERVICE_UI_LABEL) {
         labelName = SERVICE_NAME;
       }
+      const readonlyFilters = variable.getReadonlyFilters();
       variable.setState({
-        filters: variable.state.filters.filter((filter) => filter.key === labelName),
+        filters: variable.state.filters.filter(
+          (filter) =>
+            filter.key === labelName ||
+            readonlyFilters?.find(
+              (readonlyFilter) =>
+                readonlyFilter.key === filter.key &&
+                readonlyFilter.value === filter.value &&
+                readonlyFilter.operator === filter.operator
+            )
+        ),
       });
     } else if (variable instanceof AdHocFiltersVariable) {
       variable.setState({
