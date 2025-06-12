@@ -35,13 +35,13 @@ import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
-import { LabelFiltersVariable } from '../../services/LabelFiltersVariable';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
 import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
+import { ReadOnlyAdHocFiltersVariable } from '../../services/ReadOnlyAdHocFiltersVariable';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -613,7 +613,7 @@ function getVariableSet(
   embedded?: boolean,
   embedderName?: string
 ) {
-  const labelVariable = new LabelFiltersVariable({
+  const labelVariable = new ReadOnlyAdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
