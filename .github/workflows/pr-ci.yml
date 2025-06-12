@@ -25,7 +25,7 @@ jobs:
 
       # Deploy provisioned plugin to Grafana Cloud
       grafana-cloud-deployment-type: provisioned
-      argo-workflow-slack-channel: '#grafana-plugins-platform-ci'
+      argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
 
       # Add the git head ref sha to the plugin version as suffix (`+abcdef`). This is required for CD builds.
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
