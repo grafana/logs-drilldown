@@ -1,9 +1,7 @@
 import { TimeRange } from '@grafana/data';
 import { SceneTimeRangeState } from '@grafana/scenes';
 
-import { IndexSceneState } from 'Components/IndexScene/IndexScene';
-
-interface EmbeddedLogsCommonProps extends IndexSceneState {
+interface EmbeddedLogsCommonProps {
   embedderName: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   query: string;
@@ -11,12 +9,12 @@ interface EmbeddedLogsCommonProps extends IndexSceneState {
 }
 
 // Datasource ID is required when embedded in another application
-interface EmbeddedLogsExplorationFromQuery extends IndexSceneState {
+interface EmbeddedLogsExplorationFromQuery {
   datasourceUid: string;
 }
 
 // But not required when testing, as we expect the datasource id to get pulled from the URL instead
-interface EmbeddedLogsExplorationTestingRoute extends IndexSceneState {
+interface EmbeddedLogsExplorationTestingRoute {
   datasourceUid?: string;
 }
 
