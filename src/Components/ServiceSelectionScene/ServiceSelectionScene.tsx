@@ -568,6 +568,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setTitle(labelValue)
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
+        // @ts-expect-error Requires Grafana 12.2
+        .setOption('fontSize', 'small')
         .build(),
     });
 
@@ -804,7 +806,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   private getQueryOptionsToolbar() {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    return indexScene.state.controls.find((control) => control instanceof ToolbarScene) as ToolbarScene | undefined;
+    return indexScene.state.controls?.find((control) => control instanceof ToolbarScene) as ToolbarScene | undefined;
   }
 
   private onSupportedAggregatedMetricTimeRange() {

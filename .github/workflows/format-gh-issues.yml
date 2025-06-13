@@ -3,23 +3,43 @@ on:
   issues:
     types:
       - opened
-     
+
 jobs:
-  label-chore:
+  label-and-add-to-project:
     name: Add common labels and project to issues
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      contents: read
     steps:
-      - name: Add common labels and project to issues
-        run: 
-            gh issue edit "$NUMBER" --add-label "$LABELS"
-            gh project item-add --project "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL"
+      - name: Get secrets from Vault
+        id: get-secrets
+        uses: grafana/shared-workflows/actions/get-vault-secrets@main # zizmor: ignore[unpinned-uses]
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VAULT_INSTANCE: ops
+        with:
+          vault_instance: ${{ env.VAULT_INSTANCE }}
+          common_secrets: |
+            GITHUB_APP_ID=DrilldownBot:app_id
+            GITHUB_APP_PRIVATE_KEY=DrilldownBot:key
+
+      - uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+        id: app-token
+        with:
+          app-id: ${{ env.GITHUB_APP_ID }}
+          private-key: ${{ env.GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
+        with:
+          project-url: https://github.com/orgs/grafana/projects/702
+          github-token: ${{ steps.app-token.outputs.token }}
+
+      - name: Add common labels and project to issues
+        run: |
+          gh issue edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.issue.number }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
           LABELS: needs-triage
-          PROJECT_NUMBER: 702
-          PROJECT_OWNER: grafana

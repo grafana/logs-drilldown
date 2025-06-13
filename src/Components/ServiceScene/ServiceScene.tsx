@@ -3,6 +3,7 @@ import React from 'react';
 import { LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
+  AdHocFilterWithLabels,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -13,6 +14,8 @@ import {
   SceneObject,
   SceneObjectBase,
   SceneObjectState,
+  SceneObjectUrlSyncConfig,
+  SceneObjectUrlValues,
   SceneQueryRunner,
   SceneVariableValueChangedEvent,
   VariableDependencyConfig,
@@ -28,9 +31,10 @@ import { filterUnusedJSONFilters } from '../../services/filters';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
 import { migrateLineFilterV1 } from '../../services/migrations';
+import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from '../../services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { getDrilldownSlug, getDrilldownValueSlug, getPrimaryLabelFromUrl } from '../../services/routing';
+import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -47,6 +51,7 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import {
@@ -79,6 +84,7 @@ type ServiceSceneLoadingStates = {
 };
 
 export interface ServiceSceneCustomState {
+  embedded?: boolean;
   fieldsCount?: number;
   labelsCount?: number;
   loading?: boolean;
@@ -96,6 +102,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
+  pageSlug?: PageSlugs | ValueSlugs;
 }
 
 export function getLogsPanelFrame(data: PanelData | undefined) {
@@ -132,6 +139,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     variableNames: [VAR_DATASOURCE, VAR_LABELS, VAR_FIELDS, VAR_PATTERNS, VAR_LEVELS],
   });
 
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: [pageSlugUrlKey, drilldownLabelUrlKey] });
+
   public constructor(
     state: MakeOptional<
       ServiceSceneState,
@@ -165,65 +174,50 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private setSubscribeToLabelsVariable() {
-    const variable = getLabelsVariable(this);
-    if (variable.state.filters.length === 0) {
+    const labelsVariable = getLabelsVariable(this);
+    if (labelsVariable.state.filters.length === 0) {
       this.redirectToStart();
       return;
     }
+
     this._subs.add(
-      variable.subscribeToState((newState, prevState) => {
+      labelsVariable.subscribeToState((newState, prevState) => {
+        // If there are no label filters, the logQL query is not valid, redirect back to start so the user can select an initial label/value pair.
         if (newState.filters.length === 0) {
           this.redirectToStart();
         }
 
         // If we remove the service name filter, we should redirect to the start
-        let { breakdownLabel, labelName, labelValue } = getPrimaryLabelFromUrl();
+        let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
 
         // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
         if (labelName === SERVICE_UI_LABEL) {
           labelName = SERVICE_NAME;
         }
-        const indexScene = sceneGraph.getAncestor(this, IndexScene);
-        const prevRouteMatch = indexScene.state.routeMatch;
 
         // The "primary" label used in the URL is no longer active, pick a new one
         if (
           !newState.filters.some(
-            (f) => f.key === labelName && isOperatorInclusive(f.operator) && replaceSlash(f.value) === labelValue
+            (f) =>
+              f.key === labelName &&
+              isOperatorInclusive(f.operator) &&
+              replaceSlash(f.value) === replaceSlash(labelValue)
           )
         ) {
           const newPrimaryLabel = newState.filters.find(
             (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
           );
+
+          // If we have a new label let's update the slugs in the url
           if (newPrimaryLabel) {
-            const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
-              ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
-              : replaceSlash(newPrimaryLabel.value);
-            indexScene.setState({
-              routeMatch: {
-                ...prevRouteMatch,
-                isExact: prevRouteMatch?.isExact ?? true,
-                params: {
-                  ...prevRouteMatch?.params,
-                  labelName: newPrimaryLabel.key === SERVICE_NAME ? SERVICE_UI_LABEL : newPrimaryLabel.key,
-                  // If there are a bunch of values separated by pipe, like labels that come from explore, let's truncate the value so the slug doesn't get too long
-                  labelValue: newPrimaryLabelValue.split('|')[0],
-                },
-                path: prevRouteMatch?.path ?? '',
-                url: prevRouteMatch?.url ?? '',
-              },
-            });
+            this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
 
-            this.resetTabCount();
-
-            if (!breakdownLabel) {
-              navigateToDrilldownPage(getDrilldownSlug(), this);
-            } else {
-              navigateToValueBreakdown(getDrilldownValueSlug(), breakdownLabel, this);
-            }
+            // Otherwise we don't have any labels, redirect back to start
           } else {
             this.redirectToStart();
           }
+
+          // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
         } else if (!areArraysEqual(newState.filters, prevState.filters)) {
           this.state.$patternsData?.runQueries();
           this.state.$detectedLabelsData?.runQueries();
@@ -234,26 +228,107 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     );
   }
 
-  private redirectToStart() {
-    // Clear ongoing queries
-    this.setState({
-      $data: undefined,
-      $detectedFieldsData: undefined,
-      $detectedLabelsData: undefined,
-      $logsCount: undefined,
-      $patternsData: undefined,
-      body: undefined,
-      fieldsCount: undefined,
-      labelsCount: undefined,
-      logsCount: undefined,
-      patternsCount: undefined,
-      totalLogsCount: undefined,
-    });
-    getMetadataService().setServiceSceneState(this.state);
-    this._subs.unsubscribe();
+  /**
+   * Update url slugs when primary label has changed
+   */
+  private handlePrimaryLabelChange(newPrimaryLabel: AdHocFilterWithLabels<{}>, breakdownLabel: string | undefined) {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const prevRouteMatch = indexScene.state.routeMatch;
 
-    // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
-    navigateToIndex();
+    const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
+      ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
+      : replaceSlash(newPrimaryLabel.value);
+    indexScene.setState({
+      routeMatch: {
+        ...prevRouteMatch,
+        isExact: prevRouteMatch?.isExact ?? true,
+        params: {
+          ...prevRouteMatch?.params,
+          labelName: newPrimaryLabel.key === SERVICE_NAME ? SERVICE_UI_LABEL : newPrimaryLabel.key,
+          // If there are a bunch of values separated by pipe, like labels that come from explore, let's truncate the value so the slug doesn't get too long
+          labelValue: newPrimaryLabelValue.split('|')[0],
+        },
+        path: prevRouteMatch?.path ?? '',
+        url: prevRouteMatch?.url ?? '',
+      },
+    });
+
+    // reset tab counts to trigger new queries after redirect
+    this.resetTabCount();
+
+    // If we don't have a breakdown label then the user has changed labels while in an aggregated breakdown or other top level slug (labels, fields, patterns, logs), redirect to fix any potentially invalid label slugs.
+    if (!breakdownLabel) {
+      const slug = this.getPageSlug();
+      if (slug) {
+        navigateToDrilldownPage(slug, this);
+      } else {
+        throw new Error(`Invalid page slug ${slug}`);
+      }
+      // If we have a breakdown label then the user has changed labels while in a value breakdown, redirect to fix any potentially invalid value slugs.
+    } else {
+      const valueSlug = this.getDrilldownValueSlug();
+      if (valueSlug) {
+        navigateToValueBreakdown(valueSlug, breakdownLabel, this);
+      } else {
+        throw new Error(`Invalid value slug ${valueSlug}`);
+      }
+    }
+  }
+
+  private getPageSlug() {
+    const drilldownSlug = narrowPageSlug(getDrilldownSlug());
+    if (drilldownSlug && drilldownSlug !== PageSlugs.embed) {
+      return drilldownSlug;
+    }
+    const narrowedPageSlug = narrowPageSlug(this.state.pageSlug);
+    if (narrowedPageSlug) {
+      return narrowedPageSlug;
+    }
+
+    return undefined;
+  }
+
+  private getDrilldownPageSlug() {
+    const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
+    if (drilldownValueSlug) {
+      return drilldownValueSlug;
+    }
+    return this.state.pageSlug;
+  }
+
+  private getDrilldownValueSlug() {
+    const drilldownValueSlug = narrowValueSlug(getDrilldownValueSlug());
+    if (drilldownValueSlug) {
+      return drilldownValueSlug;
+    }
+    return undefined;
+  }
+
+  private redirectToStart() {
+    if (!this.state.embedded) {
+      // Clear ongoing queries
+      this.setState({
+        $data: undefined,
+        $detectedFieldsData: undefined,
+        $detectedLabelsData: undefined,
+        $logsCount: undefined,
+        $patternsData: undefined,
+        body: undefined,
+        fieldsCount: undefined,
+        labelsCount: undefined,
+        logsCount: undefined,
+        patternsCount: undefined,
+        totalLogsCount: undefined,
+      });
+      getMetadataService().setServiceSceneState(this.state);
+      this._subs.unsubscribe();
+
+      // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
+      navigateToIndex();
+    } else {
+      // Initial label set should be locked, so this should never happen when in an embedded state unless something has gone very wrong.
+      console.error('Cannot redirect to start when embedded');
+    }
   }
 
   private showVariables() {
@@ -278,7 +353,53 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
+  getUrlState() {
+    return {
+      drillDownLabel: this.state.drillDownLabel,
+      pageSlug: this.state.pageSlug,
+    };
+  }
+
+  updateFromUrl(values: SceneObjectUrlValues) {
+    const stateUpdate: Partial<ServiceSceneState> = {};
+
+    // pageSlug and drillDownLabel url params are only used when embedded
+    if (!this.state.embedded) {
+      return;
+    }
+
+    if (values && typeof values.pageSlug === 'string' && values.pageSlug !== this.state.pageSlug) {
+      const pageSlug = narrowPageOrValueSlug(values.pageSlug);
+      if (pageSlug) {
+        stateUpdate.pageSlug = pageSlug;
+      }
+    }
+
+    if (
+      (values && typeof values.drillDownLabel === 'string') ||
+      (values.drillDownLabel === null && values.drillDownLabel !== this.state.drillDownLabel)
+    ) {
+      stateUpdate.drillDownLabel = values.drillDownLabel ?? undefined;
+    }
+
+    if (Object.keys(stateUpdate).length) {
+      this.setState(stateUpdate);
+      // Need to manually re-render content scene when updated
+      this.updateContentScene();
+    }
+  }
+
+  private updateContentScene() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    indexScene.setState({
+      contentScene: indexScene.getContentScene(),
+    });
+  }
+
   private onActivate() {
+    if (!this.state.body) {
+      this.setState({ body: this.buildGraphScene() });
+    }
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: true });
@@ -296,7 +417,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToDetectedLabelsQuery());
 
     // Fields tab will update its own count, and update count when a query fails
-    this._subs.add(this.subscribeToDetectedFieldsQuery(getDrilldownSlug() !== PageSlugs.fields));
+    this._subs.add(this.subscribeToDetectedFieldsQuery(this.getPageSlug() !== PageSlugs.fields));
     this._subs.add(this.subscribeToLogsQuery());
     this._subs.add(this.subscribeToLogsCountQuery());
 
@@ -419,8 +540,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private runQueries() {
-    const slug = getDrilldownSlug();
-    const parentSlug = getDrilldownValueSlug();
+    const slug = this.getPageSlug();
+    const parentSlug = this.getDrilldownPageSlug();
 
     // If we don't have a patterns count in the tabs, or we are activating the patterns scene, run the pattern query
     if (slug === PageSlugs.patterns || this.state.patternsCount === undefined) {
@@ -561,7 +682,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (!this.state.body) {
-      stateUpdate.body = buildGraphScene();
+      stateUpdate.body = this.buildGraphScene();
     }
 
     if (Object.keys(stateUpdate).length) {
@@ -569,10 +690,22 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
+  private buildGraphScene() {
+    return new SceneFlexLayout({
+      children: [
+        new SceneFlexItem({
+          body: new ActionBarScene({}),
+          ySizing: 'content',
+        }),
+      ],
+      direction: 'column',
+    });
+  }
+
   public setBreakdownView() {
     const { body } = this.state;
-    const breakdownView = getDrilldownSlug();
-    const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === breakdownView);
+    const pageSlug = this.getPageSlug();
+    const breakdownViewDef = breakdownViewsDefinitions.find((v) => v.value === pageSlug);
 
     if (!body) {
       const err = new Error('body is not defined in setBreakdownView!');
@@ -592,12 +725,18 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         ],
       });
     } else {
-      const valueBreakdownView = getDrilldownValueSlug();
+      const valueBreakdownView = this.getDrilldownPageSlug();
       const valueBreakdownViewDef = valueBreakdownViews.find((v) => v.value === valueBreakdownView);
 
       if (valueBreakdownViewDef && this.state.drillDownLabel) {
         body.setState({
           children: [...body.state.children.slice(0, 1), valueBreakdownViewDef.getScene(this.state.drillDownLabel)],
+        });
+      } else if (this.state.embedded) {
+        // Must be embedded with unexpected slug
+        const breakdown = breakdownViewsDefinitions[0];
+        body.setState({
+          children: [...body.state.children.slice(0, 1), breakdown.getScene((length) => {})],
         });
       } else {
         logger.error(new Error('not setting breakdown view'), { msg: 'setBreakdownView error' });

@@ -169,6 +169,12 @@ export class ExplorePage {
     await this.assertTabsNotLoading();
   }
 
+  async goToPatternsTab() {
+    await this.page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+    await this.assertNotLoading();
+    await this.assertTabsNotLoading();
+  }
+
   getAllPanelsLocator() {
     return this.page.getByTestId(/data-testid Panel header/).getByTestId('header-container');
   }
@@ -256,6 +262,10 @@ export class ExplorePage {
     await this.page.goto(
       `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
     );
+  }
+
+  async gotoEmbedUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
+    await this.page.goto(`/a/${pluginJson.id}/embed?var-filters=service_name|=|${serviceName}&from=${from}&to=now`);
   }
 
   async gotoServicesOldUrlLineFilters(

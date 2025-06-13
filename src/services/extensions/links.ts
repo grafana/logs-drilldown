@@ -4,7 +4,7 @@ import { locationService } from '@grafana/runtime';
 
 import pluginJson from '../../plugin.json';
 import { LabelType } from '../fieldsTypes';
-import { PatternFilterOp } from '../filterTypes';
+import { FieldFilter, IndexedLabelFilter, LineFilterType, PatternFilterOp, PatternFilterType } from '../filterTypes';
 import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
@@ -93,6 +93,85 @@ export function stringifyAdHocValueLabels(value?: string): string {
   return escapeURLDelimiters(replaceEscapeChars(value));
 }
 
+function setUrlParamsFromFieldFilters(fields: FieldFilter[], params: URLSearchParams) {
+  for (const field of fields) {
+    if (field.type === LabelType.StructuredMetadata) {
+      if (field.key === LEVEL_VARIABLE_VALUE) {
+        params = appendUrlParameter(
+          UrlParameters.Levels,
+          `${field.key}|${field.operator}|${escapeURLDelimiters(stringifyValues(field.value))}`,
+          params
+        );
+      } else {
+        params = appendUrlParameter(
+          UrlParameters.Metadata,
+          `${field.key}|${field.operator}|${escapeURLDelimiters(
+            stringifyAdHocValues(field.value)
+          )},${escapeURLDelimiters(replaceEscapeChars(field.value))}`,
+          params
+        );
+      }
+    } else {
+      const fieldValue: AdHocFieldValue = {
+        value: field.value,
+        parser: field.parser,
+      };
+
+      const adHocFilterURLString = `${field.key}|${field.operator}|${escapeURLDelimiters(
+        stringifyAdHocValues(JSON.stringify(fieldValue))
+      )},${stringifyAdHocValueLabels(fieldValue.value)}`;
+
+      params = appendUrlParameter(UrlParameters.Fields, adHocFilterURLString, params);
+    }
+  }
+  return params;
+}
+
+function setUrlParamsFromLabelFilters(labelFilters: IndexedLabelFilter[], params: URLSearchParams) {
+  for (const labelFilter of labelFilters) {
+    // skip non-indexed filters for now
+    if (labelFilter.type !== LabelType.Indexed) {
+      continue;
+    }
+
+    const labelsAdHocFilterURLString = `${labelFilter.key}|${labelFilter.operator}|${escapeURLDelimiters(
+      stringifyAdHocValues(labelFilter.value)
+    )},${escapeURLDelimiters(replaceEscapeChars(labelFilter.value))}`;
+
+    params = appendUrlParameter(UrlParameters.Labels, labelsAdHocFilterURLString, params);
+  }
+  return params;
+}
+
+function setLineFilterUrlParams(lineFilters: LineFilterType[], params: URLSearchParams) {
+  for (const lineFilter of lineFilters) {
+    params = appendUrlParameter(
+      UrlParameters.LineFilters,
+      `${lineFilter.key}|${escapeURLDelimiters(lineFilter.operator)}|${escapeURLDelimiters(
+        stringifyValues(lineFilter.value)
+      )}`,
+      params
+    );
+  }
+  return params;
+}
+
+export function setUrlParamsFromPatterns(patternFilters: PatternFilterType[], params: URLSearchParams) {
+  const patterns: AppliedPattern[] = [];
+
+  for (const field of patternFilters) {
+    patterns.push({
+      type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
+      pattern: stringifyValues(field.value),
+    });
+  }
+
+  let patternsString = renderPatternFilters(patterns);
+
+  params = appendUrlParameter(UrlParameters.Patterns, JSON.stringify(patterns), params);
+  return appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
+}
+
 function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   if (!context) {
     return undefined;
@@ -121,77 +200,16 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   let params = setUrlParameter(UrlParameters.DatasourceId, lokiQuery.datasource?.uid, new URLSearchParams());
   params = setUrlParameter(UrlParameters.TimeRangeFrom, context.timeRange.from.valueOf().toString(), params);
   params = setUrlParameter(UrlParameters.TimeRangeTo, context.timeRange.to.valueOf().toString(), params);
-
-  for (const labelFilter of labelFilters) {
-    // skip non-indexed filters for now
-    if (labelFilter.type !== LabelType.Indexed) {
-      continue;
-    }
-
-    const labelsAdHocFilterURLString = `${labelFilter.key}|${labelFilter.operator}|${escapeURLDelimiters(
-      stringifyAdHocValues(labelFilter.value)
-    )},${escapeURLDelimiters(replaceEscapeChars(labelFilter.value))}`;
-
-    params = appendUrlParameter(UrlParameters.Labels, labelsAdHocFilterURLString, params);
-  }
+  params = setUrlParamsFromLabelFilters(labelFilters, params);
 
   if (lineFilters) {
-    for (const lineFilter of lineFilters) {
-      params = appendUrlParameter(
-        UrlParameters.LineFilters,
-        `${lineFilter.key}|${escapeURLDelimiters(lineFilter.operator)}|${escapeURLDelimiters(
-          stringifyValues(lineFilter.value)
-        )}`,
-        params
-      );
-    }
+    params = setLineFilterUrlParams(lineFilters, params);
   }
   if (fields?.length) {
-    for (const field of fields) {
-      if (field.type === LabelType.StructuredMetadata) {
-        if (field.key === LEVEL_VARIABLE_VALUE) {
-          params = appendUrlParameter(
-            UrlParameters.Levels,
-            `${field.key}|${field.operator}|${escapeURLDelimiters(stringifyValues(field.value))}`,
-            params
-          );
-        } else {
-          params = appendUrlParameter(
-            UrlParameters.Metadata,
-            `${field.key}|${field.operator}|${escapeURLDelimiters(
-              stringifyAdHocValues(field.value)
-            )},${escapeURLDelimiters(replaceEscapeChars(field.value))}`,
-            params
-          );
-        }
-      } else {
-        const fieldValue: AdHocFieldValue = {
-          value: field.value,
-          parser: field.parser,
-        };
-
-        const adHocFilterURLString = `${field.key}|${field.operator}|${escapeURLDelimiters(
-          stringifyAdHocValues(JSON.stringify(fieldValue))
-        )},${stringifyAdHocValueLabels(fieldValue.value)}`;
-
-        params = appendUrlParameter(UrlParameters.Fields, adHocFilterURLString, params);
-      }
-    }
+    params = setUrlParamsFromFieldFilters(fields, params);
   }
   if (patternFilters?.length) {
-    const patterns: AppliedPattern[] = [];
-
-    for (const field of patternFilters) {
-      patterns.push({
-        type: field.operator === PatternFilterOp.match ? 'include' : 'exclude',
-        pattern: stringifyValues(field.value),
-      });
-    }
-
-    let patternsString = renderPatternFilters(patterns);
-
-    params = appendUrlParameter(UrlParameters.Patterns, JSON.stringify(patterns), params);
-    params = appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
+    params = setUrlParamsFromPatterns(patternFilters, params);
   }
 
   return {

@@ -8,6 +8,7 @@ import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
+import { narrowPageSlug } from '../../services/narrowing';
 import { getDrillDownTabLink } from '../../services/navigate';
 import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
@@ -43,23 +44,41 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       });
     }
   }
+
+  getPageSlug() {
+    const route = getDrilldownSlug();
+    if (route !== PageSlugs.embed) {
+      return route;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const narrowedSlug = narrowPageSlug(serviceScene.state.pageSlug);
+    if (narrowedSlug) {
+      return narrowedSlug;
+    }
+
+    return undefined;
+  }
+
   public static Component = ({ model }: SceneComponentProps<ActionBarScene>) => {
     const styles = useStyles2(getStyles);
-    let currentBreakdownViewSlug = getDrilldownSlug();
+    let currentBreakdownViewSlug: PageSlugs | ValueSlugs | undefined;
     let allowNavToParent = false;
+    const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
 
-    if (!Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {
-      const drilldownValueSlug = getDrilldownValueSlug();
-      allowNavToParent = true;
-      if (drilldownValueSlug === ValueSlugs.field) {
-        currentBreakdownViewSlug = PageSlugs.fields;
-      }
-      if (drilldownValueSlug === ValueSlugs.label) {
-        currentBreakdownViewSlug = PageSlugs.labels;
+    if (serviceScene.state.embedded && serviceScene.state.pageSlug) {
+      currentBreakdownViewSlug = getActiveTabSlug(serviceScene.state.pageSlug);
+    } else {
+      currentBreakdownViewSlug = model.getPageSlug();
+
+      if (!currentBreakdownViewSlug || !Object.values(PageSlugs).includes(currentBreakdownViewSlug)) {
+        const drilldownValueSlug = getDrilldownValueSlug();
+        allowNavToParent = true;
+        if (drilldownValueSlug) {
+          currentBreakdownViewSlug = getActiveTabSlug(drilldownValueSlug);
+        }
       }
     }
 
-    const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
     const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
     const { maxLines } = model.useState();
 
@@ -110,6 +129,16 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       </Box>
     );
   };
+}
+
+function getActiveTabSlug(drilldownValueSlug: PageSlugs | ValueSlugs) {
+  if (drilldownValueSlug === ValueSlugs.field) {
+    return PageSlugs.fields;
+  }
+  if (drilldownValueSlug === ValueSlugs.label) {
+    return PageSlugs.labels;
+  }
+  return drilldownValueSlug;
 }
 const getCounter = (tab: BreakdownViewDefinition, state: ServiceSceneCustomState) => {
   switch (tab.value) {

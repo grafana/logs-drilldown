@@ -8,3 +8,5 @@ package.json
 .eslintignore
 .prettierignore
 .husky/
+project-words.txt
+yarn.lock
