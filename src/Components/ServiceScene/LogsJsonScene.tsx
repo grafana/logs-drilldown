@@ -29,20 +29,15 @@ import {
 import { Alert, Badge, Button, Icon, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysEqual } from '../../services/comparison';
 import {
   clearJsonParserFields,
-  extractParserFromString,
   getDetectedFieldsJsonPathField,
   getDetectedFieldsParserField,
-  getJsonPathArraySyntax,
-  getParserAndPathForField,
   isLogLineField,
 } from '../../services/fields';
 import {
   addJsonParserFieldValue,
   EMPTY_AD_HOC_FILTER_VALUE,
-  filterUnusedJSONFilters,
   getJsonKey,
   removeLineFormatFilters,
 } from '../../services/filters';
@@ -185,123 +180,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         serviceScene.state?.$detectedFieldsData?.runQueries();
       } else {
         this.setVizFlags(detectedFieldFrame);
-        this.syncFieldsAndJsonProps(detectedFieldFrame);
-      }
-    }
-
-    // Subscribe to detected fields
-    this._subs.add(
-      serviceScene.state.$detectedFieldsData?.subscribeToState((newState) => {
-        const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
-        if (detectedFieldFrame) {
-          this.setVizFlags(detectedFieldFrame);
-          if (newState.data?.state === LoadingState.Done) {
-            this.syncFieldsAndJsonProps(detectedFieldFrame);
-          }
-        }
-      })
-    );
-
-    // subscribe to fields changes
-    const fieldsVar = getFieldsVariable(this);
-    this._subs.add(
-      fieldsVar.subscribeToState((newState, prevState) => {
-        if (!areArraysEqual(newState.filters, prevState.filters)) {
-          this.manageJsonParserProps(newState, prevState);
-        }
-      })
-    );
-  }
-
-  private syncFieldsAndJsonProps(detectedFieldsFrame: DataFrame | undefined) {
-    const detectedFieldsNamesField = detectedFieldsFrame?.fields[0];
-    const detectedFieldsParsersField = detectedFieldsFrame?.fields[2];
-    const detectedFieldsJsonPathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
-
-    // Sync any fields that are missing json parser props if we have them (loki 3.5.0+)
-    if (detectedFieldsFrame && detectedFieldsJsonPathField?.values.some((v) => v)) {
-      const fieldsVar = getFieldsVariable(this);
-      const jsonPathVar = getJsonFieldsVariable(this);
-
-      let jsonFieldsToAdd: AdHocFilterWithLabels[] = [];
-      for (let i = 0; i < detectedFieldsFrame.length; i++) {
-        const parser = extractParserFromString(detectedFieldsParsersField?.values[i]);
-        const jsonPath = detectedFieldsJsonPathField.values[i];
-        const fieldName = detectedFieldsNamesField?.values[i];
-
-        // If there is a json field that doesn't have a json parser prop
-        if (
-          (parser === 'json' || parser === 'mixed') &&
-          fieldsVar.state.filters.some((f) => f.key === fieldName) &&
-          !jsonPathVar.state.filters.some((f) => f.key === fieldName)
-        ) {
-          const path = getJsonPathArraySyntax(jsonPath);
-          jsonFieldsToAdd.push({
-            key: fieldName,
-            operator: FilterOp.Equal,
-            value: path,
-          });
-        }
-      }
-
-      if (jsonFieldsToAdd.length) {
-        jsonPathVar.setState({
-          filters: [...jsonPathVar.state.filters, ...jsonFieldsToAdd],
-        });
-      }
-    }
-  }
-
-  /**
-   * If we removed a filter from the ad-hoc variables, we need to remove old json parser props
-   */
-  private manageJsonParserProps(newState: AdHocFiltersVariable['state'], prevState: AdHocFiltersVariable['state']) {
-    const lineFormatVariable = getLineFormatVariable(this);
-    if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
-      clearJsonParserFields(this);
-
-      // A field was removed
-    } else if (newState.filters.length < prevState.filters.length) {
-      // If no other field filter has the same key, then we can remove the json parser
-      const filterDiff = prevState.filters.filter(
-        (prevFilter) => !newState.filters.find((newFilter) => newFilter.key === prevFilter.key)
-      );
-
-      if (filterDiff.length) {
-        filterUnusedJSONFilters(this);
-      }
-
-      // A field was added
-    } else if (newState.filters.length > prevState.filters.length) {
-      const jsonVar = getJsonFieldsVariable(this);
-
-      // Gets any new filters that were added
-      const newFilters = newState.filters.filter(
-        (newFilter) => !prevState.filters.find((prevFilter) => newFilter.key === prevFilter.key)
-      );
-
-      const jsonParserPropsToAdd: AdHocFilterWithLabels[] = [];
-
-      newFilters.forEach((filter) => {
-        const hasJsonFilters = jsonVar.state.filters.some((jsonFilter) => jsonFilter.key === filter.key);
-
-        // If there isn't an associated JSON parser prop, we can assume the filter was added outside the JSON viz, let's check the detected_fields and add the json parser
-        if (!hasJsonFilters) {
-          const { parser, path } = getParserAndPathForField(filter.key, this);
-          if ((parser === 'json' || parser === 'mixed') && path) {
-            jsonParserPropsToAdd.push({
-              key: filter.key,
-              operator: FilterOp.Equal,
-              value: path,
-            });
-          }
-        }
-      });
-
-      if (jsonParserPropsToAdd.length) {
-        jsonVar.setState({
-          filters: [...jsonVar.state.filters, ...jsonParserPropsToAdd],
-        });
       }
     }
   }
