@@ -1,9 +1,6 @@
 name: Bundle Types
 
 on:
-  #  Remove pull_request before merge to main!!!!!!!!!
-  pull_request:
-    types: [opened, synchronize, reopened]
   push:
     tags:
       - 'v*' # Run workflow on version tags, e.g. v1.0.0.
