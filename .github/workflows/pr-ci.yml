@@ -1,7 +1,7 @@
 name: Plugins Platform PR - CI
 
 on:
-  # workflow_dispatch:
+  workflow_call
   # push:
   #   branches:
   #     - main
