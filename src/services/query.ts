@@ -215,11 +215,17 @@ export function interpolateExpression(sceneObject: SceneObject, uninterpolatedEx
 
 export function getJsonParserExpressionBuilder() {
   return (filters: AdHocFilterWithLabels[]) => {
-    return filters
+    let jsonFilters = filters
       .map((filter) => {
         return `${filter.key}${filter.operator}"${filter.value}"`;
       })
       .join(',');
+
+    // If we have JSON filters, add another JSON parser stage so the default fields are not removed
+    if (jsonFilters.length) {
+      jsonFilters += '| json';
+    }
+    return jsonFilters;
   };
 }
 
