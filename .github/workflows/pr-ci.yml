@@ -1,4 +1,4 @@
-name: Plugins - CI / CD
+name: Plugins Platform PR - CI
 
 on:
   push:
