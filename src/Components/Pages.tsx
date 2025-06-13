@@ -31,6 +31,7 @@ import {
 import { capitalizeFirstLetter } from '../services/text';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
 import { IndexScene } from './IndexScene/IndexScene';
+import { IndexSceneState } from './IndexScene/types';
 
 export type RouteProps = { breakdownLabel?: string; labelName: string; labelValue: string };
 export type RouteMatch = SceneRouteMatch<RouteProps>;
@@ -95,7 +96,7 @@ function getEmbeddedScene() {
     value: timeRange,
   });
 
-  const props: EmbeddedLogsExplorationProps = {
+  const props: EmbeddedLogsExplorationProps & IndexSceneState = {
     embedded: true,
     embedderName: 'EmbeddedLogs',
     query,
