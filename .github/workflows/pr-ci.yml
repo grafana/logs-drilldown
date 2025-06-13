@@ -10,7 +10,7 @@ permissions: {}
 
 jobs:
   cd:
-    name: CI / CD
+    name: CI
     uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@main # zizmor: ignore[unpinned-uses]
     permissions:
       contents: write
