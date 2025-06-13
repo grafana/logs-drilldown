@@ -2,7 +2,10 @@ import { lazy } from 'react';
 
 import { AppPlugin } from '@grafana/data';
 
-import { exposedComponents } from 'services/extensions/exposedComponents';
+import {
+  SuspendedEmbeddedLogsExploration,
+  SuspendedOpenInLogsDrilldownButton,
+} from 'services/extensions/exposedComponents';
 import { linkConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
@@ -39,6 +42,16 @@ for (const linkConfig of linkConfigs) {
   plugin.addLink(linkConfig);
 }
 
-for (const exposedComponentConfig of exposedComponents) {
-  plugin.exposeComponent(exposedComponentConfig);
-}
+plugin.exposeComponent({
+  component: SuspendedOpenInLogsDrilldownButton,
+  description: 'A button that opens a logs view in the Logs Drilldown app.',
+  id: `grafana-lokiexplore-app/open-in-explore-logs-button/v1`,
+  title: 'Open in Logs Drilldown button',
+});
+
+plugin.exposeComponent({
+  component: SuspendedEmbeddedLogsExploration,
+  description: 'A component that renders a logs exploration view that can be embedded in other parts of Grafana.',
+  id: `grafana-lokiexplore-app/embedded-logs-exploration/v1`,
+  title: 'Embedded Logs Exploration',
+});

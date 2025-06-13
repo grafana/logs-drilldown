@@ -8,6 +8,7 @@ import { useStyles2 } from '@grafana/ui';
 
 import { getJsonParserVariableVisibility } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
+import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { GiveFeedbackButton } from './GiveFeedbackButton';
 import { IndexScene } from './IndexScene';
@@ -21,16 +22,30 @@ import { PatternControls } from './PatternControls';
 
 type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
+  embeddedLink?: EmbeddedLinkScene;
   position: HeaderPosition;
 }
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
+  constructor(props: VariableLayoutSceneState) {
+    super(props);
+
+    this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  public onActivate() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    if (indexScene.state.embedded) {
+      this.setState({
+        embeddedLink: new EmbeddedLinkScene({}),
+      });
+    }
+  }
+
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { controls, patterns } = indexScene.useState();
-
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
-
     const styles = useStyles2((theme) => getStyles(theme, model.state.position));
 
     return (
@@ -54,8 +69,10 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
               <div className={styles.controlsWrapper}>
-                <GiveFeedbackButton />
+                {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
+                  {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
+
                   {controls.map((control) => {
                     return control.state.key === CONTROLS_VARS_DATASOURCE ? (
                       <control.Component key={control.state.key} model={control} />

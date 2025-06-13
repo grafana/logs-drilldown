@@ -20,11 +20,12 @@ import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
 import { ValueSlugs } from '../../../services/enums';
 import { navigateToValueBreakdown } from '../../../services/navigate';
-import { checkPrimaryLabel, getPrimaryLabelFromUrl } from '../../../services/routing';
+import { getRouteParams, getUILabelName } from '../../../services/routing';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
 import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
 import { IndexScene } from '../../IndexScene/IndexScene';
+import { RouteProps } from '../../Pages';
 import { getDetectedFieldsFrame, ServiceScene } from '../ServiceScene';
 import { BreakdownSearchReset, BreakdownSearchScene } from './BreakdownSearchScene';
 import { ByFrameRepeater } from './ByFrameRepeater';
@@ -109,7 +110,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     this._subs.add(
       getLabelsVariable(this).subscribeToState((newState, prevState) => {
         const variable = getFieldGroupByVariable(this);
-        let { labelName } = getPrimaryLabelFromUrl();
+        let { labelName } = this.getPrimaryLabel();
 
         const newService = newState.filters.find((filter) => filter.key === labelName);
         const prevService = prevState.filters.find((filter) => filter.key === labelName);
@@ -141,8 +142,18 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     if (detectedFieldsFrame) {
       this.updateOptions(detectedFieldsFrame);
     }
+  }
 
-    checkPrimaryLabel(this);
+  private getPrimaryLabel(): RouteProps {
+    let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
+    if (!labelName || !labelValue) {
+      const variable = getLabelsVariable(this);
+      labelName = variable.state.filters[0].key;
+      labelValue = variable.state.filters[0].value;
+
+      return { labelName: getUILabelName(labelName), labelValue };
+    }
+    return { breakdownLabel, labelName, labelValue };
   }
 
   private variableChanged = (newState: CustomConstantVariableState, oldState: CustomConstantVariableState) => {

@@ -93,7 +93,7 @@ let MAP: Record<string, string> = {
 /**
  * mapping for special characters so they can support
  *
- * this dictionary is only used incase you want to bind a
+ * this dictionary is only used in case you want to bind a
  * keyup or keydown event to one of these keys
  */
 let KEYCODE_MAP: Record<string, string> = {
