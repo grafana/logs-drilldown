@@ -57,10 +57,21 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
   // We don't want to re-render the entire app every time the props change, only once when the plugin component is done loading
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const Component = useMemo(() => LogsDrilldownComponent, [isLoading]);
-  return isLoading || !Component ? <LoadingPlaceholder text={'Loading...'} /> : <Component {...props} />;
+
+  if (isLoading) {
+    return <LoadingPlaceholder text={'Loading...'} />;
+  }
+  if (Component) {
+    return <Component {...props} />;
+  }
+
+  console.error(
+    'No grafana-lokiexplore-app/embedded-logs-exploration/v1 component found in the Grafana registry! You might need to restart your Grafana instance?'
+  );
+  return null;
 }
 
-function getEmbedScene() {
+function getEmbeddedScene() {
   const initialStart = 'now-15m';
   const initialEnd = 'now';
   const query = '{service_name="tempo-distributor"}';
@@ -96,7 +107,7 @@ function getEmbedScene() {
   });
 }
 
-export function makeEmbedPage() {
+export function makeEmbeddedPage() {
   return new SceneAppPage({
     drilldowns: [
       {
@@ -104,7 +115,7 @@ export function makeEmbedPage() {
         routePath: ROUTE_DEFINITIONS.embed,
       },
     ],
-    getScene: (routeMatch) => getEmbedScene(),
+    getScene: (routeMatch) => getEmbeddedScene(),
     layout: PageLayoutType.Custom,
     routePath: `${PageSlugs.embed}`,
     title: 'Grafana Logs Drilldown — Embedded',

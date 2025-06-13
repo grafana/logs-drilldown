@@ -37,6 +37,7 @@ import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
+import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
@@ -121,8 +122,8 @@ export interface IndexSceneState extends SceneObjectState {
   controls?: SceneObject[];
   ds?: LokiDatasource;
   embedded?: boolean;
-  initialFilters?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
+  readOnlyLabelFilters?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
 }
 
@@ -137,7 +138,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
     ...state
   }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.initialFilters, state.embedded);
+    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.readOnlyLabelFilters, state.embedded);
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -272,6 +273,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(fieldsAndMetadataVariable.subscribeToState(this.subscribeToCombinedFieldsVariable));
 
     const clearKeyBindings = setupKeyboardShortcuts(this);
+
+    // If there is a mismatch between the cached singleton and the current state, make sure we update the singleton before the children scenes are activated
+    if (
+      this.state.embedded !== undefined &&
+      this.state.embedded !== getMetadataService().getServiceSceneState()?.embedded
+    ) {
+      getMetadataService().setEmbedded(this.state.embedded);
+    }
 
     return () => {
       clearKeyBindings();
@@ -592,12 +601,16 @@ function getContentScene(drillDownLabel?: string) {
   });
 }
 
-function getVariableSet(initialDatasourceUid: string, initialLabels?: AdHocVariableFilter[], embedded?: boolean) {
+function getVariableSet(
+  initialDatasourceUid: string,
+  readOnlyLabelFilters?: AdHocVariableFilter[],
+  embedded?: boolean
+) {
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
-    filters: (initialLabels ?? []).map((f) => ({ ...f, readOnly: true })),
+    filters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, readOnly: true })),
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
     label: 'Labels',

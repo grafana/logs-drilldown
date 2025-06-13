@@ -3,6 +3,7 @@ import React from 'react';
 import { LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
+  AdHocFilterWithLabels,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -173,13 +174,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private setSubscribeToLabelsVariable() {
-    const variable = getLabelsVariable(this);
-    if (variable.state.filters.length === 0) {
+    const labelsVariable = getLabelsVariable(this);
+    if (labelsVariable.state.filters.length === 0) {
       this.redirectToStart();
       return;
     }
+
     this._subs.add(
-      variable.subscribeToState((newState, prevState) => {
+      labelsVariable.subscribeToState((newState, prevState) => {
+        // If there are no label filters, the logQL query is not valid, redirect back to start so the user can select an initial label/value pair.
         if (newState.filters.length === 0) {
           this.redirectToStart();
         }
@@ -191,8 +194,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         if (labelName === SERVICE_UI_LABEL) {
           labelName = SERVICE_NAME;
         }
-        const indexScene = sceneGraph.getAncestor(this, IndexScene);
-        const prevRouteMatch = indexScene.state.routeMatch;
 
         // The "primary" label used in the URL is no longer active, pick a new one
         if (
@@ -203,45 +204,17 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           const newPrimaryLabel = newState.filters.find(
             (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
           );
+
+          // If we have a new label let's update the slugs in the url
           if (newPrimaryLabel) {
-            const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
-              ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
-              : replaceSlash(newPrimaryLabel.value);
-            indexScene.setState({
-              routeMatch: {
-                ...prevRouteMatch,
-                isExact: prevRouteMatch?.isExact ?? true,
-                params: {
-                  ...prevRouteMatch?.params,
-                  labelName: newPrimaryLabel.key === SERVICE_NAME ? SERVICE_UI_LABEL : newPrimaryLabel.key,
-                  // If there are a bunch of values separated by pipe, like labels that come from explore, let's truncate the value so the slug doesn't get too long
-                  labelValue: newPrimaryLabelValue.split('|')[0],
-                },
-                path: prevRouteMatch?.path ?? '',
-                url: prevRouteMatch?.url ?? '',
-              },
-            });
+            this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
 
-            this.resetTabCount();
-
-            if (!breakdownLabel) {
-              const slug = this.getPageSlug();
-              if (slug) {
-                navigateToDrilldownPage(slug, this);
-              } else {
-                throw new Error(`Invalid page slug ${slug}`);
-              }
-            } else {
-              const valueSlug = this.getDrilldownValueSlug();
-              if (valueSlug) {
-                navigateToValueBreakdown(valueSlug, breakdownLabel, this);
-              } else {
-                throw new Error(`Invalid value slug ${valueSlug}`);
-              }
-            }
+            // Otherwise we don't have any labels, redirect back to start
           } else {
             this.redirectToStart();
           }
+
+          // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
         } else if (!areArraysEqual(newState.filters, prevState.filters)) {
           this.state.$patternsData?.runQueries();
           this.state.$detectedLabelsData?.runQueries();
@@ -250,6 +223,53 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         }
       })
     );
+  }
+
+  /**
+   * Update url slugs when primary label has changed
+   */
+  private handlePrimaryLabelChange(newPrimaryLabel: AdHocFilterWithLabels<{}>, breakdownLabel: string | undefined) {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const prevRouteMatch = indexScene.state.routeMatch;
+
+    const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
+      ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
+      : replaceSlash(newPrimaryLabel.value);
+    indexScene.setState({
+      routeMatch: {
+        ...prevRouteMatch,
+        isExact: prevRouteMatch?.isExact ?? true,
+        params: {
+          ...prevRouteMatch?.params,
+          labelName: newPrimaryLabel.key === SERVICE_NAME ? SERVICE_UI_LABEL : newPrimaryLabel.key,
+          // If there are a bunch of values separated by pipe, like labels that come from explore, let's truncate the value so the slug doesn't get too long
+          labelValue: newPrimaryLabelValue.split('|')[0],
+        },
+        path: prevRouteMatch?.path ?? '',
+        url: prevRouteMatch?.url ?? '',
+      },
+    });
+
+    // reset tab counts to trigger new queries after redirect
+    this.resetTabCount();
+
+    // If we don't have a breakdown label then the user has changed labels while in an aggregated breakdown or other top level slug (labels, fields, patterns, logs), redirect to fix any potentially invalid label slugs.
+    if (!breakdownLabel) {
+      const slug = this.getPageSlug();
+      if (slug) {
+        navigateToDrilldownPage(slug, this);
+      } else {
+        throw new Error(`Invalid page slug ${slug}`);
+      }
+      // If we have a breakdown label then the user has changed labels while in a value breakdown, redirect to fix any potentially invalid value slugs.
+    } else {
+      const valueSlug = this.getDrilldownValueSlug();
+      if (valueSlug) {
+        navigateToValueBreakdown(valueSlug, breakdownLabel, this);
+      } else {
+        throw new Error(`Invalid value slug ${valueSlug}`);
+      }
+    }
   }
 
   private getPageSlug() {
@@ -303,8 +323,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
       navigateToIndex();
     } else {
-      // @todo set initial labels?
-      console.warn('Cannot redirect when embedded');
+      // Initial label set should be locked, so this should never happen when in an embedded state unless something has gone very wrong.
+      console.error('Cannot redirect to start when embedded');
     }
   }
 
@@ -410,10 +430,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
-
-    if (this.state.embedded && !getMetadataService().getServiceSceneState()?.embedded) {
-      getMetadataService().setEmbedded(this.state.embedded);
-    }
 
     // Migrations
     migrateLineFilterV1(this);

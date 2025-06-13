@@ -3,8 +3,9 @@ import { Page } from '@playwright/test';
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { PageSlugs, ValueSlugs } from '../src/services/enums';
+import { FilterOp } from '../src/services/filterTypes';
 import { testIds } from '../src/services/testIds';
-import { ExplorePage } from './fixtures/explore';
+import { ComboBoxIndex, ExplorePage } from './fixtures/explore';
 
 const fieldName = 'caller';
 const labelName = 'cluster';
@@ -214,5 +215,26 @@ test.describe('embed', () => {
 
     // Assert the buttons are selected again
     await expectButtonsSelected(page);
+  });
+
+  test('can nav to unembedded logs drilldown and return to service selection scene', async ({ page }) => {
+    // add some field filter
+    // @todo adding a label filter is another bug that needs coverage
+    await explorePage.addCustomValueToCombobox(fieldName, FilterOp.RegexEqual, ComboBoxIndex.fields, `.+st.+`, 'ca');
+
+    // go to full logs drilldown via the link button
+    await page.getByRole('link', { name: 'Logs Drilldown' }).click();
+
+    // should see data source picker now
+    await expect(page.getByTestId(testIds.variables.datasource.label)).toHaveCount(1);
+
+    // assert filter is still active
+    await expect(page.getByRole('button', { name: 'Edit filter with key caller' })).toHaveCount(1);
+
+    // Remove the primary label filter
+    await page.getByRole('button', { name: 'Remove filter with key service_name' }).click();
+
+    // Assert something from the service selection is visible
+    await expect(page.getByTestId(testIds.index.addNewLabelTab)).toHaveCount(1);
   });
 });

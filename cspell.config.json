@@ -8,7 +8,8 @@
     "CHANGELOG.md",
     "package.json",
     "*.test.*",
-    "config/**"
+    "config/**",
+    "test-results/**"
   ],
   "ignoreRegExpList": [],
   "words": ["queryless"],
