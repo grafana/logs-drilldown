@@ -38,6 +38,7 @@ import {
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
+import { IndexScene } from '../IndexScene/IndexScene';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
@@ -51,10 +52,11 @@ import { isEmptyLogsResult } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
 import { getPrettyQueryExpr } from 'services/scenes';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
-import { clearVariables } from 'services/variableHelpers';
+import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
+  canClearFilters?: boolean;
   dedupStrategy: LogsDedupStrategy;
   error?: string;
   logsVolumeCollapsedByError?: boolean;
@@ -203,13 +205,18 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   handleNoData() {
-    this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+    if (this.state.canClearFilters) {
+      this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+    } else {
+      this.showLogsError('No logs match your search. Please try a different time range.');
+    }
   }
 
   showLogsError(error: string) {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
-
-    this.setState({ error, logsVolumeCollapsedByError });
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const clearableVariables = getVariablesThatCanBeCleared(indexScene);
+    this.setState({ canClearFilters: clearableVariables.length > 0, error, logsVolumeCollapsedByError });
 
     if (logsVolumeCollapsedByError) {
       const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
@@ -524,13 +531,15 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
-    const { body, error } = model.useState();
+    const { body, canClearFilters, error } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
     if (body) {
       return (
         <span className={styles.panelWrapper}>
           {!error && <body.Component model={body} />}
-          {error && <LogsPanelError error={error} clearFilters={() => clearVariables(body)} />}
+          {error && (
+            <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(body) : undefined} />
+          )}
         </span>
       );
     }

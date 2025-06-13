@@ -9,3 +9,4 @@ package.json
 .prettierignore
 .husky/
 project-words.txt
+yarn.lock

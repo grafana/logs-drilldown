@@ -41,6 +41,7 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
+import { ReadOnlyAdHocFiltersVariable } from '../../services/ReadOnlyAdHocFiltersVariable';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -122,6 +123,7 @@ export interface IndexSceneState extends SceneObjectState {
   controls?: SceneObject[];
   ds?: LokiDatasource;
   embedded?: boolean;
+  embedderName?: string;
   patterns?: AppliedPattern[];
   readOnlyLabelFilters?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
@@ -138,7 +140,12 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
     ...state
   }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { unsub, variablesScene } = getVariableSet(datasourceUid, state?.readOnlyLabelFilters, state.embedded);
+    const { unsub, variablesScene } = getVariableSet(
+      datasourceUid,
+      state?.readOnlyLabelFilters,
+      state.embedded,
+      state.embedderName
+    );
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -604,19 +611,20 @@ function getContentScene(drillDownLabel?: string) {
 function getVariableSet(
   initialDatasourceUid: string,
   readOnlyLabelFilters?: AdHocVariableFilter[],
-  embedded?: boolean
+  embedded?: boolean,
+  embedderName?: string
 ) {
-  const labelVariable = new AdHocFiltersVariable({
+  const labelVariable = new ReadOnlyAdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
-    filters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, readOnly: true })),
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
     label: 'Labels',
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
+    readonlyFilters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, origin: embedderName, readOnly: true })),
     urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 

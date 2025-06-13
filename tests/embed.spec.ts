@@ -219,7 +219,6 @@ test.describe('embed', () => {
 
   test('can nav to unembedded logs drilldown and return to service selection scene', async ({ page }) => {
     // add some field filter
-    // @todo adding a label filter is another bug that needs coverage
     await explorePage.addCustomValueToCombobox(fieldName, FilterOp.RegexEqual, ComboBoxIndex.fields, `.+st.+`, 'ca');
 
     // go to full logs drilldown via the link button
@@ -236,5 +235,19 @@ test.describe('embed', () => {
 
     // Assert something from the service selection is visible
     await expect(page.getByTestId(testIds.index.addNewLabelTab)).toHaveCount(1);
+  });
+
+  test('can add label and refresh page without losing readonly', async ({ page }) => {
+    async function assertFiltersAreReadOnly() {
+      await expect(page.getByLabel('Edit filter with key service_name')).toHaveCount(1);
+      await expect(page.getByLabel('Edit filter with key cluster')).toHaveCount(1);
+      await expect(page.getByLabel('Remove filter with key service_name')).toHaveCount(0);
+      await expect(page.getByLabel('Remove filter with key cluster')).toHaveCount(1);
+    }
+
+    await explorePage.addCustomValueToCombobox(labelName, FilterOp.RegexEqual, ComboBoxIndex.labels, `us-.+`);
+    await assertFiltersAreReadOnly();
+    await page.reload();
+    await assertFiltersAreReadOnly();
   });
 });
