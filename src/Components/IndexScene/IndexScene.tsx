@@ -134,7 +134,7 @@ interface EmbeddedIndexSceneConstructor {
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
-  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: [VAR_PATTERNS] });
 
   public constructor({
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
@@ -589,8 +589,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<IndexSceneState> = {};
 
-    if (values.patterns && typeof values.patterns === 'string') {
-      stateUpdate.patterns = JSON.parse(values.patterns) as AppliedPattern[];
+    if (values[VAR_PATTERNS] && typeof values[VAR_PATTERNS] === 'string') {
+      stateUpdate[VAR_PATTERNS] = JSON.parse(values[VAR_PATTERNS]) as AppliedPattern[];
     }
 
     this.setState(stateUpdate);
