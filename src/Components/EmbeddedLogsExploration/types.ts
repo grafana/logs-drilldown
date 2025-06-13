@@ -1,11 +1,16 @@
 import { TimeRange } from '@grafana/data';
-import { SceneTimeRangeState } from '@grafana/scenes';
+
+interface SceneTimeRangeStateStub {
+  from: string;
+  to: string;
+  value: TimeRange;
+}
 
 interface EmbeddedLogsCommonProps {
   embedderName: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   query: string;
-  timeRangeState: SceneTimeRangeState;
+  timeRangeState: SceneTimeRangeStateStub;
 }
 
 // Datasource ID is required when embedded in another application
