@@ -18,7 +18,7 @@ test.describe('play', () => {
     explorePage.echoConsoleLogsOnRetry();
   });
 
-  test.only('can load', async ({ page }) => {
+  test('can load', async ({ page }) => {
     await page.goto('https://play.grafana.org/a/grafana-lokiexplore-app/explore');
     await page.pause();
     await expect(page.getByText('Grafana Logs Drilldown').first()).toBeVisible();
