@@ -6,6 +6,7 @@ import { LinkButton } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import { ROUTES } from '../../services/routing';
+import { removeUrlParamNamespaces } from '../../services/urlUtils';
 import {
   getFieldsVariable,
   getLabelsVariable,
@@ -39,7 +40,7 @@ export class EmbeddedLinkScene extends SceneObjectBase {
       logger.error(new Error('Service scene does not exist, or is not embedded!'));
       return null;
     }
-    const params = sceneUtils.getUrlState(indexScene);
+    const params = removeUrlParamNamespaces(sceneUtils.getUrlState(indexScene));
     const { labelName, labelValue } = getPrimaryLabelFromEmbeddedScene(serviceScene, labelsVar);
 
     return (

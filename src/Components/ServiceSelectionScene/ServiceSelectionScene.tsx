@@ -128,7 +128,7 @@ function renderPrimaryLabelFilters(filters: AdHocVariableFilter[]): string {
 }
 
 const primaryLabelUrlKey = 'var-primary_label';
-const datasourceUrlKey = 'var-ds';
+export const datasourceUrlKey = 'var-ds';
 
 export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
