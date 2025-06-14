@@ -47,6 +47,7 @@ import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
+import { getNamespaceKey } from '../../services/urlSync';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -132,8 +133,10 @@ interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
 }
 
+export const PATTERNS_NAME = 'patterns';
+
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
-  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
+  protected _urlSync: SceneObjectUrlSyncConfig;
 
   public constructor({
     datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
@@ -210,6 +213,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       patterns: [],
       ...state,
       body: new LayoutScene({}),
+    });
+
+    this._urlSync = new SceneObjectUrlSyncConfig(this, {
+      keys: [getNamespaceKey(state.embedded ?? false, PATTERNS_NAME)],
     });
 
     this._subs.add(unsub);
@@ -581,15 +588,16 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
   getUrlState() {
     return {
-      patterns: JSON.stringify(this.state.patterns),
+      [getNamespaceKey(this.state.embedded ?? false, PATTERNS_NAME)]: JSON.stringify(this.state.patterns),
     };
   }
 
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<IndexSceneState> = {};
+    const patternsName = getNamespaceKey(this.state.embedded ?? false, PATTERNS_NAME);
 
-    if (values.patterns && typeof values.patterns === 'string') {
-      stateUpdate.patterns = JSON.parse(values.patterns) as AppliedPattern[];
+    if (values[patternsName] && typeof values[patternsName] === 'string') {
+      stateUpdate.patterns = JSON.parse(values[patternsName]) as AppliedPattern[];
     }
 
     this.setState(stateUpdate);
