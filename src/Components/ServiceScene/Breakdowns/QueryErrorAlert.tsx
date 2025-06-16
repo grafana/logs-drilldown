@@ -7,7 +7,9 @@ import { Alert, useStyles2 } from '@grafana/ui';
 
 import { GrotError } from '../../GrotError';
 
-export function QueryErrorAlert(props: { errors?: DataQueryError[]; tagKey: string }) {
+export const MaxSeriesRegex = /maximum of series \(\d+\) reached for a single query/;
+
+export function QueryErrorAlert(props: { errors?: DataQueryError[]; isPartial: boolean; tagKey: string }) {
   const styles = useStyles2(getQueryErrorStyles);
   const errorSet = new Set<string>();
   const traceSet = new Set<string>();
@@ -23,10 +25,15 @@ export function QueryErrorAlert(props: { errors?: DataQueryError[]; tagKey: stri
     }
     return true;
   });
+
+  const title = props.isPartial
+    ? `Showing partial results for ${props.tagKey}`
+    : `Error fetching results for ${props.tagKey}`;
+
   return (
     <GrotError>
       <div className={styles.queryError}>
-        <Alert title={`Error fetching results for ${props.tagKey}`} severity={'error'}>
+        <Alert title={title} severity={'error'}>
           {errors?.map((err, index) => (
             <QueryErrorContent traces={traceSet} key={index} err={err} label={props.tagKey} />
           ))}
@@ -60,7 +67,7 @@ export function QueryErrorContent(props: { err: DataQueryError; label: string; t
 }
 
 function ErrorMessage(props: { err: DataQueryError; label: string }) {
-  if (props.err.message?.match(/maximum of series \(\d+\) reached for a single query/)) {
+  if (props.err.message?.match(MaxSeriesRegex)) {
     return (
       <>
         {props.err.message && (
@@ -81,8 +88,8 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
               in your Loki configuration.
             </p>
             <p>
-              <strong>Tip:</strong> Reduce the time range, or add additional filters to reduce the number of
-              unique values in the {props.label} field.
+              <strong>Tip:</strong> Reduce the time range, or add additional filters to reduce the number of unique
+              values in the {props.label} field.
             </p>
           </>
         )}

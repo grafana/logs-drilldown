@@ -53,7 +53,8 @@ import { getLabelValue } from './SortByScene';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
   $data?: SceneDataProvider;
-  body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject) | SceneFlexLayout;
+  body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject);
+  errorBody?: SceneFlexLayout;
 }
 
 export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakdownSceneState> {
@@ -72,16 +73,23 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
   }
 
   public static Component = ({ model }: SceneComponentProps<FieldValuesBreakdownScene>) => {
-    const { body } = model.useState();
+    const { body, errorBody } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
-    if (body instanceof LayoutSwitcher) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
-    }
-    if (body instanceof SceneFlexLayout) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
-    }
+
     if (body) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+      return (
+        <span className={styles.panelWrapper}>
+          {errorBody && (
+            <div className={styles.errorWrapper}>
+              <errorBody.Component model={errorBody} />
+            </div>
+          )}
+          <div>
+            {body instanceof LayoutSwitcher && <body.Component model={body} />}
+            {!(body instanceof LayoutSwitcher) && body && <body.Component model={body} />}
+          </div>
+        </span>
+      );
     }
 
     return <LoadingPlaceholder text={'Loading...'} />;
@@ -99,6 +107,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     this.setState({
       $data: this.buildQueryRunner(),
       body: this.build(query),
+      errorBody: undefined,
     });
 
     // Subscribe to data query changes
@@ -318,31 +327,25 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
       if (this.state.body instanceof SceneReactObject) {
         this.setState({
           body: this.build(query),
+          errorBody: undefined,
         });
       }
     }
     if (newState.data?.state === LoadingState.Error) {
-      this.setErrorState(newState.data.errors);
+      this.setErrorState(newState.data.errors, newState.data.series.length > 0);
     }
   }
 
   /**
    * Sets the error body state
    */
-  private setErrorState(errors: DataQueryError[] | undefined) {
-    const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
+  private setErrorState(errors: DataQueryError[] | undefined, isPartial: boolean) {
     this.setState({
-      body: new SceneFlexLayout({
+      errorBody: new SceneFlexLayout({
         children: [
           new SceneFlexItem({
             body: new SceneReactObject({
-              reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} hideSearch={true} />,
-            }),
-            height: 32,
-          }),
-          new SceneFlexItem({
-            body: new SceneReactObject({
-              reactNode: <QueryErrorAlert errors={errors} tagKey={this.getTagKey()} />,
+              reactNode: <QueryErrorAlert errors={errors} tagKey={this.getTagKey()} isPartial={isPartial} />,
             }),
           }),
         ],

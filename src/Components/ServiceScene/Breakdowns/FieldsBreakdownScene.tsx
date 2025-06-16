@@ -14,7 +14,7 @@ import {
   VariableDependencyConfig,
   VariableValueOption,
 } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { Label, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
@@ -298,7 +298,17 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const { options, value } = variable.useState();
     return (
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
-        {body instanceof FieldsAggregatedBreakdownScene && <FieldsAggregatedBreakdownScene.Selector model={body} />}
+        {body instanceof FieldsAggregatedBreakdownScene && (
+          <span className={styles.toggleWrapper}>
+            <Label className={styles.toggleLabel}>
+              <Tooltip content={'Show panels that return errors'}>
+                <span className={styles.toggleLabelText}>Show errors</span>
+              </Tooltip>
+              <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+            </Label>
+            <FieldsAggregatedBreakdownScene.Selector model={body} />
+          </span>
+        )}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
@@ -370,6 +380,16 @@ function getStyles(theme: GrafanaTheme2) {
       justifyContent: 'space-between',
     }),
     labelsMenuWrapperNoSearch: css({
+      flexDirection: 'row',
+    }),
+    toggleLabel: css({
+      marginRight: theme.spacing(2),
+    }),
+    toggleLabelText: css({
+      marginRight: theme.spacing(1),
+    }),
+    toggleWrapper: css({
+      display: 'flex',
       flexDirection: 'row',
     }),
     valuesMenuWrapper: css({

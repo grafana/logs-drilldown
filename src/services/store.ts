@@ -277,6 +277,15 @@ export function setLogsVisualizationType(type: string) {
   localStorage.setItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY, type);
 }
 
+const SHOW_ERROR_PANELS_KEY = `${pluginJson.id}.panelOptions.showErrors`;
+export function getShowErrorPanels(): boolean {
+  return !!localStorage.getItem(SHOW_ERROR_PANELS_KEY);
+}
+
+export function setShowErrorPanels(showErrorPanels: boolean) {
+  localStorage.setItem(SHOW_ERROR_PANELS_KEY, showErrorPanels ? 'true' : '');
+}
+
 // JSON filter debug mode
 const JSON_PARSER_PROPS_DEBUG_KEY = `${pluginJson.id}.jsonParser.visible`;
 export function getJsonParserVariableVisibility(): boolean {

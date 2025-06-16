@@ -12,7 +12,7 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
+import { DrawStyle, InlineSwitch, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
 import { ValueSlugs } from '../../../services/enums';
 import {
@@ -24,7 +24,7 @@ import {
 import { logger } from '../../../services/logger';
 import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
-import { getPanelOption } from '../../../services/store';
+import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
@@ -47,11 +47,15 @@ import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
+  showErrorPanels: boolean;
 }
 
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
-    super(state);
+    super({
+      showErrorPanels: getShowErrorPanels(),
+      ...state,
+    });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -241,8 +245,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       this._subs.add(
         panel?.state.$data?.getResultsStream().subscribe((result) => {
           if (result.data.errors && result.data.errors.length > 0) {
-            // child.setState({ isHidden: true });
-            // this.updateFieldCount();
+            if (!this.state.showErrorPanels) {
+              child.setState({ isHidden: true });
+              this.updateFieldCount();
+            }
           }
         })
       );
@@ -258,7 +264,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       AvgFieldPanelType.timeseries;
 
     activeLayout?.state.children.forEach((child) => {
-      if (child instanceof SceneCSSGridItem) {
+      if (child instanceof SceneCSSGridItem && !this.state.showErrorPanels && !child.state.isHidden) {
         const panels = sceneGraph.findDescendents(child, VizPanel);
         if (panels.length) {
           // Will only be one panel as a child of CSSGridItem
@@ -385,10 +391,25 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   private updateFieldCount() {
     const activeLayout = this.getActiveGridLayouts();
     const activeLayoutChildren = activeLayout?.state.children as SceneCSSGridItem[] | undefined;
-    const activePanels = activeLayoutChildren;
+    const activePanels = activeLayoutChildren?.filter((child) => !this.state.showErrorPanels && !child.state.isHidden);
 
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     fieldsBreakdownScene.state.changeFieldCount?.(activePanels?.length ?? 0);
+  }
+
+  public toggleErrorPanels(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ showErrorPanels: event.target.checked });
+    setShowErrorPanels(event.target.checked);
+  }
+
+  public static ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
+    const { showErrorPanels } = model.useState();
+    return (
+      <InlineSwitch
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}
+        value={showErrorPanels}
+      />
+    );
   }
 
   public static Selector({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
