@@ -48,7 +48,7 @@ import { ByFrameRepeater } from './ByFrameRepeater';
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
-import { QueryErrorAlert } from './QueryErrorContent';
+import { QueryErrorAlert } from './QueryErrorAlert';
 import { getLabelValue } from './SortByScene';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {

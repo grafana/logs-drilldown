@@ -9,12 +9,26 @@ import { GrotError } from '../../GrotError';
 
 export function QueryErrorAlert(props: { errors?: DataQueryError[]; tagKey: string }) {
   const styles = useStyles2(getQueryErrorStyles);
+  const errorSet = new Set<string>();
+  const traceSet = new Set<string>();
+  const errors = props.errors?.filter((err) => {
+    if (err.traceId) {
+      traceSet.add(err.traceId);
+    }
+    if (err.message) {
+      if (errorSet.has(err.message)) {
+        return false;
+      }
+      errorSet.add(err.message);
+    }
+    return true;
+  });
   return (
     <GrotError>
       <div className={styles.queryError}>
         <Alert title={`Error fetching results for ${props.tagKey}`} severity={'error'}>
-          {props.errors?.map((err, index) => (
-            <QueryErrorContent key={index} err={err} label={props.tagKey} />
+          {errors?.map((err, index) => (
+            <QueryErrorContent traces={traceSet} key={index} err={err} label={props.tagKey} />
           ))}
         </Alert>
       </div>
@@ -22,12 +36,22 @@ export function QueryErrorAlert(props: { errors?: DataQueryError[]; tagKey: stri
   );
 }
 
-export function QueryErrorContent(props: { err: DataQueryError; label: string }) {
+export function QueryErrorContent(props: { err: DataQueryError; label: string; traces: Set<string> }) {
+  const traces = [...props.traces];
   return (
     <div>
-      {props.err.traceId && (
+      {traces.length && (
         <div>
-          <strong>TraceId</strong>: {props.err.traceId}
+          {traces.length === 1 && (
+            <>
+              <strong>TraceId</strong>: {traces[0]}
+            </>
+          )}
+          {traces.length > 1 && (
+            <>
+              <strong>TraceIds</strong>: {traces.join(', ')}
+            </>
+          )}
         </div>
       )}
       <ErrorMessage err={props.err} label={props.label} />
