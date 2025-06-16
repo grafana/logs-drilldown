@@ -247,8 +247,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
           if (result.data.errors && result.data.errors.length > 0) {
             if (!this.state.showErrorPanels) {
               child.setState({ isHidden: true });
-              this.updateFieldCount();
+            } else {
+              child.setState({ isHidden: false });
             }
+            this.updateFieldCount();
           }
         })
       );
@@ -264,7 +266,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       AvgFieldPanelType.timeseries;
 
     activeLayout?.state.children.forEach((child) => {
-      if (child instanceof SceneCSSGridItem && !this.state.showErrorPanels && !child.state.isHidden) {
+      if (
+        (child instanceof SceneCSSGridItem && this.state.showErrorPanels) ||
+        (child instanceof SceneCSSGridItem && !child.state.isHidden)
+      ) {
         const panels = sceneGraph.findDescendents(child, VizPanel);
         if (panels.length) {
           // Will only be one panel as a child of CSSGridItem
@@ -391,7 +396,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   private updateFieldCount() {
     const activeLayout = this.getActiveGridLayouts();
     const activeLayoutChildren = activeLayout?.state.children as SceneCSSGridItem[] | undefined;
-    const activePanels = activeLayoutChildren?.filter((child) => !this.state.showErrorPanels && !child.state.isHidden);
+    const activePanels = activeLayoutChildren?.filter((child) => this.state.showErrorPanels || !child.state.isHidden);
 
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     fieldsBreakdownScene.state.changeFieldCount?.(activePanels?.length ?? 0);
@@ -400,6 +405,23 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   public toggleErrorPanels(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ showErrorPanels: event.target.checked });
     setShowErrorPanels(event.target.checked);
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    // No need to re-run queries if we have the query runners in the panel with the error state.
+    if (!event.target.checked) {
+      if (serviceScene.state.$detectedFieldsData?.state) {
+        this.updateChildren(serviceScene.state.$detectedFieldsData?.state);
+      } else {
+        this.setState({
+          body: this.build(),
+        });
+      }
+      // But otherwise we need to re-run any query for panels we don't have query runners for.
+      // @todo We could make this more efficient and only run queries on panels that are in the latest detected_fields response that don't have an associated panel
+    } else {
+      this.setState({
+        body: this.build(),
+      });
+    }
   }
 
   public static ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
