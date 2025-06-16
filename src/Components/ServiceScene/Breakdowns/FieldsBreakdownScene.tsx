@@ -95,7 +95,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
     this.setState({
-      loading: serviceScene.state.$detectedLabelsData?.state.data?.state !== LoadingState.Done,
+      loading: serviceScene.state.$detectedLabelsData?.state.data?.state === LoadingState.Loading,
     });
 
     // Subscriptions
@@ -128,7 +128,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     this._subs.add(
       serviceScene.state.$detectedFieldsData?.subscribeToState(
         (newState: QueryRunnerState, oldState: QueryRunnerState) => {
-          if (newState.data?.state === LoadingState.Done) {
+          if (newState.data?.state === LoadingState.Done || newState.data?.state === LoadingState.Error) {
             if (newState.data.series?.[0]) {
               this.updateOptions(newState.data.series?.[0]);
             }

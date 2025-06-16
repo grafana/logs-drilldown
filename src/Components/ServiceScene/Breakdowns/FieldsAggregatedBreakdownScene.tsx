@@ -241,8 +241,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       this._subs.add(
         panel?.state.$data?.getResultsStream().subscribe((result) => {
           if (result.data.errors && result.data.errors.length > 0) {
-            child.setState({ isHidden: true });
-            this.updateFieldCount();
+            // child.setState({ isHidden: true });
+            // this.updateFieldCount();
           }
         })
       );
@@ -258,7 +258,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       AvgFieldPanelType.timeseries;
 
     activeLayout?.state.children.forEach((child) => {
-      if (child instanceof SceneCSSGridItem && !child.state.isHidden) {
+      if (child instanceof SceneCSSGridItem) {
         const panels = sceneGraph.findDescendents(child, VizPanel);
         if (panels.length) {
           // Will only be one panel as a child of CSSGridItem
@@ -385,7 +385,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   private updateFieldCount() {
     const activeLayout = this.getActiveGridLayouts();
     const activeLayoutChildren = activeLayout?.state.children as SceneCSSGridItem[] | undefined;
-    const activePanels = activeLayoutChildren?.filter((child) => !child.state.isHidden);
+    const activePanels = activeLayoutChildren;
 
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     fieldsBreakdownScene.state.changeFieldCount?.(activePanels?.length ?? 0);
