@@ -1,5 +1,34 @@
 # Changelog
 
+#### 1.0.18
+
+##### Chores
+
+* **gha:**
+  *  id-token permission (#1338) (283b1fb2)
+  *  update ci to ci/cd job to auto deploy to dev (#1321) (a600310f)
+  *  github permissions are fun (#1314) (d650a4f1)
+  *  add proper permissions to format gh issues (#1312) (118774d3)
+  *  update deployment tools wf (#1297) (6ccbf550)
+* **deps:**  bump golang.org/x/net (#1326) (b43e2320)
+* **gh issues:**
+  *  formate issues with labels and project (#1291) (8e4777c1)
+  *  update issue templates (#1290) (ffe12ffb)
+
+##### New Features
+
+* **embedding:**
+  *  Embedded readonly filters (#1315) (43abb74d)
+  *  Embedded Service Scene Component (#1294) (bd4f5e36)
+* **LogsPanelScene:**  pass custom items to new panel (#1306) (3d011c63)
+*  add token to generator (#1305) (784f7764)
+
+##### Bug Fixes
+
+* **logs-panel:**  infinite scroll broken by double jsonFields interpolation (#1302) (97619800)
+* **JSON:**  add second json parser stage (#1301) (20b338dd)
+* **EmbeddedLogs:**  Prevent readonly filter removal (#1323) (39678dbe)
+
 #### 1.0.17
 
 ##### Chores
@@ -163,7 +192,6 @@
 
 - Make extensions compatibly with different Grafana versions (#1148) (e2c75d29)
 
-# Changelog
 
 View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for up-to-date changelog information.
 
