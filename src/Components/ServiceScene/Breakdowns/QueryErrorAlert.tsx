@@ -81,7 +81,7 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
               in your Loki configuration.
             </p>
             <p>
-              <strong>Workaround:</strong> Reduce the time range, or add additional filters to reduce the number of
+              <strong>Tip:</strong> Reduce the time range, or add additional filters to reduce the number of
               unique values in the {props.label} field.
             </p>
           </>
