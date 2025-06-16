@@ -10,3 +10,4 @@ package.json
 .husky/
 project-words.txt
 yarn.lock
+*.yaml
