@@ -11,41 +11,9 @@
   *  add proper permissions to format gh issues (#1312) (118774d3)
   *  update deployment tools wf (#1297) (6ccbf550)
 * **deps:**  bump golang.org/x/net (#1326) (b43e2320)
-* **version:**  1.0.17 (#1295) (de676327)
 * **gh issues:**
   *  formate issues with labels and project (#1291) (8e4777c1)
   *  update issue templates (#1290) (ffe12ffb)
-* **lint:**  lint all the things, except ignore (#1289) (5798dec4)
-* **release:**
-  *  1.0.16 (#1279) (011daad8)
-  *  release 1.0.15 (#1260) (d7d9c358)
-*  call interpolateExpression (#1276) (796cacee)
-*  run lint (#1274) (fa1d3b7d)
-*  update to 11.6.1 (#1270) (505a307a)
-*  add option to output to syslog from the generator (#1240) (14057e9f)
-*  (plugin-ci-workflows) - init vanilla plugin-ci-workflows (#1215) (ea21ded8)
-*  bump @grafana/create-plugin configuration to 5.19.8 (#1232) (9ffc46f6)
-* **vault:**  use vault, remove old gha (#1272) (b4b9a896)
-* **plugin-ci-workflows:**
-  *  publish skip playwright (#1263) (5becc84a)
-  *  playwright skip dev image (#1262) (99ef2c9b)
-  *  temporarily disable release.yml (#1256) (8517cc0f)
-* **bundle-stats:**  swap bundlewatch for cp gha bundle-stats (#1252) (2121df39)
-* **e2e:**  clean up & flake prevention (#1247) (0ee52382)
-* **eslint:**  sort, a11y, cleanup husky, lint (#1219) (f3505456)
-
-##### Continuous Integration
-
-*  also release in other dir (#1266) (2d9262ec)
-
-##### Documentation Changes
-
-*  fix incomplete sentence (#1309) (9b9d6a0a)
-*  add favorites docs to readme (#1277) (cd64dbfc)
-*  Addressing review comments #1248 (#1251) (713251e1)
-*  Updating screenshots and docs (#1248) (a1db542d)
-*  update the versions in the README (#1249) (6f4c3c48)
-*  JSON viewer documentation (#1243) (a78469d9)
 
 ##### New Features
 
@@ -60,15 +28,6 @@
 * **logs-panel:**  infinite scroll broken by double jsonFields interpolation (#1302) (97619800)
 * **JSON:**  add second json parser stage (#1301) (20b338dd)
 * **EmbeddedLogs:**  Prevent readonly filter removal (#1323) (39678dbe)
-* **table:**  move sorting and remove initial sorting from table (#1284) (f0561406)
-*  move automatic json parser management to json viz scene (#1253) (f8882f08)
-* **aggregated-metric:**  Dropdown broken on click (#1246) (bf4f021d)
-* **links:**  Single escaped doublequote bug (#1242) (cd8168ac)
-
-##### Other Changes
-
-*  Dashboards > Visualizations (#1261) (216b9256)
-
 
 #### 1.0.17
 
