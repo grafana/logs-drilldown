@@ -13,7 +13,6 @@ import {
   sceneGraph,
   SceneObject,
   SceneObjectBase,
-  SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
   SceneRefreshPicker,
@@ -36,7 +35,6 @@ import { isFilterMetadata } from '../../services/filters';
 import { FilterOp } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
-import { LokiDatasource } from '../../services/lokiQuery';
 import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
@@ -60,7 +58,7 @@ import {
 import { operatorFunction } from '../../services/variableHelpers';
 import { JsonData } from '../AppConfig/AppConfig';
 import { NoLokiSplash } from '../NoLokiSplash';
-import { DEFAULT_TIME_RANGE, OptionalRouteMatch } from '../Pages';
+import { DEFAULT_TIME_RANGE } from '../Pages';
 import { ServiceScene } from '../ServiceScene/ServiceScene';
 import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelectionScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
@@ -79,6 +77,7 @@ import {
 } from './LayoutScene';
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
+import { IndexSceneState } from './types';
 import {
   getJsonParserExpressionBuilder,
   getLineFormatExpressionBuilder,
@@ -114,19 +113,6 @@ import {
 } from 'services/variables';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
-
-export interface IndexSceneState extends SceneObjectState {
-  body?: LayoutScene;
-  // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
-  contentScene?: SceneObject;
-  controls?: SceneObject[];
-  ds?: LokiDatasource;
-  embedded?: boolean;
-  embedderName?: string;
-  patterns?: AppliedPattern[];
-  readOnlyLabelFilters?: AdHocVariableFilter[];
-  routeMatch?: OptionalRouteMatch;
-}
 
 interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
