@@ -16,7 +16,7 @@ import {
   SceneQueryRunner,
   SceneReactObject,
 } from '@grafana/scenes';
-import { Alert, DrawStyle, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { DrawStyle, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../services/comparison';
 import {
@@ -48,11 +48,12 @@ import { ByFrameRepeater } from './ByFrameRepeater';
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
+import { QueryErrorAlert } from './QueryErrorContent';
 import { getLabelValue } from './SortByScene';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
   $data?: SceneDataProvider;
-  body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject);
+  body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject) | SceneFlexLayout;
 }
 
 export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakdownSceneState> {
@@ -73,6 +74,12 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
   public static Component = ({ model }: SceneComponentProps<FieldValuesBreakdownScene>) => {
     const { body } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
+    if (body instanceof LayoutSwitcher) {
+      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+    }
+    if (body instanceof SceneFlexLayout) {
+      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+    }
     if (body) {
       return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
     }
@@ -323,31 +330,23 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
    * Sets the error body state
    */
   private setErrorState(errors: DataQueryError[] | undefined) {
+    const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     this.setState({
-      body: new SceneReactObject({
-        reactNode: (
-          <Alert title={'Something went wrong with your request'} severity={'error'}>
-            {errors?.map((err, key) => (
-              <div key={key}>
-                {err.status && (
-                  <>
-                    <strong>Status</strong>: {err.status} <br />
-                  </>
-                )}
-                {err.message && (
-                  <>
-                    <strong>Message</strong>: {err.message} <br />
-                  </>
-                )}
-                {err.traceId && (
-                  <>
-                    <strong>TraceId</strong>: {err.traceId}
-                  </>
-                )}
-              </div>
-            ))}
-          </Alert>
-        ),
+      body: new SceneFlexLayout({
+        children: [
+          new SceneFlexItem({
+            body: new SceneReactObject({
+              reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} hideSearch={true} />,
+            }),
+            height: 32,
+          }),
+          new SceneFlexItem({
+            body: new SceneReactObject({
+              reactNode: <QueryErrorAlert errors={errors} tagKey={this.getTagKey()} />,
+            }),
+          }),
+        ],
+        direction: 'column',
       }),
     });
   }

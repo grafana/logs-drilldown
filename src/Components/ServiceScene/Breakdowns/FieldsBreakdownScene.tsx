@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 
 import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
@@ -288,16 +288,19 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     navigateToValueBreakdown(ValueSlugs.field, value, serviceScene);
   };
 
-  public static LabelsMenu = ({ model }: SceneComponentProps<FieldsBreakdownScene>) => {
+  public static LabelsMenu = ({
+    hideSearch,
+    model,
+  }: SceneComponentProps<FieldsBreakdownScene> & { hideSearch?: boolean }) => {
     const { body, loading, search } = model.useState();
     const styles = useStyles2(getStyles);
     const variable = getFieldGroupByVariable(model);
     const { options, value } = variable.useState();
     return (
-      <div className={styles.labelsMenuWrapper}>
+      <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && <FieldsAggregatedBreakdownScene.Selector model={body} />}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
-        {body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
+        {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
           <FieldSelector label="Field" options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
         )}
@@ -365,6 +368,9 @@ function getStyles(theme: GrafanaTheme2) {
       flexGrow: 0,
       gap: theme.spacing(2),
       justifyContent: 'space-between',
+    }),
+    labelsMenuWrapperNoSearch: css({
+      flexDirection: 'row',
     }),
     valuesMenuWrapper: css({
       alignItems: 'top',
