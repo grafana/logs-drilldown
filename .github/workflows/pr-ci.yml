@@ -34,5 +34,7 @@ jobs:
       run-playwright-with-skip-grafana-dev-image: true
       run-playwright-with-grafana-dependency: '>=12.0.0'
       upload-playwright-artifacts: true
+      #      We can specify a specific playwright config that will only run tests in a certain directory
+      #      playwright-config: 'playwright.config.ts'
       playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001/grafana
