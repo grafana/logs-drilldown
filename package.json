@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --cache --ignore-path ./.eslintignore",
     "lint:fix": "yarn run lint --fix && prettier --write --list-different . --ignore-path ./.prettierignore",
+    "e2e:smoke": "playwright test -c playwright.smoke.config.ts -x --trace on",
     "e2e": "playwright test -x --trace on",
     "e2e:fast": "playwright test --retries=1 --workers=3",
     "e2e:10x": "playwright test -x --trace on --repeat-each=10 --workers 1",
