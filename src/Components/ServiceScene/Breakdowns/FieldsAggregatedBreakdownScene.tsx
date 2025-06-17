@@ -16,6 +16,7 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, IconButton, InlineSwitch, Label, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { ValueSlugs } from '../../../services/enums';
 import {
   buildFieldsQueryString,
@@ -411,11 +412,15 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   public toggleErrorPanels(event: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ showErrorPanels: event.target.checked });
-    setShowErrorPanels(event.target.checked);
+    const showErrorPanels = event.target.checked;
+    this.setState({ showErrorPanels });
+    setShowErrorPanels(showErrorPanels);
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.toggle_error_panels, {
+      checked: showErrorPanels,
+    });
     // No need to re-run queries if we have the query runners in the panel with the error state.
-    if (!event.target.checked) {
+    if (!showErrorPanels) {
       if (serviceScene.state.$detectedFieldsData?.state) {
         this.updateChildren(serviceScene.state.$detectedFieldsData?.state);
       } else {
