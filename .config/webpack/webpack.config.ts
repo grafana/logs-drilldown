@@ -178,8 +178,8 @@ const config = async (env: Env): Promise<Configuration> => {
       clean: {
         keep: new RegExp(`(.*?_(amd64|arm(64)?)(.exe)?|go_plugin_build_manifest)`),
       },
-      filename: '[name].js?_cache=[chunkhash]',
-      chunkFilename: '[chunkhash].js',
+      filename: '[name].js',
+      chunkFilename: env.production ? '[name].js?_cache=[contenthash]' : '[name].js',
       library: {
         type: 'amd',
       },
