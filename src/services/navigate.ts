@@ -186,7 +186,3 @@ export function navigateToIndex() {
     pushUrlHandler(serviceUrl);
   }
 }
-
-export function goBack() {
-  locationService.getHistory().goBack();
-}
