@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { DataFrame, LoadingState } from '@grafana/data';
+import { css } from '@emotion/css';
+
+import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
@@ -12,7 +14,7 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { DrawStyle, InlineSwitch, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
+import { DrawStyle, IconButton, InlineSwitch, Label, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
 import { ValueSlugs } from '../../../services/enums';
 import {
@@ -48,12 +50,14 @@ import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
   showErrorPanels: boolean;
+  showErrorPanelToggle: boolean;
 }
 
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
     super({
       showErrorPanels: getShowErrorPanels(),
+      showErrorPanelToggle: false,
       ...state,
     });
 
@@ -240,8 +244,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   private subscribeToPanel(child: SceneCSSGridItem) {
-    const panel = child.state.body as VizPanel | undefined;
-    if (panel) {
+    const panel = child.state.body;
+    if (panel && panel instanceof VizPanel) {
       this._subs.add(
         panel?.state.$data?.getResultsStream().subscribe((result) => {
           if (result.data.errors && result.data.errors.length > 0) {
@@ -249,6 +253,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
               child.setState({ isHidden: true });
             } else {
               child.setState({ isHidden: false });
+            }
+
+            if (!this.state.showErrorPanelToggle) {
+              this.setState({ showErrorPanelToggle: true });
             }
             this.updateFieldCount();
           }
@@ -424,15 +432,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
   }
 
-  public static ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
-    const { showErrorPanels } = model.useState();
-    return (
-      <InlineSwitch
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}
-        value={showErrorPanels}
-      />
-    );
-  }
+  public static ShowErrorPanelToggle = ShowErrorPanelToggle;
 
   public static Selector({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
     const { body } = model.useState();
@@ -448,4 +448,47 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     return <LoadingPlaceholder text={'Loading...'} />;
   };
+}
+
+const errorToggleStyles = (theme: GrafanaTheme2) => {
+  return {
+    toggleIcon: css({
+      color: theme.colors.error.main,
+      marginRight: theme.spacing(1),
+    }),
+    toggleLabel: css({
+      display: 'flex',
+
+      marginRight: theme.spacing(2),
+    }),
+    toggleLabelText: css({
+      marginRight: theme.spacing(1),
+    }),
+  };
+};
+
+export function ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
+  const { showErrorPanels, showErrorPanelToggle } = model.useState();
+  const styles = useStyles2(errorToggleStyles);
+
+  if (showErrorPanelToggle) {
+    return (
+      <Label className={styles.toggleLabel}>
+        <IconButton
+          className={styles.toggleIcon}
+          tooltip={'One or more requests could not be processed'}
+          name={'exclamation-triangle'}
+          variant={'secondary'}
+        />
+        <span className={styles.toggleLabelText}>Show panels with errors</span>
+
+        <InlineSwitch
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}
+          value={showErrorPanels}
+        />
+      </Label>
+    );
+  }
+
+  return null;
 }
