@@ -1,4 +1,5 @@
 import { LogsDedupStrategy } from '@grafana/data';
+import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
@@ -157,6 +158,14 @@ function createTabsLocalStorageKey(ds: string) {
 
 export function getLastUsedDataSourceFromStorage(): string | undefined {
   return localStorage.getItem(DS_LOCALSTORAGE_KEY) ?? undefined;
+}
+export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
+  const ds = getDataSourceSrv()
+    .getList({
+      type: 'loki',
+    })
+    .find((ds) => ds.isDefault);
+  return ds?.uid;
 }
 
 export function addLastUsedDataSourceToStorage(dsKey: string) {
