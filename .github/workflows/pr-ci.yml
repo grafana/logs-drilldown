@@ -31,7 +31,8 @@ jobs:
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
 
       # Do not re-run playwright on merge to main
-      run-playwright: ${{ (github.event_name == 'push' && github.ref_name == 'main') && 'false' || 'true' }}
+      run-playwright: ${{ !(github.event.pull_request.merged && github.event.pull_request.base.ref == 'main') }}
+
       # Same settings as publish
       run-playwright-with-skip-grafana-dev-image: true
       run-playwright-with-grafana-dependency: '>=12.0.0'
