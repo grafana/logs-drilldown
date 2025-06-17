@@ -3,13 +3,21 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { DataQueryError, GrafanaTheme2 } from '@grafana/data';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert, LinkButton, useStyles2 } from '@grafana/ui';
 
+import { PageSlugs } from '../../../services/enums';
+import { getDrillDownTabLink } from '../../../services/navigate';
 import { GrotError } from '../../GrotError';
+import { ServiceScene } from '../ServiceScene';
 
 export const MaxSeriesRegex = /maximum of series \(\d+\) reached for a single query/;
 
-export function QueryErrorAlert(props: { errors?: DataQueryError[]; isPartial: boolean; tagKey: string }) {
+export function QueryErrorAlert(props: {
+  errors?: DataQueryError[];
+  isPartial: boolean;
+  serviceScene: ServiceScene;
+  tagKey: string;
+}) {
   const styles = useStyles2(getQueryErrorStyles);
   const errorSet = new Set<string>();
   const traceSet = new Set<string>();
@@ -37,6 +45,11 @@ export function QueryErrorAlert(props: { errors?: DataQueryError[]; isPartial: b
           {errors?.map((err, index) => (
             <QueryErrorContent traces={traceSet} key={index} err={err} label={props.tagKey} />
           ))}
+          <div className={styles.buttonWrap}>
+            <LinkButton variant={'secondary'} href={getDrillDownTabLink(PageSlugs.fields, props.serviceScene)}>
+              Return to all fields
+            </LinkButton>
+          </div>
         </Alert>
       </div>
     </GrotError>
@@ -110,6 +123,10 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
 
 export const getQueryErrorStyles = (theme: GrafanaTheme2) => {
   return {
+    buttonWrap: css({
+      display: 'flex',
+      justifyContent: 'flex-end',
+    }),
     queryError: css({
       textAlign: 'left',
     }),
