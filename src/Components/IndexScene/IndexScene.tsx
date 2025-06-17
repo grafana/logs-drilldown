@@ -140,8 +140,12 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
+    const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
     const datasourceUid =
-      getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv() ?? 'grafanacloud-logs';
+      jsonData?.dataSource ??
+      getLastUsedDataSourceFromStorage() ??
+      getDefaultDatasourceFromDatasourceSrv() ??
+      'grafanacloud-logs';
 
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
