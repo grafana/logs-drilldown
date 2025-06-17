@@ -31,7 +31,7 @@ jobs:
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
 
       # Run playwright only on PR and not on merge to main
-      run-playwright: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') && 'true' || 'false' }}
+      run-playwright: ${{ (github.event_name == 'pull_request' && github.ref_name == 'main') && 'true' || 'false' }}
 
       # Same settings as publish
       run-playwright-with-skip-grafana-dev-image: true
