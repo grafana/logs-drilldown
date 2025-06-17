@@ -67,8 +67,8 @@ const AppConfig = ({ plugin }: Props) => {
         <Field
           description={
             <span>
-              The default datasource to be used for new Logs Drilldown users. Is overridden by the last data source
-              selected in the Logs Drilldown.
+              The default data source to be used for new Logs Drilldown users. Each user can override their default by
+              setting another data source in Logs Drilldown.
             </span>
           }
           label={'Default data source'}
