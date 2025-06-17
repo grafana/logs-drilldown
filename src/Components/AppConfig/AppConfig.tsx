@@ -74,6 +74,7 @@ const AppConfig = ({ plugin }: Props) => {
           label={'Default data source'}
         >
           <DataSourcePicker
+            width={60}
             filter={(ds) => ds.type === 'loki'}
             current={state.dataSource}
             onChange={onChangeDatasource}
