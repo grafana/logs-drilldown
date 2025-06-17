@@ -9,6 +9,18 @@ on:
 permissions: {}
 
 jobs:
+  debug:
+    name: Debug Information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Event Information
+        run: |
+          echo "Event Name: ${{ github.event_name }}"
+          echo "Ref Name: ${{ github.ref_name }}"
+          echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
+          echo "Run Playwright: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') && 'true' || 'false' }}"
+
   cd:
     name: CI / CD
     uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@main # zizmor: ignore[unpinned-uses]
@@ -31,7 +43,7 @@ jobs:
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
 
       # Run playwright only on PR and not on merge to main
-      run-playwright: ${{ (github.event_name == 'pull_request' && github.ref_name == 'main') && 'true' || 'false' }}
+      run-playwright: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') && 'true' || 'false' }}
 
       # Same settings as publish
       run-playwright-with-skip-grafana-dev-image: true
