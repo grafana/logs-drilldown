@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { DataFrame, LoadingState } from '@grafana/data';
+import { css } from '@emotion/css';
+
+import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
@@ -12,8 +14,9 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
+import { DrawStyle, IconButton, InlineSwitch, Label, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { ValueSlugs } from '../../../services/enums';
 import {
   buildFieldsQueryString,
@@ -24,7 +27,7 @@ import {
 import { logger } from '../../../services/logger';
 import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
-import { getPanelOption } from '../../../services/store';
+import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
@@ -47,11 +50,17 @@ import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
+  showErrorPanels: boolean;
+  showErrorPanelToggle: boolean;
 }
 
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
-    super(state);
+    super({
+      showErrorPanels: getShowErrorPanels(),
+      showErrorPanelToggle: false,
+      ...state,
+    });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -236,12 +245,20 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   private subscribeToPanel(child: SceneCSSGridItem) {
-    const panel = child.state.body as VizPanel | undefined;
-    if (panel) {
+    const panel = child.state.body;
+    if (panel && panel instanceof VizPanel) {
       this._subs.add(
         panel?.state.$data?.getResultsStream().subscribe((result) => {
           if (result.data.errors && result.data.errors.length > 0) {
-            child.setState({ isHidden: true });
+            if (!this.state.showErrorPanels) {
+              child.setState({ isHidden: true });
+            } else {
+              child.setState({ isHidden: false });
+            }
+
+            if (!this.state.showErrorPanelToggle) {
+              this.setState({ showErrorPanelToggle: true });
+            }
             this.updateFieldCount();
           }
         })
@@ -258,7 +275,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       AvgFieldPanelType.timeseries;
 
     activeLayout?.state.children.forEach((child) => {
-      if (child instanceof SceneCSSGridItem && !child.state.isHidden) {
+      if (
+        (child instanceof SceneCSSGridItem && this.state.showErrorPanels) ||
+        (child instanceof SceneCSSGridItem && !child.state.isHidden)
+      ) {
         const panels = sceneGraph.findDescendents(child, VizPanel);
         if (panels.length) {
           // Will only be one panel as a child of CSSGridItem
@@ -385,11 +405,39 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   private updateFieldCount() {
     const activeLayout = this.getActiveGridLayouts();
     const activeLayoutChildren = activeLayout?.state.children as SceneCSSGridItem[] | undefined;
-    const activePanels = activeLayoutChildren?.filter((child) => !child.state.isHidden);
+    const activePanels = activeLayoutChildren?.filter((child) => this.state.showErrorPanels || !child.state.isHidden);
 
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     fieldsBreakdownScene.state.changeFieldCount?.(activePanels?.length ?? 0);
   }
+
+  public toggleErrorPanels(event: React.ChangeEvent<HTMLInputElement>) {
+    const showErrorPanels = event.target.checked;
+    this.setState({ showErrorPanels });
+    setShowErrorPanels(showErrorPanels);
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.toggle_error_panels, {
+      checked: showErrorPanels,
+    });
+    // No need to re-run queries if we have the query runners in the panel with the error state.
+    if (!showErrorPanels) {
+      if (serviceScene.state.$detectedFieldsData?.state) {
+        this.updateChildren(serviceScene.state.$detectedFieldsData?.state);
+      } else {
+        this.setState({
+          body: this.build(),
+        });
+      }
+      // But otherwise we need to re-run any query for panels we don't have query runners for.
+      // @todo We could make this more efficient and only run queries on panels that are in the latest detected_fields response that don't have an associated panel
+    } else {
+      this.setState({
+        body: this.build(),
+      });
+    }
+  }
+
+  public static ShowErrorPanelToggle = ShowErrorPanelToggle;
 
   public static Selector({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
     const { body } = model.useState();
@@ -405,4 +453,47 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     return <LoadingPlaceholder text={'Loading...'} />;
   };
+}
+
+const errorToggleStyles = (theme: GrafanaTheme2) => {
+  return {
+    toggleIcon: css({
+      color: theme.colors.error.main,
+      marginRight: theme.spacing(1),
+    }),
+    toggleLabel: css({
+      display: 'flex',
+
+      marginRight: theme.spacing(2),
+    }),
+    toggleLabelText: css({
+      marginRight: theme.spacing(1),
+    }),
+  };
+};
+
+export function ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
+  const { showErrorPanels, showErrorPanelToggle } = model.useState();
+  const styles = useStyles2(errorToggleStyles);
+
+  if (showErrorPanelToggle) {
+    return (
+      <Label className={styles.toggleLabel}>
+        <IconButton
+          className={styles.toggleIcon}
+          tooltip={'One or more requests could not be processed'}
+          name={'exclamation-triangle'}
+          variant={'secondary'}
+        />
+        <span className={styles.toggleLabelText}>Show panels with errors</span>
+
+        <InlineSwitch
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}
+          value={showErrorPanels}
+        />
+      </Label>
+    );
+  }
+
+  return null;
 }

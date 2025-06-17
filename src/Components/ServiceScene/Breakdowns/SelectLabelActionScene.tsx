@@ -159,6 +159,14 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
       ? numericFilterOption
       : sparseIncludeOption;
 
+    const panel = sceneGraph.getAncestor(model, VizPanel);
+    const $panelData = sceneGraph.getData(panel);
+    // Need to re-render on data changes now, or disabled button state might get stale.
+    const { data } = $panelData.useState();
+    const hasData = (data?.series.length ?? 0) > 0;
+    const isError = (data?.errors?.length ?? 0) > 0;
+    const disabled = !hasData && isError;
+
     return (
       <>
         {hasOtherFilter && (
@@ -196,6 +204,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
         )}
         {hideValueDrilldown !== true && (
           <LinkButton
+            disabled={disabled}
             title={`View breakdown of values for ${labelName}`}
             variant="primary"
             fill="outline"
