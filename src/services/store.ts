@@ -1,4 +1,5 @@
 import { LogsDedupStrategy } from '@grafana/data';
+import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
@@ -158,6 +159,14 @@ function createTabsLocalStorageKey(ds: string) {
 export function getLastUsedDataSourceFromStorage(): string | undefined {
   return localStorage.getItem(DS_LOCALSTORAGE_KEY) ?? undefined;
 }
+export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
+  const ds = getDataSourceSrv()
+    .getList({
+      type: 'loki',
+    })
+    .find((ds) => ds.isDefault);
+  return ds?.uid;
+}
 
 export function addLastUsedDataSourceToStorage(dsKey: string) {
   localStorage.setItem(DS_LOCALSTORAGE_KEY, dsKey);
@@ -275,6 +284,15 @@ export function getLogsVisualizationType(): LogsVisualizationType {
 
 export function setLogsVisualizationType(type: string) {
   localStorage.setItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY, type);
+}
+
+const SHOW_ERROR_PANELS_KEY = `${pluginJson.id}.panelOptions.showErrors`;
+export function getShowErrorPanels(): boolean {
+  return !!localStorage.getItem(SHOW_ERROR_PANELS_KEY);
+}
+
+export function setShowErrorPanels(showErrorPanels: boolean) {
+  localStorage.setItem(SHOW_ERROR_PANELS_KEY, showErrorPanels ? 'true' : '');
 }
 
 // JSON filter debug mode

@@ -90,7 +90,11 @@ import {
   renderLogQLLineFilter,
   renderLogQLMetadataFilters,
 } from 'services/query';
-import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
+import {
+  addLastUsedDataSourceToStorage,
+  getDefaultDatasourceFromDatasourceSrv,
+  getLastUsedDataSourceFromStorage,
+} from 'services/store';
 import {
   AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
@@ -121,10 +125,14 @@ interface EmbeddedIndexSceneConstructor {
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
-  public constructor({
-    datasourceUid = getLastUsedDataSourceFromStorage() ?? 'grafanacloud-logs',
-    ...state
-  }: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
+  public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
+    const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+    const datasourceUid =
+      jsonData?.dataSource ??
+      getLastUsedDataSourceFromStorage() ??
+      getDefaultDatasourceFromDatasourceSrv() ??
+      'grafanacloud-logs';
+
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
       state?.readOnlyLabelFilters,

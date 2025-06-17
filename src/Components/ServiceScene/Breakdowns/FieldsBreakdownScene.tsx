@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 
 import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
@@ -95,7 +95,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
     this.setState({
-      loading: serviceScene.state.$detectedLabelsData?.state.data?.state !== LoadingState.Done,
+      loading: serviceScene.state.$detectedLabelsData?.state.data?.state === LoadingState.Loading,
     });
 
     // Subscriptions
@@ -128,7 +128,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     this._subs.add(
       serviceScene.state.$detectedFieldsData?.subscribeToState(
         (newState: QueryRunnerState, oldState: QueryRunnerState) => {
-          if (newState.data?.state === LoadingState.Done) {
+          if (newState.data?.state === LoadingState.Done || newState.data?.state === LoadingState.Error) {
             if (newState.data.series?.[0]) {
               this.updateOptions(newState.data.series?.[0]);
             }
@@ -288,16 +288,24 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     navigateToValueBreakdown(ValueSlugs.field, value, serviceScene);
   };
 
-  public static LabelsMenu = ({ model }: SceneComponentProps<FieldsBreakdownScene>) => {
+  public static LabelsMenu = ({
+    hideSearch,
+    model,
+  }: SceneComponentProps<FieldsBreakdownScene> & { hideSearch?: boolean }) => {
     const { body, loading, search } = model.useState();
     const styles = useStyles2(getStyles);
     const variable = getFieldGroupByVariable(model);
     const { options, value } = variable.useState();
     return (
-      <div className={styles.labelsMenuWrapper}>
-        {body instanceof FieldsAggregatedBreakdownScene && <FieldsAggregatedBreakdownScene.Selector model={body} />}
+      <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
+        {body instanceof FieldsAggregatedBreakdownScene && (
+          <span className={styles.toggleWrapper}>
+            <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+            <FieldsAggregatedBreakdownScene.Selector model={body} />
+          </span>
+        )}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
-        {body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
+        {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
           <FieldSelector label="Field" options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
         )}
@@ -365,6 +373,13 @@ function getStyles(theme: GrafanaTheme2) {
       flexGrow: 0,
       gap: theme.spacing(2),
       justifyContent: 'space-between',
+    }),
+    labelsMenuWrapperNoSearch: css({
+      flexDirection: 'row',
+    }),
+    toggleWrapper: css({
+      display: 'flex',
+      flexDirection: 'row',
     }),
     valuesMenuWrapper: css({
       alignItems: 'top',

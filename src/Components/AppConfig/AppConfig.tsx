@@ -4,17 +4,27 @@ import { css } from '@emotion/css';
 import { isNumber } from 'lodash';
 import { lastValueFrom } from 'rxjs';
 
-import { AppPluginMeta, GrafanaTheme2, PluginConfigPageProps, PluginMeta, rangeUtil } from '@grafana/data';
-import { getBackendSrv, locationService } from '@grafana/runtime';
+import {
+  AppPluginMeta,
+  DataSourceInstanceSettings,
+  GrafanaTheme2,
+  PluginConfigPageProps,
+  PluginMeta,
+  rangeUtil,
+} from '@grafana/data';
+import { DataSourcePicker, getBackendSrv, locationService } from '@grafana/runtime';
 import { Button, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
+import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 
 export type JsonData = {
+  dataSource?: string;
   interval?: string;
 };
 
 type State = {
+  dataSource: string;
   interval: string;
   isValid: boolean;
 };
@@ -29,9 +39,18 @@ const AppConfig = ({ plugin }: Props) => {
   const { enabled, jsonData, pinned } = plugin.meta;
 
   const [state, setState] = useState<State>({
+    dataSource:
+      jsonData?.dataSource ?? getDefaultDatasourceFromDatasourceSrv() ?? getLastUsedDataSourceFromStorage() ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
   });
+
+  const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
+    setState({
+      ...state,
+      dataSource: ds.uid,
+    });
+  };
 
   const onChangeInterval = (event: ChangeEvent<HTMLInputElement>) => {
     const interval = event.target.value.trim();
@@ -45,6 +64,23 @@ const AppConfig = ({ plugin }: Props) => {
   return (
     <div data-testid={testIds.appConfig.container}>
       <FieldSet label="Settings">
+        <Field
+          description={
+            <span>
+              The default data source to be used for new Logs Drilldown users. Each user can override their default by
+              setting another data source in Logs Drilldown.
+            </span>
+          }
+          label={'Default data source'}
+        >
+          <DataSourcePicker
+            width={60}
+            filter={(ds) => ds.type === 'loki'}
+            current={state.dataSource}
+            onChange={onChangeDatasource}
+          />
+        </Field>
+
         <Field
           invalid={!isValid(state.interval)}
           error={'Interval is invalid. Please enter an interval longer then "60m". For example: 3d, 1w, 1m'}
@@ -77,6 +113,7 @@ const AppConfig = ({ plugin }: Props) => {
               updatePluginAndReload(plugin.meta.id, {
                 enabled,
                 jsonData: {
+                  dataSource: state.dataSource,
                   interval: state.interval,
                 },
                 pinned,
@@ -127,6 +164,7 @@ const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<
 const testIds = {
   appConfig: {
     container: 'data-testid ac-container',
+    datasource: 'data-testid ac-datasource-input',
     interval: 'data-testid ac-interval-input',
     submit: 'data-testid ac-submit-form',
   },

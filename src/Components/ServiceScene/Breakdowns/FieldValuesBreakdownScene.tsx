@@ -2,8 +2,8 @@ import React from 'react';
 
 import { DataQueryError, LoadingState } from '@grafana/data';
 import {
-  PanelBuilders,
   SceneComponentProps,
+  SceneControlsSpacer,
   SceneCSSGridLayout,
   SceneDataProvider,
   SceneDataState,
@@ -16,7 +16,7 @@ import {
   SceneQueryRunner,
   SceneReactObject,
 } from '@grafana/scenes';
-import { Alert, DrawStyle, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { DrawStyle, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../services/comparison';
 import {
@@ -42,17 +42,19 @@ import {
   getPatternsVariable,
 } from '../../../services/variableGetters';
 import { ParserType, VAR_FIELDS, VAR_METADATA } from '../../../services/variables';
-import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
-import { getDetectedFieldsFrame } from '../ServiceScene';
+import { getPanelWrapperStyles } from '../../Panels/PanelMenu';
+import { getDetectedFieldsFrame, ServiceScene } from '../ServiceScene';
 import { ByFrameRepeater } from './ByFrameRepeater';
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
+import { QueryErrorAlert } from './QueryErrorAlert';
 import { getLabelValue } from './SortByScene';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
   $data?: SceneDataProvider;
   body?: (LayoutSwitcher & SceneObject) | (SceneReactObject & SceneObject);
+  errorBody?: SceneFlexLayout;
 }
 
 export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakdownSceneState> {
@@ -71,10 +73,31 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
   }
 
   public static Component = ({ model }: SceneComponentProps<FieldValuesBreakdownScene>) => {
-    const { body } = model.useState();
+    const { body, errorBody } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
+    const fieldsBreakdownScene = sceneGraph.getAncestor(model, FieldsBreakdownScene);
+    const $data = sceneGraph.getData(model);
+    const { data } = $data.useState();
+    const hasData = (data?.series.length ?? 0) > 0;
+    const hasError = (data?.errors?.length ?? 0) > 0;
+
     if (body) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+      return (
+        <span className={styles.panelWrapper}>
+          <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />
+          {hasError && errorBody && (
+            <div className={styles.errorWrapper}>
+              <errorBody.Component model={errorBody} />
+            </div>
+          )}
+          {(hasData || !errorBody) && (
+            <div>
+              {body instanceof LayoutSwitcher && <body.Component model={body} />}
+              {!(body instanceof LayoutSwitcher) && body && <body.Component model={body} />}
+            </div>
+          )}
+        </span>
+      );
     }
 
     return <LoadingPlaceholder text={'Loading...'} />;
@@ -91,7 +114,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     // Set query runner
     this.setState({
       $data: this.buildQueryRunner(),
-      body: this.build(query),
+      body: this.buildBody(query),
     });
 
     // Subscribe to data query changes
@@ -310,52 +333,49 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     if (newState.data?.state === LoadingState.Done) {
       if (this.state.body instanceof SceneReactObject) {
         this.setState({
-          body: this.build(query),
+          body: this.buildBody(query),
         });
       }
     }
-    if (newState.data?.state === LoadingState.Error) {
-      this.setErrorState(newState.data.errors);
+    if (newState.data?.state === LoadingState.Error && newState.data.series.length === 0) {
+      this.setErrorState(newState.data.errors, newState.data.series.length > 0);
     }
+  }
+
+  private buildErrorState(errors: DataQueryError[] | undefined, isPartial: boolean) {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    return new SceneFlexLayout({
+      children: [
+        new SceneFlexItem({
+          body: new SceneReactObject({
+            reactNode: (
+              <QueryErrorAlert
+                errors={errors}
+                tagKey={this.getTagKey()}
+                isPartial={isPartial}
+                serviceScene={serviceScene}
+              />
+            ),
+          }),
+        }),
+      ],
+      direction: 'column',
+    });
   }
 
   /**
    * Sets the error body state
    */
-  private setErrorState(errors: DataQueryError[] | undefined) {
+  private setErrorState(errors: DataQueryError[] | undefined, isPartial: boolean) {
     this.setState({
-      body: new SceneReactObject({
-        reactNode: (
-          <Alert title={'Something went wrong with your request'} severity={'error'}>
-            {errors?.map((err, key) => (
-              <div key={key}>
-                {err.status && (
-                  <>
-                    <strong>Status</strong>: {err.status} <br />
-                  </>
-                )}
-                {err.message && (
-                  <>
-                    <strong>Message</strong>: {err.message} <br />
-                  </>
-                )}
-                {err.traceId && (
-                  <>
-                    <strong>TraceId</strong>: {err.traceId}
-                  </>
-                )}
-              </div>
-            ))}
-          </Alert>
-        ),
-      }),
+      errorBody: this.buildErrorState(errors, isPartial),
     });
   }
 
   /**
    * Builds the layout switcher
    */
-  private build(query: LokiQuery) {
+  private buildBody(query: LokiQuery) {
     const { optionValue, parser } = this.getParserForThisField();
     const { direction, sortBy } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
@@ -364,30 +384,10 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     return new LayoutSwitcher({
       active: 'grid',
       layouts: [
-        // Single
-        new SceneFlexLayout({
-          children: [
-            new SceneReactObject({
-              reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />,
-            }),
-            new SceneFlexItem({
-              body: PanelBuilders.timeseries()
-                .setTitle(optionValue)
-                .setShowMenuAlways(true)
-                .setMenu(new PanelMenu({}))
-                .build(),
-              minHeight: 300,
-            }),
-          ],
-          direction: 'column',
-        }),
-
         // Grid
         new SceneFlexLayout({
           children: [
-            new SceneReactObject({
-              reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />,
-            }),
+            new SceneControlsSpacer(),
             new ValueSummaryPanelScene({ tagKey: this.getTagKey(), title: optionValue, type: 'field' }),
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.ValuesMenu model={fieldsBreakdownScene} />,
@@ -398,7 +398,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
                 children: [
                   new SceneFlexItem({
                     body: new SceneReactObject({
-                      reactNode: <LoadingPlaceholder text="Loading..." />,
+                      reactNode: null,
                     }),
                   }),
                 ],
@@ -423,9 +423,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         // Rows
         new SceneFlexLayout({
           children: [
-            new SceneReactObject({
-              reactNode: <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />,
-            }),
+            new SceneControlsSpacer(),
             new ValueSummaryPanelScene({ tagKey: this.getTagKey(), title: optionValue, type: 'field' }),
             new SceneReactObject({
               reactNode: <FieldsBreakdownScene.ValuesMenu model={fieldsBreakdownScene} />,
@@ -436,7 +434,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
                 children: [
                   new SceneFlexItem({
                     body: new SceneReactObject({
-                      reactNode: <LoadingPlaceholder text="Loading..." />,
+                      reactNode: null,
                     }),
                   }),
                 ],
@@ -459,7 +457,6 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         }),
       ],
       options: [
-        { label: 'Single', value: 'single' },
         { label: 'Grid', value: 'grid' },
         { label: 'Rows', value: 'rows' },
       ],
