@@ -9,7 +9,8 @@
     "package.json",
     "*.test.*",
     "config/**",
-    "test-results/**"
+    "test-results/**",
+    "webpack.config.ts"
   ],
   "ignoreRegExpList": [],
   "words": ["queryless"],
