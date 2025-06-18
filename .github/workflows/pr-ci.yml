@@ -21,7 +21,7 @@ jobs:
       branch: ${{ github.event_name == 'push' && github.ref_name || github.ref }}
 
       # When pushing to "main", publish and deploy to "dev" and "ops" (CD). For PRs, skip publishing and deploying (run CI only)
-      environment: ${{ (github.event_name == 'push' && github.ref_name == 'main') && 'dev' || 'ops' || 'none' }}
+      environment: ${{ (github.event_name == 'push' && github.ref_name == 'main') && 'dev' && 'ops' || 'none' }}
 
       # Deploy provisioned plugin to Grafana Cloud
       grafana-cloud-deployment-type: provisioned
