@@ -31,7 +31,7 @@ export const LogLineCellComponent = (props: Props) => {
   const displayValue = field.display!(value);
   const theme = useTheme2();
   const styles = getStyles(theme);
-  const { bodyState, columns, setVisible } = useTableColumnContext();
+  const { bodyState, columns } = useTableColumnContext();
   const { logsFrame } = useQueryContext();
   const [isHover, setIsHover] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -96,7 +96,6 @@ export const LogLineCellComponent = (props: Props) => {
               columns={columns}
               rowIndex={props.rowIndex}
               frame={props.frame}
-              showColumns={() => setVisible(true)}
               key={label}
               label={label}
               isDerivedField={false}
@@ -118,7 +117,6 @@ export const LogLineCellComponent = (props: Props) => {
                 columns={columns}
                 rowIndex={props.rowIndex}
                 frame={props.frame}
-                showColumns={() => setVisible(true)}
                 key={untransformedField.name}
                 label={untransformedField.name}
                 isDerivedField={true}

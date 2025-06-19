@@ -30,12 +30,10 @@ const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3,})?(?:Z|[-+]
 
 interface TableWrapProps {
   clearSelectedLine: () => void;
-  isColumnManagementActive: boolean;
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   setUrlColumns: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
-  showColumnManagementDrawer: (isActive: boolean) => void;
   urlColumns: string[];
   urlTableBodyState?: LogLineState;
 }
@@ -131,8 +129,6 @@ export const TableWrap = (props: TableWrapProps) => {
         setUrlColumns={props.setUrlColumns}
         clearSelectedLine={props.clearSelectedLine}
         urlTableBodyState={props.urlTableBodyState}
-        showColumnManagementDrawer={props.showColumnManagementDrawer}
-        isColumnManagementActive={props.isColumnManagementActive}
       >
         <Table
           logsFrame={logsFrame}
