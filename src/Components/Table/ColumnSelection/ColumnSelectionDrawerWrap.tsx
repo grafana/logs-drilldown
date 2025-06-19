@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import { reportInteraction } from '@grafana/runtime';
-import { ClickOutsideWrapper } from '@grafana/ui';
 
 import { logger } from '../../../services/logger';
 import { FieldNameMetaStore } from '../TableTypes';
@@ -55,7 +54,7 @@ function logError(columnName: string, columns: FieldNameMetaStore) {
 }
 
 export function ColumnSelectionDrawerWrap() {
-  const { columns, filteredColumns, setColumns, setFilteredColumns, setVisible } = useTableColumnContext();
+  const { columns, filteredColumns, setColumns, setFilteredColumns } = useTableColumnContext();
   const [searchValue, setSearchValue] = useState<string>('');
   const toggleColumn = (columnName: string) => {
     if (!columns || !(columnName in columns)) {
@@ -155,14 +154,7 @@ export function ColumnSelectionDrawerWrap() {
   }
 
   return (
-    <ClickOutsideWrapper
-      onClick={() => {
-        setVisible(false);
-        setFilteredColumns(columns);
-        setSearchValue('');
-      }}
-      useCapture={true}
-    >
+    <>
       <LogsColumnSearch searchValue={searchValue} setSearchValue={setSearchValue} />
       <LogsTableMultiSelect
         toggleColumn={toggleColumn}
@@ -171,6 +163,6 @@ export function ColumnSelectionDrawerWrap() {
         clear={clearSelection}
         reorderColumn={reorderColumn}
       />
-    </ClickOutsideWrapper>
+    </>
   );
 }
