@@ -24,7 +24,6 @@ interface LogLinePillProps {
   originalField?: Field;
   originalFrame: DataFrame | undefined;
   rowIndex: number;
-  showColumns: () => void;
   value: string;
 }
 
@@ -103,7 +102,6 @@ function LogLinePillValue(props: {
           links={props.links}
           label={props.label}
           value={props.value}
-          showColumn={props.onClickAdd}
         />
       )}
     </button>

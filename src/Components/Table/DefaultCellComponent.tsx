@@ -7,7 +7,6 @@ import { FieldType, formattedValueToString, GrafanaTheme2 } from '@grafana/data'
 import { CustomCellRendererProps, DataLinksContextMenu, getCellLinks, useTheme2 } from '@grafana/ui';
 
 import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
-import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { DefaultCellWrapComponent } from 'Components/Table/DefaultCellWrapComponent';
 import { DefaultPill } from 'Components/Table/DefaultPill';
 import { LineActionIcons } from 'Components/Table/LineActionIcons';
@@ -44,7 +43,6 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
   const displayValue = field.display!(value);
   const theme = useTheme2();
   const styles = getStyles(theme, props.field.type);
-  const { setVisible } = useTableColumnContext();
   const { cellIndex, setActiveCellIndex } = useTableCellContext();
 
   // We don't get back the full react.table row here, but the calling function only uses the index, which are in `CustomCellRendererProps`
@@ -64,15 +62,7 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
   }
 
   const renderValue = (value: string | unknown | ReactElement, label: string) => {
-    return (
-      <DefaultPill
-        field={props.field}
-        rowIndex={props.rowIndex}
-        showColumns={() => setVisible(true)}
-        label={label}
-        value={value}
-      />
-    );
+    return <DefaultPill field={props.field} rowIndex={props.rowIndex} label={label} value={value} />;
   };
 
   return (
