@@ -98,6 +98,7 @@ import {
 import {
   AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
+  EMBEDDED_VARIABLE_NAMESPACE,
   EXPLORATION_DS,
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
@@ -123,7 +124,7 @@ interface EmbeddedIndexSceneConstructor {
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
-  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
+  protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: [VAR_PATTERNS] });
 
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
     const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
@@ -582,8 +583,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<IndexSceneState> = {};
 
-    if (values.patterns && typeof values.patterns === 'string') {
-      stateUpdate.patterns = JSON.parse(values.patterns) as AppliedPattern[];
+    if (values[VAR_PATTERNS] && typeof values[VAR_PATTERNS] === 'string') {
+      stateUpdate[VAR_PATTERNS] = JSON.parse(values[VAR_PATTERNS]) as AppliedPattern[];
     }
 
     this.setState(stateUpdate);
@@ -618,6 +619,7 @@ function getVariableSet(
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
     readonlyFilters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, origin: embedderName, readOnly: true })),
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   labelVariable._getOperators = function () {
@@ -632,6 +634,7 @@ function getVariableSet(
     label: 'Detected fields',
     layout: 'combobox',
     name: VAR_FIELDS,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   fieldsVariable._getOperators = () => {
@@ -646,6 +649,7 @@ function getVariableSet(
     label: 'Metadata',
     layout: 'combobox',
     name: VAR_METADATA,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   metadataVariable._getOperators = () => {
@@ -667,6 +671,7 @@ function getVariableSet(
     name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
     skipUrlSync: true,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   const levelsVariable = new AdHocFiltersVariable({
@@ -677,6 +682,7 @@ function getVariableSet(
     layout: 'vertical',
     name: VAR_LEVELS,
     supportsMultiValueOperators: true,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   const lineFiltersVariable = new AdHocFiltersVariable({
@@ -686,6 +692,7 @@ function getVariableSet(
     hide: VariableHide.hideVariable,
     layout: 'horizontal',
     name: VAR_LINE_FILTERS,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   lineFiltersVariable._getOperators = () => {
@@ -697,6 +704,7 @@ function getVariableSet(
     label: 'Data source',
     name: VAR_DATASOURCE,
     pluginId: 'loki',
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
     value: initialDatasourceUid,
   });
 
@@ -712,6 +720,7 @@ function getVariableSet(
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     name: VAR_JSON_FIELDS,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   const lineFormatVariable = new AdHocFiltersVariable({
@@ -721,6 +730,7 @@ function getVariableSet(
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     layout: 'horizontal',
     name: VAR_LINE_FORMAT,
+    urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
   });
 
   return {
@@ -738,12 +748,14 @@ function getVariableSet(
         new CustomVariable({
           hide: VariableHide.hideVariable,
           name: VAR_PATTERNS,
+          urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
           value: '',
         }),
         new AdHocFiltersVariable({
           expressionBuilder: renderLogQLLineFilter,
           hide: VariableHide.hideVariable,
           name: VAR_LINE_FILTER,
+          urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
         }),
         lineFiltersVariable,
 
@@ -753,6 +765,7 @@ function getVariableSet(
           name: VAR_LOGS_FORMAT,
           options: [{ label: MIXED_FORMAT_EXPR, value: MIXED_FORMAT_EXPR }],
           skipUrlSync: true,
+          urlNamespace: embedded ? EMBEDDED_VARIABLE_NAMESPACE : undefined,
           value: MIXED_FORMAT_EXPR,
         }),
       ],
