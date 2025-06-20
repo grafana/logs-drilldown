@@ -10,7 +10,6 @@ import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 interface Props {
   lineState?: LogLineState;
   onLineStateClick?(): void;
-  onManageColumnsClick?(): void;
   onScrollToBottomClick?(): void;
   onScrollToTopClick?(): void;
   onSortOrderChange(newOrder: LogsSortOrder): void;
@@ -20,7 +19,6 @@ interface Props {
 export const LogListControls = ({
   lineState,
   onLineStateClick,
-  onManageColumnsClick,
   onScrollToBottomClick,
   onScrollToTopClick,
   onSortOrderChange,
@@ -51,15 +49,6 @@ export const LogListControls = ({
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
-      {onManageColumnsClick && (
-        <IconButton
-          name="columns"
-          className={styles.controlButton}
-          onClick={onManageColumnsClick}
-          tooltip={'Manage columns'}
-          size="lg"
-        />
-      )}
       {onLineStateClick && lineState && (
         <IconButton
           name={lineState === LogLineState.text ? 'brackets-curly' : 'text-fields'}
