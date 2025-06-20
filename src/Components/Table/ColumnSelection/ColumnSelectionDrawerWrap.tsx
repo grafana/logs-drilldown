@@ -53,7 +53,13 @@ function logError(columnName: string, columns: FieldNameMetaStore) {
   logger.warn('failed to get column', logContext);
 }
 
-export function ColumnSelectionDrawerWrap() {
+interface ColumnSelectionDrawerWrapProps {
+  collapseButtonClassName?: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+}
+
+export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps) {
   const { columns, filteredColumns, setColumns, setFilteredColumns } = useTableColumnContext();
   const [searchValue, setSearchValue] = useState<string>('');
   const toggleColumn = (columnName: string) => {
@@ -155,14 +161,21 @@ export function ColumnSelectionDrawerWrap() {
 
   return (
     <>
-      <LogsColumnSearch searchValue={searchValue} setSearchValue={setSearchValue} />
-      <LogsTableMultiSelect
-        toggleColumn={toggleColumn}
-        filteredColumnsWithMeta={filteredColumns}
-        columnsWithMeta={columns}
-        clear={clearSelection}
-        reorderColumn={reorderColumn}
+      <LogsColumnSearch
+        isCollapsed={props.isCollapsed}
+        onToggleCollapse={props.onToggleCollapse}
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
       />
+      {!props.isCollapsed && (
+        <LogsTableMultiSelect
+          toggleColumn={toggleColumn}
+          filteredColumnsWithMeta={filteredColumns}
+          columnsWithMeta={columns}
+          clear={clearSelection}
+          reorderColumn={reorderColumn}
+        />
+      )}
     </>
   );
 }
