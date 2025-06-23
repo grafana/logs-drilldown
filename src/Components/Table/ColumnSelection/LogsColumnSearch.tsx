@@ -12,7 +12,7 @@ import { FieldNameMetaStore } from 'Components/Table/TableTypes';
 
 function getStyles(theme: GrafanaTheme2) {
   return {
-    collapseButton: css({
+    collapseTableSidebarButton: css({
       position: 'absolute',
       right: theme.spacing(0.2),
       top: theme.spacing(1),
@@ -22,16 +22,16 @@ function getStyles(theme: GrafanaTheme2) {
 
 interface LogsColumnSearchProps {
   collapseButtonClassName?: string;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
+  isTableSidebarCollapsed?: boolean;
+  onToggleTableSidebarCollapse?: () => void;
   searchValue: string;
   setSearchValue: (value: string) => void;
 }
 
 export function LogsColumnSearch({
   collapseButtonClassName,
-  isCollapsed,
-  onToggleCollapse,
+  isTableSidebarCollapsed,
+  onToggleTableSidebarCollapse,
   searchValue,
   setSearchValue,
 }: LogsColumnSearchProps) {
@@ -74,13 +74,13 @@ export function LogsColumnSearch({
   return (
     <>
       <IconButton
-        className={collapseButtonClassName || styles.collapseButton}
-        onClick={onToggleCollapse}
-        name={isCollapsed ? 'angle-right' : 'angle-left'}
-        tooltip={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        className={collapseButtonClassName || styles.collapseTableSidebarButton}
+        onClick={onToggleTableSidebarCollapse}
+        name={isTableSidebarCollapsed ? 'angle-right' : 'angle-left'}
+        tooltip={isTableSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         size="sm"
       />
-      {!isCollapsed && (
+      {!isTableSidebarCollapsed && (
         <Field>
           <Input
             value={searchValue}
