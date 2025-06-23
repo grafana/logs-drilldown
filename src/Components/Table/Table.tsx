@@ -51,8 +51,17 @@ interface Props {
   width: number;
 }
 
-const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number, isCollapsed: boolean) => ({
-  collapseButton: css({
+const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number) => ({
+  collapsedTableSidebar: css({
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(8),
+    width: '40px !important', // Space for the collapse button
+  }),
+  collapseTableSidebarButton: css({
     '&:hover': {
       background: theme.colors.background.primary,
       borderColor: theme.colors.border.medium,
@@ -67,15 +76,6 @@ const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number, i
     top: theme.spacing(1),
     transition: 'all 0.2s ease-in-out',
     zIndex: 10,
-  }),
-  collapsedSidebar: css({
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    paddingRight: theme.spacing(1),
-    paddingTop: theme.spacing(8),
-    width: '40px !important', // Space for the collapse button
   }),
   rzHandle: css({
     [theme.transitions.handleMotion('no-preference', 'reduce')]: {
@@ -141,9 +141,9 @@ export const Table = (props: Props) => {
 
   const [tableFrame, setTableFrame] = useState<DataFrame | undefined>(undefined);
   const [sidebarWidth, setSidebarWidth] = useState(220);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const tableWidth = width - (isCollapsed ? 40 : sidebarWidth);
-  const styles = getStyles(theme, height, sidebarWidth, isCollapsed);
+  const [isTableSidebarCollapsed, setIsTableSidebarCollapsed] = useState(false);
+  const tableWidth = width - (isTableSidebarCollapsed ? 40 : sidebarWidth);
+  const styles = getStyles(theme, height, sidebarWidth);
 
   const { clearSelectedLine, columns, columnWidthMap, setColumns, setColumnWidthMap } = useTableColumnContext();
 
@@ -308,30 +308,30 @@ export const Table = (props: Props) => {
     }
   };
 
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
+  const toggleTableSidebarCollapse = () => {
+    setIsTableSidebarCollapsed(!isTableSidebarCollapsed);
   };
 
   return (
     <div data-testid={testIds.table.wrapper} className={styles.wrapper}>
       <Resizable
         enable={{
-          right: !isCollapsed,
+          right: !isTableSidebarCollapsed,
         }}
         handleClasses={{ right: styles.rzHandle }}
         onResize={getOnResize}
-        minWidth={isCollapsed ? 40 : 150}
-        maxWidth={isCollapsed ? 40 : width * 0.8}
+        minWidth={isTableSidebarCollapsed ? 40 : 150}
+        maxWidth={isTableSidebarCollapsed ? 40 : width * 0.8}
         size={{
           height: height,
-          width: isCollapsed ? 40 : sidebarWidth,
+          width: isTableSidebarCollapsed ? 40 : sidebarWidth,
         }}
       >
-        <section className={`${styles.sidebar} ${isCollapsed ? styles.collapsedSidebar : ''}`}>
+        <section className={`${styles.sidebar} ${isTableSidebarCollapsed ? styles.collapsedTableSidebar : ''}`}>
           <ColumnSelectionDrawerWrap
-            isCollapsed={isCollapsed}
-            onToggleCollapse={toggleCollapse}
-            collapseButtonClassName={styles.collapseButton}
+            isTableSidebarCollapsed={isTableSidebarCollapsed}
+            onToggleTableSidebarCollapse={toggleTableSidebarCollapse}
+            collapseTableSidebarButtonClassName={styles.collapseTableSidebarButton}
           />
         </section>
       </Resizable>

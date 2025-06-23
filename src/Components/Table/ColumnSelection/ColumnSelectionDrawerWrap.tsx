@@ -54,9 +54,9 @@ function logError(columnName: string, columns: FieldNameMetaStore) {
 }
 
 interface ColumnSelectionDrawerWrapProps {
-  collapseButtonClassName?: string;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
+  collapseTableSidebarButtonClassName?: string;
+  isTableSidebarCollapsed?: boolean;
+  onToggleTableSidebarCollapse?: () => void;
 }
 
 export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps) {
@@ -162,12 +162,12 @@ export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps)
   return (
     <>
       <LogsColumnSearch
-        isCollapsed={props.isCollapsed}
-        onToggleCollapse={props.onToggleCollapse}
+        isTableSidebarCollapsed={props.isTableSidebarCollapsed}
+        onToggleTableSidebarCollapse={props.onToggleTableSidebarCollapse}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
       />
-      {!props.isCollapsed && (
+      {!props.isTableSidebarCollapsed && (
         <LogsTableMultiSelect
           toggleColumn={toggleColumn}
           filteredColumnsWithMeta={filteredColumns}
