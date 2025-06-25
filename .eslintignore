@@ -11,3 +11,4 @@ package.json
 project-words.txt
 yarn.lock
 cspell.config.json
+tsconfig-for-bundle-types.json

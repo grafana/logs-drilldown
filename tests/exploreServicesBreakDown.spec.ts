@@ -1166,7 +1166,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
-    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
     await page.route('**/ds/query*', async (route) => {
@@ -1194,7 +1194,7 @@ test.describe('explore services breakdown page', () => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
-      expect(queries[0].expr).toContain('bytes!=""');
+      await expect.poll(() => queries[0].expr).toContain('bytes!=""');
       numberOfQueries++;
 
       await route.fulfill({ json: [] });
@@ -1218,7 +1218,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should exclude all logs that contain bytes field', async ({ page }) => {
-    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15m');
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
     await page.route('**/ds/query*', async (route) => {
@@ -1245,7 +1245,7 @@ test.describe('explore services breakdown page', () => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
-      expect(queries[0].expr).toContain('bytes=""');
+      await expect.poll(() => queries[0].expr).toContain('bytes=""');
       numberOfQueries++;
 
       await route.fulfill({ json: [] });
