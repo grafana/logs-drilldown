@@ -75,6 +75,7 @@ export const USER_EVENTS_ACTIONS = {
     search_string_in_variables_changed: 'search_string_in_variables_changed',
     // Clicking on "Select" button button in time series panels. Used in multiple views.The view type is passed as a parameter. Props: field, previousField, view
     select_field_in_breakdown_clicked: 'select_field_in_breakdown_clicked',
+    toggle_error_panels: 'toggle_error_panels',
     // Value breakdown sort change
     value_breakdown_sort_change: 'value_breakdown_sort_change',
     // Wasm not supported

@@ -1,6 +1,6 @@
 {
   "name": "grafana-lokiexplore-app",
-  "version": "1.0.17",
+  "version": "1.0.19",
   "description": "Query less exploration of log data stored in Loki",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
@@ -37,6 +37,7 @@
     "@commitlint/config-conventional": "^19.2.2",
     "@grafana/eslint-config": "^8.0.0",
     "@grafana/plugin-e2e": "^1.17.1",
+    "@grafana/plugin-types-bundler": "^0.3.7",
     "@grafana/tsconfig": "^2.0.0",
     "@playwright/test": "^1.52.0",
     "@stylistic/eslint-plugin-ts": "^2.9.0",
@@ -126,5 +127,5 @@
   "resolutions": {
     "react-router-dom": "^6.22.0"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.21"
 }
