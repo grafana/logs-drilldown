@@ -105,7 +105,7 @@
     "@bsull/augurs": "^0.6.0",
     "@emotion/css": "11.10.6",
     "@grafana/data": "^11.6.1",
-    "@grafana/i18n": "canary",
+    "@grafana/i18n": "12.1.0-249189",
     "@grafana/lezer-logql": "^0.2.7",
     "@grafana/runtime": "^11.6.1",
     "@grafana/scenes": "^6.24.0",

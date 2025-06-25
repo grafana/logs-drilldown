@@ -1192,10 +1192,10 @@
     ua-parser-js "^1.0.32"
     web-vitals "^4.0.1"
 
-"@grafana/i18n@canary":
-  version "12.1.0-250055"
-  resolved "https://registry.yarnpkg.com/@grafana/i18n/-/i18n-12.1.0-250055.tgz#ad56e0ebe091f93e646620ca41ef493560a8fd1f"
-  integrity sha512-euZOHEWh9ZuQLSrwfa4zKihnDSF9308/kdYpfyVOWjvkVMcoSD6JKYVkmWgNT04PAVG1fFV7nEHgEB3tjwQFyQ==
+"@grafana/i18n@12.1.0-249189":
+  version "12.1.0-249189"
+  resolved "https://registry.yarnpkg.com/@grafana/i18n/-/i18n-12.1.0-249189.tgz#5220c7750c8b144636d2adbe83054086817c5efe"
+  integrity sha512-x2Tf5nrrX0VabTVSu9FYbLwY8OzKIBaOLKFSpt8WyRauz4ws0QFhVy+lNXk/nYzJcZ3pIqDx1aLqWJ7mZ3V4NQ==
   dependencies:
     "@formatjs/intl-durationformat" "^0.7.0"
     "@typescript-eslint/utils" "^8.33.1"
