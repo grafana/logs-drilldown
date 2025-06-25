@@ -55,5 +55,5 @@ export default defineConfig<PluginOptions>({
   },
 
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : 4,
 });
