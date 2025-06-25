@@ -104,9 +104,11 @@
     "@bsull/augurs": "^0.6.0",
     "@emotion/css": "11.10.6",
     "@grafana/data": "^11.6.1",
+    "@grafana/i18n": "canary",
     "@grafana/lezer-logql": "^0.2.7",
     "@grafana/runtime": "^11.6.1",
-    "@grafana/scenes": "^6.18.1",
+    "@grafana/scenes": "^6.24.0",
+    "@grafana/schema": "^11.5.3",
     "@grafana/ui": "^11.6.1",
     "@gtk-grafana/react-json-tree": "^0.0.9",
     "@hello-pangea/dnd": "^16.6.0",
@@ -119,11 +121,10 @@
     "react-router-dom": "^6.22.0",
     "rxjs": "7.8.1",
     "tslib": "2.5.3",
-    "uuid": "^10.0.0",
-    "@grafana/schema": "^11.5.3"
+    "uuid": "^10.0.0"
   },
   "resolutions": {
     "react-router-dom": "^6.22.0"
   },
-  "packageManager": "yarn@1.22.21"
+  "packageManager": "yarn@1.22.22"
 }
