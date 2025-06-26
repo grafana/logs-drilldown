@@ -267,6 +267,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     display: 'flex',
     flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
   }),
   panelWrapper: css({
     height: '100%',
