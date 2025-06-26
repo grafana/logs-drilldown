@@ -21,7 +21,8 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
-import { Drawer, Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
+import { Drawer, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
+import { TableNG } from '@grafana/ui/unstable';
 
 import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
 import { testIds } from '../../services/testIds';
@@ -53,12 +54,6 @@ const getStyles = () => ({
   section: css({
     position: 'relative',
   }),
-  tableWrap: css({
-    '.cellActions': {
-      // Hacky but without inspect turned on the table will change the width of the row on hover, but we don't want the default icons to show
-      display: 'none !important',
-    },
-  }),
 });
 
 function TableAndContext(props: {
@@ -71,7 +66,7 @@ function TableAndContext(props: {
   width: number;
 }) {
   return (
-    <GrafanaTable
+    <TableNG
       onColumnResize={props.onResize}
       initialRowIndex={props.selectedLine}
       cellHeight={TableCellHeight.Sm}
@@ -164,7 +159,6 @@ export const Table = (props: Props) => {
                 />
               </TableHeaderContextProvider>
             ),
-            inspect: true,
             width:
               columnWidthMap[field.name] ??
               getInitialFieldWidth(field, index, columns, width, frameWithOverrides.fields.length, logsFrame),
@@ -270,21 +264,19 @@ export const Table = (props: Props) => {
         </Drawer>
       )}
 
-      <div className={styles.tableWrap}>
-        <TableCellContextProvider>
-          <ScrollSync horizontal={true} vertical={false} proportional={false}>
-            <TableAndContext
-              logsFrame={logsFrame}
-              selectedLine={cleanLineIndex}
-              data={tableFrame}
-              height={height}
-              width={width}
-              onResize={debounce(onResize, 100)}
-              logsSortOrder={props.logsSortOrder}
-            />
-          </ScrollSync>
-        </TableCellContextProvider>
-      </div>
+      <TableCellContextProvider>
+        <ScrollSync horizontal={true} vertical={false} proportional={false}>
+          <TableAndContext
+            logsFrame={logsFrame}
+            selectedLine={cleanLineIndex}
+            data={tableFrame}
+            height={height}
+            width={width}
+            onResize={debounce(onResize, 100)}
+            logsSortOrder={props.logsSortOrder}
+          />
+        </ScrollSync>
+      </TableCellContextProvider>
     </div>
   );
 };
