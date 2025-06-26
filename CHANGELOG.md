@@ -1,5 +1,16 @@
 # Changelog
 
+#### 1.0.20
+
+##### Chores
+
+* **gha:**  update ci to deploy ops with new argo workflows (#1349) (250c5444)
+
+##### New Features
+
+* **EmbeddedLogs:**  embedded logs url parameter namespace (#1353) (11340a2c)
+
+
 #### 1.0.19
 
 ##### Chores
