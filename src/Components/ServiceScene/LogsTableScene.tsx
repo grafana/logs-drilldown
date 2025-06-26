@@ -266,6 +266,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     display: 'flex',
+    flexDirection: 'row-reverse',
   }),
   panelWrapper: css({
     height: '100%',
