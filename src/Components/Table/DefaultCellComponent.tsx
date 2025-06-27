@@ -21,8 +21,6 @@ const getStyles = (theme: GrafanaTheme2, fieldType?: FieldType) => ({
   flexWrap: css({
     alignItems: 'flex-start',
     display: 'flex',
-    flexDirection: fieldType === FieldType.number ? 'row-reverse' : 'row',
-    textAlign: fieldType === FieldType.number ? 'right' : 'left',
   }),
   linkWrapper: css({
     '&:hover': {
