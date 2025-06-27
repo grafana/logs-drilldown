@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
-import { Field, Input, useTheme2 } from '@grafana/ui';
+import { Field, IconButton, Input, useTheme2 } from '@grafana/ui';
 
 import { debouncedFuzzySearch } from '../../../services/search';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
@@ -12,17 +12,29 @@ import { FieldNameMetaStore } from 'Components/Table/TableTypes';
 
 function getStyles(theme: GrafanaTheme2) {
   return {
-    searchWrap: css({
-      padding: `${theme.spacing(0.4)} 0 ${theme.spacing(0.4)} ${theme.spacing(0.4)}`,
+    collapseTableSidebarButton: css({
+      position: 'absolute',
+      right: theme.spacing(0.2),
+      top: theme.spacing(1),
     }),
   };
 }
 
 interface LogsColumnSearchProps {
+  collapseButtonClassName?: string;
+  isTableSidebarCollapsed?: boolean;
+  onToggleTableSidebarCollapse?: () => void;
   searchValue: string;
   setSearchValue: (value: string) => void;
 }
-export function LogsColumnSearch({ searchValue, setSearchValue }: LogsColumnSearchProps) {
+
+export function LogsColumnSearch({
+  collapseButtonClassName,
+  isTableSidebarCollapsed,
+  onToggleTableSidebarCollapse,
+  searchValue,
+  setSearchValue,
+}: LogsColumnSearchProps) {
   const { columns, setFilteredColumns } = useTableColumnContext();
 
   // uFuzzy search dispatcher, adds any matches to the local state
@@ -60,9 +72,25 @@ export function LogsColumnSearch({ searchValue, setSearchValue }: LogsColumnSear
   const theme = useTheme2();
   const styles = getStyles(theme);
   return (
-    <Field className={styles.searchWrap}>
-      <Input value={searchValue} type={'text'} placeholder={'Search fields by name'} onChange={onSearchInputChange} />
-    </Field>
+    <>
+      <IconButton
+        className={collapseButtonClassName || styles.collapseTableSidebarButton}
+        onClick={onToggleTableSidebarCollapse}
+        name={isTableSidebarCollapsed ? 'angle-right' : 'angle-left'}
+        tooltip={isTableSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        size="sm"
+      />
+      {!isTableSidebarCollapsed && (
+        <Field>
+          <Input
+            value={searchValue}
+            type={'text'}
+            placeholder={'Search fields by name'}
+            onChange={onSearchInputChange}
+          />
+        </Field>
+      )}
+    </>
   );
 }
 
