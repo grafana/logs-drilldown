@@ -263,20 +263,29 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
   public onActivate() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
-    if (serviceScene.state.$data?.state.data?.state === LoadingState.Done) {
+    if (
+      serviceScene.state.$data?.state.data?.state === LoadingState.Done ||
+      serviceScene.state.$data?.state.data?.state === LoadingState.Error
+    ) {
       this.calculateSparsity();
     }
 
     this._subs.add(
       sceneGraph.getData(this).subscribeToState((newState) => {
         if (newState.data?.state === LoadingState.Done) {
-          if (serviceScene.state.$data?.state.data?.state === LoadingState.Done) {
+          if (
+            serviceScene.state.$data?.state.data?.state === LoadingState.Done ||
+            serviceScene.state.$data?.state.data?.state === LoadingState.Error
+          ) {
             this.calculateSparsity();
           }
 
           this._subs.add(
             serviceScene.state.$data?.subscribeToState((newLogsPanelState) => {
-              if (newLogsPanelState.data?.state === LoadingState.Done) {
+              if (
+                serviceScene.state.$data?.state.data?.state === LoadingState.Done ||
+                serviceScene.state.$data?.state.data?.state === LoadingState.Error
+              ) {
                 this.calculateSparsity();
               }
             })
