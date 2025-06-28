@@ -149,14 +149,11 @@ export const LogLineCellComponent = (props: Props) => {
     >
       <ScrollSyncPane innerRef={ref} group="horizontal">
         <div className={styles.content}>
-          {/* First Field gets the icons */}
           {props.fieldIndex === 0 && <LineActionIcons rowIndex={props.rowIndex} value={value} />}
-          {/* Labels */}
           {isAuto && hasLabels && <>{labels}</>}
           {bodyState === LogLineState.labels && hasLabels && <>{labels}</>}
           {bodyState === LogLineState.labels && !hasLabels && <RawLogLineText value={value} />}
 
-          {/* Raw log line*/}
           {isAuto && !hasLabels && <RawLogLineText value={value} />}
           {bodyState === LogLineState.text && <RawLogLineText value={value} />}
 
@@ -169,6 +166,7 @@ export const LogLineCellComponent = (props: Props) => {
 
 export const getStyles = (theme: GrafanaTheme2) => ({
   content: css`
+    position: relative;
     white-space: nowrap;
     overflow-x: auto;
     -ms-overflow-style: none; /* IE and Edge */
