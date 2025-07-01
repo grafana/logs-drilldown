@@ -11,14 +11,14 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import path from 'path';
 import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
-import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity';
-import { type Configuration, BannerPlugin } from 'webpack';
+import { SubresourceIntegrityPlugin } from "webpack-subresource-integrity";
+import webpack, { type Configuration } from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 import VirtualModulesPlugin from 'webpack-virtual-modules';
 
-import { BuildModeWebpackPlugin } from './BuildModeWebpackPlugin';
-import { DIST_DIR, SOURCE_DIR } from './constants';
-import { getCPConfigVersion, getEntries, getPackageJson, getPluginJson, hasReadme, isWSL } from './utils';
+import { BuildModeWebpackPlugin } from './BuildModeWebpackPlugin.ts';
+import { DIST_DIR, SOURCE_DIR } from './constants.ts';
+import { getCPConfigVersion, getEntries, getPackageJson, getPluginJson, hasReadme, isWSL } from './utils.ts';
 
 const pluginJson = getPluginJson();
 const cpVersion = getCPConfigVersion();
@@ -43,7 +43,8 @@ const config = async (env: Env): Promise<Configuration> => {
     cache: {
       type: 'filesystem',
       buildDependencies: {
-        config: [__filename],
+        // __filename doesn't work in Node 24
+        config: [path.resolve(process.cwd(), '.config', 'webpack', 'webpack.config.ts')],
       },
     },
 
@@ -167,8 +168,8 @@ const config = async (env: Env): Promise<Configuration> => {
               comments: (_, { type, value }) => type === 'comment2' && value.trim().startsWith('[create-plugin]'),
             },
             compress: {
-              drop_console: ['log', 'info'],
-            },
+              drop_console: ['log', 'info']
+            }
           },
         }),
       ],
@@ -193,8 +194,8 @@ const config = async (env: Env): Promise<Configuration> => {
       new BuildModeWebpackPlugin(),
       virtualPublicPath,
       // Insert create plugin version information into the bundle
-      new BannerPlugin({
-        banner: '/* [create-plugin] version: ' + cpVersion + ' */',
+      new webpack.BannerPlugin({
+        banner: "/* [create-plugin] version: " + cpVersion + " */",
         raw: true,
         entryOnly: true,
       }),
@@ -238,24 +239,23 @@ const config = async (env: Env): Promise<Configuration> => {
         },
       ]),
       new SubresourceIntegrityPlugin({
-        hashFuncNames: ['sha256'],
+        hashFuncNames: ["sha256"],
       }),
-      ...(env.development
-        ? [
-            new LiveReloadPlugin(),
-            new ForkTsCheckerWebpackPlugin({
-              async: Boolean(env.development),
-              issue: {
-                include: [{ file: '**/*.{ts,tsx}' }],
-              },
-              typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
-            }),
-            new ESLintPlugin({
-              extensions: ['.ts', '.tsx'],
-              lintDirtyModulesOnly: Boolean(env.development), // don't lint on start, only lint changed files
-            }),
-          ]
-        : []),
+      ...(env.development ? [
+        new LiveReloadPlugin(),
+        new ForkTsCheckerWebpackPlugin({
+          async: Boolean(env.development),
+          issue: {
+            include: [{ file: '**/*.{ts,tsx}' }],
+          },
+          typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
+        }),
+        new ESLintPlugin({
+          extensions: ['.ts', '.tsx'],
+          lintDirtyModulesOnly: Boolean(env.development), // don't lint on start, only lint changed files
+          failOnError: Boolean(env.production),
+        }),
+      ] : []),
     ],
 
     resolve: {
