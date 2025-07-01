@@ -129,7 +129,7 @@ const AppConfig = ({ plugin }: Props) => {
               >
                 Loki Patterns API
               </a>{' '}
-              endpoint
+              endpoint, and removes the Patterns tab.
             </span>
           }
           label={'Disable Loki patterns'}
@@ -164,6 +164,7 @@ const AppConfig = ({ plugin }: Props) => {
             Save settings
           </Button>
         </div>
+        <p className={styles.note}>Active users must refresh the app to update configuration.</p>
       </FieldSet>
     </div>
   );
@@ -187,6 +188,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
   marginTopXl: css`
     margin-top: ${theme.spacing(6)};
   `,
+  note: css({
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
+  }),
 });
 
 const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<JsonData>>) => {
