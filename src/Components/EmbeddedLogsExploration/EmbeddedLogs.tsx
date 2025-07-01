@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
+import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import initRuntimeDs from 'services/datasource';
@@ -44,6 +45,8 @@ export function buildLogsExplorationFromState({
   });
 }
 
+export const VARIABLE_NAMESPACE = 'ld';
+
 export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   const [exploration, setExploration] = useState<IndexScene | null>(null);
 
@@ -59,7 +62,13 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
   }
 
   return (
-    <UrlSyncContextProvider scene={exploration} updateUrlOnInit={false} createBrowserHistorySteps={true}>
+    <UrlSyncContextProvider
+      scene={exploration}
+      updateUrlOnInit={false}
+      createBrowserHistorySteps={true}
+      namespace={VARIABLE_NAMESPACE}
+      excludeFromNamespace={['from', 'to', 'timezone', drilldownLabelUrlKey, pageSlugUrlKey]}
+    >
       <exploration.Component model={exploration} />
     </UrlSyncContextProvider>
   );
