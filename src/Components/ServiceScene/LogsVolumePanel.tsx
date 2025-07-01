@@ -110,23 +110,44 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       : 'Log volume';
   }
 
+  private setCollapsed(collapsed: boolean | undefined, panel: VizPanel) {
+    if (collapsed) {
+      panel.setState({
+        $data: undefined,
+      });
+    } else {
+      panel.setState({
+        $data: getQueryRunner([
+          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
+            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
+          }),
+        ]),
+      });
+    }
+    this.updateContainerHeight(panel);
+    setLogsVolumeOption('collapsed', collapsed ? 'true' : undefined);
+  }
+
   private getVizPanel() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const isCollapsed = getLogsVolumeOption('collapsed');
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', { calcs: ['sum'], displayMode: LegendDisplayMode.List, showLegend: true })
       .setUnit('short')
       .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
       .setCollapsible(true)
-      .setCollapsed(getLogsVolumeOption('collapsed'))
+      .setCollapsed(isCollapsed)
       .setHeaderActions(new LogsVolumeActions({}))
       .setShowMenuAlways(true)
       .setData(
-        getQueryRunner([
-          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
-          }),
-        ])
+        isCollapsed
+          ? undefined
+          : getQueryRunner([
+              buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
+                legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
+              }),
+            ])
       );
 
     setLogsVolumeFieldConfigs(viz);
@@ -139,8 +160,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     this._subs.add(
       panel.subscribeToState((newState, prevState) => {
         if (newState.collapsed !== prevState.collapsed) {
-          this.updateContainerHeight(panel);
-          setLogsVolumeOption('collapsed', newState.collapsed ? 'true' : undefined);
+          this.setCollapsed(newState.collapsed, panel);
         }
       })
     );
