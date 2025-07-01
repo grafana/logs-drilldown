@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { Button, useStyles2 } from '@grafana/ui';
 
-import { getJsonParserVariableVisibility } from '../../services/store';
+import { getHeaderCollapse, getJsonParserVariableVisibility, setHeaderCollapse } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
 import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
@@ -21,24 +21,17 @@ import {
 import { PatternControls } from './PatternControls';
 
 type HeaderPosition = 'relative' | 'sticky';
+
 interface VariableLayoutSceneState extends SceneObjectState {
   embeddedLink?: EmbeddedLinkScene;
   position: HeaderPosition;
 }
+
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
   constructor(props: VariableLayoutSceneState) {
     super(props);
 
     this.addActivationHandler(this.onActivate.bind(this));
-  }
-
-  public onActivate() {
-    const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    if (indexScene.state.embedded) {
-      this.setState({
-        embeddedLink: new EmbeddedLinkScene({}),
-      });
-    }
   }
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
@@ -47,6 +40,11 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const styles = useStyles2((theme) => getStyles(theme, model.state.position));
+    const [collapsed, setCollapsedState] = useState(getHeaderCollapse());
+    const setCollapse = (collapsed: boolean) => {
+      setCollapsedState(collapsed);
+      setHeaderCollapse(collapsed);
+    };
 
     return (
       <div
@@ -69,7 +67,25 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
               <div className={styles.controlsWrapper}>
-                {!indexScene.state.embedded && <GiveFeedbackButton />}
+                {!indexScene.state.embedded && (
+                  <div className={styles.feedbackCollapseWrapper}>
+                    <span>
+                      <Button
+                        tooltip={`${collapsed ? 'Expand' : 'Collapse'} header`}
+                        aria-label={`${collapsed ? 'Expand' : 'Collapse'} header`}
+                        onClick={() => setCollapse(!collapsed)}
+                        size={'sm'}
+                        variant={'secondary'}
+                        fill={'text'}
+                        className={styles.collapseButton}
+                      >
+                        {collapsed ? 'Expand' : 'Collapse'}
+                      </Button>
+                    </span>
+                    <GiveFeedbackButton />
+                  </div>
+                )}
+
                 <div className={styles.timeRangeDatasource}>
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
@@ -92,63 +108,80 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             </div>
           )}
 
-          {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
-          <div className={styles.controlsRowContainer}>
-            {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
-            {controls && (
-              <div className={styles.filtersWrap}>
-                <div className={styles.filters}>
-                  {controls.map((control) => {
-                    return control instanceof CustomVariableValueSelectors &&
-                      control.state.key === CONTROLS_VARS_FIELDS_COMBINED ? (
-                      <control.Component key={control.state.key} model={control} />
-                    ) : null;
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}
-          {getJsonParserVariableVisibility() && (
-            <div className={styles.controlsRowContainer}>
-              {controls && (
-                <div className={styles.filtersWrap}>
-                  <div className={styles.filters}>
-                    {controls.map((control) => {
-                      return control instanceof CustomVariableValueSelectors &&
-                        control.state.key === CONTROLS_JSON_FIELDS ? (
-                        <control.Component key={control.state.key} model={control} />
-                      ) : null;
-                    })}
+          {!collapsed && (
+            <>
+              {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
+              <div className={styles.controlsRowContainer}>
+                {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
+                {controls && (
+                  <div className={styles.filtersWrap}>
+                    <div className={styles.filters}>
+                      {controls.map((control) => {
+                        return control instanceof CustomVariableValueSelectors &&
+                          control.state.key === CONTROLS_VARS_FIELDS_COMBINED ? (
+                          <control.Component key={control.state.key} model={control} />
+                        ) : null;
+                      })}
+                    </div>
                   </div>
+                )}
+              </div>
+
+              {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}
+              {getJsonParserVariableVisibility() && (
+                <div className={styles.controlsRowContainer}>
+                  {controls && (
+                    <div className={styles.filtersWrap}>
+                      <div className={styles.filters}>
+                        {controls.map((control) => {
+                          return control instanceof CustomVariableValueSelectors &&
+                            control.state.key === CONTROLS_JSON_FIELDS ? (
+                            <control.Component key={control.state.key} model={control} />
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+
+              {/* 3rd row - Patterns */}
+              <div className={styles.controlsRowContainer}>
+                <PatternControls
+                  patterns={patterns}
+                  onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
+                />
+              </div>
+
+              {/* 4th row - Line filters - custom renderer */}
+              <div className={styles.controlsRowContainer}>
+                {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
+              </div>
+            </>
           )}
-
-          {/* 3rd row - Patterns */}
-          <div className={styles.controlsRowContainer}>
-            <PatternControls
-              patterns={patterns}
-              onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
-            />
-          </div>
-
-          {/* 4th row - Line filters - custom renderer */}
-          <div className={styles.controlsRowContainer}>
-            {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
-          </div>
         </>
       </div>
     );
   };
+
+  public onActivate() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    if (indexScene.state.embedded) {
+      this.setState({
+        embeddedLink: new EmbeddedLinkScene({}),
+      });
+    }
+  }
 }
 
 // @todo remove hardcoded height: https://github.com/grafana/grafana/issues/103795
 const grafanaTopBarHeight = 40;
+
 function getStyles(theme: GrafanaTheme2, position: HeaderPosition) {
   return {
+    collapseButton: css({
+      marginRight: theme.spacing(2),
+    }),
     controlsContainer: css({
       display: 'flex',
       flexDirection: 'column',
@@ -184,6 +217,13 @@ function getStyles(theme: GrafanaTheme2, position: HeaderPosition) {
       flexDirection: 'column',
       label: 'controlsWrapper',
       marginTop: theme.spacing(0.375),
+    }),
+    feedbackCollapseWrapper: css({
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      position: 'relative',
+      top: theme.spacing(-1),
     }),
     filters: css({
       display: 'flex',

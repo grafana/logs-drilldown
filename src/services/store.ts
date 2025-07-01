@@ -286,6 +286,14 @@ export function setLogsVisualizationType(type: string) {
   localStorage.setItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY, type);
 }
 
+const TOGGLE_HEADER_COLLAPSE_KEY = `${pluginJson.id}.headerOptions.toggleCollapse`;
+export function getHeaderCollapse(): boolean {
+  return !!localStorage.getItem(TOGGLE_HEADER_COLLAPSE_KEY);
+}
+export function setHeaderCollapse(collapse: boolean) {
+  localStorage.setItem(TOGGLE_HEADER_COLLAPSE_KEY, collapse ? 'true' : '');
+}
+
 const SHOW_ERROR_PANELS_KEY = `${pluginJson.id}.panelOptions.showErrors`;
 export function getShowErrorPanels(): boolean {
   return !!localStorage.getItem(SHOW_ERROR_PANELS_KEY);
