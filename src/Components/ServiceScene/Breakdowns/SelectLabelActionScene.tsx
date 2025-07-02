@@ -25,7 +25,7 @@ import {
 } from '@grafana/ui';
 
 import { ValueSlugs } from '../../../services/enums';
-import { getDetectedFieldType } from '../../../services/fields';
+import { calculateSparsity, getDetectedFieldType } from '../../../services/fields';
 import { FilterOp } from '../../../services/filterTypes';
 import { logger } from '../../../services/logger';
 import { LokiQuery } from '../../../services/lokiQuery';
@@ -47,6 +47,8 @@ import { addToFilters, clearFilters, InterpolatedFilterType } from './AddToFilte
 import { NumericFilterPopoverScene } from './NumericFilterPopoverScene';
 
 interface SelectLabelActionSceneState extends SceneObjectState {
+  // Custom description
+  description?: string;
   fieldType: ValueSlugs;
   hasNumericFilters?: boolean;
   hasSparseFilters?: boolean;
@@ -376,8 +378,10 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
 
     const panel = sceneGraph.getAncestor(this, VizPanel);
     if (logLinesWithLabelCount !== undefined && logsPanelData.length > 0) {
-      const percentage = ((logLinesWithLabelCount / logsPanelData.length) * 100).toLocaleString();
-      const description = `${this.state.labelName} exists on ${percentage}% of ${logsPanelData.length} sampled log lines`;
+      let description = this.state.description;
+      if (this.state.description === undefined) {
+        description = calculateSparsity(this, this.state.labelName).description;
+      }
 
       // Update the desc
       panel.setState({

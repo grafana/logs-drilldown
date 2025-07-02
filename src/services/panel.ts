@@ -24,6 +24,7 @@ import {
 import { HideSeriesConfig, LogsSortOrder } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
+import { SPARSITY_CARDINALITY_FIELD_NAME } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
 import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
@@ -66,6 +67,10 @@ export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<Fi
     fixedColor: 'darkgray',
     mode: 'fixed',
   });
+}
+
+export function setGaugeUnitOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
+  return overrides.matchFieldsWithName(SPARSITY_CARDINALITY_FIELD_NAME).overrideUnit('%');
 }
 
 export function setLogsVolumeFieldConfigs(

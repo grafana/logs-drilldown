@@ -1,18 +1,19 @@
 import { map, Observable } from 'rxjs';
 
-import { DataFrame, Field, ReducerID } from '@grafana/data';
+import { DataFrame, Field, Labels, ReducerID } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   PanelBuilders,
   SceneCSSGridItem,
   SceneDataTransformer,
+  sceneGraph,
   SceneObject,
 } from '@grafana/scenes';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
 import { PanelMenu } from '../Components/Panels/PanelMenu';
 import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
-import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
+import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { LabelType } from './fieldsTypes';
 import { logger } from './logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
@@ -141,6 +142,58 @@ export function getDetectedFieldsTypeField(detectedFieldsFrame?: DataFrame) {
 export function getDetectedFieldsJsonPathField(detectedFieldsFrame?: DataFrame) {
   const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
   return pathField;
+}
+export function getEstimatedCardinality(labelName: string, detectedFieldsFrame: DataFrame | undefined) {
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const cardinalityField = getDetectedFieldsCardinalityField(detectedFieldsFrame);
+  const index = namesField?.values.findIndex((name) => name === labelName);
+  if (index !== undefined && index !== -1) {
+    return cardinalityField?.values?.[index];
+  }
+
+  return undefined;
+}
+
+export interface SparsityCalculation {
+  cardinality: number | undefined;
+  description: string | undefined;
+  sparsity: number | undefined;
+}
+
+export function calculateSparsity(sceneRef: SceneObject, labelName: string): SparsityCalculation {
+  const serviceScene = sceneGraph.getAncestor(sceneRef, ServiceScene);
+  const logsPanelData = getLogsPanelFrame(serviceScene.state.$data?.state.data);
+  const labels: Field<Labels> | undefined = logsPanelData?.fields.find((field) => field.name === 'labels');
+
+  // iterate through all the labels on the log panel query result and count how many times this exists
+  const logLinesWithLabelCount = labels?.values.reduce((acc, labels) => {
+    if (labels?.[labelName]) {
+      acc++;
+    }
+    return acc;
+  }, 0);
+
+  if (logLinesWithLabelCount !== undefined && logsPanelData && logsPanelData.length > 0) {
+    const percentage = ((logLinesWithLabelCount / logsPanelData.length) * 100).toLocaleString();
+    let description = `${labelName} exists on ${percentage}% of ${logsPanelData?.length} sampled log lines`;
+    const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
+    const cardinality = getEstimatedCardinality(labelName, detectedFieldsFrame);
+    if (cardinality !== undefined) {
+      description += `, and contains ${cardinality} unique values`;
+    }
+
+    return {
+      cardinality: cardinality ? parseInt(cardinality, 10) : undefined,
+      description,
+      sparsity: parseInt(percentage, 10),
+    };
+  }
+
+  return {
+    cardinality: undefined,
+    description: undefined,
+    sparsity: undefined,
+  };
 }
 
 export function getParserForField(fieldName: string, sceneRef: SceneObject): ParserType | undefined {
