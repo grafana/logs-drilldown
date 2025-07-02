@@ -64,7 +64,7 @@ export const LogListControls = ({
           name="document-info"
           className={showMetadata ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleStructuredMetadataClick(!showMetadata)}
-          tooltip={'Show structured metadata'}
+          tooltip={showMetadata ? 'Hide structured metadata' : 'Show structured metadata'}
           size="lg"
         />
       )}
@@ -73,7 +73,7 @@ export const LogListControls = ({
           name="key-skeleton-alt"
           className={showLabels ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleLabelsClick(!showLabels)}
-          tooltip={'Show labels'}
+          tooltip={showLabels ? 'Hide Labels' : 'Show labels'}
           size="lg"
         />
       )}
