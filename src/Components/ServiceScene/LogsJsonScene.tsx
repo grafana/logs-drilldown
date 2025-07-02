@@ -194,13 +194,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         this.setVizFlags(detectedFieldFrame);
       }
     }
-
-    // Subscribe to detected fields
-    serviceScene.state?.$detectedFieldsData?.subscribeToState((newState) => {
-      if (newState.data?.state === LoadingState.Done && newState.data?.series.length) {
-        this.setVizFlags(newState.data.series[0]);
-      }
-    });
   }
 
   /**
