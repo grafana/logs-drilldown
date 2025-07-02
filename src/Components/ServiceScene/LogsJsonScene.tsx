@@ -61,6 +61,7 @@ import { hasProp, narrowLogsSortOrder } from '../../services/narrowing';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { getPrettyQueryExpr } from '../../services/scenes';
 import {
+  getAdHocFiltersVariable,
   getFieldsVariable,
   getJsonFieldsVariable,
   getLineFormatVariable,
@@ -212,11 +213,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
 
     // Subscribe to detected fields
-    serviceScene.state?.$detectedFieldsData?.subscribeToState((newState) => {
-      if (newState.data?.state === LoadingState.Done && newState.data?.series.length) {
-        this.setVizFlags(newState.data.series[0]);
-      }
-    });
+    this._subs.add(
+      serviceScene.state?.$detectedFieldsData?.subscribeToState((newState) => {
+        if (newState.data?.state === LoadingState.Done && newState.data?.series.length) {
+          this.setVizFlags(newState.data.series[0]);
+        }
+      })
+    );
 
     // Subscribe to options state changes
     this._subs.add(
@@ -561,7 +564,11 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                   if (keyPath === DataFrameTimeName) {
                     return null;
                   }
-                  return <>{valueAsString?.toString()}</>;
+                  const value = valueAsString?.toString();
+                  if (!value) {
+                    return null;
+                  }
+                  return <>{value}</>;
                 }}
                 shouldExpandNodeInitially={(_, __, level) => level <= 2}
                 labelRenderer={(keyPath, nodeType) => {
@@ -738,70 +745,84 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const styles = useStyles2(getJSONVizValueLabelStyles);
     const value = this.getValue(keyPath, lineField.values)?.toString();
     const label = keyPath[0];
-    const { fullKeyPath } = this.getFullKeyPath(keyPath);
-    let filterType: 'json' | 'labels' | 'metadata';
-    if (keyPath[1] === DataFrameStructuredMetadataName) {
-      filterType = 'metadata';
-    } else if (keyPath[1] === DataFrameLabelsName) {
-      filterType = 'labels';
-    } else {
-      filterType = 'json';
+    const filterType = this.getFilterTypeFromKeyPath(keyPath);
+
+    if (filterType === 'json') {
+      const { fullKeyPath } = this.getFullKeyPath(keyPath);
+      const fullKey = getJsonKey(fullKeyPath);
+      const jsonParserProp = jsonParserPropsMap.get(fullKey);
+      const existingJsonFilter =
+        jsonParserProp &&
+        fieldsVar.state.filters.find(
+          (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value
+        );
+
+      return (
+        <span className={styles.labelButtonsWrap}>
+          {jsonFiltersSupported && filterType === 'json' && (
+            <>
+              <JSONFilterValueButton
+                label={label}
+                value={value}
+                fullKeyPath={fullKeyPath}
+                fullKey={fullKey}
+                addFilter={this.addJsonFilter}
+                existingFilter={existingJsonFilter}
+                type={'include'}
+              />
+              <JSONFilterValueButton
+                label={label}
+                value={value}
+                fullKeyPath={fullKeyPath}
+                fullKey={fullKey}
+                addFilter={this.addJsonFilter}
+                existingFilter={existingJsonFilter}
+                type={'exclude'}
+              />
+            </>
+          )}
+          <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
+        </span>
+      );
     }
-    const fullKey = getJsonKey(fullKeyPath);
-    const jsonParserProp = jsonParserPropsMap.get(fullKey);
-    const existingFilter =
-      jsonParserProp &&
-      fieldsVar.state.filters.find((f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value);
+
+    const existingVariableType = filterType === 'labels' ? VAR_LABELS : VAR_METADATA;
+    const existingVariable = getAdHocFiltersVariable(existingVariableType, this);
+    const existingFilter = existingVariable.state.filters.filter(
+      (filter) => filter.key === label.toString() && filter.value === value
+    );
 
     return (
       <span className={styles.labelButtonsWrap}>
-        {jsonFiltersSupported && filterType === 'json' && (
-          <>
-            <JSONFilterValueButton
-              label={label}
-              value={value}
-              fullKeyPath={fullKeyPath}
-              fullKey={fullKey}
-              addFilter={this.addJsonFilter}
-              existingFilter={existingFilter}
-              type={'include'}
-            />
-            <JSONFilterValueButton
-              label={label}
-              value={value}
-              fullKeyPath={fullKeyPath}
-              fullKey={fullKey}
-              addFilter={this.addJsonFilter}
-              existingFilter={existingFilter}
-              type={'exclude'}
-            />
-          </>
-        )}
-
-        {jsonFiltersSupported && filterType !== 'json' && (
-          <>
-            <FilterValueButton
-              label={label.toString()}
-              value={value}
-              variableType={filterType === 'labels' ? VAR_LABELS : VAR_METADATA}
-              addFilter={this.addFilter}
-              existingFilter={existingFilter}
-              type={'include'}
-            />
-            <FilterValueButton
-              label={label.toString()}
-              value={value}
-              variableType={filterType === 'labels' ? VAR_LABELS : VAR_METADATA}
-              addFilter={this.addFilter}
-              existingFilter={existingFilter}
-              type={'exclude'}
-            />
-          </>
-        )}
-
+        <FilterValueButton
+          label={label.toString()}
+          value={value}
+          variableType={existingVariableType}
+          addFilter={this.addFilter}
+          existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.Equal)}
+          type={'include'}
+        />
+        <FilterValueButton
+          label={label.toString()}
+          value={value}
+          variableType={existingVariableType}
+          addFilter={this.addFilter}
+          existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.NotEqual)}
+          type={'exclude'}
+        />
         <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
       </span>
     );
+  };
+
+  private getFilterTypeFromKeyPath = (keyPath: ReadonlyArray<string | number>): 'json' | 'labels' | 'metadata' => {
+    if (keyPath[1] === DataFrameStructuredMetadataName) {
+      return 'metadata';
+    } else if (keyPath[1] === DataFrameLabelsName) {
+      return 'labels';
+    } else {
+      return 'json';
+    }
   };
 
   /**
