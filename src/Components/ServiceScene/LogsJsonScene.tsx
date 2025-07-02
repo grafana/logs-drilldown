@@ -81,7 +81,14 @@ import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceS
 import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
 import { logsControlsSupported } from 'services/panel';
-import { getLogOption, setLogOption } from 'services/store';
+import {
+  getJsonLabelsVisibility,
+  getJsonMetadataVisibility,
+  getLogOption,
+  setJsonLabelsVisibility,
+  setJsonMetadataVisibility,
+  setLogOption,
+} from 'services/store';
 
 interface LogsJsonSceneState extends SceneObjectState {
   data?: PanelData;
@@ -91,6 +98,8 @@ interface LogsJsonSceneState extends SceneObjectState {
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   jsonFiltersSupported?: boolean;
   menu?: PanelMenu;
+  showLabels: boolean;
+  showMetadata: boolean;
   sortOrder: LogsSortOrder;
 }
 
@@ -105,6 +114,8 @@ export type AddMetadataFilter = (
 
 const DataFrameTimeName = 'Time';
 const DataFrameLineName = 'Line';
+const StructuredMetadataDisplayName = 'Metadata';
+const LabelsDisplayName = 'Labels';
 const DataFrameStructuredMetadataName = '__Metadata';
 const DataFrameLabelsName = '__Labels';
 const VizRootName = 'root';
@@ -117,6 +128,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
     super({
       ...state,
+      showLabels: getJsonLabelsVisibility(),
+      showMetadata: getJsonMetadataVisibility(),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
     });
 
@@ -175,6 +188,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         }
       })
     );
+
     clearJsonParserFields(this);
 
     const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(
@@ -203,6 +217,15 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         this.setVizFlags(newState.data.series[0]);
       }
     });
+
+    // Subscribe to options state changes
+    this._subs.add(
+      this.subscribeToState((newState, prevState) => {
+        if (newState.showMetadata !== prevState.showMetadata || newState.showLabels !== prevState.showLabels) {
+          this.transformDataFrame($data.state);
+        }
+      })
+    );
   }
 
   /**
@@ -421,7 +444,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
     // const styles = getStyles(grafanaTheme)
-    const { data, emptyScene, hasJsonFields, jsonFiltersSupported, menu, sortOrder } = model.useState();
+    const { data, emptyScene, hasJsonFields, jsonFiltersSupported, menu, showLabels, showMetadata, sortOrder } =
+      model.useState();
     const $data = sceneGraph.getData(model);
     // Rerender on data change
     $data.useState();
@@ -435,16 +459,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     // If we have a line format variable, we are drilled down into a nested node
     const dataFrame = getLogsPanelFrame(data);
     const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
-    const labelsField = dataFrame?.fields.find((field) => field.type === FieldType.other && isLabelsField(field.name));
-    const labelTypesField = dataFrame?.fields.find(
-      (field) => field.type === FieldType.other && isLabelTypesField(field.name)
-    );
-
-    // const data = { ...lineField.values };
-
-    console.log('dataframe', { dataFrame, labelsField, labelTypesField, lineField });
-
     const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
+
     jsonVar.state.filters.forEach((filter) => {
       // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
       // all json props are wrapped with [\" ... "\], strip those chars out so we have the actual key used in the json
@@ -464,9 +480,21 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       scrollRef.current?.scrollTo(0, 0);
     }, []);
 
-    const onToggleStructuredMetadataClick = useCallback(() => {}, []);
+    const onToggleStructuredMetadataClick = useCallback(
+      (visible: boolean) => {
+        model.setState({ showMetadata: visible });
+        setJsonMetadataVisibility(visible);
+      },
+      [model]
+    );
 
-    const onToggleLabelsClick = useCallback(() => {}, []);
+    const onToggleLabelsClick = useCallback(
+      (visible: boolean) => {
+        model.setState({ showLabels: visible });
+        setJsonLabelsVisibility(visible);
+      },
+      [model]
+    );
 
     return (
       // @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done
@@ -486,12 +514,14 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         <div className={styles.container}>
           {logsControlsSupported && lineField?.values && lineField?.values.length > 0 && (
             <LogListControls
+              showMetadata={showMetadata}
+              onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
+              showLabels={showLabels}
+              onToggleLabelsClick={onToggleLabelsClick}
               sortOrder={sortOrder}
               onSortOrderChange={model.handleSortChange}
               onScrollToBottomClick={onScrollToBottomClick}
               onScrollToTopClick={onScrollToTopClick}
-              onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
-              onToggleLabelsClick={onToggleLabelsClick}
             />
           )}
           {dataFrame && lineField?.values && lineField?.values.length > 0 && (
@@ -537,10 +567,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 labelRenderer={(keyPath, nodeType) => {
                   const nodeTypeLoc = nodeType as NodeTypeLoc;
                   if (keyPath[0] === DataFrameStructuredMetadataName) {
-                    return 'Metadata';
+                    return StructuredMetadataDisplayName;
                   }
                   if (keyPath[0] === DataFrameLabelsName) {
-                    return 'Indexed labels';
+                    return LabelsDisplayName;
                   }
 
                   if (keyPath[0] === VizRootName) {
@@ -723,8 +753,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       jsonParserProp &&
       fieldsVar.state.filters.find((f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value);
 
-    if (filterType === 'json') {
-    }
     return (
       <span className={styles.labelButtonsWrap}>
         {jsonFiltersSupported && filterType === 'json' && (
@@ -835,10 +863,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                         [DataFrameLineName]: parsed,
                         [DataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                       };
-                      if (Object.keys(indexedLabels).length > 0) {
+                      if (this.state.showLabels && Object.keys(indexedLabels).length > 0) {
                         line[DataFrameLabelsName] = indexedLabels;
                       }
-                      if (Object.keys(structuredMetadata).length > 0) {
+                      if (this.state.showMetadata && Object.keys(structuredMetadata).length > 0) {
                         line[DataFrameStructuredMetadataName] = structuredMetadata;
                       }
 

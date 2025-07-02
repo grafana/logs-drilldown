@@ -302,6 +302,26 @@ export function getJsonParserVariableVisibility(): boolean {
   return !!localStorage.getItem(JSON_PARSER_PROPS_DEBUG_KEY);
 }
 
+// JSON viz metadata node visibility
+const JSON_VIZ_METADATA_VISIBLE_KEY = `${pluginJson.id}.jsonViz.metadata`;
+export function getJsonMetadataVisibility(): boolean {
+  return !!localStorage.getItem(JSON_VIZ_METADATA_VISIBLE_KEY);
+}
+
+export function setJsonMetadataVisibility(state: boolean) {
+  localStorage.setItem(JSON_VIZ_METADATA_VISIBLE_KEY, state ? 'true' : '');
+}
+
+// JSON viz labels node visibility
+const JSON_VIZ_LABELS_VISIBLE_KEY = `${pluginJson.id}.jsonViz.labels`;
+export function getJsonLabelsVisibility(): boolean {
+  return !!localStorage.getItem(JSON_VIZ_LABELS_VISIBLE_KEY);
+}
+
+export function setJsonLabelsVisibility(state: boolean) {
+  localStorage.setItem(JSON_VIZ_LABELS_VISIBLE_KEY, state ? 'true' : '');
+}
+
 // Line filter options
 const LINE_FILTER_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.linefilter.option`;
 export function setLineFilterCase(caseSensitive: boolean) {
