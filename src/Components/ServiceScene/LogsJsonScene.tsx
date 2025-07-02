@@ -202,7 +202,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       // @todo remove when we drop support for Loki versions before 3.5.0
       if (
         !serviceScene.state.fieldsCount === undefined ||
-        serviceScene.state.fieldsCount !== detectedFieldFrame?.lengt
+        serviceScene.state.fieldsCount !== detectedFieldFrame?.length
       ) {
         serviceScene.state?.$detectedFieldsData?.runQueries();
       } else {
