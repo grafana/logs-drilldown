@@ -13,7 +13,7 @@ import {
   rangeUtil,
 } from '@grafana/data';
 import { DataSourcePicker, getBackendSrv, locationService } from '@grafana/runtime';
-import { Button, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
+import { Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
@@ -21,12 +21,14 @@ import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage
 export type JsonData = {
   dataSource?: string;
   interval?: string;
+  patternsDisabled?: boolean;
 };
 
 type State = {
   dataSource: string;
   interval: string;
   isValid: boolean;
+  patternsDisabled: boolean;
 };
 
 // 1 hour minimum
@@ -43,6 +45,7 @@ const AppConfig = ({ plugin }: Props) => {
       jsonData?.dataSource ?? getDefaultDatasourceFromDatasourceSrv() ?? getLastUsedDataSourceFromStorage() ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
+    patternsDisabled: jsonData?.patternsDisabled ?? false,
   });
 
   const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
@@ -58,6 +61,14 @@ const AppConfig = ({ plugin }: Props) => {
       ...state,
       interval,
       isValid: isValid(interval),
+    });
+  };
+
+  const onChangePatternsDisabled = (event: ChangeEvent<HTMLInputElement>) => {
+    const patternsDisabled = event.currentTarget.checked;
+    setState({
+      ...state,
+      patternsDisabled,
     });
   };
 
@@ -105,6 +116,34 @@ const AppConfig = ({ plugin }: Props) => {
           />
         </Field>
 
+        <Field
+          className={styles.marginTop}
+          description={
+            <span>
+              Disables Logs Drilldown&apos;s usage of the{' '}
+              <a
+                className="external-link"
+                href="https://grafana.com/docs/loki/latest/reference/loki-http-api/#patterns-detection"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Loki Patterns API
+              </a>{' '}
+              endpoint, and removes the Patterns tab.
+            </span>
+          }
+          label={'Disable Loki patterns'}
+        >
+          <Checkbox
+            id="disable-patterns"
+            data-testid={testIds.appConfig.interval}
+            label={`Disable patterns`}
+            value={state?.patternsDisabled}
+            placeholder={`7d`}
+            onChange={onChangePatternsDisabled}
+          />
+        </Field>
+
         <div className={styles.marginTop}>
           <Button
             type="submit"
@@ -115,6 +154,7 @@ const AppConfig = ({ plugin }: Props) => {
                 jsonData: {
                   dataSource: state.dataSource,
                   interval: state.interval,
+                  patternsDisabled: state.patternsDisabled,
                 },
                 pinned,
               })
@@ -124,6 +164,7 @@ const AppConfig = ({ plugin }: Props) => {
             Save settings
           </Button>
         </div>
+        <p className={styles.note}>Active users must refresh the app to update configuration.</p>
       </FieldSet>
     </div>
   );
@@ -147,6 +188,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
   marginTopXl: css`
     margin-top: ${theme.spacing(6)};
   `,
+  note: css({
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
+  }),
 });
 
 const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<JsonData>>) => {
@@ -166,6 +212,7 @@ const testIds = {
     container: 'data-testid ac-container',
     datasource: 'data-testid ac-datasource-input',
     interval: 'data-testid ac-interval-input',
+    pattern: 'data-testid ac-patterns-disabled',
     submit: 'data-testid ac-submit-form',
   },
 };
