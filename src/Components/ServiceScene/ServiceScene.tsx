@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LoadingState, PanelData } from '@grafana/data';
+import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -23,6 +23,7 @@ import {
 import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import { plugin } from '../../module';
 import { areArraysEqual } from '../../services/comparison';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
@@ -46,6 +47,7 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
+import { JsonData } from '../AppConfig/AppConfig';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
@@ -98,7 +100,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedFieldsData: SceneQueryRunner | undefined;
   $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
-  $patternsData: SceneQueryRunner | undefined;
+  $patternsData?: SceneQueryRunner | undefined;
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
@@ -767,6 +769,11 @@ function buildGraphScene() {
 }
 
 function getPatternsQueryRunner() {
+  const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+  if (jsonData?.patternsDisabled) {
+    return undefined;
+  }
+
   return getResourceQueryRunner([
     buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'patterns', { refId: PATTERNS_QUERY_REFID }),
   ]);

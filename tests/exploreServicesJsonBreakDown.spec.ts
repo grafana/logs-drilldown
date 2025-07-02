@@ -234,6 +234,34 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Assert we still have results
       await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
     });
+    test('detected fields is called on init when loading json panel', async ({ page }) => {
+      // Load logs tab
+      await explorePage.goToLogsTab();
+      // Switch to json viz
+      await explorePage.getJsonToggleLocator().click();
+      // Reload the page
+      await page.reload();
+      // Verify filter buttons are visible
+      const userIdentifierInclude = page.getByLabel(/Include log lines containing user-identifier=".+"/);
+      await expect(userIdentifierInclude).toHaveCount(EXPANDED_NODE_COUNT); // 50 nodes are expanded by default
+    });
+
+    test('detected fields is called after nav from fields page', async ({ page }) => {
+      // Set JSON as default viz
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+
+      await explorePage.goToFieldsTab();
+      // Clear caches
+      await page.reload();
+
+      // Go to fields tab after detected_fields was called on fields
+      await explorePage.goToLogsTab();
+
+      // Verify filter buttons are visible
+      const userIdentifierInclude = page.getByLabel(/Include log lines containing user-identifier=".+"/);
+      await expect(userIdentifierInclude).toHaveCount(EXPANDED_NODE_COUNT); // 50 nodes are expanded by default
+    });
 
     // @todo
     // test('can add filter in logs panel without breaking existing json', async ({ page }) => {});

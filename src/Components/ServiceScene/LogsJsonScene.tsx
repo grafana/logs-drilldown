@@ -193,7 +193,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       } else {
         this.setVizFlags(detectedFieldFrame);
       }
+    } else if (serviceScene.state?.$detectedFieldsData?.state.data?.state === undefined) {
+      serviceScene.state?.$detectedFieldsData?.runQueries();
     }
+
+    // Subscribe to detected fields
+    serviceScene.state?.$detectedFieldsData?.subscribeToState((newState) => {
+      if (newState.data?.state === LoadingState.Done && newState.data?.series.length) {
+        this.setVizFlags(newState.data.series[0]);
+      }
+    });
   }
 
   /**
