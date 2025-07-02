@@ -12,13 +12,11 @@ interface TableProviderProps {
   addFilter: (filter: AdHocVariableFilter) => void;
   clearSelectedLine: () => void;
   dataFrame: DataFrame;
-  isColumnManagementActive: boolean;
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   selectedLine?: SelectedTableRow;
   setUrlColumns: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
-  showColumnManagementDrawer: (isActive: boolean) => void;
   timeRange?: TimeRange;
   urlColumns: string[];
   urlTableBodyState?: LogLineState;
@@ -28,13 +26,11 @@ export const TableProvider = ({
   addFilter,
   clearSelectedLine,
   dataFrame,
-  isColumnManagementActive,
   logsSortOrder,
   panelWrap,
   selectedLine,
   setUrlColumns,
   setUrlTableBodyState,
-  showColumnManagementDrawer,
   timeRange,
   urlColumns,
   urlTableBodyState,
@@ -62,8 +58,6 @@ export const TableProvider = ({
         urlColumns={urlColumns}
         panelWrap={panelWrap}
         clearSelectedLine={clearSelectedLine}
-        showColumnManagementDrawer={showColumnManagementDrawer}
-        isColumnManagementActive={isColumnManagementActive}
         logsSortOrder={logsSortOrder}
       />
     </QueryContextProvider>
