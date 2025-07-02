@@ -14,6 +14,8 @@ interface Props {
   onScrollToBottomClick?(): void;
   onScrollToTopClick?(): void;
   onSortOrderChange(newOrder: LogsSortOrder): void;
+  onToggleLabelsClick?(): void;
+  onToggleStructuredMetadataClick?(): void;
   sortOrder: LogsSortOrder;
 }
 
@@ -24,6 +26,8 @@ export const LogListControls = ({
   onScrollToBottomClick,
   onScrollToTopClick,
   onSortOrderChange,
+  onToggleLabelsClick,
+  onToggleStructuredMetadataClick,
   sortOrder,
 }: Props) => {
   const styles = useStyles2(getStyles);
@@ -51,6 +55,24 @@ export const LogListControls = ({
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
+      {onToggleStructuredMetadataClick && (
+        <IconButton
+          name="document-info"
+          className={styles.controlButton}
+          onClick={onToggleStructuredMetadataClick}
+          tooltip={'Show structured metadata'}
+          size="lg"
+        />
+      )}
+      {onToggleLabelsClick && (
+        <IconButton
+          name="key-skeleton-alt"
+          className={styles.controlButton}
+          onClick={onToggleLabelsClick}
+          tooltip={'Show labels'}
+          size="lg"
+        />
+      )}
       {onManageColumnsClick && (
         <IconButton
           name="columns"

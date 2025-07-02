@@ -15,7 +15,12 @@ import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortB
 import { getDetectedFieldsFrame } from '../Components/ServiceScene/ServiceScene';
 import { LabelType } from './fieldsTypes';
 import { logger } from './logger';
-import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
+import {
+  DATAPLANE_BODY_NAME_LEGACY,
+  DATAPLANE_LABEL_TYPES_NAME,
+  DATAPLANE_LABELS_NAME,
+  DATAPLANE_LINE_NAME,
+} from './logsFrame';
 import { getLabelTypeFromFrame } from './lokiQuery';
 import { setLevelColorOverrides } from './panel';
 import {
@@ -428,6 +433,14 @@ export function lokiRegularEscape<T>(value: T) {
 
 export function isLogLineField(fieldName: string) {
   return fieldName === DATAPLANE_LINE_NAME || fieldName === DATAPLANE_BODY_NAME_LEGACY;
+}
+
+export function isLabelsField(fieldName: string) {
+  return fieldName === DATAPLANE_LABELS_NAME;
+}
+
+export function isLabelTypesField(fieldName: string) {
+  return fieldName === DATAPLANE_LABEL_TYPES_NAME;
 }
 
 /**
