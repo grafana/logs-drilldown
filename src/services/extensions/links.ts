@@ -1,5 +1,5 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
-import { PluginExtensionLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
+import { PluginExtensionAddedLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 
 import pluginJson from '../../plugin.json';
@@ -36,12 +36,7 @@ export const ExtensionPoints = {
 } as const;
 
 /* eslint-disable sort/object-properties */
-export type LinkConfigs = Array<
-  {
-    targets: string | string[];
-    // eslint-disable-next-line deprecation/deprecation
-  } & Omit<PluginExtensionLinkConfig<PluginExtensionPanelContext>, 'extensionPointId' | 'type'>
->;
+export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
 
 // `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
 // TODO: fix this type when we move to `@grafana/data` 11.3.x
