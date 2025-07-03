@@ -4,7 +4,6 @@ import { LokiQuery } from '../src/services/lokiQuery';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const fieldName = 'method';
-// const levelName = 'cluster'
 test.describe('explore nginx-json breakdown pages ', () => {
   let explorePage: ExplorePage;
 
@@ -261,6 +260,49 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Verify filter buttons are visible
       const userIdentifierInclude = page.getByLabel(/Include log lines containing user-identifier=".+"/);
       await expect(userIdentifierInclude).toHaveCount(EXPANDED_NODE_COUNT); // 50 nodes are expanded by default
+    });
+
+    test('can filter levels', async ({ page }) => {
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+
+      // Show metadata node
+      await page.getByRole('button', { name: 'Show structured metadata' }).click();
+      await expect(page.getByText('Metadata', { exact: true }).first()).toBeVisible();
+      await expect(page.getByText('All levels')).toHaveCount(1);
+      await page
+        .getByLabel(/Include log lines containing detected_level=".+"/)
+        .first()
+        .click();
+
+      await expect(page.getByText('All levels')).toHaveCount(0);
+      await expect(
+        page.getByTestId('data-testid detected_level filter variable').getByText(/debug|error|info|warn/)
+      ).toHaveCount(1);
+    });
+
+    test('can filter labels', async ({ page }) => {
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+
+      //show labels node
+      await page.getByRole('button', { name: 'Show labels' }).click();
+      await expect(page.getByText('Labels', { exact: true }).first()).toBeVisible();
+
+      // assert already selected label filter is active
+      await expect(page.getByLabel('Include log lines containing service_name="nginx-json"').first()).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+
+      // select namespace
+      await page
+        .getByLabel(/Include log lines containing namespace=".+"/)
+        .first()
+        .click();
+
+      // assert on namespace filter
+      await expect(page.getByRole('button', { name: 'Edit filter with key namespace' })).toHaveCount(1);
     });
 
     // @todo

@@ -88,7 +88,6 @@ import { LogsListScene } from './LogsListScene';
 import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
-import { logsControlsSupported } from 'services/panel';
 import {
   getJsonLabelsVisibility,
   getJsonMetadataVisibility,
@@ -522,7 +521,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
         <div className={styles.container}>
-          {logsControlsSupported && lineField?.values && lineField?.values.length > 0 && (
+          {lineField?.values && lineField?.values.length > 0 && (
             <LogListControls
               showMetadata={showMetadata}
               onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
