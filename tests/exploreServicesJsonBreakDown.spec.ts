@@ -185,7 +185,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
 
-      await page.pause();
       // re-root
       await page.getByRole('button', { exact: true, name: 'root' }).click();
       // Open nested_object
