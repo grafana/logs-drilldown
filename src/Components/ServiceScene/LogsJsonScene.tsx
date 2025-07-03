@@ -68,7 +68,14 @@ import {
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
 import { clearVariables } from '../../services/variableHelpers';
-import { EMPTY_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_METADATA } from '../../services/variables';
+import {
+  EMPTY_VARIABLE_VALUE,
+  LEVEL_VARIABLE_VALUE,
+  VAR_FIELDS,
+  VAR_LABELS,
+  VAR_LEVELS,
+  VAR_METADATA,
+} from '../../services/variables';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType, InterpolatedFilterType } from './Breakdowns/AddToFiltersButton';
@@ -745,9 +752,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const styles = useStyles2(getJSONVizValueLabelStyles);
     const value = this.getValue(keyPath, lineField.values)?.toString();
     const label = keyPath[0];
-    const filterType = this.getFilterTypeFromKeyPath(keyPath);
+    const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
 
-    if (filterType === 'json') {
+    if (existingVariableType === VAR_FIELDS) {
       const { fullKeyPath } = this.getFullKeyPath(keyPath);
       const fullKey = getJsonKey(fullKeyPath);
       const jsonParserProp = jsonParserPropsMap.get(fullKey);
@@ -759,7 +766,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
       return (
         <span className={styles.labelButtonsWrap}>
-          {jsonFiltersSupported && filterType === 'json' && (
+          {jsonFiltersSupported && existingVariableType === VAR_FIELDS && (
             <>
               <JSONFilterValueButton
                 label={label}
@@ -786,7 +793,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       );
     }
 
-    const existingVariableType = filterType === 'labels' ? VAR_LABELS : VAR_METADATA;
     const existingVariable = getAdHocFiltersVariable(existingVariableType, this);
     const existingFilter = existingVariable.state.filters.filter(
       (filter) => filter.key === label.toString() && filter.value === value
@@ -815,13 +821,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  private getFilterTypeFromKeyPath = (keyPath: ReadonlyArray<string | number>): 'json' | 'labels' | 'metadata' => {
+  private getFilterVariableTypeFromPath = (keyPath: ReadonlyArray<string | number>): InterpolatedFilterType => {
     if (keyPath[1] === DataFrameStructuredMetadataName) {
-      return 'metadata';
+      if (keyPath[0] === LEVEL_VARIABLE_VALUE) {
+        return VAR_LEVELS;
+      }
+      return VAR_METADATA;
     } else if (keyPath[1] === DataFrameLabelsName) {
-      return 'labels';
+      return VAR_LABELS;
     } else {
-      return 'json';
+      return VAR_FIELDS;
     }
   };
 
@@ -917,6 +926,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     paddingRight: theme.spacing(1),
   }),
   JSONTreeWrap: css`
+    font-family: ${theme.typography.fontFamilyMonospace};
     // override css variables
     --json-tree-align-items: flex-start;
     --json-tree-label-color: ${theme.colors.text.secondary};
