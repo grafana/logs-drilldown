@@ -14,8 +14,10 @@ interface Props {
   onScrollToBottomClick?(): void;
   onScrollToTopClick?(): void;
   onSortOrderChange(newOrder: LogsSortOrder): void;
+  onToggleHighlightClick?(visible: boolean): void;
   onToggleLabelsClick?(visible: boolean): void;
   onToggleStructuredMetadataClick?(visible: boolean): void;
+  showHighlight?: boolean;
   showLabels?: boolean;
   showMetadata?: boolean;
   sortOrder: LogsSortOrder;
@@ -28,8 +30,10 @@ export const LogListControls = ({
   onScrollToBottomClick,
   onScrollToTopClick,
   onSortOrderChange,
+  onToggleHighlightClick,
   onToggleLabelsClick,
   onToggleStructuredMetadataClick,
+  showHighlight,
   showLabels,
   showMetadata,
   sortOrder,
@@ -62,6 +66,7 @@ export const LogListControls = ({
       {showMetadata !== undefined && onToggleStructuredMetadataClick && (
         <IconButton
           name="document-info"
+          aria-pressed={showMetadata}
           className={showMetadata ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleStructuredMetadataClick(!showMetadata)}
           tooltip={showMetadata ? 'Hide structured metadata' : 'Show structured metadata'}
@@ -71,9 +76,21 @@ export const LogListControls = ({
       {showLabels !== undefined && onToggleLabelsClick && (
         <IconButton
           name="key-skeleton-alt"
+          aria-pressed={showLabels}
           className={showLabels ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleLabelsClick(!showLabels)}
           tooltip={showLabels ? 'Hide Labels' : 'Show labels'}
+          size="lg"
+        />
+      )}
+
+      {showHighlight !== undefined && onToggleHighlightClick && (
+        <IconButton
+          name="brackets-curly"
+          aria-pressed={showHighlight}
+          className={showHighlight ? styles.controlButtonActive : styles.controlButton}
+          onClick={() => onToggleHighlightClick(!showHighlight)}
+          tooltip={showHighlight ? 'Disable highlighting' : 'Enable highlighting'}
           size="lg"
         />
       )}
