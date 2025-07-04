@@ -312,6 +312,16 @@ export function setJsonMetadataVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_METADATA_VISIBLE_KEY, state ? 'true' : '');
 }
 
+// JSON viz metadata node visibility
+const JSON_VIZ_HIGHLIGHT_VISIBLE_KEY = `${pluginJson.id}.jsonViz.highlight`;
+export function getJsonHighlightVisibility(): boolean {
+  return !!localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
+}
+
+export function setJsonHighlightVisibility(state: boolean) {
+  localStorage.setItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY, state ? 'true' : '');
+}
+
 // JSON viz labels node visibility
 const JSON_VIZ_LABELS_VISIBLE_KEY = `${pluginJson.id}.jsonViz.labels`;
 export function getJsonLabelsVisibility(): boolean {
