@@ -1,0 +1,86 @@
+import React from 'react';
+
+import { isNumber } from 'lodash';
+
+import { Field } from '@grafana/data';
+import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
+
+import { isLogLineField } from '../../../services/fields';
+import {
+  JsonDataFrameLabelsName,
+  JsonDataFrameStructuredMetadataName,
+  JsonDataFrameTimeName,
+  JsonVizRootName,
+  LabelsDisplayName,
+  LogsJsonScene,
+  NodeTypeLoc,
+  StructuredMetadataDisplayName,
+} from '../LogsJsonScene';
+import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
+
+interface LabelRendererProps {
+  fieldsVar: AdHocFiltersVariable;
+  jsonFiltersSupported: boolean | undefined;
+  jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
+  keyPath: KeyPath;
+  lineField: Field;
+  model: LogsJsonScene;
+  nodeType: string;
+}
+
+export default function LabelRenderer({
+  fieldsVar,
+  jsonFiltersSupported,
+  jsonParserPropsMap,
+  keyPath,
+  lineField,
+  model,
+  nodeType,
+}: LabelRendererProps) {
+  const nodeTypeLoc = nodeType as NodeTypeLoc;
+  if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
+    return StructuredMetadataDisplayName;
+  }
+  if (keyPath[0] === JsonDataFrameLabelsName) {
+    return LabelsDisplayName;
+  }
+
+  if (keyPath[0] === JsonVizRootName) {
+    return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
+  }
+
+  // Value nodes
+  if (
+    nodeTypeLoc !== 'Object' &&
+    nodeTypeLoc !== 'Array' &&
+    keyPath[0] !== JsonDataFrameTimeName &&
+    !isLogLineField(keyPath[0].toString()) &&
+    keyPath[0] !== JsonVizRootName &&
+    !isNumber(keyPath[0])
+  ) {
+    return model.renderValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
+  }
+
+  // Parent nodes
+  if (
+    (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
+    !isLogLineField(keyPath[0].toString()) &&
+    keyPath[0] !== JsonVizRootName &&
+    !isNumber(keyPath[0])
+  ) {
+    return model.renderNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
+  }
+
+  // Show the timestamp as the label of the log line
+  if (isNumber(keyPath[0]) && keyPath[1] === JsonVizRootName) {
+    const time: string = lineField.values[keyPath[0]]?.[JsonDataFrameTimeName];
+    return <strong>{time}</strong>;
+  }
+
+  // Don't render time node
+  if (keyPath[0] === JsonDataFrameTimeName) {
+    return null;
+  }
+
+  return <strong>{keyPath[0]}:</strong>;
+}

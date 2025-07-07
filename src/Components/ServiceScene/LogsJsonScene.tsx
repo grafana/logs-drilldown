@@ -67,8 +67,8 @@ import { addToFilters, FilterType, InterpolatedFilterType } from './Breakdowns/A
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
 import { FilterValueButton, JSONFilterValueButton } from './JSONPanel/JSONFilterValueButton';
+import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
 import ReRootJSONButton from './JSONPanel/ReRootJSONButton';
-import { LogsJsonComponent } from './LogsJsonComponent';
 import { LogsListScene } from './LogsListScene';
 import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';

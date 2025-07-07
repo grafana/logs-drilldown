@@ -1,44 +1,31 @@
 import React, { useCallback, useRef } from 'react';
 
 import { css } from '@emotion/css';
-import { isNumber } from 'lodash';
 
-import { Field, FieldType, GrafanaTheme2 } from '@grafana/data';
-import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
+import { FieldType, GrafanaTheme2 } from '@grafana/data';
+import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isLogLineField } from '../../services/fields';
+import { isLogLineField } from '../../../services/fields';
+import { getLogsHighlightStyles } from '../../../services/highlight';
 import {
-  getLineFilterMatches,
-  getLineFilterRegExps,
-  getLogsHighlightStyles,
-  highlightValueStringMatches,
-  logsSyntaxMatches,
-  mergeOverlapping,
-} from '../../services/highlight';
-import { rootNodeItemString } from '../../services/JSONViz';
-import { hasProp } from '../../services/narrowing';
-import { setJsonHighlightVisibility, setJsonLabelsVisibility, setJsonMetadataVisibility } from '../../services/store';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFiltersVariable } from '../../services/variableGetters';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import { LogListControls } from './LogListControls';
-import {
-  JsonDataFrameLabelsName,
-  JsonDataFrameStructuredMetadataName,
-  JsonDataFrameTimeName,
-  JsonVizRootName,
-  LabelsDisplayName,
-  LogsJsonScene,
-  NodeTypeLoc,
-  StructuredMetadataDisplayName,
-} from './LogsJsonScene';
-import { LogsListScene } from './LogsListScene';
-import { getLogsPanelFrame } from './ServiceScene';
+  setJsonHighlightVisibility,
+  setJsonLabelsVisibility,
+  setJsonMetadataVisibility,
+} from '../../../services/store';
+import { getFieldsVariable, getJsonFieldsVariable, getLineFiltersVariable } from '../../../services/variableGetters';
+import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
+import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
+import LabelRenderer from '../JSONPanel/LabelRenderer';
+import ValueRenderer from '../JSONPanel/ValueRenderer';
+import { LogListControls } from '../LogListControls';
+import { LogsJsonScene } from '../LogsJsonScene';
+import { LogsListScene } from '../LogsListScene';
+import { getLogsPanelFrame } from '../ServiceScene';
+import GetItemString from './GetItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
-import { GetItemString, LabelRenderer, ValueRenderer } from '@gtk-grafana/react-json-tree/dist/types';
 
-export function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
+export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
   const {
     data,
     emptyScene,
@@ -158,10 +145,30 @@ export function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>)
               data={lineField.values}
               hideRootExpand={true}
               valueWrap={''}
-              getItemString={getItemString}
-              valueRenderer={getValueRenderer(lineFilterVar)}
               shouldExpandNodeInitially={(_, __, level) => level <= 2}
-              labelRenderer={getLabelRenderer(model, jsonFiltersSupported, lineField, fieldsVar, jsonParserPropsMap)}
+              getItemString={(nodeType, data, itemType, itemString, keyPath) => (
+                <GetItemString
+                  itemString={itemString}
+                  keyPath={keyPath}
+                  itemType={itemType}
+                  data={data}
+                  nodeType={nodeType}
+                />
+              )}
+              valueRenderer={(valueAsString, _, ...keyPath) => (
+                <ValueRenderer valueAsString={valueAsString} keyPath={keyPath} lineFilterVar={lineFilterVar} />
+              )}
+              labelRenderer={(keyPath, nodeType) => (
+                <LabelRenderer
+                  model={model}
+                  nodeType={nodeType}
+                  keyPath={keyPath}
+                  fieldsVar={fieldsVar}
+                  lineField={lineField}
+                  jsonFiltersSupported={jsonFiltersSupported}
+                  jsonParserPropsMap={jsonParserPropsMap}
+                />
+              )}
             />
           </div>
         )}
@@ -170,126 +177,6 @@ export function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>)
     </PanelChrome>
   );
 }
-LogsJsonComponent.displayName = 'Json.LogsJsonComponent';
-
-const getItemString: GetItemString = (_, data, itemType, itemString, keyPath) => {
-  if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
-    return null;
-  }
-  if (keyPath[0] === JsonVizRootName) {
-    return (
-      <span className={rootNodeItemString}>
-        {itemType} {itemString}
-      </span>
-    );
-  }
-
-  return <span>{itemType}</span>;
-};
-
-const getValueRenderer = (lineFilterVar: AdHocFiltersVariable): ValueRenderer => {
-  const ValueComponent: ValueRenderer = (valueAsString, _, keyPath, keyPathParent) => {
-    if (keyPath === JsonDataFrameTimeName) {
-      return null;
-    }
-    const value = valueAsString?.toString();
-    if (!value) {
-      return null;
-    }
-
-    if (
-      keyPathParent !== undefined &&
-      keyPathParent !== JsonDataFrameStructuredMetadataName &&
-      keyPathParent !== JsonDataFrameLabelsName
-    ) {
-      const matchExpressions = getLineFilterRegExps(lineFilterVar.state.filters);
-      const lineFilterMatches = getLineFilterMatches(matchExpressions, value);
-      const size = mergeOverlapping(lineFilterMatches);
-      let valueArray: Array<React.JSX.Element | string> = [];
-
-      if (lineFilterMatches.length) {
-        valueArray = highlightValueStringMatches(lineFilterMatches, value, size);
-      }
-
-      // If we have highlight matches we won't show syntax highlighting
-      if (valueArray.length) {
-        return valueArray.filter((e) => e);
-      }
-    }
-
-    // Check syntax highlighting results
-    const matchKey = Object.keys(logsSyntaxMatches).find((key) => value.match(logsSyntaxMatches[key]));
-    if (matchKey) {
-      return <span className={matchKey}>{value}</span>;
-    }
-
-    return <>{value}</>;
-  };
-  // @ts-expect-error eslint complains if there is no display name, but typescript complains if there is a display name...
-  ValueComponent.displayName = 'Json.ValueRenderer';
-  return ValueComponent;
-};
-
-const getLabelRenderer = (
-  model: LogsJsonScene,
-  jsonFiltersSupported: boolean | undefined,
-  lineField: Field,
-  fieldsVar: AdHocFiltersVariable,
-  jsonParserPropsMap: Map<string, AdHocFilterWithLabels>
-): LabelRenderer => {
-  const LabelRendererComponent: LabelRenderer = (keyPath, nodeType) => {
-    const nodeTypeLoc = nodeType as NodeTypeLoc;
-    if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
-      return StructuredMetadataDisplayName;
-    }
-    if (keyPath[0] === JsonDataFrameLabelsName) {
-      return LabelsDisplayName;
-    }
-
-    if (keyPath[0] === JsonVizRootName) {
-      return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
-    }
-
-    // Value nodes
-    if (
-      nodeTypeLoc !== 'Object' &&
-      nodeTypeLoc !== 'Array' &&
-      keyPath[0] !== JsonDataFrameTimeName &&
-      !isLogLineField(keyPath[0].toString()) &&
-      keyPath[0] !== JsonVizRootName &&
-      !isNumber(keyPath[0])
-    ) {
-      return model.renderValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
-    }
-
-    // Parent nodes
-    if (
-      (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
-      !isLogLineField(keyPath[0].toString()) &&
-      keyPath[0] !== JsonVizRootName &&
-      !isNumber(keyPath[0])
-    ) {
-      return model.renderNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
-    }
-
-    // Show the timestamp as the label of the log line
-    if (isNumber(keyPath[0]) && keyPath[1] === JsonVizRootName) {
-      const time: string = lineField.values[keyPath[0]]?.[JsonDataFrameTimeName];
-      console.log('lineField', { lineField, lineFieldKeypath: lineField.values[keyPath[0]], values: lineField.values });
-      return <strong>{time}</strong>;
-    }
-
-    // Don't render time node
-    if (keyPath[0] === JsonDataFrameTimeName) {
-      return null;
-    }
-
-    return <strong>{keyPath[0]}:</strong>;
-  };
-  // @ts-expect-error eslint complains if there is no display name, but typescript complains if there is a display name...
-  LabelRendererComponent.displayName = 'Json.LabelRenderer';
-  return LabelRendererComponent;
-};
 
 const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
   return {
