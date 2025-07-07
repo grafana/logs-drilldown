@@ -1,23 +1,10 @@
-import React, { useCallback, useRef } from 'react';
+import React from 'react';
 
-import { css } from '@emotion/css';
-import { isNumber } from 'lodash';
-
-import {
-  DataFrame,
-  Field,
-  FieldType,
-  getTimeZone,
-  GrafanaTheme2,
-  LoadingState,
-  LogsSortOrder,
-  PanelData,
-} from '@grafana/data';
+import { DataFrame, Field, FieldType, getTimeZone, LoadingState, LogsSortOrder, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
-  SceneComponentProps,
   SceneDataState,
   sceneGraph,
   SceneObjectBase,
@@ -26,7 +13,7 @@ import {
   SceneObjectUrlValues,
   SceneQueryRunner,
 } from '@grafana/scenes';
-import { Alert, Badge, Button, Icon, PanelChrome, useStyles2 } from '@grafana/ui';
+import { Button, Icon, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import {
@@ -47,14 +34,6 @@ import {
 } from '../../services/filters';
 import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
 import {
-  getLineFilterMatches,
-  getLineFilterRegExps,
-  getLogsHighlightStyles,
-  highlightValueStringMatches,
-  logsSyntaxMatches,
-  mergeOverlapping,
-} from '../../services/highlight';
-import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
   getJSONVizNestedProperty,
@@ -62,17 +41,15 @@ import {
   itemStringDelimiter,
   jsonLabelWrapStyles,
   renderJSONVizTimeStamp,
-  rootNodeItemString,
 } from '../../services/JSONViz';
 import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
-import { hasProp, narrowLogsSortOrder } from '../../services/narrowing';
+import { narrowLogsSortOrder } from '../../services/narrowing';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { getPrettyQueryExpr } from '../../services/scenes';
 import {
   getAdHocFiltersVariable,
   getFieldsVariable,
   getJsonFieldsVariable,
-  getLineFiltersVariable,
   getLineFormatVariable,
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
@@ -86,25 +63,21 @@ import {
   VAR_METADATA,
 } from '../../services/variables';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addToFilters, FilterType, InterpolatedFilterType } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
 import { FilterValueButton, JSONFilterValueButton } from './JSONPanel/JSONFilterValueButton';
 import ReRootJSONButton from './JSONPanel/ReRootJSONButton';
-import { LogListControls } from './LogListControls';
+import { LogsJsonComponent } from './LogsJsonComponent';
 import { LogsListScene } from './LogsListScene';
 import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
-import { JSONTree, KeyPath } from '@gtk-grafana/react-json-tree';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
 import {
   getJsonHighlightVisibility,
   getJsonLabelsVisibility,
   getJsonMetadataVisibility,
   getLogOption,
-  setJsonHighlightVisibility,
-  setJsonLabelsVisibility,
-  setJsonMetadataVisibility,
   setLogOption,
 } from 'services/store';
 
@@ -131,13 +104,13 @@ export type AddMetadataFilter = (
   variableType: InterpolatedFilterType
 ) => void;
 
-const DataFrameTimeName = 'Time';
-const DataFrameLineName = 'Line';
-const StructuredMetadataDisplayName = 'Metadata';
-const LabelsDisplayName = 'Labels';
-const DataFrameStructuredMetadataName = '__Metadata';
-const DataFrameLabelsName = '__Labels';
-const VizRootName = 'root';
+export const JsonDataFrameTimeName = 'Time';
+export const JsonDataFrameLineName = 'Line';
+export const StructuredMetadataDisplayName = 'Metadata';
+export const LabelsDisplayName = 'Labels';
+export const JsonDataFrameStructuredMetadataName = '__Metadata';
+export const JsonDataFrameLabelsName = '__Labels';
+export const JsonVizRootName = 'root';
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
@@ -156,245 +129,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  public static Component = ({ model }: SceneComponentProps<LogsJsonScene>) => {
-    const {
-      data,
-      emptyScene,
-      hasJsonFields,
-      jsonFiltersSupported,
-      menu,
-      showHighlight,
-      showLabels,
-      showMetadata,
-      sortOrder,
-    } = model.useState();
-    const $data = sceneGraph.getData(model);
-    // Rerender on data change
-    $data.useState();
-    const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
-    const { visualizationType } = logsListScene.useState();
-    const styles = useStyles2((t) => getStyles(t, showHighlight));
-
-    const fieldsVar = getFieldsVariable(model);
-    const jsonVar = getJsonFieldsVariable(model);
-
-    // If we have a line format variable, we are drilled down into a nested node
-    const dataFrame = getLogsPanelFrame(data);
-    const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
-    const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
-    const lineFilterVar = getLineFiltersVariable(model);
-
-    jsonVar.state.filters.forEach((filter) => {
-      // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
-      // all json props are wrapped with [\" ... "\], strip those chars out so we have the actual key used in the json
-      const fullKeyFromJsonParserProps = filter.value
-        .substring(3, filter.value.length - 3)
-        .split('\\"][\\"')
-        .join('_');
-      jsonParserPropsMap.set(fullKeyFromJsonParserProps, filter);
-    });
-    const scrollRef = useRef<HTMLDivElement | null>(null);
-
-    const onScrollToBottomClick = useCallback(() => {
-      scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
-    }, []);
-
-    const onScrollToTopClick = useCallback(() => {
-      scrollRef.current?.scrollTo(0, 0);
-    }, []);
-
-    const onToggleStructuredMetadataClick = useCallback(
-      (visible: boolean) => {
-        model.setState({ showMetadata: visible });
-        setJsonMetadataVisibility(visible);
-      },
-      [model]
-    );
-
-    const onToggleLabelsClick = useCallback(
-      (visible: boolean) => {
-        model.setState({ showLabels: visible });
-        setJsonLabelsVisibility(visible);
-      },
-      [model]
-    );
-
-    const onToggleHighlightClick = useCallback(
-      (visible: boolean) => {
-        model.setState({ showHighlight: visible });
-        setJsonHighlightVisibility(visible);
-      },
-      [model]
-    );
-
-    return (
-      // @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done
-      <PanelChrome
-        padding={'none'}
-        showMenuAlways={true}
-        statusMessage={$data.state.data?.errors?.[0].message}
-        loadingState={$data.state.data?.state}
-        title={
-          <>
-            JSON <Badge color={'blue'} text={'Experimental'} />
-          </>
-        }
-        menu={menu ? <menu.Component model={menu} /> : undefined}
-        actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
-      >
-        <div className={styles.container}>
-          {lineField?.values && lineField?.values.length > 0 && (
-            <LogListControls
-              showHighlight={showHighlight}
-              onToggleHighlightClick={onToggleHighlightClick}
-              showMetadata={showMetadata}
-              onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
-              showLabels={showLabels}
-              onToggleLabelsClick={onToggleLabelsClick}
-              sortOrder={sortOrder}
-              onSortOrderChange={model.handleSortChange}
-              onScrollToBottomClick={onScrollToBottomClick}
-              onScrollToTopClick={onScrollToTopClick}
-            />
-          )}
-          {dataFrame && lineField?.values && lineField?.values.length > 0 && (
-            <div className={styles.JSONTreeWrap} ref={scrollRef}>
-              {jsonFiltersSupported === false && (
-                <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
-                  This view will be read only until Loki is upgraded to 3.5.0
-                </Alert>
-              )}
-              {lineField.values.length > 0 && hasJsonFields === false && (
-                <>
-                  <Alert severity={'info'} title={'No JSON fields detected'}>
-                    This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for
-                    a better experience.
-                  </Alert>
-                </>
-              )}
-              <JSONTree
-                data={lineField.values}
-                hideRootExpand={true}
-                valueWrap={''}
-                getItemString={(_, data, itemType, itemString, keyPath) => {
-                  if (data && hasProp(data, DataFrameTimeName) && typeof data.Time === 'string') {
-                    return null;
-                  }
-                  if (keyPath[0] === VizRootName) {
-                    return (
-                      <span className={rootNodeItemString}>
-                        {itemType} {itemString}
-                      </span>
-                    );
-                  }
-
-                  return <span>{itemType}</span>;
-                }}
-                valueRenderer={(valueAsString, _, keyPath, keyPathParent) => {
-                  if (keyPath === DataFrameTimeName) {
-                    return null;
-                  }
-                  const value = valueAsString?.toString();
-                  if (!value) {
-                    return null;
-                  }
-
-                  if (
-                    keyPathParent !== undefined &&
-                    keyPathParent !== DataFrameStructuredMetadataName &&
-                    keyPathParent !== DataFrameLabelsName
-                  ) {
-                    const matchExpressions = getLineFilterRegExps(lineFilterVar.state.filters);
-                    const lineFilterMatches = getLineFilterMatches(matchExpressions, value);
-                    const size = mergeOverlapping(lineFilterMatches);
-                    let valueArray: Array<React.JSX.Element | string> = [];
-
-                    if (lineFilterMatches.length) {
-                      valueArray = highlightValueStringMatches(lineFilterMatches, value, size);
-                    }
-
-                    // If we have highlight matches we won't show syntax highlighting
-                    if (valueArray.length) {
-                      return valueArray.filter((e) => e);
-                    }
-                  }
-
-                  // Check syntax highlighting results
-                  const matchKey = Object.keys(logsSyntaxMatches).find((key) => value.match(logsSyntaxMatches[key]));
-                  if (matchKey) {
-                    return <span className={matchKey}>{value}</span>;
-                  }
-
-                  return <>{value}</>;
-                }}
-                shouldExpandNodeInitially={(_, __, level) => level <= 2}
-                labelRenderer={(keyPath, nodeType) => {
-                  const nodeTypeLoc = nodeType as NodeTypeLoc;
-                  if (keyPath[0] === DataFrameStructuredMetadataName) {
-                    return StructuredMetadataDisplayName;
-                  }
-                  if (keyPath[0] === DataFrameLabelsName) {
-                    return LabelsDisplayName;
-                  }
-
-                  if (keyPath[0] === VizRootName) {
-                    return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
-                  }
-
-                  // Value nodes
-                  if (
-                    nodeTypeLoc !== 'Object' &&
-                    nodeTypeLoc !== 'Array' &&
-                    keyPath[0] !== DataFrameTimeName &&
-                    !isLogLineField(keyPath[0].toString()) &&
-                    keyPath[0] !== VizRootName &&
-                    !isNumber(keyPath[0])
-                  ) {
-                    return model.renderValueLabel(
-                      keyPath,
-                      lineField,
-                      fieldsVar,
-                      jsonParserPropsMap,
-                      jsonFiltersSupported
-                    );
-                  }
-
-                  // Parent nodes
-                  if (
-                    (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
-                    !isLogLineField(keyPath[0].toString()) &&
-                    keyPath[0] !== VizRootName &&
-                    !isNumber(keyPath[0])
-                  ) {
-                    return model.renderNestedNodeFilterButtons(
-                      keyPath,
-                      fieldsVar,
-                      jsonParserPropsMap,
-                      jsonFiltersSupported
-                    );
-                  }
-
-                  // Show the timestamp as the label of the log line
-                  if (isNumber(keyPath[0]) && keyPath[1] === VizRootName) {
-                    const time = lineField.values[keyPath[0]]?.[DataFrameTimeName];
-                    return <strong>{time}</strong>;
-                  }
-
-                  // Don't render time node
-                  if (keyPath[0] === DataFrameTimeName) {
-                    return null;
-                  }
-
-                  return <strong>{keyPath[0]}:</strong>;
-                }}
-              />
-            </div>
-          )}
-          {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
-        </div>
-      </PanelChrome>
-    );
-  };
+  public static Component = LogsJsonComponent;
 
   getUrlState() {
     return {
@@ -532,7 +267,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     while (keys.length) {
       const key = keys.pop();
 
-      if (key !== VizRootName && key !== undefined) {
+      if (key !== JsonVizRootName && key !== undefined) {
         accessors.push(key);
       }
     }
@@ -612,7 +347,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       // Otherwise we're drilling back up to the root
       removeLineFormatFilters(this);
       clearJsonParserFields(this);
-      this.lineFormatEvent('remove', VizRootName);
+      this.lineFormatEvent('remove', JsonVizRootName);
     }
   };
 
@@ -640,7 +375,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       ...lineFormatVar.state.filters,
       ...keyPath
         // line format filters only store the parent node field names
-        .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== VizRootName)
+        .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== JsonVizRootName)
         // keyPath order is from child to root, we want to order from root to child
         .reverse()
         // convert to ad-hoc filter
@@ -701,21 +436,21 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Formats key from keypath
    */
   private getKeyPathString(keyPath: KeyPath, sepChar = ':') {
-    return keyPath[0] !== DataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
+    return keyPath[0] !== JsonDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
   }
 
   /**
    * Gets re-root button and key label for root node when line format filter is active.
    * aka breadcrumbs
    */
-  private renderNestedNodeButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
+  public renderNestedNodeButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
     const lineFormatVar = getLineFormatVariable(this);
     const filters = lineFormatVar.state.filters;
-    const rootKeyPath = [DataFrameLineName, 0, VizRootName];
+    const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
 
     return (
       <>
-        <span className={drillUpWrapperStyle} key={VizRootName}>
+        <span className={drillUpWrapperStyle} key={JsonVizRootName}>
           <Button
             size={'sm'}
             onClick={() => jsonFiltersSupported && this.setNewRootNode(rootKeyPath)}
@@ -756,7 +491,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Gets filter buttons for a nested JSON node
    */
-  private renderNestedNodeFilterButtons = (
+  public renderNestedNodeFilterButtons = (
     keyPath: KeyPath,
     fieldsVar: AdHocFiltersVariable,
     jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
@@ -800,7 +535,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Gets a value label and filter buttons
    */
-  private renderValueLabel = (
+  public renderValueLabel = (
     keyPath: KeyPath,
     lineField: Field<string | number>,
     fieldsVar: AdHocFiltersVariable,
@@ -880,12 +615,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   private getFilterVariableTypeFromPath = (keyPath: ReadonlyArray<string | number>): InterpolatedFilterType => {
-    if (keyPath[1] === DataFrameStructuredMetadataName) {
+    if (keyPath[1] === JsonDataFrameStructuredMetadataName) {
       if (keyPath[0] === LEVEL_VARIABLE_VALUE) {
         return VAR_LEVELS;
       }
       return VAR_METADATA;
-    } else if (keyPath[1] === DataFrameLabelsName) {
+    } else if (keyPath[1] === JsonDataFrameLabelsName) {
       return VAR_LABELS;
     } else {
       return VAR_FIELDS;
@@ -948,14 +683,14 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                         });
                       }
                       const line: Record<string, Record<string, string> | string> = {
-                        [DataFrameLineName]: parsed,
-                        [DataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
+                        [JsonDataFrameLineName]: parsed,
+                        [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                       };
                       if (this.state.showLabels && Object.keys(indexedLabels).length > 0) {
-                        line[DataFrameLabelsName] = indexedLabels;
+                        line[JsonDataFrameLabelsName] = indexedLabels;
                       }
                       if (this.state.showMetadata && Object.keys(structuredMetadata).length > 0) {
-                        line[DataFrameStructuredMetadataName] = structuredMetadata;
+                        line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
                       }
 
                       return line;
@@ -974,70 +709,3 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
   }
 }
-
-const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
-  return {
-    container: css({
-      display: 'flex',
-      flexDirection: 'row-reverse',
-      height: '100%',
-      paddingBottom: theme.spacing(1),
-      paddingRight: theme.spacing(1),
-      ...getLogsHighlightStyles(theme, showHighlight),
-    }),
-    highlight: css({
-      backgroundColor: 'rgb(255, 153, 0)',
-      color: 'black',
-    }),
-
-    JSONTreeWrap: css`
-      font-family: ${theme.typography.fontFamilyMonospace};
-      font-family: ${theme.typography.fontFamilyMonospace}; // override css variables
-      --json-tree-align-items: flex-start;
-      --json-tree-label-color: ${theme.colors.text.secondary};
-      --json-tree-label-value-color: ${theme.colors.text.primary};
-      --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
-      --json-tree-ul-root-padding: 0 0 ${theme.spacing(2)} 0;
-
-      overflow: auto;
-      height: 100%;
-      width: 100%;
-
-      // Array and other labels additional without markup
-      // @todo the base package should already apply this style
-      strong {
-        color: var(--json-tree-label-color);
-      }
-
-      // first nested node padding
-      > ul > li > ul {
-        // Hackery to keep elements from under the sticky header from being in the scrollable area
-        padding: 0 0 0 ${theme.spacing(2)};
-      }
-
-      // Root node styles
-      > ul > li > span {
-        position: sticky;
-        top: 0;
-        left: 0;
-        background: ${theme.colors.background.primary};
-        padding-bottom: ${theme.spacing(0.5)};
-        margin-bottom: ${theme.spacing(0.5)};
-        box-shadow: 0 1px 7px rgba(1, 4, 9, 0.75);
-        z-index: 2;
-        padding-left: ${theme.spacing(1)};
-        align-items: center;
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
-
-      > ul > li > ul > li > span {
-        position: sticky;
-        top: 26px;
-        left: 0;
-        background: ${theme.colors.background.primary};
-        z-index: 1;
-      }
-    `,
-  };
-};
