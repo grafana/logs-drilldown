@@ -170,7 +170,7 @@ export function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>)
     </PanelChrome>
   );
 }
-LogsJsonComponent.displayName = 'LogsJsonComponent';
+LogsJsonComponent.displayName = 'Json.LogsJsonComponent';
 
 const getItemString: GetItemString = (_, data, itemType, itemString, keyPath) => {
   if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
