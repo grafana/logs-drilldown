@@ -37,7 +37,8 @@
       "files": ["src/**/*.test.{ts,tsx}"],
       // Allow location to be used in test files
       "rules": {
-        "no-restricted-globals": 0
+        "no-restricted-globals": 0,
+        "react/jsx-key": [1, { "checkFragmentShorthand": true }]
       }
     }
   ]
