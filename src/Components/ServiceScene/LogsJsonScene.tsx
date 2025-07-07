@@ -46,7 +46,14 @@ import {
   removeLineFormatFilters,
 } from '../../services/filters';
 import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
-import { getLogsHighlightStyles, logsHighlightMatches, logsSyntaxMatches } from '../../services/highlight';
+import {
+  getLineFilterMatches,
+  getLineFilterRegExps,
+  getLogsHighlightStyles,
+  highlightValueStringMatches,
+  logsSyntaxMatches,
+  mergeOverlapping,
+} from '../../services/highlight';
 import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
@@ -283,7 +290,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
                   return <span>{itemType}</span>;
                 }}
-                valueRenderer={(valueAsString, _, keyPath) => {
+                valueRenderer={(valueAsString, _, keyPath, keyPathParent) => {
                   if (keyPath === DataFrameTimeName) {
                     return null;
                   }
@@ -292,33 +299,24 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                     return null;
                   }
 
-                  // I don't typically like clever crap like this, but this is considerably smaller then prism, Matyax will let me know why this won't work
-                  // Ideally we would use the re2 package that is already being used in Logs Drilldown instead of evaluating js RegExp, but this is how it works in core as well AFAIK
-                  const highlights = logsHighlightMatches(lineFilterVar.state.filters.map((f) => f.value));
-                  const splitMatches = Object.keys(highlights).map((key) => value.split(highlights[key]));
-                  let valueArray: Array<React.JSX.Element | null> = [];
+                  if (
+                    keyPathParent !== undefined &&
+                    keyPathParent !== DataFrameStructuredMetadataName &&
+                    keyPathParent !== DataFrameLabelsName
+                  ) {
+                    const matchExpressions = getLineFilterRegExps(lineFilterVar.state.filters);
+                    const lineFilterMatches = getLineFilterMatches(matchExpressions, value);
+                    const size = mergeOverlapping(lineFilterMatches);
+                    let valueArray: Array<React.JSX.Element | string> = [];
 
-                  if (splitMatches) {
-                    splitMatches.forEach((highlight) => {
-                      if (highlight.length > 1) {
-                        valueArray = highlight.map((v, i) => {
-                          if (v) {
-                            // Matches have odd indices
-                            return (
-                              <span key={i} className={i % 2 === 1 ? styles.highlight : undefined}>
-                                {v}
-                              </span>
-                            );
-                          }
-                          return null;
-                        });
-                      }
-                    });
-                  }
+                    if (lineFilterMatches.length) {
+                      valueArray = highlightValueStringMatches(lineFilterMatches, value, size);
+                    }
 
-                  // If we have highlight matches we won't show syntax highlighting
-                  if (valueArray.length) {
-                    return valueArray.filter((e) => e);
+                    // If we have highlight matches we won't show syntax highlighting
+                    if (valueArray.length) {
+                      return valueArray.filter((e) => e);
+                    }
                   }
 
                   // Check syntax highlighting results
@@ -1004,6 +1002,12 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
       overflow: auto;
       height: 100%;
       width: 100%;
+
+      // Array and other labels additional without markup
+      // @todo the base package should already apply this style
+      strong {
+        color: var(--json-tree-label-color);
+      }
 
       // first nested node padding
       > ul > li > ul {
