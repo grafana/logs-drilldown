@@ -992,7 +992,7 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
 
     JSONTreeWrap: css`
       font-family: ${theme.typography.fontFamilyMonospace};
-      // override css variables
+      font-family: ${theme.typography.fontFamilyMonospace}; // override css variables
       --json-tree-align-items: flex-start;
       --json-tree-label-color: ${theme.colors.text.secondary};
       --json-tree-label-value-color: ${theme.colors.text.primary};

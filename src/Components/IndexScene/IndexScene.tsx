@@ -32,7 +32,7 @@ import { CustomConstantVariable } from '../../services/CustomConstantVariable';
 import { PageSlugs } from '../../services/enums';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
-import { FilterOp } from '../../services/filterTypes';
+import { FilterOp, LineFilterType } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
@@ -137,7 +137,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       datasourceUid,
       state?.readOnlyLabelFilters,
       state.embedded,
-      state.embedderName
+      state.embedderName,
+      state.defaultLineFilters
     );
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -605,7 +606,8 @@ function getVariableSet(
   initialDatasourceUid: string,
   readOnlyLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  embedderName?: string
+  embedderName?: string,
+  defaultLineFilters?: LineFilterType[]
 ) {
   const labelVariable = new ReadOnlyAdHocFiltersVariable({
     allowCustomValue: true,
@@ -681,6 +683,7 @@ function getVariableSet(
 
   const lineFiltersVariable = new AdHocFiltersVariable({
     expressionBuilder: renderLogQLLineFilter,
+    filters: defaultLineFilters ?? [],
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     hide: VariableHide.hideVariable,
