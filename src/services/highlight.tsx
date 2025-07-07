@@ -30,7 +30,9 @@ export const logsSyntaxMatches: Record<string, RegExp> = {
 
 export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): RegExp[] => {
   return filters
-    .filter((search) => search.operator === LineFilterOp.match || search.operator === LineFilterOp.regex)
+    .filter(
+      (search) => (search.operator === LineFilterOp.match || search.operator === LineFilterOp.regex) && search.value
+    )
     .map((search) => {
       if (search.key === 'caseSensitive') {
         return new RegExp(search.value, 'g');

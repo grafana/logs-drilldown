@@ -24,6 +24,7 @@ interface LabelRendererProps {
   jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineField: Field;
+  lineFilters: AdHocFilterWithLabels[];
   model: LogsJsonScene;
   nodeType: string;
 }
@@ -34,6 +35,7 @@ export default function LabelRenderer({
   jsonParserPropsMap,
   keyPath,
   lineField,
+  lineFilters,
   model,
   nodeType,
 }: LabelRendererProps) {
@@ -58,7 +60,7 @@ export default function LabelRenderer({
     keyPath[0] !== JsonVizRootName &&
     !isNumber(keyPath[0])
   ) {
-    return model.renderValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
+    return model.renderValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, lineFilters, jsonFiltersSupported);
   }
 
   // Parent nodes
@@ -68,7 +70,13 @@ export default function LabelRenderer({
     keyPath[0] !== JsonVizRootName &&
     !isNumber(keyPath[0])
   ) {
-    return model.renderNestedNodeFilterButtons(keyPath, fieldsVar, jsonParserPropsMap, jsonFiltersSupported);
+    return model.renderNestedNodeFilterButtons(
+      keyPath,
+      fieldsVar,
+      jsonParserPropsMap,
+      lineFilters,
+      jsonFiltersSupported
+    );
   }
 
   // Show the timestamp as the label of the log line
@@ -82,5 +90,7 @@ export default function LabelRenderer({
     return null;
   }
 
-  return <strong>{keyPath[0]}:</strong>;
+  let value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
+
+  return <strong>{value}:</strong>;
 }

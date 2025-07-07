@@ -1,24 +1,19 @@
 import React from 'react';
 
-import { AdHocFiltersVariable } from '@grafana/scenes';
+import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import {
-  getLineFilterMatches,
-  getLineFilterRegExps,
-  highlightValueStringMatches,
-  logsSyntaxMatches,
-  mergeOverlapping,
-} from '../../../services/highlight';
+import { logsSyntaxMatches } from '../../../services/highlight';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
+import { highlightLineFilterMatches } from './highlightLineFilterMathces';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ValueRendererProps {
   keyPath: KeyPath;
-  lineFilterVar: AdHocFiltersVariable;
+  lineFilters: AdHocFilterWithLabels[];
   valueAsString: unknown;
 }
 
-export default function ValueRenderer({ keyPath, lineFilterVar, valueAsString }: ValueRendererProps) {
+export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: ValueRendererProps) {
   if (keyPath[0] === JsonDataFrameTimeName) {
     return null;
   }
@@ -34,14 +29,7 @@ export default function ValueRenderer({ keyPath, lineFilterVar, valueAsString }:
     keyPathParent !== JsonDataFrameStructuredMetadataName &&
     keyPathParent !== JsonDataFrameLabelsName
   ) {
-    const matchExpressions = getLineFilterRegExps(lineFilterVar.state.filters);
-    const lineFilterMatches = getLineFilterMatches(matchExpressions, value);
-    const size = mergeOverlapping(lineFilterMatches);
-    let valueArray: Array<React.JSX.Element | string> = [];
-
-    if (lineFilterMatches.length) {
-      valueArray = highlightValueStringMatches(lineFilterMatches, value, size);
-    }
+    let valueArray = highlightLineFilterMatches(lineFilters, value);
 
     // If we have highlight matches we won't show syntax highlighting
     if (valueArray.length) {

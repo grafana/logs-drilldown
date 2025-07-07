@@ -156,7 +156,11 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                 />
               )}
               valueRenderer={(valueAsString, _, ...keyPath) => (
-                <ValueRenderer valueAsString={valueAsString} keyPath={keyPath} lineFilterVar={lineFilterVar} />
+                <ValueRenderer
+                  valueAsString={valueAsString}
+                  keyPath={keyPath}
+                  lineFilters={lineFilterVar.state.filters}
+                />
               )}
               labelRenderer={(keyPath, nodeType) => (
                 <LabelRenderer
@@ -167,6 +171,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                   lineField={lineField}
                   jsonFiltersSupported={jsonFiltersSupported}
                   jsonParserPropsMap={jsonParserPropsMap}
+                  lineFilters={lineFilterVar.state.filters}
                 />
               )}
             />

@@ -65,6 +65,7 @@ import {
 import { PanelMenu } from '../Panels/PanelMenu';
 import { addToFilters, FilterType, InterpolatedFilterType } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { highlightLineFilterMatches } from './JSONPanel/highlightLineFilterMathces';
 import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
 import { FilterValueButton, JSONFilterValueButton } from './JSONPanel/JSONFilterValueButton';
 import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
@@ -495,6 +496,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     keyPath: KeyPath,
     fieldsVar: AdHocFiltersVariable,
     jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
+    lineFilters: AdHocFilterWithLabels[],
     jsonFiltersSupported?: boolean
   ) => {
     const { fullKeyPath } = this.getFullKeyPath(keyPath);
@@ -505,6 +507,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       fieldsVar.state.filters.find(
         (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
       );
+
+    let highlightedValue: string | Array<string | React.JSX.Element> = [];
+    highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
 
     return (
       <span className={jsonLabelWrapStyles}>
@@ -527,7 +532,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             />
           </>
         )}
-        <strong>{this.getKeyPathString(keyPath)}</strong>
+        <strong>{highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:</strong>
       </span>
     );
   };
@@ -540,12 +545,22 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     lineField: Field<string | number>,
     fieldsVar: AdHocFiltersVariable,
     jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
+    lineFilters: AdHocFilterWithLabels[],
     jsonFiltersSupported?: boolean
   ) => {
     const styles = useStyles2(getJSONVizValueLabelStyles);
     const value = this.getValue(keyPath, lineField.values)?.toString();
     const label = keyPath[0];
     const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
+
+    let highlightedValue: string | Array<string | React.JSX.Element> = [];
+    if (
+      keyPath[1] !== undefined &&
+      keyPath[1] !== JsonDataFrameStructuredMetadataName &&
+      keyPath[1] !== JsonDataFrameLabelsName
+    ) {
+      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    }
 
     if (existingVariableType === VAR_FIELDS) {
       const { fullKeyPath } = this.getFullKeyPath(keyPath);
@@ -581,7 +596,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
               />
             </>
           )}
-          <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
+
+          <strong className={styles.labelWrap}>
+            {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
+          </strong>
         </span>
       );
     }
@@ -609,7 +627,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.NotEqual)}
           type={'exclude'}
         />
-        <strong className={styles.labelWrap}>{this.getKeyPathString(keyPath)}</strong>
+        <strong className={styles.labelWrap}>
+          {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
+        </strong>
       </span>
     );
   };
