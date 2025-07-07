@@ -4,7 +4,7 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { logsSyntaxMatches } from '../../../services/highlight';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
-import { highlightLineFilterMatches } from './highlightLineFilterMathces';
+import { highlightLineFilterMatches } from './highlightLineFilterMatches';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ValueRendererProps {

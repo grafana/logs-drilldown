@@ -65,7 +65,7 @@ import {
 import { PanelMenu } from '../Panels/PanelMenu';
 import { addToFilters, FilterType, InterpolatedFilterType } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import { highlightLineFilterMatches } from './JSONPanel/highlightLineFilterMathces';
+import { highlightLineFilterMatches } from './JSONPanel/highlightLineFilterMatches';
 import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
 import { FilterValueButton, JSONFilterValueButton } from './JSONPanel/JSONFilterValueButton';
 import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
