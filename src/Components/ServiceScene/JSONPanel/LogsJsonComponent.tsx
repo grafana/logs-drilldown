@@ -42,7 +42,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   $data.useState();
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
   const { visualizationType } = logsListScene.useState();
-  const styles = useStyles2((t) => getStyles(t, showHighlight));
+  const styles = useStyles2(getStyles, showHighlight);
 
   const fieldsVar = getFieldsVariable(model);
   const jsonVar = getJsonFieldsVariable(model);
