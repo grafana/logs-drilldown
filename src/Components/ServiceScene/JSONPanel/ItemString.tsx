@@ -12,7 +12,7 @@ interface GetItemStringProps {
   keyPath: KeyPath;
   nodeType: string;
 }
-export default function GetItemString({ data, itemString, itemType, keyPath }: GetItemStringProps) {
+export default function ItemString({ data, itemString, itemType, keyPath }: GetItemStringProps) {
   if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
     return null;
   }

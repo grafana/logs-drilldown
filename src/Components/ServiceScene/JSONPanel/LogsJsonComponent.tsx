@@ -22,7 +22,7 @@ import { LogListControls } from '../LogListControls';
 import { LogsJsonScene } from '../LogsJsonScene';
 import { LogsListScene } from '../LogsListScene';
 import { getLogsPanelFrame } from '../ServiceScene';
-import GetItemString from './GetItemString';
+import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
 
 export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
@@ -147,7 +147,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
               valueWrap={''}
               shouldExpandNodeInitially={(_, __, level) => level <= 2}
               getItemString={(nodeType, data, itemType, itemString, keyPath) => (
-                <GetItemString
+                <ItemString
                   itemString={itemString}
                   keyPath={keyPath}
                   itemType={itemType}
