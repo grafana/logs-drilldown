@@ -32,7 +32,7 @@ export function LogsTableNavField(props: {
           {props.showCount && (
             <div className={styles.labelCount}>
               <div>{props.labels[props.label]?.percentOfLinesWithLabel}%</div>
-              <div>
+              <div className={styles.valueCount}>
                 {props.labels[props.label]?.cardinality}{' '}
                 {props.labels[props.label]?.cardinality === 1 ? 'value' : 'values'}
               </div>
@@ -93,6 +93,9 @@ function getStyles(theme: GrafanaTheme2) {
       marginLeft: theme.spacing(0.5),
       marginRight: theme.spacing(0.5),
       opacity: 0.6,
+    }),
+    valueCount: css({
+      textWrap: 'nowrap',
     }),
   };
 }
