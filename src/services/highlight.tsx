@@ -28,18 +28,24 @@ export const logsSyntaxMatches: Record<string, RegExp> = {
   // 'log-token-json-key': /"(\b|\B)[\w-]+"(?=\s*:)/gi,
 };
 
-export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): RegExp[] => {
+export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<RegExp | undefined> => {
   return filters
     .filter(
       (search) => (search.operator === LineFilterOp.match || search.operator === LineFilterOp.regex) && search.value
     )
     .map((search) => {
-      if (search.key === 'caseSensitive') {
-        return new RegExp(search.value, 'g');
-      } else {
-        return new RegExp(search.value, 'gi');
+      try {
+        if (search.key === 'caseSensitive') {
+          return new RegExp(search.value, 'g');
+        } else {
+          return new RegExp(search.value, 'gi');
+        }
+      } catch (e) {
+        logger.error(e, { msg: 'Error executing match expression', regex: search.value });
+        return undefined;
       }
-    });
+    })
+    .filter((f) => f);
 };
 
 export type HighlightedValue = Array<React.JSX.Element | string>;
@@ -104,19 +110,22 @@ export const highlightValueStringMatches = (
 };
 
 // @todo cache results by regex/value?
-export const getLineFilterMatches = (matchExpressions: RegExp[], value: string): Array<[number, number]> => {
+export const getLineFilterMatches = (
+  matchExpressions: Array<RegExp | undefined>,
+  value: string
+): Array<[number, number]> => {
   let results: Array<[number, number]> = [];
   matchExpressions.forEach((regex) => {
     let valueMatch;
     let valueMatches = [];
     do {
       try {
-        valueMatch = regex.exec(value);
+        valueMatch = regex?.exec(value);
         if (valueMatch) {
           valueMatches.push(valueMatch);
         }
       } catch (e) {
-        logger.error(e, { msg: 'Error executing match expression', regex: regex.source });
+        logger.error(e, { msg: 'Error executing match expression', regex: regex?.source ?? '' });
       }
     } while (valueMatch);
     if (valueMatches.length) {
