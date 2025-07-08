@@ -37,19 +37,13 @@ export const ExtensionPoints = {
 
 export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
 
-// `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
-// TODO: fix this type when we move to `@grafana/data` 11.3.x
 export const linkConfigs: LinkConfigs = [
   {
-    targets: PluginExtensionPoints.DashboardPanelMenu,
-    title,
-    description,
-    icon,
-    path: createAppUrl(),
-    configure: contextToLink,
-  },
-  {
-    targets: PluginExtensionPoints.ExploreToolbarAction,
+    targets: [
+      PluginExtensionPoints.DashboardPanelMenu,
+      PluginExtensionPoints.ExploreToolbarAction,
+      'grafana-metricsdrilldown-app/open-in-logs-drilldown/v1',
+    ],
     title,
     description,
     icon,
@@ -217,15 +211,15 @@ export function createAppUrl(path = '/explore', urlParams?: URLSearchParams): st
 
 export const UrlParameters = {
   DatasourceId: `var-${VAR_DATASOURCE}`,
-  TimeRangeFrom: 'from',
-  TimeRangeTo: 'to',
-  Labels: `var-${VAR_LABELS}`,
   Fields: `var-${VAR_FIELDS}`,
-  Metadata: `var-${VAR_METADATA}`,
+  Labels: `var-${VAR_LABELS}`,
   Levels: `var-${VAR_LEVELS}`,
   LineFilters: `var-${VAR_LINE_FILTERS}`,
+  Metadata: `var-${VAR_METADATA}`,
   Patterns: VAR_PATTERNS,
   PatternsVariable: `var-${VAR_PATTERNS}`,
+  TimeRangeFrom: 'from',
+  TimeRangeTo: 'to',
 } as const;
 export type UrlParameterType = (typeof UrlParameters)[keyof typeof UrlParameters];
 
