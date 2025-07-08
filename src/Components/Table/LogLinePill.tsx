@@ -100,6 +100,7 @@ function LogLinePillValue(props: {
           links={props.links}
           label={props.label}
           value={props.value}
+          showColumn={props.onClickAdd}
         />
       )}
     </button>

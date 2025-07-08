@@ -38,19 +38,6 @@ export function LogsTableNavField(props: {
               </div>
             </div>
           )}
-          {props.columnWidthMap && props.setColumnWidthMap && props.columnWidthMap?.[props.label] !== undefined && (
-            <button
-              onClick={() => {
-                const { [props.label]: omit, ...map } = { ...props.columnWidthMap };
-                props.setColumnWidthMap?.(map);
-              }}
-              title={'Clear column width override'}
-              className={styles.customWidthWrap}
-            >
-              Reset column width
-              <Icon name={'x'} />
-            </button>
-          )}
         </div>
         {props.draggable && (
           <Icon
