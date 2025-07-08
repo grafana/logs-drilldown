@@ -41,10 +41,10 @@ export default function LabelRenderer({
 }: LabelRendererProps) {
   const nodeTypeLoc = nodeType as NodeTypeLoc;
   if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
-    return StructuredMetadataDisplayName;
+    return <strong>{StructuredMetadataDisplayName}</strong>;
   }
   if (keyPath[0] === JsonDataFrameLabelsName) {
-    return LabelsDisplayName;
+    return <strong>{LabelsDisplayName}</strong>;
   }
 
   if (keyPath[0] === JsonVizRootName) {
