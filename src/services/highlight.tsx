@@ -14,9 +14,9 @@ export const logsSyntaxMatches: Record<string, RegExp> = {
   'log-token-duration': /\b\d+(\.\d+)?(ns|µs|ms|s|m|h|d)\b/g,
   'log-token-error': /(\b)(ERROR|ERR)($|\s)/gi,
   'log-token-info': /(\b|\B)(INFO)($|\s)/gi,
+
   // Misc log markup regex
   'log-token-key': /(\b|\B)[\w_]+(?=\s*=)/gi,
-
   'log-token-method': /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE|CONNECT)\b/g,
   'log-token-size': /(?:\b|")\d+\.{0,1}\d*\s*[kKmMGgtTPp]*[bB]{1}(?:"|\b)/g,
   'log-token-trace': /(\b)(TRACE)($|\s)/gi,
