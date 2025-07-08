@@ -254,7 +254,6 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
         z-index: 2;
         padding-left: ${theme.spacing(1)};
         align-items: center;
-        border-right: 1px solid ${theme.colors.border.medium};
       }
 
       // sticky time header
