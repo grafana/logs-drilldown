@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { logsSyntaxMatches } from '../../../services/highlight';
+import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
