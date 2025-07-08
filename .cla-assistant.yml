@@ -1,0 +1,2 @@
+whitelisted:
+  - 'grafana-plugins-platform-bot[bot]'
