@@ -1,6 +1,15 @@
 import React from 'react';
 
-import { DataFrame, Field, FieldType, getTimeZone, LoadingState, LogsSortOrder, PanelData } from '@grafana/data';
+import {
+  DataFrame,
+  Field,
+  FieldType,
+  getTimeZone,
+  LoadingState,
+  LogsSortOrder,
+  PanelData,
+  sortDataFrame,
+} from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -653,7 +662,10 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Creates the dataframe consumed by the viz
    */
   private transformDataFrame(newState: SceneDataState) {
-    const dataFrame = getLogsPanelFrame(newState.data);
+    const rawFrame = getLogsPanelFrame(newState.data);
+    const dataFrame = rawFrame
+      ? sortDataFrame(rawFrame, 1, this.state.sortOrder === LogsSortOrder.Descending)
+      : undefined;
     const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
 
     const labelsField: Field<Record<string, string>> | undefined = dataFrame?.fields.find(
