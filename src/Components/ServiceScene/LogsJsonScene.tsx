@@ -75,6 +75,7 @@ import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceS
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
 import {
+  getBooleanLogOption,
   getJsonHighlightVisibility,
   getJsonLabelsVisibility,
   getJsonMetadataVisibility,
@@ -94,6 +95,7 @@ interface LogsJsonSceneState extends SceneObjectState {
   showLabels: boolean;
   showMetadata: boolean;
   sortOrder: LogsSortOrder;
+  wrapLogMessage: boolean;
 }
 
 export type NodeTypeLoc = 'Array' | 'Boolean' | 'Custom' | 'Number' | 'Object' | 'String';
@@ -125,6 +127,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       showLabels: getJsonLabelsVisibility(),
       showMetadata: getJsonMetadataVisibility(),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));

@@ -3,6 +3,7 @@ import React, { useCallback } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
@@ -17,10 +18,12 @@ interface Props {
   onToggleHighlightClick?(visible: boolean): void;
   onToggleLabelsClick?(visible: boolean): void;
   onToggleStructuredMetadataClick?(visible: boolean): void;
+  onWrapLogMessageClick?(wrap: boolean): void;
   showHighlight?: boolean;
   showLabels?: boolean;
   showMetadata?: boolean;
   sortOrder: LogsSortOrder;
+  wrapLogMessage?: boolean;
 }
 
 export const LogListControls = ({
@@ -33,10 +36,12 @@ export const LogListControls = ({
   onToggleHighlightClick,
   onToggleLabelsClick,
   onToggleStructuredMetadataClick,
+  onWrapLogMessageClick,
   showHighlight,
   showLabels,
   showMetadata,
   sortOrder,
+  wrapLogMessage,
 }: Props) => {
   const styles = useStyles2(getStyles);
 
@@ -63,6 +68,20 @@ export const LogListControls = ({
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
+      {wrapLogMessage !== undefined && onWrapLogMessageClick && (
+        <IconButton
+          name="wrap-text"
+          className={wrapLogMessage ? styles.controlButtonActive : styles.controlButton}
+          aria-pressed={wrapLogMessage}
+          onClick={() => onWrapLogMessageClick(!wrapLogMessage)}
+          tooltip={
+            wrapLogMessage
+              ? t('logs.logs-controls.unwrap-lines', 'Unwrap lines')
+              : t('logs.logs-controls.wrap-lines', 'Wrap lines')
+          }
+          size="lg"
+        />
+      )}
       {showMetadata !== undefined && onToggleStructuredMetadataClick && (
         <IconButton
           name="document-info"

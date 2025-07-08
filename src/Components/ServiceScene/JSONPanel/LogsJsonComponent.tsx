@@ -12,6 +12,7 @@ import {
   setJsonHighlightVisibility,
   setJsonLabelsVisibility,
   setJsonMetadataVisibility,
+  setLogOption,
 } from '../../../services/store';
 import { getFieldsVariable, getJsonFieldsVariable, getLineFiltersVariable } from '../../../services/variableGetters';
 import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
@@ -36,13 +37,14 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     showLabels,
     showMetadata,
     sortOrder,
+    wrapLogMessage,
   } = model.useState();
   const $data = sceneGraph.getData(model);
   // Rerender on data change
   $data.useState();
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
   const { visualizationType } = logsListScene.useState();
-  const styles = useStyles2(getStyles, showHighlight);
+  const styles = useStyles2(getStyles, showHighlight, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
   const jsonVar = getJsonFieldsVariable(model);
@@ -96,6 +98,14 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     [model]
   );
 
+  const onWrapLogMessageClick = useCallback(
+    (wrap: boolean) => {
+      model.setState({ wrapLogMessage: wrap });
+      setLogOption('wrapLogMessage', wrap);
+    },
+    [model]
+  );
+
   return (
     // @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done
     <PanelChrome
@@ -114,6 +124,8 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
       <div className={styles.container}>
         {lineField?.values && lineField?.values.length > 0 && (
           <LogListControls
+            onWrapLogMessageClick={onWrapLogMessageClick}
+            wrapLogMessage={wrapLogMessage}
             showHighlight={showHighlight}
             onToggleHighlightClick={onToggleHighlightClick}
             showMetadata={showMetadata}
@@ -183,7 +195,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
+const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage: boolean) => {
   return {
     container: css({
       display: 'flex',
@@ -192,6 +204,7 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
       paddingBottom: theme.spacing(1),
       paddingRight: theme.spacing(1),
       ...getLogsHighlightStyles(theme, showHighlight),
+      contain: 'content',
     }),
     highlight: css({
       backgroundColor: 'rgb(255, 153, 0)',
@@ -205,11 +218,21 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
       --json-tree-label-color: ${theme.colors.text.secondary};
       --json-tree-label-value-color: ${theme.colors.text.primary};
       --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
-      --json-tree-ul-root-padding: 0 0 ${theme.spacing(2)} 0;
+      --json-tree-ul-root-padding: ${theme.spacing(3)} 0 ${theme.spacing(2)} 0;
+      --json-tree-arrow-left-offset: -${theme.spacing(2)};
+      --json-tree-inline: inline-grid;
+      ${getWrapLogMessageStyles(theme, wrapLogMessage)}
 
       overflow: auto;
       height: 100%;
       width: 100%;
+      clip-path: inset(0 0 0 0);
+
+      //first treeItem node
+      > ul > li {
+        // line wrap
+        width: 100%;
+      }
 
       // Array and other labels additional without markup
       // first nested node padding
@@ -220,9 +243,10 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
 
       // Root node styles
       > ul > li > span {
-        position: sticky;
+        position: fixed;
         top: 0;
         left: 0;
+        width: calc(100% - ${theme.spacing(4.75)});
         background: ${theme.colors.background.primary};
         padding-bottom: ${theme.spacing(0.5)};
         margin-bottom: ${theme.spacing(0.5)};
@@ -230,11 +254,12 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
         z-index: 2;
         padding-left: ${theme.spacing(1)};
         align-items: center;
-        overflow-x: auto;
-        overflow-y: hidden;
+        border-right: 1px solid ${theme.colors.border.medium};
       }
 
-      > ul > li > ul > li > span {
+      // sticky time header
+      > ul > li > ul > li > span,
+      > ul > li > ul > div > li > span {
         position: sticky;
         top: 26px;
         left: 0;
@@ -243,4 +268,15 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
       }
     `,
   };
+};
+
+const getWrapLogMessageStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
+  if (wrapLogMessage) {
+    return css`
+      // line wrap
+      --json-tree-value-text-wrap: nowrap;
+    `;
+  }
+
+  return undefined;
 };
