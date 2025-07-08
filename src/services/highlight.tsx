@@ -125,7 +125,7 @@ export const getLineFilterMatches = (
           valueMatches.push(valueMatch);
         }
       } catch (e) {
-        logger.info('Error executing match expression', { regex: regex?.source });
+        logger.info('Error executing match expression', { regex: regex?.source ?? '' });
       }
     } while (valueMatch);
     if (valueMatches.length) {
