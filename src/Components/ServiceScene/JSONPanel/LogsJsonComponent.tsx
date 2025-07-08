@@ -212,11 +212,6 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
       width: 100%;
 
       // Array and other labels additional without markup
-      // @todo the base package should already apply this style
-      strong {
-        color: var(--json-tree-label-color);
-      }
-
       // first nested node padding
       > ul > li > ul {
         // Hackery to keep elements from under the sticky header from being in the scrollable area

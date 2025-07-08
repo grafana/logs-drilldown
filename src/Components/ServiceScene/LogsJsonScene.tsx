@@ -532,7 +532,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             />
           </>
         )}
-        <strong>{highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:</strong>
+        <strong className={jsonLabelWrapStyles}>
+          {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
+        </strong>
       </span>
     );
   };
@@ -597,7 +599,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             </>
           )}
 
-          <strong className={styles.labelWrap}>
+          <strong className={jsonLabelWrapStyles}>
             {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
           </strong>
         </span>
@@ -627,7 +629,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.NotEqual)}
           type={'exclude'}
         />
-        <strong className={styles.labelWrap}>
+        <strong className={jsonLabelWrapStyles}>
           {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
         </strong>
       </span>

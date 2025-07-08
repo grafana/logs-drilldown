@@ -24,7 +24,6 @@ export const getJSONVizValueLabelStyles = (theme: GrafanaTheme2) => ({
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
   }),
-  labelWrap: jsonLabelWrapStyles,
 });
 
 export const jsonLabelWrapStyles = css({

@@ -6,6 +6,7 @@ import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { isLogLineField } from '../../../services/fields';
+import { jsonLabelWrapStyles } from '../../../services/JSONViz';
 import {
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
@@ -41,10 +42,10 @@ export default function LabelRenderer({
 }: LabelRendererProps) {
   const nodeTypeLoc = nodeType as NodeTypeLoc;
   if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
-    return <strong>{StructuredMetadataDisplayName}</strong>;
+    return <strong className={jsonLabelWrapStyles}>{StructuredMetadataDisplayName}</strong>;
   }
   if (keyPath[0] === JsonDataFrameLabelsName) {
-    return <strong>{LabelsDisplayName}</strong>;
+    return <strong className={jsonLabelWrapStyles}>{LabelsDisplayName}</strong>;
   }
 
   if (keyPath[0] === JsonVizRootName) {
@@ -82,7 +83,7 @@ export default function LabelRenderer({
   // Show the timestamp as the label of the log line
   if (isNumber(keyPath[0]) && keyPath[1] === JsonVizRootName) {
     const time: string = lineField.values[keyPath[0]]?.[JsonDataFrameTimeName];
-    return <strong>{time}</strong>;
+    return <strong className={jsonLabelWrapStyles}>{time}</strong>;
   }
 
   // Don't render time node
@@ -92,5 +93,5 @@ export default function LabelRenderer({
 
   let value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
 
-  return <strong>{value}:</strong>;
+  return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
 }
