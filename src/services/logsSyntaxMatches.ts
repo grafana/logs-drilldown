@@ -1,5 +1,6 @@
-// Synced with grafana/grafana/public/app/features/logs/components/panel/grammar.ts - July 3, 2025
 /* eslint sort-keys: 0 */
+
+// Synced with grafana/grafana/public/app/features/logs/components/panel/grammar.ts - July 3, 2025
 export const logsSyntaxMatches: Record<string, RegExp> = {
   // Levels regex
   'log-token-critical': /(\b)(CRITICAL|CRIT)($|\s)/gi,
