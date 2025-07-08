@@ -185,7 +185,7 @@ export const getLogsHighlightStyles = (theme: GrafanaTheme2, showHighlight: bool
     metadata: theme.colors.text.primary,
     parsedField: theme.colors.text.primary,
     trace: '#6ed0e0',
-    warning: '#FBAD37',
+    warning: theme.colors.warning.text,
   };
 
   return {
