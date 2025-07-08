@@ -41,7 +41,7 @@ export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<Re
           return new RegExp(search.value, 'gi');
         }
       } catch (e) {
-        logger.error(e, { msg: 'Error executing match expression', regex: search.value });
+        logger.info('Error executing match expression', { regex: search.value });
         return undefined;
       }
     })
@@ -125,7 +125,7 @@ export const getLineFilterMatches = (
           valueMatches.push(valueMatch);
         }
       } catch (e) {
-        logger.error(e, { msg: 'Error executing match expression', regex: regex?.source ?? '' });
+        logger.info('Error executing match expression', { regex: regex?.source });
       }
     } while (valueMatch);
     if (valueMatches.length) {

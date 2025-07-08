@@ -1,6 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { LokiQuery } from '../src/services/lokiQuery';
+import { testIds } from '../src/services/testIds';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const fieldName = 'method';
@@ -302,6 +303,18 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // assert on namespace filter
       await expect(page.getByRole('button', { name: 'Edit filter with key namespace' })).toHaveCount(1);
+    });
+
+    test('line filters wrap matches in mark tag', async ({ page }) => {
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+      // Highlight method (json label) and PATCH (json value)
+      await page.getByTestId(testIds.exploreServiceDetails.searchLogs).fill('method');
+      await page.getByRole('button', { exact: true, name: 'Include' }).click();
+      await explorePage.assertTabsNotLoading();
+      await explorePage.assertPanelsNotLoading();
+      await page.pause();
+      await expect(page.locator('mark', { hasText: 'method' }).first()).toBeVisible();
     });
 
     // @todo

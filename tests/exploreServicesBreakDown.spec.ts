@@ -1974,7 +1974,7 @@ test.describe('explore services breakdown page', () => {
       await expect(firstExploreLogsRow).toHaveCount(1);
       await expect(firstExploreLogsRow).toBeVisible();
 
-      const lineFilters = page.getByTestId('data-testid search-logs');
+      const lineFilters = page.getByTestId(testIds.exploreServiceDetails.searchLogs);
 
       // Assert the line filters have escaped the values correctly and are in the right order
       await expect(lineFilters).toHaveCount(5);
