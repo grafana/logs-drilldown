@@ -4,7 +4,7 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { logsSyntaxMatches } from '../../../services/highlight';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
-import { highlightLineFilterMatches } from './highlightLineFilterMatches';
+import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ValueRendererProps {
@@ -38,9 +38,19 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
   }
 
   // Check syntax highlighting results
-  const matchKey = Object.keys(logsSyntaxMatches).find((key) => value.match(logsSyntaxMatches[key]));
-  if (matchKey) {
-    return <span className={matchKey}>{value}</span>;
+  let highlightedResults: Array<string | React.JSX.Element> = [];
+  Object.keys(logsSyntaxMatches).some((key) => {
+    const regex = value.match(logsSyntaxMatches[key]);
+    if (regex) {
+      highlightedResults = highlightRegexMatches([logsSyntaxMatches[key]], value, key);
+      return true;
+    }
+
+    return false;
+  });
+
+  if (highlightedResults.length) {
+    return highlightedResults;
   }
 
   return <>{value}</>;

@@ -11,21 +11,17 @@ export const logsSyntaxMatches: Record<string, RegExp> = {
   // Levels regex
   'log-token-critical': /(\b)(CRITICAL|CRIT)($|\s)/gi,
   'log-token-debug': /(\b)(DEBUG)($|\s)/gi,
-  // Misc log markup regex
-  'log-token-duration': /(?:\b)\d+(\.\d+)?(ns|µs|ms|s|m|h|d)(?:\b)/g,
+  'log-token-duration': /\b\d+(\.\d+)?(ns|µs|ms|s|m|h|d)\b/g,
   'log-token-error': /(\b)(ERROR|ERR)($|\s)/gi,
-  'log-token-info': /(\b)(INFO)($|\s)/gi,
+  'log-token-info': /(\b|\B)(INFO)($|\s)/gi,
+  // Misc log markup regex
   'log-token-key': /(\b|\B)[\w_]+(?=\s*=)/gi,
 
   'log-token-method': /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE|CONNECT)\b/g,
   'log-token-size': /(?:\b|")\d+\.{0,1}\d*\s*[kKmMGgtTPp]*[bB]{1}(?:"|\b)/g,
   'log-token-trace': /(\b)(TRACE)($|\s)/gi,
-  'log-token-uuid': /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g,
-  'log-token-warning': /(\b)(WARNING|WARN)($|\s)/gi,
-
-  // JSON values should not contain these
-  // 'log-token-string': /"(?!:)([^'"])*?"(?!:)/g,
-  // 'log-token-json-key': /"(\b|\B)[\w-]+"(?=\s*:)/gi,
+  'log-token-uuid': /(\b|\B)[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g,
+  'log-token-warning': /(\b|\B)(WARNING|WARN)($|\s)/gi,
 };
 
 export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<RegExp | undefined> => {
@@ -50,7 +46,19 @@ export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<Re
 
 export type HighlightedValue = Array<React.JSX.Element | string>;
 
-export const mergeStringsAndElements = (valueArray: Array<{ value: string } | string>) => {
+const getWrappingElement = (className: string | undefined, jsxValues: string) => {
+  if (className) {
+    return <span className={className}>{jsxValues}</span>;
+  } else {
+    return <mark>{jsxValues}</mark>;
+  }
+};
+/**
+ *
+ * @param valueArray - array of chars to be wrapped
+ * @param className - if defined, will wrap matches with span containing this classname instead of <mark> element
+ */
+export const mergeStringsAndElements = (valueArray: Array<{ value: string } | string>, className?: string) => {
   let result: HighlightedValue = [];
 
   let jsxValues = '';
@@ -61,7 +69,7 @@ export const mergeStringsAndElements = (valueArray: Array<{ value: string } | st
     // Merge contiguous jsx elements
     if (typeof char === 'string') {
       if (jsxValues) {
-        result.push(<mark>{jsxValues}</mark>);
+        result.push(getWrappingElement(className, jsxValues));
         jsxValues = '';
       }
       stringValues += char;
@@ -78,14 +86,15 @@ export const mergeStringsAndElements = (valueArray: Array<{ value: string } | st
     result.push(stringValues);
   }
   if (jsxValues) {
-    result.push(<mark>{jsxValues}</mark>);
+    result.push(getWrappingElement(className, jsxValues));
   }
   return result;
 };
 export const highlightValueStringMatches = (
   matchingIntervals: Array<[number, number]>,
   value: string,
-  size: number
+  size: number,
+  className?: string
 ) => {
   let valueArray: Array<{ value: string } | string> = [];
   let lineFilterMatchIndex = 0;
@@ -106,11 +115,11 @@ export const highlightValueStringMatches = (
     }
   }
 
-  return mergeStringsAndElements(valueArray);
+  return mergeStringsAndElements(valueArray, className);
 };
 
 // @todo cache results by regex/value?
-export const getLineFilterMatches = (
+export const getMatchingIntervals = (
   matchExpressions: Array<RegExp | undefined>,
   value: string
 ): Array<[number, number]> => {
