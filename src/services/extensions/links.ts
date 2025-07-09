@@ -35,7 +35,6 @@ export const ExtensionPoints = {
   MetricInvestigation: 'grafana-lokiexplore-app/investigation/v1',
 } as const;
 
-/* eslint-disable sort/object-properties */
 export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
 
 // `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
