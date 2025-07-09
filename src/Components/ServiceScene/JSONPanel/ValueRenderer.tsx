@@ -11,6 +11,7 @@ import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 interface ValueRendererProps {
   keyPath: KeyPath;
   lineFilters: AdHocFilterWithLabels[];
+  // @todo react-json-tree should probably return this type as string?
   valueAsString: unknown;
 }
 
