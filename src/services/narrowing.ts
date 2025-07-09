@@ -42,7 +42,7 @@ export function narrowSelectedTableRow(o: unknown): SelectedTableRow | false {
 }
 
 export function narrowLogsVisualizationType(o: unknown): LogsVisualizationType | false {
-  return typeof o === 'string' && (o === 'logs' || o === 'table') && o;
+  return typeof o === 'string' && (o === 'logs' || o === 'table' || o === 'json') && o;
 }
 export function narrowLogsSortOrder(o: unknown): LogsSortOrder | false {
   if (typeof o === 'string' && o === LogsSortOrder.Ascending.toString()) {

@@ -179,7 +179,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       selectedLine: selectedLineUrl,
       tableLogLineState,
       urlColumns: urlColumnsUrl,
-      vizType: vizTypeUrl,
+      visualizationType: vizTypeUrl,
     });
   }
 

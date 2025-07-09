@@ -118,7 +118,7 @@ export const JsonVizRootName = 'root';
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['sortOrder'],
+    keys: ['sortOrder', 'wrapLogMessage'],
   });
 
   constructor(state: Partial<LogsJsonSceneState>) {
@@ -139,16 +139,30 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   getUrlState() {
     return {
       sortOrder: JSON.stringify(this.state.sortOrder),
+      wrapLogMessage: JSON.stringify(this.state.wrapLogMessage),
     };
   }
 
   updateFromUrl(values: SceneObjectUrlValues) {
     try {
+      let state: Partial<LogsJsonSceneState> = {};
+
       if (typeof values.sortOrder === 'string' && values.sortOrder) {
         const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
         if (decodedSortOrder) {
-          this.setState({ sortOrder: decodedSortOrder });
+          state.sortOrder = decodedSortOrder;
         }
+      }
+
+      if (typeof values.wrapLogMessage === 'string' && values.wrapLogMessage) {
+        const decodedWrapLogMessage = !!JSON.parse(values.wrapLogMessage);
+        if (decodedWrapLogMessage) {
+          state.wrapLogMessage = decodedWrapLogMessage;
+        }
+      }
+
+      if (Object.keys(state).length) {
+        this.setState(state);
       }
     } catch (e) {
       // URL Params can be manually changed and it will make JSON.parse() fail.
@@ -241,6 +255,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     this.updateFromUrl({
       sortOrder: searchParams.get('sortOrder'),
+      wrapLogMessage: searchParams.get('wrapLogMessage'),
     });
   }
 
