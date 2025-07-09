@@ -1,4 +1,4 @@
-// Synced with grafana/grafana/public/app/features/logs/components/panel/grammar.ts - July 3, 2025
+// Synced with https://github.com/grafana/grafana/blob/ca730935733d86339177ed5d014b9343831df98b/public/app/features/logs/components/panel/grammar.ts
 /* eslint-disable sort/object-properties */
 export const logsSyntaxMatches: Record<string, RegExp> = {
   // Levels regex
