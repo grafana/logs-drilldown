@@ -37,19 +37,13 @@ export const ExtensionPoints = {
 
 export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
 
-// `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
-// TODO: fix this type when we move to `@grafana/data` 11.3.x
 export const linkConfigs: LinkConfigs = [
   {
-    targets: PluginExtensionPoints.DashboardPanelMenu,
-    title,
-    description,
-    icon,
-    path: createAppUrl(),
-    configure: contextToLink,
-  },
-  {
-    targets: PluginExtensionPoints.ExploreToolbarAction,
+    targets: [
+      PluginExtensionPoints.DashboardPanelMenu,
+      PluginExtensionPoints.ExploreToolbarAction,
+      'grafana-metricsdrilldown-app/open-in-logs-drilldown/v1',
+    ],
     title,
     description,
     icon,
