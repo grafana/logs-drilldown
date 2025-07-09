@@ -78,7 +78,6 @@ export const highlightValueStringMatches = (
   let lineFilterMatchIndex = 0;
   let matchInterval = matchingIntervals[lineFilterMatchIndex];
 
-  // @todo debug why it's only grabbing the first one
   for (let valueIndex = 0; valueIndex < value.length; valueIndex++) {
     // Size is 1 based length, lineFilterMatchIndex is 0 based index
     while (valueIndex >= matchInterval[1] && lineFilterMatchIndex < size - 1) {
