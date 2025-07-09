@@ -15,11 +15,7 @@ export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<Re
     )
     .map((search) => {
       try {
-        if (search.key === 'caseSensitive') {
-          return new RegExp(search.value, 'g');
-        } else {
-          return new RegExp(search.value, 'gi');
-        }
+        return new RegExp(search.value, search.key === 'caseSensitive' ? 'g' : 'gi');
       } catch (e) {
         logger.info('Error executing match expression', { regex: search.value });
         return undefined;
