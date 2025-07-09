@@ -7,6 +7,7 @@ import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { isLogLineField } from '../../../services/fields';
 import { jsonLabelWrapStyles } from '../../../services/JSONViz';
+import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
@@ -116,8 +117,4 @@ const isNodeParentNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
 
 const isTimestampNode = (keyPath: KeyPath) => {
   return keyPath[1] === JsonVizRootName;
-};
-
-const isTimeLabelNode = (keyPath: ReadonlyArray<string | number>) => {
-  return keyPath[0] === JsonDataFrameTimeName;
 };

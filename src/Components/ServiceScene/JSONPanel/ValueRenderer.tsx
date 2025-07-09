@@ -2,6 +2,7 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
+import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
@@ -14,7 +15,7 @@ interface ValueRendererProps {
 }
 
 export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: ValueRendererProps) {
-  if (keyPath[0] === JsonDataFrameTimeName) {
+  if (isTimeLabelNode(keyPath)) {
     return null;
   }
   const value = valueAsString?.toString();
@@ -22,13 +23,7 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
     return null;
   }
 
-  const keyPathParent = keyPath[1];
-
-  if (
-    keyPathParent !== undefined &&
-    keyPathParent !== JsonDataFrameStructuredMetadataName &&
-    keyPathParent !== JsonDataFrameLabelsName
-  ) {
+  if (isParentNodeValid(keyPath)) {
     let valueArray = highlightLineFilterMatches(lineFilters, value);
 
     // If we have highlight matches we won't show syntax highlighting
@@ -55,3 +50,11 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
 
   return <>{value}</>;
 }
+
+const isParentNodeValid = (keyPath: KeyPath) => {
+  return (
+    keyPath[1] !== undefined &&
+    keyPath[1] !== JsonDataFrameStructuredMetadataName &&
+    keyPath[1] !== JsonDataFrameLabelsName
+  );
+};
