@@ -72,6 +72,7 @@ export const DETECTED_FIELDS_PARSER_NAME = 'parser';
 
 export const DETECTED_FIELDS_TYPE_NAME = 'type';
 export const DETECTED_FIELDS_PATH_NAME = 'jsonPath';
+export const MAX_PATTERNS_LIMIT = 500;
 
 export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   constructor(pluginId: string, uid: string) {
@@ -195,10 +196,12 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
         }
       );
       const response: PatternsResponse = await dsResponse;
-      const lokiPatterns = response?.data;
+      const lokiPatterns = response?.data.slice(0, MAX_PATTERNS_LIMIT);
 
       let maxValue = -Infinity;
       let minValue = 0;
+
+      console.log('lokiPatterns', lokiPatterns);
 
       const frames: DataFrame[] =
         lokiPatterns?.map((pattern: LokiPattern) => {
