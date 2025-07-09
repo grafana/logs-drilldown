@@ -211,15 +211,15 @@ export function createAppUrl(path = '/explore', urlParams?: URLSearchParams): st
 
 export const UrlParameters = {
   DatasourceId: `var-${VAR_DATASOURCE}`,
-  Fields: `var-${VAR_FIELDS}`,
-  Labels: `var-${VAR_LABELS}`,
-  Levels: `var-${VAR_LEVELS}`,
-  LineFilters: `var-${VAR_LINE_FILTERS}`,
-  Metadata: `var-${VAR_METADATA}`,
-  Patterns: VAR_PATTERNS,
-  PatternsVariable: `var-${VAR_PATTERNS}`,
   TimeRangeFrom: 'from',
   TimeRangeTo: 'to',
+  Labels: `var-${VAR_LABELS}`,
+  Fields: `var-${VAR_FIELDS}`,
+  Metadata: `var-${VAR_METADATA}`,
+  Levels: `var-${VAR_LEVELS}`,
+  LineFilters: `var-${VAR_LINE_FILTERS}`,
+  Patterns: VAR_PATTERNS,
+  PatternsVariable: `var-${VAR_PATTERNS}`,
 } as const;
 export type UrlParameterType = (typeof UrlParameters)[keyof typeof UrlParameters];
 
