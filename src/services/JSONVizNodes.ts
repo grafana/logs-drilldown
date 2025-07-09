@@ -1,4 +1,8 @@
-import { JsonDataFrameTimeName } from '../Components/ServiceScene/LogsJsonScene';
+import {
+  JsonDataFrameLabelsName,
+  JsonDataFrameStructuredMetadataName,
+  JsonDataFrameTimeName,
+} from '../Components/ServiceScene/LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 /**
@@ -7,4 +11,12 @@ import { KeyPath } from '@gtk-grafana/react-json-tree';
  */
 export const isTimeLabelNode = (keyPath: KeyPath) => {
   return keyPath[0] === JsonDataFrameTimeName;
+};
+
+export const isParentNodeValid = (keyPath: KeyPath) => {
+  return (
+    keyPath[1] !== undefined &&
+    keyPath[1] !== JsonDataFrameStructuredMetadataName &&
+    keyPath[1] !== JsonDataFrameLabelsName
+  );
 };

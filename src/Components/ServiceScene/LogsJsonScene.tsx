@@ -42,6 +42,7 @@ import {
   jsonLabelWrapStyles,
   renderJSONVizTimeStamp,
 } from '../../services/JSONViz';
+import { isParentNodeValid } from '../../services/JSONVizNodes';
 import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { addCurrentUrlToHistory } from '../../services/navigate';
@@ -556,11 +557,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
 
     let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (
-      keyPath[1] !== undefined &&
-      keyPath[1] !== JsonDataFrameStructuredMetadataName &&
-      keyPath[1] !== JsonDataFrameLabelsName
-    ) {
+    if (isParentNodeValid(keyPath)) {
       highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
     }
 

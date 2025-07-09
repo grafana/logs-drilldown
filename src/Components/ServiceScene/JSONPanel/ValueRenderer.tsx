@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { isTimeLabelNode } from '../../../services/JSONVizNodes';
+import { isParentNodeValid, isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
@@ -51,11 +51,3 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
 
   return <>{value}</>;
 }
-
-const isParentNodeValid = (keyPath: KeyPath) => {
-  return (
-    keyPath[1] !== undefined &&
-    keyPath[1] !== JsonDataFrameStructuredMetadataName &&
-    keyPath[1] !== JsonDataFrameLabelsName
-  );
-};
