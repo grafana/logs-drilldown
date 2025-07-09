@@ -4,7 +4,7 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
-import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
+import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
