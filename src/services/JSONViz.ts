@@ -31,7 +31,10 @@ export const jsonLabelWrapStyles = css({
   color: 'var(--json-tree-label-color)',
   display: 'inline-flex',
 });
-
+export const jsonLabelWrapStylesPrimary = css({
+  alignItems: 'center',
+  display: 'inline-flex',
+});
 export const drillUpWrapperStyle = css({
   alignItems: 'center',
   display: 'flex',
@@ -50,4 +53,10 @@ export const rootNodeItemString = css({
   // Match small button font size
   fontSize: '12px',
   textWrap: 'nowrap',
+});
+export const itemStringStyles = css({
+  color: 'var(--json-tree-label-color)',
+});
+export const labelButtonStyles = css({
+  color: 'var(--json-tree-label-color)',
 });

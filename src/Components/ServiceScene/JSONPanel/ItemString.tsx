@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { rootNodeItemString } from '../../../services/JSONViz';
+import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz';
 import { hasProp } from '../../../services/narrowing';
 import { JsonDataFrameTimeName, JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
@@ -26,5 +26,5 @@ export default function ItemString({ data, itemString, itemType, keyPath, model 
     );
   }
 
-  return <span>{itemType}</span>;
+  return <span className={itemStringStyles}>{itemType}</span>;
 }

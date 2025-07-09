@@ -4,6 +4,7 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { IconButton } from '@grafana/ui';
 
 import { FilterOp } from '../../../services/filterTypes';
+import { labelButtonStyles } from '../../../services/JSONViz';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { AddJSONFilter, AddMetadataFilter } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
@@ -31,6 +32,7 @@ export const JSONFilterValueButton = memo(
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     return (
       <IconButton
+        className={labelButtonStyles}
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();
@@ -52,6 +54,7 @@ export const FilterValueButton = memo(
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     return (
       <IconButton
+        className={labelButtonStyles}
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();

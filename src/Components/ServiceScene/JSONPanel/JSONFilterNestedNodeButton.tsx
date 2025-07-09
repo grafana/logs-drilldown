@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 
 import { IconButton } from '@grafana/ui';
 
+import { labelButtonStyles } from '../../../services/JSONViz';
 import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
 import { AddJSONFilter } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
@@ -17,6 +18,7 @@ interface Props {
 const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, type }: Props) => {
   return (
     <IconButton
+      className={labelButtonStyles}
       tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
       onClick={(e) => {
         e.stopPropagation();

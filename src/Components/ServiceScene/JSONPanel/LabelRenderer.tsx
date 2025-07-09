@@ -6,7 +6,7 @@ import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { isLogLineField } from '../../../services/fields';
-import { jsonLabelWrapStyles } from '../../../services/JSONViz';
+import { jsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from '../../../services/JSONViz';
 import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
@@ -72,12 +72,8 @@ export default function LabelRenderer({
   // Show the timestamp as the label of the log line
   if (isTimestampNode(keyPath) && isNumber(keyPath[0])) {
     const time: string = lineField.values[keyPath[0]]?.[JsonDataFrameTimeName];
-    return <strong className={jsonLabelWrapStyles}>{time}</strong>;
+    return <strong className={jsonLabelWrapStylesPrimary}>{time}</strong>;
   }
-
-  // if (isLineLabelNode(keyPath)) {
-  //   <span className={jsonLabelWrapStyles}>{JsonDataFrameLineName}:</span>;
-  // }
 
   // Don't render time node
   if (isTimeLabelNode(keyPath)) {

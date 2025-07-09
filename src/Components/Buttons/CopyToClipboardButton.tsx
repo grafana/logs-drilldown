@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, InlineToast } from '@grafana/ui';
+import { IconButton, InlineToast, useStyles2 } from '@grafana/ui';
 
 const SHOW_SUCCESS_DURATION = 2 * 1000;
 
@@ -10,6 +13,7 @@ export default function CopyToClipboardButton(props: { onClick: () => void }) {
   const copiedText = t('clipboard-button.inline-toast.success', 'Copied');
   const defaultText = t('logs.log-line-details.copy-to-clipboard', 'Copy to clipboard');
   const buttonRef = useRef<null | HTMLButtonElement>(null);
+  const styles = useStyles2(getStyles);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -33,6 +37,7 @@ export default function CopyToClipboardButton(props: { onClick: () => void }) {
         </InlineToast>
       )}
       <IconButton
+        className={styles}
         aria-pressed={copied}
         tooltip={copied ? '' : defaultText}
         tooltipPlacement="top"
@@ -49,3 +54,9 @@ export default function CopyToClipboardButton(props: { onClick: () => void }) {
     </>
   );
 }
+
+const getStyles = (theme: GrafanaTheme2) => {
+  return css({
+    color: theme.colors.text.secondary,
+  });
+};
