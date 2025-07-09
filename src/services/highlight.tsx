@@ -6,6 +6,8 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { LineFilterOp } from './filterTypes';
 import { logger } from './logger';
 
+export type TextWithHighlightedValue = Array<React.JSX.Element | string>;
+
 export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<RegExp | undefined> => {
   return filters
     .filter(
@@ -26,8 +28,6 @@ export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<Re
     .filter((f) => f);
 };
 
-export type HighlightedValue = Array<React.JSX.Element | string>;
-
 const getWrappingElement = (className: string | undefined, jsxValues: string) => {
   if (className) {
     return <span className={className}>{jsxValues}</span>;
@@ -41,7 +41,7 @@ const getWrappingElement = (className: string | undefined, jsxValues: string) =>
  * @param className - if defined, will wrap matches with span containing this classname instead of <mark> element
  */
 export const mergeStringsAndElements = (valueArray: Array<{ value: string } | string>, className?: string) => {
-  let result: HighlightedValue = [];
+  let result: TextWithHighlightedValue = [];
 
   let jsxValues = '';
   let stringValues = '';
