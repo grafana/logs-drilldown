@@ -10,7 +10,6 @@ import { jsonLabelWrapStyles } from '../../../services/JSONViz';
 import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
-  JsonDataFrameLineName,
   JsonDataFrameStructuredMetadataName,
   JsonDataFrameTimeName,
   JsonVizRootName,
@@ -122,8 +121,4 @@ const isNodeParentNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
 
 const isTimestampNode = (keyPath: KeyPath) => {
   return keyPath[1] === JsonVizRootName;
-};
-
-const isLineLabelNode = (keyPath: KeyPath) => {
-  return keyPath[0] === JsonDataFrameLineName;
 };
