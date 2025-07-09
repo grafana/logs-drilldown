@@ -107,16 +107,24 @@ export const getMatchingIntervals = (
 ): Array<[number, number]> => {
   let results: Array<[number, number]> = [];
   matchExpressions.forEach((regex) => {
-    let valueMatch;
-    let valueMatches = [];
+    let valueMatch: RegExpExecArray | null | undefined;
+    let valueMatches: RegExpExecArray[] = [];
     do {
       try {
         valueMatch = regex?.exec(value);
+        // Did we match something?
         if (valueMatch) {
-          valueMatches.push(valueMatch);
+          // If we have a valid result
+          if (valueMatch[0]) {
+            valueMatches.push(valueMatch);
+          } else {
+            // Otherwise break the loop
+            valueMatch = null;
+          }
         }
       } catch (e) {
         logger.info('Error executing match expression', { regex: regex?.source ?? '' });
+        valueMatch = null;
       }
     } while (valueMatch);
     if (valueMatches.length) {

@@ -29,7 +29,7 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
 
     // If we have highlight matches we won't show syntax highlighting
     if (valueArray.length) {
-      return valueArray.filter((e) => e);
+      return valueArray;
     }
   }
 
