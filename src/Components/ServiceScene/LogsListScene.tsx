@@ -21,6 +21,7 @@ import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
+import { ActionBarScene } from './ActionBarScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LogsJsonScene } from './LogsJsonScene';
 import { LogsPanelScene } from './LogsPanelScene';
@@ -162,6 +163,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       this.subscribeToState((newState, prevState) => {
         if (newState.visualizationType !== prevState.visualizationType) {
           this.updateLogsPanel();
+          // Re-render the tabs to ensure the visualizationType type is set in the url
+          const tabs = sceneGraph.findObject(this, (scene) => scene instanceof ActionBarScene);
+          tabs?.forceRender();
         }
       })
     );

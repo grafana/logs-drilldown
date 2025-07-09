@@ -147,7 +147,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
             )}
             {lineField.values.length > 0 && hasJsonFields === false && (
               <>
-                <Alert severity={'info'} title={'No JSON fields detected'}>
+                <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
                   better experience.
                 </Alert>
@@ -197,6 +197,10 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
 
 const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage: boolean) => {
   return {
+    alert: css({
+      marginTop: theme.spacing(3.5),
+      marginBottom: 0,
+    }),
     container: css({
       display: 'flex',
       flexDirection: 'row-reverse',
