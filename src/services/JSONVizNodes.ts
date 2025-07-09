@@ -13,7 +13,7 @@ export const isTimeLabelNode = (keyPath: KeyPath) => {
   return keyPath[0] === JsonDataFrameTimeName;
 };
 
-export const isParentNodeValid = (keyPath: KeyPath) => {
+export const hasValidParentNode = (keyPath: KeyPath) => {
   return (
     keyPath[1] !== undefined &&
     keyPath[1] !== JsonDataFrameStructuredMetadataName &&

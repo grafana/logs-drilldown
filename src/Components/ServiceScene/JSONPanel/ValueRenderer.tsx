@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { isParentNodeValid, isTimeLabelNode } from '../../../services/JSONVizNodes';
+import { hasValidParentNode, isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
 import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
@@ -24,7 +24,7 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
     return null;
   }
 
-  if (isParentNodeValid(keyPath)) {
+  if (hasValidParentNode(keyPath)) {
     let valueArray = highlightLineFilterMatches(lineFilters, value);
 
     // If we have highlight matches we won't show syntax highlighting
