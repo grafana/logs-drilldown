@@ -270,7 +270,7 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
 };
 
 const getWrapLogMessageStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
-  if (wrapLogMessage) {
+  if (!wrapLogMessage) {
     return css`
       // line wrap
       --json-tree-value-text-wrap: nowrap;

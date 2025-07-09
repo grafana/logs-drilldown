@@ -128,7 +128,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       showLabels: getJsonLabelsVisibility(),
       showMetadata: getJsonMetadataVisibility(),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', true),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
