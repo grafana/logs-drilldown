@@ -7,6 +7,7 @@ import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { isLogLineField } from '../../../services/fields';
 import { jsonLabelWrapStyles } from '../../../services/JSONViz';
+import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
@@ -53,24 +54,12 @@ export default function LabelRenderer({
   }
 
   // Value nodes
-  if (
-    nodeTypeLoc !== 'Object' &&
-    nodeTypeLoc !== 'Array' &&
-    keyPath[0] !== JsonDataFrameTimeName &&
-    !isLogLineField(keyPath[0].toString()) &&
-    keyPath[0] !== JsonVizRootName &&
-    !isNumber(keyPath[0])
-  ) {
+  if (isNodeValueNode(nodeTypeLoc, keyPath)) {
     return model.renderValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, lineFilters, jsonFiltersSupported);
   }
 
   // Parent nodes
-  if (
-    (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
-    !isLogLineField(keyPath[0].toString()) &&
-    keyPath[0] !== JsonVizRootName &&
-    !isNumber(keyPath[0])
-  ) {
+  if (isNodeParentNode(nodeTypeLoc, keyPath)) {
     return model.renderNestedNodeFilterButtons(
       keyPath,
       fieldsVar,
@@ -81,13 +70,13 @@ export default function LabelRenderer({
   }
 
   // Show the timestamp as the label of the log line
-  if (isNumber(keyPath[0]) && keyPath[1] === JsonVizRootName) {
+  if (isTimestampNode(keyPath) && isNumber(keyPath[0])) {
     const time: string = lineField.values[keyPath[0]]?.[JsonDataFrameTimeName];
     return <strong className={jsonLabelWrapStyles}>{time}</strong>;
   }
 
   // Don't render time node
-  if (keyPath[0] === JsonDataFrameTimeName) {
+  if (isTimeLabelNode(keyPath)) {
     return null;
   }
 
@@ -95,3 +84,37 @@ export default function LabelRenderer({
 
   return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
 }
+
+/**
+ * Is JSON node a leaf node
+ * @param nodeTypeLoc
+ * @param keyPath
+ */
+const isNodeValueNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
+  return (
+    nodeTypeLoc !== 'Object' &&
+    nodeTypeLoc !== 'Array' &&
+    keyPath[0] !== JsonDataFrameTimeName &&
+    !isLogLineField(keyPath[0].toString()) &&
+    keyPath[0] !== JsonVizRootName &&
+    !isNumber(keyPath[0])
+  );
+};
+
+/**
+ * Is JSON node a parent node
+ * @param nodeTypeLoc
+ * @param keyPath
+ */
+const isNodeParentNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
+  return (
+    (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
+    !isLogLineField(keyPath[0].toString()) &&
+    keyPath[0] !== JsonVizRootName &&
+    !isNumber(keyPath[0])
+  );
+};
+
+const isTimestampNode = (keyPath: KeyPath) => {
+  return keyPath[1] === JsonVizRootName;
+};

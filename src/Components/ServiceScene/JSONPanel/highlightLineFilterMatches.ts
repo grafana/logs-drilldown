@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import {
@@ -7,13 +5,14 @@ import {
   getMatchingIntervals,
   highlightValueStringMatches,
   mergeOverlapping,
+  TextWithHighlightedValue,
 } from '../../../services/highlight';
 
 export function highlightLineFilterMatches(lineFilters: AdHocFilterWithLabels[], value: string, className?: string) {
   const matchExpressions = getLineFilterRegExps(lineFilters);
   const lineFilterMatches = getMatchingIntervals(matchExpressions, value);
   const size = mergeOverlapping(lineFilterMatches);
-  let valueArray: Array<React.JSX.Element | string> = [];
+  let valueArray: TextWithHighlightedValue = [];
 
   if (lineFilterMatches.length) {
     valueArray = highlightValueStringMatches(lineFilterMatches, value, size, className);
@@ -24,7 +23,7 @@ export function highlightLineFilterMatches(lineFilters: AdHocFilterWithLabels[],
 export function highlightRegexMatches(regex: RegExp[], value: string, className: string) {
   const lineFilterMatches = getMatchingIntervals(regex, value);
   const size = mergeOverlapping(lineFilterMatches);
-  let valueArray: Array<React.JSX.Element | string> = [];
+  let valueArray: TextWithHighlightedValue = [];
 
   if (lineFilterMatches.length) {
     valueArray = highlightValueStringMatches(lineFilterMatches, value, size, className);

@@ -6,6 +6,8 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { LineFilterOp } from './filterTypes';
 import { logger } from './logger';
 
+export type TextWithHighlightedValue = Array<React.JSX.Element | string>;
+
 export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<RegExp | undefined> => {
   return filters
     .filter(
@@ -13,11 +15,7 @@ export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<Re
     )
     .map((search) => {
       try {
-        if (search.key === 'caseSensitive') {
-          return new RegExp(search.value, 'g');
-        } else {
-          return new RegExp(search.value, 'gi');
-        }
+        return new RegExp(search.value, search.key === 'caseSensitive' ? 'g' : 'gi');
       } catch (e) {
         logger.info('Error executing match expression', { regex: search.value });
         return undefined;
@@ -25,8 +23,6 @@ export const getLineFilterRegExps = (filters: AdHocFilterWithLabels[]): Array<Re
     })
     .filter((f) => f);
 };
-
-export type HighlightedValue = Array<React.JSX.Element | string>;
 
 const getWrappingElement = (className: string | undefined, jsxValues: string) => {
   if (className) {
@@ -41,7 +37,7 @@ const getWrappingElement = (className: string | undefined, jsxValues: string) =>
  * @param className - if defined, will wrap matches with span containing this classname instead of <mark> element
  */
 export const mergeStringsAndElements = (valueArray: Array<{ value: string } | string>, className?: string) => {
-  let result: HighlightedValue = [];
+  let result: TextWithHighlightedValue = [];
 
   let jsxValues = '';
   let stringValues = '';
@@ -82,7 +78,6 @@ export const highlightValueStringMatches = (
   let lineFilterMatchIndex = 0;
   let matchInterval = matchingIntervals[lineFilterMatchIndex];
 
-  // @todo debug why it's only grabbing the first one
   for (let valueIndex = 0; valueIndex < value.length; valueIndex++) {
     // Size is 1 based length, lineFilterMatchIndex is 0 based index
     while (valueIndex >= matchInterval[1] && lineFilterMatchIndex < size - 1) {
@@ -107,16 +102,24 @@ export const getMatchingIntervals = (
 ): Array<[number, number]> => {
   let results: Array<[number, number]> = [];
   matchExpressions.forEach((regex) => {
-    let valueMatch;
-    let valueMatches = [];
+    let valueMatch: RegExpExecArray | null | undefined;
+    let valueMatches: RegExpExecArray[] = [];
     do {
       try {
         valueMatch = regex?.exec(value);
+        // Did we match something?
         if (valueMatch) {
-          valueMatches.push(valueMatch);
+          // If we have a valid result
+          if (valueMatch[0]) {
+            valueMatches.push(valueMatch);
+          } else {
+            // Otherwise break the loop
+            valueMatch = null;
+          }
         }
       } catch (e) {
         logger.info('Error executing match expression', { regex: regex?.source ?? '' });
+        valueMatch = null;
       }
     } while (valueMatch);
     if (valueMatches.length) {
