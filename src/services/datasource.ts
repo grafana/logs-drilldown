@@ -201,8 +201,6 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       let maxValue = -Infinity;
       let minValue = 0;
 
-      console.log('lokiPatterns', lokiPatterns);
-
       const frames: DataFrame[] =
         lokiPatterns?.map((pattern: LokiPattern) => {
           const timeValues: number[] = [];
