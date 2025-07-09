@@ -742,7 +742,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 }
 
 const copyLogLine = (keyPath: KeyPath, $data: SceneDataProvider) => {
-  // If the user clicked on the button, don't trigger the node to expand/collapse
   const logLineIndex = keyPath[0];
   const dataFrame = getLogsPanelFrame($data.state.data);
   const lineField = dataFrame?.fields.find((f) => isLogLineField(f.name));
