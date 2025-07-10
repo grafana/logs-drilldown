@@ -249,7 +249,8 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Set JSON as default viz
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
-
+      // assert logs is active
+      await expect(page.getByRole('radio', { name: 'JSON' })).toBeChecked();
       await explorePage.goToFieldsTab();
       // Clear caches
       await page.reload();

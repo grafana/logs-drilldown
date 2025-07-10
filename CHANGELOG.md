@@ -1,5 +1,23 @@
 # Changelog
 
+#### 1.0.22
+
+##### Chores
+
+* **eslint:**  disable sort/object-properties, remove recommendations (#1392) (c7941852)
+*  bump @grafana/create-plugin configuration to 5.25.1 (#1365) (65e6e53d)
+*  whitelist grafana-plugins-platform-bot[bot] (#1383) (ac0f59d7)
+
+##### New Features
+
+*  enable Logs Drilldown link in Metrics Drilldown (#1389) (8fb4422e)
+* **LogsPanel:**  set details mode (#1391) (d1befe8c)
+
+##### Bug Fixes
+
+*  limit patterns to 500 (#1390) (e2abf9a7)
+
+
 #### 1.0.21
 
 ##### New Features
