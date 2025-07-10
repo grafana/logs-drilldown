@@ -148,52 +148,53 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
               )}
               {lineField.values.length > 0 && hasJsonFields === false && (
                 <>
-                  <Alert className={styles.alert}severity={'info'} title={'No JSON fields detected'}>
-                  This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
-                  better experience.
-                </Alert>
-              </>
-            )}
-            <JSONTree
-              data={lineField.values}
-              hideRootExpand={true}
-              valueWrap={''}
-              shouldExpandNodeInitially={(_, __, level) => level <= 2}
-              getItemString={(nodeType, data, itemType, itemString, keyPath) => (
-                <ItemString
-                  itemString={itemString}
-                  keyPath={keyPath}
-                  itemType={itemType}
-                  data={data}
-                  nodeType={nodeType}
-                  model={model}
-                />
+                  <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
+                    This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for
+                    abetter experience.
+                  </Alert>
+                </>
               )}
-              valueRenderer={(valueAsString, _, ...keyPath) => (
-                <ValueRenderer
-                  valueAsString={valueAsString}
-                  keyPath={keyPath}
-                  lineFilters={lineFilterVar.state.filters}
-                />
-              )}
-              labelRenderer={(keyPath, nodeType) => (
-                <LabelRenderer
-                  model={model}
-                  nodeType={nodeType}
-                  keyPath={keyPath}
-                  fieldsVar={fieldsVar}
-                  lineField={lineField}
-                  jsonFiltersSupported={jsonFiltersSupported}
-                  jsonParserPropsMap={jsonParserPropsMap}
-                  lineFilters={lineFilterVar.state.filters}
-                />
-              )}
-            />
-          </div>
-        )}
-        {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
-      </div>
-    </PanelChrome></div>
+              <JSONTree
+                data={lineField.values}
+                hideRootExpand={true}
+                valueWrap={''}
+                shouldExpandNodeInitially={(_, __, level) => level <= 2}
+                getItemString={(nodeType, data, itemType, itemString, keyPath) => (
+                  <ItemString
+                    itemString={itemString}
+                    keyPath={keyPath}
+                    itemType={itemType}
+                    data={data}
+                    nodeType={nodeType}
+                    model={model}
+                  />
+                )}
+                valueRenderer={(valueAsString, _, ...keyPath) => (
+                  <ValueRenderer
+                    valueAsString={valueAsString}
+                    keyPath={keyPath}
+                    lineFilters={lineFilterVar.state.filters}
+                  />
+                )}
+                labelRenderer={(keyPath, nodeType) => (
+                  <LabelRenderer
+                    model={model}
+                    nodeType={nodeType}
+                    keyPath={keyPath}
+                    fieldsVar={fieldsVar}
+                    lineField={lineField}
+                    jsonFiltersSupported={jsonFiltersSupported}
+                    jsonParserPropsMap={jsonParserPropsMap}
+                    lineFilters={lineFilterVar.state.filters}
+                  />
+                )}
+              />
+            </div>
+          )}
+          {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
+        </div>
+      </PanelChrome>
+    </div>
   );
 }
 
