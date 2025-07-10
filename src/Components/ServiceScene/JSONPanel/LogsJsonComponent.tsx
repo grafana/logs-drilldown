@@ -150,7 +150,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                 <>
                   <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
                     This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for
-                    abetter experience.
+                    a better experience.
                   </Alert>
                 </>
               )}
