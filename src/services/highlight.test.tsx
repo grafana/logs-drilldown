@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  getLineFilterMatches,
+  getMatchingIntervals,
   highlightValueStringMatches,
   mergeOverlapping,
   mergeStringsAndElements,
@@ -46,10 +46,10 @@ describe('mergeOverlapping', () => {
 });
 describe('getLineFilterMatches', () => {
   it('base case', () => {
-    expect(getLineFilterMatches([], 'abc123')).toEqual([]);
+    expect(getMatchingIntervals([], 'abc123')).toEqual([]);
   });
   it('returns indices for each regex matching string', () => {
-    const result = getLineFilterMatches([/a/g, /b/g, /.+/g], 'abc');
+    const result = getMatchingIntervals([/a/g, /b/g, /.+/g], 'abc');
     expect(result).toEqual([
       [0, 1],
       [1, 2],
@@ -58,7 +58,7 @@ describe('getLineFilterMatches', () => {
   });
 
   it('returns indices for each regex matching string', () => {
-    const result = getLineFilterMatches([/abc/g, /123/g, /bc12/g], 'abc123');
+    const result = getMatchingIntervals([/abc/g, /123/g, /bc12/g], 'abc123');
     expect(result).toEqual([
       [0, 3],
       [3, 6],

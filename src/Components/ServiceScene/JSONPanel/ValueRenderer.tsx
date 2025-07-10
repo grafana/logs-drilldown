@@ -2,19 +2,20 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { logsSyntaxMatches } from '../../../services/highlight';
-import { JsonDataFrameLabelsName, JsonDataFrameStructuredMetadataName, JsonDataFrameTimeName } from '../LogsJsonScene';
-import { highlightLineFilterMatches } from './highlightLineFilterMatches';
+import { hasValidParentNode, isTimeLabelNode } from '../../../services/JSONVizNodes';
+import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
+import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ValueRendererProps {
   keyPath: KeyPath;
   lineFilters: AdHocFilterWithLabels[];
+  // @todo react-json-tree should probably return this type as string?
   valueAsString: unknown;
 }
 
 export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: ValueRendererProps) {
-  if (keyPath[0] === JsonDataFrameTimeName) {
+  if (isTimeLabelNode(keyPath)) {
     return null;
   }
   const value = valueAsString?.toString();
@@ -22,25 +23,29 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
     return null;
   }
 
-  const keyPathParent = keyPath[1];
-
-  if (
-    keyPathParent !== undefined &&
-    keyPathParent !== JsonDataFrameStructuredMetadataName &&
-    keyPathParent !== JsonDataFrameLabelsName
-  ) {
+  if (hasValidParentNode(keyPath)) {
     let valueArray = highlightLineFilterMatches(lineFilters, value);
 
     // If we have highlight matches we won't show syntax highlighting
     if (valueArray.length) {
-      return valueArray.filter((e) => e);
+      return valueArray;
     }
   }
 
   // Check syntax highlighting results
-  const matchKey = Object.keys(logsSyntaxMatches).find((key) => value.match(logsSyntaxMatches[key]));
-  if (matchKey) {
-    return <span className={matchKey}>{value}</span>;
+  let highlightedResults: Array<string | React.JSX.Element> = [];
+  Object.keys(logsSyntaxMatches).some((key) => {
+    const regex = value.match(logsSyntaxMatches[key]);
+    if (regex) {
+      highlightedResults = highlightRegexMatches([logsSyntaxMatches[key]], value, key);
+      return true;
+    }
+
+    return false;
+  });
+
+  if (highlightedResults.length) {
+    return highlightedResults;
   }
 
   return <>{value}</>;

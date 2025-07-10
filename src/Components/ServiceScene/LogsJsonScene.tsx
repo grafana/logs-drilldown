@@ -1,15 +1,6 @@
 import React from 'react';
 
-import {
-  DataFrame,
-  Field,
-  FieldType,
-  getTimeZone,
-  LoadingState,
-  LogsSortOrder,
-  PanelData,
-  sortDataFrame,
-} from '@grafana/data';
+import { DataFrame, Field, FieldType, getTimeZone, LoadingState, LogsSortOrder, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -51,6 +42,7 @@ import {
   jsonLabelWrapStyles,
   renderJSONVizTimeStamp,
 } from '../../services/JSONViz';
+import { hasValidParentNode } from '../../services/JSONVizNodes';
 import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { addCurrentUrlToHistory } from '../../services/navigate';
@@ -565,11 +557,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
 
     let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (
-      keyPath[1] !== undefined &&
-      keyPath[1] !== JsonDataFrameStructuredMetadataName &&
-      keyPath[1] !== JsonDataFrameLabelsName
-    ) {
+    if (hasValidParentNode(keyPath)) {
       highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
     }
 
@@ -662,10 +650,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Creates the dataframe consumed by the viz
    */
   private transformDataFrame(newState: SceneDataState) {
-    const rawFrame = getLogsPanelFrame(newState.data);
-    const dataFrame = rawFrame
-      ? sortDataFrame(rawFrame, 1, this.state.sortOrder === LogsSortOrder.Descending)
-      : undefined;
+    const dataFrame = getLogsPanelFrame(newState.data);
     const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
 
     const labelsField: Field<Record<string, string>> | undefined = dataFrame?.fields.find(
