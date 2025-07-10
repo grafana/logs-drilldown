@@ -52,7 +52,7 @@ interface Props {
 }
 
 const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number) => ({
-  // Sidear resize styles matching https://github.com/grafana/grafana/blob/main/public/app/features/explore/Logs/LogsTableWrap.tsx#L561
+  // Sidebar resize styles matching https://github.com/grafana/grafana/blob/main/public/app/features/explore/Logs/LogsTableWrap.tsx#L561
   collapsedTableSidebar: css({
     alignItems: 'center',
     display: 'flex',
