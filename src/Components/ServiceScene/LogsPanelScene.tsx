@@ -42,6 +42,7 @@ import { IndexScene } from '../IndexScene/IndexScene';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
+import JsonRootNodeNavigation from './JSONPanel/JsonRootNodeNavigation';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelError } from './LogsPanelError';
@@ -360,7 +361,20 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('detailsMode', 'sidebar');
     }
 
-    return panel.build();
+    const vizPanel = panel.build();
+    vizPanel.setState({
+      titleItems: (
+        <JsonRootNodeNavigation
+          sceneRef={this}
+          showEndingSeparator={false}
+          hideIfEmpty={true}
+          forceRender={true}
+          maxWidth={`calc(100vw - 320px);`}
+        />
+      ),
+    });
+
+    return vizPanel;
   };
 
   private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {

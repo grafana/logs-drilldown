@@ -38,7 +38,10 @@ export const jsonLabelWrapStylesPrimary = css({
 export const drillUpWrapperStyle = css({
   alignItems: 'center',
   display: 'flex',
-  overflowX: 'auto',
+});
+export const drillUpContainerStyle = css({
+  display: 'flex',
+  alignItems: 'center',
 });
 export const breadCrumbDelimiter = css({
   marginLeft: '0.5em',
