@@ -18,6 +18,7 @@ import {
   NodeTypeLoc,
   StructuredMetadataDisplayName,
 } from '../LogsJsonScene';
+import JsonRootNodeNavigation from './JsonRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface LabelRendererProps {
@@ -50,7 +51,7 @@ export default function LabelRenderer({
   }
 
   if (keyPath[0] === JsonVizRootName) {
-    return model.renderNestedNodeButtons(keyPath, jsonFiltersSupported);
+    return <JsonRootNodeNavigation sceneRef={model} />;
   }
 
   // Value nodes
