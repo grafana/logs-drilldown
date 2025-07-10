@@ -2,10 +2,10 @@ import React, { memo } from 'react';
 
 import { IconButton } from '@grafana/ui';
 
-import { labelButtonStyles } from '../../../services/JSONViz';
-import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
 import { AddJSONFilter } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { labelButtonStyles } from 'services/JSONViz';
+import { EMPTY_VARIABLE_VALUE } from 'services/variables';
 
 interface Props {
   active: boolean;
