@@ -1,12 +1,16 @@
 import React from 'react';
 
-import { Field, FieldType, Labels } from '@grafana/data';
+import { css } from '@emotion/css';
+
+import { Field, FieldType, GrafanaTheme2, Labels } from '@grafana/data';
+import { useStyles2 } from '@grafana/ui';
 
 import { isLabelsField } from '../../../services/fields';
-import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz';
+import { itemStringStyles, levelButtonStyles, rootNodeItemString } from '../../../services/JSONViz';
 import { hasProp } from '../../../services/narrowing';
 import { logsLabelLevelsMatches } from '../../../services/panel';
-import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
+import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../services/variables';
+import { addToFilters } from '../Breakdowns/AddToFiltersButton';
 import { JsonDataFrameLineName, JsonDataFrameTimeName, JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
@@ -19,6 +23,7 @@ interface ItemStringProps {
   nodeType: string;
 }
 export default function ItemString({ data, itemString, itemType, keyPath, model }: ItemStringProps) {
+  const styles = useStyles2(getStyles);
   if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
     return model.renderCopyToClipboardButton(keyPath);
   }
@@ -43,9 +48,31 @@ export default function ItemString({ data, itemString, itemType, keyPath, model 
       const levelClass = Object.keys(logsLabelLevelsMatches).find((className) =>
         detected_level.match(logsLabelLevelsMatches[className])
       );
-      return <span className={levelClass}>{detected_level.toUpperCase()}</span>;
+      return (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            addToFilters(LEVEL_VARIABLE_VALUE, detected_level, 'toggle', model, VAR_LEVELS);
+          }}
+          className={`${levelClass} ${styles.levelButtonStyles}`}
+        >
+          {detected_level.toUpperCase()}
+        </button>
+      );
     }
   }
 
   return <span className={itemStringStyles}>{itemType}</span>;
 }
+
+const getStyles = (theme: GrafanaTheme2) => {
+  return {
+    levelButtonStyles: css({
+      fontFamily: theme.typography.fontFamilyMonospace,
+      appearance: 'none',
+      background: 'none',
+      border: 'none',
+      padding: 0,
+    }),
+  };
+};
