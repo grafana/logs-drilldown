@@ -175,6 +175,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     valueAsString={valueAsString}
                     keyPath={keyPath}
                     lineFilters={lineFilterVar.state.filters}
+                    model={model}
                   />
                 )}
                 labelRenderer={(keyPath, nodeType) => (
@@ -217,7 +218,7 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
       height: '100%',
       paddingBottom: theme.spacing(1),
       paddingRight: theme.spacing(1),
-      ...getLogsHighlightStyles(theme, showHighlight),
+      ...getLogsHighlightStyles(theme),
       contain: 'content',
     }),
     highlight: css({
