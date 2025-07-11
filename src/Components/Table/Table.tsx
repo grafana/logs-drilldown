@@ -111,6 +111,7 @@ const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number) =
   wrapper: css({
     display: 'flex',
     position: 'relative',
+    flexWrap: 'wrap',
   }),
 });
 
@@ -138,6 +139,7 @@ function TableAndContext(props: {
 
 export const Table = (props: Props) => {
   const { height, labels, logsFrame, timeZone, width } = props;
+
   const theme = useTheme2();
 
   const [tableFrame, setTableFrame] = useState<DataFrame | undefined>(undefined);
