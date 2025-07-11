@@ -60,8 +60,3 @@ export const itemStringStyles = css({
 export const labelButtonStyles = css({
   color: 'var(--json-tree-label-color)',
 });
-export const levelButtonStyles = css({
-  appearance: 'none',
-  background: 'none',
-  border: 'none',
-});
