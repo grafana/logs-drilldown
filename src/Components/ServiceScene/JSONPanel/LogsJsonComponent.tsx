@@ -28,7 +28,6 @@ import { JSONTree } from '@gtk-grafana/react-json-tree';
 
 export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
   const {
-    data,
     emptyScene,
     hasJsonFields,
     jsonFiltersSupported,
@@ -38,13 +37,15 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     showMetadata,
     sortOrder,
     wrapLogMessage,
+    data,
   } = model.useState();
-  const $data = sceneGraph.getData(model);
   // Rerender on data change
+  const $data = sceneGraph.getData(model);
   $data.useState();
+
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
   const { visualizationType } = logsListScene.useState();
-  const styles = useStyles2(getStyles, showHighlight, wrapLogMessage);
+  const styles = useStyles2(getStyles, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
   const jsonVar = getJsonFieldsVariable(model);
@@ -139,7 +140,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
               onScrollToTopClick={onScrollToTopClick}
             />
           )}
-          {dataFrame && lineField?.values && lineField?.values.length > 0 && (
+          {lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
               {jsonFiltersSupported === false && (
                 <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
@@ -174,6 +175,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     valueAsString={valueAsString}
                     keyPath={keyPath}
                     lineFilters={lineFilterVar.state.filters}
+                    model={model}
                   />
                 )}
                 labelRenderer={(keyPath, nodeType) => (
@@ -198,7 +200,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage: boolean) => {
+const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
   return {
     alert: css({
       marginTop: theme.spacing(3.5),
@@ -216,7 +218,7 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
       height: '100%',
       paddingBottom: theme.spacing(1),
       paddingRight: theme.spacing(1),
-      ...getLogsHighlightStyles(theme, showHighlight),
+      ...getLogsHighlightStyles(theme),
       contain: 'content',
     }),
     highlight: css({
