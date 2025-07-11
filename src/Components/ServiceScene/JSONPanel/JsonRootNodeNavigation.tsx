@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
-import { Button, Icon } from '@grafana/ui';
+import { Button, Icon, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { clearJsonParserFields, isLogLineField } from '../../../services/fields';
@@ -15,20 +18,42 @@ import { JsonDataFrameLineName, JsonVizRootName } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 interface Props {
+  // In the json viz, this component is re-rendered whenever the labels are re-rendered, but in the logs panel context we have to manually force the refresh
+  forceRender?: boolean;
+  hideIfEmpty?: boolean;
+  maxWidth?: string;
   sceneRef: SceneObject;
+  showEndingSeparator?: boolean;
 }
 
-export default function JsonRootNodeNavigation({ sceneRef }: Props) {
+export default function JsonRootNodeNavigation({
+  sceneRef,
+  maxWidth,
+  hideIfEmpty = false,
+  showEndingSeparator = true,
+  forceRender = false,
+}: Props) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const filters = lineFormatVar.state.filters;
   const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
+  const styles = useStyles2(getStyles, maxWidth);
+  const [render, rerender] = useState(false);
+
+  if (hideIfEmpty && !filters.length) {
+    return null;
+  }
 
   return (
-    <>
+    <span className={styles.wrapper}>
       <span className={drillUpWrapperStyle} key={JsonVizRootName}>
         <Button
           size={'sm'}
-          onClick={() => setNewRootNode(rootKeyPath, sceneRef)}
+          onClick={() => {
+            setNewRootNode(rootKeyPath, sceneRef);
+            if (forceRender) {
+              rerender(!render);
+            }
+          }}
           variant={'secondary'}
           fill={'outline'}
           disabled={!filters.length}
@@ -47,7 +72,12 @@ export default function JsonRootNodeNavigation({ sceneRef }: Props) {
               <Button
                 size={'sm'}
                 disabled={selected}
-                onClick={() => addDrillUp(filter.key, sceneRef)}
+                onClick={() => {
+                  addDrillUp(filter.key, sceneRef);
+                  if (forceRender) {
+                    rerender(!render);
+                  }
+                }}
                 variant={'secondary'}
                 fill={'outline'}
               >
@@ -55,13 +85,27 @@ export default function JsonRootNodeNavigation({ sceneRef }: Props) {
               </Button>
             }
             {i < filters.length - 1 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
-            {i === filters.length - 1 && <Icon className={itemStringDelimiter} name={'angle-right'} />}
+            {showEndingSeparator && i === filters.length - 1 && (
+              <Icon className={itemStringDelimiter} name={'angle-right'} />
+            )}
           </span>
         );
       })}
-    </>
+    </span>
   );
 }
+
+export const getStyles = (theme: GrafanaTheme2, maxWidth?: string) => ({
+  wrapper: css({
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'center',
+    width: maxWidth ? maxWidth : 'initial',
+    overflow: 'auto',
+    height: '24px',
+    marginTop: '3px',
+  }),
+});
 
 export function getFullKeyPath(keyPath: ReadonlyArray<string | number>, sceneObject: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneObject);
