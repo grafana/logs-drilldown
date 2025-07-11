@@ -17,6 +17,7 @@ import { LabelType } from './fieldsTypes';
 import { logger } from './logger';
 import {
   DATAPLANE_BODY_NAME_LEGACY,
+  DATAPLANE_ID_NAME,
   DATAPLANE_LABEL_TYPES_NAME,
   DATAPLANE_LABELS_NAME,
   DATAPLANE_LINE_NAME,
@@ -441,6 +442,10 @@ export function isLabelsField(fieldName: string) {
 
 export function isLabelTypesField(fieldName: string) {
   return fieldName === DATAPLANE_LABEL_TYPES_NAME;
+}
+
+export function isLogsIdField(fieldName: string) {
+  return fieldName === DATAPLANE_ID_NAME;
 }
 
 /**

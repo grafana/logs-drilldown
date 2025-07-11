@@ -40,10 +40,11 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     wrapLogMessage,
   } = model.useState();
   const $data = sceneGraph.getData(model);
+
   // Rerender on data change
   $data.useState();
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
-  const { visualizationType } = logsListScene.useState();
+  const { visualizationType, selectedLine } = logsListScene.useState();
   const styles = useStyles2(getStyles, showHighlight, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
