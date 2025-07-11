@@ -6,7 +6,7 @@ import { Field, FieldType, GrafanaTheme2, Labels } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
 import { isLabelsField } from '../../../services/fields';
-import { itemStringStyles, levelButtonStyles, rootNodeItemString } from '../../../services/JSONViz';
+import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz';
 import { hasProp } from '../../../services/narrowing';
 import { logsLabelLevelsMatches } from '../../../services/panel';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../services/variables';
