@@ -15,7 +15,7 @@ interface ItemStringProps {
 }
 export default function ItemString({ data, itemString, itemType, keyPath, model }: ItemStringProps) {
   if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
-    return model.renderCopyToClipboardButton(keyPath);
+    return model.renderLogLineActionButtons(keyPath, model);
   }
 
   if (keyPath[0] === JsonVizRootName) {
