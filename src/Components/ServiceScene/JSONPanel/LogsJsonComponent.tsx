@@ -45,7 +45,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
 
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
   const { visualizationType } = logsListScene.useState();
-  const styles = useStyles2(getStyles, showHighlight, wrapLogMessage);
+  const styles = useStyles2(getStyles, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
   const jsonVar = getJsonFieldsVariable(model);
@@ -200,7 +200,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage: boolean) => {
+const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
   return {
     alert: css({
       marginTop: theme.spacing(3.5),
