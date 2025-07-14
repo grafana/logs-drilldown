@@ -8,7 +8,7 @@ import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz'
 import { hasProp } from '../../../services/narrowing';
 import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import { JsonDataFrameLineName, JsonDataFrameTimeName, JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
-import { JsonLineItemType } from './JsonLineItemType';
+import JsonLineItemType from './JsonLineItemType';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ItemStringProps {

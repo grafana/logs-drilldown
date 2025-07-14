@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -12,7 +12,7 @@ import { logsLabelLevelsMatches } from '../../../services/panel';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../services/variables';
 import { addToFilters } from '../Breakdowns/AddToFiltersButton';
 
-export function JsonLineItemType({
+function JsonLineItemType({
   detectedLevel,
   sceneRef,
   levelsVar,
@@ -48,6 +48,8 @@ export function JsonLineItemType({
     </Tooltip>
   );
 }
+
+export default memo(JsonLineItemType);
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {
