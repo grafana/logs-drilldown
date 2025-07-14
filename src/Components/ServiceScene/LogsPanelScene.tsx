@@ -61,6 +61,7 @@ interface LogsPanelSceneState extends SceneObjectState {
   error?: string;
   logsVolumeCollapsedByError?: boolean;
   prettifyLogMessage: boolean;
+  series: DataFrame[];
   sortOrder: LogsSortOrder;
   wrapLogMessage: boolean;
 }
@@ -77,6 +78,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      series: [],
       ...state,
     });
 
@@ -385,16 +387,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       logsCount: newLogs[0].length,
     });
 
-    if (serviceScene.state.$data?.state.data?.series) {
-      // We need to update the state with the new data without triggering state-dependent changes.
-      serviceScene.state.$data.setState({
-        ...serviceScene.state.$data.state,
-        data: {
-          ...serviceScene.state.$data.state.data,
-          series: newLogs,
-        },
-      });
-    }
+    this.setState({
+      series: newLogs,
+    });
 
     const logsVolumeScene = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
     logsVolumeScene.updateVisibleRange(newLogs);
