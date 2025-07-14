@@ -99,6 +99,7 @@ interface LogsJsonSceneState extends SceneObjectState {
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   jsonFiltersSupported?: boolean;
   menu?: PanelMenu;
+  rawFrame?: DataFrame;
   showHighlight: boolean;
   showLabels: boolean;
   showMetadata: boolean;
@@ -576,12 +577,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
 
     const timeZone = getTimeZone();
-    if (newState.data) {
+    if (dataFrame && newState.data) {
       const isRerooted = getLineFormatVariable(this).state.filters.length > 0;
 
       const transformedData: PanelData = {
         ...newState.data,
-        series: newState.data.series.map((frame) => {
+        series: [dataFrame].map((frame) => {
           return {
             ...frame,
 
@@ -639,6 +640,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       };
       this.setState({
         data: transformedData,
+        rawFrame: dataFrame,
       });
     }
   }
