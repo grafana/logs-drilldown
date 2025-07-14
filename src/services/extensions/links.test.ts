@@ -1,4 +1,4 @@
-import { dateTime, PluginExtensionPanelContext, TypedVariableModel } from '@grafana/data';
+import { dateTime, PluginExtensionPanelContext } from '@grafana/data';
 
 import {
   ValidByteUnitValues,
