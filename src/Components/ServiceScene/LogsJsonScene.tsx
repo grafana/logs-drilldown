@@ -37,14 +37,8 @@ import {
   isLogLineField,
 } from '../../services/fields';
 import { LabelType } from '../../services/fieldsTypes';
-import {
-  addJsonParserFieldValue,
-  EMPTY_AD_HOC_FILTER_VALUE,
-  getJsonKey,
-  LABELS_TO_REMOVE,
-  removeLineFormatFilters,
-} from '../../services/filters';
-import { FilterOp, LineFormatFilterOp } from '../../services/filterTypes';
+import { addJsonParserFieldValue, getJsonKey, LABELS_TO_REMOVE } from '../../services/filters';
+import { FilterOp } from '../../services/filterTypes';
 import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
@@ -62,8 +56,6 @@ import { getPrettyQueryExpr } from '../../services/scenes';
 import { copyText } from '../../services/text';
 import {
   getAdHocFiltersVariable,
-  getFieldsVariable,
-  getJsonFieldsVariable,
   getLineFormatVariable,
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
@@ -83,6 +75,7 @@ import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { highlightLineFilterMatches } from './JSONPanel/highlightLineFilterMatches';
 import JSONFilterNestedNodeButton from './JSONPanel/JSONFilterNestedNodeButton';
 import { FilterValueButton, JSONFilterValueButton } from './JSONPanel/JSONFilterValueButton';
+import { addDrillUp, getFullKeyPath, setNewRootNode } from './JSONPanel/JsonRootNodeNavigation';
 import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
 import ReRootJSONButton from './JSONPanel/ReRootJSONButton';
 import { LogsListScene } from './LogsListScene';
@@ -310,124 +303,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return getJSONVizNestedProperty(lineField, accessors);
   }
 
-  /**
-   * Drill back up to a parent node via the sticky "breadcrumbs"
-   */
-  private addDrillUp = (key: string) => {
-    addCurrentUrlToHistory();
-
-    const lineFormatVariable = getLineFormatVariable(this);
-    const jsonVar = getJsonFieldsVariable(this);
-    const fieldsVar = getFieldsVariable(this);
-
-    const lineFormatFilters = lineFormatVariable.state.filters;
-    const keyIndex = lineFormatFilters.findIndex((filter) => filter.key === key);
-    const lineFormatFiltersToKeep = lineFormatFilters.filter((_, index) => index <= keyIndex);
-    const jsonParserKeys: string[] = [];
-
-    for (let i = 0; i < lineFormatFilters.length; i++) {
-      jsonParserKeys.push(
-        `${
-          jsonParserKeys.length
-            ? `${lineFormatFilters
-                .map((filter) => filter.key)
-                .slice(0, i)
-                .join('_')}_`
-            : ''
-        }${lineFormatFilters[i].key}`
-      );
-    }
-
-    const jsonParserKeysToRemove = jsonParserKeys.slice(keyIndex + 1);
-    const fieldsFilterSet = new Set();
-    fieldsVar.state.filters.forEach((fieldFilter) => fieldsFilterSet.add(fieldFilter.key));
-
-    const jsonParserFilters = jsonVar.state.filters.filter(
-      (filter) => !jsonParserKeysToRemove.includes(filter.key) || fieldsFilterSet.has(filter.key)
-    );
-
-    jsonVar.setState({
-      filters: jsonParserFilters,
-    });
-    lineFormatVariable.setState({
-      filters: lineFormatFiltersToKeep,
-    });
-
-    this.lineFormatEvent('remove', key);
-  };
-
-  /**
-   * Drills down into node specified by keyPath
-   * Note, if we've already drilled down into a node, the keyPath (from the viz) will not have the parent nodes we need to build the json parser fields.
-   * We re-create the full key path using the values currently stored in the lineFormat variable
-   */
-  private setNewRootNode = (keyPath: KeyPath) => {
-    addCurrentUrlToHistory();
-    const { fullKeyPath, fullPathFilters } = this.getFullKeyPath(keyPath);
-    // If keyPath length is greater than 3 we're drilling down (root, line index, line)
-    if (keyPath.length > 3) {
-      addJsonParserFieldValue(this, fullKeyPath);
-
-      const lineFormatVar = getLineFormatVariable(this);
-
-      lineFormatVar.setState({
-        // Need to strip out any unsupported chars to match the field name we're creating in the json parser args
-        filters: fullPathFilters.map((filter) => ({
-          ...filter,
-          key: filter.key.replace(LABEL_NAME_INVALID_CHARS, '_'),
-        })),
-      });
-      this.lineFormatEvent('add', keyPath[0].toString());
-    } else {
-      // Otherwise we're drilling back up to the root
-      removeLineFormatFilters(this);
-      clearJsonParserFields(this);
-      this.lineFormatEvent('remove', JsonVizRootName);
-    }
-  };
-
-  /**
-   * Fires rudderstack event when the viz adds/removes a new root (line format)
-   */
-  private lineFormatEvent = (type: 'add' | 'remove', key: string) => {
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.change_line_format_in_json_panel,
-      {
-        key,
-        type: type,
-      }
-    );
-  };
-
-  /**
-   * Reconstructs the full keyPath even if a line filter is set and the user is currently drilled down into a nested node
-   */
-  private getFullKeyPath(keyPath: ReadonlyArray<string | number>) {
-    const lineFormatVar = getLineFormatVariable(this);
-
-    const fullPathFilters: AdHocFilterWithLabels[] = [
-      ...lineFormatVar.state.filters,
-      ...keyPath
-        // line format filters only store the parent node field names
-        .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== JsonVizRootName)
-        // keyPath order is from child to root, we want to order from root to child
-        .reverse()
-        // convert to ad-hoc filter
-        .map((nodeKey) => ({
-          key: nodeKey.toString(),
-          // The operator and value are not used when interpolating the variable, but empty values will cause the ad-hoc filter to get removed from the URL state, we work around this by adding an empty space for the value and operator
-          // we could store the depth of the node as a value, right now we assume that these filters always include every parent node of the current node, ordered by node depth ASC (root node first)
-          operator: LineFormatFilterOp.Empty,
-          value: EMPTY_AD_HOC_FILTER_VALUE,
-        })),
-    ];
-
-    // the last 3 in the key path are always array
-    const fullKeyPath = [...fullPathFilters.map((filter) => filter.key).reverse(), ...keyPath.slice(-3)];
-    return { fullKeyPath, fullPathFilters };
-  }
-
   private addFilter = (key: string, value: string, filterType: FilterType, variableType: InterpolatedFilterType) => {
     addCurrentUrlToHistory();
     const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
@@ -444,6 +319,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   /**
+   * @todo externalize
    * Adds a fields filter and JSON parser props on viz interaction
    */
   private addJsonFilter: AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => {
@@ -478,7 +354,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
    * Gets re-root button and key label for root node when line format filter is active.
    * aka breadcrumbs
    */
-  public renderNestedNodeButtons = (keyPath: KeyPath, jsonFiltersSupported?: boolean) => {
+  public renderNestedNodeButtons = () => {
     const lineFormatVar = getLineFormatVariable(this);
     const filters = lineFormatVar.state.filters;
     const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
@@ -488,13 +364,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
         <span className={drillUpWrapperStyle} key={JsonVizRootName}>
           <Button
             size={'sm'}
-            onClick={() => jsonFiltersSupported && this.setNewRootNode(rootKeyPath)}
+            onClick={() => setNewRootNode(rootKeyPath, this)}
             variant={'secondary'}
             fill={'outline'}
             disabled={!filters.length}
-            name={keyPath[0].toString()}
+            name={JsonVizRootName}
           >
-            {this.getKeyPathString(keyPath, filters.length ? '' : ':')}
+            {JsonVizRootName}
           </Button>
           {filters.length > 0 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
         </span>
@@ -507,7 +383,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                 <Button
                   size={'sm'}
                   disabled={selected}
-                  onClick={() => jsonFiltersSupported && this.addDrillUp(filter.key)}
+                  onClick={() => addDrillUp(filter.key, this)}
                   variant={'secondary'}
                   fill={'outline'}
                 >
@@ -537,7 +413,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     lineFilters: AdHocFilterWithLabels[],
     jsonFiltersSupported?: boolean
   ) => {
-    const { fullKeyPath } = this.getFullKeyPath(keyPath);
+    const { fullKeyPath } = getFullKeyPath(keyPath, this);
     const fullKey = getJsonKey(fullKeyPath);
     const jsonParserProp = jsonParserPropsMap.get(fullKey);
     const existingFilter =
@@ -553,7 +429,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       <span className={jsonLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
-            <ReRootJSONButton keyPath={keyPath} setNewRootNode={this.setNewRootNode} />
+            <ReRootJSONButton keyPath={keyPath} sceneRef={this} />
             <JSONFilterNestedNodeButton
               type={'include'}
               jsonKey={fullKey}
@@ -599,7 +475,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
 
     if (existingVariableType === VAR_FIELDS) {
-      const { fullKeyPath } = this.getFullKeyPath(keyPath);
+      const { fullKeyPath } = getFullKeyPath(keyPath, this);
       const fullKey = getJsonKey(fullKeyPath);
       const jsonParserProp = jsonParserPropsMap.get(fullKey);
       const existingJsonFilter =
