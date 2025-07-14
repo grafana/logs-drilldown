@@ -78,7 +78,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
     });
   });
 
-  test.describe.only('JSON viz', () => {
+  test.describe('JSON viz', () => {
     test.beforeEach(async ({ page }) => {
       // Playwright click automatically scrolls the element to the top of the container, but since we have sticky header this means every click fails (but somehow only when the trace is disabled)
       // So we inject some custom styles to disable the sticky header
