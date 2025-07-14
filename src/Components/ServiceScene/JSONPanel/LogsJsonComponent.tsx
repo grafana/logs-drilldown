@@ -254,6 +254,7 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
       > ul > li {
         // line wrap
         width: 100%;
+        margin-top: 2px;
       }
 
       // Array and other labels additional without markup

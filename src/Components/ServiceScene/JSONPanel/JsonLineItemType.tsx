@@ -52,12 +52,13 @@ export function JsonLineItemType({
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     levelButtonStyles: css({
+      height: '22px',
       fontFamily: theme.typography.fontFamilyMonospace,
       appearance: 'none',
       background: 'none',
-      border: 'none',
+      border: '1px solid',
+      fontSize: '0.9em',
       // Keep button padding from pushing text further than other item string
-      marginLeft: 'calc(var(--json-tree-nested-node-label-margin) * -1)',
       padding: theme.spacing(0, 0.5, 0, 0.5),
       '&:hover, &:focus': {
         background: theme.colors.background.elevated,
