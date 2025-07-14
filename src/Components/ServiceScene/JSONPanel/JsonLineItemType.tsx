@@ -33,7 +33,7 @@ export function JsonLineItemType({
     <Tooltip
       content={t(
         'logs.json.line.detectedLevel.toggleButton',
-        existingLevel ? `Remove ${detectedLevel} filter` : `Include logs containing ${detectedLevel}`
+        existingLevel ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
       )}
     >
       <button
