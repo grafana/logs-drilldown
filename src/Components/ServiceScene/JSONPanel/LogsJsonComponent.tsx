@@ -14,7 +14,12 @@ import {
   setJsonMetadataVisibility,
   setLogOption,
 } from '../../../services/store';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFiltersVariable } from '../../../services/variableGetters';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+} from '../../../services/variableGetters';
 import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
@@ -49,6 +54,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
 
   const fieldsVar = getFieldsVariable(model);
   const jsonVar = getJsonFieldsVariable(model);
+  const levelsVar = getLevelsVariable(model);
 
   // If we have a line format variable, we are drilled down into a nested node
   const dataFrame = getLogsPanelFrame(data);
@@ -168,6 +174,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     data={data}
                     nodeType={nodeType}
                     model={model}
+                    levelsVar={levelsVar}
                   />
                 )}
                 valueRenderer={(valueAsString, _, ...keyPath) => (

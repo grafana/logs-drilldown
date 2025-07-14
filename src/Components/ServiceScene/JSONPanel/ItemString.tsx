@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Field, FieldType, Labels } from '@grafana/data';
+import { AdHocFiltersVariable } from '@grafana/scenes';
 
 import { isLabelsField } from '../../../services/fields';
 import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz';
@@ -15,11 +16,12 @@ interface ItemStringProps {
   itemString: string;
   itemType: React.ReactNode;
   keyPath: KeyPath;
+  levelsVar: AdHocFiltersVariable;
   model: LogsJsonScene;
   nodeType: string;
 }
 
-export default function ItemString({ data, itemString, itemType, keyPath, model }: ItemStringProps) {
+export default function ItemString({ data, itemString, itemType, keyPath, model, levelsVar }: ItemStringProps) {
   if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
     return model.renderCopyToClipboardButton(keyPath);
   }
@@ -36,7 +38,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model 
     const detectedLevel = getJsonDetectedLevel(model, keyPath);
 
     if (detectedLevel) {
-      return <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} />;
+      return <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVar={levelsVar} />;
     }
   }
 
