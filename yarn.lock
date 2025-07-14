@@ -1373,10 +1373,10 @@
     uuid "11.0.5"
     uwrap "0.1.1"
 
-"@gtk-grafana/react-json-tree@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@gtk-grafana/react-json-tree/-/react-json-tree-0.0.10.tgz#d42ea0c27fe6ae18e00eb3509e441815a307e0e6"
-  integrity sha512-LSJIoYwh79ybh2Ub6RgrNvy/tzki6tLHEJByz5RAw8joZJkCf9YHCP+BdxpWGyIzQfABOnS2IOnb2vvN5HZJ9w==
+"@gtk-grafana/react-json-tree@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@gtk-grafana/react-json-tree/-/react-json-tree-0.0.12.tgz#3e47ae6f79039ae47118869aac2920fcce24b4a7"
+  integrity sha512-SIPJ+6RT93QvfQ7lwRz++sRXeG1xE94Oyo628keneK6aic4h6xbQdJQIj78n6FF7jI/m+LqJeDn18PI9FT4ERw==
 
 "@gulpjs/to-absolute-glob@^4.0.0":
   version "4.0.0"

@@ -6,7 +6,7 @@ import { FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isLogLineField } from '../../../services/fields';
+import { isLogLineField, isLogsIdField } from '../../../services/fields';
 import { getLogsHighlightStyles } from '../../../services/highlight';
 import {
   setJsonHighlightVisibility,
@@ -25,11 +25,12 @@ import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
-import { LogsJsonScene } from '../LogsJsonScene';
+import { JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { LogsListScene } from '../LogsListScene';
 import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
+import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
   const {
@@ -43,6 +44,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     sortOrder,
     wrapLogMessage,
     data,
+    rawFrame,
   } = model.useState();
   // Rerender on data change
   const $data = sceneGraph.getData(model);
@@ -61,6 +63,12 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
   const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
   const lineFilterVar = getLineFiltersVariable(model);
+
+  const idField = rawFrame?.fields.find((field) => isLogsIdField(field.name));
+  const lineIndex = idField?.values.findIndex((v) => v === selectedLine?.id);
+  const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
+  const scrollToPath: ScrollToPath | undefined =
+    cleanLineIndex !== undefined ? [cleanLineIndex, JsonVizRootName] : undefined;
 
   jsonVar.state.filters.forEach((filter) => {
     // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
@@ -162,6 +170,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                 </>
               )}
               <JSONTree
+                scrollToPath={scrollToPath}
                 data={lineField.values}
                 hideRootExpand={true}
                 valueWrap={''}
@@ -243,11 +252,16 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
       --json-tree-ul-root-padding: ${theme.spacing(3)} 0 ${theme.spacing(2)} 0;
       --json-tree-arrow-left-offset: -${theme.spacing(2)};
       --json-tree-inline: inline-grid;
+      // Scroll offset for sticky header
+      --json-tree-scroll-margin: 26px;
+      // Scroll behavior @todo set "auto" instead of "smooth" for users with prefers-reduced-motion
+      scroll-behavior: smooth;
       ${getWrapLogMessageStyles(theme, wrapLogMessage)}
 
       overflow: auto;
       height: 100%;
       width: 100%;
+      // Prevents scrollbar from getting tucked behind the fixed header
       clip-path: inset(0 0 0 0);
 
       //first treeItem node
@@ -291,6 +305,8 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
         z-index: 1;
         display: flex;
         align-items: center;
+        // Required for scrollTo offset
+        //margin-top: 26px;
       }
     `,
   };

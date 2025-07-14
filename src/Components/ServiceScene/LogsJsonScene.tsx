@@ -401,9 +401,8 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   };
 
   private getLinkToLog(keyPath: KeyPath) {
-    const $data = sceneGraph.getData(this);
     const timeRange = sceneGraph.getTimeRange(this).state.value;
-    const dataFrame = getLogsPanelFrame($data.state.data);
+    const dataFrame = this.state.rawFrame;
     const idField: Field<string> | undefined = dataFrame?.fields.find((f) => isLogsIdField(f.name));
     const logLineIndex = keyPath[0];
     if (!isNumber(logLineIndex)) {
@@ -413,7 +412,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
     const logId = idField?.values[logLineIndex];
     const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
-    console.log('dataFrame', { dataFrame, timeRange, idField, keyPath, logId, shortLink: logLineLink });
     copyText(logLineLink);
   }
 
