@@ -4,6 +4,7 @@ import { LokiQuery } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
+const selectedButtonColor = 'rgb(110, 159, 255)';
 const fieldName = 'method';
 test.describe('explore nginx-json breakdown pages ', () => {
   let explorePage: ExplorePage;
@@ -172,6 +173,11 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'aria-selected',
         'true'
       );
+      // Don't love checking a specific CSS property, but the primary color shouldn't change any time soon, and #1412 broke the selected color by applying another color style
+      await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveCSS(
+        'color',
+        selectedButtonColor
+      );
 
       // Drill down again into DeeplyNestedObject
       await page.getByLabel('Set deeplyNestedObject as root node').first().click();
@@ -219,6 +225,14 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // Filter all nested objects
       await page.getByLabel('Include log lines that contain nested_object').first().click();
+      await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+      await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveCSS(
+        'color',
+        selectedButtonColor
+      );
       await page.getByLabel('Include log lines that contain deeplyNestedObject').first().click();
       await page.getByLabel('Include log lines that contain extraDeeplyNestedObject').first().click();
       await expect(page.getByText('▶Line:')).toHaveCount(EXPANDED_NODE_COUNT);
