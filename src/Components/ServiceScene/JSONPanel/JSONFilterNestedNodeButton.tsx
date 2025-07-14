@@ -1,10 +1,12 @@
 import React, { memo } from 'react';
 
-import { IconButton } from '@grafana/ui';
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { AddJSONFilter } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { labelButtonStyles } from 'services/JSONViz';
 import { EMPTY_VARIABLE_VALUE } from 'services/variables';
 
 interface Props {
@@ -16,9 +18,10 @@ interface Props {
 }
 
 const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, type }: Props) => {
+  const styles = useStyles2(getStyles, active);
   return (
     <IconButton
-      className={labelButtonStyles}
+      className={styles.button}
       tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
       onClick={(e) => {
         e.stopPropagation();
@@ -37,6 +40,14 @@ const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, 
     />
   );
 });
+
+const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
+  return {
+    button: css({
+      color: isActive ? undefined : 'var(--json-tree-label-color)',
+    }),
+  };
+};
 
 JSONFilterNestedNodeButton.displayName = 'JSONFilterNestedNodeButton';
 export default JSONFilterNestedNodeButton;
