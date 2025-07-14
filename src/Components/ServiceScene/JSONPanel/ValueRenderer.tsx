@@ -4,17 +4,19 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { hasValidParentNode, isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
+import { LogsJsonScene } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ValueRendererProps {
   keyPath: KeyPath;
   lineFilters: AdHocFilterWithLabels[];
+  model: LogsJsonScene;
   // @todo react-json-tree should probably return this type as string?
   valueAsString: unknown;
 }
 
-export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: ValueRendererProps) {
+export default function ValueRenderer({ keyPath, lineFilters, valueAsString, model }: ValueRendererProps) {
   if (isTimeLabelNode(keyPath)) {
     return null;
   }
@@ -32,20 +34,22 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString }: V
     }
   }
 
-  // Check syntax highlighting results
-  let highlightedResults: Array<string | React.JSX.Element> = [];
-  Object.keys(logsSyntaxMatches).some((key) => {
-    const regex = value.match(logsSyntaxMatches[key]);
-    if (regex) {
-      highlightedResults = highlightRegexMatches([logsSyntaxMatches[key]], value, key);
-      return true;
+  if (model.state.showHighlight) {
+    // Check syntax highlighting results
+    let highlightedResults: Array<string | React.JSX.Element> = [];
+    Object.keys(logsSyntaxMatches).some((key) => {
+      const regex = value.match(logsSyntaxMatches[key]);
+      if (regex) {
+        highlightedResults = highlightRegexMatches([logsSyntaxMatches[key]], value, key);
+        return true;
+      }
+
+      return false;
+    });
+
+    if (highlightedResults.length) {
+      return highlightedResults;
     }
-
-    return false;
-  });
-
-  if (highlightedResults.length) {
-    return highlightedResults;
   }
 
   return <>{value}</>;
