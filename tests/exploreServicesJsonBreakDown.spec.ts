@@ -205,7 +205,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
     test('can filter nested props and drill back to root without removing json parser prop for active filters', async ({
       page,
     }) => {
-      //also
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
 
