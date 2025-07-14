@@ -9,6 +9,22 @@ import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from '../variable
 import { LinkConfigs, linkConfigs } from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
 
+// Mocking templateSrv is such a pain, if you are fighting variable interpolation start here.
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  getTemplateSrv: jest.fn(() => ({
+    replace: jest.fn((a: string, ...rest: unknown[]) => {
+      if (a === '${ds}') {
+        return '123abc';
+      }
+      if (a.includes('$adhoc')) {
+        return a.replace('$adhoc', 'cluster="eu-west-1"');
+      }
+      return a;
+    }),
+  })),
+}));
+
 function getTestConfig(
   links: LinkConfigs,
   target: Partial<LokiQuery> & { refId: string },
@@ -18,8 +34,9 @@ function getTestConfig(
     dashboard: {
       tags: [],
       title: 'test',
-      uid: 'test',
+      uid: '${ds}',
     },
+    scopedVars: { ds: { value: 'test', text: 'test' } },
     id: 0,
     pluginId: 'grafana-lokiexplore-app',
     timeRange: {
@@ -37,9 +54,9 @@ function getTestTarget(lokiQuery?: Partial<LokiQuery>): Partial<LokiQuery> & { r
   return {
     datasource: {
       type: 'loki',
-      uid: '123abc',
+      uid: '${ds}',
     },
-    expr: '{cluster="eu-west-1"} |= "\\\\n" ',
+    expr: '{$adhoc} |= "\\\\n" ',
     ...lokiQuery,
     refId: lokiQuery?.refId ?? 'A', // Ensure refId is defined
   };
@@ -91,7 +108,7 @@ describe('contextToLink', () => {
   describe('line-filters', () => {
     it('should parse case sensitive regex line-filters in double quotes and backticks', () => {
       const target = getTestTarget({
-        expr: '{cluster="eu-west-1", resource_type!=`gce_firewall_rule`} |~ "((25[0-5]|(2[0-4]|1\\\\d|[1-9]|)\\\\d)\\\\.?\\\\b){4}" != ` ((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}`| json | logfmt | drop __error__, __error_details__',
+        expr: '{$adhoc, resource_type!=`gce_firewall_rule`} |~ "((25[0-5]|(2[0-4]|1\\\\d|[1-9]|)\\\\d)\\\\.?\\\\b){4}" != ` ((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}`| json | logfmt | drop __error__, __error_details__',
       });
       const config = getTestConfig(linkConfigs, target);
 
