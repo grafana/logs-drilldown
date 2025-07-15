@@ -153,11 +153,9 @@ export const LogLineCellComponent = (props: Props) => {
           {isAuto && hasLabels && <>{labels}</>}
           {bodyState === LogLineState.labels && hasLabels && <>{labels}</>}
           {bodyState === LogLineState.labels && !hasLabels && <RawLogLineText value={value} />}
-
           {/* Raw log line*/}
           {isAuto && !hasLabels && <RawLogLineText value={value} />}
           {bodyState === LogLineState.text && <RawLogLineText value={value} />}
-
           {isHover && <Scroller scrollerRef={ref} />}
         </div>
       </ScrollSyncPane>
