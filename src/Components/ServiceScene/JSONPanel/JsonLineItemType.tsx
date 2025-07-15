@@ -1,10 +1,10 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
+import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Tooltip, useStyles2 } from '@grafana/ui';
 
 import { FilterOp } from '../../../services/filterTypes';
