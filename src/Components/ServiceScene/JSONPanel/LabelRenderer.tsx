@@ -10,8 +10,10 @@ import { jsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from '../../../servic
 import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
+  JsonDataFrameLinksName,
   JsonDataFrameStructuredMetadataName,
   JsonDataFrameTimeName,
+  JsonLinksDisplayName,
   JsonVizRootName,
   LabelsDisplayName,
   LogsJsonScene,
@@ -48,6 +50,9 @@ export default function LabelRenderer({
   }
   if (keyPath[0] === JsonDataFrameLabelsName) {
     return <strong className={jsonLabelWrapStyles}>{LabelsDisplayName}</strong>;
+  }
+  if (keyPath[0] === JsonDataFrameLinksName) {
+    return <strong className={jsonLabelWrapStyles}>{JsonLinksDisplayName}</strong>;
   }
 
   if (keyPath[0] === JsonVizRootName) {
