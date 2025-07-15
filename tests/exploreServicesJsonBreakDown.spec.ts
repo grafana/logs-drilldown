@@ -83,7 +83,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Playwright click automatically scrolls the element to the top of the container, but since we have sticky header this means every click fails (but somehow only when the trace is disabled)
       // So we inject some custom styles to disable the sticky header
       // Ideally we could specify a scroll offset, or have any control over this behavior in playwright, but for now we will weaken these tests instead of always failing when the test is executed without the trace.
-      page.addStyleTag({
+      await page.addStyleTag({
         content: '[role="tree"] > li > ul > li > span, [role="tree"] > li > span {position: static !important;}',
       });
     });
@@ -350,6 +350,39 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(
         page.getByTestId('data-testid detected_level filter variable').getByRole('button', { name: 'Remove' })
       ).toHaveCount(1);
+    });
+
+    test('can share link to log line', async ({ page }) => {
+      // Need to make sure we have >100 logs so we start with a 3-minute interval
+      await explorePage.gotoServicesBreakdownOldUrl('nginx-json', 'now-3m');
+      await explorePage.setDefaultViewportSize();
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+      const copyLinkToLogLineLoc = page.getByLabel('Copy link to log line');
+
+      // Get the initial count of log lines
+      const initialLinesCount = await copyLinkToLogLineLoc.count();
+      // Expand more logs past the initial 50 so we can assert that the JSON viz will automatically expand nodes when we have scrollTo set
+      await page.getByRole('button', { name: '▶ ▶' }).first().click();
+      // Get the count of log lines after expanding a section
+      const expandedLinesCount = await copyLinkToLogLineLoc.count();
+      // Calculate an index that will have been collapsed before we expanded the collection
+      const selectedIndex = initialLinesCount + Math.floor((expandedLinesCount - initialLinesCount) / 2);
+      // Get the button that creates a link to this line
+      const selectedCopyLinkToLogLineLoc = copyLinkToLogLineLoc.nth(selectedIndex);
+      // Get the parent element
+      const selectedLogLineLoc = page.getByRole('treeitem', { name: selectedIndex.toString(), exact: true });
+      // Grab all text within the log line
+      const selectedLogLineText = await selectedLogLineLoc.textContent();
+      // Copy the log line link to clipboard
+      await selectedCopyLinkToLogLineLoc.click();
+      // Get text from clipboard
+      const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
+      const clipboardContent = await handle.jsonValue();
+      // Navigate to url from clipboard
+      await page.goto(clipboardContent);
+      // Assert that the Line we copied is in the viewport, and all the k/v exactly match
+      await expect(page.getByText(selectedLogLineText ?? '')).toBeInViewport();
     });
 
     // @todo
