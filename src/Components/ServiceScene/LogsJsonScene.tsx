@@ -668,13 +668,16 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                               let increment = 1;
                               // Do we already have a link with this title?
                               if (jsonLinks[title]) {
+                                // If so let's generate a unique name
                                 title = title + ' ' + (increment++).toString();
                               }
                               jsonLinks[title] = link.href;
                             }
                           });
                         });
-                        line[JsonDataFrameLinksName] = jsonLinks;
+                        if (Object.keys(jsonLinks).length) {
+                          line[JsonDataFrameLinksName] = jsonLinks;
+                        }
                       }
                       return line;
                     })
