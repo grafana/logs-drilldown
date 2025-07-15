@@ -255,7 +255,7 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
       // Scroll offset for sticky header
       --json-tree-scroll-margin: 26px;
       // Scroll behavior @todo set "auto" instead of "smooth" for users with prefers-reduced-motion
-      scroll-behavior: smooth;
+      scroll-behavior: ${window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'};
       ${getWrapLogMessageStyles(theme, wrapLogMessage)}
 
       overflow: auto;
