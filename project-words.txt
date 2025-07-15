@@ -534,3 +534,4 @@ patsubst
 shellcheck
 radical
 rerooted
+nodetype
