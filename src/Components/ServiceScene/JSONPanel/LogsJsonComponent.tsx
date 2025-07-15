@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -64,11 +64,15 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
   const lineFilterVar = getLineFiltersVariable(model);
 
-  const idField = rawFrame?.fields.find((field) => isLogsIdField(field.name));
-  const lineIndex = idField?.values.findIndex((v) => v === selectedLine?.id);
-  const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
-  const scrollToPath: ScrollToPath | undefined =
-    cleanLineIndex !== undefined ? [cleanLineIndex, JsonVizRootName] : undefined;
+  const scrollToPath: ScrollToPath | undefined = useMemo(() => {
+    if (selectedLine === undefined) {
+      return undefined;
+    }
+    const idField = rawFrame?.fields.find((field) => isLogsIdField(field.name));
+    const lineIndex = idField?.values.findIndex((v) => v === selectedLine?.id);
+    const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
+    return cleanLineIndex !== undefined ? [cleanLineIndex, JsonVizRootName] : undefined;
+  }, [selectedLine, rawFrame]);
 
   jsonVar.state.filters.forEach((filter) => {
     // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
