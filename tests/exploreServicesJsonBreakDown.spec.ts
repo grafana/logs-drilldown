@@ -4,6 +4,7 @@ import { LokiQuery } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
+const selectedButtonColor = 'rgb(110, 159, 255)';
 const fieldName = 'method';
 test.describe('explore nginx-json breakdown pages ', () => {
   let explorePage: ExplorePage;
@@ -133,7 +134,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Filter by url
       await page.getByLabel(/Include log lines containing url=".+"/).click();
       await expect(page.getByLabel('Edit filter with key nested_object_url')).toHaveCount(1);
-      await expect(page.getByText('▶Line:{}')).toHaveCount(1);
+      await expect(page.getByText('▶Line:')).toHaveCount(1);
 
       // Open DeeplyNestedObject
       await page.getByLabel('deeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
@@ -171,6 +172,11 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveAttribute(
         'aria-selected',
         'true'
+      );
+      // Don't love checking a specific CSS property, but the primary color shouldn't change any time soon, and #1412 broke the selected color by applying another color style
+      await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveCSS(
+        'color',
+        selectedButtonColor
       );
 
       // Drill down again into DeeplyNestedObject
@@ -219,19 +225,27 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // Filter all nested objects
       await page.getByLabel('Include log lines that contain nested_object').first().click();
+      await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+      await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveCSS(
+        'color',
+        selectedButtonColor
+      );
       await page.getByLabel('Include log lines that contain deeplyNestedObject').first().click();
       await page.getByLabel('Include log lines that contain extraDeeplyNestedObject').first().click();
-      await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
+      await expect(page.getByText('▶Line:')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill into child
       await page.getByLabel('extraDeeplyNestedObject', { exact: true }).getByLabel('Set numArray as root node').click();
-      await expect(page.getByText('▶Line:[]')).toHaveCount(EXPANDED_NODE_COUNT);
+      await expect(page.getByText('▶Line:')).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Drill up to the root
       await page.getByRole('button', { exact: true, name: 'root' }).click();
 
       // Assert we still have results
-      await expect(page.getByText('▶Line:{}')).toHaveCount(EXPANDED_NODE_COUNT);
+      await expect(page.getByText('▶Line:')).toHaveCount(EXPANDED_NODE_COUNT);
     });
     test('detected fields is called on init when loading json panel', async ({ page }) => {
       // Load logs tab
@@ -314,8 +328,28 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await page.getByRole('button', { exact: true, name: 'Include' }).click();
       await explorePage.assertTabsNotLoading();
       await explorePage.assertPanelsNotLoading();
-      await page.pause();
       await expect(page.locator('mark', { hasText: 'method' }).first()).toBeVisible();
+    });
+
+    test('level is visible in line item string, filterable', async ({ page }) => {
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+      await expect(
+        page.getByTestId('data-testid detected_level filter variable').getByText('All levels')
+      ).toBeVisible();
+      await page
+        .getByRole('treeitem')
+        .first()
+        .getByRole('button', { name: /INFO|DEBUG|WARN|ERROR/ })
+        .first()
+        .click();
+      await expect(page.getByTestId('data-testid detected_level filter variable').getByText('All levels')).toHaveCount(
+        0
+      );
+      // Verify something has been added to detected_level variable
+      await expect(
+        page.getByTestId('data-testid detected_level filter variable').getByRole('button', { name: 'Remove' })
+      ).toHaveCount(1);
     });
 
     // @todo
