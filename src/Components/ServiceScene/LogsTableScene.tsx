@@ -38,17 +38,19 @@ let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 interface LogsTableSceneState extends SceneObjectState {
   emptyScene?: NoMatchingLabelsScene;
   menu?: PanelMenu;
+  showLineState: boolean;
   sortOrder: LogsSortOrder;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['sortOrder'],
+    keys: ['sortOrder', 'urlColumns'],
   });
 
   constructor(state: Partial<LogsTableSceneState>) {
     super({
       ...state,
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      showLineState: false,
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -65,6 +67,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   getUrlState() {
     return {
       sortOrder: JSON.stringify(this.state.sortOrder),
+      body: this.state.showLineState ? 'true' : 'false',
     };
   }
 
@@ -89,11 +92,35 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     });
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
+
+    // Subscribe to location changes to detect URL parameter changes
+    this._subs.add(
+      locationService.getHistory().listen(() => {
+        this.subscribeFromUrl();
+      })
+    );
   }
 
   private getParentScene() {
     return sceneGraph.getAncestor(this, LogsListScene);
   }
+
+  subscribeFromUrl = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    // Check URL columns for body parameter and update showLineState accordingly
+    let urlColumnsUrl: string[] | null = [];
+    try {
+      urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumnsUrl.includes('body') || urlColumnsUrl.includes('line')) {
+        this.setState({ showLineState: true });
+      } else {
+        this.setState({ showLineState: false });
+      }
+    } catch (e) {
+      console.error('Error parsing urlColumns:', e);
+    }
+  };
 
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
@@ -101,6 +128,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     let urlColumnsUrl: string[] | null = [];
     try {
       urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumnsUrl.includes('body') || urlColumnsUrl.includes('line')) {
+        this.setState({ showLineState: true });
+      }
     } catch (e) {
       console.error(e);
     }
@@ -122,6 +153,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const parentModel = this.getParentScene();
     // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
     defaultUrlColumns = this.updateDefaultUrlColumns(urlColumns);
+    // If body or line is in the url columns, show the line state controls
+    if (defaultUrlColumns.includes('body') || defaultUrlColumns.includes('line')) {
+      this.setState({ showLineState: true });
+    } else {
+      this.setState({ showLineState: false });
+    }
 
     // Remove any default urlColumn for displayedFields
     const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
@@ -233,9 +270,11 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               <LogListControls
                 sortOrder={sortOrder}
                 onSortOrderChange={model.handleSortChange}
-                onLineStateClick={model.onLineStateClick}
-                // "Auto" defaults to display "show text"
-                lineState={tableLogLineState ?? LogLineState.labels}
+                {...(model.state.showLineState && {
+                  onLineStateClick: model.onLineStateClick,
+                  // "Auto" defaults to display "show text"
+                  lineState: tableLogLineState ?? LogLineState.labels,
+                })}
               />
             )}
             {dataFrame && (
