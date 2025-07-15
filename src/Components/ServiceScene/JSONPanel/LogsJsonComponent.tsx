@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
-import { FieldType, GrafanaTheme2 } from '@grafana/data';
+import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
@@ -221,6 +221,14 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
 }
 
 const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
+  const hoverBg = theme.isDark
+    ? colorManipulator.alpha(colorManipulator.lighten(theme.colors.background.canvas, 0.1), 0.4)
+    : colorManipulator.alpha(colorManipulator.darken(theme.colors.background.canvas, 0.1), 0.4);
+
+  const selectedBg = theme.isDark
+    ? colorManipulator.darken(colorManipulator.alpha(theme.colors.info.transparent, 1), 0.2)
+    : colorManipulator.lighten(colorManipulator.alpha(theme.colors.info.transparent, 1), 0.2);
+
   return {
     alert: css({
       marginTop: theme.spacing(3.5),
@@ -299,18 +307,60 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
         overflow-y: hidden;
       }
 
+      // Line node scrolledTo styles
+      li[data-scrolled='true'] {
+        // sticky header cannot have transparency!
+        & > span {
+          background-color: ${selectedBg};
+        }
+        background-color: ${colorManipulator.alpha(theme.colors.info.transparent, 0.25)};
+      }
+
+      // Value node background hover colors
+      .valueNode--String,
+      .valueNode--Number {
+        &:hover {
+          // This is the value line the user is hovering over, we don't want transparency so it always stands out from the bg
+          background-color: ${theme.colors.background.canvas};
+          box-shadow: ${theme.shadows.z1};
+        }
+      }
+
+      // Nested node hover styles
+      ul > li > ul > li > ul {
+        li[data-nodetype='Object'],
+        li[data-nodetype='Array'] {
+          // This is the nested node line the user is hovering over, we don't want transparency so it always stands out from the bg
+          & > span {
+            width: 100%;
+            &:hover {
+              background-color: ${theme.colors.background.canvas};
+              box-shadow: ${theme.shadows.z1};
+            }
+          }
+          // And this is the node the user is hovering in, we want some transparency to help differentiate between nodes of differing depths
+          &:hover {
+            background-color: ${hoverBg};
+            box-shadow: ${theme.shadows.z1};
+          }
+        }
+      }
+
       // sticky time header
       > ul > li > ul > li > span,
       > ul > li > ul > div > li > span {
         position: sticky;
+        width: 100%;
         top: 26px;
         left: 0;
         background: ${theme.colors.background.primary};
         z-index: 1;
         display: flex;
         align-items: center;
-        // Required for scrollTo offset
-        //margin-top: 26px;
+        &:hover {
+          background-color: ${theme.colors.background.canvas};
+          box-shadow: ${theme.shadows.z1};
+        }
       }
     `,
   };
