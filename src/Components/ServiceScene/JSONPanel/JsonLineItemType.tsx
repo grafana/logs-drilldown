@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
+import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Tooltip, useStyles2 } from '@grafana/ui';
 
 import { FilterOp } from '../../../services/filterTypes';
@@ -15,17 +15,17 @@ import { addToFilters } from '../Breakdowns/AddToFiltersButton';
 function JsonLineItemType({
   detectedLevel,
   sceneRef,
-  levelsVar,
+  levelsVarFilters,
 }: {
   detectedLevel: string;
-  levelsVar: AdHocFiltersVariable;
+  levelsVarFilters: AdHocFilterWithLabels[];
   sceneRef: SceneObject;
 }) {
   const styles = useStyles2(getStyles);
   const levelClass = Object.keys(logsLabelLevelsMatches).find((className) =>
     detectedLevel.match(logsLabelLevelsMatches[className])
   );
-  const existingLevel = levelsVar.state.filters.some(
+  const existingFilter = levelsVarFilters.some(
     (filter) => filter.value === detectedLevel && filter.operator === FilterOp.Equal
   );
 
@@ -33,7 +33,7 @@ function JsonLineItemType({
     <Tooltip
       content={t(
         'logs.json.line.detectedLevel.toggleButton',
-        existingLevel ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
+        existingFilter ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
       )}
     >
       <button
