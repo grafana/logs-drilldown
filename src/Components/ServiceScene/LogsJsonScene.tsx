@@ -343,7 +343,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       );
 
     let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    if (this.state.showHighlight) {
+      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    }
 
     return (
       <span className={jsonLabelWrapStyles}>
@@ -390,7 +392,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
 
     let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (hasValidParentNode(keyPath)) {
+    if (this.state.showHighlight && hasValidParentNode(keyPath)) {
       highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
     }
 

@@ -323,11 +323,17 @@ test.describe('explore nginx-json breakdown pages ', () => {
     test('line filters wrap matches in mark tag', async ({ page }) => {
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
+
       // Highlight method (json label) and PATCH (json value)
       await page.getByTestId(testIds.exploreServiceDetails.searchLogs).fill('method');
       await page.getByRole('button', { exact: true, name: 'Include' }).click();
       await explorePage.assertTabsNotLoading();
       await explorePage.assertPanelsNotLoading();
+
+      // Should not be visible until highlighting is clicked
+      await expect(page.locator('mark', { hasText: 'method' })).toHaveCount(0);
+      // Enable highlighting
+      await page.getByRole('button', { name: 'Enable highlighting' }).click();
       await expect(page.locator('mark', { hasText: 'method' }).first()).toBeVisible();
     });
 

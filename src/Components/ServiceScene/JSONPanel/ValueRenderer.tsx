@@ -30,16 +30,16 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
     return <JsonLinkButton payload={value} />;
   }
 
-  if (hasValidParentNode(keyPath)) {
-    let valueArray = highlightLineFilterMatches(lineFilters, value);
-
-    // If we have highlight matches we won't show syntax highlighting
-    if (valueArray.length) {
-      return valueArray;
-    }
-  }
-
   if (model.state.showHighlight) {
+    if (hasValidParentNode(keyPath)) {
+      let valueArray = highlightLineFilterMatches(lineFilters, value);
+
+      // If we have highlight matches we won't show syntax highlighting
+      if (valueArray.length) {
+        return valueArray;
+      }
+    }
+
     // Check syntax highlighting results
     let highlightedResults: Array<string | React.JSX.Element> = [];
     Object.keys(logsSyntaxMatches).some((key) => {
