@@ -119,6 +119,9 @@ export type AddMetadataFilter = (
   variableType: InterpolatedFilterType
 ) => void;
 
+type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
+type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;
+
 export const JsonDataFrameTimeName = 'Time';
 export const JsonDataFrameLineName = 'Line';
 export const StructuredMetadataDisplayName = 'Metadata';
@@ -647,9 +650,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                           }
                         });
                       }
-                      const line:
-                        | Record<string, string | string[] | Record<string, string> | Array<Record<string, string>>>
-                        | Array<Record<string, string>> = {
+                      const line: ParsedJsonLogLine = {
                         [JsonDataFrameLineName]: parsed,
                         [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                       };
@@ -670,7 +671,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                     .filter((f) => f),
                 };
               }
-              return { ...field };
+              return field;
             }),
           };
         }),

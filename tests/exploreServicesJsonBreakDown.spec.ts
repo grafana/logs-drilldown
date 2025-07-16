@@ -406,13 +406,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       const href = await page.getByRole('link', { name: 'traceID-tempo' }).first().getAttribute('href');
       expect(href).toContain(traceId);
-
-      // Tempo occasionally throws an error breaking the entire query editor for specific UUIDs, but works most of the time.
-      // Commenting this out for now to avoid flake
-      // const pagePromise = context.waitForEvent('page');
-      // await page.getByRole('link', { name: 'traceID-tempo' }).first().click();
-      // const newPage = await pagePromise;
-      // await expect(newPage.getByTestId('data-testid Code editor container').getByText(traceId)).toBeVisible();
     });
   });
 });
