@@ -541,6 +541,9 @@ function getInitialFieldWidth(
   // First field gets icons, and a little extra width
   const extraPadding = fieldIndex === 0 ? 50 : 0;
 
+  // Width of the logs panel controls sidebar
+  const logsPanelControls = 35;
+
   // Time fields have consistent widths
   if (field.type === FieldType.time) {
     return 200 + extraPadding;
@@ -557,7 +560,10 @@ function getInitialFieldWidth(
   if (columnMeta.maxLength) {
     // Super rough estimate, about 6.5px per char, and 95px for some space for the header icons (remember when sorted a new icon is added to the table header).
     // I guess to be a little tighter we could only add the extra padding IF the field name is longer then the longest value
-    return Math.min(Math.max(maxLength * 6.5 + 95 + extraPadding, minWidth + extraPadding), maxWidth);
+    return Math.min(
+      Math.max(maxLength * 6.5 + 95 + logsPanelControls + extraPadding, minWidth + extraPadding),
+      maxWidth
+    );
   }
 
   if (field.name === getBodyName(logsFrame)) {
@@ -566,7 +572,7 @@ function getInitialFieldWidth(
 
   // Just derived fields, which should have uniform length
   return Math.min(
-    Math.max((field.values?.[0]?.length ?? 80) * 6.5 + 95 + extraPadding, minWidth + extraPadding),
+    Math.max((field.values?.[0]?.length ?? 80) * 6.5 + 95 + logsPanelControls + extraPadding, minWidth + extraPadding),
     maxWidth
   );
 }
