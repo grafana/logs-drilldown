@@ -235,6 +235,15 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
   }
 
+  setDisplayedFields = (fields: string[]) => {
+    this.setLogsVizOption({
+      displayedFields: fields,
+    });
+    setDisplayedFields(this, fields);
+    const parent = this.getParentScene();
+    parent.setState({ displayedFields: fields });
+  };
+
   onClickShowField = (field: string) => {
     const parent = this.getParentScene();
     const index = parent.state.displayedFields.indexOf(field);
@@ -245,7 +254,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         displayedFields,
       });
       parent.setState({ displayedFields });
-      setDisplayedFields(this, parent.state.displayedFields);
+      setDisplayedFields(this, displayedFields);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -264,7 +273,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         displayedFields,
       });
       parent.setState({ displayedFields });
-      setDisplayedFields(this, parent.state.displayedFields);
+      setDisplayedFields(this, displayedFields);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -351,6 +360,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         // @ts-expect-error Requires Grafana 12.1
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
+        // @ts-expect-error Requires Grafana 12.2
+        .setOption('setDisplayedFields', this.setDisplayedFields)
         // @ts-expect-error Requires Grafana 12.2
         .setOption('logLineMenuCustomItems', [
           {
