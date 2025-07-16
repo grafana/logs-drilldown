@@ -38,7 +38,9 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
     const detectedLevel = getJsonDetectedLevel(model, keyPath);
 
     if (detectedLevel) {
-      return <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVar={levelsVar} />;
+      return (
+        <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVarFilters={levelsVar.state.filters} />
+      );
     }
   }
 
