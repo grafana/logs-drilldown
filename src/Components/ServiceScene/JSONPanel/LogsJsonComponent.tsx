@@ -161,17 +161,15 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
           {lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
               {jsonFiltersSupported === false && (
-                <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
+                <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
                   This view will be read only until Loki is upgraded to 3.5.0
                 </Alert>
               )}
               {lineField.values.length > 0 && hasJsonFields === false && (
-                <>
-                  <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
-                    This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for
-                    a better experience.
-                  </Alert>
-                </>
+                <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
+                  This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
+                  better experience.
+                </Alert>
               )}
               <JSONTree
                 scrollToPath={scrollToPath}
