@@ -44,7 +44,9 @@ export default function LabelRenderer({
   model,
   nodeType,
 }: LabelRendererProps) {
+  const value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
   const nodeTypeLoc = nodeType as NodeTypeLoc;
+
   if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
     return <strong className={jsonLabelWrapStyles}>{StructuredMetadataDisplayName}</strong>;
   }
@@ -54,7 +56,9 @@ export default function LabelRenderer({
   if (keyPath[0] === JsonDataFrameLinksName) {
     return <strong className={jsonLabelWrapStyles}>{JsonLinksDisplayName}</strong>;
   }
-
+  if (keyPath[1] === JsonDataFrameLinksName) {
+    return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
+  }
   if (keyPath[0] === JsonVizRootName) {
     return <JsonRootNodeNavigation sceneRef={model} />;
   }
@@ -85,8 +89,6 @@ export default function LabelRenderer({
   if (isTimeLabelNode(keyPath)) {
     return null;
   }
-
-  let value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
 
   return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
 }

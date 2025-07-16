@@ -1,21 +1,16 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton } from '@grafana/ui';
 
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 function JsonLinkButton(props: { href: string; keyPath: KeyPath }) {
-  const styles = useStyles2(getStyles);
   return (
     <LinkButton
       icon={'external-link-alt'}
-      className={styles.button}
       variant={'secondary'}
       size={'sm'}
-      fill={'outline'}
+      fill={'text'}
       href={props.href}
       target={'_blank'}
     >
@@ -23,14 +18,4 @@ function JsonLinkButton(props: { href: string; keyPath: KeyPath }) {
     </LinkButton>
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    button: css({
-      height: '20px',
-      marginTop: '-2px',
-    }),
-  };
-};
-
 export default JsonLinkButton;
