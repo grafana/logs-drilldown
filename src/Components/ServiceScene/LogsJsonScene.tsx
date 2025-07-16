@@ -92,6 +92,7 @@ import {
   getLogOption,
   setLogOption,
 } from 'services/store';
+import { getJsonDerivedFieldsLinks } from '../../services/derivedFields';
 
 interface LogsJsonSceneState extends SceneObjectState {
   data?: PanelData;
@@ -659,22 +660,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                         line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
                       }
                       if (derivedFields !== undefined) {
-                        let jsonLinks: Record<string, string> = {};
-                        derivedFields.forEach((derivedField) => {
-                          const links = derivedField?.getLinks?.({ valueRowIndex: i });
-                          links?.forEach((link, index) => {
-                            if (link.href) {
-                              let title = link.title;
-                              let increment = 1;
-                              // Do we already have a link with this title?
-                              if (jsonLinks[title]) {
-                                // If so let's generate a unique name
-                                title = title + ' ' + (increment++).toString();
-                              }
-                              jsonLinks[title] = link.href;
-                            }
-                          });
-                        });
+                        let jsonLinks = getJsonDerivedFieldsLinks(derivedFields, i);
                         if (Object.keys(jsonLinks).length) {
                           line[JsonDataFrameLinksName] = jsonLinks;
                         }

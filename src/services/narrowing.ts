@@ -6,6 +6,7 @@ import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
+import { JSONDerivedFieldLink } from './derivedFields';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 
@@ -177,6 +178,18 @@ export function narrowPageSlugFromSearchParams(searchParams: UrlQueryMap) {
   return narrowPageOrValueSlug(
     Array.isArray(searchParams[pageSlugUrlKey]) ? searchParams[pageSlugUrlKey][0] : searchParams[pageSlugUrlKey]
   );
+}
+
+export function narrowJsonDerivedFieldLinkPayload(payload: unknown): JSONDerivedFieldLink | false {
+  if (isObj(payload) && hasProp(payload, 'href') && hasProp(payload, 'name')) {
+    const href = isString(payload.href);
+    const name = isString(payload.name);
+    return {
+      href,
+      name,
+    };
+  }
+  return false;
 }
 
 export class NarrowingError extends Error {}

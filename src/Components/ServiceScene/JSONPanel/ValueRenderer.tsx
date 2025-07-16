@@ -27,7 +27,7 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
   }
 
   if (keyPath[1] === JsonDataFrameLinksName) {
-    return <JsonLinkButton href={value} keyPath={keyPath} />;
+    return <JsonLinkButton payload={value} />;
   }
 
   if (hasValidParentNode(keyPath)) {

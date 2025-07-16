@@ -47,6 +47,7 @@ export default function LabelRenderer({
   const value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
   const nodeTypeLoc = nodeType as NodeTypeLoc;
 
+  // Clean up internal names for special nodes
   if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
     return <strong className={jsonLabelWrapStyles}>{StructuredMetadataDisplayName}</strong>;
   }

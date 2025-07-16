@@ -56,6 +56,9 @@ export const rootNodeItemString = css({
 });
 export const itemStringStyles = css({
   color: 'var(--json-tree-label-color)',
+  display: 'inline-flex',
+  alignItems: 'center',
+  height: '22px',
 });
 export const labelButtonStyles = css({
   color: 'var(--json-tree-label-color)',
