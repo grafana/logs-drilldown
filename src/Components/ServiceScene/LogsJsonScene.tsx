@@ -29,6 +29,7 @@ import {
 import { Button, Icon, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getJsonDerivedFieldsLinks } from '../../services/derivedFields';
 import {
   clearJsonParserFields,
   getDetectedFieldsJsonPathField,
@@ -92,7 +93,6 @@ import {
   getLogOption,
   setLogOption,
 } from 'services/store';
-import { getJsonDerivedFieldsLinks } from '../../services/derivedFields';
 
 interface LogsJsonSceneState extends SceneObjectState {
   data?: PanelData;
