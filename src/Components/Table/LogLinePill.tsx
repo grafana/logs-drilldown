@@ -24,7 +24,6 @@ interface LogLinePillProps {
   originalField?: Field;
   originalFrame: DataFrame | undefined;
   rowIndex: number;
-  showColumns: () => void;
   value: string;
 }
 
@@ -37,7 +36,6 @@ const getStyles = (theme: GrafanaTheme2, levelColor?: string) => ({
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
     marginTop: theme.spacing(0.5),
-    padding: `${theme.spacing(0.25)} ${theme.spacing(0.25)}`,
     position: 'relative',
   }),
   valueWrap: css({
@@ -54,13 +52,12 @@ const getStyles = (theme: GrafanaTheme2, levelColor?: string) => ({
       border: `1px solid ${theme.colors.border.strong}`,
     },
     backgroundColor: 'transparent',
-    border: `1px solid ${theme.colors.background.secondary}`,
-    boxShadow: `-2px 2px 5px 0px ${theme.colors.background.secondary}`,
+    border: `1px solid ${theme.colors.border.weak}`,
 
     cursor: 'pointer',
-    paddingLeft: levelColor ? `${theme.spacing(0.75)}` : `${theme.spacing(0.5)}`,
 
-    paddingRight: `${theme.spacing(0.5)}`,
+    padding: '5px 5px 4px 2px',
+    paddingLeft: levelColor ? `${theme.spacing(0.75)}` : `${theme.spacing(0.5)}`,
 
     position: 'relative',
   }),

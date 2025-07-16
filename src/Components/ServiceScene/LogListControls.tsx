@@ -11,7 +11,6 @@ import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 interface Props {
   lineState?: LogLineState;
   onLineStateClick?(): void;
-  onManageColumnsClick?(): void;
   onScrollToBottomClick?(): void;
   onScrollToTopClick?(): void;
   onSortOrderChange(newOrder: LogsSortOrder): void;
@@ -29,7 +28,6 @@ interface Props {
 export const LogListControls = ({
   lineState,
   onLineStateClick,
-  onManageColumnsClick,
   onScrollToBottomClick,
   onScrollToTopClick,
   onSortOrderChange,
@@ -102,7 +100,6 @@ export const LogListControls = ({
           size="lg"
         />
       )}
-
       {showHighlight !== undefined && onToggleHighlightClick && (
         <IconButton
           name="brackets-curly"
@@ -110,15 +107,6 @@ export const LogListControls = ({
           className={showHighlight ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleHighlightClick(!showHighlight)}
           tooltip={showHighlight ? 'Disable highlighting' : 'Enable highlighting'}
-          size="lg"
-        />
-      )}
-      {onManageColumnsClick && (
-        <IconButton
-          name="columns"
-          className={styles.controlButton}
-          onClick={onManageColumnsClick}
-          tooltip={'Manage columns'}
           size="lg"
         />
       )}

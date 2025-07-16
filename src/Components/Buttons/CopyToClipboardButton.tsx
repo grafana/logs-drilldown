@@ -7,17 +7,23 @@ import { t } from '@grafana/i18n';
 import { IconButton, InlineToast, useStyles2 } from '@grafana/ui';
 
 const SHOW_SUCCESS_DURATION = 2 * 1000;
+const COPY_TO_CLIPBOARD_TEXT = t('logs.log-line-details.copy-to-clipboard', 'Copy to clipboard');
+const COPY_LINK_TO_LINE_TEXT = t('logs.log-line-menu.copy-link', 'Copy link to log line');
+const COPY_LINK_ERROR_TEXT = t('logs.log-line-details.copy-to-clipboard-error', 'Error copying link!');
+const COPY_SUCCESS = t('clipboard-button.inline-toast.success', 'Copied');
 
 export default function CopyToClipboardButton({
   onClick,
   stopPropagation = true,
+  type = 'copy',
 }: {
   onClick: () => void;
   stopPropagation?: boolean;
+  type?: 'copy' | 'share-alt';
 }) {
+  const defaultText = type === 'copy' ? COPY_TO_CLIPBOARD_TEXT : COPY_LINK_TO_LINE_TEXT;
   const [copied, setCopied] = React.useState(false);
-  const copiedText = t('clipboard-button.inline-toast.success', 'Copied');
-  const defaultText = t('logs.log-line-details.copy-to-clipboard', 'Copy to clipboard');
+  const [copiedText, setCopiedText] = React.useState(COPY_SUCCESS);
   const buttonRef = useRef<null | HTMLButtonElement>(null);
   const styles = useStyles2(getStyles);
 
@@ -48,14 +54,19 @@ export default function CopyToClipboardButton({
         tooltip={copied ? '' : defaultText}
         tooltipPlacement="top"
         size="md"
-        name="copy"
+        name={type}
         ref={buttonRef}
         onClick={(e) => {
           if (stopPropagation) {
             // If the user clicked on the button, don't trigger the node to expand/collapse
             e.stopPropagation();
           }
-          onClick();
+          try {
+            onClick();
+            setCopiedText(COPY_SUCCESS);
+          } catch (e) {
+            setCopiedText(COPY_LINK_ERROR_TEXT);
+          }
           setCopied(true);
         }}
         tabIndex={0}

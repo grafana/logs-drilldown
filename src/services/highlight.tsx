@@ -165,11 +165,7 @@ export const mergeOverlapping = (matchIndices: number[][]) => {
   return 0;
 };
 
-export const getLogsHighlightStyles = (theme: GrafanaTheme2, showHighlight: boolean) => {
-  if (!showHighlight) {
-    return {};
-  }
-
+export const getLogsHighlightStyles = (theme: GrafanaTheme2) => {
   // @todo find way to sync/pull from core?
   const colors = {
     critical: '#B877D9',

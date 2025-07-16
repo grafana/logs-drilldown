@@ -35,6 +35,7 @@ import {
   isLabelsField,
   isLabelTypesField,
   isLogLineField,
+  isLogsIdField,
 } from '../../services/fields';
 import { LabelType } from '../../services/fieldsTypes';
 import { addJsonParserFieldValue, getJsonKey, LABELS_TO_REMOVE } from '../../services/filters';
@@ -53,7 +54,7 @@ import { LABEL_NAME_INVALID_CHARS } from '../../services/labels';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import { copyText } from '../../services/text';
+import { copyText, generateLogShortlink } from '../../services/text';
 import {
   getAdHocFiltersVariable,
   getLineFormatVariable,
@@ -99,6 +100,7 @@ interface LogsJsonSceneState extends SceneObjectState {
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   jsonFiltersSupported?: boolean;
   menu?: PanelMenu;
+  rawFrame?: DataFrame;
   showHighlight: boolean;
   showLabels: boolean;
   showMetadata: boolean;
@@ -398,8 +400,28 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
-  public renderCopyToClipboardButton(keyPath: KeyPath) {
-    return <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(this))} />;
+  private getLinkToLog(keyPath: KeyPath) {
+    const timeRange = sceneGraph.getTimeRange(this).state.value;
+    const dataFrame = this.state.rawFrame;
+    const idField: Field<string> | undefined = dataFrame?.fields.find((f) => isLogsIdField(f.name));
+    const logLineIndex = keyPath[0];
+    if (!isNumber(logLineIndex)) {
+      const error = Error('Invalid line index');
+      logger.error(error, { msg: 'Error getting log line index' });
+      throw error;
+    }
+    const logId = idField?.values[logLineIndex];
+    const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
+    copyText(logLineLink);
+  }
+
+  public renderLogLineActionButtons(keyPath: KeyPath, model: LogsJsonScene) {
+    return (
+      <>
+        <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(this))} />
+        <CopyToClipboardButton type={'share-alt'} onClick={() => this.getLinkToLog(keyPath)} />
+      </>
+    );
   }
 
   /**
@@ -422,7 +444,9 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       );
 
     let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    if (this.state.showHighlight) {
+      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    }
 
     return (
       <span className={jsonLabelWrapStyles}>
@@ -469,7 +493,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
 
     let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (hasValidParentNode(keyPath)) {
+    if (this.state.showHighlight && hasValidParentNode(keyPath)) {
       highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
     }
 
@@ -576,12 +600,12 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
 
     const timeZone = getTimeZone();
-    if (newState.data) {
+    if (dataFrame && newState.data) {
       const isRerooted = getLineFormatVariable(this).state.filters.length > 0;
 
       const transformedData: PanelData = {
         ...newState.data,
-        series: newState.data.series.map((frame) => {
+        series: [dataFrame].map((frame) => {
           return {
             ...frame,
 
@@ -639,6 +663,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       };
       this.setState({
         data: transformedData,
+        rawFrame: dataFrame,
       });
     }
   }

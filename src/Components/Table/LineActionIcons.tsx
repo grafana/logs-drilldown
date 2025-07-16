@@ -9,7 +9,7 @@ import { testIds } from '../../services/testIds';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { generateLogShortlink } from 'services/text';
 
-export const getStyles = (theme: GrafanaTheme2, bgColor?: string) => ({
+export const getStyles = (theme: GrafanaTheme2, isNumber?: boolean) => ({
   clipboardButton: css({
     height: '100%',
     lineHeight: '1',
@@ -20,18 +20,21 @@ export const getStyles = (theme: GrafanaTheme2, bgColor?: string) => ({
     background: theme.colors.background.secondary,
     boxShadow: theme.shadows.z2,
     display: 'flex',
+    flexDirection: isNumber ? 'row-reverse' : 'row',
     height: '35px',
     left: 0,
     padding: `0 ${theme.spacing(0.5)}`,
-    position: 'sticky',
+    position: isNumber ? 'absolute' : 'sticky',
     zIndex: 1,
   }),
   inspect: css({
+    '& button svg': {
+      marginRight: isNumber ? '0' : 'auto',
+    },
     '&:hover': {
       color: theme.colors.text.link,
       cursor: 'pointer',
     },
-
     padding: '5px 3px',
   }),
   inspectButton: css({
@@ -43,8 +46,10 @@ export const getStyles = (theme: GrafanaTheme2, bgColor?: string) => ({
   }),
 });
 export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
+  // Check if the value is a number to reset the position of the icons for direction 'rtl'
+  const isNumber = typeof props.value === 'string' && !isNaN(Number(props.value));
   const theme = useTheme2();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isNumber);
   const { logsFrame, timeRange } = useQueryContext();
   const logId = logsFrame?.idField?.values[props.rowIndex];
   const lineValue = logsFrame?.bodyField.values[props.rowIndex];

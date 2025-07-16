@@ -400,8 +400,14 @@ export class ExplorePage {
     await expect(this.getOperatorLocator(operator)).toBeVisible();
     // Select operator
     await this.getOperatorLocator(operator).click();
+    // Assert operator is no longer visible
+    await expect(this.getOperatorLocator(operator)).toHaveCount(0);
+    // Wait for loading to be done
+    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Enter custom value
     await this.page.keyboard.type(text);
+    // Wait for loading to go away
+    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Need to scroll to the bottom of the list
     await this.page.keyboard.press('ArrowUp');
     // Select custom value

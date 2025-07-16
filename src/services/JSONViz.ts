@@ -23,13 +23,14 @@ export const getJSONVizValueLabelStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
+    marginLeft: '4px',
   }),
 });
-
 export const jsonLabelWrapStyles = css({
   alignItems: 'center',
   color: 'var(--json-tree-label-color)',
   display: 'inline-flex',
+  marginLeft: '4px',
 });
 export const jsonLabelWrapStylesPrimary = css({
   alignItems: 'center',

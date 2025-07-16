@@ -1,12 +1,12 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
-import { FieldType, GrafanaTheme2 } from '@grafana/data';
+import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isLogLineField } from '../../../services/fields';
+import { isLogLineField, isLogsIdField } from '../../../services/fields';
 import { getLogsHighlightStyles } from '../../../services/highlight';
 import {
   setJsonHighlightVisibility,
@@ -14,21 +14,26 @@ import {
   setJsonMetadataVisibility,
   setLogOption,
 } from '../../../services/store';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFiltersVariable } from '../../../services/variableGetters';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+} from '../../../services/variableGetters';
 import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
-import { LogsJsonScene } from '../LogsJsonScene';
+import { JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { LogsListScene } from '../LogsListScene';
 import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
+import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
   const {
-    data,
     emptyScene,
     hasJsonFields,
     jsonFiltersSupported,
@@ -38,22 +43,36 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     showMetadata,
     sortOrder,
     wrapLogMessage,
+    data,
+    rawFrame,
   } = model.useState();
-  const $data = sceneGraph.getData(model);
   // Rerender on data change
+  const $data = sceneGraph.getData(model);
   $data.useState();
+
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
-  const { visualizationType } = logsListScene.useState();
-  const styles = useStyles2(getStyles, showHighlight, wrapLogMessage);
+  const { visualizationType, selectedLine } = logsListScene.useState();
+  const styles = useStyles2(getStyles, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
   const jsonVar = getJsonFieldsVariable(model);
+  const levelsVar = getLevelsVariable(model);
 
   // If we have a line format variable, we are drilled down into a nested node
   const dataFrame = getLogsPanelFrame(data);
   const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
   const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
   const lineFilterVar = getLineFiltersVariable(model);
+
+  const scrollToPath: ScrollToPath | undefined = useMemo(() => {
+    if (selectedLine === undefined) {
+      return undefined;
+    }
+    const idField = rawFrame?.fields.find((field) => isLogsIdField(field.name));
+    const lineIndex = idField?.values.findIndex((v) => v === selectedLine?.id);
+    const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
+    return cleanLineIndex !== undefined ? [cleanLineIndex, JsonVizRootName] : undefined;
+  }, [selectedLine, rawFrame]);
 
   jsonVar.state.filters.forEach((filter) => {
     // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
@@ -139,22 +158,21 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
               onScrollToTopClick={onScrollToTopClick}
             />
           )}
-          {dataFrame && lineField?.values && lineField?.values.length > 0 && (
+          {lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
               {jsonFiltersSupported === false && (
-                <Alert severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
+                <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
                   This view will be read only until Loki is upgraded to 3.5.0
                 </Alert>
               )}
               {lineField.values.length > 0 && hasJsonFields === false && (
-                <>
-                  <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
-                    This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for
-                    a better experience.
-                  </Alert>
-                </>
+                <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
+                  This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
+                  better experience.
+                </Alert>
               )}
               <JSONTree
+                scrollToPath={scrollToPath}
                 data={lineField.values}
                 hideRootExpand={true}
                 valueWrap={''}
@@ -167,6 +185,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     data={data}
                     nodeType={nodeType}
                     model={model}
+                    levelsVar={levelsVar}
                   />
                 )}
                 valueRenderer={(valueAsString, _, ...keyPath) => (
@@ -174,6 +193,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     valueAsString={valueAsString}
                     keyPath={keyPath}
                     lineFilters={lineFilterVar.state.filters}
+                    model={model}
                   />
                 )}
                 labelRenderer={(keyPath, nodeType) => (
@@ -198,7 +218,15 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage: boolean) => {
+const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
+  const hoverBg = theme.isDark
+    ? colorManipulator.alpha(colorManipulator.lighten(theme.colors.background.canvas, 0.1), 0.4)
+    : colorManipulator.alpha(colorManipulator.darken(theme.colors.background.canvas, 0.1), 0.4);
+
+  const selectedBg = theme.isDark
+    ? colorManipulator.darken(colorManipulator.alpha(theme.colors.info.transparent, 1), 0.2)
+    : colorManipulator.lighten(colorManipulator.alpha(theme.colors.info.transparent, 1), 0.2);
+
   return {
     alert: css({
       marginTop: theme.spacing(3.5),
@@ -216,7 +244,7 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
       height: '100%',
       paddingBottom: theme.spacing(1),
       paddingRight: theme.spacing(1),
-      ...getLogsHighlightStyles(theme, showHighlight),
+      ...getLogsHighlightStyles(theme),
       contain: 'content',
     }),
     highlight: css({
@@ -234,17 +262,28 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
       --json-tree-ul-root-padding: ${theme.spacing(3)} 0 ${theme.spacing(2)} 0;
       --json-tree-arrow-left-offset: -${theme.spacing(2)};
       --json-tree-inline: inline-grid;
+      // Scroll offset for sticky header
+      --json-tree-scroll-margin: 30px;
+      // Scroll behavior @todo set "auto" instead of "smooth" for users with prefers-reduced-motion
+      scroll-behavior: ${window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'};
       ${getWrapLogMessageStyles(theme, wrapLogMessage)}
 
       overflow: auto;
       height: 100%;
       width: 100%;
+      // Prevents scrollbar from getting tucked behind the fixed header
       clip-path: inset(0 0 0 0);
+
+      // Line height defines the height of each line
+      li {
+        line-height: 24px;
+      }
 
       //first treeItem node
       > ul > li {
         // line wrap
         width: 100%;
+        margin-top: ${theme.spacing(2.5)};
       }
 
       // Array and other labels additional without markup
@@ -271,16 +310,60 @@ const getStyles = (theme: GrafanaTheme2, showHighlight: boolean, wrapLogMessage:
         overflow-y: hidden;
       }
 
+      // Line node scrolledTo styles
+      li[data-scrolled='true'] {
+        // sticky header cannot have transparency!
+        & > span {
+          background-color: ${selectedBg};
+        }
+        background-color: ${colorManipulator.alpha(theme.colors.info.transparent, 0.25)};
+      }
+
+      // Value node background hover colors
+      .valueNode--String,
+      .valueNode--Number {
+        &:hover {
+          // This is the value line the user is hovering over, we don't want transparency so it always stands out from the bg
+          background-color: ${theme.colors.background.canvas};
+          box-shadow: ${theme.shadows.z1};
+        }
+      }
+
+      // Nested node hover styles
+      ul > li > ul > li > ul {
+        li[data-nodetype='Object'],
+        li[data-nodetype='Array'] {
+          // This is the nested node line the user is hovering over, we don't want transparency so it always stands out from the bg
+          & > span {
+            width: 100%;
+            &:hover {
+              background-color: ${theme.colors.background.canvas};
+              box-shadow: ${theme.shadows.z1};
+            }
+          }
+          // And this is the node the user is hovering in, we want some transparency to help differentiate between nodes of differing depths
+          &:hover {
+            background-color: ${hoverBg};
+            box-shadow: ${theme.shadows.z1};
+          }
+        }
+      }
+
       // sticky time header
       > ul > li > ul > li > span,
       > ul > li > ul > div > li > span {
         position: sticky;
+        width: 100%;
         top: 26px;
         left: 0;
         background: ${theme.colors.background.primary};
         z-index: 1;
         display: flex;
         align-items: center;
+        &:hover {
+          background-color: ${theme.colors.background.canvas};
+          box-shadow: ${theme.shadows.z1};
+        }
       }
     `,
   };
