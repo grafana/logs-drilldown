@@ -82,7 +82,7 @@ FilterValueButton.displayName = 'FilterValueButton';
 const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
   return {
     button: css({
-      color: isActive ? undefined : 'var(--json-tree-label-color)',
+      color: isActive ? undefined : theme.colors.text.secondary,
     }),
   };
 };

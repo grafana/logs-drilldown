@@ -47,6 +47,7 @@ import {
   getJSONVizValueLabelStyles,
   itemStringDelimiter,
   jsonLabelWrapStyles,
+  jsonNestedLabelWrapStyles,
   renderJSONVizTimeStamp,
 } from '../../services/JSONViz';
 import { hasValidParentNode } from '../../services/JSONVizNodes';
@@ -449,7 +450,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
 
     return (
-      <span className={jsonLabelWrapStyles}>
+      <span className={jsonNestedLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
             <ReRootJSONButton keyPath={keyPath} sceneRef={this} />
