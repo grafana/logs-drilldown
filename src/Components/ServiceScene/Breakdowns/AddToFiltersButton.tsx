@@ -218,6 +218,17 @@ export function addToFilters(
 
   const variable = getUIAdHocVariable(variableType, key, scene);
 
+  // Check if the filter already exists
+  const operatorSymbol = operator === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
+  const isDuplicate = variable.state.filters.some(
+    (filter) => filter.key === key && filter.value === value && filter.operator === operatorSymbol
+  );
+
+  // Return early do not add duplicate filters
+  if (isDuplicate) {
+    return;
+  }
+
   let valueObject: string | undefined = undefined;
   let valueLabel = value;
   if (variableType === VAR_FIELDS) {
