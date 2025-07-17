@@ -3,12 +3,12 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { createContext, isAssistantAvailable, ItemDataType, openAssistant } from '@grafana/assistant';
 import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
 // @ts-expect-error
-import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
+import { getDataSourceSrv, getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -28,7 +28,7 @@ import { ExtensionPoints } from '../../services/extensions/links';
 import { logger } from '../../services/logger';
 import { setLevelColorOverrides } from '../../services/panel';
 import { interpolateExpression } from '../../services/query';
-import { findObjectOfType, getQueryRunnerFromChildren } from '../../services/scenes';
+import { findObjectOfType, getDataSource, getQueryExpr, getQueryRunnerFromChildren } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
@@ -141,12 +141,28 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       });
 
       this._subs.add(
-        isAssistantAvailable().subscribe((isAvailable) => {
+        isAssistantAvailable().subscribe(async (isAvailable) => {
           if (isAvailable) {
+            const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
               text: '✨ Explain in Assistant',
               onClick: () => {
-                openAssistant({ prompt: 'Explain this Query in Assistant...' });
+                openAssistant({
+                  prompt: 'Help me understand this query. Be concise and to the point.',
+                  context: [
+                    createContext(ItemDataType.Datasource, {
+                      datasourceName: datasource.name,
+                      datasourceUid: datasource.uid,
+                      datasourceType: datasource.type,
+                    }),
+                    createContext(ItemDataType.Structured, {
+                      title: 'Logs Drilldown Query',
+                      data: {
+                        query: getQueryExpr(this),
+                      },
+                    }),
+                  ],
+                });
               },
             });
           }
