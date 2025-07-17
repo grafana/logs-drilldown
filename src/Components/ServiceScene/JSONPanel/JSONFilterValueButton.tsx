@@ -7,30 +7,35 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { FilterOp } from '../../../services/filterTypes';
+import { addJsonFilter } from '../../../services/JSONFilter';
+import { VAR_FIELDS } from '../../../services/variables';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
-import { AddJSONFilter, AddMetadataFilter } from '../LogsJsonScene';
+import { LogsJsonScene } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 interface JsonFilterProps {
-  addFilter: AddJSONFilter;
+  addFilter: typeof addJsonFilter;
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
-  fullKeyPath: KeyPath;
+  keyPath: KeyPath;
   label: string | number;
+  model: LogsJsonScene;
   type: 'exclude' | 'include';
   value: string;
 }
 
 interface MetadataFilterProps {
-  addFilter: AddMetadataFilter;
+  addFilter: typeof addJsonFilter;
   existingFilter?: AdHocFilterWithLabels;
+  keyPath: KeyPath;
   label: string;
+  model: LogsJsonScene;
   type: 'exclude' | 'include';
   value: string;
   variableType: InterpolatedFilterType;
 }
 export const JSONFilterValueButton = memo(
-  ({ addFilter, existingFilter, fullKey, fullKeyPath, label, type, value }: JsonFilterProps) => {
+  ({ addFilter, existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getStyles, isActive);
@@ -41,7 +46,14 @@ export const JSONFilterValueButton = memo(
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();
-          addFilter(fullKeyPath, fullKey, value, existingFilter?.operator === operator ? 'toggle' : type);
+          addFilter({
+            keyPath: keyPath,
+            key: fullKey,
+            value,
+            filterType: existingFilter?.operator === operator ? 'toggle' : type,
+            logsJsonScene: model,
+            variableType: VAR_FIELDS,
+          });
         }}
         aria-selected={isActive}
         variant={isActive ? 'primary' : 'secondary'}
@@ -55,7 +67,7 @@ export const JSONFilterValueButton = memo(
 JSONFilterValueButton.displayName = 'JSONFilterValueButton';
 
 export const FilterValueButton = memo(
-  ({ addFilter, existingFilter, label, type, value, variableType }: MetadataFilterProps) => {
+  ({ addFilter, existingFilter, label, type, value, variableType, model, keyPath }: MetadataFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getStyles, isActive);
@@ -66,7 +78,14 @@ export const FilterValueButton = memo(
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();
-          addFilter(label, value, existingFilter?.operator === operator ? 'toggle' : type, variableType);
+          addFilter({
+            key: label,
+            keyPath,
+            value,
+            filterType: existingFilter?.operator === operator ? 'toggle' : type,
+            variableType,
+            logsJsonScene: model,
+          });
         }}
         aria-selected={existingFilter?.operator === operator}
         variant={existingFilter?.operator === operator ? 'primary' : 'secondary'}

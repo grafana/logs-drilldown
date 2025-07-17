@@ -242,7 +242,7 @@ export function getBooleanLogOption(option: keyof Options, defaultValue: boolean
   if (localStorageResult === null) {
     return defaultValue;
   }
-  return localStorageResult === '' || localStorageResult === 'false' ? false : true;
+  return !(localStorageResult === '' || localStorageResult === 'false');
 }
 
 export function setLogOption(option: keyof Options, value: string | number | boolean) {

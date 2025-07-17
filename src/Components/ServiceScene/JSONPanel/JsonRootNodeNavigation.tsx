@@ -18,6 +18,10 @@ interface Props {
   sceneRef: SceneObject;
 }
 
+/**
+ * Gets re-root button and key label for root node when line format filter is active.
+ * aka breadcrumbs
+ */
 export default function JsonRootNodeNavigation({ sceneRef }: Props) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const filters = lineFormatVar.state.filters;
@@ -63,7 +67,10 @@ export default function JsonRootNodeNavigation({ sceneRef }: Props) {
   );
 }
 
-export function getFullKeyPath(keyPath: ReadonlyArray<string | number>, sceneObject: SceneObject) {
+export function getFullKeyPath(
+  keyPath: ReadonlyArray<string | number>,
+  sceneObject: SceneObject
+): { fullKeyPath: KeyPath; fullPathFilters: AdHocFilterWithLabels[] } {
   const lineFormatVar = getLineFormatVariable(sceneObject);
 
   const fullPathFilters: AdHocFilterWithLabels[] = [

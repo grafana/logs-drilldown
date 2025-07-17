@@ -179,6 +179,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                 hideRootExpand={true}
                 valueWrap={''}
                 shouldExpandNodeInitially={(_, __, level) => level <= 2}
+                // Render item type string, e.g. (), {}
                 getItemString={(nodeType, data, itemType, itemString, keyPath) => (
                   <ItemString
                     itemString={itemString}
@@ -190,6 +191,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     levelsVar={levelsVar}
                   />
                 )}
+                // Render node values
                 valueRenderer={(valueAsString, _, ...keyPath) => (
                   <ValueRenderer
                     valueAsString={valueAsString}
@@ -198,6 +200,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     model={model}
                   />
                 )}
+                // Render node labels
                 labelRenderer={(keyPath, nodeType) => (
                   <LabelRenderer
                     model={model}

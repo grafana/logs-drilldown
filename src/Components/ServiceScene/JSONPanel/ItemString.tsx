@@ -1,15 +1,19 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
+import { isNumber } from 'lodash';
 
-import { Field, FieldType, GrafanaTheme2, Labels } from '@grafana/data';
-import { AdHocFiltersVariable } from '@grafana/scenes';
+import { DataFrame, Field, FieldType, GrafanaTheme2, Labels, TimeRange } from '@grafana/data';
+import { AdHocFiltersVariable, SceneDataProvider, sceneGraph } from '@grafana/scenes';
 import { Icon, useStyles2 } from '@grafana/ui';
 
-import { isLabelsField } from '../../../services/fields';
+import { isLabelsField, isLogLineField, isLogsIdField } from '../../../services/fields';
 import { rootNodeItemString } from '../../../services/JSONViz';
+import { logger } from '../../../services/logger';
 import { hasProp } from '../../../services/narrowing';
+import { copyText, generateLogShortlink } from '../../../services/text';
 import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
+import CopyToClipboardButton from '../../Buttons/CopyToClipboardButton';
 import {
   JsonDataFrameLineName,
   JsonDataFrameLinksName,
@@ -17,6 +21,7 @@ import {
   JsonVizRootName,
   LogsJsonScene,
 } from '../LogsJsonScene';
+import { getLogsPanelFrame } from '../ServiceScene';
 import JsonLineItemType from './JsonLineItemType';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
@@ -33,9 +38,10 @@ interface ItemStringProps {
 export default function ItemString({ data, itemString, itemType, keyPath, model, levelsVar }: ItemStringProps) {
   const styles = useStyles2(getStyles);
   if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
-    return model.renderLogLineActionButtons(keyPath, model);
+    return renderLogLineActionButtons(keyPath, model);
   }
 
+  // The root node, which is visualized as the breadcrumb navigation
   if (keyPath[0] === JsonVizRootName) {
     return (
       <span className={rootNodeItemString}>
@@ -44,6 +50,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
     );
   }
 
+  // log line nodes render the log level as the "ItemString"
   if (keyPath[0] === JsonDataFrameLineName) {
     const detectedLevel = getJsonDetectedLevel(model, keyPath);
 
@@ -54,6 +61,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
     }
   }
 
+  // Link nodes render the link icon
   if (keyPath[0] === JsonDataFrameLinksName) {
     return (
       <span className={styles.wrapper}>
@@ -62,7 +70,34 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
     );
   }
 
+  // All other nodes return the itemType string from the library, e.g. [], {}
   return <span className={styles.wrapper}>{itemType}</span>;
+}
+
+export function renderLogLineActionButtons(keyPath: KeyPath, model: LogsJsonScene) {
+  const timeRange = sceneGraph.getTimeRange(model).state.value;
+  return (
+    <>
+      <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(model))} />
+      <CopyToClipboardButton
+        type={'share-alt'}
+        onClick={() => getLinkToLog(keyPath, timeRange, model.state.rawFrame)}
+      />
+    </>
+  );
+}
+
+function getLinkToLog(keyPath: KeyPath, timeRange: TimeRange, rawFrame: DataFrame | undefined) {
+  const idField: Field<string> | undefined = rawFrame?.fields.find((f) => isLogsIdField(f.name));
+  const logLineIndex = keyPath[0];
+  if (!isNumber(logLineIndex)) {
+    const error = Error('Invalid line index');
+    logger.error(error, { msg: 'Error getting log line index' });
+    throw error;
+  }
+  const logId = idField?.values[logLineIndex];
+  const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
+  copyText(logLineLink);
 }
 
 const getJsonDetectedLevel = (model: LogsJsonScene, keyPath: KeyPath) => {
@@ -72,6 +107,16 @@ const getJsonDetectedLevel = (model: LogsJsonScene, keyPath: KeyPath) => {
   const index = typeof keyPath[1] === 'number' ? keyPath[1] : undefined;
   const labels = index !== undefined ? labelsField?.values[index] : undefined;
   return labels?.[LEVEL_VARIABLE_VALUE];
+};
+
+const copyLogLine = (keyPath: KeyPath, $data: SceneDataProvider) => {
+  const logLineIndex = keyPath[0];
+  const dataFrame = getLogsPanelFrame($data.state.data);
+  const lineField = dataFrame?.fields.find((f) => isLogLineField(f.name));
+  if (isNumber(logLineIndex) && lineField) {
+    const line = lineField.values[logLineIndex];
+    copyText(line.toString());
+  }
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({

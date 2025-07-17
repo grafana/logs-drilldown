@@ -1,23 +1,24 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { AddJSONFilter } from '../LogsJsonScene';
+import { addJsonFilter } from '../../../services/JSONFilter';
+import { LogsJsonScene } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { EMPTY_VARIABLE_VALUE } from 'services/variables';
+import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
 
 interface Props {
   active: boolean;
-  addFilter: AddJSONFilter;
-  jsonKey: string;
+  fullKeyPath: string;
   keyPath: KeyPath;
+  logsJsonScene: LogsJsonScene;
   type: 'exclude' | 'include';
 }
 
-const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, type }: Props) => {
+export function JSONFilterNestedNodeButton({ active, fullKeyPath, keyPath, type, logsJsonScene }: Props) {
   const styles = useStyles2(getStyles, active);
   return (
     <IconButton
@@ -25,12 +26,14 @@ const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, 
       tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
       onClick={(e) => {
         e.stopPropagation();
-        addFilter(
+        addJsonFilter({
+          value: EMPTY_VARIABLE_VALUE,
+          key: fullKeyPath,
+          variableType: VAR_FIELDS,
+          logsJsonScene,
           keyPath,
-          jsonKey,
-          EMPTY_VARIABLE_VALUE,
-          active ? 'toggle' : type === 'include' ? 'exclude' : 'include'
-        );
+          filterType: active ? 'toggle' : type === 'include' ? 'exclude' : 'include',
+        });
       }}
       aria-selected={active}
       variant={active ? 'primary' : 'secondary'}
@@ -39,7 +42,7 @@ const JSONFilterNestedNodeButton = memo(({ active, addFilter, jsonKey, keyPath, 
       aria-label={`${type} filter`}
     />
   );
-});
+}
 
 const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
   return {
@@ -48,6 +51,3 @@ const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
     }),
   };
 };
-
-JSONFilterNestedNodeButton.displayName = 'JSONFilterNestedNodeButton';
-export default JSONFilterNestedNodeButton;

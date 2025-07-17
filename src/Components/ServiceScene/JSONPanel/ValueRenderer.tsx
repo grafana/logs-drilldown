@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { hasValidParentNode, isTimeLabelNode } from '../../../services/JSONVizNodes';
+import { hasFieldParentNode, isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
 import { JsonDataFrameLinksName, LogsJsonScene } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
@@ -22,16 +22,21 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
     return null;
   }
   const value = valueAsString?.toString();
+
+  // Don't bother rendering empty values
   if (!value) {
     return null;
   }
 
+  // Link nodes
   if (keyPath[1] === JsonDataFrameLinksName) {
     return <JsonLinkButton payload={value} />;
   }
 
+  // If highlighting is enabled, split up the value string into an array of React objects wrapping text that matches syntax regex or matches line filter regex
   if (model.state.showHighlight) {
-    if (hasValidParentNode(keyPath)) {
+    // Don't show line filter matches on field nodes
+    if (!hasFieldParentNode(keyPath)) {
       let valueArray = highlightLineFilterMatches(lineFilters, value);
 
       // If we have highlight matches we won't show syntax highlighting
@@ -42,6 +47,8 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
 
     // Check syntax highlighting results
     let highlightedResults: Array<string | React.JSX.Element> = [];
+
+    // Only grab the first regex match from the logsSyntaxMatches object
     Object.keys(logsSyntaxMatches).some((key) => {
       const regex = value.match(logsSyntaxMatches[key]);
       if (regex) {
@@ -57,5 +64,5 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
     }
   }
 
-  return <>{value}</>;
+  return value;
 }

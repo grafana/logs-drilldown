@@ -21,6 +21,7 @@ import {
   StructuredMetadataDisplayName,
 } from '../LogsJsonScene';
 import JsonRootNodeNavigation from './JsonRootNodeNavigation';
+import { NestedNodeFilterButtons } from './NestedNodeFilterButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface LabelRendererProps {
@@ -71,12 +72,15 @@ export default function LabelRenderer({
 
   // Parent nodes
   if (isNodeParentNode(nodeTypeLoc, keyPath)) {
-    return model.renderNestedNodeFilterButtons(
-      keyPath,
-      fieldsVar,
-      jsonParserPropsMap,
-      lineFilters,
-      jsonFiltersSupported
+    return (
+      <NestedNodeFilterButtons
+        keyPath={keyPath}
+        lineFilters={lineFilters}
+        logsJsonScene={model}
+        fieldsFilters={fieldsVar.state.filters}
+        jsonParserPropsMap={jsonParserPropsMap}
+        jsonFiltersSupported={jsonFiltersSupported}
+      />
     );
   }
 
