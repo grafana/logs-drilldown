@@ -7,7 +7,7 @@ import { AdHocFiltersVariable } from '@grafana/scenes';
 import { Icon, useStyles2 } from '@grafana/ui';
 
 import { isLabelsField } from '../../../services/fields';
-import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz';
+import { rootNodeItemString } from '../../../services/JSONViz';
 import { hasProp } from '../../../services/narrowing';
 import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import {
