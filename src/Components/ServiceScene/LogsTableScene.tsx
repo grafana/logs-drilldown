@@ -30,6 +30,7 @@ import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
 import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
+import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 
@@ -37,8 +38,8 @@ let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
   emptyScene?: NoMatchingLabelsScene;
+  isDisabledLineState: boolean;
   menu?: PanelMenu;
-  showLineState: boolean;
   sortOrder: LogsSortOrder;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
@@ -50,7 +51,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     super({
       ...state,
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      showLineState: false,
+      isDisabledLineState: false,
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -67,7 +68,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   getUrlState() {
     return {
       sortOrder: JSON.stringify(this.state.sortOrder),
-      body: this.state.showLineState ? 'true' : 'false',
     };
   }
 
@@ -107,15 +107,15 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
   subscribeFromUrl = () => {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
-    // Check URL columns for body parameter and update showLineState accordingly
+    // Check URL columns for body parameter and update isDisabledLineState accordingly
     let urlColumnsUrl: string[] | null = [];
     try {
       urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
       // If body or line is in the url columns, show the line state controls
-      if (urlColumnsUrl.includes('body') || urlColumnsUrl.includes('line')) {
-        this.setState({ showLineState: true });
+      if (urlColumnsUrl.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumnsUrl.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
       } else {
-        this.setState({ showLineState: false });
+        this.setState({ isDisabledLineState: false });
       }
     } catch (e) {
       console.error('Error parsing urlColumns:', e);
@@ -129,8 +129,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     try {
       urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
       // If body or line is in the url columns, show the line state controls
-      if (urlColumnsUrl.includes('body') || urlColumnsUrl.includes('line')) {
-        this.setState({ showLineState: true });
+      if (urlColumnsUrl.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumnsUrl.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
       }
     } catch (e) {
       console.error(e);
@@ -154,10 +154,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
     defaultUrlColumns = this.updateDefaultUrlColumns(urlColumns);
     // If body or line is in the url columns, show the line state controls
-    if (defaultUrlColumns.includes('body') || defaultUrlColumns.includes('line')) {
-      this.setState({ showLineState: true });
+    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
+      this.setState({ isDisabledLineState: true });
     } else {
-      this.setState({ showLineState: false });
+      this.setState({ isDisabledLineState: false });
     }
 
     // Remove any default urlColumn for displayedFields
@@ -270,11 +270,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               <LogListControls
                 sortOrder={sortOrder}
                 onSortOrderChange={model.handleSortChange}
-                {...(model.state.showLineState && {
-                  onLineStateClick: model.onLineStateClick,
-                  // "Auto" defaults to display "show text"
-                  lineState: tableLogLineState ?? LogLineState.labels,
-                })}
+                onLineStateClick={model.onLineStateClick}
+                // "Auto" defaults to display "show text"
+                lineState={tableLogLineState ?? LogLineState.labels}
+                disabledLineState={!model.state.isDisabledLineState}
               />
             )}
             {dataFrame && (
