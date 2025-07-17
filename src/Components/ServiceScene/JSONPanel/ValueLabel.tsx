@@ -65,7 +65,7 @@ export function ValueLabel({
         label={label}
         value={value}
         variableType={existingVariableType}
-        addFilter={addJsonFilter}
+        addJsonFilter={addJsonFilter}
         existingFilter={existingFilter}
         elements={highlightedValue}
         keyPathString={getKeyPathString(keyPath, '')}
@@ -88,7 +88,7 @@ export function ValueLabel({
       value={value}
       fullKeyPath={fullKeyPath}
       fullKey={fullKey}
-      addFilter={addJsonFilter}
+      addJsonFilter={addJsonFilter}
       existingFilter={existingJsonFilter}
       elements={highlightedValue}
       keyPathString={getKeyPathString(keyPath, '')}

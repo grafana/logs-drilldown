@@ -9,7 +9,7 @@ import { addJsonFilter } from 'services/JSONFilter';
 import { jsonLabelButtonsWrapStyle, jsonLabelWrapStyles } from 'services/JSONViz';
 
 interface Props {
-  addFilter: typeof addJsonFilter;
+  addJsonFilter: typeof addJsonFilter;
   elements: Array<string | React.JSX.Element>;
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
@@ -27,7 +27,7 @@ export function ValueNodeLabelButtons({
   value,
   fullKeyPath,
   fullKey,
-  addFilter,
+  addJsonFilter,
   existingFilter,
   elements,
   keyPathString,
@@ -42,7 +42,7 @@ export function ValueNodeLabelButtons({
             value={value}
             keyPath={fullKeyPath}
             fullKey={fullKey}
-            addFilter={addFilter}
+            addJsonFilter={addJsonFilter}
             existingFilter={existingFilter}
             type={'include'}
             model={model}
@@ -52,7 +52,7 @@ export function ValueNodeLabelButtons({
             value={value}
             keyPath={fullKeyPath}
             fullKey={fullKey}
-            addFilter={addFilter}
+            addJsonFilter={addJsonFilter}
             existingFilter={existingFilter}
             type={'exclude'}
             model={model}

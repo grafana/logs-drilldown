@@ -14,7 +14,7 @@ import { addJsonFilter } from 'services/JSONFilter';
 import { VAR_FIELDS } from 'services/variables';
 
 interface JsonFilterProps {
-  addFilter: typeof addJsonFilter;
+  addJsonFilter: typeof addJsonFilter;
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
   keyPath: KeyPath;
@@ -25,7 +25,7 @@ interface JsonFilterProps {
 }
 
 interface MetadataFilterProps {
-  addFilter: typeof addJsonFilter;
+  addJsonFilter: typeof addJsonFilter;
   existingFilter?: AdHocFilterWithLabels;
   keyPath: KeyPath;
   label: string;
@@ -35,7 +35,7 @@ interface MetadataFilterProps {
   variableType: InterpolatedFilterType;
 }
 export const JSONFilterValueButton = memo(
-  ({ addFilter, existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
+  ({ addJsonFilter, existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getStyles, isActive);
@@ -46,7 +46,7 @@ export const JSONFilterValueButton = memo(
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();
-          addFilter({
+          addJsonFilter({
             keyPath: keyPath,
             key: fullKey,
             value,
@@ -67,7 +67,7 @@ export const JSONFilterValueButton = memo(
 JSONFilterValueButton.displayName = 'JSONFilterValueButton';
 
 export const FilterValueButton = memo(
-  ({ addFilter, existingFilter, label, type, value, variableType, model, keyPath }: MetadataFilterProps) => {
+  ({ addJsonFilter, existingFilter, label, type, value, variableType, model, keyPath }: MetadataFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getStyles, isActive);
@@ -78,7 +78,7 @@ export const FilterValueButton = memo(
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();
-          addFilter({
+          addJsonFilter({
             key: label,
             keyPath,
             value,
