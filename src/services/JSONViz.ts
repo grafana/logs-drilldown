@@ -61,9 +61,3 @@ export const rootNodeItemString = css({
   fontSize: '12px',
   textWrap: 'nowrap',
 });
-export const itemStringStyles = css({
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
-  alignItems: 'center',
-  height: '22px',
-});
