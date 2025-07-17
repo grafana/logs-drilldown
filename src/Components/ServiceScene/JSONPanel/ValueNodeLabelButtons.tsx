@@ -2,11 +2,11 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { addJsonFilter } from '../../../services/JSONFilter';
-import { jsonLabelButtonsWrapStyle, jsonLabelWrapStyles } from '../../../services/JSONViz';
 import { LogsJsonScene } from '../LogsJsonScene';
 import { JSONFilterValueButton } from './JSONFilterValueButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { addJsonFilter } from 'services/JSONFilter';
+import { jsonLabelButtonsWrapStyle, jsonLabelWrapStyles } from 'services/JSONViz';
 
 interface Props {
   addFilter: typeof addJsonFilter;

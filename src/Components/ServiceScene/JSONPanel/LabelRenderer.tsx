@@ -5,9 +5,6 @@ import { isNumber } from 'lodash';
 import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { isLogLineField } from '../../../services/fields';
-import { jsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from '../../../services/JSONViz';
-import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
   JsonDataFrameLinksName,
@@ -24,6 +21,9 @@ import JsonRootNodeNavigation from './JsonRootNodeNavigation';
 import { NestedNodeFilterButtons } from './NestedNodeFilterButtons';
 import { ValueLabel } from './ValueLabel';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
+import { isLogLineField } from 'services/fields';
+import { jsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from 'services/JSONViz';
+import { isTimeLabelNode } from 'services/JSONVizNodes';
 
 interface LabelRendererProps {
   fieldsVar: AdHocFiltersVariable;

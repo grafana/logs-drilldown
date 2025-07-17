@@ -3,12 +3,6 @@ import React from 'react';
 import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { getJsonKey } from '../../../services/filters';
-import { addJsonFilter } from '../../../services/JSONFilter';
-import { getJSONVizNestedProperty } from '../../../services/JSONViz';
-import { hasFieldParentNode } from '../../../services/JSONVizNodes';
-import { getAdHocFiltersVariable, getValueFromFieldsFilter } from '../../../services/variableGetters';
-import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../../services/variables';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import {
   getKeyPathString,
@@ -22,6 +16,12 @@ import { highlightLineFilterMatches } from './highlightLineFilterMatches';
 import { getFullKeyPath } from './JsonRootNodeNavigation';
 import { ValueNodeLabelButtons } from './ValueNodeLabelButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { getJsonKey } from 'services/filters';
+import { addJsonFilter } from 'services/JSONFilter';
+import { getJSONVizNestedProperty } from 'services/JSONViz';
+import { hasFieldParentNode } from 'services/JSONVizNodes';
+import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
+import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from 'services/variables';
 
 interface Props {
   fieldsVar: AdHocFiltersVariable;

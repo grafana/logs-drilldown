@@ -6,7 +6,7 @@ import {
   highlightValueStringMatches,
   mergeOverlapping,
   TextWithHighlightedValue,
-} from '../../../services/highlight';
+} from 'services/highlight';
 
 export function highlightLineFilterMatches(lineFilters: AdHocFilterWithLabels[], value: string, className?: string) {
   const matchExpressions = getLineFilterRegExps(lineFilters);

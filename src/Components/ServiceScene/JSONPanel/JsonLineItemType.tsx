@@ -7,11 +7,11 @@ import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Tooltip, useStyles2 } from '@grafana/ui';
 
-import { FilterOp } from '../../../services/filterTypes';
-import { logsLabelLevelsMatches } from '../../../services/panel';
-import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../services/variables';
 import { addToFilters } from '../Breakdowns/AddToFiltersButton';
 import { JSON_VIZ_LINE_HEIGHT } from './LogsJsonComponent';
+import { FilterOp } from 'services/filterTypes';
+import { logsLabelLevelsMatches } from 'services/panel';
+import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from 'services/variables';
 
 function JsonLineItemType({
   detectedLevel,

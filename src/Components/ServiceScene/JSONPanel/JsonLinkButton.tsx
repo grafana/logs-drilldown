@@ -2,8 +2,8 @@ import React from 'react';
 
 import { LinkButton } from '@grafana/ui';
 
-import { logger } from '../../../services/logger';
-import { narrowJsonDerivedFieldLinkPayload } from '../../../services/narrowing';
+import { logger } from 'services/logger';
+import { narrowJsonDerivedFieldLinkPayload } from 'services/narrowing';
 
 function JsonLinkButton({ payload }: { payload: string }) {
   let decodedPayload;

@@ -2,13 +2,13 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { addJsonFilter } from '../../../services/JSONFilter';
-import { jsonLabelButtonsWrapStyle, jsonLabelWrapStyles } from '../../../services/JSONViz';
-import { isOperatorExclusive, isOperatorInclusive } from '../../../services/operatorHelpers';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { LogsJsonScene } from '../LogsJsonScene';
 import { FilterValueButton } from './JSONFilterValueButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { addJsonFilter } from 'services/JSONFilter';
+import { jsonLabelButtonsWrapStyle, jsonLabelWrapStyles } from 'services/JSONViz';
+import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 
 export function FieldNodeLabelButtons(props: {
   addFilter: typeof addJsonFilter;

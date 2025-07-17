@@ -6,21 +6,6 @@ import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isLogLineField, isLogsIdField } from '../../../services/fields';
-import { getLogsHighlightStyles } from '../../../services/highlight';
-import {
-  setJsonHighlightVisibility,
-  setJsonLabelsVisibility,
-  setJsonMetadataVisibility,
-  setLogOption,
-} from '../../../services/store';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-} from '../../../services/variableGetters';
-import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
@@ -31,6 +16,21 @@ import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
 import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
+import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
+import { isLogLineField, isLogsIdField } from 'services/fields';
+import { getLogsHighlightStyles } from 'services/highlight';
+import {
+  setJsonHighlightVisibility,
+  setJsonLabelsVisibility,
+  setJsonMetadataVisibility,
+  setLogOption,
+} from 'services/store';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+} from 'services/variableGetters';
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 

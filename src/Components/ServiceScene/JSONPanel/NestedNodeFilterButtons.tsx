@@ -2,17 +2,17 @@ import React, { memo } from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { getJsonKey } from '../../../services/filters';
-import { jsonLabelWrapStyles, jsonNestedLabelWrapStyles } from '../../../services/JSONViz';
-import { isOperatorExclusive, isOperatorInclusive } from '../../../services/operatorHelpers';
-import { getValueFromFieldsFilter } from '../../../services/variableGetters';
-import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
 import { getKeyPathString, LogsJsonScene } from '../LogsJsonScene';
 import { highlightLineFilterMatches } from './highlightLineFilterMatches';
 import { JSONFilterNestedNodeButton } from './JSONFilterNestedNodeButton';
 import { getFullKeyPath } from './JsonRootNodeNavigation';
 import ReRootJSONButton from './ReRootJSONButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { getJsonKey } from 'services/filters';
+import { jsonLabelWrapStyles, jsonNestedLabelWrapStyles } from 'services/JSONViz';
+import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
+import { getValueFromFieldsFilter } from 'services/variableGetters';
+import { EMPTY_VARIABLE_VALUE } from 'services/variables';
 
 interface Props {
   fieldsFilters: AdHocFilterWithLabels[];

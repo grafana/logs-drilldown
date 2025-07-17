@@ -6,12 +6,12 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { FilterOp } from '../../../services/filterTypes';
-import { addJsonFilter } from '../../../services/JSONFilter';
-import { VAR_FIELDS } from '../../../services/variables';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { LogsJsonScene } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { FilterOp } from 'services/filterTypes';
+import { addJsonFilter } from 'services/JSONFilter';
+import { VAR_FIELDS } from 'services/variables';
 
 interface JsonFilterProps {
   addFilter: typeof addJsonFilter;

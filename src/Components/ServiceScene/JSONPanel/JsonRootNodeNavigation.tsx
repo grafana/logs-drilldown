@@ -3,16 +3,16 @@ import React from 'react';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Button, Icon } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { clearJsonParserFields, isLogLineField } from '../../../services/fields';
-import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from '../../../services/filters';
-import { LineFormatFilterOp } from '../../../services/filterTypes';
-import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from '../../../services/JSONViz';
-import { LABEL_NAME_INVALID_CHARS } from '../../../services/labels';
-import { addCurrentUrlToHistory } from '../../../services/navigate';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from '../../../services/variableGetters';
 import { JsonDataFrameLineName, JsonVizRootName } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { clearJsonParserFields, isLogLineField } from 'services/fields';
+import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from 'services/filters';
+import { LineFormatFilterOp } from 'services/filterTypes';
+import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from 'services/JSONViz';
+import { LABEL_NAME_INVALID_CHARS } from 'services/labels';
+import { addCurrentUrlToHistory } from 'services/navigate';
+import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from 'services/variableGetters';
 
 interface Props {
   sceneRef: SceneObject;

@@ -5,9 +5,9 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { addJsonFilter } from '../../../services/JSONFilter';
 import { LogsJsonScene } from '../LogsJsonScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { addJsonFilter } from 'services/JSONFilter';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
 
 interface Props {
