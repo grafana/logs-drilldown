@@ -6,13 +6,14 @@ import {
   DataFrame,
   Field,
   FieldType,
+  getLinksSupplier,
   getTimeZone,
   LoadingState,
   LogsSortOrder,
   PanelData,
   sortDataFrame,
 } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { getTemplateSrv, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -28,6 +29,7 @@ import {
 import { Button, Icon, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getJsonDerivedFieldsLinks } from '../../services/derivedFields';
 import {
   clearJsonParserFields,
   getDetectedFieldsJsonPathField,
@@ -118,15 +120,21 @@ export type AddMetadataFilter = (
   variableType: InterpolatedFilterType
 ) => void;
 
+type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
+type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;
+
 export const JsonDataFrameTimeName = 'Time';
 export const JsonDataFrameLineName = 'Line';
 export const StructuredMetadataDisplayName = 'Metadata';
 export const LabelsDisplayName = 'Labels';
 export const JsonDataFrameStructuredMetadataName = '__Metadata';
+export const JsonDataFrameLinksName = '__Links';
+export const JsonLinksDisplayName = 'Links';
 export const JsonDataFrameLabelsName = '__Labels';
 export const JsonVizRootName = 'root';
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
+  public static Component = LogsJsonComponent;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'wrapLogMessage'],
   });
@@ -143,8 +151,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
-
-  public static Component = LogsJsonComponent;
 
   getUrlState() {
     return {
@@ -260,98 +266,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.setState({ sortOrder: newOrder });
   };
 
-  private setStateFromUrl() {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
-
-    this.updateFromUrl({
-      sortOrder: searchParams.get('sortOrder'),
-      wrapLogMessage: searchParams.get('wrapLogMessage'),
-    });
-  }
-
-  /**
-   * Checks detected_fields for jsonPath support added in 3.5.0
-   * Remove when 3.5.0 is the oldest Loki version supported
-   */
-  private setVizFlags(detectedFieldFrame: DataFrame) {
-    // the third field is the parser, see datasource.ts:getDetectedFields for more info
-    if (getDetectedFieldsParserField(detectedFieldFrame)?.values.some((v) => v === 'json' || v === 'mixed')) {
-      this.setState({
-        hasJsonFields: true,
-        jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
-      });
-    } else {
-      this.setState({
-        hasJsonFields: false,
-      });
-    }
-  }
-
-  /**
-   * Gets value from log Field at keyPath
-   */
-  private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
-    const keys = [...keyPath];
-    const accessors = [];
-
-    while (keys.length) {
-      const key = keys.pop();
-
-      if (key !== JsonVizRootName && key !== undefined) {
-        accessors.push(key);
-      }
-    }
-
-    return getJSONVizNestedProperty(lineField, accessors);
-  }
-
-  private addFilter = (key: string, value: string, filterType: FilterType, variableType: InterpolatedFilterType) => {
-    addCurrentUrlToHistory();
-    const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
-    addToFilters(key, value, filterType, logsListScene, variableType, false);
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
-      {
-        action: filterType,
-        filterType,
-        key,
-      }
-    );
-  };
-
-  /**
-   * @todo externalize
-   * Adds a fields filter and JSON parser props on viz interaction
-   */
-  private addJsonFilter: AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => {
-    addCurrentUrlToHistory();
-    // https://grafana.com/docs/loki/latest/get-started/labels/#label-format
-    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
-
-    addJsonParserFieldValue(this, keyPath);
-
-    const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
-    addToFilters(key, value, filterType, logsListScene, VAR_FIELDS, false, true);
-
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
-      {
-        action: filterType,
-        filterType: 'json',
-        key,
-      }
-    );
-  };
-
-  /**
-   * Formats key from keypath
-   */
-  private getKeyPathString(keyPath: KeyPath, sepChar = ':') {
-    return keyPath[0] !== JsonDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
-  }
-
   /**
    * Gets re-root button and key label for root node when line format filter is active.
    * aka breadcrumbs
@@ -400,21 +314,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       </>
     );
   };
-
-  private getLinkToLog(keyPath: KeyPath) {
-    const timeRange = sceneGraph.getTimeRange(this).state.value;
-    const dataFrame = this.state.rawFrame;
-    const idField: Field<string> | undefined = dataFrame?.fields.find((f) => isLogsIdField(f.name));
-    const logLineIndex = keyPath[0];
-    if (!isNumber(logLineIndex)) {
-      const error = Error('Invalid line index');
-      logger.error(error, { msg: 'Error getting log line index' });
-      throw error;
-    }
-    const logId = idField?.values[logLineIndex];
-    const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
-    copyText(logLineLink);
-  }
 
   public renderLogLineActionButtons(keyPath: KeyPath, model: LogsJsonScene) {
     return (
@@ -570,6 +469,113 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     );
   };
 
+  private setStateFromUrl() {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+
+    this.updateFromUrl({
+      sortOrder: searchParams.get('sortOrder'),
+      wrapLogMessage: searchParams.get('wrapLogMessage'),
+    });
+  }
+
+  /**
+   * Checks detected_fields for jsonPath support added in 3.5.0
+   * Remove when 3.5.0 is the oldest Loki version supported
+   */
+  private setVizFlags(detectedFieldFrame: DataFrame) {
+    // the third field is the parser, see datasource.ts:getDetectedFields for more info
+    if (getDetectedFieldsParserField(detectedFieldFrame)?.values.some((v) => v === 'json' || v === 'mixed')) {
+      this.setState({
+        hasJsonFields: true,
+        jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
+      });
+    } else {
+      this.setState({
+        hasJsonFields: false,
+      });
+    }
+  }
+
+  /**
+   * Gets value from log Field at keyPath
+   */
+  private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
+    const keys = [...keyPath];
+    const accessors = [];
+
+    while (keys.length) {
+      const key = keys.pop();
+
+      if (key !== JsonVizRootName && key !== undefined) {
+        accessors.push(key);
+      }
+    }
+
+    return getJSONVizNestedProperty(lineField, accessors);
+  }
+
+  private addFilter = (key: string, value: string, filterType: FilterType, variableType: InterpolatedFilterType) => {
+    addCurrentUrlToHistory();
+    const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
+    addToFilters(key, value, filterType, logsListScene, variableType, false);
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
+      {
+        action: filterType,
+        filterType,
+        key,
+      }
+    );
+  };
+
+  /**
+   * @todo externalize
+   * Adds a fields filter and JSON parser props on viz interaction
+   */
+  private addJsonFilter: AddJSONFilter = (keyPath: KeyPath, key: string, value: string, filterType: FilterType) => {
+    addCurrentUrlToHistory();
+    // https://grafana.com/docs/loki/latest/get-started/labels/#label-format
+    key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
+
+    addJsonParserFieldValue(this, keyPath);
+
+    const logsListScene = sceneGraph.getAncestor(this, LogsListScene);
+    addToFilters(key, value, filterType, logsListScene, VAR_FIELDS, false, true);
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
+      {
+        action: filterType,
+        filterType: 'json',
+        key,
+      }
+    );
+  };
+
+  /**
+   * Formats key from keypath
+   */
+  private getKeyPathString(keyPath: KeyPath, sepChar = ':') {
+    return keyPath[0] !== JsonDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
+  }
+
+  private getLinkToLog(keyPath: KeyPath) {
+    const timeRange = sceneGraph.getTimeRange(this).state.value;
+    const dataFrame = this.state.rawFrame;
+    const idField: Field<string> | undefined = dataFrame?.fields.find((f) => isLogsIdField(f.name));
+    const logLineIndex = keyPath[0];
+    if (!isNumber(logLineIndex)) {
+      const error = Error('Invalid line index');
+      logger.error(error, { msg: 'Error getting log line index' });
+      throw error;
+    }
+    const logId = idField?.values[logLineIndex];
+    const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
+    copyText(logLineLink);
+  }
+
   private getFilterVariableTypeFromPath = (keyPath: ReadonlyArray<string | number>): InterpolatedFilterType => {
     if (keyPath[1] === JsonDataFrameStructuredMetadataName) {
       if (keyPath[0] === LEVEL_VARIABLE_VALUE) {
@@ -600,21 +606,27 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       (field) => field.type === FieldType.other && isLabelTypesField(field.name)
     );
 
+    const templateSrv = getTemplateSrv();
+    const replace = templateSrv.replace.bind(templateSrv);
+
     const timeZone = getTimeZone();
     if (dataFrame && newState.data) {
       const isRerooted = getLineFormatVariable(this).state.filters.length > 0;
+      const derivedFields: Field[] =
+        dataFrame?.fields
+          .filter((f) => f.config.links)
+          .map((field) => ({ ...field, getLinks: getLinksSupplier(dataFrame, field, {}, replace) })) ?? [];
 
       const transformedData: PanelData = {
         ...newState.data,
         series: [dataFrame].map((frame) => {
           return {
             ...frame,
-
-            fields: frame.fields.map((f) => {
-              if (isLogLineField(f.name)) {
+            fields: frame.fields.map((field, frameIndex) => {
+              if (isLogLineField(field.name)) {
                 return {
-                  ...f,
-                  values: f.values
+                  ...field,
+                  values: field.values
                     .map((v, i) => {
                       let parsed;
                       try {
@@ -641,7 +653,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                           }
                         });
                       }
-                      const line: Record<string, Record<string, string> | string> = {
+                      const line: ParsedJsonLogLine = {
                         [JsonDataFrameLineName]: parsed,
                         [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                       };
@@ -651,13 +663,18 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       if (this.state.showMetadata && Object.keys(structuredMetadata).length > 0) {
                         line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
                       }
-
+                      if (derivedFields !== undefined) {
+                        let jsonLinks = getJsonDerivedFieldsLinks(derivedFields, i);
+                        if (Object.keys(jsonLinks).length) {
+                          line[JsonDataFrameLinksName] = jsonLinks;
+                        }
+                      }
                       return line;
                     })
                     .filter((f) => f),
                 };
               }
-              return f;
+              return field;
             }),
           };
         }),

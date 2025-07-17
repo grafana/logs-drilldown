@@ -391,11 +391,28 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByText(selectedLogLineText ?? '')).toBeInViewport();
     });
 
-    // @todo
-    // test('can add filter in logs panel without breaking existing json', async ({ page }) => {});
-    // test('can add filter in table panel without breaking existing json', async ({ page }) => {});
-    // test('can add filter in filter variable without breaking existing json', async ({ page }) => {});
-    // test('can drillUp to a parent node without removing existing nested node filter', async ({ page }) => {});
+    test('derived field links', async ({ page, context }) => {
+      await explorePage.goToLogsTab();
+      await explorePage.getJsonToggleLocator().click();
+      // Show metadata
+      await page.getByRole('button', { name: 'Show structured metadata' }).click();
+      // Assert the links exist
+      await expect(page.getByRole('link', { name: 'traceID-tempo' }).first()).toBeVisible();
+      await expect(page.getByRole('link', { name: 'traceID-jaeger' }).first()).toBeVisible();
+      await expect(page.getByRole('link', { name: 'traceID-zipkin' }).first()).toBeVisible();
+
+      // Get the traceID string
+      const traceIdLoc = page
+        .getByText(/traceID:.*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
+        .first();
+      const traceId = (await traceIdLoc.textContent())?.split(':')?.[1];
+      if (!traceId) {
+        throw new Error('No trace ID found.');
+      }
+
+      const href = await page.getByRole('link', { name: 'traceID-tempo' }).first().getAttribute('href');
+      expect(href).toContain(traceId);
+    });
   });
 });
 

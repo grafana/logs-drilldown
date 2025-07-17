@@ -2,12 +2,19 @@ import React from 'react';
 
 import { Field, FieldType, Labels } from '@grafana/data';
 import { AdHocFiltersVariable } from '@grafana/scenes';
+import { Icon } from '@grafana/ui';
 
 import { isLabelsField } from '../../../services/fields';
 import { itemStringStyles, rootNodeItemString } from '../../../services/JSONViz';
 import { hasProp } from '../../../services/narrowing';
 import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
-import { JsonDataFrameLineName, JsonDataFrameTimeName, JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
+import {
+  JsonDataFrameLineName,
+  JsonDataFrameLinksName,
+  JsonDataFrameTimeName,
+  JsonVizRootName,
+  LogsJsonScene,
+} from '../LogsJsonScene';
 import JsonLineItemType from './JsonLineItemType';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
@@ -42,6 +49,14 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
         <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVarFilters={levelsVar.state.filters} />
       );
     }
+  }
+
+  if (keyPath[0] === JsonDataFrameLinksName) {
+    return (
+      <span className={itemStringStyles}>
+        <Icon size={'sm'} name={'link'} />
+      </span>
+    );
   }
 
   return <span className={itemStringStyles}>{itemType}</span>;

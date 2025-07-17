@@ -10,8 +10,10 @@ import { jsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from '../../../servic
 import { isTimeLabelNode } from '../../../services/JSONVizNodes';
 import {
   JsonDataFrameLabelsName,
+  JsonDataFrameLinksName,
   JsonDataFrameStructuredMetadataName,
   JsonDataFrameTimeName,
+  JsonLinksDisplayName,
   JsonVizRootName,
   LabelsDisplayName,
   LogsJsonScene,
@@ -42,14 +44,22 @@ export default function LabelRenderer({
   model,
   nodeType,
 }: LabelRendererProps) {
+  const value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
   const nodeTypeLoc = nodeType as NodeTypeLoc;
+
+  // Clean up internal names for special nodes
   if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
     return <strong className={jsonLabelWrapStyles}>{StructuredMetadataDisplayName}</strong>;
   }
   if (keyPath[0] === JsonDataFrameLabelsName) {
     return <strong className={jsonLabelWrapStyles}>{LabelsDisplayName}</strong>;
   }
-
+  if (keyPath[0] === JsonDataFrameLinksName) {
+    return <strong className={jsonLabelWrapStyles}>{JsonLinksDisplayName}</strong>;
+  }
+  if (keyPath[1] === JsonDataFrameLinksName) {
+    return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
+  }
   if (keyPath[0] === JsonVizRootName) {
     return <JsonRootNodeNavigation sceneRef={model} />;
   }
@@ -80,8 +90,6 @@ export default function LabelRenderer({
   if (isTimeLabelNode(keyPath)) {
     return null;
   }
-
-  let value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
 
   return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
 }
