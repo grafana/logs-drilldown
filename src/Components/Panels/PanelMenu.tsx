@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
+import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
@@ -138,6 +139,19 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           items,
         }),
       });
+
+      this._subs.add(
+        isAssistantAvailable().subscribe((isAvailable) => {
+          if (isAvailable) {
+            this.addItem({
+              text: '✨ Explain in Assistant',
+              onClick: () => {
+                openAssistant({ prompt: 'Explain this Query in Assistant...' });
+              },
+            });
+          }
+        })
+      );
 
       this._subs.add(
         this.state.investigationsButton?.subscribeToState(async () => {
