@@ -22,6 +22,7 @@ import {
 } from '../LogsJsonScene';
 import JsonRootNodeNavigation from './JsonRootNodeNavigation';
 import { NestedNodeFilterButtons } from './NestedNodeFilterButtons';
+import { ValueLabel } from './ValueLabel';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface LabelRendererProps {
@@ -67,7 +68,17 @@ export default function LabelRenderer({
 
   // Value nodes
   if (isNodeValueNode(nodeTypeLoc, keyPath)) {
-    return model.renderValueLabel(keyPath, lineField, fieldsVar, jsonParserPropsMap, lineFilters, jsonFiltersSupported);
+    return (
+      <ValueLabel
+        logsJsonScene={model}
+        keyPath={keyPath}
+        lineField={lineField}
+        fieldsVar={fieldsVar}
+        jsonParserPropsMap={jsonParserPropsMap}
+        lineFilters={lineFilters}
+        jsonFiltersSupported={jsonFiltersSupported}
+      />
+    );
   }
 
   // Parent nodes

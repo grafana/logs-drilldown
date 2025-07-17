@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   DataFrame,
   Field,
@@ -13,8 +11,6 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 import {
-  AdHocFiltersVariable,
-  AdHocFilterWithLabels,
   SceneDataState,
   sceneGraph,
   SceneObjectBase,
@@ -34,27 +30,15 @@ import {
   isLogLineField,
 } from '../../services/fields';
 import { LabelType } from '../../services/fieldsTypes';
-import { getJsonKey, LABELS_TO_REMOVE } from '../../services/filters';
-import { addJsonFilter } from '../../services/JSONFilter';
-import { getJSONVizNestedProperty, renderJSONVizTimeStamp } from '../../services/JSONViz';
-import { hasFieldParentNode } from '../../services/JSONVizNodes';
+import { LABELS_TO_REMOVE } from '../../services/filters';
+import { renderJSONVizTimeStamp } from '../../services/JSONViz';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import {
-  getAdHocFiltersVariable,
-  getLineFormatVariable,
-  getValueFromFieldsFilter,
-} from '../../services/variableGetters';
+import { getLineFormatVariable } from '../../services/variableGetters';
 import { clearVariables } from '../../services/variableHelpers';
-import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { InterpolatedFilterType } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import { FieldNodeLabelButtons } from './JSONPanel/FieldNodeLabelButtons';
-import { highlightLineFilterMatches } from './JSONPanel/highlightLineFilterMatches';
-import { getFullKeyPath } from './JSONPanel/JsonRootNodeNavigation';
 import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
-import { ValueNodeLabelButtons } from './JSONPanel/ValueNodeLabelButtons';
 import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
@@ -234,74 +218,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.setState({ sortOrder: newOrder });
   };
 
-  /**
-   * @todo move out
-   * Gets a value label and filter buttons
-   */
-  public renderValueLabel = (
-    keyPath: KeyPath,
-    lineField: Field<string | number>,
-    fieldsVar: AdHocFiltersVariable,
-    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
-    lineFilters: AdHocFilterWithLabels[],
-    jsonFiltersSupported?: boolean
-  ) => {
-    // const styles = useStyles2(getJSONVizValueLabelStyles);
-    const value = this.getValue(keyPath, lineField.values)?.toString();
-    const label = keyPath[0];
-    const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
-
-    let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (this.state.showHighlight && !hasFieldParentNode(keyPath)) {
-      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
-    }
-
-    // Field (labels, metadata) nodes
-    if (hasFieldParentNode(keyPath)) {
-      const existingVariable = getAdHocFiltersVariable(existingVariableType, this);
-      const existingFilter = existingVariable.state.filters.filter(
-        (filter) => filter.key === label.toString() && filter.value === value
-      );
-
-      return (
-        <FieldNodeLabelButtons
-          model={this}
-          keyPath={keyPath}
-          label={label}
-          value={value}
-          variableType={existingVariableType}
-          addFilter={addJsonFilter}
-          existingFilter={existingFilter}
-          elements={highlightedValue}
-          keyPathString={getKeyPathString(keyPath, '')}
-        />
-      );
-    }
-
-    const { fullKeyPath } = getFullKeyPath(keyPath, this);
-    const fullKey = getJsonKey(fullKeyPath);
-    const jsonParserProp = jsonParserPropsMap.get(fullKey);
-    const existingJsonFilter =
-      jsonParserProp &&
-      fieldsVar.state.filters.find((f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value);
-
-    // Value nodes
-    return (
-      <ValueNodeLabelButtons
-        jsonFiltersSupported={jsonFiltersSupported}
-        label={label}
-        value={value}
-        fullKeyPath={fullKeyPath}
-        fullKey={fullKey}
-        addFilter={addJsonFilter}
-        existingFilter={existingJsonFilter}
-        elements={highlightedValue}
-        keyPathString={getKeyPathString(keyPath, '')}
-        model={this}
-      />
-    );
-  };
-
   private setStateFromUrl() {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
 
@@ -328,38 +244,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       });
     }
   }
-
-  /**
-   * Gets value from log Field at keyPath
-   */
-  private getValue(keyPath: KeyPath, lineField: Array<string | number>): string | number {
-    const keys = [...keyPath];
-    const accessors = [];
-
-    while (keys.length) {
-      const key = keys.pop();
-
-      if (key !== JsonVizRootName && key !== undefined) {
-        accessors.push(key);
-      }
-    }
-
-    return getJSONVizNestedProperty(lineField, accessors);
-  }
-
-  // @todo move out of class
-  private getFilterVariableTypeFromPath = (keyPath: ReadonlyArray<string | number>): InterpolatedFilterType => {
-    if (keyPath[1] === JsonDataFrameStructuredMetadataName) {
-      if (keyPath[0] === LEVEL_VARIABLE_VALUE) {
-        return VAR_LEVELS;
-      }
-      return VAR_METADATA;
-    } else if (keyPath[1] === JsonDataFrameLabelsName) {
-      return VAR_LABELS;
-    } else {
-      return VAR_FIELDS;
-    }
-  };
 
   /**
    * Creates the dataframe consumed by the viz
