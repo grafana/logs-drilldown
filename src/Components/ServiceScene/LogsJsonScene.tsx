@@ -462,6 +462,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 /**
  * Formats key from keypath
  */
-function getKeyPathString(keyPath: KeyPath, sepChar = ':') {
+export function getKeyPathString(keyPath: KeyPath, sepChar = ':') {
   return keyPath[0] !== JsonDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
 }

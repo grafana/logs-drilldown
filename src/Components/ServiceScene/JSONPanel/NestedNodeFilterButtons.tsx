@@ -7,7 +7,7 @@ import { jsonLabelWrapStyles, jsonNestedLabelWrapStyles } from '../../../service
 import { isOperatorExclusive, isOperatorInclusive } from '../../../services/operatorHelpers';
 import { getValueFromFieldsFilter } from '../../../services/variableGetters';
 import { EMPTY_VARIABLE_VALUE } from '../../../services/variables';
-import { LogsJsonScene } from '../LogsJsonScene';
+import { getKeyPathString, LogsJsonScene } from '../LogsJsonScene';
 import { highlightLineFilterMatches } from './highlightLineFilterMatches';
 import { JSONFilterNestedNodeButton } from './JSONFilterNestedNodeButton';
 import { getFullKeyPath } from './JsonRootNodeNavigation';
@@ -68,7 +68,7 @@ function NestedNodeFilterButtonsComponent({
         </>
       )}
       <strong className={jsonLabelWrapStyles}>
-        {highlightedValue.length ? highlightedValue : logsJsonScene.getKeyPathString(keyPath, '')}:
+        {highlightedValue.length ? highlightedValue : getKeyPathString(keyPath, '')}:
       </strong>
     </span>
   );
