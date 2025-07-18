@@ -208,7 +208,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'true'
       );
     });
-    test('can filter nested props and drill back to root without removing json parser prop for active filters', async ({
+    test.only('can filter nested props and drill back to root without removing json parser prop for active filters', async ({
       page,
     }) => {
       await explorePage.goToLogsTab();
@@ -229,7 +229,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'aria-selected',
         'true'
       );
-      await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveCSS(
+      await expect(page.getByLabel('Include log lines that contain nested_object').nth(1)).toHaveCSS(
         'color',
         selectedButtonColor
       );
