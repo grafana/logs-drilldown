@@ -45,10 +45,9 @@ import { FilterOp } from '../../services/filterTypes';
 import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
+  getJsonLabelWrapStyles,
   getJSONVizNestedProperty,
-  getJSONVizValueLabelStyles,
   itemStringDelimiter,
-  jsonLabelWrapStyles,
   renderJSONVizTimeStamp,
 } from '../../services/JSONViz';
 import { hasValidParentNode } from '../../services/JSONVizNodes';
@@ -333,6 +332,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     lineFilters: AdHocFilterWithLabels[],
     jsonFiltersSupported?: boolean
   ) => {
+    const styles = useStyles2(getJsonLabelWrapStyles);
     const { fullKeyPath } = getFullKeyPath(keyPath, this);
     const fullKey = getJsonKey(fullKeyPath);
     const jsonParserProp = jsonParserPropsMap.get(fullKey);
@@ -348,7 +348,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
 
     return (
-      <span className={jsonLabelWrapStyles}>
+      <span className={styles.jsonNestedLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
             <ReRootJSONButton keyPath={keyPath} sceneRef={this} />
@@ -368,7 +368,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             />
           </>
         )}
-        <strong className={jsonLabelWrapStyles}>
+        <strong className={styles.jsonLabelWrapStyles}>
           {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
         </strong>
       </span>
@@ -386,7 +386,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     lineFilters: AdHocFilterWithLabels[],
     jsonFiltersSupported?: boolean
   ) => {
-    const styles = useStyles2(getJSONVizValueLabelStyles);
+    const styles = useStyles2(getJsonLabelWrapStyles);
     const value = this.getValue(keyPath, lineField.values)?.toString();
     const label = keyPath[0];
     const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
@@ -431,7 +431,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
             </>
           )}
 
-          <strong className={jsonLabelWrapStyles}>
+          <strong className={styles.jsonLabelWrapStyles}>
             {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
           </strong>
         </span>
@@ -461,7 +461,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
           existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.NotEqual)}
           type={'exclude'}
         />
-        <strong className={jsonLabelWrapStyles}>
+        <strong className={styles.jsonLabelWrapStyles}>
           {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
         </strong>
       </span>
