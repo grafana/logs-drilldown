@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Field } from '@grafana/data';
-import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph } from '@grafana/scenes';
 
 import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
@@ -12,13 +12,14 @@ import {
   JsonVizRootName,
   JSONLogsScene,
 } from '../JSONLogsScene';
+import { LogsListScene } from '../LogsListScene';
 import { JSONLabelText } from './JSONLabelText';
 import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
 import { JSONMetadataButtons } from './JSONMetadataButtons';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
-import { addJsonFilter } from 'services/JSONFilter';
+import { addJsonFieldFilter } from 'services/JSONFilter';
 import { getJSONVizNestedProperty, jsonLabelButtonsWrapStyle } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
@@ -46,6 +47,7 @@ export function JSONLeafLabel({
   const value = getValue(keyPath, lineField.values)?.toString();
   const label = keyPath[0];
   const existingVariableType = getFilterVariableTypeFromPath(keyPath);
+  const logsListScene = sceneGraph.getAncestor(logsJsonScene, LogsListScene);
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
   if (logsJsonScene.state.showHighlight && !hasFieldParentNode(keyPath)) {
@@ -62,12 +64,12 @@ export function JSONLeafLabel({
     return (
       <span className={jsonLabelButtonsWrapStyle}>
         <JSONMetadataButtons
-          model={logsJsonScene}
+          logsListScene={logsListScene}
           keyPath={keyPath}
           label={label}
           value={value}
           variableType={existingVariableType}
-          addJsonFilter={addJsonFilter}
+          addJsonFilter={addJsonFieldFilter}
           existingFilter={existingFilter}
         />
         <JSONLabelText text={highlightedValue} keyPathString={getKeyPathString(keyPath, '')} />
@@ -92,7 +94,7 @@ export function JSONLeafLabel({
           value={value}
           fullKeyPath={fullKeyPath}
           fullKey={fullKey}
-          addJsonFilter={addJsonFilter}
+          addJsonFilter={addJsonFieldFilter}
           existingFilter={existingJsonFilter}
           elements={highlightedValue}
           keyPathString={getKeyPathString(keyPath, '')}

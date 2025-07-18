@@ -7,7 +7,7 @@ import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { JSONLogsScene } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { addJsonFilter } from 'services/JSONFilter';
+import { addJsonFieldFilter } from 'services/JSONFilter';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
 
 interface Props {
@@ -26,7 +26,7 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
       tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
       onClick={(e) => {
         e.stopPropagation();
-        addJsonFilter({
+        addJsonFieldFilter({
           value: EMPTY_VARIABLE_VALUE,
           key: fullKeyPath,
           variableType: VAR_FIELDS,

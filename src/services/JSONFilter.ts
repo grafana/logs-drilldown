@@ -22,7 +22,14 @@ interface JsonFilterProps {
   variableType: InterpolatedFilterType;
 }
 
-export const addJsonFilter = ({ key, keyPath, value, filterType, logsJsonScene, variableType }: JsonFilterProps) => {
+export const addJsonFieldFilter = ({
+  key,
+  keyPath,
+  value,
+  filterType,
+  logsJsonScene,
+  variableType,
+}: JsonFilterProps) => {
   addCurrentUrlToHistory();
   // https://grafana.com/docs/loki/latest/get-started/labels/#label-format
   key = key.replace(LABEL_NAME_INVALID_CHARS, '_');
@@ -45,28 +52,28 @@ export const addJsonFilter = ({ key, keyPath, value, filterType, logsJsonScene, 
 
 interface NestedNodeFilterProps {
   filterType: FilterType;
-  fullKeyPath: string;
+  label: string;
   logsListScene: LogsListScene;
   value: string;
   variableType: InterpolatedFilterType;
 }
 
-export const addNestedNodeFilter = ({
-  fullKeyPath,
+export const addJsonMetadataFilter = ({
+  label,
   value,
   filterType,
   variableType,
   logsListScene,
 }: NestedNodeFilterProps) => {
   addCurrentUrlToHistory();
-  addToFilters(fullKeyPath, value, filterType, logsListScene, variableType, false);
+  addToFilters(label, value, filterType, logsListScene, variableType, false);
   reportAppInteraction(
     USER_EVENTS_PAGES.service_details,
     USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,
     {
       action: filterType,
       filterType,
-      fullKeyPath,
+      label: label,
     }
   );
 };

@@ -4,17 +4,17 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONLogsScene } from '../JSONLogsScene';
-import { FilterValueButton } from './JSONFilterValueButton';
+import { JSONMetadataButton } from './JSONFilterValueButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { addJsonFilter } from 'services/JSONFilter';
+import { addJsonFieldFilter, addJsonMetadataFilter } from 'services/JSONFilter';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 
 interface Props {
-  addJsonFilter: typeof addJsonFilter;
+  addJsonFilter: typeof addJsonFieldFilter;
   existingFilter: AdHocFilterWithLabels[];
   keyPath: KeyPath;
   label: string | number;
-  model: JSONLogsScene;
+  logsListScene: logsListScene;
   value: string;
   variableType: InterpolatedFilterType;
 }
@@ -25,44 +25,34 @@ interface Props {
  * @param existingFilter
  * @param keyPath
  * @param label
- * @param model
+ * @param logsListScene
  * @param value
  * @param variableType
  * @constructor
  */
-export function JSONMetadataButtons({
-  addJsonFilter,
-  existingFilter,
-  keyPath,
-  label,
-  model,
-  value,
-  variableType,
-}: Props) {
+export function JSONMetadataButtons({ existingFilter, keyPath, label, logsListScene, value, variableType }: Props) {
   const isFilterInclusive = (filter: AdHocFilterWithLabels) => isOperatorInclusive(filter.operator);
   const isFilterExclusive = (filter: AdHocFilterWithLabels) => isOperatorExclusive(filter.operator);
   return (
     <>
       {/* Include */}
-      <FilterValueButton
+      <JSONMetadataButton
         label={label.toString()}
         value={value}
         variableType={variableType}
-        addJsonFilter={addJsonFilter}
         existingFilter={existingFilter.find(isFilterInclusive)}
         type={'include'}
-        model={model}
+        logsListScene={logsListScene}
         keyPath={keyPath}
       />
       {/* Exclude */}
-      <FilterValueButton
+      <JSONMetadataButton
         label={label.toString()}
         value={value}
         variableType={variableType}
-        addJsonFilter={addJsonFilter}
         existingFilter={existingFilter.find(isFilterExclusive)}
         type={'exclude'}
-        model={model}
+        logsListScene={logsListScene}
         keyPath={keyPath}
       />
     </>

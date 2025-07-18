@@ -5,10 +5,10 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { JSONFilterValueButton } from './JSONFilterValueButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { addJsonFilter } from 'services/JSONFilter';
+import { addJsonFieldFilter } from 'services/JSONFilter';
 
 interface Props {
-  addJsonFilter: typeof addJsonFilter;
+  addJsonFilter: typeof addJsonFieldFilter;
   elements: Array<string | React.JSX.Element>;
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
