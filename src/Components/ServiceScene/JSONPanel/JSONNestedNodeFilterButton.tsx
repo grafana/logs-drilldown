@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type, logsJsonScene }: Props) {
-  const styles = useStyles2(getStyles, active);
+  const styles = useStyles2(getJSONFilterButtonStyles, active);
   return (
     <IconButton
       className={styles.button}
@@ -44,10 +44,13 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
   );
 }
 
-const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
+export const getJSONFilterButtonStyles = (theme: GrafanaTheme2, isActive: boolean) => {
   return {
     button: css({
       color: isActive ? undefined : theme.colors.text.secondary,
+      '&:hover': {
+        color: theme.colors.text.maxContrast,
+      },
     }),
   };
 };

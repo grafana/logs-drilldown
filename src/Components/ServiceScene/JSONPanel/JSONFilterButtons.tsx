@@ -1,13 +1,11 @@
 import React, { memo } from 'react';
 
-import { css } from '@emotion/css';
-
-import { GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONLogsScene } from '../JSONLogsScene';
+import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { FilterOp } from 'services/filterTypes';
 import { addJsonFieldFilter, addJsonMetadataFilter } from 'services/JSONFilter';
@@ -28,7 +26,7 @@ export const JSONFieldValueButton = memo(
   ({ addJsonFilter, existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
-    const styles = useStyles2(getStyles, isActive);
+    const styles = useStyles2(getJSONFilterButtonStyles, isActive);
 
     return (
       <IconButton
@@ -69,7 +67,7 @@ export const JSONMetadataButton = memo(
   ({ existingFilter, label, type, value, variableType, sceneRef }: MetadataFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
-    const styles = useStyles2(getStyles, isActive);
+    const styles = useStyles2(getJSONFilterButtonStyles, isActive);
 
     return (
       <IconButton
@@ -96,11 +94,3 @@ export const JSONMetadataButton = memo(
   }
 );
 JSONMetadataButton.displayName = 'JSONMetadataButton';
-
-const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
-  return {
-    button: css({
-      color: isActive ? undefined : theme.colors.text.secondary,
-    }),
-  };
-};
