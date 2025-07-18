@@ -7,7 +7,7 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
-import { LogsJsonScene } from '../LogsJsonScene';
+import { JSONLogsScene } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { FilterOp } from 'services/filterTypes';
 import { addJsonFilter } from 'services/JSONFilter';
@@ -19,7 +19,7 @@ interface JsonFilterProps {
   fullKey: string;
   keyPath: KeyPath;
   label: string | number;
-  model: LogsJsonScene;
+  model: JSONLogsScene;
   type: 'exclude' | 'include';
   value: string;
 }
@@ -29,7 +29,7 @@ interface MetadataFilterProps {
   existingFilter?: AdHocFilterWithLabels;
   keyPath: KeyPath;
   label: string;
-  model: LogsJsonScene;
+  model: JSONLogsScene;
   type: 'exclude' | 'include';
   value: string;
   variableType: InterpolatedFilterType;

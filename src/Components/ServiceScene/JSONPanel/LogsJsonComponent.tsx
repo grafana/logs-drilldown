@@ -7,10 +7,10 @@ import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
+import { JsonVizRootName, JSONLogsScene } from '../JSONLogsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
-import { JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { LogsListScene } from '../LogsListScene';
 import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
@@ -34,7 +34,7 @@ import {
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
-export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
+export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
     hasJsonFields,

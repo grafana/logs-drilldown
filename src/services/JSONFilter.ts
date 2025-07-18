@@ -5,7 +5,7 @@ import {
   FilterType,
   InterpolatedFilterType,
 } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { LogsJsonScene } from '../Components/ServiceScene/LogsJsonScene';
+import { JSONLogsScene } from '../Components/ServiceScene/JSONLogsScene';
 import { LogsListScene } from '../Components/ServiceScene/LogsListScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from './analytics';
 import { addJsonParserFieldValue } from './filters';
@@ -17,7 +17,7 @@ interface JsonFilterProps {
   filterType: FilterType;
   key: string;
   keyPath: KeyPath;
-  logsJsonScene: LogsJsonScene;
+  logsJsonScene: JSONLogsScene;
   value: string;
   variableType: InterpolatedFilterType;
 }

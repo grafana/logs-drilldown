@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { LogsJsonScene } from '../LogsJsonScene';
+import { JSONLogsScene } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { addJsonFilter } from 'services/JSONFilter';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
@@ -14,11 +14,11 @@ interface Props {
   active: boolean;
   fullKeyPath: string;
   keyPath: KeyPath;
-  logsJsonScene: LogsJsonScene;
+  logsJsonScene: JSONLogsScene;
   type: 'exclude' | 'include';
 }
 
-export function JSONFilterNestedNodeButton({ active, fullKeyPath, keyPath, type, logsJsonScene }: Props) {
+export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type, logsJsonScene }: Props) {
   const styles = useStyles2(getStyles, active);
   return (
     <IconButton

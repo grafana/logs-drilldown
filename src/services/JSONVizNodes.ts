@@ -2,7 +2,7 @@ import {
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
   JsonDataFrameTimeName,
-} from '../Components/ServiceScene/LogsJsonScene';
+} from '../Components/ServiceScene/JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 /**

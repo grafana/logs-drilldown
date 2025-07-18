@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { SceneObject } from '@grafana/scenes';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { setNewRootNode } from './JsonRootNodeNavigation';
+import { setNewRootNode } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 const ReRootJSONButton = memo(({ keyPath, sceneRef }: { keyPath: KeyPath; sceneRef: SceneObject }) => {

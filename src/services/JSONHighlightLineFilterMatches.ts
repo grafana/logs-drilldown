@@ -8,7 +8,11 @@ import {
   TextWithHighlightedValue,
 } from 'services/highlight';
 
-export function highlightLineFilterMatches(lineFilters: AdHocFilterWithLabels[], value: string, className?: string) {
+export function JSONHighlightLineFilterMatches(
+  lineFilters: AdHocFilterWithLabels[],
+  value: string,
+  className?: string
+) {
   const matchExpressions = getLineFilterRegExps(lineFilters);
   const lineFilterMatches = getMatchingIntervals(matchExpressions, value);
   const size = mergeOverlapping(lineFilterMatches);
@@ -20,7 +24,7 @@ export function highlightLineFilterMatches(lineFilters: AdHocFilterWithLabels[],
   return valueArray;
 }
 
-export function highlightRegexMatches(regex: RegExp[], value: string, className: string) {
+export function JSONHighlightRegexMatches(regex: RegExp[], value: string, className: string) {
   const lineFilterMatches = getMatchingIntervals(regex, value);
   const size = mergeOverlapping(lineFilterMatches);
   let valueArray: TextWithHighlightedValue = [];

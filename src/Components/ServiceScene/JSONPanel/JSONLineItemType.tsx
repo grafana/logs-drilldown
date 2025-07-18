@@ -13,7 +13,7 @@ import { FilterOp } from 'services/filterTypes';
 import { logsLabelLevelsMatches } from 'services/panel';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from 'services/variables';
 
-function JsonLineItemType({
+function LineItemType({
   detectedLevel,
   sceneRef,
   levelsVarFilters,
@@ -50,7 +50,7 @@ function JsonLineItemType({
   );
 }
 
-export default memo(JsonLineItemType);
+export const JSONLineItemType = memo(LineItemType);
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {

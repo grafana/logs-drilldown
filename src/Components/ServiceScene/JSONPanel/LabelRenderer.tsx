@@ -13,13 +13,13 @@ import {
   JsonLinksDisplayName,
   JsonVizRootName,
   LabelsDisplayName,
-  LogsJsonScene,
+  JSONLogsScene,
   NodeTypeLoc,
   StructuredMetadataDisplayName,
-} from '../LogsJsonScene';
-import JsonRootNodeNavigation from './JsonRootNodeNavigation';
-import { NestedNodeFilterButtons } from './NestedNodeFilterButtons';
-import { ValueLabel } from './ValueLabel';
+} from '../JSONLogsScene';
+import { JSONLeafLabel } from './JSONLeafLabel';
+import { JSONParentNodeFilterButtons } from './JSONParentNodeFilterButtons';
+import JSONRootNodeNavigation from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 import { isLogLineField } from 'services/fields';
 import { jsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from 'services/JSONViz';
@@ -32,7 +32,7 @@ interface LabelRendererProps {
   keyPath: KeyPath;
   lineField: Field;
   lineFilters: AdHocFilterWithLabels[];
-  model: LogsJsonScene;
+  model: JSONLogsScene;
   nodeType: string;
 }
 
@@ -49,27 +49,32 @@ export default function LabelRenderer({
   const value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
   const nodeTypeLoc = nodeType as NodeTypeLoc;
 
-  // Clean up internal names for special nodes
+  // Specific implementations for leaf nodes
+  // Metadata node
   if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
     return <strong className={jsonLabelWrapStyles}>{StructuredMetadataDisplayName}</strong>;
   }
+  // Labels node
   if (keyPath[0] === JsonDataFrameLabelsName) {
     return <strong className={jsonLabelWrapStyles}>{LabelsDisplayName}</strong>;
   }
+  // Links parent
   if (keyPath[0] === JsonDataFrameLinksName) {
     return <strong className={jsonLabelWrapStyles}>{JsonLinksDisplayName}</strong>;
   }
+  // Links node
   if (keyPath[1] === JsonDataFrameLinksName) {
     return <strong className={jsonLabelWrapStyles}>{value}:</strong>;
   }
+  // Root node
   if (keyPath[0] === JsonVizRootName) {
-    return <JsonRootNodeNavigation sceneRef={model} />;
+    return <JSONRootNodeNavigation sceneRef={model} />;
   }
 
   // Value nodes
-  if (isNodeValueNode(nodeTypeLoc, keyPath)) {
+  if (isJSONLeafNode(nodeTypeLoc, keyPath)) {
     return (
-      <ValueLabel
+      <JSONLeafLabel
         logsJsonScene={model}
         keyPath={keyPath}
         lineField={lineField}
@@ -82,9 +87,9 @@ export default function LabelRenderer({
   }
 
   // Parent nodes
-  if (isNodeParentNode(nodeTypeLoc, keyPath)) {
+  if (isJSONParentNode(nodeTypeLoc, keyPath)) {
     return (
-      <NestedNodeFilterButtons
+      <JSONParentNodeFilterButtons
         keyPath={keyPath}
         lineFilters={lineFilters}
         logsJsonScene={model}
@@ -114,7 +119,7 @@ export default function LabelRenderer({
  * @param nodeTypeLoc
  * @param keyPath
  */
-const isNodeValueNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
+const isJSONLeafNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
   return (
     nodeTypeLoc !== 'Object' &&
     nodeTypeLoc !== 'Array' &&
@@ -130,7 +135,7 @@ const isNodeValueNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
  * @param nodeTypeLoc
  * @param keyPath
  */
-const isNodeParentNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
+const isJSONParentNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
   return (
     (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
     !isLogLineField(keyPath[0].toString()) &&

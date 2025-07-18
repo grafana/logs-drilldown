@@ -3,31 +3,37 @@ import React from 'react';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
-import { LogsJsonScene } from '../LogsJsonScene';
+import { JSONLogsScene } from '../JSONLogsScene';
 import { FilterValueButton } from './JSONFilterValueButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { addJsonFilter } from 'services/JSONFilter';
-import { jsonLabelButtonsWrapStyle, jsonLabelWrapStyles } from 'services/JSONViz';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 
 interface Props {
   addJsonFilter: typeof addJsonFilter;
-  elements: Array<string | React.JSX.Element>;
   existingFilter: AdHocFilterWithLabels[];
   keyPath: KeyPath;
-  keyPathString: string | number;
   label: string | number;
-  model: LogsJsonScene;
+  model: JSONLogsScene;
   value: string;
   variableType: InterpolatedFilterType;
 }
 
-export function FieldNodeLabelButtons({
+/**
+ * Technically labels and metadata nodes
+ * @param addJsonFilter
+ * @param existingFilter
+ * @param keyPath
+ * @param label
+ * @param model
+ * @param value
+ * @param variableType
+ * @constructor
+ */
+export function JSONMetadataButtons({
   addJsonFilter,
-  elements,
   existingFilter,
   keyPath,
-  keyPathString,
   label,
   model,
   value,
@@ -36,7 +42,7 @@ export function FieldNodeLabelButtons({
   const isFilterInclusive = (filter: AdHocFilterWithLabels) => isOperatorInclusive(filter.operator);
   const isFilterExclusive = (filter: AdHocFilterWithLabels) => isOperatorExclusive(filter.operator);
   return (
-    <span className={jsonLabelButtonsWrapStyle}>
+    <>
       {/* Include */}
       <FilterValueButton
         label={label.toString()}
@@ -59,7 +65,6 @@ export function FieldNodeLabelButtons({
         model={model}
         keyPath={keyPath}
       />
-      <strong className={jsonLabelWrapStyles}>{elements.length ? elements : keyPathString}:</strong>
-    </span>
+    </>
   );
 }

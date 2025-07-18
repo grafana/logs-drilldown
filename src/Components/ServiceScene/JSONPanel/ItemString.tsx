@@ -19,10 +19,10 @@ import {
   JsonDataFrameLinksName,
   JsonDataFrameTimeName,
   JsonVizRootName,
-  LogsJsonScene,
-} from '../LogsJsonScene';
+  JSONLogsScene,
+} from '../JSONLogsScene';
 import { getLogsPanelFrame } from '../ServiceScene';
-import JsonLineItemType from './JsonLineItemType';
+import { JSONLineItemType } from './JSONLineItemType';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ItemStringProps {
@@ -31,7 +31,7 @@ interface ItemStringProps {
   itemType: React.ReactNode;
   keyPath: KeyPath;
   levelsVar: AdHocFiltersVariable;
-  model: LogsJsonScene;
+  model: JSONLogsScene;
   nodeType: string;
 }
 
@@ -56,7 +56,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
 
     if (detectedLevel) {
       return (
-        <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVarFilters={levelsVar.state.filters} />
+        <JSONLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVarFilters={levelsVar.state.filters} />
       );
     }
   }
@@ -74,7 +74,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
   return <span className={styles.wrapper}>{itemType}</span>;
 }
 
-export function renderLogLineActionButtons(keyPath: KeyPath, model: LogsJsonScene) {
+export function renderLogLineActionButtons(keyPath: KeyPath, model: JSONLogsScene) {
   const timeRange = sceneGraph.getTimeRange(model).state.value;
   return (
     <>
@@ -100,7 +100,7 @@ function getLinkToLog(keyPath: KeyPath, timeRange: TimeRange, rawFrame: DataFram
   copyText(logLineLink);
 }
 
-const getJsonDetectedLevel = (model: LogsJsonScene, keyPath: KeyPath) => {
+const getJsonDetectedLevel = (model: JSONLogsScene, keyPath: KeyPath) => {
   const labelsField: Field<Labels> | undefined = model.state.rawFrame?.fields.find(
     (f) => f.type === FieldType.other && isLabelsField(f.name)
   );

@@ -5,7 +5,7 @@ import { LinkButton } from '@grafana/ui';
 import { logger } from 'services/logger';
 import { narrowJsonDerivedFieldLinkPayload } from 'services/narrowing';
 
-function JsonLinkButton({ payload }: { payload: string }) {
+function JSONLinkNodeButton({ payload }: { payload: string }) {
   let decodedPayload;
   try {
     decodedPayload = JSON.parse(payload);
@@ -32,4 +32,4 @@ function JsonLinkButton({ payload }: { payload: string }) {
   return null;
 }
 
-export default JsonLinkButton;
+export default JSONLinkNodeButton;

@@ -81,7 +81,7 @@ export const JsonLinksDisplayName = 'Links';
 export const JsonDataFrameLabelsName = '__Labels';
 export const JsonVizRootName = 'root';
 
-export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
+export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
   public static Component = LogsJsonComponent;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'wrapLogMessage'],
@@ -148,13 +148,13 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     const $data = sceneGraph.getData(this);
     if ($data.state.data?.state === LoadingState.Done) {
-      this.transformDataFrame($data.state);
+      this.preProcessDataFrame($data.state);
     }
 
     this._subs.add(
       $data.subscribeToState((newState) => {
         if (newState.data?.state === LoadingState.Done) {
-          this.transformDataFrame(newState);
+          this.preProcessDataFrame(newState);
         }
       })
     );
@@ -194,7 +194,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
         if (newState.showMetadata !== prevState.showMetadata || newState.showLabels !== prevState.showLabels) {
-          this.transformDataFrame($data.state);
+          this.preProcessDataFrame($data.state);
         }
       })
     );
@@ -248,7 +248,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
   /**
    * Creates the dataframe consumed by the viz
    */
-  private transformDataFrame(newState: SceneDataState) {
+  private preProcessDataFrame(newState: SceneDataState) {
     const rawFrame = getLogsPanelFrame(newState.data);
     const dataFrame = rawFrame
       ? sortDataFrame(rawFrame, 1, this.state.sortOrder === LogsSortOrder.Descending)
@@ -288,7 +288,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       try {
                         parsed = JSON.parse(v);
                       } catch (e) {
-                        // @todo add error message in result?
                         parsed = v;
                       }
 

@@ -2,10 +2,10 @@ import React, { memo } from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { getKeyPathString, LogsJsonScene } from '../LogsJsonScene';
-import { highlightLineFilterMatches } from './highlightLineFilterMatches';
-import { JSONFilterNestedNodeButton } from './JSONFilterNestedNodeButton';
-import { getFullKeyPath } from './JsonRootNodeNavigation';
+import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
+import { getKeyPathString, JSONLogsScene } from '../JSONLogsScene';
+import { JSONNestedNodeFilterButton } from './JSONNestedNodeFilterButton';
+import { getFullKeyPath } from './JSONRootNodeNavigation';
 import ReRootJSONButton from './ReRootJSONButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
@@ -20,7 +20,7 @@ interface Props {
   jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineFilters: AdHocFilterWithLabels[];
-  logsJsonScene: LogsJsonScene;
+  logsJsonScene: JSONLogsScene;
 }
 
 function NestedNodeFilterButtonsComponent({
@@ -43,7 +43,7 @@ function NestedNodeFilterButtonsComponent({
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
   if (logsJsonScene.state.showHighlight) {
-    highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    highlightedValue = JSONHighlightLineFilterMatches(lineFilters, keyPath[0].toString());
   }
 
   return (
@@ -51,14 +51,14 @@ function NestedNodeFilterButtonsComponent({
       {jsonFiltersSupported && (
         <>
           <ReRootJSONButton keyPath={keyPath} sceneRef={logsJsonScene} />
-          <JSONFilterNestedNodeButton
+          <JSONNestedNodeFilterButton
             type={'include'}
             fullKeyPath={fullKey}
             keyPath={fullKeyPath}
             active={existingFilter ? isOperatorExclusive(existingFilter.operator) : false}
             logsJsonScene={logsJsonScene}
           />
-          <JSONFilterNestedNodeButton
+          <JSONNestedNodeFilterButton
             type={'exclude'}
             fullKeyPath={fullKey}
             keyPath={fullKeyPath}
@@ -74,4 +74,4 @@ function NestedNodeFilterButtonsComponent({
   );
 }
 
-export const NestedNodeFilterButtons = memo(NestedNodeFilterButtonsComponent);
+export const JSONParentNodeFilterButtons = memo(NestedNodeFilterButtonsComponent);

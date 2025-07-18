@@ -3,22 +3,23 @@ import React from 'react';
 import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
+import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import {
   getKeyPathString,
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
   JsonVizRootName,
-  LogsJsonScene,
-} from '../LogsJsonScene';
-import { FieldNodeLabelButtons } from './FieldNodeLabelButtons';
-import { highlightLineFilterMatches } from './highlightLineFilterMatches';
-import { getFullKeyPath } from './JsonRootNodeNavigation';
-import { ValueNodeLabelButtons } from './ValueNodeLabelButtons';
+  JSONLogsScene,
+} from '../JSONLogsScene';
+import { JSONLabelText } from './JSONLabelText';
+import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
+import { JSONMetadataButtons } from './JSONMetadataButtons';
+import { getFullKeyPath } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
 import { addJsonFilter } from 'services/JSONFilter';
-import { getJSONVizNestedProperty } from 'services/JSONViz';
+import { getJSONVizNestedProperty, jsonLabelButtonsWrapStyle } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from 'services/variables';
@@ -30,10 +31,10 @@ interface Props {
   keyPath: KeyPath;
   lineField: Field<string | number>;
   lineFilters: AdHocFilterWithLabels[];
-  logsJsonScene: LogsJsonScene;
+  logsJsonScene: JSONLogsScene;
 }
 
-export function ValueLabel({
+export function JSONLeafLabel({
   keyPath,
   lineField,
   fieldsVar,
@@ -48,7 +49,7 @@ export function ValueLabel({
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
   if (logsJsonScene.state.showHighlight && !hasFieldParentNode(keyPath)) {
-    highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    highlightedValue = JSONHighlightLineFilterMatches(lineFilters, keyPath[0].toString());
   }
 
   // Field (labels, metadata) nodes
@@ -59,17 +60,18 @@ export function ValueLabel({
     );
 
     return (
-      <FieldNodeLabelButtons
-        model={logsJsonScene}
-        keyPath={keyPath}
-        label={label}
-        value={value}
-        variableType={existingVariableType}
-        addJsonFilter={addJsonFilter}
-        existingFilter={existingFilter}
-        elements={highlightedValue}
-        keyPathString={getKeyPathString(keyPath, '')}
-      />
+      <span className={jsonLabelButtonsWrapStyle}>
+        <JSONMetadataButtons
+          model={logsJsonScene}
+          keyPath={keyPath}
+          label={label}
+          value={value}
+          variableType={existingVariableType}
+          addJsonFilter={addJsonFilter}
+          existingFilter={existingFilter}
+        />
+        <JSONLabelText text={highlightedValue} keyPathString={getKeyPathString(keyPath, '')} />
+      </span>
     );
   }
 
@@ -82,18 +84,23 @@ export function ValueLabel({
 
   // Value nodes
   return (
-    <ValueNodeLabelButtons
-      jsonFiltersSupported={jsonFiltersSupported}
-      label={label}
-      value={value}
-      fullKeyPath={fullKeyPath}
-      fullKey={fullKey}
-      addJsonFilter={addJsonFilter}
-      existingFilter={existingJsonFilter}
-      elements={highlightedValue}
-      keyPathString={getKeyPathString(keyPath, '')}
-      model={logsJsonScene}
-    />
+    <span className={jsonLabelButtonsWrapStyle}>
+      {jsonFiltersSupported && (
+        <JSONLeafNodeLabelButtons
+          jsonFiltersSupported={jsonFiltersSupported}
+          label={label}
+          value={value}
+          fullKeyPath={fullKeyPath}
+          fullKey={fullKey}
+          addJsonFilter={addJsonFilter}
+          existingFilter={existingJsonFilter}
+          elements={highlightedValue}
+          keyPathString={getKeyPathString(keyPath, '')}
+          model={logsJsonScene}
+        />
+      )}
+      <JSONLabelText text={highlightedValue} keyPathString={getKeyPathString(keyPath, '')} />
+    </span>
   );
 }
 

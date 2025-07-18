@@ -3,7 +3,7 @@ import React from 'react';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Button, Icon } from '@grafana/ui';
 
-import { JsonDataFrameLineName, JsonVizRootName } from '../LogsJsonScene';
+import { JsonDataFrameLineName, JsonVizRootName } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { clearJsonParserFields, isLogLineField } from 'services/fields';
@@ -22,7 +22,7 @@ interface Props {
  * Gets re-root button and key label for root node when line format filter is active.
  * aka breadcrumbs
  */
-export default function JsonRootNodeNavigation({ sceneRef }: Props) {
+export default function JSONRootNodeNavigation({ sceneRef }: Props) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const filters = lineFormatVar.state.filters;
   const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
