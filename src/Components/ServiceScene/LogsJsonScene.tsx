@@ -45,11 +45,11 @@ import { FilterOp } from '../../services/filterTypes';
 import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
+  getJsonNestedLabelWrapStyles,
   getJSONVizNestedProperty,
   getJSONVizValueLabelStyles,
   itemStringDelimiter,
   jsonLabelWrapStyles,
-  jsonNestedLabelWrapStyles,
   renderJSONVizTimeStamp,
 } from '../../services/JSONViz';
 import { hasValidParentNode } from '../../services/JSONVizNodes';
@@ -334,6 +334,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     lineFilters: AdHocFilterWithLabels[],
     jsonFiltersSupported?: boolean
   ) => {
+    const styles = useStyles2(getJsonNestedLabelWrapStyles);
     const { fullKeyPath } = getFullKeyPath(keyPath, this);
     const fullKey = getJsonKey(fullKeyPath);
     const jsonParserProp = jsonParserPropsMap.get(fullKey);
@@ -349,7 +350,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     }
 
     return (
-      <span className={jsonNestedLabelWrapStyles}>
+      <span className={styles.jsonNestedLabelWrapStyles}>
         {jsonFiltersSupported && (
           <>
             <ReRootJSONButton keyPath={keyPath} sceneRef={this} />

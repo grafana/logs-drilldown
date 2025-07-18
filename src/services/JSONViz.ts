@@ -23,7 +23,7 @@ export const getJSONVizValueLabelStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
-    marginLeft: '4px',
+    marginLeft: theme.spacing(0.5),
   }),
 });
 export const jsonLabelWrapStyles = css({
@@ -31,6 +31,14 @@ export const jsonLabelWrapStyles = css({
   color: 'var(--json-tree-label-color)',
   display: 'inline-flex',
   marginLeft: '10px',
+});
+export const getJsonNestedLabelWrapStyles = (theme: GrafanaTheme2) => ({
+  jsonNestedLabelWrapStyles: css({
+    alignItems: 'center',
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    marginLeft: theme.spacing(0.5),
+  }),
 });
 export const jsonNestedLabelWrapStyles = css({
   alignItems: 'center',
