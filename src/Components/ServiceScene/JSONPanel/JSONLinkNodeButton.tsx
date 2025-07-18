@@ -1,11 +1,15 @@
 import React from 'react';
 
-import { LinkButton } from '@grafana/ui';
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { LinkButton, useStyles2 } from '@grafana/ui';
 
 import { logger } from 'services/logger';
 import { narrowJsonDerivedFieldLinkPayload } from 'services/narrowing';
 
 function JSONLinkNodeButton({ payload }: { payload: string }) {
+  const styles = useStyles2(getStyles);
   let decodedPayload;
   try {
     decodedPayload = JSON.parse(payload);
@@ -17,6 +21,7 @@ function JSONLinkNodeButton({ payload }: { payload: string }) {
   if (decodedPayloadNarrowed) {
     return (
       <LinkButton
+        className={styles.button}
         icon={'external-link-alt'}
         variant={'secondary'}
         size={'sm'}
@@ -31,5 +36,14 @@ function JSONLinkNodeButton({ payload }: { payload: string }) {
 
   return null;
 }
+const getStyles = (theme: GrafanaTheme2) => {
+  return {
+    button: css({
+      '&:hover': {
+        color: theme.colors.primary.text,
+      },
+    }),
+  };
+};
 
 export default JSONLinkNodeButton;

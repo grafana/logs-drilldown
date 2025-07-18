@@ -1,15 +1,16 @@
 import React, { memo } from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
+import { useStyles2 } from '@grafana/ui';
 
 import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
+import { getJsonLabelWrapStyles } from '../../../services/JSONViz';
 import { getKeyPathString, JSONLogsScene } from '../JSONLogsScene';
 import { JSONNestedNodeFilterButton } from './JSONNestedNodeFilterButton';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import ReRootJSONButton from './ReRootJSONButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
-import { jsonLabelWrapStyles, jsonNestedLabelWrapStyles } from 'services/JSONViz';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 import { getValueFromFieldsFilter } from 'services/variableGetters';
 import { EMPTY_VARIABLE_VALUE } from 'services/variables';
@@ -33,6 +34,7 @@ function NestedNodeFilterButtonsComponent({
 }: Props) {
   const { fullKeyPath } = getFullKeyPath(keyPath, logsJsonScene);
   const fullKey = getJsonKey(fullKeyPath);
+  const styles = useStyles2(getJsonLabelWrapStyles);
 
   const jsonParserProp = jsonParserPropsMap.get(fullKey);
   const existingFilter =
@@ -47,7 +49,7 @@ function NestedNodeFilterButtonsComponent({
   }
 
   return (
-    <span className={jsonNestedLabelWrapStyles}>
+    <span className={styles.jsonNestedLabelWrapStyles}>
       {jsonFiltersSupported && (
         <>
           <ReRootJSONButton keyPath={keyPath} sceneRef={logsJsonScene} />
@@ -67,7 +69,7 @@ function NestedNodeFilterButtonsComponent({
           />
         </>
       )}
-      <strong className={jsonLabelWrapStyles}>
+      <strong className={styles.jsonLabelWrapStyles}>
         {highlightedValue.length ? highlightedValue : getKeyPathString(keyPath, '')}:
       </strong>
     </span>

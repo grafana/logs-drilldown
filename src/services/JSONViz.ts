@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 
-import { dateTimeFormat } from '@grafana/data';
+import { dateTimeFormat, GrafanaTheme2 } from '@grafana/data';
 
 export function getJSONVizNestedProperty(obj: Record<string, any>, props: Array<string | number>): any {
   if (props.length === 1) {
@@ -19,23 +19,24 @@ export const renderJSONVizTimeStamp = (epochMs: number, timeZone?: string) => {
   });
 };
 
-export const jsonLabelButtonsWrapStyle = css({
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
-  marginLeft: '4px',
-});
-
-export const jsonLabelWrapStyles = css({
-  alignItems: 'center',
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
-  marginLeft: '10px',
-});
-export const jsonNestedLabelWrapStyles = css({
-  alignItems: 'center',
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
-  marginLeft: '4px',
+export const getJsonLabelWrapStyles = (theme: GrafanaTheme2) => ({
+  labelButtonsWrap: css({
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    marginLeft: theme.spacing(0.5),
+  }),
+  jsonNestedLabelWrapStyles: css({
+    alignItems: 'center',
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    marginLeft: theme.spacing(0.5),
+  }),
+  jsonLabelWrapStyles: css({
+    alignItems: 'center',
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    marginLeft: theme.spacing(1.25),
+  }),
 });
 export const jsonLabelWrapStylesPrimary = css({
   alignItems: 'center',

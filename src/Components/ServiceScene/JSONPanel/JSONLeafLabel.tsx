@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
+import { useStyles2 } from '@grafana/ui';
 
 import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
@@ -19,7 +20,7 @@ import { getFullKeyPath } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
 import { addJsonFieldFilter } from 'services/JSONFilter';
-import { getJSONVizNestedProperty, jsonLabelButtonsWrapStyle } from 'services/JSONViz';
+import { getJsonLabelWrapStyles, getJSONVizNestedProperty } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from 'services/variables';
@@ -46,6 +47,7 @@ export function JSONLeafLabel({
   const value = getValue(keyPath, lineField.values)?.toString();
   const label = keyPath[0];
   const existingVariableType = getFilterVariableTypeFromPath(keyPath);
+  const styles = useStyles2(getJsonLabelWrapStyles);
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
   if (logsJsonScene.state.showHighlight && !hasFieldParentNode(keyPath)) {
@@ -60,7 +62,7 @@ export function JSONLeafLabel({
     );
 
     return (
-      <span className={jsonLabelButtonsWrapStyle}>
+      <span className={styles.labelButtonsWrap}>
         <JSONMetadataButtons
           sceneRef={logsJsonScene}
           label={label}
@@ -83,7 +85,7 @@ export function JSONLeafLabel({
 
   // Value nodes
   return (
-    <span className={jsonLabelButtonsWrapStyle}>
+    <span className={styles.labelButtonsWrap}>
       {jsonFiltersSupported && (
         <JSONLeafNodeLabelButtons
           jsonFiltersSupported={jsonFiltersSupported}
