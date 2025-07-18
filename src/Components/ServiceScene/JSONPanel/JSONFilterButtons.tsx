@@ -3,12 +3,11 @@ import React, { memo } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { AdHocFilterWithLabels } from '@grafana/scenes';
+import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONLogsScene } from '../JSONLogsScene';
-import { LogsListScene } from '../LogsListScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { FilterOp } from 'services/filterTypes';
 import { addJsonFieldFilter, addJsonMetadataFilter } from 'services/JSONFilter';
@@ -25,16 +24,7 @@ interface JsonFilterProps {
   value: string;
 }
 
-interface MetadataFilterProps {
-  existingFilter?: AdHocFilterWithLabels;
-  keyPath: KeyPath;
-  label: string;
-  logsListScene: LogsListScene;
-  type: 'exclude' | 'include';
-  value: string;
-  variableType: InterpolatedFilterType;
-}
-export const JSONFilterValueButton = memo(
+export const JSONFieldValueButton = memo(
   ({ addJsonFilter, existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
@@ -64,10 +54,19 @@ export const JSONFilterValueButton = memo(
     );
   }
 );
-JSONFilterValueButton.displayName = 'JSONFilterValueButton';
+JSONFieldValueButton.displayName = 'JSONFilterValueButton';
+
+interface MetadataFilterProps {
+  existingFilter?: AdHocFilterWithLabels;
+  label: string;
+  sceneRef: SceneObject;
+  type: 'exclude' | 'include';
+  value: string;
+  variableType: InterpolatedFilterType;
+}
 
 export const JSONMetadataButton = memo(
-  ({ existingFilter, label, type, value, variableType, logsListScene }: MetadataFilterProps) => {
+  ({ existingFilter, label, type, value, variableType, sceneRef }: MetadataFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getStyles, isActive);
@@ -84,7 +83,7 @@ export const JSONMetadataButton = memo(
             value,
             filterType: existingFilter?.operator === operator ? 'toggle' : type,
             variableType,
-            logsListScene,
+            sceneRef,
           });
         }}
         aria-selected={existingFilter?.operator === operator}
@@ -96,7 +95,7 @@ export const JSONMetadataButton = memo(
     );
   }
 );
-JSONMetadataButton.displayName = 'FilterValueButton';
+JSONMetadataButton.displayName = 'JSONMetadataButton';
 
 const getStyles = (theme: GrafanaTheme2, isActive: boolean) => {
   return {

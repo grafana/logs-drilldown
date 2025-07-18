@@ -3,7 +3,7 @@ import React from 'react';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { JSONLogsScene } from '../JSONLogsScene';
-import { JSONFilterValueButton } from './JSONFilterValueButton';
+import { JSONFieldValueButton } from './JSONFilterButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { addJsonFieldFilter } from 'services/JSONFilter';
 
@@ -31,7 +31,7 @@ export function JSONLeafNodeLabelButtons({
 }: Props) {
   return (
     <>
-      <JSONFilterValueButton
+      <JSONFieldValueButton
         label={label}
         value={value}
         keyPath={fullKeyPath}
@@ -41,7 +41,7 @@ export function JSONLeafNodeLabelButtons({
         type={'include'}
         model={model}
       />
-      <JSONFilterValueButton
+      <JSONFieldValueButton
         label={label}
         value={value}
         keyPath={fullKeyPath}

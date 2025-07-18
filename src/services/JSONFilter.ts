@@ -1,4 +1,4 @@
-import { sceneGraph } from '@grafana/scenes';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
 
 import {
   addToFilters,
@@ -53,20 +53,14 @@ export const addJsonFieldFilter = ({
 interface NestedNodeFilterProps {
   filterType: FilterType;
   label: string;
-  logsListScene: LogsListScene;
+  sceneRef: SceneObject;
   value: string;
   variableType: InterpolatedFilterType;
 }
 
-export const addJsonMetadataFilter = ({
-  label,
-  value,
-  filterType,
-  variableType,
-  logsListScene,
-}: NestedNodeFilterProps) => {
+export const addJsonMetadataFilter = ({ label, value, filterType, variableType, sceneRef }: NestedNodeFilterProps) => {
   addCurrentUrlToHistory();
-  addToFilters(label, value, filterType, logsListScene, variableType, false);
+  addToFilters(label, value, filterType, sceneRef, variableType, false);
   reportAppInteraction(
     USER_EVENTS_PAGES.service_details,
     USER_EVENTS_ACTIONS.service_details.add_to_filters_in_json_panel,

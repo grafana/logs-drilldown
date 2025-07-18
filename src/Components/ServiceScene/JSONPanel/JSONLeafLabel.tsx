@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Field } from '@grafana/data';
-import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
@@ -9,10 +9,9 @@ import {
   getKeyPathString,
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
-  JsonVizRootName,
   JSONLogsScene,
+  JsonVizRootName,
 } from '../JSONLogsScene';
-import { LogsListScene } from '../LogsListScene';
 import { JSONLabelText } from './JSONLabelText';
 import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
 import { JSONMetadataButtons } from './JSONMetadataButtons';
@@ -47,7 +46,6 @@ export function JSONLeafLabel({
   const value = getValue(keyPath, lineField.values)?.toString();
   const label = keyPath[0];
   const existingVariableType = getFilterVariableTypeFromPath(keyPath);
-  const logsListScene = sceneGraph.getAncestor(logsJsonScene, LogsListScene);
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
   if (logsJsonScene.state.showHighlight && !hasFieldParentNode(keyPath)) {
@@ -64,8 +62,7 @@ export function JSONLeafLabel({
     return (
       <span className={jsonLabelButtonsWrapStyle}>
         <JSONMetadataButtons
-          logsListScene={logsListScene}
-          keyPath={keyPath}
+          sceneRef={logsJsonScene}
           label={label}
           value={value}
           variableType={existingVariableType}
