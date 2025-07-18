@@ -18,10 +18,12 @@ import {
   MappingType,
   transformDataFrame,
   ValueMap,
+  LoadingState,
+  dateTime,
 } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
-import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
-import { Drawer, Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
+import { getTemplateSrv, PanelRenderer } from '@grafana/runtime';
+import { LogsSortOrder, TableColoredBackgroundCellOptions } from '@grafana/schema';
+import { Drawer, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
 import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
 import { testIds } from '../../services/testIds';
@@ -71,14 +73,43 @@ function TableAndContext(props: {
   width: number;
 }) {
   return (
-    <GrafanaTable
-      onColumnResize={props.onResize}
-      initialRowIndex={props.selectedLine}
-      cellHeight={TableCellHeight.Sm}
-      data={props.data}
-      height={props.height}
+    // <GrafanaTable
+    //   onColumnResize={props.onResize}
+    //   initialRowIndex={props.selectedLine}
+    //   cellHeight={TableCellHeight.Sm}
+    //   data={props.data}
+    //   height={props.height}
+    //   width={props.width}
+    //   footerOptions={{ countRows: true, reducer: ['count'], show: true }}
+    // />
+    // move to props to fieldConfig turn off cell inspect,
+    // portal context menu twoo adhoc filters, and add column mgmt with data links
+    // https://grafana.com/docs/grafana-cloud/visualizations/dashboards/build-dashboards/create-dashboard-url-variables/
+    // allow overflow
+    // value mapping per pill, links
+    <PanelRenderer
+      data={{
+        series: [props.data],
+        state: LoadingState.Done,
+        timeRange: { from: dateTime(), to: dateTime(), raw: { from: 'now-1h', to: 'now' } },
+      }}
+      fieldConfig={{
+        defaults: {
+          custom: {
+            inspect: false,
+            footerOptions: {
+              countRows: true,
+              reducer: ['count'],
+              show: true,
+            },
+          },
+        },
+        overrides: [],
+      }}
+      pluginId="table"
+      title=""
       width={props.width}
-      footerOptions={{ countRows: true, reducer: ['count'], show: true }}
+      height={props.height}
     />
   );
 }
