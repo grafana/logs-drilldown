@@ -40,12 +40,6 @@ export const getJsonNestedLabelWrapStyles = (theme: GrafanaTheme2) => ({
     marginLeft: theme.spacing(0.5),
   }),
 });
-export const jsonNestedLabelWrapStyles = css({
-  alignItems: 'center',
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
-  marginLeft: '4px',
-});
 export const jsonLabelWrapStylesPrimary = css({
   alignItems: 'center',
   display: 'inline-flex',
