@@ -5,6 +5,7 @@ import { testIds } from '../src/services/testIds';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const selectedButtonColor = 'rgb(110, 159, 255)';
+const hoverButtonColor = 'rgb(255, 255, 255)';
 const fieldName = 'method';
 test.describe('explore nginx-json breakdown pages ', () => {
   let explorePage: ExplorePage;
@@ -160,7 +161,9 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await explorePage.getJsonToggleLocator().click();
 
       // Drilldown into nested_node
-      await page.getByLabel('Set nested_object as root node').first().click();
+      await page.getByLabel('Set nested_object as root node').first().focus();
+      await page.keyboard.press('Enter');
+
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(EXPANDED_NODE_COUNT);
 
       // Add filter from new root
@@ -173,10 +176,10 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'aria-selected',
         'true'
       );
-      // Don't love checking a specific CSS property, but the primary color shouldn't change any time soon, and #1412 broke the selected color by applying another color style
+      // This always returns the hover style, even if you focus another element.
       await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveCSS(
         'color',
-        selectedButtonColor
+        hoverButtonColor
       );
 
       // Drill down again into DeeplyNestedObject
@@ -229,7 +232,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'aria-selected',
         'true'
       );
-      await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveCSS(
+      await expect(page.getByLabel('Include log lines that contain nested_object').nth(1)).toHaveCSS(
         'color',
         selectedButtonColor
       );

@@ -6,35 +6,35 @@ import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isLogLineField, isLogsIdField } from '../../../services/fields';
-import { getLogsHighlightStyles } from '../../../services/highlight';
-import {
-  setJsonHighlightVisibility,
-  setJsonLabelsVisibility,
-  setJsonMetadataVisibility,
-  setLogOption,
-} from '../../../services/store';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-} from '../../../services/variableGetters';
-import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
+import { JsonVizRootName, JSONLogsScene } from '../JSONLogsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
-import { JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { LogsListScene } from '../LogsListScene';
 import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
 import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
+import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
+import { isLogLineField, isLogsIdField } from 'services/fields';
+import { getLogsHighlightStyles } from 'services/highlight';
+import {
+  setJsonHighlightVisibility,
+  setJsonLabelsVisibility,
+  setJsonMetadataVisibility,
+  setLogOption,
+} from 'services/store';
+import {
+  getFieldsVariable,
+  getJsonFieldsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+} from 'services/variableGetters';
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
-export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
+export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
     hasJsonFields,
@@ -179,6 +179,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                 hideRootExpand={true}
                 valueWrap={''}
                 shouldExpandNodeInitially={(_, __, level) => level <= 2}
+                // Render item type string, e.g. (), {}
                 getItemString={(nodeType, data, itemType, itemString, keyPath) => (
                   <ItemString
                     itemString={itemString}
@@ -190,6 +191,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     levelsVar={levelsVar}
                   />
                 )}
+                // Render node values
                 valueRenderer={(valueAsString, _, ...keyPath) => (
                   <ValueRenderer
                     valueAsString={valueAsString}
@@ -198,6 +200,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     model={model}
                   />
                 )}
+                // Render node labels
                 labelRenderer={(keyPath, nodeType) => (
                   <LabelRenderer
                     model={model}

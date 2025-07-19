@@ -2,7 +2,7 @@ import {
   JsonDataFrameLabelsName,
   JsonDataFrameStructuredMetadataName,
   JsonDataFrameTimeName,
-} from '../Components/ServiceScene/LogsJsonScene';
+} from '../Components/ServiceScene/JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 /**
@@ -13,10 +13,10 @@ export const isTimeLabelNode = (keyPath: KeyPath) => {
   return keyPath[0] === JsonDataFrameTimeName;
 };
 
-export const hasValidParentNode = (keyPath: KeyPath) => {
-  return (
-    keyPath[1] !== undefined &&
-    keyPath[1] !== JsonDataFrameStructuredMetadataName &&
-    keyPath[1] !== JsonDataFrameLabelsName
-  );
+/**
+ * Does the node at keyPath have a metadata or labels parent node?
+ * @param keyPath
+ */
+export const hasFieldParentNode = (keyPath: KeyPath) => {
+  return keyPath[1] === JsonDataFrameStructuredMetadataName || keyPath[1] === JsonDataFrameLabelsName;
 };

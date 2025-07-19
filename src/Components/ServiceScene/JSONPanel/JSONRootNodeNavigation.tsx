@@ -3,22 +3,26 @@ import React from 'react';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Button, Icon } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { clearJsonParserFields, isLogLineField } from '../../../services/fields';
-import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from '../../../services/filters';
-import { LineFormatFilterOp } from '../../../services/filterTypes';
-import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from '../../../services/JSONViz';
-import { LABEL_NAME_INVALID_CHARS } from '../../../services/labels';
-import { addCurrentUrlToHistory } from '../../../services/navigate';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from '../../../services/variableGetters';
-import { JsonDataFrameLineName, JsonVizRootName } from '../LogsJsonScene';
+import { JsonDataFrameLineName, JsonVizRootName } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { clearJsonParserFields, isLogLineField } from 'services/fields';
+import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from 'services/filters';
+import { LineFormatFilterOp } from 'services/filterTypes';
+import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from 'services/JSONViz';
+import { LABEL_NAME_INVALID_CHARS } from 'services/labels';
+import { addCurrentUrlToHistory } from 'services/navigate';
+import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from 'services/variableGetters';
 
 interface Props {
   sceneRef: SceneObject;
 }
 
-export default function JsonRootNodeNavigation({ sceneRef }: Props) {
+/**
+ * Gets re-root button and key label for root node when line format filter is active.
+ * aka breadcrumbs
+ */
+export default function JSONRootNodeNavigation({ sceneRef }: Props) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const filters = lineFormatVar.state.filters;
   const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
@@ -63,7 +67,10 @@ export default function JsonRootNodeNavigation({ sceneRef }: Props) {
   );
 }
 
-export function getFullKeyPath(keyPath: ReadonlyArray<string | number>, sceneObject: SceneObject) {
+export function getFullKeyPath(
+  keyPath: ReadonlyArray<string | number>,
+  sceneObject: SceneObject
+): { fullKeyPath: KeyPath; fullPathFilters: AdHocFilterWithLabels[] } {
   const lineFormatVar = getLineFormatVariable(sceneObject);
 
   const fullPathFilters: AdHocFilterWithLabels[] = [
