@@ -9,6 +9,7 @@ import { IconButton, useStyles2 } from '@grafana/ui';
 import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 interface Props {
+  disabledLineState?: boolean;
   lineState?: LogLineState;
   onLineStateClick?(): void;
   onScrollToBottomClick?(): void;
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export const LogListControls = ({
+  disabledLineState,
   lineState,
   onLineStateClick,
   onScrollToBottomClick,
@@ -92,7 +94,7 @@ export const LogListControls = ({
       )}
       {showLabels !== undefined && onToggleLabelsClick && (
         <IconButton
-          name="key-skeleton-alt"
+          name="tag-alt"
           aria-pressed={showLabels}
           className={showLabels ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleLabelsClick(!showLabels)}
@@ -112,7 +114,8 @@ export const LogListControls = ({
       )}
       {onLineStateClick && lineState && (
         <IconButton
-          name={lineState === LogLineState.text ? 'brackets-curly' : 'text-fields'}
+          disabled={disabledLineState}
+          name={lineState === LogLineState.text ? 'tag-alt' : 'text-fields'}
           className={styles.controlButton}
           onClick={onLineStateClick}
           tooltip={lineState === LogLineState.text ? 'Show labels' : 'Show log text'}
