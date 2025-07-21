@@ -28,7 +28,7 @@ import { isTimeLabelNode } from 'services/JSONVizNodes';
 
 interface LabelRendererProps {
   fieldsVar: AdHocFiltersVariable;
-  JSONFiltersSupported: boolean | undefined;
+  JSONFiltersSupported: boolean | null;
   JSONParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineField: Field;

@@ -42,7 +42,7 @@ interface JSONLogsSceneState extends SceneObjectState {
   hasMetadata: boolean;
   // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
-  JSONFiltersSupported?: boolean;
+  JSONFiltersSupported: boolean | null;
   menu?: PanelMenu;
   rawFrame?: DataFrame;
   sortOrder: LogsSortOrder;
@@ -75,6 +75,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       hasMetadata: getJSONMetadataState(),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', true),
+      JSONFiltersSupported: null,
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -221,7 +222,8 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
     if (getDetectedFieldsParserField(detectedFieldFrame)?.values.some((v) => v === 'json' || v === 'mixed')) {
       this.setState({
         hasJSONFields: true,
-        JSONFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
+        JSONFiltersSupported:
+          getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined) ?? null,
       });
     } else {
       this.setState({

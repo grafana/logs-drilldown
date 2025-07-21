@@ -127,6 +127,9 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
     [model]
   );
 
+  const showNoJSONDetected = lineField && lineField.values.length > 0 && hasJSONFields === false;
+  const showLokiNotSupported = !JSONFiltersSupported && showNoJSONDetected !== true;
+
   return (
     <div className={styles.panelChromeWrap}>
       {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
@@ -162,12 +165,12 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
           )}
           {lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
-              {JSONFiltersSupported === false && (
+              {showLokiNotSupported && (
                 <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
                   This view will be read only until Loki is upgraded to 3.5.0
                 </Alert>
               )}
-              {lineField.values.length > 0 && hasJSONFields === false && (
+              {showNoJSONDetected && (
                 <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
                   better experience.

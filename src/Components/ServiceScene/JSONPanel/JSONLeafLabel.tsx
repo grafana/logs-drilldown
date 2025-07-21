@@ -26,7 +26,7 @@ import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA 
 
 interface Props {
   fieldsVar: AdHocFiltersVariable;
-  JSONFiltersSupported?: boolean;
+  JSONFiltersSupported: boolean | null;
   JSONLogsScene: JSONLogsScene;
   JSONParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;

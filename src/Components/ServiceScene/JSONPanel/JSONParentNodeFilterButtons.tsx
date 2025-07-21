@@ -17,7 +17,7 @@ import { EMPTY_VARIABLE_VALUE } from 'services/variables';
 
 interface Props {
   fieldsFilters: AdHocFilterWithLabels[];
-  JSONFiltersSupported?: boolean;
+  JSONFiltersSupported: boolean | null;
   JSONLogsScene: JSONLogsScene;
   JSONParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
