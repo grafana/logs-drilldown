@@ -201,7 +201,6 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
   }
 
   /**
-   * @todo clean up duplicate method in /src/Components/ServiceScene/LogsTableScene.tsx
    * @param newOrder
    */
   handleSortChange = (newOrder: LogsSortOrder) => {
