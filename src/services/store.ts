@@ -309,7 +309,7 @@ export function getJSONMetadataState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_METADATA_VISIBLE_KEY);
 }
 
-export function setJsonMetadataVisibility(state: boolean) {
+export function setJSONMetadataVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_METADATA_VISIBLE_KEY, state ? 'true' : '');
 }
 
@@ -319,7 +319,7 @@ export function getJSONHighlightState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
 }
 
-export function setJsonHighlightVisibility(state: boolean) {
+export function setJSONHighlightVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY, state ? 'true' : '');
 }
 
@@ -329,7 +329,7 @@ export function getJSONLabelsState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_LABELS_VISIBLE_KEY);
 }
 
-export function setJsonLabelsVisibility(state: boolean) {
+export function setJSONLabelsVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_LABELS_VISIBLE_KEY, state ? 'true' : '');
 }
 

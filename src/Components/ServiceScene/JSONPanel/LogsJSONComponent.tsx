@@ -20,9 +20,9 @@ import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
 import { isLogLineField, isLogsIdField } from 'services/fields';
 import { getLogsHighlightStyles } from 'services/highlight';
 import {
-  setJsonHighlightVisibility,
-  setJsonLabelsVisibility,
-  setJsonMetadataVisibility,
+  setJSONHighlightVisibility,
+  setJSONLabelsVisibility,
+  setJSONMetadataVisibility,
   setLogOption,
 } from 'services/store';
 import {
@@ -34,7 +34,7 @@ import {
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
-export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLogsScene>) {
+export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
     hasJSONFields,
@@ -79,11 +79,11 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
   JSONVariable.state.filters.forEach((filter) => {
     // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
     // all json props are wrapped with [\" ... "\], strip those chars out so we have the actual key used in the json
-    const fullKeyFromJsonParserProps = filter.value
+    const fullKeyFromJSONParserProps = filter.value
       .substring(3, filter.value.length - 3)
       .split('\\"][\\"')
       .join('_');
-    JSONParserPropsMap.set(fullKeyFromJsonParserProps, filter);
+    JSONParserPropsMap.set(fullKeyFromJSONParserProps, filter);
   });
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -98,7 +98,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
   const onToggleStructuredMetadataClick = useCallback(
     (visible: boolean) => {
       model.setState({ hasMetadata: visible });
-      setJsonMetadataVisibility(visible);
+      setJSONMetadataVisibility(visible);
     },
     [model]
   );
@@ -106,7 +106,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
   const onToggleLabelsClick = useCallback(
     (visible: boolean) => {
       model.setState({ hasLabels: visible });
-      setJsonLabelsVisibility(visible);
+      setJSONLabelsVisibility(visible);
     },
     [model]
   );
@@ -114,7 +114,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
   const onToggleHighlightClick = useCallback(
     (visible: boolean) => {
       model.setState({ hasHighlight: visible });
-      setJsonHighlightVisibility(visible);
+      setJSONHighlightVisibility(visible);
     },
     [model]
   );

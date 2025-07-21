@@ -144,7 +144,7 @@ export function getDetectedFieldsTypeField(detectedFieldsFrame?: DataFrame) {
   const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
   return parserField;
 }
-export function getDetectedFieldsJsonPathField(detectedFieldsFrame?: DataFrame) {
+export function getDetectedFieldsJSONPathField(detectedFieldsFrame?: DataFrame) {
   const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
   return pathField;
 }
@@ -172,7 +172,7 @@ export function getParserAndPathForField(
   const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
-  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJSONPathField(detectedFieldsFrame);
 
   const index = namesField?.values.indexOf(fieldName);
   const parser =
@@ -357,7 +357,7 @@ export function buildFieldsQueryString(
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
   const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
-  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJSONPathField(detectedFieldsFrame);
   const index = namesField?.values.indexOf(optionValue);
 
   const parserForThisField =

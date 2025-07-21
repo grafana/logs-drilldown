@@ -11,7 +11,7 @@ import {
 
 import {
   clearJSONParserFields,
-  getDetectedFieldsJsonPathField,
+  getDetectedFieldsJSONPathField,
   getDetectedFieldsParserField,
 } from '../../services/fields';
 import { preProcessJSONDataFrame } from '../../services/JSONDataFrame';
@@ -20,7 +20,7 @@ import { getPrettyQueryExpr } from '../../services/scenes';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
+import LogsJSONComponent from './JSONPanel/LogsJSONComponent';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
@@ -62,7 +62,7 @@ export const JSONDataFrameLabelsName = '__Labels';
 export const JSONVizRootName = 'root';
 
 export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
-  public static Component = LogsJsonComponent;
+  public static Component = LogsJSONComponent;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'wrapLogMessage'],
   });
@@ -223,7 +223,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       this.setState({
         hasJSONFields: true,
         JSONFiltersSupported:
-          getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined) ?? null,
+          getDetectedFieldsJSONPathField(detectedFieldFrame)?.values.some((v) => v !== undefined) ?? null,
       });
     } else {
       this.setState({
