@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
@@ -7,7 +7,7 @@ import { JSONFieldValueButton } from './JSONFilterButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
 interface Props {
-  elements: Array<string | React.JSX.Element>;
+  elements: ReactNode[];
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
   fullKeyPath: KeyPath;
