@@ -11,13 +11,14 @@ import { rootNodeItemString } from '../../../services/JSONViz';
 import { hasProp } from '../../../services/narrowing';
 import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import {
-  JsonDataFrameLineName,
-  JsonDataFrameLinksName,
-  JsonDataFrameTimeName,
-  JsonVizRootName,
-  LogsJsonScene,
-} from '../LogsJsonScene';
-import JsonLineItemType from './JsonLineItemType';
+  JSONDataFrameLineName,
+  JSONDataFrameLinksName,
+  JSONDataFrameTimeName,
+  JSONLogsScene,
+  JSONVizRootName,
+} from '../JSONLogsScene';
+import { JSONLineItemType } from './JSONLineItemType';
+import { JSONLogLineActionButtons } from './JSONLogLineActionButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ItemStringProps {
@@ -26,17 +27,18 @@ interface ItemStringProps {
   itemType: React.ReactNode;
   keyPath: KeyPath;
   levelsVar: AdHocFiltersVariable;
-  model: LogsJsonScene;
+  model: JSONLogsScene;
   nodeType: string;
 }
 
 export default function ItemString({ data, itemString, itemType, keyPath, model, levelsVar }: ItemStringProps) {
   const styles = useStyles2(getStyles);
-  if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
-    return model.renderLogLineActionButtons(keyPath, model);
+  if (data && hasProp(data, JSONDataFrameTimeName) && typeof data.Time === 'string') {
+    return <JSONLogLineActionButtons keyPath={keyPath} model={model} />;
   }
 
-  if (keyPath[0] === JsonVizRootName) {
+  // The root node, which is visualized as the breadcrumb navigation
+  if (keyPath[0] === JSONVizRootName) {
     return (
       <span className={rootNodeItemString}>
         {itemType} {itemString}
@@ -44,17 +46,19 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
     );
   }
 
-  if (keyPath[0] === JsonDataFrameLineName) {
+  // log line nodes render the log level as the "ItemString"
+  if (keyPath[0] === JSONDataFrameLineName) {
     const detectedLevel = getJsonDetectedLevel(model, keyPath);
 
     if (detectedLevel) {
       return (
-        <JsonLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVarFilters={levelsVar.state.filters} />
+        <JSONLineItemType sceneRef={model} detectedLevel={detectedLevel} levelsVarFilters={levelsVar.state.filters} />
       );
     }
   }
 
-  if (keyPath[0] === JsonDataFrameLinksName) {
+  // Link nodes render the link icon
+  if (keyPath[0] === JSONDataFrameLinksName) {
     return (
       <span className={styles.wrapper}>
         <Icon size={'sm'} name={'link'} />
@@ -62,10 +66,11 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
     );
   }
 
+  // All other nodes return the itemType string from the library, e.g. [], {}
   return <span className={styles.wrapper}>{itemType}</span>;
 }
 
-const getJsonDetectedLevel = (model: LogsJsonScene, keyPath: KeyPath) => {
+const getJsonDetectedLevel = (model: JSONLogsScene, keyPath: KeyPath) => {
   const labelsField: Field<Labels> | undefined = model.state.rawFrame?.fields.find(
     (f) => f.type === FieldType.other && isLabelsField(f.name)
   );

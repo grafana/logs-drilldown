@@ -22,8 +22,8 @@ import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings }
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
+import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
-import { LogsJsonScene } from './LogsJsonScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import {
@@ -256,7 +256,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               xSizing: 'fill',
             }),
             new SceneFlexItem({
-              body: new LogsJsonScene({}),
+              body: new JSONLogsScene({}),
               height: 'calc(100vh - 220px)',
             }),
           ]

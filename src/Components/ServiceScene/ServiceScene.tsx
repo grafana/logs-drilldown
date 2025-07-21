@@ -27,7 +27,7 @@ import { plugin } from '../../module';
 import { areArraysEqual } from '../../services/comparison';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
-import { clearJsonParserFields } from '../../services/fields';
+import { clearJSONParserFields } from '../../services/fields';
 import { filterUnusedJSONFilters } from '../../services/filters';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
@@ -493,7 +493,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   ) {
     const lineFormatVariable = getLineFormatVariable(this);
     if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
-      clearJsonParserFields(this);
+      clearJSONParserFields(this);
 
       // A field was removed
     } else if (newState.filters.length < prevState.filters.length) {

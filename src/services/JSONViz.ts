@@ -19,26 +19,26 @@ export const renderJSONVizTimeStamp = (epochMs: number, timeZone?: string) => {
   });
 };
 
-export const getJsonLabelWrapStyles = (theme: GrafanaTheme2) => ({
+export const getJSONLabelWrapStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
     marginLeft: theme.spacing(0.5),
   }),
-  jsonNestedLabelWrapStyles: css({
+  JSONNestedLabelWrapStyles: css({
     alignItems: 'center',
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
     marginLeft: theme.spacing(0.5),
   }),
-  jsonLabelWrapStyles: css({
+  JSONLabelWrapStyles: css({
     alignItems: 'center',
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
     marginLeft: theme.spacing(1.25),
   }),
 });
-export const jsonLabelWrapStylesPrimary = css({
+export const JSONLabelWrapStylesPrimary = css({
   alignItems: 'center',
   display: 'inline-flex',
 });

@@ -3,38 +3,42 @@ import React from 'react';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Button, Icon } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { clearJsonParserFields, isLogLineField } from '../../../services/fields';
-import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from '../../../services/filters';
-import { LineFormatFilterOp } from '../../../services/filterTypes';
-import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from '../../../services/JSONViz';
-import { LABEL_NAME_INVALID_CHARS } from '../../../services/labels';
-import { addCurrentUrlToHistory } from '../../../services/navigate';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from '../../../services/variableGetters';
-import { JsonDataFrameLineName, JsonVizRootName } from '../LogsJsonScene';
+import { JSONDataFrameLineName, JSONVizRootName } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { clearJSONParserFields, isLogLineField } from 'services/fields';
+import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from 'services/filters';
+import { LineFormatFilterOp } from 'services/filterTypes';
+import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from 'services/JSONViz';
+import { LABEL_NAME_INVALID_CHARS } from 'services/labels';
+import { addCurrentUrlToHistory } from 'services/navigate';
+import { getFieldsVariable, getJSONFieldsVariable, getLineFormatVariable } from 'services/variableGetters';
 
 interface Props {
   sceneRef: SceneObject;
 }
 
-export default function JsonRootNodeNavigation({ sceneRef }: Props) {
+/**
+ * Gets re-root button and key label for root node when line format filter is active.
+ * aka breadcrumbs
+ */
+export default function JSONRootNodeNavigation({ sceneRef }: Props) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const filters = lineFormatVar.state.filters;
-  const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
+  const rootKeyPath = [JSONDataFrameLineName, 0, JSONVizRootName];
 
   return (
     <>
-      <span className={drillUpWrapperStyle} key={JsonVizRootName}>
+      <span className={drillUpWrapperStyle} key={JSONVizRootName}>
         <Button
           size={'sm'}
           onClick={() => setNewRootNode(rootKeyPath, sceneRef)}
           variant={'secondary'}
           fill={'outline'}
           disabled={!filters.length}
-          name={JsonVizRootName}
+          name={JSONVizRootName}
         >
-          {JsonVizRootName}
+          {JSONVizRootName}
         </Button>
         {filters.length > 0 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
       </span>
@@ -63,14 +67,17 @@ export default function JsonRootNodeNavigation({ sceneRef }: Props) {
   );
 }
 
-export function getFullKeyPath(keyPath: ReadonlyArray<string | number>, sceneObject: SceneObject) {
+export function getFullKeyPath(
+  keyPath: ReadonlyArray<string | number>,
+  sceneObject: SceneObject
+): { fullKeyPath: KeyPath; fullPathFilters: AdHocFilterWithLabels[] } {
   const lineFormatVar = getLineFormatVariable(sceneObject);
 
   const fullPathFilters: AdHocFilterWithLabels[] = [
     ...lineFormatVar.state.filters,
     ...keyPath
       // line format filters only store the parent node field names
-      .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== JsonVizRootName)
+      .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== JSONVizRootName)
       // keyPath order is from child to root, we want to order from root to child
       .reverse()
       // convert to ad-hoc filter
@@ -107,8 +114,8 @@ export const setNewRootNode = (keyPath: KeyPath, sceneRef: SceneObject) => {
   } else {
     // Otherwise we're drilling back up to the root
     removeLineFormatFilters(sceneRef);
-    clearJsonParserFields(sceneRef);
-    lineFormatEvent('remove', JsonVizRootName);
+    clearJSONParserFields(sceneRef);
+    lineFormatEvent('remove', JSONVizRootName);
   }
 };
 
@@ -135,18 +142,18 @@ export const addDrillUp = (key: string, sceneRef: SceneObject) => {
   addCurrentUrlToHistory();
 
   const lineFormatVariable = getLineFormatVariable(sceneRef);
-  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const JSONVar = getJSONFieldsVariable(sceneRef);
   const fieldsVar = getFieldsVariable(sceneRef);
 
   const lineFormatFilters = lineFormatVariable.state.filters;
   const keyIndex = lineFormatFilters.findIndex((filter) => filter.key === key);
   const lineFormatFiltersToKeep = lineFormatFilters.filter((_, index) => index <= keyIndex);
-  const jsonParserKeys: string[] = [];
+  const JSONParserKeys: string[] = [];
 
   for (let i = 0; i < lineFormatFilters.length; i++) {
-    jsonParserKeys.push(
+    JSONParserKeys.push(
       `${
-        jsonParserKeys.length
+        JSONParserKeys.length
           ? `${lineFormatFilters
               .map((filter) => filter.key)
               .slice(0, i)
@@ -156,16 +163,16 @@ export const addDrillUp = (key: string, sceneRef: SceneObject) => {
     );
   }
 
-  const jsonParserKeysToRemove = jsonParserKeys.slice(keyIndex + 1);
+  const JSONParserKeysToRemove = JSONParserKeys.slice(keyIndex + 1);
   const fieldsFilterSet = new Set();
   fieldsVar.state.filters.forEach((fieldFilter) => fieldsFilterSet.add(fieldFilter.key));
 
-  const jsonParserFilters = jsonVar.state.filters.filter(
-    (filter) => !jsonParserKeysToRemove.includes(filter.key) || fieldsFilterSet.has(filter.key)
+  const JSONParserFilters = JSONVar.state.filters.filter(
+    (filter) => !JSONParserKeysToRemove.includes(filter.key) || fieldsFilterSet.has(filter.key)
   );
 
-  jsonVar.setState({
-    filters: jsonParserFilters,
+  JSONVar.setState({
+    filters: JSONParserFilters,
   });
   lineFormatVariable.setState({
     filters: lineFormatFiltersToKeep,

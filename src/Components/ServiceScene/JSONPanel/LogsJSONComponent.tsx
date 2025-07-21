@@ -6,43 +6,43 @@ import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { isLogLineField, isLogsIdField } from '../../../services/fields';
-import { getLogsHighlightStyles } from '../../../services/highlight';
-import {
-  setJsonHighlightVisibility,
-  setJsonLabelsVisibility,
-  setJsonMetadataVisibility,
-  setLogOption,
-} from '../../../services/store';
-import {
-  getFieldsVariable,
-  getJsonFieldsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-} from '../../../services/variableGetters';
-import { LogsPanelHeaderActions } from '../../Table/LogsHeaderActions';
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
+import { JSONVizRootName, JSONLogsScene } from '../JSONLogsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
-import { JsonVizRootName, LogsJsonScene } from '../LogsJsonScene';
 import { LogsListScene } from '../LogsListScene';
 import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
 import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
+import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
+import { isLogLineField, isLogsIdField } from 'services/fields';
+import { getLogsHighlightStyles } from 'services/highlight';
+import {
+  setJSONHighlightVisibility,
+  setJSONLabelsVisibility,
+  setJSONMetadataVisibility,
+  setLogOption,
+} from 'services/store';
+import {
+  getFieldsVariable,
+  getJSONFieldsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+} from 'services/variableGetters';
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
-export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
+export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
-    hasJsonFields,
-    jsonFiltersSupported,
+    hasJSONFields,
+    JSONFiltersSupported,
     menu,
-    showHighlight,
-    showLabels,
-    showMetadata,
+    hasHighlight,
+    hasLabels,
+    hasMetadata,
     sortOrder,
     wrapLogMessage,
     data,
@@ -57,13 +57,13 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
   const styles = useStyles2(getStyles, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
-  const jsonVar = getJsonFieldsVariable(model);
+  const JSONVariable = getJSONFieldsVariable(model);
   const levelsVar = getLevelsVariable(model);
 
   // If we have a line format variable, we are drilled down into a nested node
   const dataFrame = getLogsPanelFrame(data);
   const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
-  const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
+  const JSONParserPropsMap = new Map<string, AdHocFilterWithLabels>();
   const lineFilterVar = getLineFiltersVariable(model);
 
   const scrollToPath: ScrollToPath | undefined = useMemo(() => {
@@ -73,17 +73,17 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     const idField = rawFrame?.fields.find((field) => isLogsIdField(field.name));
     const lineIndex = idField?.values.findIndex((v) => v === selectedLine?.id);
     const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
-    return cleanLineIndex !== undefined ? [cleanLineIndex, JsonVizRootName] : undefined;
+    return cleanLineIndex !== undefined ? [cleanLineIndex, JSONVizRootName] : undefined;
   }, [selectedLine, rawFrame]);
 
-  jsonVar.state.filters.forEach((filter) => {
+  JSONVariable.state.filters.forEach((filter) => {
     // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
     // all json props are wrapped with [\" ... "\], strip those chars out so we have the actual key used in the json
-    const fullKeyFromJsonParserProps = filter.value
+    const fullKeyFromJSONParserProps = filter.value
       .substring(3, filter.value.length - 3)
       .split('\\"][\\"')
       .join('_');
-    jsonParserPropsMap.set(fullKeyFromJsonParserProps, filter);
+    JSONParserPropsMap.set(fullKeyFromJSONParserProps, filter);
   });
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,24 +97,24 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
 
   const onToggleStructuredMetadataClick = useCallback(
     (visible: boolean) => {
-      model.setState({ showMetadata: visible });
-      setJsonMetadataVisibility(visible);
+      model.setState({ hasMetadata: visible });
+      setJSONMetadataVisibility(visible);
     },
     [model]
   );
 
   const onToggleLabelsClick = useCallback(
     (visible: boolean) => {
-      model.setState({ showLabels: visible });
-      setJsonLabelsVisibility(visible);
+      model.setState({ hasLabels: visible });
+      setJSONLabelsVisibility(visible);
     },
     [model]
   );
 
   const onToggleHighlightClick = useCallback(
     (visible: boolean) => {
-      model.setState({ showHighlight: visible });
-      setJsonHighlightVisibility(visible);
+      model.setState({ hasHighlight: visible });
+      setJSONHighlightVisibility(visible);
     },
     [model]
   );
@@ -126,6 +126,9 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
     },
     [model]
   );
+
+  const showNoJSONDetected = lineField && lineField.values.length > 0 && hasJSONFields === false;
+  const showLokiNotSupported = !JSONFiltersSupported && showNoJSONDetected !== true;
 
   return (
     <div className={styles.panelChromeWrap}>
@@ -148,11 +151,11 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
             <LogListControls
               onWrapLogMessageClick={onWrapLogMessageClick}
               wrapLogMessage={wrapLogMessage}
-              showHighlight={showHighlight}
+              showHighlight={hasHighlight}
               onToggleHighlightClick={onToggleHighlightClick}
-              showMetadata={showMetadata}
+              showMetadata={hasMetadata}
               onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
-              showLabels={showLabels}
+              showLabels={hasLabels}
               onToggleLabelsClick={onToggleLabelsClick}
               sortOrder={sortOrder}
               onSortOrderChange={model.handleSortChange}
@@ -162,12 +165,12 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
           )}
           {lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
-              {jsonFiltersSupported === false && (
+              {showLokiNotSupported && (
                 <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
                   This view will be read only until Loki is upgraded to 3.5.0
                 </Alert>
               )}
-              {lineField.values.length > 0 && hasJsonFields === false && (
+              {showNoJSONDetected && (
                 <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
                   better experience.
@@ -179,6 +182,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                 hideRootExpand={true}
                 valueWrap={''}
                 shouldExpandNodeInitially={(_, __, level) => level <= 2}
+                // Render item type string, e.g. (), {}
                 getItemString={(nodeType, data, itemType, itemString, keyPath) => (
                   <ItemString
                     itemString={itemString}
@@ -190,6 +194,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     levelsVar={levelsVar}
                   />
                 )}
+                // Render node values
                 valueRenderer={(valueAsString, _, ...keyPath) => (
                   <ValueRenderer
                     valueAsString={valueAsString}
@@ -198,6 +203,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     model={model}
                   />
                 )}
+                // Render node labels
                 labelRenderer={(keyPath, nodeType) => (
                   <LabelRenderer
                     model={model}
@@ -205,8 +211,8 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJso
                     keyPath={keyPath}
                     fieldsVar={fieldsVar}
                     lineField={lineField}
-                    jsonFiltersSupported={jsonFiltersSupported}
-                    jsonParserPropsMap={jsonParserPropsMap}
+                    JSONFiltersSupported={JSONFiltersSupported}
+                    JSONParserPropsMap={JSONParserPropsMap}
                     lineFilters={lineFilterVar.state.filters}
                   />
                 )}

@@ -5,10 +5,10 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { LinkButton, useStyles2 } from '@grafana/ui';
 
-import { logger } from '../../../services/logger';
-import { narrowJsonDerivedFieldLinkPayload } from '../../../services/narrowing';
+import { logger } from 'services/logger';
+import { narrowJsonDerivedFieldLinkPayload } from 'services/narrowing';
 
-function JsonLinkButton({ payload }: { payload: string }) {
+function JSONLinkNodeButton({ payload }: { payload: string }) {
   const styles = useStyles2(getStyles);
   let decodedPayload;
   try {
@@ -46,4 +46,4 @@ const getStyles = (theme: GrafanaTheme2) => {
   };
 };
 
-export default JsonLinkButton;
+export default JSONLinkNodeButton;

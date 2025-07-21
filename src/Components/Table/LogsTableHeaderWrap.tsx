@@ -21,7 +21,7 @@ export function LogsTableHeaderWrap(props: {
 
   slideRight?: (cols: FieldNameMetaStore) => void;
 }) {
-  const { bodyState, columns, setBodyState, setColumns } = useTableColumnContext();
+  const { bodyState, columns, setBodyState, setColumns, columnWidthMap, setColumnWidthMap } = useTableColumnContext();
   const { logsFrame } = useQueryContext();
   const styles = getStyles();
   const { linkButton } = useSharedStyles();
@@ -47,8 +47,14 @@ export function LogsTableHeaderWrap(props: {
       pendingColumnState[field.name].active = false;
       pendingColumnState[field.name].index = undefined;
       setColumns(pendingColumnState);
+
+      // Remove the column width from columnWidthMap when hiding the column
+      if (columnWidthMap[field.name] !== undefined) {
+        const { [field.name]: omit, ...updatedColumnWidthMap } = columnWidthMap;
+        setColumnWidthMap(updatedColumnWidthMap);
+      }
     },
-    [columns, setColumns]
+    [columns, setColumns, columnWidthMap, setColumnWidthMap]
   );
 
   const isBodyField = props.headerProps.field.name === getBodyName(logsFrame);

@@ -243,7 +243,7 @@ export function getBooleanLogOption(option: keyof Options, defaultValue: boolean
   if (localStorageResult === null) {
     return defaultValue;
   }
-  return localStorageResult === '' || localStorageResult === 'false' ? false : true;
+  return !(localStorageResult === '' || localStorageResult === 'false');
 }
 
 export function setLogOption(option: keyof Options, value: string | number | boolean) {
@@ -305,31 +305,31 @@ export function getJsonParserVariableVisibility(): boolean {
 
 // JSON viz metadata node visibility
 const JSON_VIZ_METADATA_VISIBLE_KEY = `${pluginJson.id}.jsonViz.metadata`;
-export function getJsonMetadataVisibility(): boolean {
+export function getJSONMetadataState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_METADATA_VISIBLE_KEY);
 }
 
-export function setJsonMetadataVisibility(state: boolean) {
+export function setJSONMetadataVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_METADATA_VISIBLE_KEY, state ? 'true' : '');
 }
 
 // JSON viz metadata node visibility
 const JSON_VIZ_HIGHLIGHT_VISIBLE_KEY = `${pluginJson.id}.jsonViz.highlight`;
-export function getJsonHighlightVisibility(): boolean {
+export function getJSONHighlightState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
 }
 
-export function setJsonHighlightVisibility(state: boolean) {
+export function setJSONHighlightVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY, state ? 'true' : '');
 }
 
 // JSON viz labels node visibility
 const JSON_VIZ_LABELS_VISIBLE_KEY = `${pluginJson.id}.jsonViz.labels`;
-export function getJsonLabelsVisibility(): boolean {
+export function getJSONLabelsState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_LABELS_VISIBLE_KEY);
 }
 
-export function setJsonLabelsVisibility(state: boolean) {
+export function setJSONLabelsVisibility(state: boolean) {
   localStorage.setItem(JSON_VIZ_LABELS_VISIBLE_KEY, state ? 'true' : '');
 }
 
