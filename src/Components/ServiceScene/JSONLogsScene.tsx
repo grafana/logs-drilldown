@@ -44,9 +44,9 @@ import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
 import {
   getBooleanLogOption,
-  getJsonHighlightVisibility,
-  getJsonLabelsVisibility,
-  getJsonMetadataVisibility,
+  getJSONHighlightState,
+  getJSONLabelsState,
+  getJSONMetadataState,
   getLogOption,
   setLogOption,
 } from 'services/store';
@@ -54,20 +54,20 @@ import {
 interface LogsJsonSceneState extends SceneObjectState {
   data?: PanelData;
   emptyScene?: NoMatchingLabelsScene;
+  hasHighlight: boolean;
   hasJsonFields?: boolean;
+  hasLabels: boolean;
+  hasMetadata: boolean;
   // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   jsonFiltersSupported?: boolean;
   menu?: PanelMenu;
   rawFrame?: DataFrame;
-  showHighlight: boolean;
-  showLabels: boolean;
-  showMetadata: boolean;
   sortOrder: LogsSortOrder;
   wrapLogMessage: boolean;
 }
 
-export type NodeTypeLoc = 'Array' | 'Boolean' | 'Custom' | 'Number' | 'Object' | 'String';
+export type NodeType = 'Array' | 'Boolean' | 'Custom' | 'Number' | 'Object' | 'String';
 type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
 type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;
 
@@ -90,9 +90,9 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
   constructor(state: Partial<LogsJsonSceneState>) {
     super({
       ...state,
-      showHighlight: getJsonHighlightVisibility(),
-      showLabels: getJsonLabelsVisibility(),
-      showMetadata: getJsonMetadataVisibility(),
+      hasHighlight: getJSONHighlightState(),
+      hasLabels: getJSONLabelsState(),
+      hasMetadata: getJSONMetadataState(),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', true),
     });
@@ -193,7 +193,7 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
     // Subscribe to options state changes
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
-        if (newState.showMetadata !== prevState.showMetadata || newState.showLabels !== prevState.showLabels) {
+        if (newState.hasMetadata !== prevState.hasMetadata || newState.hasLabels !== prevState.hasLabels) {
           this.preProcessDataFrame($data.state);
         }
       })
@@ -312,10 +312,10 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
                         [JsonDataFrameLineName]: parsed,
                         [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                       };
-                      if (this.state.showLabels && Object.keys(indexedLabels).length > 0) {
+                      if (this.state.hasLabels && Object.keys(indexedLabels).length > 0) {
                         line[JsonDataFrameLabelsName] = indexedLabels;
                       }
-                      if (this.state.showMetadata && Object.keys(structuredMetadata).length > 0) {
+                      if (this.state.hasMetadata && Object.keys(structuredMetadata).length > 0) {
                         line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
                       }
                       if (derivedFields !== undefined) {

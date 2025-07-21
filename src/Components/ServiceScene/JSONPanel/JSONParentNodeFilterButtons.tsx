@@ -44,7 +44,7 @@ function NestedNodeFilterButtonsComponent({
     );
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
-  if (logsJsonScene.state.showHighlight) {
+  if (logsJsonScene.state.hasHighlight) {
     highlightedValue = JSONHighlightLineFilterMatches(lineFilters, keyPath[0].toString());
   }
 

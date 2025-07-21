@@ -37,7 +37,7 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
   }
 
   // If highlighting is enabled, split up the value string into an array of React objects wrapping text that matches syntax regex or matches line filter regex
-  if (model.state.showHighlight) {
+  if (model.state.hasHighlight) {
     // Don't show line filter matches on field nodes
     if (!hasFieldParentNode(keyPath)) {
       let valueArray = JSONHighlightLineFilterMatches(lineFilters, value);

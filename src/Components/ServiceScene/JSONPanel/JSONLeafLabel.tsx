@@ -50,7 +50,7 @@ export function JSONLeafLabel({
   const styles = useStyles2(getJsonLabelWrapStyles);
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
-  if (logsJsonScene.state.showHighlight && !hasFieldParentNode(keyPath)) {
+  if (logsJsonScene.state.hasHighlight && !hasFieldParentNode(keyPath)) {
     highlightedValue = JSONHighlightLineFilterMatches(lineFilters, keyPath[0].toString());
   }
 

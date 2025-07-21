@@ -15,7 +15,7 @@ import {
   JsonVizRootName,
   LabelsDisplayName,
   JSONLogsScene,
-  NodeTypeLoc,
+  NodeType,
   StructuredMetadataDisplayName,
 } from '../JSONLogsScene';
 import { JSONLeafLabel } from './JSONLeafLabel';
@@ -49,7 +49,7 @@ export default function LabelRenderer({
 }: LabelRendererProps) {
   const style = useStyles2(getJsonLabelWrapStyles);
   const value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
-  const nodeTypeLoc = nodeType as NodeTypeLoc;
+  const nodeTypeLoc = nodeType as NodeType;
 
   // Specific implementations for leaf nodes
   // Metadata node
@@ -121,7 +121,7 @@ export default function LabelRenderer({
  * @param nodeTypeLoc
  * @param keyPath
  */
-const isJSONLeafNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
+const isJSONLeafNode = (nodeTypeLoc: NodeType, keyPath: KeyPath) => {
   return (
     nodeTypeLoc !== 'Object' &&
     nodeTypeLoc !== 'Array' &&
@@ -137,7 +137,7 @@ const isJSONLeafNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
  * @param nodeTypeLoc
  * @param keyPath
  */
-const isJSONParentNode = (nodeTypeLoc: NodeTypeLoc, keyPath: KeyPath) => {
+const isJSONParentNode = (nodeTypeLoc: NodeType, keyPath: KeyPath) => {
   return (
     (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
     !isLogLineField(keyPath[0].toString()) &&

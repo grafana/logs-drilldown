@@ -40,9 +40,9 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
     hasJsonFields,
     jsonFiltersSupported,
     menu,
-    showHighlight,
-    showLabels,
-    showMetadata,
+    hasHighlight,
+    hasLabels,
+    hasMetadata,
     sortOrder,
     wrapLogMessage,
     data,
@@ -97,7 +97,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
 
   const onToggleStructuredMetadataClick = useCallback(
     (visible: boolean) => {
-      model.setState({ showMetadata: visible });
+      model.setState({ hasMetadata: visible });
       setJsonMetadataVisibility(visible);
     },
     [model]
@@ -105,7 +105,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
 
   const onToggleLabelsClick = useCallback(
     (visible: boolean) => {
-      model.setState({ showLabels: visible });
+      model.setState({ hasLabels: visible });
       setJsonLabelsVisibility(visible);
     },
     [model]
@@ -113,7 +113,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
 
   const onToggleHighlightClick = useCallback(
     (visible: boolean) => {
-      model.setState({ showHighlight: visible });
+      model.setState({ hasHighlight: visible });
       setJsonHighlightVisibility(visible);
     },
     [model]
@@ -148,11 +148,11 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
             <LogListControls
               onWrapLogMessageClick={onWrapLogMessageClick}
               wrapLogMessage={wrapLogMessage}
-              showHighlight={showHighlight}
+              showHighlight={hasHighlight}
               onToggleHighlightClick={onToggleHighlightClick}
-              showMetadata={showMetadata}
+              showMetadata={hasMetadata}
               onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
-              showLabels={showLabels}
+              showLabels={hasLabels}
               onToggleLabelsClick={onToggleLabelsClick}
               sortOrder={sortOrder}
               onSortOrderChange={model.handleSortChange}
