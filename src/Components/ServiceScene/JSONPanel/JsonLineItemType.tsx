@@ -11,6 +11,7 @@ import { FilterOp } from '../../../services/filterTypes';
 import { logsLabelLevelsMatches } from '../../../services/panel';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../services/variables';
 import { addToFilters } from '../Breakdowns/AddToFiltersButton';
+import { JSON_VIZ_LINE_HEIGHT } from './LogsJsonComponent';
 
 function JsonLineItemType({
   detectedLevel,
@@ -54,11 +55,12 @@ export default memo(JsonLineItemType);
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     levelButtonStyles: css({
-      height: '22px',
+      height: JSON_VIZ_LINE_HEIGHT,
+      marginLeft: '12px',
       fontFamily: theme.typography.fontFamilyMonospace,
       appearance: 'none',
       background: 'none',
-      border: '1px solid',
+      border: 'none',
       fontSize: '0.9em',
       // Keep button padding from pushing text further than other item string
       padding: theme.spacing(0, 0.5, 0, 0.5),

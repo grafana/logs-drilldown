@@ -4,8 +4,9 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { hasValidParentNode, isTimeLabelNode } from '../../../services/JSONVizNodes';
 import { logsSyntaxMatches } from '../../../services/logsSyntaxMatches';
-import { LogsJsonScene } from '../LogsJsonScene';
+import { JsonDataFrameLinksName, LogsJsonScene } from '../LogsJsonScene';
 import { highlightLineFilterMatches, highlightRegexMatches } from './highlightLineFilterMatches';
+import JsonLinkButton from './JsonLinkButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 
 interface ValueRendererProps {
@@ -23,6 +24,10 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
   const value = valueAsString?.toString();
   if (!value) {
     return null;
+  }
+
+  if (keyPath[1] === JsonDataFrameLinksName) {
+    return <JsonLinkButton payload={value} />;
   }
 
   if (model.state.showHighlight) {

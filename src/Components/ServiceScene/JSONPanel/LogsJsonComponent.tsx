@@ -32,6 +32,8 @@ import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
 import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
 
+export const JSON_VIZ_LINE_HEIGHT = '24px';
+
 export default function LogsJsonComponent({ model }: SceneComponentProps<LogsJsonScene>) {
   const {
     emptyScene,
@@ -256,12 +258,13 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
       font-family: ${theme.typography.fontFamilyMonospace};
       font-family: ${theme.typography.fontFamilyMonospace}; // override css variables
       --json-tree-align-items: flex-start;
-      --json-tree-label-color: ${theme.colors.text.secondary};
-      --json-tree-label-value-color: ${theme.colors.text.primary};
+      --json-tree-label-color: ${theme.colors.text.primary};
+      --json-tree-label-value-color: ${theme.colors.text.secondary};
       --json-tree-arrow-color: ${theme.colors.secondary.contrastText};
       --json-tree-ul-root-padding: ${theme.spacing(3)} 0 ${theme.spacing(2)} 0;
       --json-tree-arrow-left-offset: -${theme.spacing(2)};
       --json-tree-inline: inline-grid;
+      --json-tree-value-label-margin: 1em;
       // Scroll offset for sticky header
       --json-tree-scroll-margin: 26px;
       // Scroll behavior @todo set "auto" instead of "smooth" for users with prefers-reduced-motion
@@ -274,11 +277,16 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
       // Prevents scrollbar from getting tucked behind the fixed header
       clip-path: inset(0 0 0 0);
 
+      // Line height defines the height of each line
+      li {
+        line-height: ${JSON_VIZ_LINE_HEIGHT};
+      }
+
       //first treeItem node
       > ul > li {
         // line wrap
         width: 100%;
-        margin-top: 2px;
+        margin-top: ${theme.spacing(2.5)};
       }
 
       // Array and other labels additional without markup

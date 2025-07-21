@@ -19,17 +19,24 @@ export const renderJSONVizTimeStamp = (epochMs: number, timeZone?: string) => {
   });
 };
 
-export const getJSONVizValueLabelStyles = (theme: GrafanaTheme2) => ({
+export const getJsonLabelWrapStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',
+    marginLeft: theme.spacing(0.5),
   }),
-});
-
-export const jsonLabelWrapStyles = css({
-  alignItems: 'center',
-  color: 'var(--json-tree-label-color)',
-  display: 'inline-flex',
+  jsonNestedLabelWrapStyles: css({
+    alignItems: 'center',
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    marginLeft: theme.spacing(0.5),
+  }),
+  jsonLabelWrapStyles: css({
+    alignItems: 'center',
+    color: 'var(--json-tree-label-color)',
+    display: 'inline-flex',
+    marginLeft: theme.spacing(1.25),
+  }),
 });
 export const jsonLabelWrapStylesPrimary = css({
   alignItems: 'center',
@@ -53,10 +60,4 @@ export const rootNodeItemString = css({
   // Match small button font size
   fontSize: '12px',
   textWrap: 'nowrap',
-});
-export const itemStringStyles = css({
-  color: 'var(--json-tree-label-color)',
-});
-export const labelButtonStyles = css({
-  color: 'var(--json-tree-label-color)',
 });

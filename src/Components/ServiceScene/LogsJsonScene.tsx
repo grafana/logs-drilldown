@@ -6,13 +6,14 @@ import {
   DataFrame,
   Field,
   FieldType,
+  getLinksSupplier,
   getTimeZone,
   LoadingState,
   LogsSortOrder,
   PanelData,
   sortDataFrame,
 } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { getTemplateSrv, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -28,6 +29,7 @@ import {
 import { Button, Icon, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getJsonDerivedFieldsLinks } from '../../services/derivedFields';
 import {
   clearJsonParserFields,
   getDetectedFieldsJsonPathField,
@@ -43,10 +45,9 @@ import { FilterOp } from '../../services/filterTypes';
 import {
   breadCrumbDelimiter,
   drillUpWrapperStyle,
+  getJsonLabelWrapStyles,
   getJSONVizNestedProperty,
-  getJSONVizValueLabelStyles,
   itemStringDelimiter,
-  jsonLabelWrapStyles,
   renderJSONVizTimeStamp,
 } from '../../services/JSONViz';
 import { hasValidParentNode } from '../../services/JSONVizNodes';
@@ -117,15 +118,21 @@ export type AddMetadataFilter = (
   variableType: InterpolatedFilterType
 ) => void;
 
+type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
+type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;
+
 export const JsonDataFrameTimeName = 'Time';
 export const JsonDataFrameLineName = 'Line';
 export const StructuredMetadataDisplayName = 'Metadata';
 export const LabelsDisplayName = 'Labels';
 export const JsonDataFrameStructuredMetadataName = '__Metadata';
+export const JsonDataFrameLinksName = '__Links';
+export const JsonLinksDisplayName = 'Links';
 export const JsonDataFrameLabelsName = '__Labels';
 export const JsonVizRootName = 'root';
 
 export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
+  public static Component = LogsJsonComponent;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'wrapLogMessage'],
   });
@@ -142,8 +149,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
-
-  public static Component = LogsJsonComponent;
 
   getUrlState() {
     return {
@@ -259,6 +264,210 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     this.setState({ sortOrder: newOrder });
   };
 
+  /**
+   * Gets re-root button and key label for root node when line format filter is active.
+   * aka breadcrumbs
+   */
+  public renderNestedNodeButtons = () => {
+    const lineFormatVar = getLineFormatVariable(this);
+    const filters = lineFormatVar.state.filters;
+    const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
+
+    return (
+      <>
+        <span className={drillUpWrapperStyle} key={JsonVizRootName}>
+          <Button
+            size={'sm'}
+            onClick={() => setNewRootNode(rootKeyPath, this)}
+            variant={'secondary'}
+            fill={'outline'}
+            disabled={!filters.length}
+            name={JsonVizRootName}
+          >
+            {JsonVizRootName}
+          </Button>
+          {filters.length > 0 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
+        </span>
+
+        {filters.map((filter, i) => {
+          const selected = filter.key === filters[filters.length - 1].key;
+          return (
+            <span className={drillUpWrapperStyle} key={filter.key}>
+              {
+                <Button
+                  size={'sm'}
+                  disabled={selected}
+                  onClick={() => addDrillUp(filter.key, this)}
+                  variant={'secondary'}
+                  fill={'outline'}
+                >
+                  {filter.key}
+                </Button>
+              }
+              {i < filters.length - 1 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
+              {i === filters.length - 1 && <Icon className={itemStringDelimiter} name={'angle-right'} />}
+            </span>
+          );
+        })}
+      </>
+    );
+  };
+
+  public renderLogLineActionButtons(keyPath: KeyPath, model: LogsJsonScene) {
+    return (
+      <>
+        <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(this))} />
+        <CopyToClipboardButton type={'share-alt'} onClick={() => this.getLinkToLog(keyPath)} />
+      </>
+    );
+  }
+
+  /**
+   * Gets filter buttons for a nested JSON node
+   */
+  public renderNestedNodeFilterButtons = (
+    keyPath: KeyPath,
+    fieldsVar: AdHocFiltersVariable,
+    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
+    lineFilters: AdHocFilterWithLabels[],
+    jsonFiltersSupported?: boolean
+  ) => {
+    const styles = useStyles2(getJsonLabelWrapStyles);
+    const { fullKeyPath } = getFullKeyPath(keyPath, this);
+    const fullKey = getJsonKey(fullKeyPath);
+    const jsonParserProp = jsonParserPropsMap.get(fullKey);
+    const existingFilter =
+      jsonParserProp &&
+      fieldsVar.state.filters.find(
+        (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
+      );
+
+    let highlightedValue: string | Array<string | React.JSX.Element> = [];
+    if (this.state.showHighlight) {
+      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    }
+
+    return (
+      <span className={styles.jsonNestedLabelWrapStyles}>
+        {jsonFiltersSupported && (
+          <>
+            <ReRootJSONButton keyPath={keyPath} sceneRef={this} />
+            <JSONFilterNestedNodeButton
+              type={'include'}
+              jsonKey={fullKey}
+              addFilter={this.addJsonFilter}
+              keyPath={fullKeyPath}
+              active={existingFilter?.operator === FilterOp.NotEqual}
+            />
+            <JSONFilterNestedNodeButton
+              type={'exclude'}
+              jsonKey={fullKey}
+              addFilter={this.addJsonFilter}
+              keyPath={fullKeyPath}
+              active={existingFilter?.operator === FilterOp.Equal}
+            />
+          </>
+        )}
+        <strong className={styles.jsonLabelWrapStyles}>
+          {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
+        </strong>
+      </span>
+    );
+  };
+
+  /**
+   * Gets a value label and filter buttons
+   */
+  public renderValueLabel = (
+    keyPath: KeyPath,
+    lineField: Field<string | number>,
+    fieldsVar: AdHocFiltersVariable,
+    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
+    lineFilters: AdHocFilterWithLabels[],
+    jsonFiltersSupported?: boolean
+  ) => {
+    const styles = useStyles2(getJsonLabelWrapStyles);
+    const value = this.getValue(keyPath, lineField.values)?.toString();
+    const label = keyPath[0];
+    const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
+
+    let highlightedValue: string | Array<string | React.JSX.Element> = [];
+    if (this.state.showHighlight && hasValidParentNode(keyPath)) {
+      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
+    }
+
+    if (existingVariableType === VAR_FIELDS) {
+      const { fullKeyPath } = getFullKeyPath(keyPath, this);
+      const fullKey = getJsonKey(fullKeyPath);
+      const jsonParserProp = jsonParserPropsMap.get(fullKey);
+      const existingJsonFilter =
+        jsonParserProp &&
+        fieldsVar.state.filters.find(
+          (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value
+        );
+
+      return (
+        <span className={styles.labelButtonsWrap}>
+          {jsonFiltersSupported && existingVariableType === VAR_FIELDS && (
+            <>
+              <JSONFilterValueButton
+                label={label}
+                value={value}
+                fullKeyPath={fullKeyPath}
+                fullKey={fullKey}
+                addFilter={this.addJsonFilter}
+                existingFilter={existingJsonFilter}
+                type={'include'}
+              />
+              <JSONFilterValueButton
+                label={label}
+                value={value}
+                fullKeyPath={fullKeyPath}
+                fullKey={fullKey}
+                addFilter={this.addJsonFilter}
+                existingFilter={existingJsonFilter}
+                type={'exclude'}
+              />
+            </>
+          )}
+
+          <strong className={styles.jsonLabelWrapStyles}>
+            {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
+          </strong>
+        </span>
+      );
+    }
+
+    const existingVariable = getAdHocFiltersVariable(existingVariableType, this);
+    const existingFilter = existingVariable.state.filters.filter(
+      (filter) => filter.key === label.toString() && filter.value === value
+    );
+
+    return (
+      <span className={styles.labelButtonsWrap}>
+        <FilterValueButton
+          label={label.toString()}
+          value={value}
+          variableType={existingVariableType}
+          addFilter={this.addFilter}
+          existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.Equal)}
+          type={'include'}
+        />
+        <FilterValueButton
+          label={label.toString()}
+          value={value}
+          variableType={existingVariableType}
+          addFilter={this.addFilter}
+          existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.NotEqual)}
+          type={'exclude'}
+        />
+        <strong className={styles.jsonLabelWrapStyles}>
+          {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
+        </strong>
+      </span>
+    );
+  };
+
   private setStateFromUrl() {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
 
@@ -351,55 +560,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     return keyPath[0] !== JsonDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
   }
 
-  /**
-   * Gets re-root button and key label for root node when line format filter is active.
-   * aka breadcrumbs
-   */
-  public renderNestedNodeButtons = () => {
-    const lineFormatVar = getLineFormatVariable(this);
-    const filters = lineFormatVar.state.filters;
-    const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
-
-    return (
-      <>
-        <span className={drillUpWrapperStyle} key={JsonVizRootName}>
-          <Button
-            size={'sm'}
-            onClick={() => setNewRootNode(rootKeyPath, this)}
-            variant={'secondary'}
-            fill={'outline'}
-            disabled={!filters.length}
-            name={JsonVizRootName}
-          >
-            {JsonVizRootName}
-          </Button>
-          {filters.length > 0 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
-        </span>
-
-        {filters.map((filter, i) => {
-          const selected = filter.key === filters[filters.length - 1].key;
-          return (
-            <span className={drillUpWrapperStyle} key={filter.key}>
-              {
-                <Button
-                  size={'sm'}
-                  disabled={selected}
-                  onClick={() => addDrillUp(filter.key, this)}
-                  variant={'secondary'}
-                  fill={'outline'}
-                >
-                  {filter.key}
-                </Button>
-              }
-              {i < filters.length - 1 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
-              {i === filters.length - 1 && <Icon className={itemStringDelimiter} name={'angle-right'} />}
-            </span>
-          );
-        })}
-      </>
-    );
-  };
-
   private getLinkToLog(keyPath: KeyPath) {
     const timeRange = sceneGraph.getTimeRange(this).state.value;
     const dataFrame = this.state.rawFrame;
@@ -414,160 +574,6 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
     const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
     copyText(logLineLink);
   }
-
-  public renderLogLineActionButtons(keyPath: KeyPath, model: LogsJsonScene) {
-    return (
-      <>
-        <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(this))} />
-        <CopyToClipboardButton type={'share-alt'} onClick={() => this.getLinkToLog(keyPath)} />
-      </>
-    );
-  }
-
-  /**
-   * Gets filter buttons for a nested JSON node
-   */
-  public renderNestedNodeFilterButtons = (
-    keyPath: KeyPath,
-    fieldsVar: AdHocFiltersVariable,
-    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
-    lineFilters: AdHocFilterWithLabels[],
-    jsonFiltersSupported?: boolean
-  ) => {
-    const { fullKeyPath } = getFullKeyPath(keyPath, this);
-    const fullKey = getJsonKey(fullKeyPath);
-    const jsonParserProp = jsonParserPropsMap.get(fullKey);
-    const existingFilter =
-      jsonParserProp &&
-      fieldsVar.state.filters.find(
-        (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
-      );
-
-    let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (this.state.showHighlight) {
-      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
-    }
-
-    return (
-      <span className={jsonLabelWrapStyles}>
-        {jsonFiltersSupported && (
-          <>
-            <ReRootJSONButton keyPath={keyPath} sceneRef={this} />
-            <JSONFilterNestedNodeButton
-              type={'include'}
-              jsonKey={fullKey}
-              addFilter={this.addJsonFilter}
-              keyPath={fullKeyPath}
-              active={existingFilter?.operator === FilterOp.NotEqual}
-            />
-            <JSONFilterNestedNodeButton
-              type={'exclude'}
-              jsonKey={fullKey}
-              addFilter={this.addJsonFilter}
-              keyPath={fullKeyPath}
-              active={existingFilter?.operator === FilterOp.Equal}
-            />
-          </>
-        )}
-        <strong className={jsonLabelWrapStyles}>
-          {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
-        </strong>
-      </span>
-    );
-  };
-
-  /**
-   * Gets a value label and filter buttons
-   */
-  public renderValueLabel = (
-    keyPath: KeyPath,
-    lineField: Field<string | number>,
-    fieldsVar: AdHocFiltersVariable,
-    jsonParserPropsMap: Map<string, AdHocFilterWithLabels>,
-    lineFilters: AdHocFilterWithLabels[],
-    jsonFiltersSupported?: boolean
-  ) => {
-    const styles = useStyles2(getJSONVizValueLabelStyles);
-    const value = this.getValue(keyPath, lineField.values)?.toString();
-    const label = keyPath[0];
-    const existingVariableType = this.getFilterVariableTypeFromPath(keyPath);
-
-    let highlightedValue: string | Array<string | React.JSX.Element> = [];
-    if (this.state.showHighlight && hasValidParentNode(keyPath)) {
-      highlightedValue = highlightLineFilterMatches(lineFilters, keyPath[0].toString());
-    }
-
-    if (existingVariableType === VAR_FIELDS) {
-      const { fullKeyPath } = getFullKeyPath(keyPath, this);
-      const fullKey = getJsonKey(fullKeyPath);
-      const jsonParserProp = jsonParserPropsMap.get(fullKey);
-      const existingJsonFilter =
-        jsonParserProp &&
-        fieldsVar.state.filters.find(
-          (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value
-        );
-
-      return (
-        <span className={styles.labelButtonsWrap}>
-          {jsonFiltersSupported && existingVariableType === VAR_FIELDS && (
-            <>
-              <JSONFilterValueButton
-                label={label}
-                value={value}
-                fullKeyPath={fullKeyPath}
-                fullKey={fullKey}
-                addFilter={this.addJsonFilter}
-                existingFilter={existingJsonFilter}
-                type={'include'}
-              />
-              <JSONFilterValueButton
-                label={label}
-                value={value}
-                fullKeyPath={fullKeyPath}
-                fullKey={fullKey}
-                addFilter={this.addJsonFilter}
-                existingFilter={existingJsonFilter}
-                type={'exclude'}
-              />
-            </>
-          )}
-
-          <strong className={jsonLabelWrapStyles}>
-            {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
-          </strong>
-        </span>
-      );
-    }
-
-    const existingVariable = getAdHocFiltersVariable(existingVariableType, this);
-    const existingFilter = existingVariable.state.filters.filter(
-      (filter) => filter.key === label.toString() && filter.value === value
-    );
-
-    return (
-      <span className={styles.labelButtonsWrap}>
-        <FilterValueButton
-          label={label.toString()}
-          value={value}
-          variableType={existingVariableType}
-          addFilter={this.addFilter}
-          existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.Equal)}
-          type={'include'}
-        />
-        <FilterValueButton
-          label={label.toString()}
-          value={value}
-          variableType={existingVariableType}
-          addFilter={this.addFilter}
-          existingFilter={existingFilter.find((filter) => filter.operator === FilterOp.NotEqual)}
-          type={'exclude'}
-        />
-        <strong className={jsonLabelWrapStyles}>
-          {highlightedValue.length ? highlightedValue : this.getKeyPathString(keyPath, '')}:
-        </strong>
-      </span>
-    );
-  };
 
   private getFilterVariableTypeFromPath = (keyPath: ReadonlyArray<string | number>): InterpolatedFilterType => {
     if (keyPath[1] === JsonDataFrameStructuredMetadataName) {
@@ -599,21 +605,27 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
       (field) => field.type === FieldType.other && isLabelTypesField(field.name)
     );
 
+    const templateSrv = getTemplateSrv();
+    const replace = templateSrv.replace.bind(templateSrv);
+
     const timeZone = getTimeZone();
     if (dataFrame && newState.data) {
       const isRerooted = getLineFormatVariable(this).state.filters.length > 0;
+      const derivedFields: Field[] =
+        dataFrame?.fields
+          .filter((f) => f.config.links)
+          .map((field) => ({ ...field, getLinks: getLinksSupplier(dataFrame, field, {}, replace) })) ?? [];
 
       const transformedData: PanelData = {
         ...newState.data,
         series: [dataFrame].map((frame) => {
           return {
             ...frame,
-
-            fields: frame.fields.map((f) => {
-              if (isLogLineField(f.name)) {
+            fields: frame.fields.map((field, frameIndex) => {
+              if (isLogLineField(field.name)) {
                 return {
-                  ...f,
-                  values: f.values
+                  ...field,
+                  values: field.values
                     .map((v, i) => {
                       let parsed;
                       try {
@@ -640,7 +652,7 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                           }
                         });
                       }
-                      const line: Record<string, Record<string, string> | string> = {
+                      const line: ParsedJsonLogLine = {
                         [JsonDataFrameLineName]: parsed,
                         [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                       };
@@ -650,13 +662,18 @@ export class LogsJsonScene extends SceneObjectBase<LogsJsonSceneState> {
                       if (this.state.showMetadata && Object.keys(structuredMetadata).length > 0) {
                         line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
                       }
-
+                      if (derivedFields !== undefined) {
+                        let jsonLinks = getJsonDerivedFieldsLinks(derivedFields, i);
+                        if (Object.keys(jsonLinks).length) {
+                          line[JsonDataFrameLinksName] = jsonLinks;
+                        }
+                      }
                       return line;
                     })
                     .filter((f) => f),
                 };
               }
-              return f;
+              return field;
             }),
           };
         }),
