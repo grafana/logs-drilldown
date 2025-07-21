@@ -19,7 +19,6 @@ import { JSONMetadataButtons } from './JSONMetadataButtons';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
-import { addJSONFieldFilter } from 'services/JSONFilter';
 import { getJSONLabelWrapStyles, getJSONVizNestedProperty } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
@@ -68,7 +67,6 @@ export function JSONLeafLabel({
           label={label}
           value={value}
           variableType={existingVariableType}
-          addJsonFilter={addJSONFieldFilter}
           existingFilter={existingFilter}
         />
         <JSONLabelText text={highlightedValue} keyPathString={getKeyPathString(keyPath, '')} />
