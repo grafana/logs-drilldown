@@ -7,7 +7,7 @@ import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana
 import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
-import { JsonVizRootName, JSONLogsScene } from '../JSONLogsScene';
+import { JSONVizRootName, JSONLogsScene } from '../JSONLogsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
@@ -37,8 +37,8 @@ export const JSON_VIZ_LINE_HEIGHT = '24px';
 export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
-    hasJsonFields,
-    jsonFiltersSupported,
+    hasJSONFields,
+    JSONFiltersSupported,
     menu,
     hasHighlight,
     hasLabels,
@@ -73,7 +73,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
     const idField = rawFrame?.fields.find((field) => isLogsIdField(field.name));
     const lineIndex = idField?.values.findIndex((v) => v === selectedLine?.id);
     const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
-    return cleanLineIndex !== undefined ? [cleanLineIndex, JsonVizRootName] : undefined;
+    return cleanLineIndex !== undefined ? [cleanLineIndex, JSONVizRootName] : undefined;
   }, [selectedLine, rawFrame]);
 
   jsonVar.state.filters.forEach((filter) => {
@@ -162,12 +162,12 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
           )}
           {lineField?.values && lineField?.values.length > 0 && (
             <div className={styles.JSONTreeWrap} ref={scrollRef}>
-              {jsonFiltersSupported === false && (
+              {JSONFiltersSupported === false && (
                 <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
                   This view will be read only until Loki is upgraded to 3.5.0
                 </Alert>
               )}
-              {lineField.values.length > 0 && hasJsonFields === false && (
+              {lineField.values.length > 0 && hasJSONFields === false && (
                 <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
                   This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
                   better experience.
@@ -208,8 +208,8 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
                     keyPath={keyPath}
                     fieldsVar={fieldsVar}
                     lineField={lineField}
-                    jsonFiltersSupported={jsonFiltersSupported}
-                    jsonParserPropsMap={jsonParserPropsMap}
+                    JSONFiltersSupported={JSONFiltersSupported}
+                    JSONParserPropsMap={jsonParserPropsMap}
                     lineFilters={lineFilterVar.state.filters}
                   />
                 )}

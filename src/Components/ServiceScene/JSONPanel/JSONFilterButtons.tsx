@@ -8,11 +8,10 @@ import { JSONLogsScene } from '../JSONLogsScene';
 import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { FilterOp } from 'services/filterTypes';
-import { addJsonFieldFilter, addJsonMetadataFilter } from 'services/JSONFilter';
+import { addJSONFieldFilter, addJSONMetadataFilter } from 'services/JSONFilter';
 import { VAR_FIELDS } from 'services/variables';
 
 interface JsonFilterProps {
-  addJsonFilter: typeof addJsonFieldFilter;
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
   keyPath: KeyPath;
@@ -23,7 +22,7 @@ interface JsonFilterProps {
 }
 
 export const JSONFieldValueButton = memo(
-  ({ addJsonFilter, existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
+  ({ existingFilter, fullKey, keyPath, label, type, value, model }: JsonFilterProps) => {
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getJSONFilterButtonStyles, isActive);
@@ -34,7 +33,7 @@ export const JSONFieldValueButton = memo(
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
         onClick={(e) => {
           e.stopPropagation();
-          addJsonFilter({
+          addJSONFieldFilter({
             keyPath: keyPath,
             key: fullKey,
             value,
@@ -76,7 +75,7 @@ export const JSONMetadataButton = memo(
         onClick={(e) => {
           e.stopPropagation();
 
-          addJsonMetadataFilter({
+          addJSONMetadataFilter({
             label,
             value,
             filterType: existingFilter?.operator === operator ? 'toggle' : type,

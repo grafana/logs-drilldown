@@ -5,10 +5,8 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { JSONFieldValueButton } from './JSONFilterButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { addJsonFieldFilter } from 'services/JSONFilter';
 
 interface Props {
-  addJsonFilter: typeof addJsonFieldFilter;
   elements: Array<string | React.JSX.Element>;
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
@@ -20,15 +18,7 @@ interface Props {
   value: string;
 }
 
-export function JSONLeafNodeLabelButtons({
-  label,
-  value,
-  fullKeyPath,
-  fullKey,
-  addJsonFilter,
-  existingFilter,
-  model,
-}: Props) {
+export function JSONLeafNodeLabelButtons({ label, value, fullKeyPath, fullKey, existingFilter, model }: Props) {
   return (
     <>
       <JSONFieldValueButton
@@ -36,7 +26,6 @@ export function JSONLeafNodeLabelButtons({
         value={value}
         keyPath={fullKeyPath}
         fullKey={fullKey}
-        addJsonFilter={addJsonFilter}
         existingFilter={existingFilter}
         type={'include'}
         model={model}
@@ -46,7 +35,6 @@ export function JSONLeafNodeLabelButtons({
         value={value}
         keyPath={fullKeyPath}
         fullKey={fullKey}
-        addJsonFilter={addJsonFilter}
         existingFilter={existingFilter}
         type={'exclude'}
         model={model}

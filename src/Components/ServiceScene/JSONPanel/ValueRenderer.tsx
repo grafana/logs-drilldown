@@ -6,7 +6,7 @@ import {
   JSONHighlightLineFilterMatches,
   JSONHighlightRegexMatches,
 } from '../../../services/JSONHighlightLineFilterMatches';
-import { JsonDataFrameLinksName, JSONLogsScene } from '../JSONLogsScene';
+import { JSONDataFrameLinksName, JSONLogsScene } from '../JSONLogsScene';
 import JSONLinkNodeButton from './JSONLinkNodeButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 import { hasFieldParentNode, isTimeLabelNode } from 'services/JSONVizNodes';
@@ -32,7 +32,7 @@ export default function ValueRenderer({ keyPath, lineFilters, valueAsString, mod
   }
 
   // Link nodes
-  if (keyPath[1] === JsonDataFrameLinksName) {
+  if (keyPath[1] === JSONDataFrameLinksName) {
     return <JSONLinkNodeButton payload={value} />;
   }
 

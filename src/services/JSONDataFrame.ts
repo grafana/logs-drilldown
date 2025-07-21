@@ -10,11 +10,11 @@ import {
 import { getTemplateSrv } from '@grafana/runtime';
 
 import {
-  JsonDataFrameLabelsName,
-  JsonDataFrameLineName,
-  JsonDataFrameLinksName,
-  JsonDataFrameStructuredMetadataName,
-  JsonDataFrameTimeName,
+  JSONDataFrameLabelsName,
+  JSONDataFrameLineName,
+  JSONDataFrameLinksName,
+  JSONDataFrameStructuredMetadataName,
+  JSONDataFrameTimeName,
   JSONLogsScene,
 } from '../Components/ServiceScene/JSONLogsScene';
 import { getLogsPanelFrame } from '../Components/ServiceScene/ServiceScene';
@@ -95,19 +95,19 @@ export function preProcessJSONDataFrame(panelData: PanelData, logsJsonScene: JSO
                     });
                   }
                   const line: ParsedJsonLogLine = {
-                    [JsonDataFrameLineName]: parsed,
-                    [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
+                    [JSONDataFrameLineName]: parsed,
+                    [JSONDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                   };
                   if (logsJsonScene.state.hasLabels && Object.keys(indexedLabels).length > 0) {
-                    line[JsonDataFrameLabelsName] = indexedLabels;
+                    line[JSONDataFrameLabelsName] = indexedLabels;
                   }
                   if (logsJsonScene.state.hasMetadata && Object.keys(structuredMetadata).length > 0) {
-                    line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
+                    line[JSONDataFrameStructuredMetadataName] = structuredMetadata;
                   }
                   if (derivedFields !== undefined) {
                     let jsonLinks = getJsonDerivedFieldsLinks(derivedFields, i);
                     if (Object.keys(jsonLinks).length) {
-                      line[JsonDataFrameLinksName] = jsonLinks;
+                      line[JSONDataFrameLinksName] = jsonLinks;
                     }
                   }
                   return line;

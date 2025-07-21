@@ -4,11 +4,11 @@ import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONMetadataButton } from './JSONFilterButtons';
-import { addJsonFieldFilter } from 'services/JSONFilter';
+import { addJSONFieldFilter } from 'services/JSONFilter';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 
 interface Props {
-  addJsonFilter: typeof addJsonFieldFilter;
+  addJsonFilter: typeof addJSONFieldFilter;
   existingFilter: AdHocFilterWithLabels[];
   label: string | number;
   sceneRef: SceneObject;

@@ -15,10 +15,10 @@ import { copyText, generateLogShortlink } from '../../../services/text';
 import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import CopyToClipboardButton from '../../Buttons/CopyToClipboardButton';
 import {
-  JsonDataFrameLineName,
-  JsonDataFrameLinksName,
-  JsonDataFrameTimeName,
-  JsonVizRootName,
+  JSONDataFrameLineName,
+  JSONDataFrameLinksName,
+  JSONDataFrameTimeName,
+  JSONVizRootName,
   JSONLogsScene,
 } from '../JSONLogsScene';
 import { getLogsPanelFrame } from '../ServiceScene';
@@ -37,12 +37,12 @@ interface ItemStringProps {
 
 export default function ItemString({ data, itemString, itemType, keyPath, model, levelsVar }: ItemStringProps) {
   const styles = useStyles2(getStyles);
-  if (data && hasProp(data, JsonDataFrameTimeName) && typeof data.Time === 'string') {
+  if (data && hasProp(data, JSONDataFrameTimeName) && typeof data.Time === 'string') {
     return renderLogLineActionButtons(keyPath, model);
   }
 
   // The root node, which is visualized as the breadcrumb navigation
-  if (keyPath[0] === JsonVizRootName) {
+  if (keyPath[0] === JSONVizRootName) {
     return (
       <span className={rootNodeItemString}>
         {itemType} {itemString}
@@ -51,7 +51,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
   }
 
   // log line nodes render the log level as the "ItemString"
-  if (keyPath[0] === JsonDataFrameLineName) {
+  if (keyPath[0] === JSONDataFrameLineName) {
     const detectedLevel = getJsonDetectedLevel(model, keyPath);
 
     if (detectedLevel) {
@@ -62,7 +62,7 @@ export default function ItemString({ data, itemString, itemType, keyPath, model,
   }
 
   // Link nodes render the link icon
-  if (keyPath[0] === JsonDataFrameLinksName) {
+  if (keyPath[0] === JSONDataFrameLinksName) {
     return (
       <span className={styles.wrapper}>
         <Icon size={'sm'} name={'link'} />
@@ -96,7 +96,7 @@ function getLinkToLog(keyPath: KeyPath, timeRange: TimeRange, rawFrame: DataFram
     throw error;
   }
   const logId = idField?.values[logLineIndex];
-  const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
+  const logLineLink = generateLogShortlink('panelState', { id: logId, row: logLineIndex }, timeRange);
   copyText(logLineLink);
 }
 

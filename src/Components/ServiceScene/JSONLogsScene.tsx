@@ -10,7 +10,7 @@ import {
 } from '@grafana/scenes';
 
 import {
-  clearJsonParserFields,
+  clearJSONParserFields,
   getDetectedFieldsJsonPathField,
   getDetectedFieldsParserField,
 } from '../../services/fields';
@@ -33,16 +33,16 @@ import {
   setLogOption,
 } from 'services/store';
 
-interface LogsJsonSceneState extends SceneObjectState {
+interface JSONLogsSceneState extends SceneObjectState {
   data?: PanelData;
   emptyScene?: NoMatchingLabelsScene;
   hasHighlight: boolean;
-  hasJsonFields?: boolean;
+  hasJSONFields?: boolean;
   hasLabels: boolean;
   hasMetadata: boolean;
   // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
-  jsonFiltersSupported?: boolean;
+  JSONFiltersSupported?: boolean;
   menu?: PanelMenu;
   rawFrame?: DataFrame;
   sortOrder: LogsSortOrder;
@@ -51,23 +51,23 @@ interface LogsJsonSceneState extends SceneObjectState {
 
 export type NodeType = 'Array' | 'Boolean' | 'Custom' | 'Number' | 'Object' | 'String';
 
-export const JsonDataFrameTimeName = 'Time';
-export const JsonDataFrameLineName = 'Line';
-export const StructuredMetadataDisplayName = 'Metadata';
-export const LabelsDisplayName = 'Labels';
-export const JsonDataFrameStructuredMetadataName = '__Metadata';
-export const JsonDataFrameLinksName = '__Links';
-export const JsonLinksDisplayName = 'Links';
-export const JsonDataFrameLabelsName = '__Labels';
-export const JsonVizRootName = 'root';
+export const JSONDataFrameTimeName = 'Time';
+export const JSONDataFrameLineName = 'Line';
+export const JSONStructuredMetadataDisplayName = 'Metadata';
+export const JSONLabelsDisplayName = 'Labels';
+export const JSONDataFrameStructuredMetadataName = '__Metadata';
+export const JSONDataFrameLinksName = '__Links';
+export const JSONLinksDisplayName = 'Links';
+export const JSONDataFrameLabelsName = '__Labels';
+export const JSONVizRootName = 'root';
 
-export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
+export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
   public static Component = LogsJsonComponent;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'wrapLogMessage'],
   });
 
-  constructor(state: Partial<LogsJsonSceneState>) {
+  constructor(state: Partial<JSONLogsSceneState>) {
     super({
       ...state,
       hasHighlight: getJSONHighlightState(),
@@ -89,7 +89,7 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
 
   updateFromUrl(values: SceneObjectUrlValues) {
     try {
-      let state: Partial<LogsJsonSceneState> = {};
+      let state: Partial<JSONLogsSceneState> = {};
 
       if (typeof values.sortOrder === 'string' && values.sortOrder) {
         const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
@@ -110,7 +110,7 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
       }
     } catch (e) {
       // URL Params can be manually changed and it will make JSON.parse() fail.
-      logger.error(e, { msg: 'LogsJsonScene: updateFromUrl unexpected error' });
+      logger.error(e, { msg: 'JSONLogsScene: updateFromUrl unexpected error' });
     }
   }
 
@@ -139,7 +139,7 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
       })
     );
 
-    clearJsonParserFields(this);
+    clearJSONParserFields(this);
 
     const detectedFieldFrame = getDetectedFieldsFrameFromQueryRunnerState(
       serviceScene.state?.$detectedFieldsData?.state
@@ -220,12 +220,12 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
     // the third field is the parser, see datasource.ts:getDetectedFields for more info
     if (getDetectedFieldsParserField(detectedFieldFrame)?.values.some((v) => v === 'json' || v === 'mixed')) {
       this.setState({
-        hasJsonFields: true,
-        jsonFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
+        hasJSONFields: true,
+        JSONFiltersSupported: getDetectedFieldsJsonPathField(detectedFieldFrame)?.values.some((v) => v !== undefined),
       });
     } else {
       this.setState({
-        hasJsonFields: false,
+        hasJSONFields: false,
       });
     }
   }
@@ -235,5 +235,5 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
  * Formats key from keypath
  */
 export function getKeyPathString(keyPath: KeyPath, sepChar = ':') {
-  return keyPath[0] !== JsonDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
+  return keyPath[0] !== JSONDataFrameTimeName ? keyPath[0] + sepChar : keyPath[0];
 }

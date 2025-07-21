@@ -7,29 +7,29 @@ import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
 import {
-  JsonDataFrameLabelsName,
-  JsonDataFrameLinksName,
-  JsonDataFrameStructuredMetadataName,
-  JsonDataFrameTimeName,
-  JsonLinksDisplayName,
-  JsonVizRootName,
-  LabelsDisplayName,
+  JSONDataFrameLabelsName,
+  JSONDataFrameLinksName,
+  JSONDataFrameStructuredMetadataName,
+  JSONDataFrameTimeName,
+  JSONLinksDisplayName,
+  JSONVizRootName,
+  JSONLabelsDisplayName,
   JSONLogsScene,
   NodeType,
-  StructuredMetadataDisplayName,
+  JSONStructuredMetadataDisplayName,
 } from '../JSONLogsScene';
 import { JSONLeafLabel } from './JSONLeafLabel';
 import { JSONParentNodeFilterButtons } from './JSONParentNodeFilterButtons';
 import JSONRootNodeNavigation from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 import { isLogLineField } from 'services/fields';
-import { getJsonLabelWrapStyles, jsonLabelWrapStylesPrimary } from 'services/JSONViz';
+import { getJSONLabelWrapStyles, jsonLabelWrapStylesPrimary } from 'services/JSONViz';
 import { isTimeLabelNode } from 'services/JSONVizNodes';
 
 interface LabelRendererProps {
   fieldsVar: AdHocFiltersVariable;
-  jsonFiltersSupported: boolean | undefined;
-  jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
+  JSONFiltersSupported: boolean | undefined;
+  JSONParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineField: Field;
   lineFilters: AdHocFilterWithLabels[];
@@ -39,37 +39,37 @@ interface LabelRendererProps {
 
 export default function LabelRenderer({
   fieldsVar,
-  jsonFiltersSupported,
-  jsonParserPropsMap,
+  JSONFiltersSupported,
+  JSONParserPropsMap,
   keyPath,
   lineField,
   lineFilters,
   model,
   nodeType,
 }: LabelRendererProps) {
-  const style = useStyles2(getJsonLabelWrapStyles);
+  const style = useStyles2(getJSONLabelWrapStyles);
   const value: string | Array<string | React.JSX.Element> = keyPath[0].toString();
   const nodeTypeLoc = nodeType as NodeType;
 
   // Specific implementations for leaf nodes
   // Metadata node
-  if (keyPath[0] === JsonDataFrameStructuredMetadataName) {
-    return <strong className={style.jsonLabelWrapStyles}>{StructuredMetadataDisplayName}</strong>;
+  if (keyPath[0] === JSONDataFrameStructuredMetadataName) {
+    return <strong className={style.jsonLabelWrapStyles}>{JSONStructuredMetadataDisplayName}</strong>;
   }
   // Labels node
-  if (keyPath[0] === JsonDataFrameLabelsName) {
-    return <strong className={style.jsonLabelWrapStyles}>{LabelsDisplayName}</strong>;
+  if (keyPath[0] === JSONDataFrameLabelsName) {
+    return <strong className={style.jsonLabelWrapStyles}>{JSONLabelsDisplayName}</strong>;
   }
   // Links parent
-  if (keyPath[0] === JsonDataFrameLinksName) {
-    return <strong className={style.jsonLabelWrapStyles}>{JsonLinksDisplayName}</strong>;
+  if (keyPath[0] === JSONDataFrameLinksName) {
+    return <strong className={style.jsonLabelWrapStyles}>{JSONLinksDisplayName}</strong>;
   }
   // Links node
-  if (keyPath[1] === JsonDataFrameLinksName) {
+  if (keyPath[1] === JSONDataFrameLinksName) {
     return <strong className={style.jsonLabelWrapStyles}>{value}:</strong>;
   }
   // Root node
-  if (keyPath[0] === JsonVizRootName) {
+  if (keyPath[0] === JSONVizRootName) {
     return <JSONRootNodeNavigation sceneRef={model} />;
   }
 
@@ -77,13 +77,13 @@ export default function LabelRenderer({
   if (isJSONLeafNode(nodeTypeLoc, keyPath)) {
     return (
       <JSONLeafLabel
-        logsJsonScene={model}
+        JSONLogsScene={model}
         keyPath={keyPath}
         lineField={lineField}
         fieldsVar={fieldsVar}
-        jsonParserPropsMap={jsonParserPropsMap}
+        JSONParserPropsMap={JSONParserPropsMap}
         lineFilters={lineFilters}
-        jsonFiltersSupported={jsonFiltersSupported}
+        JSONFiltersSupported={JSONFiltersSupported}
       />
     );
   }
@@ -94,17 +94,17 @@ export default function LabelRenderer({
       <JSONParentNodeFilterButtons
         keyPath={keyPath}
         lineFilters={lineFilters}
-        logsJsonScene={model}
+        JSONLogsScene={model}
         fieldsFilters={fieldsVar.state.filters}
-        jsonParserPropsMap={jsonParserPropsMap}
-        jsonFiltersSupported={jsonFiltersSupported}
+        jsonParserPropsMap={JSONParserPropsMap}
+        jsonFiltersSupported={JSONFiltersSupported}
       />
     );
   }
 
   // Show the timestamp as the label of the log line
   if (isTimestampNode(keyPath) && isNumber(keyPath[0])) {
-    const time: string = lineField.values[keyPath[0]]?.[JsonDataFrameTimeName];
+    const time: string = lineField.values[keyPath[0]]?.[JSONDataFrameTimeName];
     return <strong className={jsonLabelWrapStylesPrimary}>{time}</strong>;
   }
 
@@ -125,9 +125,9 @@ const isJSONLeafNode = (nodeTypeLoc: NodeType, keyPath: KeyPath) => {
   return (
     nodeTypeLoc !== 'Object' &&
     nodeTypeLoc !== 'Array' &&
-    keyPath[0] !== JsonDataFrameTimeName &&
+    keyPath[0] !== JSONDataFrameTimeName &&
     !isLogLineField(keyPath[0].toString()) &&
-    keyPath[0] !== JsonVizRootName &&
+    keyPath[0] !== JSONVizRootName &&
     !isNumber(keyPath[0])
   );
 };
@@ -141,11 +141,11 @@ const isJSONParentNode = (nodeTypeLoc: NodeType, keyPath: KeyPath) => {
   return (
     (nodeTypeLoc === 'Object' || nodeTypeLoc === 'Array') &&
     !isLogLineField(keyPath[0].toString()) &&
-    keyPath[0] !== JsonVizRootName &&
+    keyPath[0] !== JSONVizRootName &&
     !isNumber(keyPath[0])
   );
 };
 
 const isTimestampNode = (keyPath: KeyPath) => {
-  return keyPath[1] === JsonVizRootName;
+  return keyPath[1] === JSONVizRootName;
 };

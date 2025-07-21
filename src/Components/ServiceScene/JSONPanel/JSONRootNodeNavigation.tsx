@@ -3,10 +3,10 @@ import React from 'react';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Button, Icon } from '@grafana/ui';
 
-import { JsonDataFrameLineName, JsonVizRootName } from '../JSONLogsScene';
+import { JSONDataFrameLineName, JSONVizRootName } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { clearJsonParserFields, isLogLineField } from 'services/fields';
+import { clearJSONParserFields, isLogLineField } from 'services/fields';
 import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from 'services/filters';
 import { LineFormatFilterOp } from 'services/filterTypes';
 import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from 'services/JSONViz';
@@ -25,20 +25,20 @@ interface Props {
 export default function JSONRootNodeNavigation({ sceneRef }: Props) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const filters = lineFormatVar.state.filters;
-  const rootKeyPath = [JsonDataFrameLineName, 0, JsonVizRootName];
+  const rootKeyPath = [JSONDataFrameLineName, 0, JSONVizRootName];
 
   return (
     <>
-      <span className={drillUpWrapperStyle} key={JsonVizRootName}>
+      <span className={drillUpWrapperStyle} key={JSONVizRootName}>
         <Button
           size={'sm'}
           onClick={() => setNewRootNode(rootKeyPath, sceneRef)}
           variant={'secondary'}
           fill={'outline'}
           disabled={!filters.length}
-          name={JsonVizRootName}
+          name={JSONVizRootName}
         >
-          {JsonVizRootName}
+          {JSONVizRootName}
         </Button>
         {filters.length > 0 && <Icon className={breadCrumbDelimiter} name={'angle-right'} />}
       </span>
@@ -77,7 +77,7 @@ export function getFullKeyPath(
     ...lineFormatVar.state.filters,
     ...keyPath
       // line format filters only store the parent node field names
-      .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== JsonVizRootName)
+      .filter((key) => typeof key === 'string' && !isLogLineField(key) && key !== JSONVizRootName)
       // keyPath order is from child to root, we want to order from root to child
       .reverse()
       // convert to ad-hoc filter
@@ -114,8 +114,8 @@ export const setNewRootNode = (keyPath: KeyPath, sceneRef: SceneObject) => {
   } else {
     // Otherwise we're drilling back up to the root
     removeLineFormatFilters(sceneRef);
-    clearJsonParserFields(sceneRef);
-    lineFormatEvent('remove', JsonVizRootName);
+    clearJSONParserFields(sceneRef);
+    lineFormatEvent('remove', JSONVizRootName);
   }
 };
 

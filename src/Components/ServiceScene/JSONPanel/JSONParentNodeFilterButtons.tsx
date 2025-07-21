@@ -4,7 +4,7 @@ import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
 import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
-import { getJsonLabelWrapStyles } from '../../../services/JSONViz';
+import { getJSONLabelWrapStyles } from '../../../services/JSONViz';
 import { getKeyPathString, JSONLogsScene } from '../JSONLogsScene';
 import { JSONNestedNodeFilterButton } from './JSONNestedNodeFilterButton';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
@@ -18,10 +18,10 @@ import { EMPTY_VARIABLE_VALUE } from 'services/variables';
 interface Props {
   fieldsFilters: AdHocFilterWithLabels[];
   jsonFiltersSupported?: boolean;
+  JSONLogsScene: JSONLogsScene;
   jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineFilters: AdHocFilterWithLabels[];
-  logsJsonScene: JSONLogsScene;
 }
 
 function NestedNodeFilterButtonsComponent({
@@ -30,11 +30,11 @@ function NestedNodeFilterButtonsComponent({
   jsonParserPropsMap,
   lineFilters,
   jsonFiltersSupported,
-  logsJsonScene,
+  JSONLogsScene,
 }: Props) {
-  const { fullKeyPath } = getFullKeyPath(keyPath, logsJsonScene);
+  const { fullKeyPath } = getFullKeyPath(keyPath, JSONLogsScene);
   const fullKey = getJsonKey(fullKeyPath);
-  const styles = useStyles2(getJsonLabelWrapStyles);
+  const styles = useStyles2(getJSONLabelWrapStyles);
 
   const jsonParserProp = jsonParserPropsMap.get(fullKey);
   const existingFilter =
@@ -44,7 +44,7 @@ function NestedNodeFilterButtonsComponent({
     );
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
-  if (logsJsonScene.state.hasHighlight) {
+  if (JSONLogsScene.state.hasHighlight) {
     highlightedValue = JSONHighlightLineFilterMatches(lineFilters, keyPath[0].toString());
   }
 
@@ -52,20 +52,20 @@ function NestedNodeFilterButtonsComponent({
     <span className={styles.jsonNestedLabelWrapStyles}>
       {jsonFiltersSupported && (
         <>
-          <ReRootJSONButton keyPath={keyPath} sceneRef={logsJsonScene} />
+          <ReRootJSONButton keyPath={keyPath} sceneRef={JSONLogsScene} />
           <JSONNestedNodeFilterButton
             type={'include'}
             fullKeyPath={fullKey}
             keyPath={fullKeyPath}
             active={existingFilter ? isOperatorExclusive(existingFilter.operator) : false}
-            logsJsonScene={logsJsonScene}
+            logsJsonScene={JSONLogsScene}
           />
           <JSONNestedNodeFilterButton
             type={'exclude'}
             fullKeyPath={fullKey}
             keyPath={fullKeyPath}
             active={existingFilter ? isOperatorInclusive(existingFilter.operator) : false}
-            logsJsonScene={logsJsonScene}
+            logsJsonScene={JSONLogsScene}
           />
         </>
       )}

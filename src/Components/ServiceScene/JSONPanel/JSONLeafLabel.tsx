@@ -8,10 +8,10 @@ import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightL
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import {
   getKeyPathString,
-  JsonDataFrameLabelsName,
-  JsonDataFrameStructuredMetadataName,
+  JSONDataFrameLabelsName,
+  JSONDataFrameStructuredMetadataName,
   JSONLogsScene,
-  JsonVizRootName,
+  JSONVizRootName,
 } from '../JSONLogsScene';
 import { JSONLabelText } from './JSONLabelText';
 import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
@@ -19,44 +19,44 @@ import { JSONMetadataButtons } from './JSONMetadataButtons';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { getJsonKey } from 'services/filters';
-import { addJsonFieldFilter } from 'services/JSONFilter';
-import { getJsonLabelWrapStyles, getJSONVizNestedProperty } from 'services/JSONViz';
+import { addJSONFieldFilter } from 'services/JSONFilter';
+import { getJSONLabelWrapStyles, getJSONVizNestedProperty } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from 'services/variables';
 
 interface Props {
   fieldsVar: AdHocFiltersVariable;
-  jsonFiltersSupported?: boolean;
-  jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
+  JSONFiltersSupported?: boolean;
+  JSONLogsScene: JSONLogsScene;
+  JSONParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineField: Field<string | number>;
   lineFilters: AdHocFilterWithLabels[];
-  logsJsonScene: JSONLogsScene;
 }
 
 export function JSONLeafLabel({
   keyPath,
   lineField,
   fieldsVar,
-  jsonParserPropsMap,
+  JSONParserPropsMap,
   lineFilters,
-  jsonFiltersSupported,
-  logsJsonScene,
+  JSONFiltersSupported,
+  JSONLogsScene,
 }: Props) {
   const value = getValue(keyPath, lineField.values)?.toString();
   const label = keyPath[0];
   const existingVariableType = getFilterVariableTypeFromPath(keyPath);
-  const styles = useStyles2(getJsonLabelWrapStyles);
+  const styles = useStyles2(getJSONLabelWrapStyles);
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
-  if (logsJsonScene.state.hasHighlight && !hasFieldParentNode(keyPath)) {
+  if (JSONLogsScene.state.hasHighlight && !hasFieldParentNode(keyPath)) {
     highlightedValue = JSONHighlightLineFilterMatches(lineFilters, keyPath[0].toString());
   }
 
   // Field (labels, metadata) nodes
   if (hasFieldParentNode(keyPath)) {
-    const existingVariable = getAdHocFiltersVariable(existingVariableType, logsJsonScene);
+    const existingVariable = getAdHocFiltersVariable(existingVariableType, JSONLogsScene);
     const existingFilter = existingVariable.state.filters.filter(
       (filter) => filter.key === label.toString() && filter.value === value
     );
@@ -64,11 +64,11 @@ export function JSONLeafLabel({
     return (
       <span className={styles.labelButtonsWrap}>
         <JSONMetadataButtons
-          sceneRef={logsJsonScene}
+          sceneRef={JSONLogsScene}
           label={label}
           value={value}
           variableType={existingVariableType}
-          addJsonFilter={addJsonFieldFilter}
+          addJsonFilter={addJSONFieldFilter}
           existingFilter={existingFilter}
         />
         <JSONLabelText text={highlightedValue} keyPathString={getKeyPathString(keyPath, '')} />
@@ -76,28 +76,27 @@ export function JSONLeafLabel({
     );
   }
 
-  const { fullKeyPath } = getFullKeyPath(keyPath, logsJsonScene);
+  const { fullKeyPath } = getFullKeyPath(keyPath, JSONLogsScene);
   const fullKey = getJsonKey(fullKeyPath);
-  const jsonParserProp = jsonParserPropsMap.get(fullKey);
-  const existingJsonFilter =
-    jsonParserProp &&
-    fieldsVar.state.filters.find((f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === value);
+  const JSONParserProp = JSONParserPropsMap.get(fullKey);
+  const existingJSONFilter =
+    JSONParserProp &&
+    fieldsVar.state.filters.find((f) => f.key === JSONParserProp?.key && getValueFromFieldsFilter(f).value === value);
 
   // Value nodes
   return (
     <span className={styles.labelButtonsWrap}>
-      {jsonFiltersSupported && (
+      {JSONFiltersSupported && (
         <JSONLeafNodeLabelButtons
-          jsonFiltersSupported={jsonFiltersSupported}
+          jsonFiltersSupported={JSONFiltersSupported}
           label={label}
           value={value}
           fullKeyPath={fullKeyPath}
           fullKey={fullKey}
-          addJsonFilter={addJsonFieldFilter}
-          existingFilter={existingJsonFilter}
+          existingFilter={existingJSONFilter}
           elements={highlightedValue}
           keyPathString={getKeyPathString(keyPath, '')}
-          model={logsJsonScene}
+          model={JSONLogsScene}
         />
       )}
       <JSONLabelText text={highlightedValue} keyPathString={getKeyPathString(keyPath, '')} />
@@ -115,7 +114,7 @@ function getValue(keyPath: KeyPath, lineField: Array<string | number>): string |
   while (keys.length) {
     const key = keys.pop();
 
-    if (key !== JsonVizRootName && key !== undefined) {
+    if (key !== JSONVizRootName && key !== undefined) {
       accessors.push(key);
     }
   }
@@ -124,12 +123,12 @@ function getValue(keyPath: KeyPath, lineField: Array<string | number>): string |
 }
 
 function getFilterVariableTypeFromPath(keyPath: ReadonlyArray<string | number>): InterpolatedFilterType {
-  if (keyPath[1] === JsonDataFrameStructuredMetadataName) {
+  if (keyPath[1] === JSONDataFrameStructuredMetadataName) {
     if (keyPath[0] === LEVEL_VARIABLE_VALUE) {
       return VAR_LEVELS;
     }
     return VAR_METADATA;
-  } else if (keyPath[1] === JsonDataFrameLabelsName) {
+  } else if (keyPath[1] === JSONDataFrameLabelsName) {
     return VAR_LABELS;
   } else {
     return VAR_FIELDS;

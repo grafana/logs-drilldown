@@ -451,7 +451,7 @@ export function isLogsIdField(fieldName: string) {
 /**
  * Housekeeping: clears json parsers if there is not any field or line format filters
  */
-export function clearJsonParserFields(sceneRef: SceneObject) {
+export function clearJSONParserFields(sceneRef: SceneObject) {
   const fieldsVariable = getFieldsVariable(sceneRef);
   const jsonVar = getJsonFieldsVariable(sceneRef);
   const lineFormatVariable = getLineFormatVariable(sceneRef);

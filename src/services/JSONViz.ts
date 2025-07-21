@@ -19,7 +19,7 @@ export const renderJSONVizTimeStamp = (epochMs: number, timeZone?: string) => {
   });
 };
 
-export const getJsonLabelWrapStyles = (theme: GrafanaTheme2) => ({
+export const getJSONLabelWrapStyles = (theme: GrafanaTheme2) => ({
   labelButtonsWrap: css({
     color: 'var(--json-tree-label-color)',
     display: 'inline-flex',

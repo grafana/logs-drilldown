@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useStyles2 } from '@grafana/ui';
 
-import { getJsonLabelWrapStyles } from 'services/JSONViz';
+import { getJSONLabelWrapStyles } from 'services/JSONViz';
 
 interface Props {
   keyPathString: string | number;
@@ -10,6 +10,6 @@ interface Props {
 }
 
 export function JSONLabelText({ text, keyPathString }: Props) {
-  const styles = useStyles2(getJsonLabelWrapStyles);
+  const styles = useStyles2(getJSONLabelWrapStyles);
   return <strong className={styles.jsonLabelWrapStyles}>{text.length ? text : keyPathString}:</strong>;
 }

@@ -22,7 +22,7 @@ interface JsonFilterProps {
   variableType: InterpolatedFilterType;
 }
 
-export const addJsonFieldFilter = ({
+export const addJSONFieldFilter = ({
   key,
   keyPath,
   value,
@@ -58,7 +58,7 @@ interface NestedNodeFilterProps {
   variableType: InterpolatedFilterType;
 }
 
-export const addJsonMetadataFilter = ({ label, value, filterType, variableType, sceneRef }: NestedNodeFilterProps) => {
+export const addJSONMetadataFilter = ({ label, value, filterType, variableType, sceneRef }: NestedNodeFilterProps) => {
   addCurrentUrlToHistory();
   addToFilters(label, value, filterType, sceneRef, variableType, false);
   reportAppInteraction(
