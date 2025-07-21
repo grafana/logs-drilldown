@@ -10,16 +10,16 @@ import { JSONNestedNodeFilterButton } from './JSONNestedNodeFilterButton';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import ReRootJSONButton from './ReRootJSONButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { getJsonKey } from 'services/filters';
+import { getJSONKey } from 'services/filters';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 import { getValueFromFieldsFilter } from 'services/variableGetters';
 import { EMPTY_VARIABLE_VALUE } from 'services/variables';
 
 interface Props {
   fieldsFilters: AdHocFilterWithLabels[];
-  jsonFiltersSupported?: boolean;
+  JSONFiltersSupported?: boolean;
   JSONLogsScene: JSONLogsScene;
-  jsonParserPropsMap: Map<string, AdHocFilterWithLabels>;
+  JSONParserPropsMap: Map<string, AdHocFilterWithLabels>;
   keyPath: KeyPath;
   lineFilters: AdHocFilterWithLabels[];
 }
@@ -27,20 +27,20 @@ interface Props {
 function NestedNodeFilterButtonsComponent({
   keyPath,
   fieldsFilters,
-  jsonParserPropsMap,
+  JSONParserPropsMap,
   lineFilters,
-  jsonFiltersSupported,
+  JSONFiltersSupported,
   JSONLogsScene,
 }: Props) {
   const { fullKeyPath } = getFullKeyPath(keyPath, JSONLogsScene);
-  const fullKey = getJsonKey(fullKeyPath);
+  const fullKey = getJSONKey(fullKeyPath);
   const styles = useStyles2(getJSONLabelWrapStyles);
 
-  const jsonParserProp = jsonParserPropsMap.get(fullKey);
+  const JSONParserProp = JSONParserPropsMap.get(fullKey);
   const existingFilter =
-    jsonParserProp &&
+    JSONParserProp &&
     fieldsFilters.find(
-      (f) => f.key === jsonParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
+      (f) => f.key === JSONParserProp?.key && getValueFromFieldsFilter(f).value === EMPTY_VARIABLE_VALUE
     );
 
   let highlightedValue: string | Array<string | React.JSX.Element> = [];
@@ -49,8 +49,8 @@ function NestedNodeFilterButtonsComponent({
   }
 
   return (
-    <span className={styles.jsonNestedLabelWrapStyles}>
-      {jsonFiltersSupported && (
+    <span className={styles.JSONNestedLabelWrapStyles}>
+      {JSONFiltersSupported && (
         <>
           <ReRootJSONButton keyPath={keyPath} sceneRef={JSONLogsScene} />
           <JSONNestedNodeFilterButton
@@ -69,7 +69,7 @@ function NestedNodeFilterButtonsComponent({
           />
         </>
       )}
-      <strong className={styles.jsonLabelWrapStyles}>
+      <strong className={styles.JSONLabelWrapStyles}>
         {highlightedValue.length ? highlightedValue : getKeyPathString(keyPath, '')}:
       </strong>
     </span>

@@ -18,7 +18,7 @@ import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
 import { JSONMetadataButtons } from './JSONMetadataButtons';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
-import { getJsonKey } from 'services/filters';
+import { getJSONKey } from 'services/filters';
 import { getJSONLabelWrapStyles, getJSONVizNestedProperty } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
@@ -75,7 +75,7 @@ export function JSONLeafLabel({
   }
 
   const { fullKeyPath } = getFullKeyPath(keyPath, JSONLogsScene);
-  const fullKey = getJsonKey(fullKeyPath);
+  const fullKey = getJSONKey(fullKeyPath);
   const JSONParserProp = JSONParserPropsMap.get(fullKey);
   const existingJSONFilter =
     JSONParserProp &&
@@ -86,7 +86,7 @@ export function JSONLeafLabel({
     <span className={styles.labelButtonsWrap}>
       {JSONFiltersSupported && (
         <JSONLeafNodeLabelButtons
-          jsonFiltersSupported={JSONFiltersSupported}
+          JSONFiltersSupported={JSONFiltersSupported}
           label={label}
           value={value}
           fullKeyPath={fullKeyPath}

@@ -11,7 +11,7 @@ interface Props {
   existingFilter?: AdHocFilterWithLabels;
   fullKey: string;
   fullKeyPath: KeyPath;
-  jsonFiltersSupported: boolean | undefined;
+  JSONFiltersSupported: boolean | undefined;
   keyPathString: string | number;
   label: string | number;
   model: JSONLogsScene;

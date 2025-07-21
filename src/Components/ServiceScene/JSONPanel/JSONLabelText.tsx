@@ -11,5 +11,5 @@ interface Props {
 
 export function JSONLabelText({ text, keyPathString }: Props) {
   const styles = useStyles2(getJSONLabelWrapStyles);
-  return <strong className={styles.jsonLabelWrapStyles}>{text.length ? text : keyPathString}:</strong>;
+  return <strong className={styles.JSONLabelWrapStyles}>{text.length ? text : keyPathString}:</strong>;
 }

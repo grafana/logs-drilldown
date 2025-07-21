@@ -26,7 +26,7 @@ import { getLabelTypeFromFrame } from './lokiQuery';
 import { setLevelColorOverrides } from './panel';
 import {
   getFieldsVariable,
-  getJsonFieldsVariable,
+  getJSONFieldsVariable,
   getLineFormatVariable,
   getLogsStreamSelector,
   getValueFromFieldsFilter,
@@ -453,7 +453,7 @@ export function isLogsIdField(fieldName: string) {
  */
 export function clearJSONParserFields(sceneRef: SceneObject) {
   const fieldsVariable = getFieldsVariable(sceneRef);
-  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const jsonVar = getJSONFieldsVariable(sceneRef);
   const lineFormatVariable = getLineFormatVariable(sceneRef);
 
   // If there are no active filters, and no line format (drilldowns), clear the json

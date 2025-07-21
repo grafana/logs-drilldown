@@ -202,7 +202,7 @@ export function getLineFormatVariable(sceneRef: SceneObject) {
   return variable;
 }
 
-export function getJsonFieldsVariable(sceneRef: SceneObject) {
+export function getJSONFieldsVariable(sceneRef: SceneObject) {
   const variable = sceneGraph.lookupVariable(VAR_JSON_FIELDS, sceneRef);
   if (!(variable instanceof AdHocFiltersVariable)) {
     throw new Error('VAR_JSON_FIELDS not found!');

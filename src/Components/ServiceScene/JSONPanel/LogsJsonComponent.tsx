@@ -27,7 +27,7 @@ import {
 } from 'services/store';
 import {
   getFieldsVariable,
-  getJsonFieldsVariable,
+  getJSONFieldsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
 } from 'services/variableGetters';
@@ -57,13 +57,13 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
   const styles = useStyles2(getStyles, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
-  const jsonVar = getJsonFieldsVariable(model);
+  const JSONVariable = getJSONFieldsVariable(model);
   const levelsVar = getLevelsVariable(model);
 
   // If we have a line format variable, we are drilled down into a nested node
   const dataFrame = getLogsPanelFrame(data);
   const lineField = dataFrame?.fields.find((field) => field.type === FieldType.string && isLogLineField(field.name));
-  const jsonParserPropsMap = new Map<string, AdHocFilterWithLabels>();
+  const JSONParserPropsMap = new Map<string, AdHocFilterWithLabels>();
   const lineFilterVar = getLineFiltersVariable(model);
 
   const scrollToPath: ScrollToPath | undefined = useMemo(() => {
@@ -76,14 +76,14 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
     return cleanLineIndex !== undefined ? [cleanLineIndex, JSONVizRootName] : undefined;
   }, [selectedLine, rawFrame]);
 
-  jsonVar.state.filters.forEach((filter) => {
+  JSONVariable.state.filters.forEach((filter) => {
     // @todo this should probably be set in the AdHocFilterWithLabels valueLabels array
     // all json props are wrapped with [\" ... "\], strip those chars out so we have the actual key used in the json
     const fullKeyFromJsonParserProps = filter.value
       .substring(3, filter.value.length - 3)
       .split('\\"][\\"')
       .join('_');
-    jsonParserPropsMap.set(fullKeyFromJsonParserProps, filter);
+    JSONParserPropsMap.set(fullKeyFromJsonParserProps, filter);
   });
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -209,7 +209,7 @@ export default function LogsJsonComponent({ model }: SceneComponentProps<JSONLog
                     fieldsVar={fieldsVar}
                     lineField={lineField}
                     JSONFiltersSupported={JSONFiltersSupported}
-                    JSONParserPropsMap={jsonParserPropsMap}
+                    JSONParserPropsMap={JSONParserPropsMap}
                     lineFilters={lineFilterVar.state.filters}
                   />
                 )}

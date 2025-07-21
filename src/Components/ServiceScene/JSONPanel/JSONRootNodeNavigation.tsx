@@ -12,7 +12,7 @@ import { LineFormatFilterOp } from 'services/filterTypes';
 import { breadCrumbDelimiter, drillUpWrapperStyle, itemStringDelimiter } from 'services/JSONViz';
 import { LABEL_NAME_INVALID_CHARS } from 'services/labels';
 import { addCurrentUrlToHistory } from 'services/navigate';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from 'services/variableGetters';
+import { getFieldsVariable, getJSONFieldsVariable, getLineFormatVariable } from 'services/variableGetters';
 
 interface Props {
   sceneRef: SceneObject;
@@ -142,18 +142,18 @@ export const addDrillUp = (key: string, sceneRef: SceneObject) => {
   addCurrentUrlToHistory();
 
   const lineFormatVariable = getLineFormatVariable(sceneRef);
-  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const JSONVar = getJSONFieldsVariable(sceneRef);
   const fieldsVar = getFieldsVariable(sceneRef);
 
   const lineFormatFilters = lineFormatVariable.state.filters;
   const keyIndex = lineFormatFilters.findIndex((filter) => filter.key === key);
   const lineFormatFiltersToKeep = lineFormatFilters.filter((_, index) => index <= keyIndex);
-  const jsonParserKeys: string[] = [];
+  const JSONParserKeys: string[] = [];
 
   for (let i = 0; i < lineFormatFilters.length; i++) {
-    jsonParserKeys.push(
+    JSONParserKeys.push(
       `${
-        jsonParserKeys.length
+        JSONParserKeys.length
           ? `${lineFormatFilters
               .map((filter) => filter.key)
               .slice(0, i)
@@ -163,16 +163,16 @@ export const addDrillUp = (key: string, sceneRef: SceneObject) => {
     );
   }
 
-  const jsonParserKeysToRemove = jsonParserKeys.slice(keyIndex + 1);
+  const JSONParserKeysToRemove = JSONParserKeys.slice(keyIndex + 1);
   const fieldsFilterSet = new Set();
   fieldsVar.state.filters.forEach((fieldFilter) => fieldsFilterSet.add(fieldFilter.key));
 
-  const jsonParserFilters = jsonVar.state.filters.filter(
-    (filter) => !jsonParserKeysToRemove.includes(filter.key) || fieldsFilterSet.has(filter.key)
+  const JSONParserFilters = JSONVar.state.filters.filter(
+    (filter) => !JSONParserKeysToRemove.includes(filter.key) || fieldsFilterSet.has(filter.key)
   );
 
-  jsonVar.setState({
-    filters: jsonParserFilters,
+  JSONVar.setState({
+    filters: JSONParserFilters,
   });
   lineFormatVariable.setState({
     filters: lineFormatFiltersToKeep,
