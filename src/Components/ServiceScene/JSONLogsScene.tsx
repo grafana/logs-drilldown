@@ -1,17 +1,6 @@
+import { DataFrame, LoadingState, LogsSortOrder, PanelData } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import {
-  DataFrame,
-  Field,
-  FieldType,
-  getLinksSupplier,
-  getTimeZone,
-  LoadingState,
-  LogsSortOrder,
-  PanelData,
-  sortDataFrame,
-} from '@grafana/data';
-import { getTemplateSrv, locationService } from '@grafana/runtime';
-import {
-  SceneDataState,
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
@@ -20,26 +9,19 @@ import {
   SceneQueryRunner,
 } from '@grafana/scenes';
 
-import { getJsonDerivedFieldsLinks } from '../../services/derivedFields';
 import {
   clearJsonParserFields,
   getDetectedFieldsJsonPathField,
   getDetectedFieldsParserField,
-  isLabelsField,
-  isLabelTypesField,
-  isLogLineField,
 } from '../../services/fields';
-import { LabelType } from '../../services/fieldsTypes';
-import { LABELS_TO_REMOVE } from '../../services/filters';
-import { renderJSONVizTimeStamp } from '../../services/JSONViz';
+import { preProcessJSONDataFrame } from '../../services/JSONDataFrame';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { getPrettyQueryExpr } from '../../services/scenes';
-import { getLineFormatVariable } from '../../services/variableGetters';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import LogsJsonComponent from './JSONPanel/LogsJsonComponent';
-import { getDetectedFieldsFrameFromQueryRunnerState, getLogsPanelFrame, ServiceScene } from './ServiceScene';
+import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
 import {
@@ -68,8 +50,6 @@ interface LogsJsonSceneState extends SceneObjectState {
 }
 
 export type NodeType = 'Array' | 'Boolean' | 'Custom' | 'Number' | 'Object' | 'String';
-type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
-type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;
 
 export const JsonDataFrameTimeName = 'Time';
 export const JsonDataFrameLineName = 'Line';
@@ -148,13 +128,13 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
 
     const $data = sceneGraph.getData(this);
     if ($data.state.data?.state === LoadingState.Done) {
-      this.preProcessDataFrame($data.state);
+      this.updateJSONDataFrame($data.state.data);
     }
 
     this._subs.add(
       $data.subscribeToState((newState) => {
         if (newState.data?.state === LoadingState.Done) {
-          this.preProcessDataFrame(newState);
+          this.updateJSONDataFrame(newState.data);
         }
       })
     );
@@ -193,11 +173,17 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
     // Subscribe to options state changes
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
-        if (newState.hasMetadata !== prevState.hasMetadata || newState.hasLabels !== prevState.hasLabels) {
-          this.preProcessDataFrame($data.state);
+        if (
+          $data.state.data &&
+          (newState.hasMetadata !== prevState.hasMetadata || newState.hasLabels !== prevState.hasLabels)
+        ) {
+          this.updateJSONDataFrame($data.state.data);
         }
       })
     );
+  }
+  private updateJSONDataFrame(panelData: PanelData) {
+    this.setState(preProcessJSONDataFrame(panelData, this));
   }
 
   /**
@@ -240,102 +226,6 @@ export class JSONLogsScene extends SceneObjectBase<LogsJsonSceneState> {
     } else {
       this.setState({
         hasJsonFields: false,
-      });
-    }
-  }
-
-  /**
-   * Creates the dataframe consumed by the viz
-   */
-  private preProcessDataFrame(newState: SceneDataState) {
-    const rawFrame = getLogsPanelFrame(newState.data);
-    const dataFrame = rawFrame
-      ? sortDataFrame(rawFrame, 1, this.state.sortOrder === LogsSortOrder.Descending)
-      : undefined;
-    const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
-
-    const labelsField: Field<Record<string, string>> | undefined = dataFrame?.fields.find(
-      (field) => field.type === FieldType.other && isLabelsField(field.name)
-    );
-    const labelTypesField: Field<Record<string, LabelType>> | undefined = dataFrame?.fields.find(
-      (field) => field.type === FieldType.other && isLabelTypesField(field.name)
-    );
-
-    const templateSrv = getTemplateSrv();
-    const replace = templateSrv.replace.bind(templateSrv);
-
-    const timeZone = getTimeZone();
-    if (dataFrame && newState.data) {
-      const isRerooted = getLineFormatVariable(this).state.filters.length > 0;
-      const derivedFields: Field[] =
-        dataFrame?.fields
-          .filter((f) => f.config.links)
-          .map((field) => ({ ...field, getLinks: getLinksSupplier(dataFrame, field, {}, replace) })) ?? [];
-
-      const transformedData: PanelData = {
-        ...newState.data,
-        series: [dataFrame].map((frame) => {
-          return {
-            ...frame,
-            fields: frame.fields.map((field, frameIndex) => {
-              if (isLogLineField(field.name)) {
-                return {
-                  ...field,
-                  values: field.values
-                    .map((v, i) => {
-                      let parsed;
-                      try {
-                        parsed = JSON.parse(v);
-                      } catch (e) {
-                        parsed = v;
-                      }
-
-                      const rawLabels = labelsField?.values?.[i];
-                      const labelsTypes = labelTypesField?.values?.[i];
-                      let structuredMetadata: Record<string, string> = {};
-                      let indexedLabels: Record<string, string> = {};
-
-                      if (!isRerooted && rawLabels && labelsTypes) {
-                        const labelKeys = Object.keys(rawLabels);
-                        labelKeys.forEach((label) => {
-                          if (LABELS_TO_REMOVE.includes(label)) {
-                          } else if (labelsTypes[label] === LabelType.StructuredMetadata) {
-                            // @todo can structured metadata be JSON? detected_fields won't tell us if it were
-                            structuredMetadata[label] = rawLabels[label];
-                          } else if (labelsTypes[label] === LabelType.Indexed) {
-                            indexedLabels[label] = rawLabels[label];
-                          }
-                        });
-                      }
-                      const line: ParsedJsonLogLine = {
-                        [JsonDataFrameLineName]: parsed,
-                        [JsonDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
-                      };
-                      if (this.state.hasLabels && Object.keys(indexedLabels).length > 0) {
-                        line[JsonDataFrameLabelsName] = indexedLabels;
-                      }
-                      if (this.state.hasMetadata && Object.keys(structuredMetadata).length > 0) {
-                        line[JsonDataFrameStructuredMetadataName] = structuredMetadata;
-                      }
-                      if (derivedFields !== undefined) {
-                        let jsonLinks = getJsonDerivedFieldsLinks(derivedFields, i);
-                        if (Object.keys(jsonLinks).length) {
-                          line[JsonDataFrameLinksName] = jsonLinks;
-                        }
-                      }
-                      return line;
-                    })
-                    .filter((f) => f),
-                };
-              }
-              return field;
-            }),
-          };
-        }),
-      };
-      this.setState({
-        data: transformedData,
-        rawFrame: dataFrame,
       });
     }
   }
