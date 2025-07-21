@@ -73,7 +73,7 @@ export type NumericFilterType = NumericFilterOp.gt | NumericFilterOp.gte | Numer
 export type FilterType = 'clear' | 'exclude' | 'include' | 'toggle';
 
 export function addAdHocFilter(filter: AdHocVariableFilter, scene: SceneObject, variableType: InterpolatedFilterType) {
-  const type: FilterType = filter.operator === '=' ? 'include' : 'exclude';
+  const type: FilterType = filter.operator === '=' ? 'toggle' : 'exclude';
   addToFilters(filter.key, filter.value, type, scene, variableType);
 }
 
@@ -217,7 +217,6 @@ export function addToFilters(
   }
 
   const variable = getUIAdHocVariable(variableType, key, scene);
-
   let valueObject: string | undefined = undefined;
   let valueLabel = value;
   if (variableType === VAR_FIELDS) {
