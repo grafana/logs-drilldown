@@ -49,6 +49,6 @@ function getLinkToLog(keyPath: KeyPath, timeRange: TimeRange, rawFrame: DataFram
     throw error;
   }
   const logId = idField?.values[logLineIndex];
-  const logLineLink = generateLogShortlink('panelState', { id: logId, row: logLineIndex }, timeRange);
+  const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
   copyText(logLineLink);
 }
