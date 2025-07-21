@@ -28,7 +28,7 @@ import { ExtensionPoints } from '../../services/extensions/links';
 import { logger } from '../../services/logger';
 import { setLevelColorOverrides } from '../../services/panel';
 import { interpolateExpression } from '../../services/query';
-import { findObjectOfType, getDataSource, getQueryExpr, getQueryRunnerFromChildren } from '../../services/scenes';
+import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
@@ -145,10 +145,20 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           if (isAvailable) {
             const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
-              text: '✨ Explain in Assistant',
+              text: '',
+              type: 'divider',
+            });
+            this.addItem({
+              text: 'AI',
+              type: 'group',
+            });
+            this.addItem({
+              iconClassName: 'ai-sparkle',
+              text: 'Explain in Assistant',
               onClick: () => {
                 openAssistant({
-                  prompt: 'Help me understand this query. Be concise and to the point.',
+                  prompt:
+                    'Help me understand this query and provide a summary of the data. Be concise and to the point.',
                   context: [
                     createContext(ItemDataType.Datasource, {
                       datasourceName: datasource.name,
@@ -158,7 +168,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
                     createContext(ItemDataType.Structured, {
                       title: 'Logs Drilldown Query',
                       data: {
-                        query: getQueryExpr(this),
+                        query: getQueryExpression(this),
                       },
                     }),
                   ],
@@ -277,8 +287,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   });
 }
 
-export const getExploreLink = (sceneRef: SceneObject) => {
-  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+const getQueryExpression = (sceneRef: SceneObject) => {
   const $data = sceneGraph.getData(sceneRef);
   let queryRunner = $data instanceof SceneQueryRunner ? $data : getQueryRunnerFromChildren($data)[0];
 
@@ -303,7 +312,12 @@ export const getExploreLink = (sceneRef: SceneObject) => {
     }
   }
   const uninterpolatedExpr: string | undefined = queryRunner.state.queries[0].expr;
-  const expr = interpolateExpression(sceneRef, uninterpolatedExpr);
+  return interpolateExpression(sceneRef, uninterpolatedExpr);
+};
+
+export const getExploreLink = (sceneRef: SceneObject) => {
+  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+  const expr = getQueryExpression(sceneRef);
 
   return onExploreLinkClick(indexScene, expr);
 };
