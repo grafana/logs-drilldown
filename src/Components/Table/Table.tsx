@@ -20,10 +20,12 @@ import {
   MappingType,
   transformDataFrame,
   ValueMap,
+  LoadingState,
+  dateTime,
 } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
+import { getTemplateSrv, PanelRenderer } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
-import { Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
+import { TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
 import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
 import { testIds } from '../../services/testIds';
@@ -125,14 +127,27 @@ function TableAndContext(props: {
   width: number;
 }) {
   return (
-    <GrafanaTable
-      onColumnResize={props.onResize}
-      initialRowIndex={props.selectedLine}
-      cellHeight={TableCellHeight.Sm}
-      data={props.data}
-      height={props.height}
+    <PanelRenderer
+      data={{
+        series: [props.data],
+        state: LoadingState.Done,
+        // Required for the table to render, fake time range
+        timeRange: { from: dateTime(), to: dateTime(), raw: { from: 'now-1h', to: 'now' } },
+      }}
+      options={{
+        onColumnResize: props.onResize,
+        initialRowIndex: props.selectedLine,
+        cellHeight: TableCellHeight.Sm,
+        footer: {
+          countRows: true,
+          reducer: ['count'],
+          show: true,
+        },
+      }}
+      pluginId="table"
+      title=""
       width={props.width}
-      footerOptions={{ countRows: true, reducer: ['count'], show: true }}
+      height={props.height}
     />
   );
 }
@@ -212,7 +227,7 @@ export const Table = (props: Props) => {
                 />
               </TableHeaderContextProvider>
             ),
-            inspect: true,
+            inspect: false,
             width:
               columnWidthMap[field.name] ??
               getInitialFieldWidth(field, index, columns, width, frameWithOverrides.fields.length, logsFrame),
