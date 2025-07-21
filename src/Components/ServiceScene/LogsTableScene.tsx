@@ -13,7 +13,7 @@ import {
   SceneObjectUrlValues,
   SceneQueryRunner,
 } from '@grafana/scenes';
-import { Button, PanelChrome, useStyles2 } from '@grafana/ui';
+import { PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
@@ -30,6 +30,7 @@ import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
 import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
+import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 
@@ -37,20 +38,20 @@ let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
   emptyScene?: NoMatchingLabelsScene;
-  isColumnManagementActive: boolean;
+  isDisabledLineState: boolean;
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
 }
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['sortOrder'],
+    keys: ['sortOrder', 'urlColumns'],
   });
 
   constructor(state: Partial<LogsTableSceneState>) {
     super({
       ...state,
-      isColumnManagementActive: false,
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      isDisabledLineState: false,
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -84,12 +85,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     }
   }
 
-  public showColumnManagementDrawer = (isActive: boolean) => {
-    this.setState({
-      isColumnManagementActive: isActive,
-    });
-  };
-
   public onActivate() {
     this.setState({
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
@@ -97,11 +92,35 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     });
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
+
+    // Subscribe to location changes to detect URL parameter changes
+    this._subs.add(
+      locationService.getHistory().listen(() => {
+        this.subscribeFromUrl();
+      })
+    );
   }
 
   private getParentScene() {
     return sceneGraph.getAncestor(this, LogsListScene);
   }
+
+  subscribeFromUrl = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    // Check URL columns for body parameter and update isDisabledLineState accordingly
+    let urlColumnsUrl: string[] | null = [];
+    try {
+      urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumnsUrl.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumnsUrl.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
+      } else {
+        this.setState({ isDisabledLineState: false });
+      }
+    } catch (e) {
+      console.error('Error parsing urlColumns:', e);
+    }
+  };
 
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
@@ -109,6 +128,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     let urlColumnsUrl: string[] | null = [];
     try {
       urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumnsUrl.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumnsUrl.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
+      }
     } catch (e) {
       console.error(e);
     }
@@ -130,6 +153,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const parentModel = this.getParentScene();
     // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
     defaultUrlColumns = this.updateDefaultUrlColumns(urlColumns);
+    // If body or line is in the url columns, show the line state controls
+    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
+      this.setState({ isDisabledLineState: true });
+    } else {
+      this.setState({ isDisabledLineState: false });
+    }
 
     // Remove any default urlColumn for displayedFields
     const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
@@ -176,10 +205,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.setState({ sortOrder: newOrder });
   };
 
-  onManageColumnsClick = () => {
-    this.showColumnManagementDrawer(true);
-  };
-
   onLineStateClick = () => {
     const parentModel = sceneGraph.getAncestor(this, LogsListScene);
     const { tableLogLineState } = parentModel.state;
@@ -194,7 +219,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
-    const { emptyScene, isColumnManagementActive, menu, sortOrder } = model.useState();
+    const { emptyScene, menu, sortOrder } = model.useState();
 
     // Get time range
     const timeRange = sceneGraph.getTimeRange(model);
@@ -238,26 +263,17 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           title={'Logs'}
           menu={menu ? <menu.Component model={menu} /> : undefined}
           showMenuAlways={true}
-          actions={
-            <>
-              {!logsControlsSupported && (
-                <Button onClick={model.onManageColumnsClick} variant={'secondary'} size={'sm'}>
-                  Manage columns
-                </Button>
-              )}
-              <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
-            </>
-          }
+          actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />}
         >
           <div className={styles.container}>
             {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
               <LogListControls
                 sortOrder={sortOrder}
                 onSortOrderChange={model.handleSortChange}
-                onManageColumnsClick={model.onManageColumnsClick}
                 onLineStateClick={model.onLineStateClick}
                 // "Auto" defaults to display "show text"
                 lineState={tableLogLineState ?? LogLineState.labels}
+                disabledLineState={!model.state.isDisabledLineState}
               />
             )}
             {dataFrame && (
@@ -272,8 +288,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 clearSelectedLine={clearSelectedLine}
                 setUrlTableBodyState={setUrlTableBodyState}
                 urlTableBodyState={tableLogLineState}
-                showColumnManagementDrawer={model.showColumnManagementDrawer}
-                isColumnManagementActive={isColumnManagementActive}
                 logsSortOrder={sortOrder}
               />
             )}
@@ -291,6 +305,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     display: 'flex',
     flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
   }),
   panelWrapper: css({
     height: '100%',

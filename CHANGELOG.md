@@ -1,5 +1,77 @@
 # Changelog
 
+#### 1.0.22
+
+##### Chores
+
+* **eslint:**  disable sort/object-properties, remove recommendations (#1392) (c7941852)
+*  bump @grafana/create-plugin configuration to 5.25.1 (#1365) (65e6e53d)
+*  whitelist grafana-plugins-platform-bot[bot] (#1383) (ac0f59d7)
+
+##### New Features
+
+*  enable Logs Drilldown link in Metrics Drilldown (#1389) (8fb4422e)
+* **LogsPanel:**  set details mode (#1391) (d1befe8c)
+
+##### Bug Fixes
+
+*  limit patterns to 500 (#1390) (e2abf9a7)
+
+
+#### 1.0.21
+
+##### New Features
+
+* **JSON:**  support labels/metadata filtering in JSON viz (#1370) (2de9c052)
+* **Embbedding:**  open embedding API for default line filters (#1376) (0d866b88)
+* **patterns:**  allow disabling patterns in Logs Drilldown (#1361) (76bd7196)
+*  calculate sparsity on errored/partial data (#1358) (e3bcb5ac)
+
+##### Bug Fixes
+
+* **JSON:**  detected fields not always getting called on activation (#1368) (987874cc)
+*  dont run volume query when collapse (#1363) (f29bc32a)
+
+##### Other Changes
+
+*  Publish each commit to dev + ops, auto-merge dev and ops PRs (#1375) (a25eb8c6)
+
+
+#### 1.0.20
+
+##### Chores
+
+* **gha:**  update ci to deploy ops with new argo workflows (#1349) (250c5444)
+
+##### New Features
+
+* **EmbeddedLogs:**  embedded logs url parameter namespace (#1353) (11340a2c)
+
+
+#### 1.0.19
+
+##### Chores
+
+*  add bundle-types workflow (#1327) (ef3bc6df)
+
+##### New Features
+
+* **FieldsBreakdown:**  Show panels with errors (#1346) (7d0f70bc)
+* **FieldValues:**  add better max series limit error message (#1345) (7f1df4cd)
+
+##### Bug Fixes
+
+* **datasources:**  default datasources (#1348) (b0842eab)
+
+##### Refactors
+
+* **changelog:**  manually fix changelog (#1342) (63333a8e)
+
+##### Tests
+
+*  hopeful flake fix (21c05825)
+
+
 #### 1.0.18
 
 ##### Chores

@@ -95,7 +95,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
     this.setState({
-      loading: serviceScene.state.$detectedLabelsData?.state.data?.state !== LoadingState.Done,
+      loading: serviceScene.state.$detectedLabelsData?.state.data?.state === LoadingState.Loading,
     });
 
     // Subscriptions
@@ -128,7 +128,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     this._subs.add(
       serviceScene.state.$detectedFieldsData?.subscribeToState(
         (newState: QueryRunnerState, oldState: QueryRunnerState) => {
-          if (newState.data?.state === LoadingState.Done) {
+          if (newState.data?.state === LoadingState.Done || newState.data?.state === LoadingState.Error) {
             if (newState.data.series?.[0]) {
               this.updateOptions(newState.data.series?.[0]);
             }
@@ -298,7 +298,12 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const { options, value } = variable.useState();
     return (
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
-        {body instanceof FieldsAggregatedBreakdownScene && <FieldsAggregatedBreakdownScene.Selector model={body} />}
+        {body instanceof FieldsAggregatedBreakdownScene && (
+          <span className={styles.toggleWrapper}>
+            <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+            <FieldsAggregatedBreakdownScene.Selector model={body} />
+          </span>
+        )}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
@@ -370,6 +375,10 @@ function getStyles(theme: GrafanaTheme2) {
       justifyContent: 'space-between',
     }),
     labelsMenuWrapperNoSearch: css({
+      flexDirection: 'row',
+    }),
+    toggleWrapper: css({
+      display: 'flex',
       flexDirection: 'row',
     }),
     valuesMenuWrapper: css({

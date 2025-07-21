@@ -10,4 +10,8 @@ package.json
 .husky/
 project-words.txt
 yarn.lock
+tsconfig-for-bundle-types.json
+playwright-report/
+**/*.md
 *.yaml
+**/*.json

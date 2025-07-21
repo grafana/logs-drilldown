@@ -46,6 +46,7 @@ export const DATAPLANE_LINE_NAME = 'Line';
 export const DATAPLANE_SEVERITY_NAME = 'severity';
 export const DATAPLANE_ID_NAME = 'id';
 export const DATAPLANE_LABELS_NAME = 'labels';
+export const DATAPLANE_LABEL_TYPES_NAME = 'labelTypes';
 
 export function logFrameLabelsToLabels(logFrameLabels: LogFrameLabels): Labels {
   const result: Labels = {};

@@ -139,11 +139,13 @@ test.describe('embed', () => {
 
   test('can use browser history to undo adding field filters via the UI', async ({ page }) => {
     await explorePage.goToFieldsTab();
-
     // Load the field values
     explorePage.blockAllQueriesExcept({
       refIds: [fieldName],
     });
+
+    // Clear line filter
+    await page.getByRole('button', { name: 'Remove line filter' }).click();
 
     // Go to value drilldown
     await page.getByLabel(`Select ${fieldName}`).click();

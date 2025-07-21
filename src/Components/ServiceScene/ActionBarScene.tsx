@@ -95,36 +95,41 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
         </div>
 
         <TabsBar>
-          {breakdownViewsDefinitions.map((tab, index) => {
-            return (
-              <Tab
-                data-testid={tab.testId}
-                key={index}
-                label={tab.displayName}
-                active={currentBreakdownViewSlug === tab.value}
-                counter={loadingStates[tab.displayName] ? undefined : getCounter(tab, state)}
-                suffix={
-                  tab.displayName === TabNames.logs
-                    ? ({ className }) => LogsCount(className, totalLogsCount, logsCount, maxLines ?? LINE_LIMIT)
-                    : undefined
-                }
-                icon={loadingStates[tab.displayName] ? 'spinner' : undefined}
-                href={getDrillDownTabLink(tab.value, serviceScene)}
-                onChangeTab={() => {
-                  if ((tab.value && tab.value !== currentBreakdownViewSlug) || allowNavToParent) {
-                    reportAppInteraction(
-                      USER_EVENTS_PAGES.service_details,
-                      USER_EVENTS_ACTIONS.service_details.action_view_changed,
-                      {
-                        newActionView: tab.value,
-                        previousActionView: currentBreakdownViewSlug,
-                      }
-                    );
+          {breakdownViewsDefinitions
+            .filter(
+              (breakdownView) =>
+                !(breakdownView.value === PageSlugs.patterns && serviceScene.state.$patternsData === undefined)
+            )
+            .map((tab, index) => {
+              return (
+                <Tab
+                  data-testid={tab.testId}
+                  key={index}
+                  label={tab.displayName}
+                  active={currentBreakdownViewSlug === tab.value}
+                  counter={loadingStates[tab.displayName] ? undefined : getCounter(tab, state)}
+                  suffix={
+                    tab.displayName === TabNames.logs
+                      ? ({ className }) => LogsCount(className, totalLogsCount, logsCount, maxLines ?? LINE_LIMIT)
+                      : undefined
                   }
-                }}
-              />
-            );
-          })}
+                  icon={loadingStates[tab.displayName] ? 'spinner' : undefined}
+                  href={getDrillDownTabLink(tab.value, serviceScene)}
+                  onChangeTab={() => {
+                    if ((tab.value && tab.value !== currentBreakdownViewSlug) || allowNavToParent) {
+                      reportAppInteraction(
+                        USER_EVENTS_PAGES.service_details,
+                        USER_EVENTS_ACTIONS.service_details.action_view_changed,
+                        {
+                          newActionView: tab.value,
+                          previousActionView: currentBreakdownViewSlug,
+                        }
+                      );
+                    }
+                  }}
+                />
+              );
+            })}
         </TabsBar>
       </Box>
     );

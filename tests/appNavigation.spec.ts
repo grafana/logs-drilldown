@@ -22,7 +22,6 @@ test.describe('navigating app', () => {
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
     await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
     await expect(page).toHaveURL(/var-primary_label=service_name/);
-    await page.pause();
     await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
 
     // assert panels are showing

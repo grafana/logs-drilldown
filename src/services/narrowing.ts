@@ -2,6 +2,7 @@ import { LogsSortOrder, RawTimeRange, UrlQueryMap } from '@grafana/data';
 
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceSceneConstants';
 import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
+import { JSONDerivedFieldLink } from './derivedFields';
 import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { LogsVisualizationType } from './store';
@@ -42,7 +43,7 @@ export function narrowSelectedTableRow(o: unknown): SelectedTableRow | false {
 }
 
 export function narrowLogsVisualizationType(o: unknown): LogsVisualizationType | false {
-  return typeof o === 'string' && (o === 'logs' || o === 'table') && o;
+  return typeof o === 'string' && (o === 'logs' || o === 'table' || o === 'json') && o;
 }
 export function narrowLogsSortOrder(o: unknown): LogsSortOrder | false {
   if (typeof o === 'string' && o === LogsSortOrder.Ascending.toString()) {
@@ -177,6 +178,18 @@ export function narrowPageSlugFromSearchParams(searchParams: UrlQueryMap) {
   return narrowPageOrValueSlug(
     Array.isArray(searchParams[pageSlugUrlKey]) ? searchParams[pageSlugUrlKey][0] : searchParams[pageSlugUrlKey]
   );
+}
+
+export function narrowJsonDerivedFieldLinkPayload(payload: unknown): JSONDerivedFieldLink | false {
+  if (isObj(payload) && hasProp(payload, 'href') && hasProp(payload, 'name')) {
+    const href = isString(payload.href);
+    const name = isString(payload.name);
+    return {
+      href,
+      name,
+    };
+  }
+  return false;
 }
 
 export class NarrowingError extends Error {}

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
 
+import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
 import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
 import { logger } from './logger';
@@ -308,7 +309,7 @@ function isRetriableError(errorResponse: DataQueryResponse) {
     : errorResponse.error?.message ?? '';
   if (message.includes('timeout')) {
     return true;
-  } else if (message.includes('parse error')) {
+  } else if (message.includes('parse error') || message.match(MaxSeriesRegex)) {
     // If the error is a parse error, we want to signal to stop querying.
     throw new Error(message);
   }

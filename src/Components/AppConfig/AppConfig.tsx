@@ -4,19 +4,31 @@ import { css } from '@emotion/css';
 import { isNumber } from 'lodash';
 import { lastValueFrom } from 'rxjs';
 
-import { AppPluginMeta, GrafanaTheme2, PluginConfigPageProps, PluginMeta, rangeUtil } from '@grafana/data';
-import { getBackendSrv, locationService } from '@grafana/runtime';
-import { Button, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
+import {
+  AppPluginMeta,
+  DataSourceInstanceSettings,
+  GrafanaTheme2,
+  PluginConfigPageProps,
+  PluginMeta,
+  rangeUtil,
+} from '@grafana/data';
+import { DataSourcePicker, getBackendSrv, locationService } from '@grafana/runtime';
+import { Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
+import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 
 export type JsonData = {
+  dataSource?: string;
   interval?: string;
+  patternsDisabled?: boolean;
 };
 
 type State = {
+  dataSource: string;
   interval: string;
   isValid: boolean;
+  patternsDisabled: boolean;
 };
 
 // 1 hour minimum
@@ -29,9 +41,19 @@ const AppConfig = ({ plugin }: Props) => {
   const { enabled, jsonData, pinned } = plugin.meta;
 
   const [state, setState] = useState<State>({
+    dataSource:
+      jsonData?.dataSource ?? getDefaultDatasourceFromDatasourceSrv() ?? getLastUsedDataSourceFromStorage() ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
+    patternsDisabled: jsonData?.patternsDisabled ?? false,
   });
+
+  const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
+    setState({
+      ...state,
+      dataSource: ds.uid,
+    });
+  };
 
   const onChangeInterval = (event: ChangeEvent<HTMLInputElement>) => {
     const interval = event.target.value.trim();
@@ -42,9 +64,34 @@ const AppConfig = ({ plugin }: Props) => {
     });
   };
 
+  const onChangePatternsDisabled = (event: ChangeEvent<HTMLInputElement>) => {
+    const patternsDisabled = event.currentTarget.checked;
+    setState({
+      ...state,
+      patternsDisabled,
+    });
+  };
+
   return (
     <div data-testid={testIds.appConfig.container}>
       <FieldSet label="Settings">
+        <Field
+          description={
+            <span>
+              The default data source to be used for new Logs Drilldown users. Each user can override their default by
+              setting another data source in Logs Drilldown.
+            </span>
+          }
+          label={'Default data source'}
+        >
+          <DataSourcePicker
+            width={60}
+            filter={(ds) => ds.type === 'loki'}
+            current={state.dataSource}
+            onChange={onChangeDatasource}
+          />
+        </Field>
+
         <Field
           invalid={!isValid(state.interval)}
           error={'Interval is invalid. Please enter an interval longer then "60m". For example: 3d, 1w, 1m'}
@@ -69,6 +116,34 @@ const AppConfig = ({ plugin }: Props) => {
           />
         </Field>
 
+        <Field
+          className={styles.marginTop}
+          description={
+            <span>
+              Disables Logs Drilldown&apos;s usage of the{' '}
+              <a
+                className="external-link"
+                href="https://grafana.com/docs/loki/latest/reference/loki-http-api/#patterns-detection"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Loki Patterns API
+              </a>{' '}
+              endpoint, and removes the Patterns tab.
+            </span>
+          }
+          label={'Disable Loki patterns'}
+        >
+          <Checkbox
+            id="disable-patterns"
+            data-testid={testIds.appConfig.interval}
+            label={`Disable patterns`}
+            value={state?.patternsDisabled}
+            placeholder={`7d`}
+            onChange={onChangePatternsDisabled}
+          />
+        </Field>
+
         <div className={styles.marginTop}>
           <Button
             type="submit"
@@ -77,7 +152,9 @@ const AppConfig = ({ plugin }: Props) => {
               updatePluginAndReload(plugin.meta.id, {
                 enabled,
                 jsonData: {
+                  dataSource: state.dataSource,
                   interval: state.interval,
+                  patternsDisabled: state.patternsDisabled,
                 },
                 pinned,
               })
@@ -87,6 +164,7 @@ const AppConfig = ({ plugin }: Props) => {
             Save settings
           </Button>
         </div>
+        <p className={styles.note}>Active users must refresh the app to update configuration.</p>
       </FieldSet>
     </div>
   );
@@ -110,6 +188,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
   marginTopXl: css`
     margin-top: ${theme.spacing(6)};
   `,
+  note: css({
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
+  }),
 });
 
 const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<JsonData>>) => {
@@ -127,7 +210,9 @@ const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<
 const testIds = {
   appConfig: {
     container: 'data-testid ac-container',
+    datasource: 'data-testid ac-datasource-input',
     interval: 'data-testid ac-interval-input',
+    pattern: 'data-testid ac-patterns-disabled',
     submit: 'data-testid ac-submit-form',
   },
 };

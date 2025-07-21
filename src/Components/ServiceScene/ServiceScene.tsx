@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LoadingState, PanelData } from '@grafana/data';
+import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -23,10 +23,11 @@ import {
 import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import { plugin } from '../../module';
 import { areArraysEqual } from '../../services/comparison';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
-import { clearJsonParserFields } from '../../services/fields';
+import { clearJSONParserFields } from '../../services/fields';
 import { filterUnusedJSONFilters } from '../../services/filters';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
@@ -46,6 +47,7 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from '../../services/variableGetters';
+import { JsonData } from '../AppConfig/AppConfig';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
@@ -98,7 +100,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedFieldsData: SceneQueryRunner | undefined;
   $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
-  $patternsData: SceneQueryRunner | undefined;
+  $patternsData?: SceneQueryRunner | undefined;
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
@@ -491,7 +493,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   ) {
     const lineFormatVariable = getLineFormatVariable(this);
     if (!newState.filters.length && !lineFormatVariable.state.filters.length) {
-      clearJsonParserFields(this);
+      clearJSONParserFields(this);
 
       // A field was removed
     } else if (newState.filters.length < prevState.filters.length) {
@@ -767,6 +769,11 @@ function buildGraphScene() {
 }
 
 function getPatternsQueryRunner() {
+  const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+  if (jsonData?.patternsDisabled) {
+    return undefined;
+  }
+
   return getResourceQueryRunner([
     buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'patterns', { refId: PATTERNS_QUERY_REFID }),
   ]);

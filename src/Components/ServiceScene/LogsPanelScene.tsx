@@ -61,6 +61,7 @@ interface LogsPanelSceneState extends SceneObjectState {
   error?: string;
   logsVolumeCollapsedByError?: boolean;
   prettifyLogMessage: boolean;
+  series: DataFrame[];
   sortOrder: LogsSortOrder;
   wrapLogMessage: boolean;
 }
@@ -77,6 +78,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      series: [],
       ...state,
     });
 
@@ -233,6 +235,15 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
   }
 
+  setDisplayedFields = (fields: string[]) => {
+    this.setLogsVizOption({
+      displayedFields: fields,
+    });
+    setDisplayedFields(this, fields);
+    const parent = this.getParentScene();
+    parent.setState({ displayedFields: fields });
+  };
+
   onClickShowField = (field: string) => {
     const parent = this.getParentScene();
     const index = parent.state.displayedFields.indexOf(field);
@@ -243,7 +254,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         displayedFields,
       });
       parent.setState({ displayedFields });
-      setDisplayedFields(this, parent.state.displayedFields);
+      setDisplayedFields(this, displayedFields);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -262,7 +273,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         displayedFields,
       });
       parent.setState({ displayedFields });
-      setDisplayedFields(this, parent.state.displayedFields);
+      setDisplayedFields(this, displayedFields);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -350,6 +361,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         // @ts-expect-error Requires Grafana 12.1
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
         // @ts-expect-error Requires Grafana 12.2
+        .setOption('setDisplayedFields', this.setDisplayedFields)
+        // @ts-expect-error Requires Grafana 12.2
         .setOption('logLineMenuCustomItems', [
           {
             label: 'Copy link to log line',
@@ -385,16 +398,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       logsCount: newLogs[0].length,
     });
 
-    if (serviceScene.state.$data?.state.data?.series) {
-      // We need to update the state with the new data without triggering state-dependent changes.
-      serviceScene.state.$data.setState({
-        ...serviceScene.state.$data.state,
-        data: {
-          ...serviceScene.state.$data.state.data,
-          series: newLogs,
-        },
-      });
-    }
+    this.setState({
+      series: newLogs,
+    });
 
     const logsVolumeScene = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
     logsVolumeScene.updateVisibleRange(newLogs);

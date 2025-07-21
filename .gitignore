@@ -5,7 +5,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Package manager
 node_modules/
+.yarn/
+.yarnrc.yml
 
 # Runtime data
 pids

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { debounce } from 'lodash';
+import { Resizable, ResizeCallback } from 're-resizable';
 import { ScrollSync } from 'react-scroll-sync';
 import { lastValueFrom } from 'rxjs';
 
@@ -14,6 +15,7 @@ import {
   Field,
   FieldType,
   FieldWithIndex,
+  GrafanaTheme2,
   Labels,
   MappingType,
   transformDataFrame,
@@ -21,7 +23,7 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
-import { Drawer, Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
+import { Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
 import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
 import { testIds } from '../../services/testIds';
@@ -49,15 +51,67 @@ interface Props {
   width: number;
 }
 
-const getStyles = () => ({
-  section: css({
+const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number) => ({
+  // Sidebar resize styles matching https://github.com/grafana/grafana/blob/main/public/app/features/explore/Logs/LogsTableWrap.tsx#L561
+  collapsedTableSidebar: css({
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(8),
+    width: '40px !important', // Space for the collapse button
+  }),
+  collapseTableSidebarButton: css({
+    '&:hover': {
+      background: theme.colors.background.primary,
+      borderColor: theme.colors.border.medium,
+    },
+    background: theme.colors.background.secondary,
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
+    cursor: 'pointer',
+    padding: theme.spacing(0.5),
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    transition: 'all 0.2s ease-in-out',
+    zIndex: 10,
+  }),
+  rzHandle: css({
+    [theme.transitions.handleMotion('no-preference', 'reduce')]: {
+      transition: '0.3s background ease-in-out',
+    },
+    ['&:hover']: {
+      background: theme.colors.secondary.shade,
+    },
+    background: theme.colors.secondary.main,
+    borderRadius: theme.shape.radius.pill,
+    cursor: 'grab',
+    height: '50% !important',
     position: 'relative',
+    right: `${theme.spacing(1)} !important`,
+    top: '25% !important',
+    width: `${theme.spacing(1)} !important`,
+  }),
+  sidebar: css({
+    fontSize: theme.typography.pxToRem(11),
+    height: height,
+    overflowY: 'hidden',
+    paddingRight: theme.spacing(3),
+    position: 'relative',
+    width: sideBarWidth,
   }),
   tableWrap: css({
     '.cellActions': {
       // Hacky but without inspect turned on the table will change the width of the row on hover, but we don't want the default icons to show
       display: 'none !important',
     },
+  }),
+  wrapper: css({
+    display: 'flex',
+    position: 'relative',
+    flexWrap: 'wrap',
   }),
 });
 
@@ -85,20 +139,16 @@ function TableAndContext(props: {
 
 export const Table = (props: Props) => {
   const { height, labels, logsFrame, timeZone, width } = props;
+
   const theme = useTheme2();
-  const styles = getStyles();
 
   const [tableFrame, setTableFrame] = useState<DataFrame | undefined>(undefined);
-  const {
-    clearSelectedLine,
-    columns,
-    columnWidthMap,
-    setColumns,
-    setColumnWidthMap,
-    setFilteredColumns,
-    setVisible,
-    visible,
-  } = useTableColumnContext();
+  const [sidebarWidth, setSidebarWidth] = useState(220);
+  const [isTableSidebarCollapsed, setIsTableSidebarCollapsed] = useState(false);
+  const tableWidth = width - (isTableSidebarCollapsed ? 40 : sidebarWidth);
+  const styles = getStyles(theme, height, sidebarWidth);
+
+  const { clearSelectedLine, columns, columnWidthMap, setColumns, setColumnWidthMap } = useTableColumnContext();
 
   const { selectedLine } = useQueryContext();
 
@@ -115,7 +165,6 @@ export const Table = (props: Props) => {
       if (!frame.length) {
         return frame;
       }
-
       const [frameWithOverrides] = applyFieldOverrides({
         data: [frame],
         fieldConfig: {
@@ -145,7 +194,6 @@ export const Table = (props: Props) => {
               <TableHeaderContextProvider>
                 <LogsTableHeaderWrap
                   headerProps={{ ...props, fieldIndex: index }}
-                  openColumnManagementDrawer={() => setVisible(true)}
                   slideLeft={
                     index !== 0 ? (cols: FieldNameMetaStore) => reorderColumn(cols, index, index - 1) : undefined
                   }
@@ -181,7 +229,7 @@ export const Table = (props: Props) => {
     // This function is building the table dataframe that will be transformed, even though the components within the dataframe (cells, headers) can mutate the dataframe!
     // If we try to update the dataframe whenever the columns are changed (which are rebuilt using this dataframe after being transformed), react will infinitely update frame -> columns -> frame -> ...
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [timeZone, theme, labels, width, replace, setVisible, columnWidthMap]
+    [timeZone, theme, labels, width, replace, columnWidthMap]
   );
 
   // prepare dataFrame
@@ -256,19 +304,40 @@ export const Table = (props: Props) => {
     }
   };
 
+  const getOnResize: ResizeCallback = (event, direction, ref) => {
+    const newSidebarWidth = Number(ref.style.width.slice(0, -2));
+    if (!isNaN(newSidebarWidth)) {
+      setSidebarWidth(newSidebarWidth);
+    }
+  };
+
+  const toggleTableSidebarCollapse = () => {
+    setIsTableSidebarCollapsed(!isTableSidebarCollapsed);
+  };
+
   return (
-    <div data-testid={testIds.table.wrapper} className={styles.section}>
-      {visible && (
-        <Drawer
-          size={'sm'}
-          onClose={() => {
-            setVisible(false);
-            setFilteredColumns(columns);
-          }}
-        >
-          <ColumnSelectionDrawerWrap />
-        </Drawer>
-      )}
+    <div data-testid={testIds.table.wrapper} className={styles.wrapper}>
+      <Resizable
+        enable={{
+          right: !isTableSidebarCollapsed,
+        }}
+        handleClasses={{ right: styles.rzHandle }}
+        onResize={getOnResize}
+        minWidth={isTableSidebarCollapsed ? 40 : 150}
+        maxWidth={isTableSidebarCollapsed ? 40 : width * 0.8}
+        size={{
+          height: height,
+          width: isTableSidebarCollapsed ? 40 : sidebarWidth,
+        }}
+      >
+        <section className={`${styles.sidebar} ${isTableSidebarCollapsed ? styles.collapsedTableSidebar : ''}`}>
+          <ColumnSelectionDrawerWrap
+            isTableSidebarCollapsed={isTableSidebarCollapsed}
+            onToggleTableSidebarCollapse={toggleTableSidebarCollapse}
+            collapseTableSidebarButtonClassName={styles.collapseTableSidebarButton}
+          />
+        </section>
+      </Resizable>
 
       <div className={styles.tableWrap}>
         <TableCellContextProvider>
@@ -278,7 +347,7 @@ export const Table = (props: Props) => {
               selectedLine={cleanLineIndex}
               data={tableFrame}
               height={height}
-              width={width}
+              width={tableWidth}
               onResize={debounce(onResize, 100)}
               logsSortOrder={props.logsSortOrder}
             />
@@ -472,6 +541,9 @@ function getInitialFieldWidth(
   // First field gets icons, and a little extra width
   const extraPadding = fieldIndex === 0 ? 50 : 0;
 
+  // Width of the logs panel controls sidebar
+  const logsPanelControls = 35;
+
   // Time fields have consistent widths
   if (field.type === FieldType.time) {
     return 200 + extraPadding;
@@ -488,7 +560,10 @@ function getInitialFieldWidth(
   if (columnMeta.maxLength) {
     // Super rough estimate, about 6.5px per char, and 95px for some space for the header icons (remember when sorted a new icon is added to the table header).
     // I guess to be a little tighter we could only add the extra padding IF the field name is longer then the longest value
-    return Math.min(Math.max(maxLength * 6.5 + 95 + extraPadding, minWidth + extraPadding), maxWidth);
+    return Math.min(
+      Math.max(maxLength * 6.5 + 95 + logsPanelControls + extraPadding, minWidth + extraPadding),
+      maxWidth
+    );
   }
 
   if (field.name === getBodyName(logsFrame)) {
@@ -497,7 +572,7 @@ function getInitialFieldWidth(
 
   // Just derived fields, which should have uniform length
   return Math.min(
-    Math.max((field.values?.[0]?.length ?? 80) * 6.5 + 95 + extraPadding, minWidth + extraPadding),
+    Math.max((field.values?.[0]?.length ?? 80) * 6.5 + 95 + logsPanelControls + extraPadding, minWidth + extraPadding),
     maxWidth
   );
 }

@@ -41,6 +41,15 @@ export const ERROR_LEVEL_FIELD_NAME_REGEX = /^error$/i;
 export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
+export const logsLabelLevelsMatches: Record<string, RegExp> = {
+  'log-token-info': INFO_LEVEL_FIELD_NAME_REGEX,
+  'log-token-debug': DEBUG_LEVEL_FIELD_NAME_REGEX,
+  'log-token-warning': WARNING_LEVEL_FIELD_NAME_REGEX,
+  'log-token-error': ERROR_LEVEL_FIELD_NAME_REGEX,
+  'log-token-critical': CRITICAL_LEVEL_FIELD_NAME_REGEX,
+  'log-token-unknown': UNKNOWN_LEVEL_FIELD_NAME_REGEX,
+};
+
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
   overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
     fixedColor: 'semi-dark-green',
@@ -338,6 +347,5 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
 export const logsControlsSupported =
-  // @ts-expect-error Requires Grafana 12.1
   config.featureToggles.logsPanelControls &&
   (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));

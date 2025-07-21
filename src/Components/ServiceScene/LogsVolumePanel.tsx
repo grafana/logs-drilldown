@@ -110,23 +110,45 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       : 'Log volume';
   }
 
+  private setCollapsed(collapsed: boolean | undefined, panel: VizPanel) {
+    if (collapsed) {
+      panel.setState({
+        $data: undefined,
+      });
+    } else {
+      panel.setState({
+        $data: getQueryRunner([
+          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
+            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
+          }),
+        ]),
+      });
+      this.subscribeToVisibleRange(panel);
+    }
+    this.updateContainerHeight(panel);
+    setLogsVolumeOption('collapsed', collapsed ? 'true' : undefined);
+  }
+
   private getVizPanel() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const isCollapsed = getLogsVolumeOption('collapsed');
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', { calcs: ['sum'], displayMode: LegendDisplayMode.List, showLegend: true })
       .setUnit('short')
       .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
       .setCollapsible(true)
-      .setCollapsed(getLogsVolumeOption('collapsed'))
+      .setCollapsed(isCollapsed)
       .setHeaderActions(new LogsVolumeActions({}))
       .setShowMenuAlways(true)
       .setData(
-        getQueryRunner([
-          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
-          }),
-        ])
+        isCollapsed
+          ? undefined
+          : getQueryRunner([
+              buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
+                legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
+              }),
+            ])
       );
 
     setLogsVolumeFieldConfigs(viz);
@@ -139,25 +161,12 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     this._subs.add(
       panel.subscribeToState((newState, prevState) => {
         if (newState.collapsed !== prevState.collapsed) {
-          this.updateContainerHeight(panel);
-          setLogsVolumeOption('collapsed', newState.collapsed ? 'true' : undefined);
+          this.setCollapsed(newState.collapsed, panel);
         }
       })
     );
 
-    this._subs.add(
-      panel.state.$data?.subscribeToState((newState) => {
-        if (newState.data?.state !== LoadingState.Done) {
-          return;
-        }
-        if (serviceScene.state.$data?.state.data?.state === LoadingState.Done && !newState.data.annotations?.length) {
-          this.updateVisibleRange(serviceScene.state.$data?.state.data?.series);
-        } else {
-          this.displayVisibleRange();
-        }
-        syncLevelsVisibleSeries(panel, newState.data.series, this);
-      })
-    );
+    this.subscribeToVisibleRange(panel);
 
     this._subs.add(
       serviceScene.state.$data?.subscribeToState((newState) => {
@@ -184,6 +193,23 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     );
 
     return panel;
+  }
+
+  private subscribeToVisibleRange(panel: VizPanel) {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this._subs.add(
+      panel.state.$data?.subscribeToState((newState) => {
+        if (newState.data?.state !== LoadingState.Done) {
+          return;
+        }
+        if (serviceScene.state.$data?.state.data?.state === LoadingState.Done && !newState.data.annotations?.length) {
+          this.updateVisibleRange(serviceScene.state.$data?.state.data?.series);
+        } else {
+          this.displayVisibleRange();
+        }
+        syncLevelsVisibleSeries(panel, newState.data.series, this);
+      })
+    );
   }
 
   public updateContainerHeight(panel: VizPanel) {

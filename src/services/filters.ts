@@ -5,7 +5,7 @@ import { SceneObject, VariableValueOption } from '@grafana/scenes';
 import { DetectedLabel, getJsonPathArraySyntax, isLogLineField } from './fields';
 import { FilterOp } from './filterTypes';
 import { LABEL_NAME_INVALID_CHARS } from './labels';
-import { getFieldsVariable, getJsonFieldsVariable, getLineFormatVariable } from './variableGetters';
+import { getFieldsVariable, getJSONFieldsVariable, getLineFormatVariable } from './variableGetters';
 import {
   ALL_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
@@ -74,7 +74,7 @@ export function filterUnusedJSONFilters(sceneRef: SceneObject) {
   const lineFormatVar = getLineFormatVariable(sceneRef);
   const lineFormatFilters = lineFormatVar.state.filters;
   const fieldsVar = getFieldsVariable(sceneRef);
-  const jsonVariable = getJsonFieldsVariable(sceneRef);
+  const jsonVariable = getJSONFieldsVariable(sceneRef);
   const lineFormatSet = new Set();
   lineFormatFilters.forEach((lineFormatFilter) => {
     lineFormatSet.add(lineFormatFilter.key);
@@ -121,10 +121,10 @@ export function formatJsonKey(key: string) {
 }
 
 export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath) {
-  const jsonVariable = getJsonFieldsVariable(sceneRef);
+  const jsonVariable = getJSONFieldsVariable(sceneRef);
 
-  const value = getJsonKeyPath(keyPath);
-  const key = getJsonKey(keyPath);
+  const value = getJSONKeyPath(keyPath);
+  const key = getJSONKey(keyPath);
   const filterKey = formatJsonKey(key);
   const nextKeyPath = [...keyPath];
   let nextKey = nextKeyPath.shift();
@@ -139,8 +139,8 @@ export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath)
   ];
 
   while (nextKey && !isLogLineField(nextKey.toString()) && !isNumber(nextKey) && nextKey !== 'root') {
-    const nextFullKey = getJsonKey(nextKeyPath);
-    const nextValue = getJsonKeyPath(nextKeyPath);
+    const nextFullKey = getJSONKey(nextKeyPath);
+    const nextValue = getJSONKeyPath(nextKeyPath);
 
     if (
       nextFullKey &&
@@ -167,9 +167,9 @@ export function addJsonParserFieldValue(sceneRef: SceneObject, keyPath: KeyPath)
 }
 
 export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath) {
-  const jsonVariable = getJsonFieldsVariable(sceneRef);
-  const value = getJsonKeyPath(keyPath);
-  const key = getJsonKey(keyPath);
+  const jsonVariable = getJSONFieldsVariable(sceneRef);
+  const value = getJSONKeyPath(keyPath);
+  const key = getJSONKey(keyPath);
 
   const filters = [
     ...jsonVariable.state.filters.filter((f) => f.key !== key),
@@ -185,12 +185,12 @@ export function addJsonParserFields(sceneRef: SceneObject, keyPath: KeyPath) {
   });
 }
 
-export function getJsonKey(keyPath: KeyPath) {
+export function getJSONKey(keyPath: KeyPath) {
   const keysToConcat = getJSONKeysFromKeyPath(keyPath);
   return keysToConcat.join('_');
 }
 
-export function getJsonKeyPath(keyPath: KeyPath) {
+export function getJSONKeyPath(keyPath: KeyPath) {
   const keysToConcat = getJSONKeysFromKeyPath(keyPath);
   return getJsonPathArraySyntax(keysToConcat);
 }

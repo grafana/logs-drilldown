@@ -16,10 +16,9 @@ export interface LayoutSwitcherState extends SceneObjectState {
   options: Array<SelectableValue<LayoutType>>;
 }
 
-export type LayoutType = 'grid' | 'rows' | 'single';
+export type LayoutType = 'grid' | 'rows';
 
 export enum LayoutTypeEnum {
-  single = 'single',
   grid = 'grid',
   rows = 'rows',
 }
@@ -35,26 +34,12 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  public isTopLevelLayoutType = () => {
-    // Top layouts do not have 'single' layout type
-    const isTopLevel = this.state.options.every((o) => o.value !== LayoutTypeEnum.single);
-    return isTopLevel;
-  };
-
   public updateLayout = () => {
     const layout = getSceneLayout();
     if (layout) {
-      if (layout === LayoutTypeEnum.single && this.isTopLevelLayoutType()) {
-        // top level layouts do not have single layout type default to grid
-        this.setState({ active: LayoutTypeEnum.grid });
-      } else {
-        this.setState({
-          active:
-            layout === LayoutTypeEnum.grid || layout === LayoutTypeEnum.rows || layout === LayoutTypeEnum.single
-              ? layout
-              : LayoutTypeEnum.grid,
-        });
-      }
+      this.setState({
+        active: layout === LayoutTypeEnum.grid || layout === LayoutTypeEnum.rows ? layout : LayoutTypeEnum.grid,
+      });
     }
   };
 

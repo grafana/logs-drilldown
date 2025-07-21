@@ -373,8 +373,6 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       .setMenu(new PanelMenu({}))
       .setTitle(tagKey);
 
-    const body = bodyOpts.build();
-
     const { direction, sortBy } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
 
     const getFilter = () => labelBreakdownScene.state.search.state.filter ?? '';
@@ -382,16 +380,6 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
     return new LayoutSwitcher({
       active: 'grid',
       layouts: [
-        new SceneFlexLayout({
-          children: [
-            new SceneReactObject({ reactNode: <LabelBreakdownScene.LabelsMenu model={labelBreakdownScene} /> }),
-            new SceneFlexItem({
-              body,
-              minHeight: 300,
-            }),
-          ],
-          direction: 'column',
-        }),
         new SceneFlexLayout({
           children: [
             new SceneReactObject({ reactNode: <LabelBreakdownScene.LabelsMenu model={labelBreakdownScene} /> }),
@@ -457,7 +445,6 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
         }),
       ],
       options: [
-        { label: 'Single', value: 'single' },
         { label: 'Grid', value: 'grid' },
         { label: 'Rows', value: 'rows' },
       ],

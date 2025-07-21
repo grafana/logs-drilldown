@@ -1,0 +1,27 @@
+name: Bundle Types
+
+on:
+  push:
+    tags:
+      - 'v*' # Run workflow on version tags, e.g. v1.0.0.
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# These permissions are needed to assume roles from Github's OIDC.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  bundle-types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: grafana/plugin-actions/bundle-types@main
+        with:
+          entry-point: ./src/Components/ExposedComponents/types.ts
+          ts-config: ./tsconfig-for-bundle-types.json
