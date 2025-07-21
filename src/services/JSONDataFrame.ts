@@ -18,7 +18,7 @@ import {
   JSONLogsScene,
 } from '../Components/ServiceScene/JSONLogsScene';
 import { getLogsPanelFrame } from '../Components/ServiceScene/ServiceScene';
-import { getJsonDerivedFieldsLinks } from './derivedFields';
+import { getJSONDerivedFieldsLinks } from './derivedFields';
 import { isLabelsField, isLabelTypesField, isLogLineField } from './fields';
 import { LabelType } from './fieldsTypes';
 import { LABELS_TO_REMOVE } from './filters';
@@ -28,10 +28,10 @@ import { getLineFormatVariable } from './variableGetters';
 type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
 type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;
 
-export function preProcessJSONDataFrame(panelData: PanelData, logsJsonScene: JSONLogsScene) {
+export function preProcessJSONDataFrame(panelData: PanelData, logsJSONScene: JSONLogsScene) {
   const rawFrame = getLogsPanelFrame(panelData);
   const dataFrame = rawFrame
-    ? sortDataFrame(rawFrame, 1, logsJsonScene.state.sortOrder === LogsSortOrder.Descending)
+    ? sortDataFrame(rawFrame, 1, logsJSONScene.state.sortOrder === LogsSortOrder.Descending)
     : undefined;
   const time = dataFrame?.fields.find((field) => field.type === FieldType.time);
 
@@ -53,7 +53,7 @@ export function preProcessJSONDataFrame(panelData: PanelData, logsJsonScene: JSO
     };
   }
 
-  const isRerooted = getLineFormatVariable(logsJsonScene).state.filters.length > 0;
+  const isRerooted = getLineFormatVariable(logsJSONScene).state.filters.length > 0;
   const derivedFields: Field[] =
     dataFrame?.fields
       .filter((f) => f.config.links)
@@ -98,14 +98,14 @@ export function preProcessJSONDataFrame(panelData: PanelData, logsJsonScene: JSO
                     [JSONDataFrameLineName]: parsed,
                     [JSONDataFrameTimeName]: renderJSONVizTimeStamp(time?.values?.[i], timeZone),
                   };
-                  if (logsJsonScene.state.hasLabels && Object.keys(indexedLabels).length > 0) {
+                  if (logsJSONScene.state.hasLabels && Object.keys(indexedLabels).length > 0) {
                     line[JSONDataFrameLabelsName] = indexedLabels;
                   }
-                  if (logsJsonScene.state.hasMetadata && Object.keys(structuredMetadata).length > 0) {
+                  if (logsJSONScene.state.hasMetadata && Object.keys(structuredMetadata).length > 0) {
                     line[JSONDataFrameStructuredMetadataName] = structuredMetadata;
                   }
                   if (derivedFields !== undefined) {
-                    let jsonLinks = getJsonDerivedFieldsLinks(derivedFields, i);
+                    let jsonLinks = getJSONDerivedFieldsLinks(derivedFields, i);
                     if (Object.keys(jsonLinks).length) {
                       line[JSONDataFrameLinksName] = jsonLinks;
                     }

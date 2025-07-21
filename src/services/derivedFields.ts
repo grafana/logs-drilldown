@@ -1,7 +1,7 @@
 import { Field } from '@grafana/data';
 
 export type JSONDerivedFieldLink = { href: string; name: string };
-export function getJsonDerivedFieldsLinks(derivedFields: Field[], valueRowIndex: number) {
+export function getJSONDerivedFieldsLinks(derivedFields: Field[], valueRowIndex: number) {
   let jsonLinks: Record<string, string> = {};
   derivedFields.forEach((derivedField) => {
     const links = derivedField?.getLinks?.({ valueRowIndex });
