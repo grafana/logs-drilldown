@@ -280,7 +280,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
-  private getPageSlug() {
+  getPageSlug() {
     const drilldownSlug = narrowPageSlug(getDrilldownSlug());
     if (drilldownSlug && drilldownSlug !== PageSlugs.embed) {
       return drilldownSlug;
@@ -819,7 +819,7 @@ function getLogCountQueryRunner() {
   throw error;
 }
 
-function onQuery(newState: SceneDataState, sceneObject: SceneObject) {
+function onQuery(newState: SceneDataState, sceneObject: ServiceScene) {
   if (newState.data?.state === LoadingState.Done) {
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
@@ -827,6 +827,7 @@ function onQuery(newState: SceneDataState, sceneObject: SceneObject) {
       {
         vizType: findObjectOfType(sceneObject, (scene) => scene instanceof LogsListScene, LogsListScene)?.state
           .visualizationType,
+        tab: sceneObject.getPageSlug(),
       }
     );
   } else if (newState.data?.state === LoadingState.Error) {
@@ -836,6 +837,7 @@ function onQuery(newState: SceneDataState, sceneObject: SceneObject) {
       errorCount: newState.data?.errors?.length,
       error: newState.data?.errors?.map((err) => err.message).join(', '),
       status: newState.data?.errors?.map((err) => err.status).join(', '),
+      tab: sceneObject.getPageSlug(),
     });
   }
 }
