@@ -21,7 +21,7 @@ import { getPrettyQueryExpr } from '../../services/scenes';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import LogsJSONComponent from './JSONPanel/LogsJSONComponent';
+import { LogsJSONComponent } from './JSONPanel/LogsJSONComponent';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';

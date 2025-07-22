@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -20,27 +20,30 @@ interface Props {
 
 export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type, logsJsonScene }: Props) {
   const styles = useStyles2(getJSONFilterButtonStyles, active);
-  return (
-    <IconButton
-      className={styles.button}
-      tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        addJSONFieldFilter({
-          value: EMPTY_VARIABLE_VALUE,
-          key: fullKeyPath,
-          variableType: VAR_FIELDS,
-          logsJsonScene,
-          keyPath,
-          filterType: active ? 'toggle' : type === 'include' ? 'exclude' : 'include',
-        });
-      }}
-      aria-selected={active}
-      variant={active ? 'primary' : 'secondary'}
-      size={'md'}
-      name={type === 'include' ? 'search-plus' : 'search-minus'}
-      aria-label={`${type} filter`}
-    />
+  return useMemo(
+    () => (
+      <IconButton
+        className={styles.button}
+        tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          addJSONFieldFilter({
+            value: EMPTY_VARIABLE_VALUE,
+            key: fullKeyPath,
+            variableType: VAR_FIELDS,
+            logsJsonScene,
+            keyPath,
+            filterType: active ? 'toggle' : type === 'include' ? 'exclude' : 'include',
+          });
+        }}
+        aria-selected={active}
+        variant={active ? 'primary' : 'secondary'}
+        size={'md'}
+        name={type === 'include' ? 'search-plus' : 'search-minus'}
+        aria-label={`${type} filter`}
+      />
+    ),
+    [active, keyPath, fullKeyPath, logsJsonScene, styles.button, type]
   );
 }
 

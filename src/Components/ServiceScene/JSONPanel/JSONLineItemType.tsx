@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -30,23 +30,26 @@ function LineItemType({
     (filter) => filter.value === detectedLevel && filter.operator === FilterOp.Equal
   );
 
-  return (
-    <Tooltip
-      content={t(
-        'logs.json.line.detectedLevel.toggleButton',
-        existingFilter ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
-      )}
-    >
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          addToFilters(LEVEL_VARIABLE_VALUE, detectedLevel, 'toggle', sceneRef, VAR_LEVELS);
-        }}
-        className={`${levelClass} ${styles.levelButtonStyles}`}
+  return useMemo(
+    () => (
+      <Tooltip
+        content={t(
+          'logs.json.line.detectedLevel.toggleButton',
+          existingFilter ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
+        )}
       >
-        {detectedLevel.toUpperCase()}
-      </button>
-    </Tooltip>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            addToFilters(LEVEL_VARIABLE_VALUE, detectedLevel, 'toggle', sceneRef, VAR_LEVELS);
+          }}
+          className={`${levelClass} ${styles.levelButtonStyles}`}
+        >
+          {detectedLevel.toUpperCase()}
+        </button>
+      </Tooltip>
+    ),
+    [existingFilter, detectedLevel, levelClass, sceneRef, styles.levelButtonStyles]
   );
 }
 
