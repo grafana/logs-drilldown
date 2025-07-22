@@ -4,6 +4,7 @@ import { urlUtil } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, sceneUtils } from '@grafana/scenes';
 import { LinkButton } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { logger } from '../../services/logger';
 import { ROUTES } from '../../services/routing';
 import {
@@ -44,6 +45,12 @@ export class EmbeddedLinkScene extends SceneObjectBase {
 
     return (
       <LinkButton
+        onClick={() => {
+          reportAppInteraction(
+            USER_EVENTS_PAGES.service_details,
+            USER_EVENTS_ACTIONS.service_details.embedded_go_to_explore_clicked
+          );
+        }}
         href={urlUtil.renderUrl(ROUTES.logs(labelValue, labelName), params)}
         variant="secondary"
         icon="arrow-right"
