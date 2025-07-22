@@ -2,7 +2,6 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 import { ExplorePage } from '../tests/fixtures/explore';
 
-// @todo, we don't want to run this suite with the other tests in case play is down and we need to merge.
 test.describe('play', () => {
   let explorePage: ExplorePage;
 

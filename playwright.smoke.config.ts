@@ -6,12 +6,6 @@ import type { PluginOptions } from '@grafana/plugin-e2e';
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig<PluginOptions>({
