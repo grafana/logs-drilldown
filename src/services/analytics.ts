@@ -65,7 +65,7 @@ export const USER_EVENTS_ACTIONS = {
     logs_popover_line_filter: 'logs_popover_line_filter',
     // Toggle displayed fields
     logs_toggle_displayed_field: 'logs_toggle_displayed_field',
-    // Toggling between logs/table view
+    // Toggling between logs/table/json view
     logs_visualization_toggle: 'logs_visualization_toggle',
     open_in_explore_clicked: 'open_in_explore_clicked',
     // Clicking on a pattern field in the pattern name.
@@ -86,6 +86,8 @@ export const USER_EVENTS_ACTIONS = {
     wasm_not_supported: 'wasm_not_supported',
     // Go to explore button in embedded UI
     embedded_go_to_explore_clicked: 'embedded_go_to_explore_clicked',
+    // Fires when viz is activated
+    visualization_init: 'visualization_init',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
