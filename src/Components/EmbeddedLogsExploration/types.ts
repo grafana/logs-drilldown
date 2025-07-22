@@ -7,6 +7,7 @@ interface SceneTimeRangeStateStub {
 }
 
 interface EmbeddedLogsCommonProps {
+  canChangeDatasource?: boolean;
   embedderName: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   query: string;

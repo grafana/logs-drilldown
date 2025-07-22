@@ -119,10 +119,10 @@ import {
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 interface EmbeddedIndexSceneConstructor {
-  datasourceUid?: string;
+  canChangeDatasource: boolean;
 }
 
-export class IndexScene extends SceneObjectBase<IndexSceneState> {
+export class IndexScene extends SceneObjectBase<IndexSceneState & EmbeddedIndexSceneConstructor> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
 
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
@@ -136,7 +136,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
       state?.readOnlyLabelFilters,
-      state.embedded,
+      state.embedded && state.canChangeDatasource,
       state.embedderName,
       state.defaultLineFilters
     );
@@ -203,6 +203,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       embedded: state.embedded ?? false,
       // Need to clear patterns state when the class in constructed
       patterns: [],
+      canChangeDatasource: state.canChangeDatasource ?? false,
       ...state,
       body: new LayoutScene({}),
     });
@@ -605,7 +606,7 @@ function getContentScene(drillDownLabel?: string) {
 function getVariableSet(
   initialDatasourceUid: string,
   readOnlyLabelFilters?: AdHocVariableFilter[],
-  embedded?: boolean,
+  showDatasource?: boolean,
   embedderName?: string,
   defaultLineFilters?: LineFilterType[]
 ) {
@@ -696,7 +697,7 @@ function getVariableSet(
   };
 
   const dsVariable = new DataSourceVariable({
-    hide: embedded ? VariableHide.hideVariable : VariableHide.dontHide,
+    hide: !showDatasource ? VariableHide.hideVariable : VariableHide.dontHide,
     label: 'Data source',
     name: VAR_DATASOURCE,
     pluginId: 'loki',
