@@ -24,6 +24,7 @@ import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../../module';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
@@ -36,6 +37,7 @@ import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from '../../se
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
+import { findObjectOfType } from '../../services/scenes';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -53,6 +55,7 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -620,6 +623,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           });
         }
       }
+
+      onQuery(newState, this);
     });
   }
 
@@ -812,4 +817,25 @@ function getLogCountQueryRunner() {
   const error = new Error('log count query provider is not query runner!');
   logger.error(error, { msg: 'getLogCountQueryRunner: invalid return type' });
   throw error;
+}
+
+function onQuery(newState: SceneDataState, sceneObject: SceneObject) {
+  if (newState.data?.state === LoadingState.Done) {
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.logs_on_query_complete,
+      {
+        vizType: findObjectOfType(sceneObject, (scene) => scene instanceof LogsListScene, LogsListScene)?.state
+          .visualizationType,
+      }
+    );
+  } else if (newState.data?.state === LoadingState.Error) {
+    reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.logs_on_query_error, {
+      vizType: findObjectOfType(sceneObject, (scene) => scene instanceof LogsListScene, LogsListScene)?.state
+        .visualizationType,
+      errorCount: newState.data?.errors?.length,
+      error: newState.data?.errors?.map((err) => err.message).join(', '),
+      status: newState.data?.errors?.map((err) => err.status).join(', '),
+    });
+  }
 }
