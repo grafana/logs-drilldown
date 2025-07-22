@@ -80,6 +80,9 @@ export const USER_EVENTS_ACTIONS = {
     value_breakdown_sort_change: 'value_breakdown_sort_change',
     // Wasm not supported
     wasm_not_supported: 'wasm_not_supported',
+    // Go to explore button in embedded UI
+    embedded_go_to_explore_clicked: 'embedded_go_to_explore_clicked',
+    // Fires when viz is activated
     visualization_init: 'visualization_init',
   },
   [USER_EVENTS_PAGES.all]: {
