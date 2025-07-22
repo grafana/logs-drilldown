@@ -30,3 +30,8 @@ jobs:
       docs-only: ${{ fromJSON(github.event.inputs.docs-only) }}
       attestation: true
       run-playwright: false
+
+      # Auto merge to prod in deployment tools
+      grafana-cloud-deployment-type: provisioned
+      auto-merge-environments: prod
+      argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
