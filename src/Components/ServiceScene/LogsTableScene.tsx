@@ -101,9 +101,14 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       })
     );
 
-    reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.visualization_init, {
-      viz: 'table',
-    });
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.visualization_init,
+      {
+        viz: 'table',
+      },
+      true
+    );
   }
 
   private getParentScene() {
