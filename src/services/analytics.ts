@@ -11,9 +11,17 @@ const createInteractionName = (page: UserEventPagesType, action: string) => {
 export const reportAppInteraction = (
   page: UserEventPagesType,
   action: UserEventActionType,
-  properties?: Record<string, unknown>
+  properties?: Record<string, unknown>,
+  once = false
 ) => {
-  reportInteraction(createInteractionName(page, action), properties);
+  const interactionName = createInteractionName(page, action);
+  if (once) {
+    if (sessionStorage.getItem(interactionName)) {
+      return;
+    }
+    sessionStorage.setItem(interactionName, '1');
+  }
+  reportInteraction(interactionName, properties);
 };
 
 export const USER_EVENTS_PAGES = {
