@@ -31,7 +31,7 @@ jobs:
       attestation: true
       run-playwright: false
 
-      # Auto merge to prod in deployment tools
+      # Use argo workflows, auto merge to dev,ops in deployment tools
       grafana-cloud-deployment-type: provisioned
-      auto-merge-environments: prod
+      auto-merge-environments: dev,ops
       argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
