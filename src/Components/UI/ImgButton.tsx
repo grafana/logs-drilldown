@@ -6,18 +6,8 @@ import { css, cx } from '@emotion/css';
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { PopoverContent, Tooltip, useStyles2 } from '@grafana/ui';
 
-import eye from 'img/icons/eye.svg';
-import eyeActive from 'img/icons/eye--active.svg';
-import eyeHover from 'img/icons/eye--hover.svg';
-import searchMinus from 'img/icons/search-minus.svg';
-import searchMinusActive from 'img/icons/search-minus--active.svg';
-import searchMinusHover from 'img/icons/search-minus--hover.svg';
-import searchPlus from 'img/icons/search-plus.svg';
-import searchPlusActive from 'img/icons/search-plus--active.svg';
-import searchPlusHover from 'img/icons/search-plus--hover.svg';
-
 type IconButtonVariant = 'primary' | 'secondary';
-type IconName = 'eye' | 'search-minus' | 'search-plus';
+type IconName = 'copy' | 'eye' | 'search-minus' | 'search-plus' | 'share-alt';
 
 interface BaseProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label'> {
   /** Name of the icon **/
@@ -31,29 +21,42 @@ export interface BasePropsWithTooltip extends BaseProps {
   tooltip: PopoverContent;
 }
 
-type Images = Record<IconName, Record<IconButtonVariant | 'hover', string>>;
+type Images = Record<IconName, Record<IconButtonVariant | 'hover', typeof import('*.svg') | string>>;
 
-const images: Images = {
+const getImages: () => Promise<Images> = async () => ({
   eye: {
-    secondary: eye,
-    primary: eyeActive,
-    hover: eyeHover,
+    secondary: await import('img/icons/eye.svg'),
+    primary: await import('img/icons/eye--active.svg'),
+    hover: await import('img/icons/eye--hover.svg'),
   },
   'search-minus': {
-    secondary: searchMinus,
-    primary: searchMinusActive,
-    hover: searchMinusHover,
+    secondary: await import('img/icons/search-minus.svg'),
+    primary: await import('img/icons/search-minus--active.svg'),
+    hover: await import('img/icons/search-minus--hover.svg'),
   },
   'search-plus': {
-    secondary: searchPlus,
-    primary: searchPlusActive,
-    hover: searchPlusHover,
+    secondary: await import('img/icons/search-plus.svg'),
+    primary: await import('img/icons/search-plus--active.svg'),
+    hover: await import('img/icons/search-plus--hover.svg'),
   },
-};
+  'share-alt': {
+    secondary: await import('img/icons/share-alt.svg'),
+    hover: await import('img/icons/share-alt--hover.svg'),
+    // Unused
+    primary: '',
+  },
+  copy: {
+    secondary: await import('img/icons/copy.svg'),
+    hover: await import('img/icons/copy--hover.svg'),
+    // Unused
+    primary: '',
+  },
+});
 
-export const ImgButton = React.forwardRef<HTMLButtonElement, BasePropsWithTooltip>((props, ref) => {
+export const ImgButton = React.forwardRef<HTMLButtonElement, BasePropsWithTooltip>(async (props, ref) => {
   const { variant = 'secondary', name, className, tooltip, ...restProps } = props;
 
+  const images = await getImages();
   const styles = useStyles2(getStyles, variant, name, images);
 
   let ariaLabel: string | undefined;
