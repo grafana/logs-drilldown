@@ -18,13 +18,7 @@ jobs:
         with:
           types: |
             # Commit types omitted from changelogs
-            docs
-            style
-            refactor
-            perf
-            ci
-            build
-            revert
-            wip
-            experimental
-            release
+            omit
+            internal
+            chore
+            skip
