@@ -181,6 +181,15 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         }
       })
     );
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.visualization_init,
+      {
+        viz: 'logs',
+      },
+      true
+    );
   }
 
   handleLogsError(data: PanelData) {

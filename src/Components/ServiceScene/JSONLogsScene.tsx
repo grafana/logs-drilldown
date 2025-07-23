@@ -9,6 +9,7 @@ import {
   SceneQueryRunner,
 } from '@grafana/scenes';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import {
   clearJSONParserFields,
   getDetectedFieldsJSONPathField,
@@ -181,6 +182,15 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
           this.updateJSONDataFrame($data.state.data);
         }
       })
+    );
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.visualization_init,
+      {
+        viz: 'json',
+      },
+      true
     );
   }
   private updateJSONDataFrame(panelData: PanelData) {

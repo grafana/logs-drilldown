@@ -15,6 +15,7 @@ import {
 } from '@grafana/scenes';
 import { PanelChrome, useStyles2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
@@ -98,6 +99,15 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       locationService.getHistory().listen(() => {
         this.subscribeFromUrl();
       })
+    );
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.visualization_init,
+      {
+        viz: 'table',
+      },
+      true
     );
   }
 
