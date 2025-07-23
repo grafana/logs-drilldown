@@ -9,7 +9,9 @@
     "package.json",
     "*.test.*",
     "config/**",
-    "test-results/**"
+    "test-results/**",
+    "**/*.json",
+    "*.yaml"
   ],
   "ignoreRegExpList": [],
   "words": ["queryless"],
