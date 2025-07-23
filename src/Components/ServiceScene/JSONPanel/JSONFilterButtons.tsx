@@ -1,9 +1,8 @@
-import React, { memo, useMemo } from 'react';
+import React, { lazy, memo, useMemo } from 'react';
 
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { ImgButton } from '../../UI/ImgButton';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
@@ -11,6 +10,8 @@ import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { FilterOp } from 'services/filterTypes';
 import { addJSONFieldFilter, addJSONMetadataFilter } from 'services/JSONFilter';
 import { VAR_FIELDS } from 'services/variables';
+
+const ImgButton = lazy(() => import('../../UI/ImgButton'));
 
 interface JsonFilterProps {
   existingFilter?: AdHocFilterWithLabels;
@@ -47,7 +48,6 @@ export const JSONFieldValueButton = memo(
           }}
           aria-selected={isActive}
           variant={isActive ? 'primary' : 'secondary'}
-          // size={'md'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={`${type} filter`}
         />
@@ -92,7 +92,6 @@ export const JSONMetadataButton = memo(
           }}
           aria-selected={selected}
           variant={selected ? 'primary' : 'secondary'}
-          // size={'md'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={`${type} filter`}
         />

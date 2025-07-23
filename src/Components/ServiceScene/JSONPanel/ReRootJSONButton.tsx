@@ -1,12 +1,13 @@
-import React, { memo, useMemo } from 'react';
+import React, { lazy, memo, useMemo } from 'react';
 
 import { SceneObject } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { ImgButton } from '../../UI/ImgButton';
 import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
 import { setNewRootNode } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+
+const ImgButton = lazy(() => import('../../UI/ImgButton'));
 
 const ReRootJSONButton = memo(({ keyPath, sceneRef }: { keyPath: KeyPath; sceneRef: SceneObject }) => {
   const styles = useStyles2(getJSONFilterButtonStyles, false);

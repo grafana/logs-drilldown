@@ -6,6 +6,20 @@ import { css, cx } from '@emotion/css';
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { PopoverContent, Tooltip, useStyles2 } from '@grafana/ui';
 
+import copy from 'img/icons/copy.svg';
+import copyHover from 'img/icons/copy--hover.svg';
+import eye from 'img/icons/eye.svg';
+import eyeActive from 'img/icons/eye--active.svg';
+import eyeHover from 'img/icons/eye--hover.svg';
+import searchMinus from 'img/icons/search-minus.svg';
+import searchMinusActive from 'img/icons/search-minus--active.svg';
+import searchMinusHover from 'img/icons/search-minus--hover.svg';
+import searchPlus from 'img/icons/search-plus.svg';
+import searchPlusActive from 'img/icons/search-plus--active.svg';
+import searchPlusHover from 'img/icons/search-plus--hover.svg';
+import shareAlt from 'img/icons/share-alt.svg';
+import shareAltHover from 'img/icons/share-alt--hover.svg';
+
 type IconButtonVariant = 'primary' | 'secondary';
 type IconName = 'copy' | 'eye' | 'search-minus' | 'search-plus' | 'share-alt';
 
@@ -21,42 +35,41 @@ export interface BasePropsWithTooltip extends BaseProps {
   tooltip: PopoverContent;
 }
 
-type Images = Record<IconName, Record<IconButtonVariant | 'hover', typeof import('*.svg') | string>>;
+type Images = Record<IconName, Record<IconButtonVariant | 'hover', string>>;
 
-const getImages: () => Promise<Images> = async () => ({
+const images: Images = {
   eye: {
-    secondary: await import('img/icons/eye.svg'),
-    primary: await import('img/icons/eye--active.svg'),
-    hover: await import('img/icons/eye--hover.svg'),
+    secondary: eye,
+    primary: eyeActive,
+    hover: eyeHover,
   },
   'search-minus': {
-    secondary: await import('img/icons/search-minus.svg'),
-    primary: await import('img/icons/search-minus--active.svg'),
-    hover: await import('img/icons/search-minus--hover.svg'),
+    secondary: searchMinus,
+    primary: searchMinusActive,
+    hover: searchMinusHover,
   },
   'search-plus': {
-    secondary: await import('img/icons/search-plus.svg'),
-    primary: await import('img/icons/search-plus--active.svg'),
-    hover: await import('img/icons/search-plus--hover.svg'),
+    secondary: searchPlus,
+    primary: searchPlusActive,
+    hover: searchPlusHover,
   },
   'share-alt': {
-    secondary: await import('img/icons/share-alt.svg'),
-    hover: await import('img/icons/share-alt--hover.svg'),
+    secondary: shareAlt,
+    hover: shareAltHover,
     // Unused
     primary: '',
   },
   copy: {
-    secondary: await import('img/icons/copy.svg'),
-    hover: await import('img/icons/copy--hover.svg'),
+    secondary: copy,
+    hover: copyHover,
     // Unused
     primary: '',
   },
-});
+};
 
-export const ImgButton = React.forwardRef<HTMLButtonElement, BasePropsWithTooltip>(async (props, ref) => {
+const ImgButton = React.forwardRef<HTMLButtonElement, BasePropsWithTooltip>((props, ref) => {
   const { variant = 'secondary', name, className, tooltip, ...restProps } = props;
 
-  const images = await getImages();
   const styles = useStyles2(getStyles, variant, name, images);
 
   let ariaLabel: string | undefined;
@@ -81,8 +94,8 @@ export const ImgButton = React.forwardRef<HTMLButtonElement, BasePropsWithToolti
     [ariaLabel, ref, className, restProps, styles, tooltip, buttonRef]
   );
 });
-
-ImgButton.displayName = 'IconButton';
+ImgButton.displayName = 'ImgButton';
+export default ImgButton;
 
 const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant, name: IconName, images: Images) => {
   let iconColor = theme.colors.text.primary;

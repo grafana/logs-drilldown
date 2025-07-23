@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { lazy, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -24,7 +24,6 @@ import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
-import { TableProvider } from '../Table/TableProvider';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
@@ -34,6 +33,8 @@ import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
+
+const TableProvider = lazy(() => import('../Table/TableProvider'));
 
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 

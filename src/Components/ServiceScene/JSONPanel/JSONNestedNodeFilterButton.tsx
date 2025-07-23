@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { lazy, useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
-import { ImgButton } from '../../UI/ImgButton';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { addJSONFieldFilter } from 'services/JSONFilter';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
+const ImgButton = lazy(() => import('../../UI/ImgButton'));
 
 interface Props {
   active: boolean;
@@ -39,7 +39,6 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         }}
         aria-selected={active}
         variant={active ? 'primary' : 'secondary'}
-        // size={'md'}
         name={type === 'include' ? 'search-plus' : 'search-minus'}
         aria-label={`${type} filter`}
       />

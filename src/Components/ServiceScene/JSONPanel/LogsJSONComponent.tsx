@@ -34,7 +34,7 @@ import {
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
-export function LogsJSONComponent({ model }: SceneComponentProps<JSONLogsScene>) {
+export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
     hasJSONFields,
