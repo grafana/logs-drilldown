@@ -3,8 +3,9 @@ import React, { useMemo } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
+import { ImgButton } from '../../UI/ImgButton';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { addJSONFieldFilter } from 'services/JSONFilter';
@@ -22,7 +23,7 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
   const styles = useStyles2(getJSONFilterButtonStyles, active);
   return useMemo(
     () => (
-      <IconButton
+      <ImgButton
         className={styles.button}
         tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines that contain ${keyPath[0]}`}
         onClick={(e) => {
@@ -38,7 +39,7 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         }}
         aria-selected={active}
         variant={active ? 'primary' : 'secondary'}
-        size={'md'}
+        // size={'md'}
         name={type === 'include' ? 'search-plus' : 'search-minus'}
         aria-label={`${type} filter`}
       />

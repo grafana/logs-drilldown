@@ -1,8 +1,9 @@
 import React, { memo, useMemo } from 'react';
 
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
+import { ImgButton } from '../../UI/ImgButton';
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
@@ -30,7 +31,7 @@ export const JSONFieldValueButton = memo(
 
     return useMemo(
       () => (
-        <IconButton
+        <ImgButton
           className={styles.button}
           tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
           onClick={(e) => {
@@ -46,7 +47,7 @@ export const JSONFieldValueButton = memo(
           }}
           aria-selected={isActive}
           variant={isActive ? 'primary' : 'secondary'}
-          size={'md'}
+          // size={'md'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={`${type} filter`}
         />
@@ -75,7 +76,7 @@ export const JSONMetadataButton = memo(
 
     return useMemo(
       () => (
-        <IconButton
+        <ImgButton
           className={styles.button}
           tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
           onClick={(e) => {
@@ -91,7 +92,7 @@ export const JSONMetadataButton = memo(
           }}
           aria-selected={selected}
           variant={selected ? 'primary' : 'secondary'}
-          size={'md'}
+          // size={'md'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={`${type} filter`}
         />
