@@ -238,7 +238,7 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
    * Updates the ad-hoc variable from local state and triggers a query.
    * Sends analytics event.
    */
-  updateVariable = (search: string) => {
+  updateVariable = (search?: string) => {
     this.updateVariableDebounced.flush();
     const variable = getLineFilterVariable(this);
     const variables = getLineFiltersVariable(this);
@@ -247,7 +247,7 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
       // The keyLabel is used to sort line filters by order added.
       keyLabel: variables.state.filters.length.toString(),
       operator: this.getOperator(),
-      value: search,
+      value: search ?? '',
     };
 
     variable.updateFilters([filter]);
@@ -257,9 +257,9 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
       USER_EVENTS_ACTIONS.service_details.search_string_in_logs_changed,
       {
         caseSensitive: filter.key,
-        containsLevel: search.toLowerCase().includes('level'),
+        containsLevel: search?.toLowerCase().includes('level'),
         operator: filter.operator,
-        searchQueryLength: search.length,
+        searchQueryLength: search?.length,
       }
     );
   };
