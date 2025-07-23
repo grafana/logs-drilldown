@@ -1,4 +1,4 @@
-// Commit types ommited from changelogs
+// Commit types omitted from changelogs
 module.exports = {
   types: [
     { type: 'docs', section: 'Documentation', hidden: true },
