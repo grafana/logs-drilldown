@@ -55,13 +55,17 @@ export const USER_EVENTS_ACTIONS = {
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
     // Clear all displayed fields
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
+    // Fires when logs panel query returns successfully
+    logs_on_query_complete: 'logs_on_query_complete',
+    // Fires when logs panel query returns an error
+    logs_on_query_error: 'logs_on_query_error',
     // Filter (include, exclude) from log details
     logs_detail_filter_applied: 'logs_detail_filter_applied',
     // Popover menu filter
     logs_popover_line_filter: 'logs_popover_line_filter',
     // Toggle displayed fields
     logs_toggle_displayed_field: 'logs_toggle_displayed_field',
-    // Toggling between logs/table view
+    // Toggling between logs/table/json view
     logs_visualization_toggle: 'logs_visualization_toggle',
     open_in_explore_clicked: 'open_in_explore_clicked',
     // Clicking on a pattern field in the pattern name.
@@ -80,6 +84,10 @@ export const USER_EVENTS_ACTIONS = {
     value_breakdown_sort_change: 'value_breakdown_sort_change',
     // Wasm not supported
     wasm_not_supported: 'wasm_not_supported',
+    // Go to explore button in embedded UI
+    embedded_go_to_explore_clicked: 'embedded_go_to_explore_clicked',
+    // Fires when viz is activated
+    visualization_init: 'visualization_init',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
