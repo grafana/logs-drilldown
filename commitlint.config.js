@@ -1,7 +1,7 @@
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    // Allow additional types that won't appear in changelogs
+    // Allow commit types ommited from changelogs
     'type-enum': [
       2,
       'always',

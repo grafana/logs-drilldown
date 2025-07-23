@@ -17,6 +17,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           types: |
+            # Allow commit types ommited from changelogs
             docs
             style
             refactor
