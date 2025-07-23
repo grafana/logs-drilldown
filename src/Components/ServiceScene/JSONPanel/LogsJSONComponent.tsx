@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -34,8 +34,7 @@ import {
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
-export const LogsJSONComponent = memo(function ({ model }: SceneComponentProps<JSONLogsScene>) {
-  console.log('render top');
+export function LogsJSONComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
     emptyScene,
     hasJSONFields,
@@ -225,8 +224,7 @@ export const LogsJSONComponent = memo(function ({ model }: SceneComponentProps<J
       </PanelChrome>
     </div>
   );
-});
-LogsJSONComponent.displayName = 'LogsJSONComponent';
+}
 
 const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
   const hoverBg = theme.isDark
