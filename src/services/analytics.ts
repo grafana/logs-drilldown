@@ -21,7 +21,6 @@ export const reportAppInteraction = (
     }
     sessionStorage.setItem(interactionName, '1');
   }
-  console.log(interactionName);
   reportInteraction(interactionName, properties);
 };
 
