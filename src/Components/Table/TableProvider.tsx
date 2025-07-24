@@ -22,7 +22,7 @@ interface TableProviderProps {
   urlTableBodyState?: LogLineState;
 }
 
-export const TableProvider = ({
+export default function TableProvider({
   addFilter,
   clearSelectedLine,
   dataFrame,
@@ -34,7 +34,7 @@ export const TableProvider = ({
   timeRange,
   urlColumns,
   urlTableBodyState,
-}: TableProviderProps) => {
+}: TableProviderProps) {
   const logsFrame = useMemo(() => {
     if (!dataFrame) {
       return null;
@@ -62,4 +62,4 @@ export const TableProvider = ({
       />
     </QueryContextProvider>
   );
-};
+}

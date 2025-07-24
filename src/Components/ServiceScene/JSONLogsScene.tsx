@@ -1,3 +1,5 @@
+import { lazy } from 'react';
+
 import { DataFrame, LoadingState, LogsSortOrder, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
@@ -21,7 +23,6 @@ import { getPrettyQueryExpr } from '../../services/scenes';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import LogsJSONComponent from './JSONPanel/LogsJSONComponent';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
@@ -33,6 +34,8 @@ import {
   getLogOption,
   setLogOption,
 } from 'services/store';
+
+const LogsJSONComponent = lazy(() => import('./JSONPanel/LogsJSONComponent'));
 
 interface JSONLogsSceneState extends SceneObjectState {
   data?: PanelData;
