@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React, { lazy, memo, useMemo } from 'react';
 
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
 import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONLogsScene } from '../JSONLogsScene';
@@ -10,6 +10,8 @@ import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { FilterOp } from 'services/filterTypes';
 import { addJSONFieldFilter, addJSONMetadataFilter } from 'services/JSONFilter';
 import { VAR_FIELDS } from 'services/variables';
+
+const ImgButton = lazy(() => import('../../UI/ImgButton'));
 
 interface JsonFilterProps {
   existingFilter?: AdHocFilterWithLabels;
@@ -26,28 +28,31 @@ export const JSONFieldValueButton = memo(
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getJSONFilterButtonStyles, isActive);
+    const selected = existingFilter?.operator === operator;
 
-    return (
-      <IconButton
-        className={styles.button}
-        tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
-        onClick={(e) => {
-          e.stopPropagation();
-          addJSONFieldFilter({
-            keyPath: keyPath,
-            key: fullKey,
-            value,
-            filterType: existingFilter?.operator === operator ? 'toggle' : type,
-            logsJsonScene: model,
-            variableType: VAR_FIELDS,
-          });
-        }}
-        aria-selected={isActive}
-        variant={isActive ? 'primary' : 'secondary'}
-        size={'md'}
-        name={type === 'include' ? 'search-plus' : 'search-minus'}
-        aria-label={`${type} filter`}
-      />
+    return useMemo(
+      () => (
+        <ImgButton
+          className={styles.button}
+          tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
+          onClick={(e) => {
+            e.stopPropagation();
+            addJSONFieldFilter({
+              keyPath: keyPath,
+              key: fullKey,
+              value,
+              filterType: selected ? 'toggle' : type,
+              logsJsonScene: model,
+              variableType: VAR_FIELDS,
+            });
+          }}
+          aria-selected={isActive}
+          variant={isActive ? 'primary' : 'secondary'}
+          name={type === 'include' ? 'search-plus' : 'search-minus'}
+          aria-label={`${type} filter`}
+        />
+      ),
+      [isActive, selected, type, styles.button, keyPath, fullKey, value, label, model]
     );
   }
 );
@@ -67,28 +72,31 @@ export const JSONMetadataButton = memo(
     const operator = type === 'include' ? FilterOp.Equal : FilterOp.NotEqual;
     const isActive = existingFilter?.operator === operator;
     const styles = useStyles2(getJSONFilterButtonStyles, isActive);
+    const selected = existingFilter?.operator === operator;
 
-    return (
-      <IconButton
-        className={styles.button}
-        tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
-        onClick={(e) => {
-          e.stopPropagation();
+    return useMemo(
+      () => (
+        <ImgButton
+          className={styles.button}
+          tooltip={`${type === 'include' ? 'Include' : 'Exclude'} log lines containing ${label}="${value}"`}
+          onClick={(e) => {
+            e.stopPropagation();
 
-          addJSONMetadataFilter({
-            label,
-            value,
-            filterType: existingFilter?.operator === operator ? 'toggle' : type,
-            variableType,
-            sceneRef,
-          });
-        }}
-        aria-selected={existingFilter?.operator === operator}
-        variant={existingFilter?.operator === operator ? 'primary' : 'secondary'}
-        size={'md'}
-        name={type === 'include' ? 'search-plus' : 'search-minus'}
-        aria-label={`${type} filter`}
-      />
+            addJSONMetadataFilter({
+              label,
+              value,
+              filterType: selected ? 'toggle' : type,
+              variableType,
+              sceneRef,
+            });
+          }}
+          aria-selected={selected}
+          variant={selected ? 'primary' : 'secondary'}
+          name={type === 'include' ? 'search-plus' : 'search-minus'}
+          aria-label={`${type} filter`}
+        />
+      ),
+      [selected, label, sceneRef, styles.button, type, value, variableType]
     );
   }
 );

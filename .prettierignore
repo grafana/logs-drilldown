@@ -12,3 +12,4 @@ project-words.txt
 yarn.lock
 .gitignore
 .nvmrc
+**/*.svg

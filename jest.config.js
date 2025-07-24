@@ -13,6 +13,8 @@ module.exports = {
     ...config.moduleNameMapper,
     '/@bsull/augurs/changepoint/': '@bsull/augurs/changepoint.js',
     '/@bsull/augurs/outlier/': '@bsull/augurs/outlier.js',
+    '^marked$': '<rootDir>/src/__mocks__/marked.js',
+    '^react-calendar$': '<rootDir>/src/__mocks__/react-calendar.js',
   },
   transform: {
     ...config.transform,

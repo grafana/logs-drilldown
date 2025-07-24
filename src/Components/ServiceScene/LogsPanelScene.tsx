@@ -363,15 +363,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     } else {
       panel
         .setOption('showTime', getBooleanLogOption('showTime', true))
-        // @ts-expect-error Requires Grafana 12.1
         .setOption('showControls', true)
-        // @ts-expect-error Requires Grafana 12.1
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
-        // @ts-expect-error Requires Grafana 12.1
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
         // @ts-expect-error Requires Grafana 12.2
         .setOption('setDisplayedFields', this.setDisplayedFields)
-        // @ts-expect-error Requires Grafana 12.2
         .setOption('logLineMenuCustomItems', [
           {
             label: 'Copy link to log line',
