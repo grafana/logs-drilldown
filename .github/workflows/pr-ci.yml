@@ -33,7 +33,7 @@ jobs:
 
       # Same settings as publish
       run-playwright-with-skip-grafana-dev-image: true
-      run-playwright-with-grafana-dependency: '>=12.1.3'
+      run-playwright-with-grafana-dependency: '>=12.1.0'
       upload-playwright-artifacts: true
       playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001/grafana
