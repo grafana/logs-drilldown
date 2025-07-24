@@ -184,9 +184,14 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       })
     );
 
-    reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.visualization_init, {
-      viz: 'json',
-    });
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.visualization_init,
+      {
+        viz: 'json',
+      },
+      true
+    );
   }
   private updateJSONDataFrame(panelData: PanelData) {
     this.setState(preProcessJSONDataFrame(panelData, this));
