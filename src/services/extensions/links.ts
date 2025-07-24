@@ -2,14 +2,13 @@
 import { map as lodashMap } from 'lodash';
 
 import {
+  CustomVariableModel,
   PluginExtensionAddedLinkConfig,
   PluginExtensionPanelContext,
   PluginExtensionPoints,
   QueryVariableModel,
-  CustomVariableModel,
 } from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
-import { sceneUtils } from '@grafana/scenes';
 
 import pluginJson from '../../plugin.json';
 import { LabelType } from '../fieldsTypes';
@@ -18,6 +17,7 @@ import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { escapeLabelValueInExactSelector, lokiSpecialRegexEscape } from './scenesMethods';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFieldValue,
@@ -294,9 +294,9 @@ export function interpolateQueryExpr(value: string | unknown[], variable: QueryV
   }
 
   if (typeof value === 'string') {
-    return sceneUtils.escapeLabelValueInExactSelector(value);
+    return escapeLabelValueInExactSelector(value);
   }
 
-  const escapedValues = lodashMap(value, sceneUtils.escapeLabelValueInRegexSelector);
+  const escapedValues = lodashMap(value, lokiSpecialRegexEscape);
   return escapedValues.join('|');
 }
