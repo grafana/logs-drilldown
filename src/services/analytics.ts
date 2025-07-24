@@ -11,9 +11,17 @@ const createInteractionName = (page: UserEventPagesType, action: string) => {
 export const reportAppInteraction = (
   page: UserEventPagesType,
   action: UserEventActionType,
-  properties?: Record<string, unknown>
+  properties?: Record<string, unknown>,
+  once = false
 ) => {
-  reportInteraction(createInteractionName(page, action), properties);
+  const interactionName = createInteractionName(page, action);
+  if (once) {
+    if (sessionStorage.getItem(interactionName)) {
+      return;
+    }
+    sessionStorage.setItem(interactionName, '1');
+  }
+  reportInteraction(interactionName, properties);
 };
 
 export const USER_EVENTS_PAGES = {
@@ -55,6 +63,10 @@ export const USER_EVENTS_ACTIONS = {
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
     // Clear all displayed fields
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
+    // Fires when logs panel query returns successfully
+    logs_on_query_complete: 'logs_on_query_complete',
+    // Fires when logs panel query returns an error
+    logs_on_query_error: 'logs_on_query_error',
     // Filter (include, exclude) from log details
     logs_detail_filter_applied: 'logs_detail_filter_applied',
     // Popover menu filter
