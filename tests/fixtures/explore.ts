@@ -176,7 +176,7 @@ export class ExplorePage {
   }
 
   getAllPanelsLocator() {
-    return this.page.getByTestId(/data-testid Panel header/).getByTestId('header-container');
+    return this.page.getByTestId(/data-testid Panel header/).locator(this.getPanelHeaderLocator());
   }
 
   async assertNotLoading() {
@@ -185,7 +185,7 @@ export class ExplorePage {
   }
 
   async assertPanelsNotLoading() {
-    await expect(this.page.getByLabel('Panel loading bar')).toHaveCount(0);
+    await expect.poll(() => this.page.getByLabel('Panel loading bar').count()).toEqual(0);
     await this.page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
   }
 
@@ -214,6 +214,10 @@ export class ExplorePage {
   // This is flakey, panels won't show the state if the requests come back in < 75ms
   async assertPanelsLoading() {
     await expect(this.page.getByLabel('Panel loading bar').first()).toBeVisible();
+  }
+
+  getPanelHeaderLocator() {
+    return this.page.getByTestId('data-testid header-container');
   }
 
   getExploreCodeQueryLocator() {
