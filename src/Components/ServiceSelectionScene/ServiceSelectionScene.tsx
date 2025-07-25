@@ -715,6 +715,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           this.setState({
             body: new SceneCSSGridLayout({ children: [] }),
           });
+          // And re-init with the new query
+          this.updateBody(true);
         }
       })
     );
