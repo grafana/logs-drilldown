@@ -199,10 +199,10 @@ export function setSortByPreference(target: string, sortBy: string, direction: s
 
 function getExplorationPrefix(sceneRef: SceneObject) {
   const { labelName, labelValue } = getRouteParams(sceneRef);
-  return getExplorationPrefixForlabelValue(sceneRef, labelName, labelValue);
+  return getExplorationPrefixforLabelValue(sceneRef, labelName, labelValue);
 }
 
-function getExplorationPrefixForlabelValue(sceneRef: SceneObject, label: string, value: string) {
+function getExplorationPrefixforLabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
   if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
     return `${ds}.${replaceSlash(value)}`;
@@ -210,8 +210,8 @@ function getExplorationPrefixForlabelValue(sceneRef: SceneObject, label: string,
   return `${ds}.${label}.${replaceSlash(value)}`;
 }
 
-export function getDisplayedFieldsForLabelValue(sceneRef: SceneObject, label: string, value: string): string[] {
-  const PREFIX = getExplorationPrefixForlabelValue(sceneRef, label, value);
+export function getDisplayedFieldsforLabelValue(sceneRef: SceneObject, label: string, value: string): string[] {
+  const PREFIX = getExplorationPrefixforLabelValue(sceneRef, label, value);
   const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
   if (storedFields) {
     return unknownToStrings(JSON.parse(storedFields)) ?? [];
