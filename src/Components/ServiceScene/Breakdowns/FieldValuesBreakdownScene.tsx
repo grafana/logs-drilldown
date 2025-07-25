@@ -32,6 +32,7 @@ import { buildDataQuery, renderLogQLFieldFilters, renderLogQLMetadataFilters } f
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getSortByPreference } from '../../../services/store';
 import {
+  getFieldAggregateByVariable,
   getFieldGroupByVariable,
   getFieldsVariable,
   getJSONFieldsVariable,
@@ -141,12 +142,22 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     const fieldsVariable = getFieldsVariable(this);
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
     const jsonVariable = getJSONFieldsVariable(this);
-    const queryString = buildFieldsQueryString(tagKey, fieldsVariable, detectedFieldsFrame, jsonVariable);
+    const aggregateByValue = getFieldAggregateByVariable(this).getValue()?.toString();
+    const queryString = buildFieldsQueryString(
+      tagKey,
+      fieldsVariable,
+      detectedFieldsFrame,
+      jsonVariable,
+      aggregateByValue
+    );
     // Manually interpolate query so we don't pollute the variable interpolation for other queries
     const { filterExpression, variableName } = this.removeFieldLabelFromVariableInterpolation();
     const expression = sceneGraph.interpolate(this, queryString.replace(`$\{${variableName}}`, filterExpression));
 
-    return buildDataQuery(expression, { legendFormat: `{{${tagKey}}}`, refId: tagKey });
+    return buildDataQuery(expression, {
+      legendFormat: `{{${tagKey}}}${aggregateByValue ? `— {{${aggregateByValue}}}` : ''}`,
+      refId: tagKey,
+    });
   }
 
   /**

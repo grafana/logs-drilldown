@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
+import { AppPluginMeta, LoadingState, PanelData, urlUtil } from '@grafana/data';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
+  CustomVariable,
   QueryRunnerState,
   SceneComponentProps,
   SceneDataProvider,
@@ -17,6 +18,7 @@ import {
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
   SceneQueryRunner,
+  SceneVariableSet,
   SceneVariableValueChangedEvent,
   VariableDependencyConfig,
 } from '@grafana/scenes';
@@ -69,6 +71,7 @@ import {
   SERVICE_UI_LABEL,
   stripAdHocFilterUserInputPrefix,
   VAR_DATASOURCE,
+  VAR_FIELD_AGGREGATE_BY,
   VAR_FIELDS,
   VAR_LABELS,
   VAR_LABELS_EXPR,
@@ -172,6 +175,18 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         [TabNames.fields]: false,
         [TabNames.logs]: false,
       },
+      $variables: new SceneVariableSet({
+        variables: [
+          new CustomVariable({
+            defaultToAll: false,
+            isMulti: true,
+            includeAll: false,
+            name: VAR_FIELD_AGGREGATE_BY,
+            // @todo fix hacky hacky, won't work for embedded
+            value: urlUtil.getUrlSearchParams()['var-' + VAR_FIELD_AGGREGATE_BY] ?? undefined,
+          }),
+        ],
+      }),
       ...state,
     });
 

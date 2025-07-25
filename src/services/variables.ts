@@ -22,6 +22,7 @@ export type AdHocFilterWithLabelsMeta = { parser?: ParserType; type?: DetectedFi
 export type AdHocFiltersWithLabelsAndMeta = AdHocFilterWithLabels<AdHocFilterWithLabelsMeta>;
 
 export type LogsQueryOptions = {
+  aggregateByField?: string;
   fieldExpressionToAdd?: string;
   fieldType?: DetectedFieldType;
   jsonParserPropToAdd?: string;
@@ -46,6 +47,8 @@ export const VAR_PATTERNS_EXPR = '${patterns}';
 export const VAR_LEVELS = 'levels';
 export const VAR_LEVELS_EXPR = '${levels}';
 export const VAR_FIELD_GROUP_BY = 'fieldBy';
+export const VAR_FIELD_AGGREGATE_BY = 'sumBy';
+export const VAR_FIELD_AGGREGATE_BY_EXPR = '${sumBy}';
 export const VAR_LABEL_GROUP_BY = 'labelBy';
 export const VAR_LABEL_GROUP_BY_EXPR = '${labelBy}';
 export const VAR_PRIMARY_LABEL_SEARCH = 'primary_label_search';

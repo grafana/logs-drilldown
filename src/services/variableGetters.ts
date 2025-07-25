@@ -23,6 +23,7 @@ import {
   stripAdHocFilterUserInputPrefix,
   VAR_AGGREGATED_METRICS,
   VAR_DATASOURCE,
+  VAR_FIELD_AGGREGATE_BY,
   VAR_FIELD_GROUP_BY,
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
@@ -129,6 +130,14 @@ export function getFieldGroupByVariable(scene: SceneObject) {
   const variable = sceneGraph.lookupVariable(VAR_FIELD_GROUP_BY, scene);
   if (!(variable instanceof CustomConstantVariable)) {
     throw new Error('VAR_FIELD_GROUP_BY not found');
+  }
+  return variable;
+}
+
+export function getFieldAggregateByVariable(scene: SceneObject) {
+  const variable = sceneGraph.lookupVariable(VAR_FIELD_AGGREGATE_BY, scene);
+  if (!(variable instanceof CustomVariable)) {
+    throw new Error('VAR_FIELD_AGGREGATE_BY not found');
   }
   return variable;
 }

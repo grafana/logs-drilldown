@@ -307,71 +307,77 @@ export class AddToFiltersButton extends SceneObjectBase<AddToFiltersButtonState>
   }
 
   onActivate() {
-    const filter = getFilter(this.state.frame);
-    if (filter) {
-      const variable = getUIAdHocVariable(this.state.variableName, filter.name, this);
-      this.setFilterState(variable);
+    const filters = getFilter(this.state.frame);
+    if (filters) {
+      filters.forEach((filter) => {
+        const variable = getUIAdHocVariable(this.state.variableName, filter.name, this);
+        this.setFilterState(variable);
 
-      this._subs.add(
-        variable.subscribeToState((newState, prevState) => {
-          if (!areArraysEqual(newState.filters, prevState.filters)) {
-            this.setFilterState(variable);
-          }
-        })
-      );
+        this._subs.add(
+          variable.subscribeToState((newState, prevState) => {
+            if (!areArraysEqual(newState.filters, prevState.filters)) {
+              this.setFilterState(variable);
+            }
+          })
+        );
+      });
     }
   }
 
   private setFilterState(variable: AdHocFiltersVariable) {
-    const filter = getFilter(this.state.frame);
-    if (!filter) {
-      this.setState({
-        isExcluded: false,
-        isIncluded: false,
+    const filters = getFilter(this.state.frame);
+    filters.forEach((filter) => {
+      if (!filter) {
+        this.setState({
+          isExcluded: false,
+          isIncluded: false,
+        });
+        return;
+      }
+
+      // Check if the filter is already there
+      const filterInSelectedFilters = variable.state.filters.find((f) => {
+        const isMetadata = isFilterMetadata(filter);
+        const value = getValueFromAdHocVariableFilter(isMetadata ? VAR_METADATA : VAR_FIELDS, f);
+        return f.key === filter.name && value.value === filter.value;
       });
-      return;
-    }
 
-    // Check if the filter is already there
-    const filterInSelectedFilters = variable.state.filters.find((f) => {
-      const isMetadata = isFilterMetadata(filter);
-      const value = getValueFromAdHocVariableFilter(isMetadata ? VAR_METADATA : VAR_FIELDS, f);
-      return f.key === filter.name && value.value === filter.value;
-    });
+      if (!filterInSelectedFilters) {
+        this.setState({
+          isExcluded: false,
+          isIncluded: false,
+        });
+        return;
+      }
 
-    if (!filterInSelectedFilters) {
       this.setState({
-        isExcluded: false,
-        isIncluded: false,
+        isExcluded: filterInSelectedFilters.operator === FilterOp.NotEqual,
+        isIncluded: filterInSelectedFilters.operator === FilterOp.Equal,
       });
-      return;
-    }
-
-    this.setState({
-      isExcluded: filterInSelectedFilters.operator === FilterOp.NotEqual,
-      isIncluded: filterInSelectedFilters.operator === FilterOp.Equal,
     });
   }
 
   public onClick = (type: FilterType) => {
-    const filter = getFilter(this.state.frame);
-    if (!filter) {
+    const filters = getFilter(this.state.frame);
+    if (!filters.length) {
       return;
     }
 
-    addToFilters(filter.name, filter.value, type, this, this.state.variableName);
-    const variable = getUIAdHocVariable(this.state.variableName, filter.name, this);
+    filters.forEach((filter) => {
+      addToFilters(filter.name, filter.value, type, this, this.state.variableName);
+      const variable = getUIAdHocVariable(this.state.variableName, filter.name, this);
 
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.add_to_filters_in_breakdown_clicked,
-      {
-        action: type,
-        filtersLength: variable?.state.filters.length || 0,
-        filterType: this.state.variableName,
-        key: filter.name,
-      }
-    );
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_details,
+        USER_EVENTS_ACTIONS.service_details.add_to_filters_in_breakdown_clicked,
+        {
+          action: type,
+          filtersLength: variable?.state.filters.length || 0,
+          filterType: this.state.variableName,
+          key: filter.name,
+        }
+      );
+    });
   };
 
   public static Component = ({ model }: SceneComponentProps<AddToFiltersButton>) => {
@@ -394,13 +400,15 @@ const getFilter = (frame: DataFrame) => {
   // current filter name and value is format {name: value}
   const filterNameAndValueObj = frame.fields[1]?.labels ?? {};
   // Sanity check - filter should have only one key-value pair
-  if (Object.keys(filterNameAndValueObj).length !== 1) {
+  if (Object.keys(filterNameAndValueObj).length > 2) {
     logger.warn('getFilter: unexpected empty labels');
-    return;
+    return [];
   }
-  const name = Object.keys(filterNameAndValueObj)[0];
-  const value = filterNameAndValueObj[name];
-  return { name, value };
+  const names = Object.keys(filterNameAndValueObj);
+  return names.map((name) => {
+    const value = filterNameAndValueObj[name];
+    return { name, value };
+  });
 };
 
 const getUIAdHocVariable = (variableType: InterpolatedFilterType, key: string, scene: SceneObject) => {

@@ -10,11 +10,18 @@ import { replaceSlash } from './extensions/links';
 import { getMetadataService } from './metadata';
 import { prefixRoute } from './plugin';
 import { buildServicesUrl, DRILLDOWN_URL_KEYS, ROUTES } from './routing';
-import { ALL_VARIABLE_VALUE } from './variables';
+import { getFieldAggregateByVariable } from './variableGetters';
+import { ALL_VARIABLE_VALUE, VAR_FIELD_AGGREGATE_BY } from './variables';
 
 let previousRoute: string | undefined = undefined;
 
-function buildValueBreakdownUrl(label: string, newPath: ValueSlugs, labelValue: string, labelName = 'service') {
+function buildValueBreakdownUrl(
+  label: string,
+  newPath: ValueSlugs,
+  labelValue: string,
+  labelName = 'service',
+  aggregateValue?: string
+) {
   if (label === ALL_VARIABLE_VALUE && newPath === ValueSlugs.label) {
     return prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.labels}`);
   } else if (label === ALL_VARIABLE_VALUE && newPath === ValueSlugs.field) {
@@ -54,6 +61,12 @@ export function getValueBreakdownLink(newPath: ValueSlugs, label: string, servic
   const indexScene = sceneGraph.getAncestor(serviceScene, IndexScene);
   const urlLabelName = indexScene.state.routeMatch?.params.labelName;
   const urlLabelValue = indexScene.state.routeMatch?.params.labelValue;
+  const aggregateValue = getFieldAggregateByVariable(serviceScene).getValue()?.toString();
+  const extraParams: UrlQueryMap = {};
+  // @todo hacky hacky
+  if (aggregateValue) {
+    extraParams[`var-${VAR_FIELD_AGGREGATE_BY}`] = aggregateValue;
+  }
 
   if (!indexScene.state.embedded && urlLabelName && urlLabelValue) {
     let urlPath = buildValueBreakdownUrl(label, newPath, urlLabelValue, urlLabelName);

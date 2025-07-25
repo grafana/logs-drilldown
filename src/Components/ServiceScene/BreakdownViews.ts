@@ -90,7 +90,7 @@ function buildFieldValuesBreakdownActionScene(value: string) {
     $behaviors: [new behaviors.CursorSync({ key: 'sync', sync: DashboardCursorSync.Crosshair })],
     children: [
       new SceneFlexItem({
-        body: new FieldsBreakdownScene({ value }),
+        body: new FieldsBreakdownScene({ selectedFieldValue: value }),
       }),
     ],
   });

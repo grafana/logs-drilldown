@@ -52,7 +52,7 @@ export function getLabelValueFromDataFrame(frame: DataFrame) {
     return null;
   }
 
-  return labels[keys[0]];
+  return Object.values(labels).join(' — ');
 }
 
 /*

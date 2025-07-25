@@ -48,14 +48,17 @@ export function getLabelOptions(labels: string[]) {
 }
 
 export const LABELS_TO_REMOVE = ['__aggregated_metric__', '__stream_shard__'];
-export function getFieldOptions(labels: string[]) {
+export function getFieldOptions(labels: string[], all = true) {
   const options = [...labels];
   const labelOptions: VariableValueOption[] = options.map((label) => ({
     label,
     value: String(label),
   }));
 
-  return [{ label: 'All', value: ALL_VARIABLE_VALUE }, ...labelOptions];
+  if (all) {
+    return [{ label: 'All', value: ALL_VARIABLE_VALUE }, ...labelOptions];
+  }
+  return [{ label: 'level', value: LEVEL_VARIABLE_VALUE }, ...labelOptions];
 }
 
 // Since "meta" is not saved in the URL state, it's ephemeral and can only be used for wip keys, but we can differentiate fields from metadata if the value is not encoded (and therefore different then the label)

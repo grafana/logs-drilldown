@@ -4,6 +4,7 @@ import { css, cx } from '@emotion/css';
 
 import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
 import {
+  CustomVariable,
   QueryRunnerState,
   SceneComponentProps,
   sceneGraph,
@@ -22,7 +23,11 @@ import { ValueSlugs } from '../../../services/enums';
 import { navigateToValueBreakdown } from '../../../services/navigate';
 import { getRouteParams, getUILabelName } from '../../../services/routing';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
-import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
+import {
+  getFieldAggregateByVariable,
+  getFieldGroupByVariable,
+  getLabelsVariable,
+} from '../../../services/variableGetters';
 import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
 import { IndexScene } from '../../IndexScene/IndexScene';
 import { RouteProps } from '../../Pages';
@@ -46,6 +51,8 @@ export const averageFields = ['duration', 'count', 'total', 'bytes'];
 export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
 
 export interface FieldsBreakdownSceneState extends SceneObjectState {
+  aggregateFieldValue?: string;
+  aggregateSelectorOptions?: VariableValueOption[];
   blockingMessage?: string;
   body?:
     | (NoMatchingLabelsScene & SceneObject)
@@ -54,10 +61,11 @@ export interface FieldsBreakdownSceneState extends SceneObjectState {
     | (EmptyLayoutScene & SceneObject);
   changeFieldCount?: (n: number) => void;
   error?: string;
+  fieldSelectorOptions?: VariableValueOption[];
   loading?: boolean;
   search: BreakdownSearchScene;
+  selectedFieldValue?: string;
   sort: SortByScene;
-  value?: string;
 }
 
 export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneState> {
@@ -65,7 +73,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     variableNames: [VAR_LABELS],
   });
 
-  constructor(state: Partial<FieldsBreakdownSceneState> & { options?: VariableValueOption[]; value?: string }) {
+  constructor(state: Partial<FieldsBreakdownSceneState>) {
     super({
       $variables:
         state.$variables ??
@@ -75,15 +83,15 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
               defaultToAll: false,
               includeAll: true,
               name: VAR_FIELD_GROUP_BY,
-              options: state.options ?? [],
-              value: state.value ?? ALL_VARIABLE_VALUE,
+              options: state.fieldSelectorOptions ?? [],
+              value: state.selectedFieldValue ?? ALL_VARIABLE_VALUE,
             }),
           ],
         }),
       loading: true,
       search: new BreakdownSearchScene('fields'),
       sort: new SortByScene({ target: 'fields' }),
-      value: state.value ?? ALL_VARIABLE_VALUE,
+      selectedFieldValue: state.selectedFieldValue ?? ALL_VARIABLE_VALUE,
       ...state,
     });
 
@@ -92,6 +100,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
 
   private onActivate() {
     const groupByVariable = getFieldGroupByVariable(this);
+    const aggregateVariable = getFieldAggregateByVariable(this);
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
 
     this.setState({
@@ -105,7 +114,8 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       })
     );
     this._subs.add(this.subscribeToEvent(SortCriteriaChanged, this.handleSortByChange));
-    this._subs.add(groupByVariable.subscribeToState(this.variableChanged));
+    this._subs.add(groupByVariable.subscribeToState(this.selectedFieldVariableChanged));
+    this._subs.add(aggregateVariable.subscribeToState(this.aggregateVariableChanged));
 
     this._subs.add(
       getLabelsVariable(this).subscribeToState((newState, prevState) => {
@@ -156,7 +166,10 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     return { breakdownLabel, labelName, labelValue };
   }
 
-  private variableChanged = (newState: CustomConstantVariableState, oldState: CustomConstantVariableState) => {
+  private selectedFieldVariableChanged = (
+    newState: CustomConstantVariableState,
+    oldState: CustomConstantVariableState
+  ) => {
     if (
       newState.value !== oldState.value ||
       !areArraysEqual(newState.options, oldState.options) ||
@@ -165,6 +178,18 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       this.state.body instanceof NoMatchingLabelsScene
     ) {
       this.updateBody(newState);
+    }
+  };
+
+  private aggregateVariableChanged = (newState: CustomVariable['state'], oldState: CustomVariable['state']) => {
+    if (
+      newState.value !== oldState.value ||
+      !areArraysEqual(newState.options, oldState.options) ||
+      this.state.body === undefined ||
+      this.state.body instanceof EmptyLayoutScene ||
+      this.state.body instanceof NoMatchingLabelsScene
+    ) {
+      console.log('aggregateVariableChanged', newState);
     }
   };
 
@@ -188,12 +213,25 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     }
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    const variable = getFieldGroupByVariable(this);
-    variable.setState({
+    const fieldSelectorVariable = getFieldGroupByVariable(this);
+    fieldSelectorVariable.setState({
       loading: false,
       options: getFieldOptions(dataFrame.fields[0].values.map((v) => String(v))),
       value: serviceScene.state.drillDownLabel ?? ALL_VARIABLE_VALUE,
     });
+
+    const aggregateFieldsVariable = getFieldAggregateByVariable(this);
+    console.log('setting agg state', {
+      value: aggregateFieldsVariable.getValue(),
+    });
+    aggregateFieldsVariable.setState({
+      loading: false,
+      options: getFieldOptions(
+        dataFrame.fields[0].values.map((v) => String(v)),
+        false
+      ),
+    });
+
     this.setState({
       loading: false,
     });
@@ -288,14 +326,39 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     navigateToValueBreakdown(ValueSlugs.field, value, serviceScene);
   };
 
+  public onFieldAggregateByChange = (value?: string) => {
+    console.log('aggregateByChange', value);
+    if (!value) {
+      return;
+    }
+
+    const variable = getFieldAggregateByVariable(this);
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.aggregate_field_in_breakdown_clicked,
+      {
+        field: value,
+        previousField: variable.getValueText(),
+        view: 'fields',
+      }
+    );
+
+    variable.setState({
+      value,
+    });
+  };
+
   public static LabelsMenu = ({
     hideSearch,
     model,
   }: SceneComponentProps<FieldsBreakdownScene> & { hideSearch?: boolean }) => {
     const { body, loading, search } = model.useState();
     const styles = useStyles2(getStyles);
-    const variable = getFieldGroupByVariable(model);
-    const { options, value } = variable.useState();
+    const fieldGroupByVar = getFieldGroupByVariable(model);
+    const fieldAggregateByVar = getFieldAggregateByVariable(model);
+    const { options: groupByOptions, value: groupByValue } = fieldGroupByVar.useState();
+    const { options: aggregateByOptions, value: aggregateByValue } = fieldAggregateByVar.useState();
     return (
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
@@ -306,9 +369,24 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         )}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
-        {!loading && options.length > 1 && (
-          <FieldSelector label="Field" options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
-        )}
+        <div className={styles.variableWrapper}>
+          {!loading && groupByOptions.length > 1 && (
+            <FieldSelector
+              label="Field"
+              options={groupByOptions}
+              value={String(groupByValue)}
+              onChange={model.onFieldSelectorChange}
+            />
+          )}
+          {!loading && aggregateByOptions.length > 1 && (
+            <FieldSelector
+              label="Aggregate by"
+              options={aggregateByOptions}
+              value={String(aggregateByValue)}
+              onChange={model.onFieldAggregateByChange}
+            />
+          )}
+        </div>
       </div>
     );
   };
@@ -365,6 +443,9 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexGrow: 1,
       paddingTop: theme.spacing(0),
+    }),
+    variableWrapper: css({
+      display: 'flex',
     }),
     labelsMenuWrapper: css({
       alignItems: 'top',

@@ -325,14 +325,18 @@ export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions)
     return (
       `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` +
       options.fieldType +
-      `(${optionValue}) | __error__="" [$__auto]) by ()`
+      `(${optionValue}) | __error__="" [$__auto]) by (${options.aggregateByField})`
     );
   } else if (options.fieldType && options.fieldType === 'float') {
     return (
-      `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` + optionValue + ` | __error__="" [$__auto]) by ()`
+      `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` +
+      optionValue +
+      ` | __error__="" [$__auto]) by (${options.aggregateByField})`
     );
   } else {
-    return `sum by (${optionValue}) (count_over_time(${getLogsStreamSelector(options)} [$__auto]))`;
+    return `sum by (${optionValue}${
+      options.aggregateByField ? `,${options.aggregateByField}` : ''
+    }) (count_over_time(${getLogsStreamSelector(options)} [$__auto]))`;
   }
 }
 
@@ -352,21 +356,33 @@ export function buildFieldsQueryString(
   optionValue: string,
   fieldsVariable: AdHocFiltersVariable,
   detectedFieldsFrame?: DataFrame,
-  jsonVariable?: AdHocFiltersVariable
+  jsonVariable?: AdHocFiltersVariable,
+  aggregateByValue?: string
 ) {
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
   const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
   const pathField = getDetectedFieldsJSONPathField(detectedFieldsFrame);
-  const index = namesField?.values.indexOf(optionValue);
+  const selectedFieldIndex = namesField?.values.indexOf(optionValue);
+  const selectedAggregateFieldIndex = aggregateByValue ? namesField?.values.indexOf(aggregateByValue) : undefined;
 
   const parserForThisField =
-    index !== undefined && index !== -1 ? extractParserFromString(parserField?.values?.[index]) : 'mixed';
+    selectedFieldIndex !== undefined && selectedFieldIndex !== -1
+      ? extractParserFromString(parserField?.values?.[selectedFieldIndex])
+      : 'mixed';
+
+  const parserForAggregateByField =
+    selectedAggregateFieldIndex !== undefined && selectedFieldIndex !== -1
+      ? extractParserFromString(parserField?.values?.[selectedAggregateFieldIndex])
+      : 'mixed';
 
   const optionType =
-    index !== undefined && index !== -1 ? extractFieldTypeFromString(typesField?.values?.[index]) : undefined;
+    selectedFieldIndex !== undefined && selectedFieldIndex !== -1
+      ? extractFieldTypeFromString(typesField?.values?.[selectedFieldIndex])
+      : undefined;
 
-  const pathForThisField = index !== undefined && index !== -1 ? pathField?.values?.[index] : undefined;
+  const pathForThisField =
+    selectedFieldIndex !== undefined && selectedFieldIndex !== -1 ? pathField?.values?.[selectedFieldIndex] : undefined;
 
   // Get the parser from the json payload of each filter
   const parsers = fieldsVariable.state.filters.map((filter) => {
@@ -384,7 +400,7 @@ export function buildFieldsQueryString(
     return parser ?? 'mixed';
   });
 
-  const parser = extractParserFromArray([...parsers, parserForThisField]);
+  const parser = extractParserFromArray([...parsers, parserForThisField, parserForAggregateByField]);
 
   let fieldExpressionToAdd = '';
   let structuredMetadataToAdd = '';
@@ -402,6 +418,7 @@ export function buildFieldsQueryString(
     fieldType: optionType,
     parser: parser,
     structuredMetadataToAdd,
+    aggregateByField: aggregateByValue,
   };
 
   if ((parser === 'json' || parser === 'mixed') && pathForThisField) {

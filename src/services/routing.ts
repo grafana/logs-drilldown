@@ -13,6 +13,7 @@ import {
   SERVICE_NAME,
   SERVICE_UI_LABEL,
   VAR_DATASOURCE,
+  VAR_FIELD_AGGREGATE_BY,
   VAR_FIELD_GROUP_BY,
   VAR_FIELDS,
   VAR_JSON_FIELDS,
@@ -100,6 +101,7 @@ export const DRILLDOWN_URL_KEYS = [
   `var-${VAR_LINE_FILTERS}`,
   `var-${VAR_JSON_FIELDS}`,
   `var-${VAR_LINE_FORMAT}`,
+  `var-${VAR_FIELD_AGGREGATE_BY}`,
 ];
 
 export function getDrilldownSlug() {

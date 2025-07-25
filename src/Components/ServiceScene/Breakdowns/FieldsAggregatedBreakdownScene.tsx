@@ -12,6 +12,7 @@ import {
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
+  VariableValue,
   VizPanel,
 } from '@grafana/scenes';
 import { DrawStyle, IconButton, InlineSwitch, Label, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
@@ -29,6 +30,7 @@ import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel'
 import { buildDataQuery } from '../../../services/query';
 import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
+  getFieldAggregateByVariable,
   getFieldGroupByVariable,
   getFieldsVariable,
   getJSONFieldsVariable,
@@ -72,7 +74,11 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
   };
 
-  private updateChildren(newState: QueryRunnerState, newParser: ParserType | undefined = undefined) {
+  private updateChildren(
+    newState: QueryRunnerState,
+    newParser: ParserType | undefined = undefined,
+    newAggregateBy?: VariableValue
+  ) {
     const detectedFieldsFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
     const newNamesField = getDetectedFieldsNamesFromQueryRunnerState(newState);
     const newParsersField = getDetectedFieldsParsersFromQueryRunnerState(newState);
@@ -107,6 +113,12 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                     $data: dataTransformer,
                   });
                 }
+              } else if (newAggregateBy) {
+                const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
+                const dataTransformer = this.getQueryRunnerForPanel(panel.state.title, detectedFieldsFrame, fieldType);
+                panel.setState({
+                  $data: dataTransformer,
+                });
               }
 
               if (newFieldsSet.has(panel.state.title)) {
@@ -180,6 +192,19 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     this._subs.add(serviceScene.state.$detectedFieldsData?.subscribeToState(this.onDetectedFieldsChange));
     this._subs.add(this.subscribeToFieldsVar());
+    this._subs.add(this.subscribeToAggregateVariable());
+  }
+  private subscribeToAggregateVariable() {
+    const aggVar = getFieldAggregateByVariable(this);
+    return aggVar.subscribeToState((newState, prevState) => {
+      if (newState.value && newState.value !== prevState.value) {
+        const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+        const detectedFieldsState = serviceScene.state.$detectedFieldsData?.state;
+        if (detectedFieldsState) {
+          this.updateChildren(detectedFieldsState, undefined, newState.value);
+        }
+      }
+    });
   }
 
   private subscribeToFieldsVar() {
@@ -387,9 +412,19 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   ) {
     const fieldsVariable = getFieldsVariable(this);
     const jsonVariable = getJSONFieldsVariable(this);
-    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
+    const aggregateByVariable = getFieldAggregateByVariable(this);
+    const aggregateByValue = aggregateByVariable.getValue()?.toString();
+    const queryString = buildFieldsQueryString(
+      optionValue,
+      fieldsVariable,
+      detectedFieldsFrame,
+      jsonVariable,
+      aggregateByValue
+    );
     const query = buildDataQuery(queryString, {
-      legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
+      legendFormat: isAvgField(fieldType)
+        ? optionValue
+        : `{{${optionValue}}} ${aggregateByValue ? ` — {{${aggregateByValue}}}` : ''}`,
       refId: optionValue,
     });
 
