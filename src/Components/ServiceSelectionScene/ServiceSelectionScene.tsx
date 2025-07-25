@@ -647,8 +647,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.subscribeToAggregatedMetricToggle();
 
     this.subscribeToAggregatedMetricVariable();
-
-    this.subscribeToDataSourceChanges();
   }
 
   private runVolumeOnActivate() {
@@ -678,6 +676,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   private subscribeToDatasource() {
     this._subs.add(
       getDataSourceVariable(this).subscribeToState((newState) => {
+        this.setState({
+          body: new SceneCSSGridLayout({ children: [] }),
+        });
         this.addDatasourceChangeToBrowserHistory(newState.value.toString());
         this.runVolumeQuery();
       })
@@ -767,17 +768,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           this.onSupportedAggregatedMetricTimeRange();
         }
         this.runVolumeQuery();
-      })
-    );
-  }
-
-  private subscribeToDataSourceChanges() {
-    const dsVariable = getDataSourceVariable(this);
-    this._subs.add(
-      dsVariable.subscribeToState(() => {
-        this.setState({
-          body: new SceneCSSGridLayout({ children: [] }),
-        });
       })
     );
   }
