@@ -10,7 +10,6 @@ import {
   dateTime,
   GrafanaTheme2,
   LoadingState,
-  TimeRange,
 } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 import {
@@ -443,7 +442,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   buildServiceLayout(
     primaryLabelName: string,
     primaryLabelValue: string,
-    timeRange: TimeRange,
     serviceLabelVar: CustomConstantVariable,
     primaryLabelVar: AdHocFiltersVariable,
     datasourceVar: DataSourceVariable
@@ -649,6 +647,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.subscribeToAggregatedMetricToggle();
 
     this.subscribeToAggregatedMetricVariable();
+
+    this.subscribeToDataSourceChanges();
   }
 
   private runVolumeOnActivate() {
@@ -711,12 +711,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this._subs.add(
       getAggregatedMetricsVariable(this).subscribeToState((newState, prevState) => {
         if (newState.value !== prevState.value) {
-          // Clear the body panels
-          this.setState({
-            body: new SceneCSSGridLayout({ children: [] }),
-          });
-          // And re-init with the new query
-          this.updateBody(true);
+          this.resetBody();
         }
       })
     );
@@ -770,6 +765,24 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       })
     );
   }
+
+  private subscribeToDataSourceChanges() {
+    const dsVariable = getDataSourceVariable(this);
+    this._subs.add(
+      dsVariable.subscribeToState(() => {
+        this.resetBody();
+      })
+    );
+  }
+
+  private resetBody = () => {
+    // Clear the body panels
+    this.setState({
+      body: new SceneCSSGridLayout({ children: [] }),
+    });
+    // And re-init with the new query
+    this.updateBody(true);
+  };
 
   /**
    * If the user copies a partial URL we want to prevent throwing runtime errors or running invalid queries, so we set the default tab which will trigger updates to the primary_label
@@ -929,7 +942,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       // If we have services to query, build the layout with the services. Children is an array of layouts for each service (1 row with 2 columns - timeseries and logs panel)
       const newChildren: SceneCSSGridItem[] = [];
       const existingChildren = this.getGridItems();
-      const timeRange = sceneGraph.getTimeRange(this).state.value;
       const aggregatedMetricsVariable = getAggregatedMetricsVariable(this);
       const primaryLabelVar = getServiceSelectionPrimaryLabel(this);
       const datasourceVariable = getDataSourceVariable(this);
@@ -958,7 +970,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           const newChildTs = this.buildServiceLayout(
             selectedTab,
             primaryLabelValue,
-            timeRange,
             aggregatedMetricsVariable,
             primaryLabelVar,
             datasourceVariable
