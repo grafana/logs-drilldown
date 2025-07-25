@@ -448,10 +448,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     primaryLabelVar: AdHocFiltersVariable,
     datasourceVar: DataSourceVariable
   ) {
-    let splitDuration;
-    if (timeRange.to.diff(timeRange.from, 'hours') >= 4 && timeRange.to.diff(timeRange.from, 'hours') <= 26) {
-      splitDuration = '2h';
-    }
     const headerActions = [];
 
     if (this.isAggregatedMetricsActive()) {
@@ -474,7 +470,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             buildDataQuery(this.getMetricExpression(primaryLabelValue, serviceLabelVar, primaryLabelVar), {
               legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
               refId: `ts-${primaryLabelValue}`,
-              splitDuration,
               step: serviceLabelVar.state.value === AGGREGATED_SERVICE_NAME ? '10s' : undefined,
             }),
           ],
