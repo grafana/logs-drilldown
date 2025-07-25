@@ -1,5 +1,13 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
-import { PluginExtensionAddedLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
+import { map as lodashMap } from 'lodash';
+
+import {
+  CustomVariableModel,
+  PluginExtensionAddedLinkConfig,
+  PluginExtensionPanelContext,
+  PluginExtensionPoints,
+  QueryVariableModel,
+} from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 
 import pluginJson from '../../plugin.json';
@@ -9,6 +17,7 @@ import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { escapeLabelValueInExactSelector, lokiSpecialRegexEscape } from './scenesMethods';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFieldValue,
@@ -172,7 +181,7 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
     return undefined;
   }
 
-  const expr = templateSrv.replace(lokiQuery.expr, context.scopedVars);
+  const expr = templateSrv.replace(lokiQuery.expr, context.scopedVars, interpolateQueryExpr);
   const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
   const labelSelector = labelFilters.find((selector) => isOperatorInclusive(selector.operator));
 
@@ -275,4 +284,19 @@ export function escapeUrlPipeDelimiters(value: string | undefined): string {
 
 export function escapeURLDelimiters(value: string | undefined): string {
   return escapeUrlCommaDelimiters(escapeUrlPipeDelimiters(value));
+}
+
+// Copied from interpolateQueryExpr in loki datasource, as we can't return a promise in the link extension config we can't fetch the datasource from the datasource srv, so we're forced to duplicate this method
+export function interpolateQueryExpr(value: string | unknown[], variable: QueryVariableModel | CustomVariableModel) {
+  // if no multi or include all do not regexEscape
+  if (!variable.multi && !variable.includeAll) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return escapeLabelValueInExactSelector(value);
+  }
+
+  const escapedValues = lodashMap(value, lokiSpecialRegexEscape);
+  return escapedValues.join('|');
 }
