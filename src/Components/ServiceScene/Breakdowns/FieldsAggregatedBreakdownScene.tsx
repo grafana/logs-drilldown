@@ -1,31 +1,55 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
+import { map, Observable } from 'rxjs';
 
-import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
+import {
+  DataFrame,
+  DataTransformContext,
+  FieldConfig,
+  FieldType,
+  LoadingState,
+  ThresholdsMode,
+  toDataFrame,
+} from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
   SceneComponentProps,
   SceneCSSGridItem,
   SceneCSSGridLayout,
+  SceneDataProvider,
+  SceneDataTransformer,
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
+  SceneQueryRunner,
   VizPanel,
+  VizPanelBuilder,
 } from '@grafana/scenes';
-import { DrawStyle, IconButton, InlineSwitch, Label, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
+import { Options as BarGaugeOptions } from '@grafana/schema/dist/esm/raw/composable/gauge/panelcfg/x/GaugePanelCfg_types.gen';
+import {
+  FieldConfig as TimeSeriesFieldConfig,
+  Options as TimeSeriesOptions,
+} from '@grafana/schema/dist/esm/raw/composable/timeseries/panelcfg/x/TimeSeriesPanelCfg_types.gen';
+import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { ValueSlugs } from '../../../services/enums';
 import {
   buildFieldsQueryString,
+  calculateSparsity,
   extractParserFromArray,
   getDetectedFieldType,
   isAvgField,
+  SparsityCalculation,
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import {
+  getQueryRunner,
+  getSceneQueryRunner,
+  setGaugeUnitOverrides,
+  setLevelColorOverrides,
+} from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
 import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
@@ -46,10 +70,15 @@ import {
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
+import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
+import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+
+export type FieldsPanelTypes = 'cardinality' | 'cardinality_estimated' | 'volume';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
+  panelType: FieldsPanelTypes;
   showErrorPanels: boolean;
   showErrorPanelToggle: boolean;
 }
@@ -57,6 +86,7 @@ export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
     super({
+      panelType: 'volume',
       showErrorPanels: getShowErrorPanels(),
       showErrorPanelToggle: false,
       ...state,
@@ -98,7 +128,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
                 if (existingParser !== newParser) {
                   const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
-                  const dataTransformer = this.getQueryRunnerForPanel(
+                  const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
                     detectedFieldsFrame,
                     fieldType
@@ -180,6 +210,16 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     this._subs.add(serviceScene.state.$detectedFieldsData?.subscribeToState(this.onDetectedFieldsChange));
     this._subs.add(this.subscribeToFieldsVar());
+    this._subs.add(
+      this.subscribeToState((newState, prevState) => {
+        if (newState.panelType !== prevState.panelType) {
+          // All query runners need to be rebuilt
+          this.setState({
+            body: this.build(),
+          });
+        }
+      })
+    );
   }
 
   private subscribeToFieldsVar() {
@@ -329,10 +369,95 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
 
     const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
-    const dataTransformer = this.getQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
-    let body;
 
-    const headerActions = [];
+    let body: VizPanelBuilder<BarGaugeOptions, FieldConfig> | VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig>;
+    if (this.state.panelType === 'volume') {
+      const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
+      body = this.buildTimeSeries(fieldType, labelName, dataTransformer, panelType);
+      body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
+      body.setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
+    } else if (this.state.panelType === 'cardinality_estimated') {
+      const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
+      body = this.buildGauge(labelName, fieldType, dataTransformer);
+    } else {
+      const queryRunner = this.getCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
+      body = this.buildStat(labelName, fieldType, queryRunner);
+      body.setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
+    }
+
+    body.setShowMenuAlways(true);
+
+    const viz = body.build();
+    return new SceneCSSGridItem({
+      body: viz,
+    });
+  }
+
+  private buildStat = (
+    labelName: string,
+    fieldType: DetectedFieldType | undefined,
+    queryProvider: SceneDataProvider
+  ) => {
+    return PanelBuilders.stat()
+      .setData(queryProvider)
+      .setTitle(labelName)
+      .setThresholds({
+        mode: ThresholdsMode.Absolute,
+        steps: [
+          { color: '', value: 33 },
+          { color: '', value: 66 },
+          { color: '', value: 100 },
+        ],
+      })
+      .setHeaderActions(
+        new SelectLabelActionScene({
+          description: `Count of unique values in ${labelName}`,
+          fieldType: ValueSlugs.field,
+          hasNumericFilters: fieldType === 'int',
+          labelName: labelName,
+        })
+      );
+  };
+
+  private buildGauge = (
+    labelName: string,
+    fieldType: DetectedFieldType | undefined,
+    queryProvider: SceneDataProvider
+  ): VizPanelBuilder<BarGaugeOptions, FieldConfig> => {
+    const gauge = PanelBuilders.gauge()
+      .setMax(100)
+      .setMin(1)
+      .setThresholds({
+        mode: ThresholdsMode.Percentage,
+        steps: [
+          { color: 'green', value: 33 },
+          { color: 'yellow', value: 66 },
+          { color: 'red', value: 100 },
+        ],
+      })
+      .setData(queryProvider)
+      .setTitle(labelName)
+      .setHeaderActions(
+        new SelectLabelActionScene({
+          fieldType: ValueSlugs.field,
+          hasNumericFilters: fieldType === 'int',
+          labelName: String(labelName),
+        })
+      );
+
+    gauge.setOverrides(setGaugeUnitOverrides);
+
+    return gauge;
+  };
+
+  private buildTimeSeries = (
+    fieldType: 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string' | undefined,
+    labelName: string,
+    dataTransformer: SceneDataTransformer | SceneQueryRunner,
+    panelType: AvgFieldPanelType | undefined
+  ): VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig> => {
+    let body;
+    let headerActions = [];
     if (!isAvgField(fieldType)) {
       body = PanelBuilders.timeseries()
         .setTitle(labelName)
@@ -371,16 +496,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       );
     }
     body.setHeaderActions(headerActions);
-    body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
-    body.setShowMenuAlways(true);
+    return body;
+  };
 
-    const viz = body.build();
-    return new SceneCSSGridItem({
-      body: viz,
-    });
-  }
-
-  private getQueryRunnerForPanel(
+  private getTimeSeriesQueryRunnerForPanel(
     optionValue: string,
     detectedFieldsFrame: DataFrame | undefined,
     fieldType?: DetectedFieldType
@@ -394,6 +513,38 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     });
 
     return getQueryRunner([query]);
+  }
+
+  private getEstimatedCardinalityQueryRunnerForPanel(optionValue: string, detectedFieldsFrame: DataFrame | undefined) {
+    // const cardinality = getEstimatedCardinality(optionValue, detectedFieldsFrame);
+    const sparsity = calculateSparsity(this, optionValue);
+    if (sparsity.cardinality) {
+      return new SceneDataTransformer({
+        transformations: [(ctx) => estimatedCardinality(ctx, sparsity)],
+      });
+    }
+
+    return new SceneDataTransformer({
+      transformations: [],
+    });
+  }
+
+  private getCardinalityQueryRunnerForPanel(optionValue: string, detectedFieldsFrame: DataFrame | undefined) {
+    const fieldsVariable = getFieldsVariable(this);
+    const jsonVariable = getJsonFieldsVariable(this);
+    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
+    const query = buildDataQuery(queryString, {
+      legendFormat: `{{${optionValue}}}`,
+      queryType: 'instant',
+      refId: `Instant - ${optionValue}`,
+    });
+
+    return new SceneDataTransformer({
+      $data: getSceneQueryRunner({
+        queries: [query],
+      }),
+      transformations: [instantQueryCardinality],
+    });
   }
 
   private getActiveGridLayouts() {
@@ -439,6 +590,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   public static ShowErrorPanelToggle = ShowErrorPanelToggle;
 
+  public static ShowFieldDisplayToggle = ShowFieldDisplayToggle;
+
   public static Selector({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
     const { body } = model.useState();
     return <>{body && <LayoutSwitcher.Selector model={body} />}</>;
@@ -455,45 +608,53 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   };
 }
 
-const errorToggleStyles = (theme: GrafanaTheme2) => {
-  return {
-    toggleIcon: css({
-      color: theme.colors.error.main,
-      marginRight: theme.spacing(1),
-    }),
-    toggleLabel: css({
-      display: 'flex',
+export function instantQueryCardinality() {
+  return (source: Observable<DataFrame[]>) => {
+    return source.pipe(
+      map((frames) => {
+        const resultFrames = [
+          toDataFrame({
+            fields: [
+              {
+                name: 'Cardinality',
+                type: FieldType.number,
+                values: [frames?.[0]?.fields?.[1].values.length ?? null],
+              },
+            ],
+          }),
+        ];
 
-      marginRight: theme.spacing(2),
-    }),
-    toggleLabelText: css({
-      marginRight: theme.spacing(1),
-    }),
-  };
-};
-
-export function ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
-  const { showErrorPanels, showErrorPanelToggle } = model.useState();
-  const styles = useStyles2(errorToggleStyles);
-
-  if (showErrorPanelToggle) {
-    return (
-      <Label className={styles.toggleLabel}>
-        <IconButton
-          className={styles.toggleIcon}
-          tooltip={'One or more requests could not be processed'}
-          name={'exclamation-triangle'}
-          variant={'secondary'}
-        />
-        <span className={styles.toggleLabelText}>Show panels with errors</span>
-
-        <InlineSwitch
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}
-          value={showErrorPanels}
-        />
-      </Label>
+        return resultFrames;
+      })
     );
-  }
+  };
+}
 
-  return null;
+export const GAUGE_CARDINALITY_FIELD_NAME = 'Cardinality';
+export const SPARSITY_CARDINALITY_FIELD_NAME = 'Frequency';
+
+export function estimatedCardinality(ctx: DataTransformContext, sparsity: SparsityCalculation) {
+  return (source: Observable<DataFrame[]>) => {
+    return source.pipe(
+      map((frames) => {
+        const resultFrames = [
+          toDataFrame({
+            fields: [
+              {
+                name: GAUGE_CARDINALITY_FIELD_NAME,
+                type: FieldType.number,
+                values: [sparsity.cardinality],
+              },
+              {
+                name: SPARSITY_CARDINALITY_FIELD_NAME,
+                type: FieldType.number,
+                values: [sparsity.sparsity],
+              },
+            ],
+          }),
+        ];
+        return resultFrames;
+      })
+    );
+  };
 }
