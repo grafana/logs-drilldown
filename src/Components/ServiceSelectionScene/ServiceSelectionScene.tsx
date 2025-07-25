@@ -711,7 +711,12 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this._subs.add(
       getAggregatedMetricsVariable(this).subscribeToState((newState, prevState) => {
         if (newState.value !== prevState.value) {
-          this.resetBody();
+          // Clear the body panels
+          this.setState({
+            body: new SceneCSSGridLayout({ children: [] }),
+          });
+          // And re-init with the new query
+          this.updateBody(true);
         }
       })
     );
@@ -770,19 +775,12 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const dsVariable = getDataSourceVariable(this);
     this._subs.add(
       dsVariable.subscribeToState(() => {
-        this.resetBody();
+        this.setState({
+          body: new SceneCSSGridLayout({ children: [] }),
+        });
       })
     );
   }
-
-  private resetBody = () => {
-    // Clear the body panels
-    this.setState({
-      body: new SceneCSSGridLayout({ children: [] }),
-    });
-    // And re-init with the new query
-    this.updateBody(true);
-  };
 
   /**
    * If the user copies a partial URL we want to prevent throwing runtime errors or running invalid queries, so we set the default tab which will trigger updates to the primary_label
