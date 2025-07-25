@@ -6,11 +6,13 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
+import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
-import { getDataSourceName, getServiceName } from './variableGetters';
-import { SERVICE_NAME } from './variables';
+import { getRouteParams } from './routing';
+import { getDataSourceName } from './variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -196,9 +198,25 @@ export function setSortByPreference(target: string, sortBy: string, direction: s
 }
 
 function getExplorationPrefix(sceneRef: SceneObject) {
+  const { labelName, labelValue } = getRouteParams(sceneRef);
+  return getExplorationPrefixForlabelValue(sceneRef, labelName, labelValue);
+}
+
+function getExplorationPrefixForlabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
-  const serviceName = getServiceName(sceneRef);
-  return `${ds}.${serviceName}`;
+  if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
+    return `${ds}.${replaceSlash(value)}`;
+  }
+  return `${ds}.${label}.${replaceSlash(value)}`;
+}
+
+export function getDisplayedFieldsForLabelValue(sceneRef: SceneObject, label: string, value: string): string[] {
+  const PREFIX = getExplorationPrefixForlabelValue(sceneRef, label, value);
+  const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
+  if (storedFields) {
+    return unknownToStrings(JSON.parse(storedFields)) ?? [];
+  }
+  return [];
 }
 
 export function getDisplayedFields(sceneRef: SceneObject): string[] {
