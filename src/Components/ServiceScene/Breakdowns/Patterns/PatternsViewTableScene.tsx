@@ -48,7 +48,7 @@ export interface PatternsTableCellData {
   dataFrame: DataFrame;
   excludeLink: () => void;
   includeLink: () => void;
-  level: string[];
+  levels: string[];
   pattern: string;
   sum: number;
   togglePatternLevel: (level: string) => void;
@@ -194,13 +194,13 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       },
     ];
 
-    if (patternFrames.some((pattern) => pattern.level.length > 0)) {
+    if (patternFrames.some((pattern) => pattern.levels.length > 0)) {
       columns.splice(1, 0, {
-        header: 'Level',
-        id: 'level',
+        header: 'Levels',
+        id: 'levels',
         sortType: 'string',
         cell: (props: CellProps<PatternsTableCellData>) => {
-          return props.cell.row.original.level.map((level) => (
+          return props.cell.row.original.levels.map((level) => (
             <Button
               key={level}
               size={'sm'}
@@ -253,7 +253,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
           },
           pattern: pattern.pattern,
           sum: pattern.sum,
-          level: pattern.level,
+          levels: pattern.levels,
           undoLink: () =>
             onPatternClick({
               indexScene: logExploration,
@@ -346,7 +346,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   if (
     filters.length &&
     patternFrames.some((patternFrame) => {
-      return patternFrame.level.length > 0;
+      return patternFrame.levels.length > 0;
     })
   ) {
     const levelsSet = new Set();
@@ -356,7 +356,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
       }
     });
     patternFrames = patternFrames.filter((patternFrame) => {
-      return patternFrame.level.some((level) => levelsSet.has(level));
+      return patternFrame.levels.some((level) => levelsSet.has(level));
     });
   }
 

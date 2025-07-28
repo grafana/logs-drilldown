@@ -61,7 +61,7 @@ export interface LokiPattern {
 }
 
 export interface LokiPatternProcessed {
-  level: string[];
+  levels: string[];
   samples: PatternSample[];
 }
 
@@ -211,7 +211,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
         if (lokiPatternsProcessed[pattern.pattern]) {
           if (pattern.level) {
             // add level
-            lokiPatternsProcessed[pattern.pattern].level.push(pattern.level);
+            lokiPatternsProcessed[pattern.pattern].levels.push(pattern.level);
           }
           // merge samples
           lokiPatternsProcessed[pattern.pattern].samples = mergeLokiSamples(
@@ -221,7 +221,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
         } else {
           lokiPatternsProcessed[pattern.pattern] = {
             samples: pattern.samples,
-            level: pattern.level ? [pattern.level] : [],
+            levels: pattern.level ? [pattern.level] : [],
           };
         }
       });
@@ -267,7 +267,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           meta: {
             custom: {
               sum,
-              level: pattern.level,
+              level: pattern.levels,
             },
             preferredVisualisationType: 'graph',
           },
@@ -275,7 +275,6 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           refId: interpolatedTarget.refId,
         });
       });
-      console.log('frames', frames);
       frames.sort((a, b) => (b.meta?.custom?.sum as number) - (a.meta?.custom?.sum as number));
       subscriber.next({ data: frames, state: LoadingState.Done });
     } catch (e) {
