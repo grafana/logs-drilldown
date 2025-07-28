@@ -6,6 +6,7 @@ import { CellProps } from 'react-table';
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import {
+  AdHocFilterWithLabels,
   PanelBuilders,
   SceneComponentProps,
   SceneDataNode,
@@ -83,7 +84,8 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
     theme: GrafanaTheme2,
     maxLines: number,
     patternFrames: PatternFrame[],
-    patternsNotMatchingFilters?: string[]
+    patternsNotMatchingFilters?: string[],
+    filters: AdHocFilterWithLabels[]
   ) {
     const styles = getColumnStyles(theme);
     const timeRange = sceneGraph.getTimeRange(this).state.value;
@@ -198,12 +200,17 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       columns.splice(1, 0, {
         header: 'Levels',
         id: 'levels',
+        // @todo custom sort method?
         cell: (props: CellProps<PatternsTableCellData>) => {
           return props.cell.row.original.levels.map((level) => (
             <Button
               key={level}
               size={'sm'}
-              variant={'secondary'}
+              variant={
+                filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level)
+                  ? 'primary'
+                  : 'secondary'
+              }
               fill={'text'}
               className={styles.levelWrap}
               onClick={() => {
@@ -375,7 +382,8 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     theme,
     model.state.maxLines ?? LINE_LIMIT,
     patternFrames,
-    patternsNotMatchingFilters
+    patternsNotMatchingFilters,
+    filters
   );
 
   return (
