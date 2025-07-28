@@ -48,10 +48,10 @@ export interface PatternsTableCellData {
   dataFrame: DataFrame;
   excludeLink: () => void;
   includeLink: () => void;
-  level?: string;
+  level: string[];
   pattern: string;
   sum: number;
-  togglePatternLevel?: () => void;
+  togglePatternLevel: (level: string) => void;
   undoLink: () => void;
 }
 
@@ -200,26 +200,23 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
         id: 'level',
         sortType: 'string',
         cell: (props: CellProps<PatternsTableCellData>) => {
-          return (
+          return props.cell.row.original.level.map((level) => (
             <Button
+              key={level}
               size={'sm'}
               variant={'secondary'}
               fill={'text'}
               className={styles.levelWrap}
               onClick={() => {
-                if (props.cell.row.original.togglePatternLevel) {
-                  props.cell.row.original.togglePatternLevel();
-                }
+                props.cell.row.original.togglePatternLevel(level);
               }}
             >
-              {props.cell.row.original.level ?? ''}
+              {level}
             </Button>
-          );
+          ));
         },
       });
     }
-
-    console.log('patternFrames', patternFrames);
 
     return columns;
   }
@@ -251,10 +248,9 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
               pattern: pattern.pattern,
               type: 'include',
             }),
-          togglePatternLevel: () =>
-            pattern.level
-              ? addToFilters(LEVEL_VARIABLE_VALUE, pattern.level, 'toggle', logExploration, VAR_LEVELS)
-              : undefined,
+          togglePatternLevel: (level: string) => {
+            addToFilters(LEVEL_VARIABLE_VALUE, level, 'toggle', logExploration, VAR_LEVELS);
+          },
           pattern: pattern.pattern,
           sum: pattern.sum,
           level: pattern.level,
@@ -344,15 +340,13 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   // Must use local patternFrames as the parent decides if we get the filtered or not
   const { patternFrames: patternFramesRaw, patternsNotMatchingFilters } = model.useState();
   let patternFrames = patternFramesRaw ?? [];
-
-  // @todo filter pattern frames if we have levels on patternFrames and level filters.
   const levelsVar = getLevelsVariable(model);
   const { filters } = levelsVar.useState();
 
   if (
     filters.length &&
     patternFrames.some((patternFrame) => {
-      return patternFrame.level !== undefined;
+      return patternFrame.level.length > 0;
     })
   ) {
     const levelsSet = new Set();
@@ -362,7 +356,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
       }
     });
     patternFrames = patternFrames.filter((patternFrame) => {
-      return levelsSet.has(patternFrame.level);
+      return patternFrame.level.some((level) => levelsSet.has(level));
     });
   }
 

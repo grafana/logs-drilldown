@@ -2,7 +2,6 @@ import { Observable, Subscriber } from 'rxjs';
 
 import {
   createDataFrame,
-  DataFrame,
   DataQueryRequest,
   DataQueryResponse,
   Field,
@@ -58,6 +57,11 @@ type PatternSample = [SampleTimeStamp, SampleCount];
 export interface LokiPattern {
   level?: string;
   pattern: string;
+  samples: PatternSample[];
+}
+
+export interface LokiPatternProcessed {
+  level: string[];
   samples: PatternSample[];
 }
 
@@ -202,55 +206,76 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       let maxValue = -Infinity;
       let minValue = 0;
 
-      const frames: DataFrame[] =
-        lokiPatterns?.map((pattern: LokiPattern) => {
-          const timeValues: number[] = [];
-          const countValues: number[] = [];
-          let sum = 0;
-          pattern.samples.forEach(([time, count]) => {
-            timeValues.push(time * 1000);
-            countValues.push(count);
-            if (count > maxValue) {
-              maxValue = count;
-            }
-            if (count < minValue) {
-              minValue = count;
-            }
-            if (count > maxValue) {
-              maxValue = count;
-            }
-            if (count < minValue) {
-              minValue = count;
-            }
-            sum += count;
-          });
-          return createDataFrame({
-            fields: [
-              {
-                config: {},
-                name: 'time',
-                type: FieldType.time,
-                values: timeValues,
-              },
-              {
-                config: {},
-                name: pattern.pattern,
-                type: FieldType.number,
-                values: countValues,
-              },
-            ],
-            meta: {
-              custom: {
-                sum,
-                level: pattern.level,
-              },
-              preferredVisualisationType: 'graph',
-            },
-            name: pattern.pattern,
-            refId: interpolatedTarget.refId,
-          });
-        }) ?? [];
+      let lokiPatternsProcessed: Record<string, LokiPatternProcessed> = {};
+      lokiPatterns.forEach((pattern) => {
+        if (lokiPatternsProcessed[pattern.pattern]) {
+          if (pattern.level) {
+            // add level
+            lokiPatternsProcessed[pattern.pattern].level.push(pattern.level);
+          }
+          // merge samples
+          lokiPatternsProcessed[pattern.pattern].samples = mergeLokiSamples(
+            pattern.samples,
+            lokiPatternsProcessed[pattern.pattern].samples
+          );
+        } else {
+          lokiPatternsProcessed[pattern.pattern] = {
+            samples: pattern.samples,
+            level: pattern.level ? [pattern.level] : [],
+          };
+        }
+      });
 
+      const frames = Object.keys(lokiPatternsProcessed).map((key) => {
+        const timeValues: number[] = [];
+        const countValues: number[] = [];
+        let sum = 0;
+        const pattern = lokiPatternsProcessed[key];
+        pattern.samples.forEach(([time, count]) => {
+          timeValues.push(time * 1000);
+          countValues.push(count);
+          if (count > maxValue) {
+            maxValue = count;
+          }
+          if (count < minValue) {
+            minValue = count;
+          }
+          if (count > maxValue) {
+            maxValue = count;
+          }
+          if (count < minValue) {
+            minValue = count;
+          }
+          sum += count;
+        });
+
+        return createDataFrame({
+          fields: [
+            {
+              config: {},
+              name: 'time',
+              type: FieldType.time,
+              values: timeValues,
+            },
+            {
+              config: {},
+              name: key,
+              type: FieldType.number,
+              values: countValues,
+            },
+          ],
+          meta: {
+            custom: {
+              sum,
+              level: pattern.level,
+            },
+            preferredVisualisationType: 'graph',
+          },
+          name: key,
+          refId: interpolatedTarget.refId,
+        });
+      });
+      console.log('frames', frames);
       frames.sort((a, b) => (b.meta?.custom?.sum as number) - (a.meta?.custom?.sum as number));
       subscriber.next({ data: frames, state: LoadingState.Done });
     } catch (e) {
@@ -513,6 +538,24 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   testDatasource(): Promise<TestDataSourceResponse> {
     return Promise.resolve({ message: 'Data source is working', status: 'success', title: 'Success' });
   }
+}
+
+function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
+  const lokiSamplesMap = new Map<number, number>();
+  s1.forEach((value) => {
+    lokiSamplesMap.set(value[0], value[1]);
+  });
+  s2.forEach((value) => {
+    if (lokiSamplesMap.has(value[0])) {
+      const existingValue = lokiSamplesMap.get(value[0]);
+      lokiSamplesMap.set(value[0], value[1] + (existingValue ?? 0));
+    } else {
+      lokiSamplesMap.set(value[0], value[1]);
+    }
+  });
+  const samples = Array.from(lokiSamplesMap);
+  samples.sort();
+  return samples;
 }
 
 let initialized = false;
