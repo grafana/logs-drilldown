@@ -198,7 +198,6 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       columns.splice(1, 0, {
         header: 'Levels',
         id: 'levels',
-        sortType: 'string',
         cell: (props: CellProps<PatternsTableCellData>) => {
           return props.cell.row.original.levels.map((level) => (
             <Button

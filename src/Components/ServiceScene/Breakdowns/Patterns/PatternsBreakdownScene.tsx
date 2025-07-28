@@ -90,7 +90,7 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
           )}
 
           {!error && !loading && patternFrames?.length === 0 && timeRangeTooOld && <PatternsTooOld />}
-          {!error && !loading && patternFrames?.length === 0 && !timeRangeTooOld && <PatternsNotDetected />}
+          {!error && !loading && !patternFrames && !timeRangeTooOld && <PatternsNotDetected />}
           {!error && !loading && patternFrames && patternFrames.length > 0 && (
             <div className={styles.content}>{body && <body.Component model={body} />}</div>
           )}
