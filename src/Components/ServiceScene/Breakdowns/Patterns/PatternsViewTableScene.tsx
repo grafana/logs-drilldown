@@ -194,7 +194,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       },
     ];
 
-    if (patternFrames.some((pattern) => pattern.level !== undefined)) {
+    if (patternFrames.some((pattern) => pattern.level.length > 0)) {
       columns.splice(1, 0, {
         header: 'Level',
         id: 'level',
