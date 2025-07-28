@@ -271,11 +271,6 @@ export function getValueFromAdHocVariableFilter(
   };
 }
 
-export function getServiceName(scene: SceneObject) {
-  const labelsVariable = getLabelsVariable(scene);
-  return getServiceNameFromVariableState(labelsVariable.state);
-}
-
 export function getServiceNameFromVariableState(
   adHocFiltersVariableState: SceneVariableState & { filters: AdHocVariableFilter[] }
 ) {
