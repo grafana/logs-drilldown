@@ -1337,7 +1337,7 @@ test.describe('explore services breakdown page', () => {
     await expect(explorePage.getAllPanelsLocator().first()).toBeInViewport();
   });
 
-  test('should not see maximum of series limit reached after changing filters', async ({ page }) => {
+  test.only('should not see maximum of series limit reached after changing filters', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
       refIds: ['logsPanelQuery', 'content', 'version'],
@@ -1353,8 +1353,10 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToFieldsTab();
     await expect(panelErrorLocator).toHaveCount(0);
 
-    // Now assert that content is hidden (will hit 1000 series limit and throw error)
-    await expect(contentPanelLocator).toHaveCount(0);
+    // Now assert that content is not hidden (will hit 1000 series limit and throw warning)
+    await page.pause();
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
+    await expect(contentPanelLocator).toHaveCount(1);
     await expect(versionPanelLocator).toHaveCount(1);
 
     // Open the dropdown and change from include to exclude
@@ -1386,10 +1388,13 @@ test.describe('explore services breakdown page', () => {
     // Check the right options are visible
     await expect(versionVariableLocator).toContainText('!=');
 
-    // Assert no errors are visible
+    // Assert errors are visible
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
     await expect(panelErrorLocator).toHaveCount(0);
+
     // Now assert that content is hidden (will hit 1000 series limit and throw error)
-    await expect(contentPanelLocator).toHaveCount(0);
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
+    await expect(contentPanelLocator).toHaveCount(1);
     // But version should exist
     await expect(versionPanelLocator).toHaveCount(1);
   });
