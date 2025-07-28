@@ -1337,7 +1337,7 @@ test.describe('explore services breakdown page', () => {
     await expect(explorePage.getAllPanelsLocator().first()).toBeInViewport();
   });
 
-  test.only('should not see maximum of series limit reached after changing filters', async ({ page }) => {
+  test('should not see maximum of series limit reached after changing filters', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
       refIds: ['logsPanelQuery', 'content', 'version'],
