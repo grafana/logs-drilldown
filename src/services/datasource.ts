@@ -56,6 +56,7 @@ type SampleCount = number;
 type PatternSample = [SampleTimeStamp, SampleCount];
 
 export interface LokiPattern {
+  level?: string;
   pattern: string;
   samples: PatternSample[];
 }
@@ -241,6 +242,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
             meta: {
               custom: {
                 sum,
+                level: pattern.level,
               },
               preferredVisualisationType: 'graph',
             },

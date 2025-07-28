@@ -271,10 +271,11 @@ export function sortLevelTransformation() {
   };
 }
 
-export function getResourceQueryRunner(queries: LokiQuery[]) {
+export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partial<QueryRunnerState>) {
   return new SceneQueryRunner({
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: queries,
+    ...queryRunnerOptions,
   });
 }
 

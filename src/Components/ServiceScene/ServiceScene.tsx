@@ -779,21 +779,24 @@ function getPatternsQueryRunner() {
     return undefined;
   }
 
-  return getResourceQueryRunner([
-    buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'patterns', { refId: PATTERNS_QUERY_REFID }),
-  ]);
+  return getResourceQueryRunner(
+    [buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'patterns', { refId: PATTERNS_QUERY_REFID })],
+    { runQueriesMode: 'manual' }
+  );
 }
 
 function getDetectedLabelsQueryRunner() {
-  return getResourceQueryRunner([
-    buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'detected_labels', { refId: DETECTED_LABELS_QUERY_REFID }),
-  ]);
+  return getResourceQueryRunner(
+    [buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'detected_labels', { refId: DETECTED_LABELS_QUERY_REFID })],
+    { runQueriesMode: 'manual' }
+  );
 }
 
 function getDetectedFieldsQueryRunner() {
-  return getResourceQueryRunner([
-    buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
-  ]);
+  return getResourceQueryRunner(
+    [buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID })],
+    { runQueriesMode: 'manual' }
+  );
 }
 
 function getServiceSceneQueryRunner() {
