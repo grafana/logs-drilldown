@@ -322,16 +322,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
-    const updateAssistantContext = () => {
+    const updateAssistantContext = async () => {
       const contexts = [];
 
-      const dsVar = getDataSourceVariable(this);
-      const ds = getDataSourceSrv()
-        .getList({
-          type: 'loki',
-        })
-        .find((ds) => ds.uid === dsVar.state.value.toString());
-
+      const ds = await getLokiDatasource(this);
       if (!ds) {
         return;
       }
@@ -362,13 +356,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     };
 
     this._subs.add(
-      getDataSourceVariable(this).subscribeToState(() => {
-        updateAssistantContext();
+      getDataSourceVariable(this).subscribeToState(async () => {
+        await updateAssistantContext();
       })
     );
     this._subs.add(
-      getLabelsVariable(this).subscribeToState(() => {
-        updateAssistantContext();
+      getLabelsVariable(this).subscribeToState(async () => {
+        await updateAssistantContext();
       })
     );
     this.assistantInitialized = true;
