@@ -1,11 +1,6 @@
 import React from 'react';
 
-import {
-  ItemDataType,
-  providePageContext,
-  createContext as createAssistantContext,
-  isAssistantAvailable,
-} from '@grafana/assistant';
+import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
@@ -84,6 +79,7 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { updateAssistantContext } from 'services/assistant';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
@@ -322,47 +318,15 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
-    const updateAssistantContext = async () => {
-      const contexts = [];
-
-      const ds = await getLokiDatasource(this);
-      if (!ds) {
-        return;
-      }
-
-      contexts.push(
-        createAssistantContext(ItemDataType.Datasource, {
-          datasourceName: ds.name,
-          datasourceUid: ds.uid,
-          datasourceType: ds.type,
-        })
-      );
-
-      const labelsVar = getLabelsVariable(this);
-      if (labelsVar.state.filters.length > 0) {
-        contexts.push(
-          ...labelsVar.state.filters.map((filter) =>
-            createAssistantContext(ItemDataType.LabelValue, {
-              datasourceUid: ds.uid,
-              datasourceType: ds.type,
-              labelName: filter.key,
-              labelValue: filter.value,
-            })
-          )
-        );
-      }
-
-      setAssistantContext(contexts);
-    };
 
     this._subs.add(
       getDataSourceVariable(this).subscribeToState(async () => {
-        await updateAssistantContext();
+        await updateAssistantContext(this, setAssistantContext);
       })
     );
     this._subs.add(
       getLabelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext();
+        await updateAssistantContext(this, setAssistantContext);
       })
     );
     this.assistantInitialized = true;
