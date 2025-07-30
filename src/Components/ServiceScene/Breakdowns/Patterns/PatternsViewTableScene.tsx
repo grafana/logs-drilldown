@@ -197,6 +197,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
         id: 'levels',
         // @todo custom sort method?
         cell: (props: CellProps<PatternsTableCellData>) => {
+          props.cell.row.original.levels.sort();
           return props.cell.row.original.levels.map((level) => (
             <Button
               key={level}
@@ -206,7 +207,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
                   ? 'primary'
                   : 'secondary'
               }
-              fill={'text'}
+              fill={'outline'}
               className={styles.levelWrap}
               onClick={() => {
                 props.cell.row.original.togglePatternLevel(level);
@@ -304,6 +305,9 @@ const getColumnStyles = (theme: GrafanaTheme2) => {
     levelWrap: css({
       fontSize: theme.typography.bodySmall.fontSize,
       fontFamily: theme.typography.fontFamilyMonospace,
+      '&:not(:last-child)': {
+        marginRight: theme.spacing(0.5),
+      },
     }),
     countTextWrap: css({
       fontSize: theme.typography.bodySmall.fontSize,
