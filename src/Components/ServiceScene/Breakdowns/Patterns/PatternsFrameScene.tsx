@@ -266,19 +266,6 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
   private getTimeseriesDataNode(patternFrames: PatternFrame[]) {
     const timeRange = sceneGraph.getTimeRange(this).state.value;
-
-    console.log('tsnode', {
-      series: patternFrames.map((patternFrame, seriesIndex) => {
-        // Mutating the dataframe config here means that we don't need to update the colors in the table view
-        const dataFrame = patternFrame.dataFrame;
-        dataFrame.fields[1].config.color = overrideToFixedColor(seriesIndex);
-        dataFrame.fields[1].name = '';
-        return dataFrame;
-      }),
-      state: LoadingState.Done,
-      timeRange: timeRange,
-    });
-
     return new SceneDataNode({
       data: {
         series: patternFrames.map((patternFrame, seriesIndex) => {
