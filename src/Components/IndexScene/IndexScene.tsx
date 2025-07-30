@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
@@ -78,6 +79,8 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { updateAssistantContext } from 'services/assistant';
+import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
   getLineFormatExpressionBuilder,
@@ -124,6 +127,7 @@ interface EmbeddedIndexSceneConstructor {
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
+  private assistantInitialized = false;
 
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
     const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
@@ -283,6 +287,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataService().setEmbedded(this.state.embedded);
     }
 
+    this._subs.add(
+      isAssistantAvailable().subscribe((isAvailable) => {
+        if (isAvailable && !this.assistantInitialized) {
+          this.provideAssistantContext();
+        }
+      })
+    );
+
     return () => {
       clearKeyBindings();
     };
@@ -302,6 +314,22 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
+  }
+
+  private provideAssistantContext() {
+    const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
+
+    this._subs.add(
+      getDataSourceVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this._subs.add(
+      getLabelsVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this.assistantInitialized = true;
   }
 
   private subscribeToCombinedFieldsVariable = (
