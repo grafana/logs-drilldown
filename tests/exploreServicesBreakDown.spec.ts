@@ -962,6 +962,58 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonRemovePattern).nth(1)).toBeVisible();
   });
 
+  test('Should filter patterns by level', async ({ page }) => {
+    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+    await explorePage.assertTabsNotLoading();
+    // Get total count of rows
+    const unfilteredRowsCount = await page
+      .getByTestId('data-testid table-wrapper')
+      .locator('[role="rowgroup"] [role="row"]')
+      .count();
+    // Click on level within table
+    await page.getByTestId('data-testid table-wrapper').getByRole('button', { name: 'debug' }).click();
+    const filteredRowsCount = await page
+      .getByTestId('data-testid table-wrapper')
+      .locator('[role="rowgroup"] [role="row"]')
+      .count();
+
+    // Assert only one pattern has debug level
+    expect(filteredRowsCount).toBe(1);
+    // Assert total count of rows is greater than 1
+    expect(unfilteredRowsCount).toBeGreaterThan(filteredRowsCount);
+
+    // remove level filter from variable
+    await page
+      .getByTestId('data-testid detected_level filter variable')
+      .getByRole('button', { name: 'Remove' })
+      .click();
+
+    // assert after removing the level filter we see the full count of rows again
+    expect(
+      await page.getByTestId('data-testid table-wrapper').locator('[role="rowgroup"] [role="row"]').count()
+    ).toEqual(unfilteredRowsCount);
+  });
+  test('Should only call patterns API once on time range change', async ({ page }) => {
+    let patternsCount = 0;
+    await page.pause();
+    await page.route('**/patterns?**', async (route, request) => {
+      patternsCount++;
+      // Let the request go through normally
+      const response = await route.fetch();
+      const json = await response.json();
+      return route.fulfill({ json, response });
+    });
+
+    await explorePage.assertTabsNotLoading();
+    await expect.poll(() => patternsCount).toEqual(1);
+    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+    await explorePage.assertTabsNotLoading();
+    await expect.poll(() => patternsCount).toEqual(2);
+    await page.getByTestId('data-testid RefreshPicker run button').click();
+    await explorePage.assertTabsNotLoading();
+    await expect.poll(() => patternsCount).toEqual(3);
+  });
+
   test('should update a filter and run new logs', async ({ page }) => {
     await page.getByLabel('Edit filter with key').click();
     await page.getByText('mimir-distributor').click();
@@ -1365,8 +1417,9 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToFieldsTab();
     await expect(panelErrorLocator).toHaveCount(0);
 
-    // Now assert that content is hidden (will hit 1000 series limit and throw error)
-    await expect(contentPanelLocator).toHaveCount(0);
+    // Now assert that content is not hidden (will hit 1000 series limit and throw warning)
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
+    await expect(contentPanelLocator).toHaveCount(1);
     await expect(versionPanelLocator).toHaveCount(1);
 
     // Open the dropdown and change from include to exclude
@@ -1398,10 +1451,13 @@ test.describe('explore services breakdown page', () => {
     // Check the right options are visible
     await expect(versionVariableLocator).toContainText('!=');
 
-    // Assert no errors are visible
+    // Assert errors are visible
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
     await expect(panelErrorLocator).toHaveCount(0);
+
     // Now assert that content is hidden (will hit 1000 series limit and throw error)
-    await expect(contentPanelLocator).toHaveCount(0);
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
+    await expect(contentPanelLocator).toHaveCount(1);
     // But version should exist
     await expect(versionPanelLocator).toHaveCount(1);
   });
