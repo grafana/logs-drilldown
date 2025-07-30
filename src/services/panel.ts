@@ -356,7 +356,7 @@ export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel
   );
   if (frameWithNotice && frameWithNotice.meta?.notices?.length) {
     panel.setState({
-      _pluginLoadError: frameWithNotice.meta?.notices[0].text,
+      _pluginLoadError: frameWithNotice.meta?.notices.find((notice) => notice.text.match(noticesInclusion))?.text,
     });
   } else if (panel.state._pluginLoadError) {
     panel.setState({
