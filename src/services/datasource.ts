@@ -539,7 +539,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 }
 
-function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
+export function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
   const lokiSamplesMap = new Map<number, number>();
   s1.forEach((value) => {
     lokiSamplesMap.set(value[0], value[1]);
@@ -553,7 +553,7 @@ function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
     }
   });
   const samples = Array.from(lokiSamplesMap);
-  samples.sort();
+  samples.sort((a, b) => a[0] - b[0]);
   return samples;
 }
 
