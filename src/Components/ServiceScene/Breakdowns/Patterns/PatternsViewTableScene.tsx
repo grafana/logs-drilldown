@@ -72,11 +72,6 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
 
   /**
    * Build columns for interactive table (wrapper for react-table v7)
-   * @param total
-   * @param appliedPatterns
-   * @param theme
-   * @param patternsNotMatchingFilters
-   * @protected
    */
   public buildColumns(
     total: number,
@@ -84,7 +79,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
     theme: GrafanaTheme2,
     maxLines: number,
     patternFrames: PatternFrame[],
-    patternsNotMatchingFilters?: string[],
+    patternsNotMatchingFilters: string[] | undefined,
     filters: AdHocFilterWithLabels[]
   ) {
     const styles = getColumnStyles(theme);
@@ -348,23 +343,6 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   let patternFrames = patternFramesRaw ?? [];
   const levelsVar = getLevelsVariable(model);
   const { filters } = levelsVar.useState();
-
-  if (
-    filters.length &&
-    patternFrames.some((patternFrame) => {
-      return patternFrame.levels.length > 0;
-    })
-  ) {
-    const levelsSet = new Set();
-    filters.forEach((filter) => {
-      if (isOperatorInclusive(filter.operator)) {
-        levelsSet.add(filter.value);
-      }
-    });
-    patternFrames = patternFrames.filter((patternFrame) => {
-      return patternFrame.levels.some((level) => levelsSet.has(level));
-    });
-  }
 
   // Get unfiltered patterns for percentage calculation
   const patternsBreakdownScene = sceneGraph.getAncestor(model, PatternsBreakdownScene);
