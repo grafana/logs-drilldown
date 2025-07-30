@@ -349,7 +349,10 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 }
 
 export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel<{}, {}>) {
-  const frameWithNotice = result.data.series.find((df) => df.meta?.notices?.length);
+  const noticesInclusion = /maximum number of series/;
+  const frameWithNotice = result.data.series.find(
+    (df) => df.meta?.notices?.length && df.meta?.notices.some((notice) => notice.text.match(noticesInclusion))
+  );
   if (frameWithNotice && frameWithNotice.meta?.notices?.length) {
     panel.setState({
       _pluginLoadError: frameWithNotice.meta?.notices[0].text,
