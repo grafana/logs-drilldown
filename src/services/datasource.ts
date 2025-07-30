@@ -539,6 +539,10 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 }
 
+/**
+ * Combine multiple Loki pattern samples into one.
+ * Note: Pattern samples might not be square (i.e. each dataframe might not have the same time values) like we'd expect from a dataframe processed by a datasource backend
+ */
 export function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
   const lokiSamplesMap = new Map<number, number>();
   s1.forEach((value) => {
