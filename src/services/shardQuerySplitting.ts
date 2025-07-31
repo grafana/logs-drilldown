@@ -1,7 +1,7 @@
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
+import { DataFrame, DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
 
 import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
 import pluginJson from '../plugin.json';
@@ -163,6 +163,10 @@ function splitQueriesByStreamShard(
         if (mergedResponse.data.length) {
           subscriber.next(mergedResponse);
         }
+        if (maxSeriesReached(mergedResponse.data)) {
+          done();
+          return;
+        }
         nextRequest();
       },
       error: (error: unknown) => {
@@ -314,6 +318,14 @@ function isRetriableError(errorResponse: DataQueryResponse) {
     throw new Error(message);
   }
   return false;
+}
+
+export function maxSeriesReached(series: DataFrame[]) {
+  const noticesInclusion = /maximum number of series/;
+  const frameWithNotice = series.find(
+    (df) => df.meta?.notices?.length && df.meta?.notices.some((notice) => notice.text.match(noticesInclusion))
+  );
+  return frameWithNotice && Boolean(frameWithNotice.meta?.notices?.length);
 }
 
 // Enable to output debugging logs
