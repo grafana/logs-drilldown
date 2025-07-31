@@ -10,9 +10,10 @@ import {
   TestDataSourceResponse,
 } from '@grafana/data';
 import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
+import { RuntimeDataSource, sceneGraph, SceneQueryRunner, sceneUtils, VizPanel } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
 
+import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { SceneDataQueryRequest, SceneDataQueryResourceRequest, VolumeRequestProps } from './datasourceTypes';
 import { DetectedFieldsResponse, DetectedLabelsResponse } from './fields';
 import { FIELDS_TO_REMOVE, LABELS_TO_REMOVE, sortLabelsByCardinality } from './filters';
@@ -159,11 +160,17 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       })),
     };
 
+    const sceneQueryRunner = request.scopedVars.__sceneObject?.valueOf();
+
     // Query the datasource and return either observable or promise
     const dsResponse =
       requestSupportsSharding(updatedRequest) === false || !shardingEnabled
         ? ds.query(updatedRequest)
-        : runShardSplitQuery(ds, updatedRequest);
+        : runShardSplitQuery(
+            ds,
+            updatedRequest,
+            sceneQueryRunner instanceof SceneQueryRunner ? sceneQueryRunner : undefined
+          );
     dsResponse.subscribe(subscriber);
 
     return subscriber;

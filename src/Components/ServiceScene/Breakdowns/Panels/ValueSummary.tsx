@@ -139,6 +139,12 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
       throw new Error('Cannot find VizPanel');
     }
 
+    // console.log('panel', panel);
+    // panel.subscribeToState((newState, prevState) => {
+    //   console.log('panel change', newState, prevState);
+    //   console.log('total package', sceneFlexItem.state.body);
+    // });
+
     this.initLegendOptions(dataFrame, key, panel);
 
     if (this.state.type === 'label') {

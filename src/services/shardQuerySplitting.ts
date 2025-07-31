@@ -2,7 +2,9 @@ import { Observable, Subscriber, Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
+import { sceneGraph, SceneQueryRunner, VizPanel } from '@grafana/scenes';
 
+import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
 import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
@@ -45,7 +47,11 @@ import { LokiDatasource, LokiQuery } from './lokiQuery';
  * - Once all request groups have been executed, it will be done().
  */
 
-export function runShardSplitQuery(datasource: LokiDatasource, request: DataQueryRequest<LokiQuery>) {
+export function runShardSplitQuery(
+  datasource: LokiDatasource,
+  request: DataQueryRequest<LokiQuery>,
+  sceneQueryRunner?: SceneQueryRunner
+) {
   const queries = datasource
     .interpolateVariablesInQueries(request.targets, request.scopedVars)
     .filter((query) => query.expr)
@@ -54,13 +60,14 @@ export function runShardSplitQuery(datasource: LokiDatasource, request: DataQuer
       expr: addShardingPlaceholderSelector(target.expr),
     }));
 
-  return splitQueriesByStreamShard(datasource, request, queries);
+  return splitQueriesByStreamShard(datasource, request, queries, sceneQueryRunner);
 }
 
 function splitQueriesByStreamShard(
   datasource: LokiDatasource,
   request: DataQueryRequest<LokiQuery>,
-  splittingTargets: LokiQuery[]
+  splittingTargets: LokiQuery[],
+  sceneQueryRunner?: SceneQueryRunner
 ) {
   let shouldStop = false;
   let mergedResponse: DataQueryResponse = { data: [], key: uuidv4(), state: LoadingState.Streaming };
@@ -91,6 +98,28 @@ function splitQueriesByStreamShard(
     if (shouldStop) {
       done();
       return;
+    }
+
+    if (sceneQueryRunner && sceneQueryRunner instanceof SceneQueryRunner) {
+      const root = sceneGraph.getAncestor(sceneQueryRunner, IndexScene);
+      const panels = sceneGraph.findAllObjects(root, (obj) => {
+        if (obj instanceof VizPanel) {
+          const dataState = sceneGraph.getData(obj).state;
+          const queryRunner = dataState.$data;
+          if (
+            queryRunner instanceof SceneQueryRunner &&
+            queryRunner.state.queries === sceneQueryRunner.state.queries &&
+            queryRunner.isActive &&
+            obj.isActive
+          ) {
+            console.log('viz with this query runner', { viz: obj, queryRunner });
+            return true;
+          }
+        }
+        return false;
+      });
+      console.log('panels with this runner', panels);
+      console.log('panels _dataWithFieldConfig', panels?.[0]?.['_dataWithFieldConfig']);
     }
 
     const nextRequest = () => {
