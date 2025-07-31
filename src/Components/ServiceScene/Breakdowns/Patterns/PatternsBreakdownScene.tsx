@@ -41,6 +41,7 @@ export interface PatternsBreakdownSceneState extends SceneObjectState {
 
 export type PatternFrame = {
   dataFrame: DataFrame;
+  levels: string[];
   pattern: string;
   status?: 'exclude' | 'include';
   sum: number;
@@ -89,7 +90,7 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
           )}
 
           {!error && !loading && patternFrames?.length === 0 && timeRangeTooOld && <PatternsTooOld />}
-          {!error && !loading && patternFrames?.length === 0 && !timeRangeTooOld && <PatternsNotDetected />}
+          {!error && !loading && !patternFrames && !timeRangeTooOld && <PatternsNotDetected />}
           {!error && !loading && patternFrames && patternFrames.length > 0 && (
             <div className={styles.content}>{body && <body.Component model={body} />}</div>
           )}
@@ -174,11 +175,13 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
       const existingPattern = appliedPatterns?.find((appliedPattern) => appliedPattern.pattern === dataFrame.name);
 
       const sum: number = dataFrame.meta?.custom?.sum;
+      const levels: string[] = dataFrame.meta?.custom?.level;
       const patternFrame: PatternFrame = {
         dataFrame,
         pattern: dataFrame.name ?? '',
         status: existingPattern?.type,
         sum,
+        levels,
       };
 
       return patternFrame;

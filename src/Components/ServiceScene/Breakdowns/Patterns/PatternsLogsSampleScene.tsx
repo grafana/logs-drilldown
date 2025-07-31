@@ -29,6 +29,7 @@ import {
 } from '../../../../services/variables';
 import { emptyStateStyles } from '../FieldsBreakdownScene';
 import { PatternsViewTableScene } from './PatternsViewTableScene';
+import { LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY } from 'services/store';
 
 interface PatternsLogsSampleSceneState extends SceneObjectState {
   body?: SceneFlexLayout;
@@ -69,6 +70,9 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
               .setHoverHeader(true)
               .setOption('showLogContextToggle', true)
               .setOption('showTime', true)
+              // @ts-expect-error Requires Grafana 12.2
+              .setOption('noInteractions', true)
+              .setOption('controlsStorageKey', LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY)
               .setData(queryRunnerWithFilters)
               .build(),
             height: 300,

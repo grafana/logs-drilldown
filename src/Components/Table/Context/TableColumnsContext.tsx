@@ -22,9 +22,6 @@ type TableColumnsContextType = {
   setColumnWidthMap(map: Record<string, number>): void;
   // Update search state
   setFilteredColumns(newColumns?: FieldNameMetaStore): void;
-  setVisible: (v: boolean) => void;
-  // WIP - sets the visibility of the drawer right now
-  visible: boolean;
 };
 
 export enum LogLineState {
@@ -43,8 +40,6 @@ const TableColumnsContext = createContext<TableColumnsContextType>({
   setColumns: () => {},
   setColumnWidthMap: () => {},
   setFilteredColumns: () => {},
-  setVisible: () => false,
-  visible: false,
 });
 
 function setDefaultColumns(
@@ -95,21 +90,17 @@ export const TableColumnContextProvider = ({
   children,
   clearSelectedLine,
   initialColumns,
-  isColumnManagementActive,
   logsFrame,
   setUrlColumns,
   setUrlTableBodyState,
-  showColumnManagementDrawer,
   urlTableBodyState,
 }: {
   children: ReactNode;
   clearSelectedLine: () => void;
   initialColumns: FieldNameMetaStore;
-  isColumnManagementActive: boolean;
   logsFrame: LogsFrame;
   setUrlColumns: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
-  showColumnManagementDrawer: (isActive: boolean) => void;
   urlTableBodyState?: LogLineState;
 }) => {
   const [columns, setColumns] = useState<FieldNameMetaStore>(removeExtraColumns(initialColumns));
@@ -167,13 +158,6 @@ export const TableColumnContextProvider = ({
     clearSelectedLine();
   };
 
-  const handleSetVisible = useCallback(
-    (isVisible: boolean) => {
-      showColumnManagementDrawer(isVisible);
-    },
-    [showColumnManagementDrawer]
-  );
-
   // When the parent component recalculates new columns on dataframe change, we need to update or the column UI will be stale!
   useEffect(() => {
     if (initialColumns) {
@@ -215,8 +199,6 @@ export const TableColumnContextProvider = ({
         setColumns: handleSetColumns,
         setColumnWidthMap,
         setFilteredColumns,
-        setVisible: handleSetVisible,
-        visible: isColumnManagementActive,
       }}
     >
       {children}

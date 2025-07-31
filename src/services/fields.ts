@@ -16,12 +16,18 @@ import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortB
 import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { LabelType } from './fieldsTypes';
 import { logger } from './logger';
-import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from './logsFrame';
+import {
+  DATAPLANE_BODY_NAME_LEGACY,
+  DATAPLANE_ID_NAME,
+  DATAPLANE_LABEL_TYPES_NAME,
+  DATAPLANE_LABELS_NAME,
+  DATAPLANE_LINE_NAME,
+} from './logsFrame';
 import { getLabelTypeFromFrame } from './lokiQuery';
 import { setLevelColorOverrides } from './panel';
 import {
   getFieldsVariable,
-  getJsonFieldsVariable,
+  getJSONFieldsVariable,
   getLineFormatVariable,
   getLogsStreamSelector,
   getValueFromFieldsFilter,
@@ -139,7 +145,7 @@ export function getDetectedFieldsTypeField(detectedFieldsFrame?: DataFrame) {
   const parserField: Field<string> | undefined = detectedFieldsFrame?.fields[3];
   return parserField;
 }
-export function getDetectedFieldsJsonPathField(detectedFieldsFrame?: DataFrame) {
+export function getDetectedFieldsJSONPathField(detectedFieldsFrame?: DataFrame) {
   const pathField: Field<string[]> | undefined = detectedFieldsFrame?.fields[4];
   return pathField;
 }
@@ -219,7 +225,7 @@ export function getParserAndPathForField(
   const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
-  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJSONPathField(detectedFieldsFrame);
 
   const index = namesField?.values.indexOf(fieldName);
   const parser =
@@ -404,7 +410,7 @@ export function buildFieldsQueryString(
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
   const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
-  const pathField = getDetectedFieldsJsonPathField(detectedFieldsFrame);
+  const pathField = getDetectedFieldsJSONPathField(detectedFieldsFrame);
   const index = namesField?.values.indexOf(optionValue);
 
   const parserForThisField =
@@ -483,12 +489,24 @@ export function isLogLineField(fieldName: string) {
   return fieldName === DATAPLANE_LINE_NAME || fieldName === DATAPLANE_BODY_NAME_LEGACY;
 }
 
+export function isLabelsField(fieldName: string) {
+  return fieldName === DATAPLANE_LABELS_NAME;
+}
+
+export function isLabelTypesField(fieldName: string) {
+  return fieldName === DATAPLANE_LABEL_TYPES_NAME;
+}
+
+export function isLogsIdField(fieldName: string) {
+  return fieldName === DATAPLANE_ID_NAME;
+}
+
 /**
  * Housekeeping: clears json parsers if there is not any field or line format filters
  */
-export function clearJsonParserFields(sceneRef: SceneObject) {
+export function clearJSONParserFields(sceneRef: SceneObject) {
   const fieldsVariable = getFieldsVariable(sceneRef);
-  const jsonVar = getJsonFieldsVariable(sceneRef);
+  const jsonVar = getJSONFieldsVariable(sceneRef);
   const lineFormatVariable = getLineFormatVariable(sceneRef);
 
   // If there are no active filters, and no line format (drilldowns), clear the json

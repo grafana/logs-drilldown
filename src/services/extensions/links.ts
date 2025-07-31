@@ -1,6 +1,14 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
-import { PluginExtensionLinkConfig, PluginExtensionPanelContext, PluginExtensionPoints } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { map as lodashMap } from 'lodash';
+
+import {
+  CustomVariableModel,
+  PluginExtensionAddedLinkConfig,
+  PluginExtensionPanelContext,
+  PluginExtensionPoints,
+  QueryVariableModel,
+} from '@grafana/data';
+import { getTemplateSrv, locationService } from '@grafana/runtime';
 
 import pluginJson from '../../plugin.json';
 import { LabelType } from '../fieldsTypes';
@@ -9,6 +17,7 @@ import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { escapeLabelValueInExactSelector, lokiSpecialRegexEscape } from './scenesMethods';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFieldValue,
@@ -35,27 +44,15 @@ export const ExtensionPoints = {
   MetricInvestigation: 'grafana-lokiexplore-app/investigation/v1',
 } as const;
 
-/* eslint-disable sort/object-properties */
-export type LinkConfigs = Array<
-  {
-    targets: string | string[];
-    // eslint-disable-next-line deprecation/deprecation
-  } & Omit<PluginExtensionLinkConfig<PluginExtensionPanelContext>, 'extensionPointId' | 'type'>
->;
+export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
 
-// `plugin.addLink` requires these types; unfortunately, the correct `PluginExtensionAddedLinkConfig` type is not exported with 11.2.x
-// TODO: fix this type when we move to `@grafana/data` 11.3.x
 export const linkConfigs: LinkConfigs = [
   {
-    targets: PluginExtensionPoints.DashboardPanelMenu,
-    title,
-    description,
-    icon,
-    path: createAppUrl(),
-    configure: contextToLink,
-  },
-  {
-    targets: PluginExtensionPoints.ExploreToolbarAction,
+    targets: [
+      PluginExtensionPoints.DashboardPanelMenu,
+      PluginExtensionPoints.ExploreToolbarAction,
+      'grafana-metricsdrilldown-app/open-in-logs-drilldown/v1',
+    ],
     title,
     description,
     icon,
@@ -177,11 +174,14 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
     return undefined;
   }
   const lokiQuery = context.targets.find((target) => target.datasource?.type === 'loki') as LokiQuery | undefined;
-  if (!lokiQuery || !lokiQuery.datasource?.uid) {
+  const templateSrv = getTemplateSrv();
+  const dataSourceUid = templateSrv.replace(lokiQuery?.datasource?.uid, context.scopedVars);
+
+  if (!lokiQuery || !dataSourceUid) {
     return undefined;
   }
 
-  const expr = lokiQuery.expr;
+  const expr = templateSrv.replace(lokiQuery.expr, context.scopedVars, interpolateQueryExpr);
   const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
   const labelSelector = labelFilters.find((selector) => isOperatorInclusive(selector.operator));
 
@@ -197,7 +197,7 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   // sort `primary label` first
   labelFilters.sort((a) => (a.key === labelName ? -1 : 1));
 
-  let params = setUrlParameter(UrlParameters.DatasourceId, lokiQuery.datasource?.uid, new URLSearchParams());
+  let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUid, new URLSearchParams());
   params = setUrlParameter(UrlParameters.TimeRangeFrom, context.timeRange.from.valueOf().toString(), params);
   params = setUrlParameter(UrlParameters.TimeRangeTo, context.timeRange.to.valueOf().toString(), params);
   params = setUrlParamsFromLabelFilters(labelFilters, params);
@@ -284,4 +284,19 @@ export function escapeUrlPipeDelimiters(value: string | undefined): string {
 
 export function escapeURLDelimiters(value: string | undefined): string {
   return escapeUrlCommaDelimiters(escapeUrlPipeDelimiters(value));
+}
+
+// Copied from interpolateQueryExpr in loki datasource, as we can't return a promise in the link extension config we can't fetch the datasource from the datasource srv, so we're forced to duplicate this method
+export function interpolateQueryExpr(value: string | unknown[], variable: QueryVariableModel | CustomVariableModel) {
+  // if no multi or include all do not regexEscape
+  if (!variable.multi && !variable.includeAll) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return escapeLabelValueInExactSelector(value);
+  }
+
+  const escapedValues = lodashMap(value, lokiSpecialRegexEscape);
+  return escapedValues.join('|');
 }

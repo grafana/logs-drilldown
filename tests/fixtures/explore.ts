@@ -176,7 +176,7 @@ export class ExplorePage {
   }
 
   getAllPanelsLocator() {
-    return this.page.getByTestId(/data-testid Panel header/).getByTestId('header-container');
+    return this.page.getByTestId(/data-testid Panel header/).locator(this.getPanelHeaderLocator());
   }
 
   async assertNotLoading() {
@@ -185,7 +185,7 @@ export class ExplorePage {
   }
 
   async assertPanelsNotLoading() {
-    await expect(this.page.getByLabel('Panel loading bar')).toHaveCount(0);
+    await expect.poll(() => this.page.getByLabel('Panel loading bar').count()).toEqual(0);
     await this.page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
   }
 
@@ -214,6 +214,10 @@ export class ExplorePage {
   // This is flakey, panels won't show the state if the requests come back in < 75ms
   async assertPanelsLoading() {
     await expect(this.page.getByLabel('Panel loading bar').first()).toBeVisible();
+  }
+
+  getPanelHeaderLocator() {
+    return this.page.getByTestId('data-testid header-container');
   }
 
   getExploreCodeQueryLocator() {
@@ -400,8 +404,14 @@ export class ExplorePage {
     await expect(this.getOperatorLocator(operator)).toBeVisible();
     // Select operator
     await this.getOperatorLocator(operator).click();
+    // Assert operator is no longer visible
+    await expect(this.getOperatorLocator(operator)).toHaveCount(0);
+    // Wait for loading to be done
+    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Enter custom value
     await this.page.keyboard.type(text);
+    // Wait for loading to go away
+    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Need to scroll to the bottom of the list
     await this.page.keyboard.press('ArrowUp');
     // Select custom value

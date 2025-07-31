@@ -1,5 +1,87 @@
 # Changelog
 
+#### 1.0.23
+
+##### Chores
+
+*  prevent search undefined error (#1444) (96b3f2b4)
+*  track panels on activation (#1439) (68e9d7e9)
+*  add tracking on go to explore button used in embedded UI (#1438) (767477a5)
+*  refactor root navigation component out (#1402) (da7b3daf)
+* **analytics:**  on query event (#1440) (24bce571)
+* **deps:**  bump golang.org/x/oauth2 (#1434) (0c0789f9)
+* **JSON:**
+  *  refactor JSON methods (#1431) (2db009c6)
+  *  only calculate line filter matches if highlighting is enabled (#1416) (f8a1393f)
+
+##### New Features
+
+* **analytics:**  report viz init once (#1443) (b6f59ccc)
+* **assistant:**  add `Explain in Assistant` panel option (#1426) (4bb4a1be)
+* **table:**
+  *  column width estimator and toggle logsPanelControls (#1422) (12930739)
+  *  core table unification (#1354) (823926d7)
+*  implement ux feedback (#1429) (5238f67b)
+* **LogsPanel:**  exclude panels from interactions and add custom patterns key (#1432) (7d7ab85b)
+* **JSON:**
+  *  links (#1420) (0ae7cd2e)
+  *  hover & selected styles (#1418) (9d654c87)
+  *  share link to line (#1406) (4ab18e92)
+  *  Add detected_level button (#1407) (2bcce8f6)
+  *  add copy log text button (#1393) (9beae02c)
+  *  line wrap (#1388) (d24cc109)
+  *  line filter and syntax highlighting (#1382) (767f8c15)
+
+##### Bug Fixes
+
+* **ad-hoc filters:**  fix duplicate filters (#1430) (892c238b)
+* **JSON:**
+  *  tooltip copy not updating (#1415) (20da3bab)
+  *  selected buttons not showing active style (#1413) (28791c3b)
+  *  sort dataframe before transform (#1386) (8b51090c)
+* **LogsPanelScene:**  pass setDisplayedFields (#1421) (c77f0435)
+* **LogsPanel:**  visible range and panel improvements (#1410) (616ef849)
+* **links:**  interpolate expression and datasource variable (#1411) (b3840645)
+* **table:**  fix overflow with docked nav (#1403) (e51dcdcc)
+
+
+#### 1.0.22
+
+##### Chores
+
+* **eslint:**  disable sort/object-properties, remove recommendations (#1392) (c7941852)
+*  bump @grafana/create-plugin configuration to 5.25.1 (#1365) (65e6e53d)
+*  whitelist grafana-plugins-platform-bot[bot] (#1383) (ac0f59d7)
+
+##### New Features
+
+*  enable Logs Drilldown link in Metrics Drilldown (#1389) (8fb4422e)
+* **LogsPanel:**  set details mode (#1391) (d1befe8c)
+
+##### Bug Fixes
+
+*  limit patterns to 500 (#1390) (e2abf9a7)
+
+
+#### 1.0.21
+
+##### New Features
+
+* **JSON:**  support labels/metadata filtering in JSON viz (#1370) (2de9c052)
+* **Embbedding:**  open embedding API for default line filters (#1376) (0d866b88)
+* **patterns:**  allow disabling patterns in Logs Drilldown (#1361) (76bd7196)
+*  calculate sparsity on errored/partial data (#1358) (e3bcb5ac)
+
+##### Bug Fixes
+
+* **JSON:**  detected fields not always getting called on activation (#1368) (987874cc)
+*  dont run volume query when collapse (#1363) (f29bc32a)
+
+##### Other Changes
+
+*  Publish each commit to dev + ops, auto-merge dev and ops PRs (#1375) (a25eb8c6)
+
+
 #### 1.0.20
 
 ##### Chores

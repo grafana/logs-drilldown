@@ -6,11 +6,13 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
+import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
-import { getDataSourceName, getServiceName } from './variableGetters';
-import { SERVICE_NAME } from './variables';
+import { getRouteParams } from './routing';
+import { getDataSourceName } from './variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -196,9 +198,25 @@ export function setSortByPreference(target: string, sortBy: string, direction: s
 }
 
 function getExplorationPrefix(sceneRef: SceneObject) {
+  const { labelName, labelValue } = getRouteParams(sceneRef);
+  return getExplorationPrefixForLabelValue(sceneRef, labelName, labelValue);
+}
+
+function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
-  const serviceName = getServiceName(sceneRef);
-  return `${ds}.${serviceName}`;
+  if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
+    return `${ds}.${replaceSlash(value)}`;
+  }
+  return `${ds}.${label}.${replaceSlash(value)}`;
+}
+
+export function getDisplayedFieldsForLabelValue(sceneRef: SceneObject, label: string, value: string): string[] {
+  const PREFIX = getExplorationPrefixForLabelValue(sceneRef, label, value);
+  const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
+  if (storedFields) {
+    return unknownToStrings(JSON.parse(storedFields)) ?? [];
+  }
+  return [];
 }
 
 export function getDisplayedFields(sceneRef: SceneObject): string[] {
@@ -231,6 +249,7 @@ export function setDedupStrategy(sceneRef: SceneObject, strategy: LogsDedupStrat
 
 // Log panel options
 export const LOG_OPTIONS_LOCALSTORAGE_KEY = `grafana.explore.logs`;
+export const LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY = `grafana.explore.logs.patterns`;
 export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   // TODO: narrow stored value
@@ -242,7 +261,7 @@ export function getBooleanLogOption(option: keyof Options, defaultValue: boolean
   if (localStorageResult === null) {
     return defaultValue;
   }
-  return localStorageResult === '' || localStorageResult === 'false' ? false : true;
+  return !(localStorageResult === '' || localStorageResult === 'false');
 }
 
 export function setLogOption(option: keyof Options, value: string | number | boolean) {
@@ -300,6 +319,36 @@ const JSON_PARSER_PROPS_DEBUG_KEY = `${pluginJson.id}.jsonParser.visible`;
 export function getJsonParserVariableVisibility(): boolean {
   // localStorage.setItem('grafana-lokiexplore-app.jsonParser.visible', true)
   return !!localStorage.getItem(JSON_PARSER_PROPS_DEBUG_KEY);
+}
+
+// JSON viz metadata node visibility
+const JSON_VIZ_METADATA_VISIBLE_KEY = `${pluginJson.id}.jsonViz.metadata`;
+export function getJSONMetadataState(): boolean {
+  return !!localStorage.getItem(JSON_VIZ_METADATA_VISIBLE_KEY);
+}
+
+export function setJSONMetadataVisibility(state: boolean) {
+  localStorage.setItem(JSON_VIZ_METADATA_VISIBLE_KEY, state ? 'true' : '');
+}
+
+// JSON viz metadata node visibility
+const JSON_VIZ_HIGHLIGHT_VISIBLE_KEY = `${pluginJson.id}.jsonViz.highlight`;
+export function getJSONHighlightState(): boolean {
+  return !!localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
+}
+
+export function setJSONHighlightVisibility(state: boolean) {
+  localStorage.setItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY, state ? 'true' : '');
+}
+
+// JSON viz labels node visibility
+const JSON_VIZ_LABELS_VISIBLE_KEY = `${pluginJson.id}.jsonViz.labels`;
+export function getJSONLabelsState(): boolean {
+  return !!localStorage.getItem(JSON_VIZ_LABELS_VISIBLE_KEY);
+}
+
+export function setJSONLabelsVisibility(state: boolean) {
+  localStorage.setItem(JSON_VIZ_LABELS_VISIBLE_KEY, state ? 'true' : '');
 }
 
 // Line filter options

@@ -284,6 +284,7 @@ maxbrunsfeld
 mdns
 memberlist
 mergo
+metricsdrilldown
 miekg
 MINALERTLEVEL
 mistifyio
@@ -532,3 +533,5 @@ otelcol
 patsubst
 shellcheck
 radical
+rerooted
+nodetype

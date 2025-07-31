@@ -171,9 +171,13 @@ export function buildServicesRoute(extraQueryParams?: UrlQueryMap): UrlQueryMap 
 }
 
 export function getRouteParams(sceneObject: SceneObject) {
-  let breakdownLabel, labelName, labelValue;
-  const serviceScene = sceneGraph.getAncestor(sceneObject, ServiceScene);
-  if (serviceScene.state.embedded) {
+  let breakdownLabel, labelName, labelValue, serviceScene;
+  try {
+    serviceScene = sceneGraph.getAncestor(sceneObject, ServiceScene);
+  } catch (e) {
+    serviceScene = sceneGraph.findDescendents(sceneObject, ServiceScene)[0];
+  }
+  if (serviceScene && serviceScene.state.embedded) {
     ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromEmbeddedScene(serviceScene));
   } else {
     ({ breakdownLabel, labelName, labelValue } = getPrimaryLabelFromUrl());

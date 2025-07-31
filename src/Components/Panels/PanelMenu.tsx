@@ -3,11 +3,12 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
+import { createContext, isAssistantAvailable, ItemDataType, openAssistant } from '@grafana/assistant';
 import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
 // @ts-expect-error
-import { getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
+import { getDataSourceSrv, getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -27,7 +28,7 @@ import { ExtensionPoints } from '../../services/extensions/links';
 import { logger } from '../../services/logger';
 import { setLevelColorOverrides } from '../../services/panel';
 import { interpolateExpression } from '../../services/query';
-import { findObjectOfType, getQueryRunnerFromChildren } from '../../services/scenes';
+import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
@@ -140,6 +141,45 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       });
 
       this._subs.add(
+        isAssistantAvailable().subscribe(async (isAvailable) => {
+          if (isAvailable) {
+            const datasource = await getDataSourceSrv().get(getDataSource(this));
+            this.addItem({
+              text: '',
+              type: 'divider',
+            });
+            this.addItem({
+              text: 'AI',
+              type: 'group',
+            });
+            this.addItem({
+              iconClassName: 'ai-sparkle',
+              text: 'Explain in Assistant',
+              onClick: () => {
+                openAssistant({
+                  prompt:
+                    'Help me understand this query and provide a summary of the data. Be concise and to the point.',
+                  context: [
+                    createContext(ItemDataType.Datasource, {
+                      datasourceName: datasource.name,
+                      datasourceUid: datasource.uid,
+                      datasourceType: datasource.type,
+                    }),
+                    createContext(ItemDataType.Structured, {
+                      title: 'Logs Drilldown Query',
+                      data: {
+                        query: getQueryExpression(this),
+                      },
+                    }),
+                  ],
+                });
+              },
+            });
+          }
+        })
+      );
+
+      this._subs.add(
         this.state.investigationsButton?.subscribeToState(async () => {
           await subscribeToAddToInvestigation(this);
         })
@@ -247,8 +287,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   });
 }
 
-export const getExploreLink = (sceneRef: SceneObject) => {
-  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+const getQueryExpression = (sceneRef: SceneObject) => {
   const $data = sceneGraph.getData(sceneRef);
   let queryRunner = $data instanceof SceneQueryRunner ? $data : getQueryRunnerFromChildren($data)[0];
 
@@ -273,7 +312,12 @@ export const getExploreLink = (sceneRef: SceneObject) => {
     }
   }
   const uninterpolatedExpr: string | undefined = queryRunner.state.queries[0].expr;
-  const expr = interpolateExpression(sceneRef, uninterpolatedExpr);
+  return interpolateExpression(sceneRef, uninterpolatedExpr);
+};
+
+export const getExploreLink = (sceneRef: SceneObject) => {
+  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+  const expr = getQueryExpression(sceneRef);
 
   return onExploreLinkClick(indexScene, expr);
 };

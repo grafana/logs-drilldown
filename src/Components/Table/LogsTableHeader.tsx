@@ -107,7 +107,7 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
                 aria-label={'Show log labels'}
                 onClick={onLogTextToggle}
                 className={styles.logLineButton}
-                name={'brackets-curly'}
+                name={'tag-alt'}
                 size={'md'}
               />
             ) : (

@@ -2,7 +2,6 @@
   "extends": [
     "./.config/.eslintrc",
     "plugin:jsx-a11y/strict",
-    "plugin:sort/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript"
@@ -28,6 +27,7 @@
         "separator": "\n"
       }
     ],
+    "sort/object-properties": "off",
     "sort/type-properties": "error",
     "sort/string-unions": "error",
     "sort/exports": "off"
@@ -37,7 +37,8 @@
       "files": ["src/**/*.test.{ts,tsx}"],
       // Allow location to be used in test files
       "rules": {
-        "no-restricted-globals": 0
+        "no-restricted-globals": 0,
+        "react/jsx-key": [1, { "checkFragmentShorthand": true }]
       }
     }
   ]

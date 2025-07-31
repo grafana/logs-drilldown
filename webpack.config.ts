@@ -2,6 +2,8 @@ import type { Configuration } from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 import { merge } from 'webpack-merge';
 
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 import grafanaConfig from './.config/webpack/webpack.config';
 
 const config = async (env: any): Promise<Configuration> => {
@@ -12,6 +14,7 @@ const config = async (env: any): Promise<Configuration> => {
       asyncWebAssembly: true,
     },
     plugins: [
+      // new BundleAnalyzerPlugin(),
       new LiveReloadPlugin({
         appendScriptTag: true,
         delay: 1000,

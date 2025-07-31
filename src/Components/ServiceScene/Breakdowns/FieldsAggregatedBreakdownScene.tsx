@@ -49,13 +49,14 @@ import {
   getSceneQueryRunner,
   setGaugeUnitOverrides,
   setLevelColorOverrides,
+  setPanelNotices,
 } from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
 import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
-  getJsonFieldsVariable,
+  getJSONFieldsVariable,
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
@@ -300,6 +301,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
               this.setState({ showErrorPanelToggle: true });
             }
             this.updateFieldCount();
+          } else {
+            setPanelNotices(result, panel);
           }
         })
       );
@@ -505,7 +508,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     fieldType?: DetectedFieldType
   ) {
     const fieldsVariable = getFieldsVariable(this);
-    const jsonVariable = getJsonFieldsVariable(this);
+    const jsonVariable = getJSONFieldsVariable(this);
     const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
     const query = buildDataQuery(queryString, {
       legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
@@ -531,7 +534,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   private getCardinalityQueryRunnerForPanel(optionValue: string, detectedFieldsFrame: DataFrame | undefined) {
     const fieldsVariable = getFieldsVariable(this);
-    const jsonVariable = getJsonFieldsVariable(this);
+    const jsonVariable = getJSONFieldsVariable(this);
     const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
     const query = buildDataQuery(queryString, {
       legendFormat: `{{${optionValue}}}`,

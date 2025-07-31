@@ -10,7 +10,6 @@ import {
   dateTime,
   GrafanaTheme2,
   LoadingState,
-  TimeRange,
 } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 import {
@@ -77,7 +76,12 @@ import {
   unwrapWildcardSearch,
   wrapWildcardSearch,
 } from 'services/query';
-import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
+import {
+  addTabToLocalStorage,
+  getDisplayedFieldsForLabelValue,
+  getFavoriteLabelValuesFromStorage,
+  getServiceSelectionPageCount,
+} from 'services/store';
 import {
   EXPLORATION_DS,
   LEVEL_VARIABLE_VALUE,
@@ -443,15 +447,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   buildServiceLayout(
     primaryLabelName: string,
     primaryLabelValue: string,
-    timeRange: TimeRange,
     serviceLabelVar: CustomConstantVariable,
     primaryLabelVar: AdHocFiltersVariable,
     datasourceVar: DataSourceVariable
   ) {
-    let splitDuration;
-    if (timeRange.to.diff(timeRange.from, 'hours') >= 4 && timeRange.to.diff(timeRange.from, 'hours') <= 26) {
-      splitDuration = '2h';
-    }
     const headerActions = [];
 
     if (this.isAggregatedMetricsActive()) {
@@ -474,7 +473,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             buildDataQuery(this.getMetricExpression(primaryLabelValue, serviceLabelVar, primaryLabelVar), {
               legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
               refId: `ts-${primaryLabelValue}`,
-              splitDuration,
               step: serviceLabelVar.state.value === AGGREGATED_SERVICE_NAME ? '10s' : undefined,
             }),
           ],
@@ -568,8 +566,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setTitle(labelValue)
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
-        // @ts-expect-error Requires Grafana 12.2
         .setOption('fontSize', 'small')
+        .setOption('displayedFields', getDisplayedFieldsForLabelValue(this, labelName, labelValue))
+        // @ts-expect-error Requires Grafana 12.2
+        .setOption('noInteractions', true)
         .build(),
     });
 
@@ -682,6 +682,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   private subscribeToDatasource() {
     this._subs.add(
       getDataSourceVariable(this).subscribeToState((newState) => {
+        this.setState({
+          body: new SceneCSSGridLayout({ children: [] }),
+        });
         this.addDatasourceChangeToBrowserHistory(newState.value.toString());
         this.runVolumeQuery();
       })
@@ -933,7 +936,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       // If we have services to query, build the layout with the services. Children is an array of layouts for each service (1 row with 2 columns - timeseries and logs panel)
       const newChildren: SceneCSSGridItem[] = [];
       const existingChildren = this.getGridItems();
-      const timeRange = sceneGraph.getTimeRange(this).state.value;
       const aggregatedMetricsVariable = getAggregatedMetricsVariable(this);
       const primaryLabelVar = getServiceSelectionPrimaryLabel(this);
       const datasourceVariable = getDataSourceVariable(this);
@@ -962,7 +964,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           const newChildTs = this.buildServiceLayout(
             selectedTab,
             primaryLabelValue,
-            timeRange,
             aggregatedMetricsVariable,
             primaryLabelVar,
             datasourceVariable

@@ -34,7 +34,11 @@ export default defineConfig<PluginOptions>({
     {
       dependencies: ['auth'],
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin.json' },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/admin.json',
+        permissions: ['clipboard-read', 'clipboard-write'],
+      },
     },
   ],
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */

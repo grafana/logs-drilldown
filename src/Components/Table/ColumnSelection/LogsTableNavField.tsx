@@ -32,24 +32,11 @@ export function LogsTableNavField(props: {
           {props.showCount && (
             <div className={styles.labelCount}>
               <div>{props.labels[props.label]?.percentOfLinesWithLabel}%</div>
-              <div>
+              <div className={styles.valueCount}>
                 {props.labels[props.label]?.cardinality}{' '}
                 {props.labels[props.label]?.cardinality === 1 ? 'value' : 'values'}
               </div>
             </div>
-          )}
-          {props.columnWidthMap && props.setColumnWidthMap && props.columnWidthMap?.[props.label] !== undefined && (
-            <button
-              onClick={() => {
-                const { [props.label]: omit, ...map } = { ...props.columnWidthMap };
-                props.setColumnWidthMap?.(map);
-              }}
-              title={'Clear column width override'}
-              className={styles.customWidthWrap}
-            >
-              Reset column width
-              <Icon name={'x'} />
-            </button>
           )}
         </div>
         {props.draggable && (
@@ -106,6 +93,9 @@ function getStyles(theme: GrafanaTheme2) {
       marginLeft: theme.spacing(0.5),
       marginRight: theme.spacing(0.5),
       opacity: 0.6,
+    }),
+    valueCount: css({
+      textWrap: 'nowrap',
     }),
   };
 }

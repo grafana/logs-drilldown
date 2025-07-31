@@ -43,7 +43,7 @@ test.describe('explore services page', () => {
       await page.keyboard.press('Escape');
 
       // Assert the first is nginx, or we might click before it's done loading
-      await expect(page.getByTestId('header-container').first()).toHaveText('nginxIncludeShow logs');
+      await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxIncludeShow logs');
       await explorePage.addServiceName();
       await explorePage.clickShowLogs();
 
@@ -57,10 +57,10 @@ test.describe('explore services page', () => {
       await page.getByLabel('Clear value').click();
 
       // Assert there is more then one result now
-      await expect(page.getByTestId('header-container').nth(1)).toBeVisible();
+      await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
 
       // Assert that the first element is nginx now
-      await expect(page.getByTestId('header-container').first()).toHaveText('nginxRemove');
+      await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxRemove');
       await explorePage.servicesSearch.click();
 
       // Assert there is more than one element in the dropdown
@@ -210,7 +210,7 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-ingester');
 
-      const tempoIngesterPanelHeader = page.getByTestId('header-container');
+      const tempoIngesterPanelHeader = explorePage.getPanelHeaderLocator();
       const tempoIngesterIncludeBtn = tempoIngesterPanelHeader.getByTestId('data-testid button-filter-include');
       await expect(tempoIngesterIncludeBtn).toHaveCount(1);
       await page.keyboard.press('Escape');
@@ -233,7 +233,7 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-d');
 
-      const tempoDistributorPanelHeader = page.getByTestId('header-container');
+      const tempoDistributorPanelHeader = explorePage.getPanelHeaderLocator();
       const tempoDistributorIncludeBtn = tempoDistributorPanelHeader.getByTestId('data-testid button-filter-include');
       await expect(tempoDistributorIncludeBtn).toHaveCount(1);
       await page.keyboard.press('Escape');
@@ -254,7 +254,7 @@ test.describe('explore services page', () => {
 
       // assert we navigated
       await expect(
-        page.getByTestId(/data-testid Panel header Log volume/).getByTestId('header-container')
+        page.getByTestId(/data-testid Panel header Log volume/).locator(explorePage.getPanelHeaderLocator())
       ).toBeVisible();
 
       // assert the filters are still visible in the combobox
@@ -317,7 +317,9 @@ test.describe('explore services page', () => {
       });
 
       test('refreshing time range should request panel data once', async ({ page }) => {
-        await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
+        await expect.poll(() => page.getByText('Loading tabs').count()).toEqual(0);
+        await explorePage.assertPanelsNotLoading();
+
         expect(logsVolumeCount).toEqual(1);
         expect(logsQueryCount).toEqual(4);
 
@@ -340,8 +342,10 @@ test.describe('explore services page', () => {
       // Since the addition of the runtime datasource, the query doesn't contain the datasource, and won't re-run when the datasource is changed, as such we need to manually re-run volume queries when the service selection scene is activated or users could be presented with an invalid set of services
       // This isn't ideal as we won't take advantage of being able to use the cached volume result for users that did not change the datasource any longer
       test('navigating back will re-run volume query', async ({ page }) => {
+        await expect.poll(() => page.getByText('Loading tabs').count()).toEqual(0);
+        await explorePage.assertPanelsNotLoading();
+
         const removeVariableBtn = page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel);
-        await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
         await expect.poll(() => logsVolumeCount).toEqual(1);
         await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(4);
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();

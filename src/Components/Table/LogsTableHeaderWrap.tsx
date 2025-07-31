@@ -8,7 +8,6 @@ import { Icon } from '@grafana/ui';
 import { getBodyName } from '../../services/logsFrame';
 import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
-import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
 import { LogsTableHeader, LogsTableHeaderProps } from 'Components/Table/LogsTableHeader';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
 import { useSharedStyles } from 'styles/shared-styles';
@@ -17,14 +16,12 @@ export function LogsTableHeaderWrap(props: {
   autoColumnWidths?: () => void;
   headerProps: LogsTableHeaderProps;
 
-  openColumnManagementDrawer: () => void;
   // Moves the current column forward or backward one index
   slideLeft?: (cols: FieldNameMetaStore) => void;
 
   slideRight?: (cols: FieldNameMetaStore) => void;
 }) {
-  const { setHeaderMenuActive } = useTableHeaderContext();
-  const { bodyState, columns, setBodyState, setColumns } = useTableColumnContext();
+  const { bodyState, columns, setBodyState, setColumns, columnWidthMap, setColumnWidthMap } = useTableColumnContext();
   const { logsFrame } = useQueryContext();
   const styles = getStyles();
   const { linkButton } = useSharedStyles();
@@ -50,26 +47,20 @@ export function LogsTableHeaderWrap(props: {
       pendingColumnState[field.name].active = false;
       pendingColumnState[field.name].index = undefined;
       setColumns(pendingColumnState);
+
+      // Remove the column width from columnWidthMap when hiding the column
+      if (columnWidthMap[field.name] !== undefined) {
+        const { [field.name]: omit, ...updatedColumnWidthMap } = columnWidthMap;
+        setColumnWidthMap(updatedColumnWidthMap);
+      }
     },
-    [columns, setColumns]
+    [columns, setColumns, columnWidthMap, setColumnWidthMap]
   );
 
   const isBodyField = props.headerProps.field.name === getBodyName(logsFrame);
 
   return (
     <LogsTableHeader {...props.headerProps}>
-      <div className={styles.linkWrap}>
-        <button
-          className={cx(linkButton, styles.link)}
-          onClick={() => {
-            props.openColumnManagementDrawer();
-            setHeaderMenuActive(false);
-          }}
-        >
-          <Icon className={styles.icon} name={'columns'} size={'md'} />
-          Manage columns
-        </button>
-      </div>
       <div className={styles.linkWrap}>
         <button className={cx(linkButton, styles.link)} onClick={() => hideColumn(props.headerProps.field)}>
           <svg

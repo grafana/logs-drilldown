@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
@@ -32,7 +33,7 @@ import { CustomConstantVariable } from '../../services/CustomConstantVariable';
 import { PageSlugs } from '../../services/enums';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
-import { FilterOp } from '../../services/filterTypes';
+import { FilterOp, LineFilterType } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
@@ -78,6 +79,8 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { updateAssistantContext } from 'services/assistant';
+import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
   getLineFormatExpressionBuilder,
@@ -124,6 +127,7 @@ interface EmbeddedIndexSceneConstructor {
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, { keys: ['patterns'] });
+  private assistantInitialized = false;
 
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
     const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
@@ -137,7 +141,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       datasourceUid,
       state?.readOnlyLabelFilters,
       state.embedded,
-      state.embedderName
+      state.embedderName,
+      state.defaultLineFilters
     );
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -282,6 +287,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataService().setEmbedded(this.state.embedded);
     }
 
+    this._subs.add(
+      isAssistantAvailable().subscribe((isAvailable) => {
+        if (isAvailable && !this.assistantInitialized) {
+          this.provideAssistantContext();
+        }
+      })
+    );
+
     return () => {
       clearKeyBindings();
     };
@@ -301,6 +314,22 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
+  }
+
+  private provideAssistantContext() {
+    const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
+
+    this._subs.add(
+      getDataSourceVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this._subs.add(
+      getLabelsVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this.assistantInitialized = true;
   }
 
   private subscribeToCombinedFieldsVariable = (
@@ -605,7 +634,8 @@ function getVariableSet(
   initialDatasourceUid: string,
   readOnlyLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  embedderName?: string
+  embedderName?: string,
+  defaultLineFilters?: LineFilterType[]
 ) {
   const labelVariable = new ReadOnlyAdHocFiltersVariable({
     allowCustomValue: true,
@@ -681,6 +711,7 @@ function getVariableSet(
 
   const lineFiltersVariable = new AdHocFiltersVariable({
     expressionBuilder: renderLogQLLineFilter,
+    filters: defaultLineFilters ?? [],
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     hide: VariableHide.hideVariable,

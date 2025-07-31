@@ -3,28 +3,45 @@ import React, { useCallback } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 interface Props {
+  disabledLineState?: boolean;
   lineState?: LogLineState;
   onLineStateClick?(): void;
-  onManageColumnsClick?(): void;
   onScrollToBottomClick?(): void;
   onScrollToTopClick?(): void;
   onSortOrderChange(newOrder: LogsSortOrder): void;
+  onToggleHighlightClick?(visible: boolean): void;
+  onToggleLabelsClick?(visible: boolean): void;
+  onToggleStructuredMetadataClick?(visible: boolean): void;
+  onWrapLogMessageClick?(wrap: boolean): void;
+  showHighlight?: boolean;
+  showLabels?: boolean;
+  showMetadata?: boolean;
   sortOrder: LogsSortOrder;
+  wrapLogMessage?: boolean;
 }
 
 export const LogListControls = ({
+  disabledLineState,
   lineState,
   onLineStateClick,
-  onManageColumnsClick,
   onScrollToBottomClick,
   onScrollToTopClick,
   onSortOrderChange,
+  onToggleHighlightClick,
+  onToggleLabelsClick,
+  onToggleStructuredMetadataClick,
+  onWrapLogMessageClick,
+  showHighlight,
+  showLabels,
+  showMetadata,
   sortOrder,
+  wrapLogMessage,
 }: Props) => {
   const styles = useStyles2(getStyles);
 
@@ -51,18 +68,54 @@ export const LogListControls = ({
         tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
         size="lg"
       />
-      {onManageColumnsClick && (
+      {wrapLogMessage !== undefined && onWrapLogMessageClick && (
         <IconButton
-          name="columns"
-          className={styles.controlButton}
-          onClick={onManageColumnsClick}
-          tooltip={'Manage columns'}
+          name="wrap-text"
+          className={wrapLogMessage ? styles.controlButtonActive : styles.controlButton}
+          aria-pressed={wrapLogMessage}
+          onClick={() => onWrapLogMessageClick(!wrapLogMessage)}
+          tooltip={
+            wrapLogMessage
+              ? t('logs.logs-controls.unwrap-lines', 'Unwrap lines')
+              : t('logs.logs-controls.wrap-lines', 'Wrap lines')
+          }
+          size="lg"
+        />
+      )}
+      {showMetadata !== undefined && onToggleStructuredMetadataClick && (
+        <IconButton
+          name="document-info"
+          aria-pressed={showMetadata}
+          className={showMetadata ? styles.controlButtonActive : styles.controlButton}
+          onClick={() => onToggleStructuredMetadataClick(!showMetadata)}
+          tooltip={showMetadata ? 'Hide structured metadata' : 'Show structured metadata'}
+          size="lg"
+        />
+      )}
+      {showLabels !== undefined && onToggleLabelsClick && (
+        <IconButton
+          name="tag-alt"
+          aria-pressed={showLabels}
+          className={showLabels ? styles.controlButtonActive : styles.controlButton}
+          onClick={() => onToggleLabelsClick(!showLabels)}
+          tooltip={showLabels ? 'Hide Labels' : 'Show labels'}
+          size="lg"
+        />
+      )}
+      {showHighlight !== undefined && onToggleHighlightClick && (
+        <IconButton
+          name="brackets-curly"
+          aria-pressed={showHighlight}
+          className={showHighlight ? styles.controlButtonActive : styles.controlButton}
+          onClick={() => onToggleHighlightClick(!showHighlight)}
+          tooltip={showHighlight ? 'Disable highlighting' : 'Enable highlighting'}
           size="lg"
         />
       )}
       {onLineStateClick && lineState && (
         <IconButton
-          name={lineState === LogLineState.text ? 'brackets-curly' : 'text-fields'}
+          disabled={disabledLineState}
+          name={lineState === LogLineState.text ? 'tag-alt' : 'text-fields'}
           className={styles.controlButton}
           onClick={onLineStateClick}
           tooltip={lineState === LogLineState.text ? 'Show labels' : 'Show log text'}
@@ -87,6 +140,22 @@ export const LogListControls = ({
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     controlButton: css({
+      color: theme.colors.text.secondary,
+      height: theme.spacing(2),
+      margin: 0,
+    }),
+    controlButtonActive: css({
+      '&:after': {
+        backgroundImage: theme.colors.gradients.brandHorizontal,
+        borderRadius: theme.shape.radius.default,
+        bottom: theme.spacing(-1),
+        content: '" "',
+        display: 'block',
+        height: 2,
+        opacity: 1,
+        position: 'absolute',
+        width: '95%',
+      },
       color: theme.colors.text.secondary,
       height: theme.spacing(2),
       margin: 0,

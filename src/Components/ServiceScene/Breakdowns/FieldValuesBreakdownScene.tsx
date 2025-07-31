@@ -34,7 +34,7 @@ import { getSortByPreference } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
-  getJsonFieldsVariable,
+  getJSONFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getLineFiltersVariable,
@@ -140,7 +140,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     const tagKey = this.getTagKey();
     const fieldsVariable = getFieldsVariable(this);
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
-    const jsonVariable = getJsonFieldsVariable(this);
+    const jsonVariable = getJSONFieldsVariable(this);
     const queryString = buildFieldsQueryString(tagKey, fieldsVariable, detectedFieldsFrame, jsonVariable);
     // Manually interpolate query so we don't pollute the variable interpolation for other queries
     const { filterExpression, variableName } = this.removeFieldLabelFromVariableInterpolation();

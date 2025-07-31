@@ -29,7 +29,7 @@ export function buildLogsExplorationFromState({
 
   initRuntimeDs();
 
-  const { labelFilters } = getMatcherFromQuery(query);
+  const { labelFilters, lineFilters } = getMatcherFromQuery(query);
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
     key: filter.key,
@@ -40,6 +40,7 @@ export function buildLogsExplorationFromState({
   return new IndexScene({
     ...state,
     $timeRange,
+    defaultLineFilters: lineFilters,
     embedded: true,
     readOnlyLabelFilters: initialLabels,
   });

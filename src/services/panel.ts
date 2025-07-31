@@ -16,6 +16,7 @@ import {
   PanelBuilders,
   QueryRunnerState,
   SceneDataProvider,
+  SceneDataProviderResult,
   SceneDataTransformer,
   SceneObject,
   SceneQueryRunner,
@@ -41,6 +42,15 @@ export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
 export const ERROR_LEVEL_FIELD_NAME_REGEX = /^error$/i;
 export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
+
+export const logsLabelLevelsMatches: Record<string, RegExp> = {
+  'log-token-info': INFO_LEVEL_FIELD_NAME_REGEX,
+  'log-token-debug': DEBUG_LEVEL_FIELD_NAME_REGEX,
+  'log-token-warning': WARNING_LEVEL_FIELD_NAME_REGEX,
+  'log-token-error': ERROR_LEVEL_FIELD_NAME_REGEX,
+  'log-token-critical': CRITICAL_LEVEL_FIELD_NAME_REGEX,
+  'log-token-unknown': UNKNOWN_LEVEL_FIELD_NAME_REGEX,
+};
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
   overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
@@ -267,10 +277,11 @@ export function sortLevelTransformation() {
   };
 }
 
-export function getResourceQueryRunner(queries: LokiQuery[]) {
+export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partial<QueryRunnerState>) {
   return new SceneQueryRunner({
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: queries,
+    ...queryRunnerOptions,
   });
 }
 
@@ -342,7 +353,23 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
+
+export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel<{}, {}>) {
+  const noticesInclusion = /maximum number of series/;
+  const frameWithNotice = result.data.series.find(
+    (df) => df.meta?.notices?.length && df.meta?.notices.some((notice) => notice.text.match(noticesInclusion))
+  );
+  if (frameWithNotice && frameWithNotice.meta?.notices?.length) {
+    panel.setState({
+      _pluginLoadError: frameWithNotice.meta?.notices.find((notice) => notice.text.match(noticesInclusion))?.text,
+    });
+  } else if (panel.state._pluginLoadError) {
+    panel.setState({
+      _pluginLoadError: undefined,
+    });
+  }
+}
+
 export const logsControlsSupported =
-  // @ts-expect-error Requires Grafana 12.1
   config.featureToggles.logsPanelControls &&
   (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));

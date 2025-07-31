@@ -1,0 +1,16 @@
+module.exports = {
+  marked: jest.fn((text) => text),
+  parse: jest.fn((text) => text),
+  parseInline: jest.fn((text) => text),
+  setOptions: jest.fn(),
+  getDefaults: jest.fn(() => ({})),
+  use: jest.fn(),
+  walkTokens: jest.fn(),
+  Parser: jest.fn(),
+  Renderer: jest.fn(),
+  TextRenderer: jest.fn(),
+  Lexer: jest.fn(),
+  Tokenizer: jest.fn(),
+  Hooks: jest.fn(),
+  defaults: {},
+};
