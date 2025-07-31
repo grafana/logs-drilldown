@@ -48,7 +48,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
-    const styles = useStyles2((theme) => getStyles(theme, height));
+    const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
 
     return (
       <div
@@ -147,7 +147,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   };
 }
 
-// @todo remove hardcoded height: https://github.com/grafana/grafana/issues/103795
 function getStyles(theme: GrafanaTheme2, height: number) {
   return {
     controlsContainer: css({
