@@ -434,6 +434,18 @@ test.describe('explore services breakdown page', () => {
     }
   });
 
+  test('should show warning when partial results are returned', async ({ page }) => {
+    explorePage.blockAllQueriesExcept({
+      refIds: ['ts'],
+    });
+    await explorePage.goToFieldsTab();
+    await expect(
+      page.getByTestId('data-testid Panel header ts').getByTestId('data-testid Panel status error')
+    ).toBeVisible();
+    await page.getByRole('link', { name: 'Select ts' }).click();
+    await expect(page.getByTestId('data-testid Panel status error')).toBeVisible();
+  });
+
   test('should search for tenant field, changing sort order updates value breakdown position', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],

@@ -16,6 +16,7 @@ import {
   PanelBuilders,
   QueryRunnerState,
   SceneDataProvider,
+  SceneDataProviderResult,
   SceneDataTransformer,
   SceneObject,
   SceneQueryRunner,
@@ -347,6 +348,23 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
+
+export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel<{}, {}>) {
+  const noticesInclusion = /maximum number of series/;
+  const frameWithNotice = result.data.series.find(
+    (df) => df.meta?.notices?.length && df.meta?.notices.some((notice) => notice.text.match(noticesInclusion))
+  );
+  if (frameWithNotice && frameWithNotice.meta?.notices?.length) {
+    panel.setState({
+      _pluginLoadError: frameWithNotice.meta?.notices.find((notice) => notice.text.match(noticesInclusion))?.text,
+    });
+  } else if (panel.state._pluginLoadError) {
+    panel.setState({
+      _pluginLoadError: undefined,
+    });
+  }
+}
+
 export const logsControlsSupported =
   config.featureToggles.logsPanelControls &&
   (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));

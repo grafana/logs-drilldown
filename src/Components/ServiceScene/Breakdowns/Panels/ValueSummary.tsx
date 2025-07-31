@@ -21,6 +21,7 @@ import { toggleLevelFromFilter } from '../../../../services/levels';
 import { logger } from '../../../../services/logger';
 import {
   setLevelColorOverrides,
+  setPanelNotices,
   syncFieldsValueSummaryVisibleSeries,
   syncLabelsValueSummaryVisibleSeries,
   syncLevelsVisibleSeries,
@@ -75,6 +76,19 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
       extendPanelContext: (_, context) => this.extendTimeSeriesLegendBus(context),
     });
 
+    // Subscribe to panel
+
+    viz.addActivationHandler(() => {
+      const $data = sceneGraph.getData(this);
+
+      this._subs.add(
+        $data.getResultsStream().subscribe((result) => {
+          if (!result.data.errors || !result.data.errors.length) {
+            setPanelNotices(result, viz);
+          }
+        })
+      );
+    });
     this.setState({
       body: new SceneFlexLayout({
         children: [

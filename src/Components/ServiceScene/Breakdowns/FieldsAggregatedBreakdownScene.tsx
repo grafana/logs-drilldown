@@ -25,7 +25,7 @@ import {
   isAvgField,
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
 import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
@@ -260,6 +260,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
               this.setState({ showErrorPanelToggle: true });
             }
             this.updateFieldCount();
+          } else {
+            setPanelNotices(result, panel);
           }
         })
       );
