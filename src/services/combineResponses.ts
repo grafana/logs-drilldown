@@ -55,7 +55,6 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
     } else {
       console.log('fallback merge');
       const currentFrame = currentResult.data.find((frame) => shouldCombine(frame, newFrame));
-      // console.timeEnd('currentResult.data.find');
       if (!currentFrame) {
         currentResult.data.push(cloneDataFrame(newFrame));
       } else {
