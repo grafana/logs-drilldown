@@ -6,7 +6,7 @@ import { DataFrame, DataQueryRequest, DataQueryResponse, LoadingState, QueryResu
 import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
 import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
-import { CombineResponsesWorker as Worker } from './combineResponsesWrapper';
+import { CombineResponsesWorker as CreateWorker } from './combineResponsesWrapper';
 import { logger } from './logger';
 import { addShardingPlaceholderSelector, getSelectorForShardValues, interpolateShardingSelector } from './logql';
 import { isValidQuery } from './logqlMatchers';
@@ -15,7 +15,7 @@ import { LokiDatasource, LokiQuery } from './lokiQuery';
 // @ts-expect-error
 let combineResponsesWorker;
 try {
-  const instance = Worker();
+  const instance = CreateWorker();
   if (instance) {
     combineResponsesWorker = instance;
   }
