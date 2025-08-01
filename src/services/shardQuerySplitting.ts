@@ -6,6 +6,7 @@ import { DataFrame, DataQueryRequest, DataQueryResponse, LoadingState, QueryResu
 import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
 import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
+import { combineResponsesWorker } from './combineResponsesWrapper';
 import { logger } from './logger';
 import { addShardingPlaceholderSelector, getSelectorForShardValues, interpolateShardingSelector } from './logql';
 import { isValidQuery } from './logqlMatchers';
@@ -167,7 +168,9 @@ function splitQueriesByStreamShard(
           done();
           return;
         }
-        nextRequest();
+        if (!combineResponsesWorker) {
+          nextRequest();
+        }
       },
       error: (error: unknown) => {
         logger.error(error, { msg: 'failed to shard' });
@@ -191,7 +194,14 @@ function splitQueriesByStreamShard(
         if (nextGroupSize !== groupSize) {
           debug(`New group size ${nextGroupSize}`);
         }
-        mergedResponse = combineResponses(mergedResponse, partialResponse);
+        if (combineResponsesWorker) {
+          combineResponsesWorker.combine(mergedResponse, partialResponse).then((data) => {
+            mergedResponse = data;
+            nextRequest();
+          });
+        } else {
+          mergedResponse = combineResponses(mergedResponse, partialResponse);
+        }
       },
     });
   };
