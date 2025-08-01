@@ -36,7 +36,7 @@
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
     "@grafana/eslint-config": "^8.0.0",
-    "@grafana/plugin-e2e": "^2.0.6",
+    "@grafana/plugin-e2e": "^2.1.7",
     "@grafana/plugin-types-bundler": "^0.3.7",
     "@grafana/tsconfig": "^2.0.0",
     "@playwright/test": "^1.52.0",
@@ -122,7 +122,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.22.0",
-    "rxjs": "^7.8.1",
+    "rxjs": "7.8.2",
     "tslib": "2.5.3",
     "uuid": "^10.0.0"
   },
