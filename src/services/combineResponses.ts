@@ -16,19 +16,15 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
     return cloneQueryResponse(newResult);
   }
 
-  const currentResultLabels = new Map<string, DataFrame>();
-
-  // console.time('map creation');
+  const currentResultLabelsMap = new Map<string, DataFrame>();
   currentResult.data.forEach((frame: DataFrame) => {
     const field = frame.fields.find((f) => f.type === FieldType.number);
     if (field) {
       const key = JSON.stringify(field.labels);
-      currentResultLabels.set(key, frame);
+      currentResultLabelsMap.set(key, frame);
     }
   });
-  // console.timeEnd('map creation');
 
-  // console.time('iterate.new.frames');
   newResult.data.forEach((newFrame: DataFrame) => {
     let currentFrame: DataFrame | undefined = undefined;
     const frameType = newFrame.meta?.type;
@@ -37,8 +33,8 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
       if (field) {
         const key = JSON.stringify(field.labels);
 
-        if (currentResultLabels.has(key)) {
-          currentFrame = currentResultLabels.get(key);
+        if (currentResultLabelsMap.has(key)) {
+          currentFrame = currentResultLabelsMap.get(key);
           mergeFrames(currentFrame!, newFrame);
         } else {
           currentResult.data.push(cloneDataFrame(newFrame));
@@ -55,7 +51,6 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
       }
     }
   });
-  // console.timeEnd('iterate.new.frames');
 
   const mergedErrors = [...(currentResult.errors ?? []), ...(newResult.errors ?? [])];
 
