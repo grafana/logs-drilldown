@@ -16,14 +16,46 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
     return cloneQueryResponse(newResult);
   }
 
-  newResult.data.forEach((newFrame) => {
-    const currentFrame = currentResult.data.find((frame) => shouldCombine(frame, newFrame));
-    if (!currentFrame) {
-      currentResult.data.push(cloneDataFrame(newFrame));
-      return;
+  const currentResultLabels = new Map<string, DataFrame>();
+
+  // console.time('map creation');
+  currentResult.data.forEach((frame: DataFrame) => {
+    const field = frame.fields.find((f) => f.type === FieldType.number);
+    if (field) {
+      const key = JSON.stringify(field.labels);
+      currentResultLabels.set(key, frame);
     }
-    mergeFrames(currentFrame, newFrame);
   });
+  // console.timeEnd('map creation');
+
+  // console.time('iterate.new.frames');
+  newResult.data.forEach((newFrame: DataFrame) => {
+    let currentFrame: DataFrame | undefined = undefined;
+    const frameType = newFrame.meta?.type;
+    if (frameType === DataFrameType.TimeSeriesMulti) {
+      const field = newFrame.fields.find((f) => f.type === FieldType.number);
+      if (field) {
+        const key = JSON.stringify(field.labels);
+
+        if (currentResultLabels.has(key)) {
+          currentFrame = currentResultLabels.get(key);
+          mergeFrames(currentFrame!, newFrame);
+        } else {
+          currentResult.data.push(cloneDataFrame(newFrame));
+        }
+      }
+    } else {
+      console.log('fallback merge');
+      const currentFrame = currentResult.data.find((frame) => shouldCombine(frame, newFrame));
+      // console.timeEnd('currentResult.data.find');
+      if (!currentFrame) {
+        currentResult.data.push(cloneDataFrame(newFrame));
+      } else {
+        mergeFrames(currentFrame, newFrame);
+      }
+    }
+  });
+  // console.timeEnd('iterate.new.frames');
 
   const mergedErrors = [...(currentResult.errors ?? []), ...(newResult.errors ?? [])];
 
@@ -227,6 +259,39 @@ function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
   };
 }
 
+function shouldCombineMap(frame: DataFrame, frameMap: Map<string, DataFrame>): boolean {
+  const frameType = frame.meta?.type;
+
+  // metric range query data
+  if (frameType === DataFrameType.TimeSeriesMulti) {
+    const field = frame.fields.find((f) => f.type === FieldType.number);
+    if (field) {
+      const key = JSON.stringify(field.labels);
+      return frameMap.has(key);
+    } else {
+      console.log('no key found');
+    }
+  }
+
+  console.log('not multi', frame.meta?.custom?.frameType);
+
+  // logs query data
+  // logs use a special attribute in the dataframe's "custom" section
+  // because we do not have a good "frametype" value for them yet.
+  // const customType1 = frame.meta?.custom?.frameType;
+  // const customType2 = frameMap.meta?.custom?.frameType;
+  // Legacy frames have this custom type
+  // if (customType1 === 'LabeledTimeValues' && customType2 === 'LabeledTimeValues') {
+  //   return true;
+  // } else if (customType1 === customType2) {
+  //   // Data plane frames don't
+  //   return true;
+  // }
+
+  // should never reach here
+  return false;
+}
+
 function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
   if (frame1.refId !== frame2.refId) {
     return false;
@@ -245,7 +310,9 @@ function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
 
   // metric range query data
   if (frameType1 === DataFrameType.TimeSeriesMulti) {
-    return compareLabels(frame1, frame2);
+    const labels = compareLabels(frame1, frame2);
+    // console.timeEnd('compareLabels');
+    return labels;
   }
 
   // logs query data
