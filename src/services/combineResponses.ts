@@ -11,6 +11,25 @@ import {
 
 import { logger } from './logger';
 
+function getFrameKey(frame: DataFrame): string {
+  const field = frame.fields.find((f) => f.type === FieldType.number);
+  if (!field) {
+    throw new Error(`Unable to find number field on sharded dataframe!`);
+  }
+
+  if (!frame.name) {
+    if (field.labels) {
+      frame.name = (frame.refId ?? '') + JSON.stringify(field.labels);
+    } else {
+      if (!frame.refId) {
+        throw new Error('Unable to find refId field on sharded dataframe!');
+      }
+      frame.name = frame.refId;
+    }
+  }
+  return frame.name;
+}
+
 export function combineResponses(currentResult: DataQueryResponse | null, newResult: DataQueryResponse) {
   if (!currentResult) {
     return cloneQueryResponse(newResult);
@@ -18,27 +37,20 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
 
   const currentResultLabelsMap = new Map<string, DataFrame>();
   currentResult.data.forEach((frame: DataFrame) => {
-    const field = frame.fields.find((f) => f.type === FieldType.number);
-    if (field) {
-      const key = JSON.stringify(field.labels);
-      currentResultLabelsMap.set(key, frame);
-    }
+    currentResultLabelsMap.set(getFrameKey(frame), frame);
   });
 
   newResult.data.forEach((newFrame: DataFrame) => {
     let currentFrame: DataFrame | undefined = undefined;
     const frameType = newFrame.meta?.type;
     if (frameType === DataFrameType.TimeSeriesMulti) {
-      const field = newFrame.fields.find((f) => f.type === FieldType.number);
-      if (field) {
-        const key = JSON.stringify(field.labels);
+      const key = getFrameKey(newFrame);
 
-        if (currentResultLabelsMap.has(key)) {
-          currentFrame = currentResultLabelsMap.get(key);
-          mergeFrames(currentFrame!, newFrame);
-        } else {
-          currentResult.data.push(cloneDataFrame(newFrame));
-        }
+      if (currentResultLabelsMap.has(key)) {
+        currentFrame = currentResultLabelsMap.get(key);
+        mergeFrames(currentFrame!, newFrame);
+      } else {
+        currentResult.data.push(cloneDataFrame(newFrame));
       }
     } else {
       console.log('fallback merge');
