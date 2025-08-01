@@ -278,26 +278,3 @@ function compareLabels(frame1: DataFrame, frame2: DataFrame) {
   }
   return frame1.name === frame2.name;
 }
-
-function closestIdxx(num: number, arr: number[], lo?: number, hi?: number) {
-  let mid;
-  lo = lo || 0;
-  hi = hi || arr.length - 1;
-  let bitwise = hi <= 2147483647;
-
-  while (hi - lo > 1) {
-    mid = bitwise ? (lo + hi) >> 1 : Math.floor((lo + hi) / 2);
-
-    if (arr[mid] < num) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-
-  if (num - arr[lo] <= arr[hi] - num) {
-    return lo;
-  }
-
-  return hi;
-}
