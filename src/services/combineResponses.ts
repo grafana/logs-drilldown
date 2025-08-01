@@ -53,13 +53,7 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
         currentResult.data.push(cloneDataFrame(newFrame));
       }
     } else {
-      console.log('fallback merge');
-      const currentFrame = currentResult.data.find((frame) => shouldCombine(frame, newFrame));
-      if (!currentFrame) {
-        currentResult.data.push(cloneDataFrame(newFrame));
-      } else {
-        mergeFrames(currentFrame, newFrame);
-      }
+      throw new Error(`Invalid data frame type: ${newFrame.meta?.type}`);
     }
   });
 
@@ -263,59 +257,4 @@ function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
       values: field.values,
     })),
   };
-}
-
-function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
-  if (frame1.refId !== frame2.refId) {
-    return false;
-  }
-  if (frame1.name != null && frame2.name != null && frame1.name !== frame2.name) {
-    return false;
-  }
-
-  const frameType1 = frame1.meta?.type;
-  const frameType2 = frame2.meta?.type;
-
-  if (frameType1 !== frameType2) {
-    // we do not join things that have a different type
-    return false;
-  }
-
-  // metric range query data
-  if (frameType1 === DataFrameType.TimeSeriesMulti) {
-    return compareLabels(frame1, frame2);
-  }
-
-  // logs query data
-  // logs use a special attribute in the dataframe's "custom" section
-  // because we do not have a good "frametype" value for them yet.
-  const customType1 = frame1.meta?.custom?.frameType;
-  const customType2 = frame2.meta?.custom?.frameType;
-  // Legacy frames have this custom type
-  if (customType1 === 'LabeledTimeValues' && customType2 === 'LabeledTimeValues') {
-    return true;
-  } else if (customType1 === customType2) {
-    // Data plane frames don't
-    return true;
-  }
-
-  // should never reach here
-  return false;
-}
-
-function compareLabels(frame1: DataFrame, frame2: DataFrame) {
-  const field1 = frame1.fields.find((f) => f.type === FieldType.number);
-  const field2 = frame2.fields.find((f) => f.type === FieldType.number);
-  if (field1 === undefined || field2 === undefined) {
-    // should never happen
-    return false;
-  }
-  // undefined == null
-  if (frame1.name == null) {
-    frame1.name = JSON.stringify(field1.labels);
-  }
-  if (frame2.name == null) {
-    frame2.name = JSON.stringify(field2.labels);
-  }
-  return frame1.name === frame2.name;
 }
