@@ -195,7 +195,7 @@ function splitQueriesByStreamShard(
           debug(`New group size ${nextGroupSize}`);
         }
         if (combineResponsesWorker) {
-          combineResponsesWorker.combine(mergedResponse, partialResponse).then((data) => {
+          combineResponsesWorker.combine(mergedResponse, partialResponse).then((data: DataQueryResponse) => {
             mergedResponse = data;
             nextRequest();
           });
