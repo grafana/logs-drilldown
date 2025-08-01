@@ -1,4 +1,4 @@
-// @ts-ignore no-default-export
-import worker from 'workerize-loader?ready!./combineResponsesWorker';
+// @ts-expect-error
+import Worker from 'comlink-loader!./combineResponsesWorker';
 
-export const combineResponsesWorker = worker();
+export const combineResponsesWorker = new Worker();
