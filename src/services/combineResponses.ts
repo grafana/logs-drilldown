@@ -9,8 +9,6 @@ import {
   QueryResultMetaStat,
 } from '@grafana/data';
 
-import { logger } from './logger';
-
 export function combineResponses(currentResult: DataQueryResponse | null, newResult: DataQueryResponse) {
   if (!currentResult) {
     return cloneQueryResponse(newResult);
@@ -62,7 +60,6 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    logger.error(new Error(`Time fields not found in the data frames`));
     return;
   }
 

@@ -15,6 +15,7 @@ module.exports = {
     '/@bsull/augurs/outlier/': '@bsull/augurs/outlier.js',
     '^marked$': '<rootDir>/src/__mocks__/marked.js',
     '^react-calendar$': '<rootDir>/src/__mocks__/react-calendar.js',
+    '^comlink-loader!(.*)$': '<rootDir>/src/__mocks__/combineResponsesWorker.js',
   },
   transform: {
     ...config.transform,

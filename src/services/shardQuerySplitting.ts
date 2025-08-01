@@ -6,10 +6,23 @@ import { DataFrame, DataQueryRequest, DataQueryResponse, LoadingState, QueryResu
 import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
 import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
+import { CombineResponsesWorker as CreateWorker } from './combineResponsesWrapper';
 import { logger } from './logger';
 import { addShardingPlaceholderSelector, getSelectorForShardValues, interpolateShardingSelector } from './logql';
 import { isValidQuery } from './logqlMatchers';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
+
+// @ts-expect-error
+let combineResponsesWorker;
+try {
+  const instance = CreateWorker();
+  if (instance) {
+    combineResponsesWorker = instance;
+  }
+} catch (e) {
+  logger.error(e);
+  combineResponsesWorker = undefined;
+}
 
 /**
  * Query splitting by stream shards.
@@ -167,7 +180,9 @@ function splitQueriesByStreamShard(
           done();
           return;
         }
-        nextRequest();
+        if (!combineResponsesWorker) {
+          nextRequest();
+        }
       },
       error: (error: unknown) => {
         logger.error(error, { msg: 'failed to shard' });
@@ -191,7 +206,14 @@ function splitQueriesByStreamShard(
         if (nextGroupSize !== groupSize) {
           debug(`New group size ${nextGroupSize}`);
         }
-        mergedResponse = combineResponses(mergedResponse, partialResponse);
+        if (combineResponsesWorker) {
+          combineResponsesWorker.combine(mergedResponse, partialResponse).then((data: DataQueryResponse) => {
+            mergedResponse = data;
+            nextRequest();
+          });
+        } else {
+          mergedResponse = combineResponses(mergedResponse, partialResponse);
+        }
       },
     });
   };
