@@ -254,39 +254,6 @@ function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
   };
 }
 
-function shouldCombineMap(frame: DataFrame, frameMap: Map<string, DataFrame>): boolean {
-  const frameType = frame.meta?.type;
-
-  // metric range query data
-  if (frameType === DataFrameType.TimeSeriesMulti) {
-    const field = frame.fields.find((f) => f.type === FieldType.number);
-    if (field) {
-      const key = JSON.stringify(field.labels);
-      return frameMap.has(key);
-    } else {
-      console.log('no key found');
-    }
-  }
-
-  console.log('not multi', frame.meta?.custom?.frameType);
-
-  // logs query data
-  // logs use a special attribute in the dataframe's "custom" section
-  // because we do not have a good "frametype" value for them yet.
-  // const customType1 = frame.meta?.custom?.frameType;
-  // const customType2 = frameMap.meta?.custom?.frameType;
-  // Legacy frames have this custom type
-  // if (customType1 === 'LabeledTimeValues' && customType2 === 'LabeledTimeValues') {
-  //   return true;
-  // } else if (customType1 === customType2) {
-  //   // Data plane frames don't
-  //   return true;
-  // }
-
-  // should never reach here
-  return false;
-}
-
 function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
   if (frame1.refId !== frame2.refId) {
     return false;
@@ -305,9 +272,7 @@ function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
 
   // metric range query data
   if (frameType1 === DataFrameType.TimeSeriesMulti) {
-    const labels = compareLabels(frame1, frame2);
-    // console.timeEnd('compareLabels');
-    return labels;
+    return compareLabels(frame1, frame2);
   }
 
   // logs query data
