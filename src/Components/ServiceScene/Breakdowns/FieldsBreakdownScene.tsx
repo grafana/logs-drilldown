@@ -296,13 +296,21 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const styles = useStyles2(getStyles);
     const variable = getFieldGroupByVariable(model);
     const { options, value } = variable.useState();
+    // Trigger re-render on body state change
+    body?.useState();
+    // @todo small viewport support
     return (
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
-          <span className={styles.toggleWrapper}>
-            <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
-            <FieldsAggregatedBreakdownScene.Selector model={body} />
-          </span>
+          <>
+            <span className={styles.toggleWrapper}>
+              {body.state.panelType !== 'cardinality_estimated' && (
+                <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+              )}
+              <FieldsAggregatedBreakdownScene.Selector model={body} />
+            </span>
+            <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />
+          </>
         )}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
