@@ -1,4 +1,15 @@
-export function combineResponses(currentResult, newResult) {
+import {
+  closestIdx,
+  DataFrame,
+  DataFrameType,
+  DataQueryResponse,
+  DataQueryResponseData,
+  Field,
+  FieldType,
+  QueryResultMetaStat,
+} from '@grafana/data';
+
+export function combineResponses(currentResult: DataQueryResponse | null, newResult: DataQueryResponse) {
   if (!currentResult) {
     return cloneQueryResponse(newResult);
   }
@@ -42,11 +53,11 @@ export function combineResponses(currentResult, newResult) {
 /**
  * Given two data frames, merge their values. Overlapping values will be added together.
  */
-export function mergeFrames(dest, source) {
-  const destTimeField = dest.fields.find((field) => field.type === 'time');
-  const destIdField = dest.fields.find((field) => field.type === 'string' && field.name === 'id');
-  const sourceTimeField = source.fields.find((field) => field.type === 'time');
-  const sourceIdField = source.fields.find((field) => field.type === 'string' && field.name === 'id');
+export function mergeFrames(dest: DataFrame, source: DataFrame) {
+  const destTimeField = dest.fields.find((field) => field.type === FieldType.time);
+  const destIdField = dest.fields.find((field) => field.type === FieldType.string && field.name === 'id');
+  const sourceTimeField = source.fields.find((field) => field.type === FieldType.time);
+  const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
     return;
@@ -73,13 +84,13 @@ export function mergeFrames(dest, source) {
       }
       // Same value, accumulate
       if (entryExistsInDest) {
-        if (dest.fields[f].type === 'time') {
+        if (dest.fields[f].type === FieldType.time) {
           // Time already exists, skip
           continue;
-        } else if (dest.fields[f].type === 'number') {
+        } else if (dest.fields[f].type === FieldType.number) {
           // Number, add
           dest.fields[f].values[destIdx] = (dest.fields[f].values[destIdx] ?? 0) + sourceField.values[i];
-        } else if (dest.fields[f].type === 'other') {
+        } else if (dest.fields[f].type === FieldType.other) {
           // Possibly labels, combine
           if (typeof sourceField.values[i] === 'object') {
             dest.fields[f].values[destIdx] = {
@@ -112,7 +123,7 @@ export function mergeFrames(dest, source) {
   };
 }
 
-function resolveIdx(destField, sourceField, index) {
+function resolveIdx(destField: Field, sourceField: Field, index: number) {
   const idx = closestIdx(sourceField.values[index], destField.values);
   if (idx < 0) {
     return 0;
@@ -126,7 +137,14 @@ function resolveIdx(destField, sourceField, index) {
   return idx;
 }
 
-function compareEntries(destTimeField, destIdField, destIndex, sourceTimeField, sourceIdField, sourceIndex) {
+function compareEntries(
+  destTimeField: Field,
+  destIdField: Field | undefined,
+  destIndex: number,
+  sourceTimeField: Field,
+  sourceIdField: Field | undefined,
+  sourceIndex: number
+) {
   const sameTimestamp = compareNsTimestamps(destTimeField, destIndex, sourceTimeField, sourceIndex);
   if (!sameTimestamp) {
     return false;
@@ -140,7 +158,7 @@ function compareEntries(destTimeField, destIdField, destIndex, sourceTimeField, 
   );
 }
 
-function compareNsTimestamps(destField, destIndex, sourceField, sourceIndex) {
+function compareNsTimestamps(destField: Field, destIndex: number, sourceField: Field, sourceIndex: number) {
   if (destField.nanos && sourceField.nanos) {
     return (
       destField.values[destIndex] !== undefined &&
@@ -152,7 +170,7 @@ function compareNsTimestamps(destField, destIndex, sourceField, sourceIndex) {
   return destField.values[destIndex] !== undefined && destField.values[destIndex] === sourceField.values[sourceIndex];
 }
 
-function findSourceField(referenceField, sourceFields, index) {
+function findSourceField(referenceField: Field, sourceFields: Field[], index: number) {
   const candidates = sourceFields.filter((f) => f.name === referenceField.name);
 
   if (candidates.length === 1) {
@@ -164,7 +182,10 @@ function findSourceField(referenceField, sourceFields, index) {
 
 const TOTAL_BYTES_STAT = 'Summary: total bytes processed';
 // This is specific for Loki
-function getCombinedMetadataStats(destStats, sourceStats) {
+function getCombinedMetadataStats(
+  destStats: QueryResultMetaStat[],
+  sourceStats: QueryResultMetaStat[]
+): QueryResultMetaStat[] {
   // in the current approach, we only handle a single stat
   const destStat = destStats.find((s) => s.displayName === TOTAL_BYTES_STAT);
   const sourceStat = sourceStats.find((s) => s.displayName === TOTAL_BYTES_STAT);
@@ -185,7 +206,7 @@ function getCombinedMetadataStats(destStats, sourceStats) {
 /**
  * Deep clones a DataQueryResponse
  */
-export function cloneQueryResponse(response) {
+export function cloneQueryResponse(response: DataQueryResponse): DataQueryResponse {
   const newResponse = {
     ...response,
     data: response.data.map(cloneDataFrame),
@@ -193,17 +214,17 @@ export function cloneQueryResponse(response) {
   return newResponse;
 }
 
-function cloneDataFrame(frame) {
+function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
   return {
     ...frame,
-    fields: frame.fields.map((field) => ({
+    fields: frame.fields.map((field: Field) => ({
       ...field,
       values: field.values,
     })),
   };
 }
 
-function shouldCombine(frame1, frame2) {
+function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
   if (frame1.refId !== frame2.refId) {
     return false;
   }
@@ -220,7 +241,7 @@ function shouldCombine(frame1, frame2) {
   }
 
   // metric range query data
-  if (frameType1 === 'timeseries-multi') {
+  if (frameType1 === DataFrameType.TimeSeriesMulti) {
     return compareLabels(frame1, frame2);
   }
 
@@ -241,9 +262,9 @@ function shouldCombine(frame1, frame2) {
   return false;
 }
 
-function compareLabels(frame1, frame2) {
-  const field1 = frame1.fields.find((f) => f.type === 'number');
-  const field2 = frame2.fields.find((f) => f.type === 'number');
+function compareLabels(frame1: DataFrame, frame2: DataFrame) {
+  const field1 = frame1.fields.find((f) => f.type === FieldType.number);
+  const field2 = frame2.fields.find((f) => f.type === FieldType.number);
   if (field1 === undefined || field2 === undefined) {
     // should never happen
     return false;
@@ -258,7 +279,7 @@ function compareLabels(frame1, frame2) {
   return frame1.name === frame2.name;
 }
 
-function closestIdx(num: number, arr: number[], lo?: number, hi?: number) {
+function closestIdxx(num: number, arr: number[], lo?: number, hi?: number) {
   let mid;
   lo = lo || 0;
   hi = hi || arr.length - 1;
