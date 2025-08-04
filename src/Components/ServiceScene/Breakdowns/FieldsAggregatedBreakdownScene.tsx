@@ -46,7 +46,7 @@ import {
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
-import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { TimeSeriesPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
 import {
   getDetectedFieldsFrame,
   getDetectedFieldsFrameFromQueryRunnerState,
@@ -61,11 +61,11 @@ import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
 import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 
-export type FieldsPanelTypes = 'text' | 'volume';
+export type FieldsPanelsType = 'text' | 'volume';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
-  panelType: FieldsPanelTypes;
+  fieldsPanelsType: FieldsPanelsType;
   showErrorPanels: boolean;
   showErrorPanelToggle: boolean;
 }
@@ -73,7 +73,7 @@ export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
     super({
-      panelType: getFieldsPanelTypes() ?? 'volume',
+      fieldsPanelsType: getFieldsPanelTypes() ?? 'volume',
       showErrorPanels: getShowErrorPanels(),
       showErrorPanelToggle: false,
       ...state,
@@ -84,7 +84,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   private onDetectedFieldsChange = (newState: QueryRunnerState) => {
     if (newState.data?.state === LoadingState.Done) {
-      //@todo cardinality looks wrong in API response
       this.updateChildren(newState);
     }
   };
@@ -113,7 +112,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                 const existingParser = index && index !== -1 ? newParsersField?.values[index] : undefined;
 
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
-                if (existingParser !== newParser) {
+                if (this.state.fieldsPanelsType === 'volume' && existingParser !== newParser) {
                   const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
                   const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
@@ -199,7 +198,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     this._subs.add(this.subscribeToFieldsVar());
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
-        if (newState.panelType !== prevState.panelType) {
+        if (newState.fieldsPanelsType !== prevState.fieldsPanelsType) {
           // All query runners need to be rebuilt
           this.setState({
             body: this.build(),
@@ -252,13 +251,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       active: 'grid',
       layouts: [
         new SceneCSSGridLayout({
-          autoRows: this.state.panelType === 'volume' ? '200px' : '35px',
+          autoRows: this.state.fieldsPanelsType === 'volume' ? '200px' : '35px',
           children: children,
           isLazy: true,
           templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          autoRows: this.state.panelType === 'volume' ? '200px' : '35px',
+          autoRows: this.state.fieldsPanelsType === 'volume' ? '200px' : '35px',
           children: childrenClones,
           isLazy: true,
           templateColumns: '1fr',
@@ -300,8 +299,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const activeLayout = this.getActiveGridLayouts();
     const children: SceneCSSGridItem[] = [];
     const panelType =
-      getPanelOption('panelType', [AvgFieldPanelType.histogram, AvgFieldPanelType.timeseries]) ??
-      AvgFieldPanelType.timeseries;
+      getPanelOption('panelType', [TimeSeriesPanelType.histogram, TimeSeriesPanelType.timeseries]) ??
+      TimeSeriesPanelType.timeseries;
 
     activeLayout?.state.children.forEach((child) => {
       if (
@@ -337,8 +336,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const children: SceneCSSGridItem[] = [];
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
     const panelType =
-      getPanelOption('panelType', [AvgFieldPanelType.timeseries, AvgFieldPanelType.histogram]) ??
-      AvgFieldPanelType.timeseries;
+      getPanelOption('panelType', [TimeSeriesPanelType.timeseries, TimeSeriesPanelType.histogram]) ??
+      TimeSeriesPanelType.timeseries;
     for (const option of options) {
       if (option === ALL_VARIABLE_VALUE || !option) {
         continue;
@@ -352,7 +351,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     return children;
   }
 
-  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType?: AvgFieldPanelType) {
+  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType?: TimeSeriesPanelType) {
     if (labelName === ALL_VARIABLE_VALUE || !labelName) {
       return;
     }
@@ -360,7 +359,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
 
     let body: VizPanelBuilder<TextOptions, FieldConfig> | VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig>;
-    if (this.state.panelType === 'text') {
+    if (this.state.fieldsPanelsType === 'text') {
       const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
       body = this.buildText(labelName, fieldType, dataTransformer);
     } else {
@@ -405,7 +404,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     fieldType: 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string' | undefined,
     labelName: string,
     dataTransformer: SceneDataTransformer | SceneQueryRunner,
-    panelType: AvgFieldPanelType | undefined
+    panelType: TimeSeriesPanelType | undefined
   ): VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig> => {
     let body;
     let headerActions = [];

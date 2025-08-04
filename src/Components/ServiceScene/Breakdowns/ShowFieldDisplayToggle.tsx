@@ -7,12 +7,12 @@ import { SceneComponentProps } from '@grafana/scenes';
 import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { setFieldsPanelTypes } from '../../../services/store';
-import { FieldsAggregatedBreakdownScene, FieldsPanelTypes } from './FieldsAggregatedBreakdownScene';
+import { FieldsAggregatedBreakdownScene, FieldsPanelsType } from './FieldsAggregatedBreakdownScene';
 
 export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
-  const { panelType } = model.useState();
+  const { fieldsPanelsType } = model.useState();
   const styles = useStyles2(getStyles);
-  const options: Array<SelectableValue<FieldsPanelTypes>> = [
+  const options: Array<SelectableValue<FieldsPanelsType>> = [
     {
       label: 'Volume',
       value: 'volume',
@@ -27,9 +27,9 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
     <RadioButtonGroup
       className={styles.radioGroup}
       options={options}
-      value={panelType}
+      value={fieldsPanelsType}
       onChange={(panelType) => {
-        model.setState({ panelType });
+        model.setState({ fieldsPanelsType: panelType });
         setFieldsPanelTypes(panelType);
       }}
     />

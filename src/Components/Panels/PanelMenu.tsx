@@ -42,7 +42,7 @@ const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
 const ADD_TO_INVESTIGATION_MENU_GROUP_TEXT = 'Investigations';
 
-export enum AvgFieldPanelType {
+export enum TimeSeriesPanelType {
   'timeseries' = 'timeseries',
   'histogram' = 'histogram',
 }
@@ -66,7 +66,7 @@ interface PanelMenuState extends SceneObjectState {
   investigationOptions?: InvestigationOptions;
   investigationsButton?: AddToInvestigationButton;
 
-  panelType?: AvgFieldPanelType;
+  panelType?: TimeSeriesPanelType;
 }
 
 /**
@@ -243,7 +243,7 @@ function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
 
 function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
-    iconClassName: sceneRef.state.panelType !== AvgFieldPanelType.histogram ? 'graph-bar' : 'chart-line',
+    iconClassName: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'graph-bar' : 'chart-line',
     onClick: () => {
       const gridItem = sceneGraph.getAncestor(sceneRef, SceneCSSGridItem);
       const viz = sceneGraph.getAncestor(sceneRef, VizPanel).clone();
@@ -254,7 +254,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
         : viz.state.headerActions;
       let body;
 
-      if (sceneRef.state.panelType !== AvgFieldPanelType.histogram) {
+      if (sceneRef.state.panelType !== TimeSeriesPanelType.histogram) {
         body = PanelBuilders.timeseries().setOverrides(setLevelColorOverrides);
       } else {
         body = PanelBuilders.histogram();
@@ -265,9 +265,9 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
       });
 
       const newPanelType =
-        sceneRef.state.panelType !== AvgFieldPanelType.timeseries
-          ? AvgFieldPanelType.timeseries
-          : AvgFieldPanelType.histogram;
+        sceneRef.state.panelType !== TimeSeriesPanelType.timeseries
+          ? TimeSeriesPanelType.timeseries
+          : TimeSeriesPanelType.histogram;
       setPanelOption('panelType', newPanelType);
       menu.setState({ panelType: newPanelType });
 
@@ -283,7 +283,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
       onSwitchVizTypeTracking(newPanelType);
     },
 
-    text: sceneRef.state.panelType !== AvgFieldPanelType.histogram ? 'Histogram' : 'Time series',
+    text: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'Histogram' : 'Time series',
   });
 }
 
@@ -326,7 +326,7 @@ const onExploreLinkClickTracking = () => {
   reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
 
-const onSwitchVizTypeTracking = (newVizType: AvgFieldPanelType) => {
+const onSwitchVizTypeTracking = (newVizType: TimeSeriesPanelType) => {
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.change_viz_type, {
     newVizType,
   });
