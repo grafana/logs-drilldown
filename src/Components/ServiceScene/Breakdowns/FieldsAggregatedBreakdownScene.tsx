@@ -18,7 +18,10 @@ import {
   VizPanel,
   VizPanelBuilder,
 } from '@grafana/scenes';
-import { Options as TextOptions } from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
+import {
+  Options as TextOptions,
+  TextMode,
+} from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
 import {
   FieldConfig as TimeSeriesFieldConfig,
   Options as TimeSeriesOptions,
@@ -394,8 +397,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         })
       );
 
-    // const sparcity = calculateSparsity(this, labelName);
-    // text.setOption('content', sparcity.description ?? '');
     text.setOption('content', '');
     return text;
   };
