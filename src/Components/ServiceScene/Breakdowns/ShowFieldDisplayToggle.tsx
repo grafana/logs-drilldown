@@ -6,6 +6,7 @@ import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { SceneComponentProps } from '@grafana/scenes';
 import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { setFieldsPanelTypes } from '../../../services/store';
 import { FieldsAggregatedBreakdownScene, FieldsPanelsType } from './FieldsAggregatedBreakdownScene';
 
@@ -31,6 +32,13 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
       onChange={(panelType) => {
         model.setState({ fieldsPanelsType: panelType });
         setFieldsPanelTypes(panelType);
+        reportAppInteraction(
+          USER_EVENTS_PAGES.service_details,
+          USER_EVENTS_ACTIONS.service_details.fields_panel_type_toggle,
+          {
+            fieldsPanelType: panelType,
+          }
+        );
       }}
     />
   );

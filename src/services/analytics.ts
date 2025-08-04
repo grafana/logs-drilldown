@@ -96,6 +96,8 @@ export const USER_EVENTS_ACTIONS = {
     embedded_go_to_explore_clicked: 'embedded_go_to_explore_clicked',
     // Fires when viz is activated
     visualization_init: 'visualization_init',
+    // fields rollup viz type toggle
+    fields_panel_type_toggle: 'fields_panel_type_toggle',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
