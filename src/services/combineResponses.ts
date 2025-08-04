@@ -11,18 +11,50 @@ import {
 
 import { logger } from './logger';
 
+function getFrameKey(frame: DataFrame): string {
+  const field = frame.fields.find((f) => f.type === FieldType.number);
+  if (!field) {
+    throw new Error(`Unable to find number field on sharded dataframe!`);
+  }
+
+  if (!frame.name) {
+    if (field.labels) {
+      frame.name = (frame.refId ?? '') + JSON.stringify(field.labels);
+    } else {
+      if (!frame.refId) {
+        throw new Error('Unable to find refId field on sharded dataframe!');
+      }
+      frame.name = frame.refId;
+    }
+  }
+  return frame.name;
+}
+
 export function combineResponses(currentResult: DataQueryResponse | null, newResult: DataQueryResponse) {
   if (!currentResult) {
     return cloneQueryResponse(newResult);
   }
 
-  newResult.data.forEach((newFrame) => {
-    const currentFrame = currentResult.data.find((frame) => shouldCombine(frame, newFrame));
-    if (!currentFrame) {
-      currentResult.data.push(cloneDataFrame(newFrame));
-      return;
+  const currentResultLabelsMap = new Map<string, DataFrame>();
+  currentResult.data.forEach((frame: DataFrame) => {
+    currentResultLabelsMap.set(getFrameKey(frame), frame);
+  });
+
+  newResult.data.forEach((newFrame: DataFrame) => {
+    let currentFrame: DataFrame | undefined = undefined;
+    const frameType = newFrame.meta?.type;
+    if (frameType === DataFrameType.TimeSeriesMulti) {
+      const key = getFrameKey(newFrame);
+
+      if (currentResultLabelsMap.has(key)) {
+        currentFrame = currentResultLabelsMap.get(key);
+        mergeFrames(currentFrame!, newFrame);
+      } else {
+        currentResult.data.push(cloneDataFrame(newFrame));
+      }
+    } else {
+      throw new Error(`Invalid data frame type: ${newFrame.meta?.type}`);
     }
-    mergeFrames(currentFrame, newFrame);
   });
 
   const mergedErrors = [...(currentResult.errors ?? []), ...(newResult.errors ?? [])];
@@ -225,59 +257,4 @@ function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
       values: field.values,
     })),
   };
-}
-
-function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
-  if (frame1.refId !== frame2.refId) {
-    return false;
-  }
-  if (frame1.name != null && frame2.name != null && frame1.name !== frame2.name) {
-    return false;
-  }
-
-  const frameType1 = frame1.meta?.type;
-  const frameType2 = frame2.meta?.type;
-
-  if (frameType1 !== frameType2) {
-    // we do not join things that have a different type
-    return false;
-  }
-
-  // metric range query data
-  if (frameType1 === DataFrameType.TimeSeriesMulti) {
-    return compareLabels(frame1, frame2);
-  }
-
-  // logs query data
-  // logs use a special attribute in the dataframe's "custom" section
-  // because we do not have a good "frametype" value for them yet.
-  const customType1 = frame1.meta?.custom?.frameType;
-  const customType2 = frame2.meta?.custom?.frameType;
-  // Legacy frames have this custom type
-  if (customType1 === 'LabeledTimeValues' && customType2 === 'LabeledTimeValues') {
-    return true;
-  } else if (customType1 === customType2) {
-    // Data plane frames don't
-    return true;
-  }
-
-  // should never reach here
-  return false;
-}
-
-function compareLabels(frame1: DataFrame, frame2: DataFrame) {
-  const field1 = frame1.fields.find((f) => f.type === FieldType.number);
-  const field2 = frame2.fields.find((f) => f.type === FieldType.number);
-  if (field1 === undefined || field2 === undefined) {
-    // should never happen
-    return false;
-  }
-  // undefined == null
-  if (frame1.name == null) {
-    frame1.name = JSON.stringify(field1.labels);
-  }
-  if (frame2.name == null) {
-    frame2.name = JSON.stringify(field2.labels);
-  }
-  return frame1.name === frame2.name;
 }
