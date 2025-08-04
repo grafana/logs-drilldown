@@ -3,6 +3,7 @@ import React from 'react';
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
@@ -46,7 +47,8 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const { controls, patterns } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
-    const styles = useStyles2((theme) => getStyles(theme, model.state.position));
+    const height = useChromeHeaderHeight();
+    const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
 
     return (
       <div
@@ -145,9 +147,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   };
 }
 
-// @todo remove hardcoded height: https://github.com/grafana/grafana/issues/103795
-const grafanaTopBarHeight = 40;
-function getStyles(theme: GrafanaTheme2, position: HeaderPosition) {
+function getStyles(theme: GrafanaTheme2, height: number) {
   return {
     controlsContainer: css({
       display: 'flex',
@@ -213,7 +213,7 @@ function getStyles(theme: GrafanaTheme2, position: HeaderPosition) {
       gap: theme.spacing(0),
       left: 0,
       position: 'sticky',
-      top: grafanaTopBarHeight,
+      top: height,
       zIndex: theme.zIndex.navbarFixed,
     }),
     timeRange: css({

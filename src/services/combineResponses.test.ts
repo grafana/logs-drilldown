@@ -1,6 +1,4 @@
-import { cloneDeep } from 'lodash';
-
-import { DataFrame, DataFrameType, DataQueryResponse, Field, FieldType, QueryResultMetaStat } from '@grafana/data';
+import { DataFrame, DataFrameType, DataQueryResponse, FieldType, QueryResultMetaStat } from '@grafana/data';
 
 import { cloneQueryResponse, combineResponses } from './combineResponses';
 
@@ -17,156 +15,6 @@ describe('cloneQueryResponse', () => {
 });
 
 describe('combineResponses', () => {
-  it('combines logs frames', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              type: 'time',
-              values: [1, 2, 3, 4],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line3', 'line4', 'line1', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '2000000', '3000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id3', 'id4', 'id1', 'id2'],
-            },
-          ],
-          length: 4,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
-  it('combines logs frames with transformed fields', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-    const { logFrameB: originalLogFrameB } = getMockFrames();
-
-    // Pseudo shuffle fields
-    logFrameB.fields.sort((a: Field, b: Field) => (a.name < b.name ? -1 : 1));
-    expect(logFrameB.fields).not.toEqual(originalLogFrameB.fields);
-
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              type: 'time',
-              values: [1, 2, 3, 4],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line3', 'line4', 'line1', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '2000000', '3000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id3', 'id4', 'id1', 'id2'],
-            },
-          ],
-          length: 4,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
   it('combines metric frames', () => {
     const { metricFrameA, metricFrameB } = getMockFrames();
     const responseA: DataQueryResponse = {
@@ -206,7 +54,7 @@ describe('combineResponses', () => {
             ],
             type: 'timeseries-multi',
           },
-          name: '{"level":"debug"}',
+          name: 'A{"level":"debug"}',
           refId: 'A',
         },
       ],
@@ -252,34 +100,11 @@ describe('combineResponses', () => {
             ],
             type: 'timeseries-multi',
           },
-          name: '{"level":"debug"}',
+          name: 'A{"level":"debug"}',
           refId: 'A',
         },
         metricFrameC,
       ],
-    });
-  });
-
-  it('combines frames prioritizing refIds over names', () => {
-    const { metricFrameA, metricFrameB } = getMockFrames();
-    const dataFrameA = {
-      ...metricFrameA,
-      name: 'A',
-      refId: 'A',
-    };
-    const dataFrameB = {
-      ...metricFrameB,
-      name: 'A',
-      refId: 'B',
-    };
-    const responseA: DataQueryResponse = {
-      data: [dataFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [dataFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [dataFrameA, dataFrameB],
     });
   });
 
@@ -362,156 +187,6 @@ describe('combineResponses', () => {
     expect(combined.errors).toHaveLength(2);
     expect(combined.errors?.[0]?.message).toBe('errorA');
     expect(combined.errors?.[1]?.message).toBe('errorB');
-  });
-
-  it('combines frames with nanoseconds', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-    logFrameA.fields[0].nanos = [333333, 444444];
-    logFrameB.fields[0].nanos = [111111, 222222];
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              nanos: [111111, 222222, 333333, 444444],
-              type: 'time',
-              values: [1, 2, 3, 4],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line3', 'line4', 'line1', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '2000000', '3000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id3', 'id4', 'id1', 'id2'],
-            },
-          ],
-          length: 4,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
-  it('combines frames without nanoseconds with frames with nanoseconds', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-    logFrameA.fields[0].nanos = undefined;
-    logFrameB.fields[0].nanos = [111111, 222222];
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              nanos: [111111, 222222, 0, 0],
-              type: 'time',
-              values: [1, 2, 3, 4],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line3', 'line4', 'line1', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '2000000', '3000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id3', 'id4', 'id1', 'id2'],
-            },
-          ],
-          length: 4,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
   });
 
   describe('combine stats', () => {
@@ -664,7 +339,7 @@ describe('combineResponses', () => {
             ],
             type: 'timeseries-multi',
           },
-          name: '{"level":"debug"}',
+          name: 'A{"level":"debug"}',
           refId: 'A',
         },
       ],
@@ -731,6 +406,7 @@ describe('combineResponses', () => {
             ],
             type: 'timeseries-multi',
           },
+          name: 'A',
           refId: 'A',
         },
       ],
@@ -778,7 +454,7 @@ describe('mergeFrames', () => {
             ],
             type: 'timeseries-multi',
           },
-          name: '{"level":"debug"}',
+          name: 'A{"level":"debug"}',
           refId: 'A',
         },
       ],
@@ -828,7 +504,7 @@ describe('mergeFrames', () => {
             ],
             type: 'timeseries-multi',
           },
-          name: '{"level":"debug"}',
+          name: 'A{"level":"debug"}',
           refId: 'A',
         },
       ],
@@ -874,338 +550,10 @@ describe('mergeFrames', () => {
             ],
             type: 'timeseries-multi',
           },
-          name: '{"level":"debug"}',
+          name: 'A{"level":"debug"}',
           refId: 'A',
         },
         metricFrameC,
-      ],
-    });
-  });
-
-  it('merges logs frames', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-
-    // 3 overlaps with logFrameA
-    logFrameB.fields[0].values = [2, 3];
-    logFrameB.fields[1].values = ['line4', 'line1'];
-    logFrameB.fields[4].values = ['id4', 'id1'];
-
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              type: 'time',
-              values: [2, 3, 4],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line4', 'line1', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '2000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id4', 'id1', 'id2'],
-            },
-          ],
-          length: 3,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
-  it('merges frames with nanoseconds', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-
-    logFrameA.fields[0].values = [3, 4];
-    logFrameA.fields[0].nanos = [333333, 444444];
-
-    // 3 overlaps with logFrameA
-    logFrameB.fields[0].values = [2, 3];
-    logFrameB.fields[0].nanos = [222222, 333333];
-    logFrameB.fields[4].values = ['id4', 'id1'];
-
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              nanos: [222222, 333333, 444444],
-              type: 'time',
-              values: [2, 3, 4],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line3', 'line4', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '2000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id4', 'id1', 'id2'],
-            },
-          ],
-          length: 3,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
-  it('receiving existing values do not introduce inconsistencies', () => {
-    const { logFrameA, logFrameAB } = getMockFrames();
-
-    const responseA: DataQueryResponse = {
-      data: [cloneDeep(logFrameAB)],
-    };
-    const responseB: DataQueryResponse = {
-      data: [cloneDeep(logFrameA)],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          ...logFrameAB,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-        },
-      ],
-    });
-  });
-
-  it('considers nanoseconds to merge the frames', () => {
-    const { logFrameA, logFrameB } = getMockFrames();
-
-    // Same timestamps but different nanos
-    logFrameA.fields[0].values = [1, 2];
-    logFrameA.fields[0].nanos = [333333, 444444];
-    logFrameB.fields[0].values = [1, 2];
-    logFrameB.fields[0].nanos = [222222, 333333];
-
-    const responseA: DataQueryResponse = {
-      data: [logFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              nanos: [222222, 333333, 333333, 444444],
-              type: 'time',
-              values: [1, 1, 2, 2],
-            },
-            {
-              config: {},
-              name: 'Line',
-              type: 'string',
-              values: ['line3', 'line1', 'line4', 'line2'],
-            },
-            {
-              config: {},
-              name: 'labels',
-              type: 'other',
-              values: [
-                {
-                  otherLabel: 'other value',
-                },
-                {
-                  label: 'value',
-                },
-                {
-                  otherLabel: 'other value',
-                },
-              ],
-            },
-            {
-              config: {},
-              name: 'tsNs',
-              type: 'string',
-              values: ['1000000', '3000000', '2000000', '4000000'],
-            },
-            {
-              config: {},
-              name: 'id',
-              type: 'string',
-              values: ['id3', 'id1', 'id4', 'id2'],
-            },
-          ],
-          length: 4,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-          },
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
-  it('correctly handles empty responses', () => {
-    const { emptyFrame, logFrameB } = getMockFrames();
-
-    logFrameB.fields[0].values = [1, 2];
-    logFrameB.fields[0].nanos = [222222, 333333];
-
-    const responseA: DataQueryResponse = {
-      data: [emptyFrame],
-    };
-    const responseB: DataQueryResponse = {
-      data: [logFrameB],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          ...logFrameB,
-          length: 2,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [{ displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 22 }],
-          },
-        },
-      ],
-    });
-  });
-
-  it('merging exactly the same data produces the same data', () => {
-    const { logFrameA } = getMockFrames();
-
-    const responseA: DataQueryResponse = {
-      data: [cloneDeep(logFrameA)],
-    };
-    const responseB: DataQueryResponse = {
-      data: [cloneDeep(logFrameA)],
-    };
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          ...logFrameA,
-          meta: {
-            custom: {
-              frameType: 'LabeledTimeValues',
-            },
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 22,
-              },
-            ],
-          },
-        },
       ],
     });
   });

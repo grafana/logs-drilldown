@@ -8,6 +8,7 @@ import {
   FieldType,
   getFieldDisplayName,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   FieldConfigBuilder,
@@ -32,6 +33,7 @@ import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
+import { maxSeriesReached } from './shardQuerySplitting';
 import { getLogOption } from './store';
 import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
@@ -355,13 +357,12 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 }
 
 export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel<{}, {}>) {
-  const noticesInclusion = /maximum number of series/;
-  const frameWithNotice = result.data.series.find(
-    (df) => df.meta?.notices?.length && df.meta?.notices.some((notice) => notice.text.match(noticesInclusion))
-  );
-  if (frameWithNotice && frameWithNotice.meta?.notices?.length) {
+  if (maxSeriesReached(result.data.series)) {
     panel.setState({
-      _pluginLoadError: frameWithNotice.meta?.notices.find((notice) => notice.text.match(noticesInclusion))?.text,
+      _pluginLoadError: t(
+        'drilldown-logs.notices.max-series-reached',
+        'Maximum limit of results reached. Displaying partial results.'
+      ),
     });
   } else if (panel.state._pluginLoadError) {
     panel.setState({
