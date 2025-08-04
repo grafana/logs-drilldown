@@ -18,10 +18,7 @@ import {
   VizPanel,
   VizPanelBuilder,
 } from '@grafana/scenes';
-import {
-  Options as TextOptions,
-  TextMode,
-} from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
+import { Options as TextOptions } from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
 import {
   FieldConfig as TimeSeriesFieldConfig,
   Options as TimeSeriesOptions,
@@ -49,7 +46,7 @@ import {
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
-import { TimeSeriesPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { getPanelWrapperStyles, PanelMenu, TimeSeriesPanelType } from '../../Panels/PanelMenu';
 import {
   getDetectedFieldsFrame,
   getDetectedFieldsFrameFromQueryRunnerState,
