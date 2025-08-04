@@ -185,6 +185,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
               <Button
                 data-testid={testIds.breakdowns.common.filterButton}
                 ref={popoverRef}
+                className={styles.button}
                 onClick={() => model.onChange(selectedValue ?? defaultOption)}
                 size={'sm'}
                 fill={'outline'}
@@ -453,6 +454,9 @@ const getSelectableValueComponentStyles = (theme: GrafanaTheme2) => {
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {
+    button: css({
+      borderRight: '1px solid red',
+    }),
     buttonSelect: css({
       border: `1px solid ${theme.colors.border.strong}`,
       borderBottomLeftRadius: 0,

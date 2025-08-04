@@ -6,6 +6,7 @@ import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { SceneComponentProps } from '@grafana/scenes';
 import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
+import { setFieldsPanelTypes } from '../../../services/store';
 import { FieldsAggregatedBreakdownScene, FieldsPanelTypes } from './FieldsAggregatedBreakdownScene';
 
 export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
@@ -16,14 +17,9 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
       label: 'Volume',
       value: 'volume',
     },
-    // This field is confusing, 100 means it's on 100% of the samples
     {
-      label: 'Sampled cardinality',
-      value: 'cardinality_estimated',
-    },
-    {
-      label: 'Cardinality',
-      value: 'cardinality',
+      label: 'Names',
+      value: 'text',
     },
   ];
 
@@ -32,7 +28,10 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
       className={styles.radioGroup}
       options={options}
       value={panelType}
-      onChange={(panelType) => model.setState({ panelType })}
+      onChange={(panelType) => {
+        model.setState({ panelType });
+        setFieldsPanelTypes(panelType);
+      }}
     />
   );
 }

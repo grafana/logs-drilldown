@@ -4,6 +4,7 @@ import { SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { FieldsPanelTypes } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
 import { replaceSlash } from './extensions/links';
@@ -439,4 +440,17 @@ export function getSceneLayout(): string | null {
 }
 export function setSceneLayout(layout: string) {
   localStorage.setItem(SCENE_LAYOUT_LOCALSTORAGE_KEY, layout);
+}
+
+const FIELDS_PANEL_TYPES = `${pluginJson.id}.fieldsBreakdown.fieldsPanelType`;
+export function getFieldsPanelTypes(): FieldsPanelTypes | null {
+  const stored = localStorage.getItem(FIELDS_PANEL_TYPES);
+  if (stored === 'text' || stored === 'volume') {
+    return stored;
+  }
+  return null;
+}
+
+export function setFieldsPanelTypes(panelTypes: FieldsPanelTypes) {
+  localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
 }

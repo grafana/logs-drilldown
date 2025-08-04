@@ -304,9 +304,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         {body instanceof FieldsAggregatedBreakdownScene && (
           <>
             <span className={styles.toggleWrapper}>
-              {body.state.panelType !== 'cardinality_estimated' && (
-                <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
-              )}
+              {body.state.panelType !== 'text' && <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />}
               <FieldsAggregatedBreakdownScene.Selector model={body} />
             </span>
             <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />

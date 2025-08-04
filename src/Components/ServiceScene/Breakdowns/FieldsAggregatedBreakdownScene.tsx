@@ -2,15 +2,7 @@ import React from 'react';
 
 import { map, Observable } from 'rxjs';
 
-import {
-  DataFrame,
-  DataTransformContext,
-  FieldConfig,
-  FieldType,
-  LoadingState,
-  ThresholdsMode,
-  toDataFrame,
-} from '@grafana/data';
+import { DataFrame, DataTransformContext, FieldConfig, FieldType, LoadingState, toDataFrame } from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
@@ -26,7 +18,7 @@ import {
   VizPanel,
   VizPanelBuilder,
 } from '@grafana/scenes';
-import { Options as BarGaugeOptions } from '@grafana/schema/dist/esm/raw/composable/gauge/panelcfg/x/GaugePanelCfg_types.gen';
+import { Options as TextOptions } from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
 import {
   FieldConfig as TimeSeriesFieldConfig,
   Options as TimeSeriesOptions,
@@ -44,15 +36,9 @@ import {
   SparsityCalculation,
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
-import {
-  getQueryRunner,
-  getSceneQueryRunner,
-  setGaugeUnitOverrides,
-  setLevelColorOverrides,
-  setPanelNotices,
-} from '../../../services/panel';
+import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
-import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
+import { getFieldsPanelTypes, getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
@@ -75,7 +61,7 @@ import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
 import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 
-export type FieldsPanelTypes = 'cardinality' | 'cardinality_estimated' | 'volume';
+export type FieldsPanelTypes = 'text' | 'volume';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
@@ -87,7 +73,7 @@ export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
     super({
-      panelType: 'volume',
+      panelType: getFieldsPanelTypes() ?? 'volume',
       showErrorPanels: getShowErrorPanels(),
       showErrorPanelToggle: false,
       ...state,
@@ -266,13 +252,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       active: 'grid',
       layouts: [
         new SceneCSSGridLayout({
-          autoRows: '200px',
+          autoRows: this.state.panelType === 'volume' ? '200px' : '35px',
           children: children,
           isLazy: true,
           templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          autoRows: '200px',
+          autoRows: this.state.panelType === 'volume' ? '200px' : '35px',
           children: childrenClones,
           isLazy: true,
           templateColumns: '1fr',
@@ -373,73 +359,34 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
 
-    let body: VizPanelBuilder<BarGaugeOptions, FieldConfig> | VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig>;
-    if (this.state.panelType === 'volume') {
+    let body: VizPanelBuilder<TextOptions, FieldConfig> | VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig>;
+    if (this.state.panelType === 'text') {
+      const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
+      body = this.buildText(labelName, fieldType, dataTransformer);
+    } else {
       const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
       body = this.buildTimeSeries(fieldType, labelName, dataTransformer, panelType);
       body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
-      body.setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
-    } else if (this.state.panelType === 'cardinality_estimated') {
-      const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
-      body = this.buildGauge(labelName, fieldType, dataTransformer);
-    } else {
-      const queryRunner = this.getCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
-      body = this.buildStat(labelName, fieldType, queryRunner);
       body.setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
     }
 
     body.setShowMenuAlways(true);
 
     const viz = body.build();
+
     return new SceneCSSGridItem({
       body: viz,
     });
   }
 
-  private buildStat = (
+  private buildText = (
     labelName: string,
     fieldType: DetectedFieldType | undefined,
     queryProvider: SceneDataProvider
-  ) => {
-    return PanelBuilders.stat()
-      .setData(queryProvider)
+  ): VizPanelBuilder<TextOptions, FieldConfig> => {
+    const text = PanelBuilders.text()
       .setTitle(labelName)
-      .setThresholds({
-        mode: ThresholdsMode.Absolute,
-        steps: [
-          { color: '', value: 33 },
-          { color: '', value: 66 },
-          { color: '', value: 100 },
-        ],
-      })
-      .setHeaderActions(
-        new SelectLabelActionScene({
-          description: `Count of unique values in ${labelName}`,
-          fieldType: ValueSlugs.field,
-          hasNumericFilters: fieldType === 'int',
-          labelName: labelName,
-        })
-      );
-  };
-
-  private buildGauge = (
-    labelName: string,
-    fieldType: DetectedFieldType | undefined,
-    queryProvider: SceneDataProvider
-  ): VizPanelBuilder<BarGaugeOptions, FieldConfig> => {
-    const gauge = PanelBuilders.gauge()
-      .setMax(100)
-      .setMin(1)
-      .setThresholds({
-        mode: ThresholdsMode.Percentage,
-        steps: [
-          { color: 'green', value: 33 },
-          { color: 'yellow', value: 66 },
-          { color: 'red', value: 100 },
-        ],
-      })
       .setData(queryProvider)
-      .setTitle(labelName)
       .setHeaderActions(
         new SelectLabelActionScene({
           fieldType: ValueSlugs.field,
@@ -448,9 +395,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         })
       );
 
-    gauge.setOverrides(setGaugeUnitOverrides);
-
-    return gauge;
+    // const sparcity = calculateSparsity(this, labelName);
+    // text.setOption('content', sparcity.description ?? '');
+    text.setOption('content', '');
+    return text;
   };
 
   private buildTimeSeries = (
@@ -519,7 +467,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   private getEstimatedCardinalityQueryRunnerForPanel(optionValue: string, detectedFieldsFrame: DataFrame | undefined) {
-    // const cardinality = getEstimatedCardinality(optionValue, detectedFieldsFrame);
     const sparsity = calculateSparsity(this, optionValue);
     if (sparsity.cardinality) {
       return new SceneDataTransformer({
@@ -529,24 +476,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     return new SceneDataTransformer({
       transformations: [],
-    });
-  }
-
-  private getCardinalityQueryRunnerForPanel(optionValue: string, detectedFieldsFrame: DataFrame | undefined) {
-    const fieldsVariable = getFieldsVariable(this);
-    const jsonVariable = getJSONFieldsVariable(this);
-    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
-    const query = buildDataQuery(queryString, {
-      legendFormat: `{{${optionValue}}}`,
-      queryType: 'instant',
-      refId: `Instant - ${optionValue}`,
-    });
-
-    return new SceneDataTransformer({
-      $data: getSceneQueryRunner({
-        queries: [query],
-      }),
-      transformations: [instantQueryCardinality],
     });
   }
 
@@ -611,28 +540,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   };
 }
 
-export function instantQueryCardinality() {
-  return (source: Observable<DataFrame[]>) => {
-    return source.pipe(
-      map((frames) => {
-        const resultFrames = [
-          toDataFrame({
-            fields: [
-              {
-                name: 'Cardinality',
-                type: FieldType.number,
-                values: [frames?.[0]?.fields?.[1].values.length ?? null],
-              },
-            ],
-          }),
-        ];
-
-        return resultFrames;
-      })
-    );
-  };
-}
-
 export const GAUGE_CARDINALITY_FIELD_NAME = 'Cardinality';
 export const SPARSITY_CARDINALITY_FIELD_NAME = 'Frequency';
 
@@ -647,11 +554,6 @@ export function estimatedCardinality(ctx: DataTransformContext, sparsity: Sparsi
                 name: GAUGE_CARDINALITY_FIELD_NAME,
                 type: FieldType.number,
                 values: [sparsity.cardinality],
-              },
-              {
-                name: SPARSITY_CARDINALITY_FIELD_NAME,
-                type: FieldType.number,
-                values: [sparsity.sparsity],
               },
             ],
           }),
