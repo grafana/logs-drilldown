@@ -361,8 +361,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     } else {
       const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
       body = this.buildTimeSeries(fieldType, labelName, dataTransformer, panelType);
-      body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
-      body.setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
     }
 
     body.setShowMenuAlways(true);
@@ -439,6 +437,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         })
       );
     }
+    body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
     body.setHeaderActions(headerActions);
     return body;
   };
