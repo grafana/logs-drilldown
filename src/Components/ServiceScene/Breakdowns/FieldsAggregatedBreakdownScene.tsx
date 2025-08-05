@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { map, Observable } from 'rxjs';
-
-import { DataFrame, DataTransformContext, FieldConfig, FieldType, LoadingState, toDataFrame } from '@grafana/data';
+import { DataFrame, FieldConfig, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
@@ -29,11 +27,9 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { ValueSlugs } from '../../../services/enums';
 import {
   buildFieldsQueryString,
-  calculateSparsity,
   extractParserFromArray,
   getDetectedFieldType,
   isAvgField,
-  SparsityCalculation,
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
 import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
@@ -360,7 +356,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     let body: VizPanelBuilder<TextOptions, FieldConfig> | VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig>;
     if (this.state.fieldsPanelsType === 'text') {
-      const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName, detectedFieldsFrame);
+      const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName);
       body = this.buildText(labelName, fieldType, dataTransformer);
     } else {
       const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
@@ -463,14 +459,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     return getQueryRunner([query]);
   }
 
-  private getEstimatedCardinalityQueryRunnerForPanel(optionValue: string, detectedFieldsFrame: DataFrame | undefined) {
-    const sparsity = calculateSparsity(this, optionValue);
-    if (sparsity.cardinality) {
-      return new SceneDataTransformer({
-        transformations: [(ctx) => estimatedCardinality(ctx, sparsity)],
-      });
-    }
-
+  private getEstimatedCardinalityQueryRunnerForPanel(optionValue: string) {
     return new SceneDataTransformer({
       transformations: [],
     });
@@ -534,29 +523,5 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
 
     return <LoadingPlaceholder text={'Loading...'} />;
-  };
-}
-
-export const GAUGE_CARDINALITY_FIELD_NAME = 'Cardinality';
-export const SPARSITY_CARDINALITY_FIELD_NAME = 'Frequency';
-
-export function estimatedCardinality(ctx: DataTransformContext, sparsity: SparsityCalculation) {
-  return (source: Observable<DataFrame[]>) => {
-    return source.pipe(
-      map((frames) => {
-        const resultFrames = [
-          toDataFrame({
-            fields: [
-              {
-                name: GAUGE_CARDINALITY_FIELD_NAME,
-                type: FieldType.number,
-                values: [sparsity.cardinality],
-              },
-            ],
-          }),
-        ];
-        return resultFrames;
-      })
-    );
   };
 }
