@@ -3,7 +3,8 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
 import { replaceSlash } from './extensions/links';
@@ -399,7 +400,7 @@ export function getLineFilterExclusive(defaultValue: boolean): boolean {
 const PANEL_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.panel.option`;
 export interface PanelOptions {
   collapsed: CollapsablePanelText;
-  panelType: AvgFieldPanelType;
+  panelType: TimeSeriesPanelType;
 }
 export function getPanelOption<K extends keyof PanelOptions, V extends PanelOptions[K]>(
   option: K,
@@ -439,4 +440,17 @@ export function getSceneLayout(): string | null {
 }
 export function setSceneLayout(layout: string) {
   localStorage.setItem(SCENE_LAYOUT_LOCALSTORAGE_KEY, layout);
+}
+
+const FIELDS_PANEL_TYPES = `${pluginJson.id}.fieldsBreakdown.fieldsPanelType`;
+export function getFieldsPanelTypes(): FieldsPanelsType | null {
+  const stored = localStorage.getItem(FIELDS_PANEL_TYPES);
+  if (stored === 'text' || stored === 'timeseries') {
+    return stored;
+  }
+  return null;
+}
+
+export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
+  localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
 }

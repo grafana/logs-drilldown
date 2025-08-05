@@ -191,7 +191,13 @@ function splitQueriesByStreamShard(
         if (nextGroupSize !== groupSize) {
           debug(`New group size ${nextGroupSize}`);
         }
-        mergedResponse = combineResponses(mergedResponse, partialResponse);
+        try {
+          mergedResponse = combineResponses(mergedResponse, partialResponse);
+        } catch (e) {
+          logger.error(e, { msg: 'shardQuerySplitting::combineResponses error!' });
+          mergedResponse = mergedResponse.data.length > partialResponse.data.length ? mergedResponse : partialResponse;
+          done();
+        }
       },
     });
   };

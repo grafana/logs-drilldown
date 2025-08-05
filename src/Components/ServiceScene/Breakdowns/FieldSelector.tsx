@@ -139,7 +139,6 @@ function getStyles(theme: GrafanaTheme2) {
     selectWrapper: css({
       label: 'field-selector-select-wrapper',
       marginBottom: 0,
-      marginRight: theme.spacing.x1,
       maxWidth: theme.spacing(62.5),
       minWidth: theme.spacing(20),
     }),

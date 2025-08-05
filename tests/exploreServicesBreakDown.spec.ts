@@ -995,7 +995,6 @@ test.describe('explore services breakdown page', () => {
   });
   test('Should only call patterns API once on time range change', async ({ page }) => {
     let patternsCount = 0;
-    await page.pause();
     await page.route('**/patterns?**', async (route, request) => {
       patternsCount++;
       // Let the request go through normally
@@ -1415,21 +1414,18 @@ test.describe('explore services breakdown page', () => {
 
     // Go to the fields tab and assert errors aren't showing
     await explorePage.goToFieldsTab();
-    await expect(panelErrorLocator).toHaveCount(0);
-
-    // Now assert that content is not hidden (will hit 1000 series limit and throw warning)
-    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
-    await expect(contentPanelLocator).toHaveCount(1);
-    await expect(versionPanelLocator).toHaveCount(1);
+    await expect.poll(() => panelErrorLocator.count()).toEqual(1);
+    await expect.poll(() => contentPanelLocator.count()).toEqual(1);
+    await expect.poll(() => versionPanelLocator.count()).toEqual(1);
 
     // Open the dropdown and change from include to exclude
     await versionPanelLocator.getByTestId(testIds.breakdowns.common.filterSelect).click();
     await versionFilterButton.getByText('Exclude', { exact: true }).click();
 
     // Exclude version
-    await expect(versionVariableLocator).toHaveCount(1);
-    await expect(versionVariableLocator).toContainText('=');
-    await expect(versionVariableLocator).not.toContainText('!=');
+    await expect.poll(() => versionVariableLocator.count()).toEqual(1);
+    await expect.poll(() => versionVariableLocator.textContent()).toContain('=');
+    await expect.poll(() => versionVariableLocator.textContent()).not.toContain('!=');
 
     // Open the menu
     await versionVariableLocator.click();
@@ -1452,7 +1448,6 @@ test.describe('explore services breakdown page', () => {
     await expect(versionVariableLocator).toContainText('!=');
 
     // Assert errors are visible
-    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
     await expect(panelErrorLocator).toHaveCount(0);
 
     // Now assert that content is hidden (will hit 1000 series limit and throw error)

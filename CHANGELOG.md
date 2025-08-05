@@ -1,6 +1,54 @@
 # Changelog
 
-#### 1.0.23
+## 1.0.25
+
+##### New Features
+
+* **fields:**  field name view (#1374) (79378a18)
+
+##### Bug Fixes
+
+* **assistant:**  move `getObservablePluginLinks` to `@grafana/assistant` package (#1477) (1cbbe3d9)
+*  prevent runtime error in Grafana 11.6 from crashing in Drilldown 1.0.24 (#1475) (a0b6fca7)
+
+
+## 1.0.24
+
+##### Chores
+
+* **performance:**  Sharding - always join on labels (#1472) (1e3bf13d)
+* **ci:**  turn on the argo workflows for releasing to prod without auto merge (#1445) (20c219ec)
+* **dep:**  update grafana dependencies for compatibility (#1451) (8f0dbdcd)
+* **JSON:**
+  *  replace inline svgs with background images (#1446) (c1796e05)
+  *  memoize to prevent uncessary re-renders (#1441) (531348cb)
+
+##### New Features
+
+* **Patterns:**  filter by level (#1459) (65a92234)
+* **assistant-context:**  provide datasource and labels as context to Assistant (#1458) (b085e756)
+
+##### Bug Fixes
+
+*  prevent runtime error (#1473) (adc8fc3c)
+* **shardQuerySplitting:**  stop when hitting max series (#1469) (0f3b1de9)
+* **ServiceSelection:**
+  *  header offset conflict with sidebar apps (#1468) (2e3f7edb)
+  *  reset service selection after changing data source (#1455) (d43f0180)
+* **fields:**  show max series notice in panel (#1467) (131b2502)
+* **serviceSelection:**  respect displayed fields if previously set (#1456) (8dbbceb9)
+* **Links:**  multi dashboard variable interpolation (#1454) (a5e4ed9c)
+
+##### Other Changes
+
+*  hide certain commit msgs (#1442) (7eb6b3e8)
+
+##### Tests
+
+* **e2e:**  fix e2e (#1448) (4cc60c31)
+
+
+## 1.0.23
 
 ##### Chores
 
@@ -45,7 +93,7 @@
 * **table:**  fix overflow with docked nav (#1403) (e51dcdcc)
 
 
-#### 1.0.22
+## 1.0.22
 
 ##### Chores
 
@@ -63,7 +111,7 @@
 *  limit patterns to 500 (#1390) (e2abf9a7)
 
 
-#### 1.0.21
+## 1.0.21
 
 ##### New Features
 
@@ -82,7 +130,7 @@
 *  Publish each commit to dev + ops, auto-merge dev and ops PRs (#1375) (a25eb8c6)
 
 
-#### 1.0.20
+## 1.0.20
 
 ##### Chores
 
@@ -93,7 +141,7 @@
 * **EmbeddedLogs:**  embedded logs url parameter namespace (#1353) (11340a2c)
 
 
-#### 1.0.19
+## 1.0.19
 
 ##### Chores
 
@@ -117,7 +165,7 @@
 *  hopeful flake fix (21c05825)
 
 
-#### 1.0.18
+## 1.0.18
 
 ##### Chores
 
@@ -146,7 +194,7 @@
 * **JSON:**  add second json parser stage (#1301) (20b338dd)
 * **EmbeddedLogs:**  Prevent readonly filter removal (#1323) (39678dbe)
 
-#### 1.0.17
+## 1.0.17
 
 ##### Chores
 
@@ -159,7 +207,7 @@
 
 * **table:**  move sorting and remove initial sorting from table (#1284) (f0561406)
 
-#### 1.0.16
+## 1.0.16
 
 ##### Chores
 
@@ -177,7 +225,7 @@
 *  Add favorites docs to readme (#1277) (cd64dbfc)
 *  Dashboards > Visualizations (#1261) (216b9256)
 
-#### 1.0.15
+## 1.0.15
 
 ##### Chores
 
