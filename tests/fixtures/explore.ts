@@ -434,6 +434,51 @@ export class ExplorePage {
         throw new Error('invalid filter op');
     }
   }
+
+  async assertTwoPanelMenus() {
+    const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
+    const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
+
+    // Check menus for errors
+    // Check first panel
+    await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuExploreItem).toBeVisible();
+    await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuExploreItem).not.toBeVisible();
+
+    // Check second panel
+    await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuExploreItem).toBeVisible();
+    await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuExploreItem).not.toBeVisible();
+  }
+
+  /**
+   * Asserts that label/field menus open and have link to explore
+   * Since most of the integrations with other plugins are hooked into the viz panel menus,
+   * this test asserts that fatal errors are not being triggered when the menu is rendered
+   */
+  async assertBreakdownPanelMenus() {
+    await this.assertTwoPanelMenus();
+
+    const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
+    const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
+
+    // Go to label value summary
+    await this.page.getByText('Select').first().click();
+
+    // Check first (summary) panel
+    await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuExploreItem).toBeVisible();
+    await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuExploreItem).not.toBeVisible();
+
+    // Check second (value) panel
+    await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuExploreItem).toBeVisible();
+    await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuExploreItem).not.toBeVisible();
+  }
 }
 
 export const E2EComboboxStrings = {
