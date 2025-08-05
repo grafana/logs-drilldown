@@ -61,7 +61,7 @@ import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
 import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
 
-export type FieldsPanelsType = 'text' | 'volume';
+export type FieldsPanelsType = 'text' | 'timeseries';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
@@ -73,7 +73,7 @@ export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
     super({
-      fieldsPanelsType: getFieldsPanelTypes() ?? 'volume',
+      fieldsPanelsType: getFieldsPanelTypes() ?? 'timeseries',
       showErrorPanels: getShowErrorPanels(),
       showErrorPanelToggle: false,
       ...state,
@@ -112,7 +112,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                 const existingParser = index && index !== -1 ? newParsersField?.values[index] : undefined;
 
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
-                if (this.state.fieldsPanelsType === 'volume' && existingParser !== newParser) {
+                if (this.state.fieldsPanelsType === 'timeseries' && existingParser !== newParser) {
                   const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
                   const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
@@ -251,13 +251,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       active: 'grid',
       layouts: [
         new SceneCSSGridLayout({
-          autoRows: this.state.fieldsPanelsType === 'volume' ? '200px' : '35px',
+          autoRows: this.state.fieldsPanelsType === 'timeseries' ? '200px' : '35px',
           children: children,
           isLazy: true,
           templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          autoRows: this.state.fieldsPanelsType === 'volume' ? '200px' : '35px',
+          autoRows: this.state.fieldsPanelsType === 'timeseries' ? '200px' : '35px',
           children: childrenClones,
           isLazy: true,
           templateColumns: '1fr',

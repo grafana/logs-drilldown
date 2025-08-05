@@ -16,7 +16,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
   const options: Array<SelectableValue<FieldsPanelsType>> = [
     {
       label: 'Volume',
-      value: 'volume',
+      value: 'timeseries',
     },
     {
       label: 'Names',

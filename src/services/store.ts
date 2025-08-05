@@ -445,7 +445,7 @@ export function setSceneLayout(layout: string) {
 const FIELDS_PANEL_TYPES = `${pluginJson.id}.fieldsBreakdown.fieldsPanelType`;
 export function getFieldsPanelTypes(): FieldsPanelsType | null {
   const stored = localStorage.getItem(FIELDS_PANEL_TYPES);
-  if (stored === 'text' || stored === 'volume') {
+  if (stored === 'text' || stored === 'timeseries') {
     return stored;
   }
   return null;
