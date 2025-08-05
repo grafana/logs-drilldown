@@ -3,9 +3,25 @@ import { dirname } from 'node:path';
 
 import type { PluginOptions } from '@grafana/plugin-e2e';
 
+import { GRAFANA_VERSIONS_SUPPORTED } from './tests/config/grafana-versions-supported';
 import { E2ESubPath } from './tests/fixtures/explore';
 
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
+
+// Determine test directory based on GRAFANA_VERSION
+const getTestDir = () => {
+  const grafanaVersion = process.env.GRAFANA_VERSION;
+  console.log('grafanaVersion', grafanaVersion);
+
+  // Find matching version configuration
+  const versionConfig = GRAFANA_VERSIONS_SUPPORTED.find((config) => config.version === grafanaVersion);
+
+  // Return the configured test directory or default to './tests'
+  return versionConfig?.testDir || './tests';
+};
+
+const testDir = getTestDir();
+console.log('testDir', testDir);
 
 /**
  * Read environment variables from file.
@@ -45,7 +61,7 @@ export default defineConfig<PluginOptions>({
   reporter: 'html',
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
-  testDir: './tests',
+  testDir,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
