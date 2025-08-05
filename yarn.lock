@@ -1126,10 +1126,10 @@
   dependencies:
     tslib "^2.8.0"
 
-"@grafana/assistant@^0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@grafana/assistant/-/assistant-0.0.11.tgz#5166f633b35107fd605c81c3e37a5491e77b9b71"
-  integrity sha512-3Ejdscc2Y+jdAWTNH9SOmcZtd5RzirNZE149xTVCxeLkIUU6802xLn21qpJsrWe1rdgMRGFUCewYnt0imymtnQ==
+"@grafana/assistant@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@grafana/assistant/-/assistant-0.0.14.tgz#29e5fab464c0f392f45b0949ea6a39cf6af765f5"
+  integrity sha512-5Ts3FsucKHNnzn0AaOHBM0ouSc7B+ypTMf61zJFfgtBAopnnR2k/KybSq0zxyznYbvElbJdD1QsaFxJdDzrI5w==
 
 "@grafana/data@12.1.0", "@grafana/data@^12.1.0":
   version "12.1.0"
