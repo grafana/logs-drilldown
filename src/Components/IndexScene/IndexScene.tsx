@@ -209,6 +209,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       patterns: [],
       ...state,
       body: new LayoutScene({}),
+      bytesProcessed: 0,
     });
 
     this._subs.add(unsub);

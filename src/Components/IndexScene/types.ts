@@ -9,6 +9,7 @@ import { LayoutScene } from './LayoutScene';
 
 export interface IndexSceneState extends SceneObjectState {
   body?: LayoutScene;
+  bytesProcessed?: number;
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
   controls?: SceneObject[];

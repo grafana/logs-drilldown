@@ -7,6 +7,7 @@ import {
   FieldMatcherID,
   FieldType,
   getFieldDisplayName,
+  LoadingState,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -19,6 +20,7 @@ import {
   SceneDataProvider,
   SceneDataProviderResult,
   SceneDataTransformer,
+  sceneGraph,
   SceneObject,
   SceneQueryRunner,
   VizPanel,
@@ -26,6 +28,7 @@ import {
 import { HideSeriesConfig, LogsSortOrder } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
+import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
 import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
@@ -324,19 +327,45 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
     }));
   }
 
-  return getSceneQueryRunner({
+  const queryRunner = getSceneQueryRunner({
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: queries,
     ...queryRunnerOptions,
   });
+
+  return queryRunner;
 }
 
 export function getSceneQueryRunner(queryRunnerOptions?: Partial<QueryRunnerState>) {
-  return new SceneQueryRunner({
+  const queryRunner = new SceneQueryRunner({
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: [],
     ...queryRunnerOptions,
   });
+
+  queryRunner.addActivationHandler(() => {
+    const indexScene = sceneGraph.getAncestor(queryRunner, IndexScene);
+    queryRunner.subscribeToState((newState, prevState) => {
+      if (
+        newState.data?.state === LoadingState.Done ||
+        newState.data?.state === LoadingState.Streaming ||
+        newState.data?.state === LoadingState.Error
+      ) {
+        const df = newState.data?.series.find((df) => df.meta?.stats);
+        const stats = df?.meta?.stats;
+        const totalBytesProcessed = stats?.find(
+          (stat) => stat.displayName === 'Summary: total bytes processed' && stat.unit === 'decbytes' && stat.value > 0
+        );
+        if (totalBytesProcessed) {
+          indexScene.setState({
+            bytesProcessed: (indexScene.state.bytesProcessed ?? 0) + totalBytesProcessed.value,
+          });
+        }
+      }
+    });
+  });
+
+  return queryRunner;
 }
 
 export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQueryRunner {

@@ -35,7 +35,7 @@ const getStyles = (theme: GrafanaTheme2) => {
     wrapper: css({
       display: 'flex',
       gap: theme.spacing(1),
-      marginLeft: 'auto',
+      marginLeft: theme.spacing(2),
       position: 'relative',
       top: theme.spacing(-1),
     }),

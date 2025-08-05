@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
@@ -49,6 +49,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
     const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
+    const bytesProcessed = getValueFormat('decbytes')(indexScene.state.bytesProcessed ?? 0);
 
     return (
       <div
@@ -71,7 +72,12 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
               <div className={styles.controlsWrapper}>
-                {!indexScene.state.embedded && <GiveFeedbackButton />}
+                <div className={styles.feedbackWrapper}>
+                  <span className={styles.bytesProcessed}>
+                    Total bytes processed: {bytesProcessed.text} {bytesProcessed.suffix}
+                  </span>
+                  {!indexScene.state.embedded && <GiveFeedbackButton />}
+                </div>
                 <div className={styles.timeRangeDatasource}>
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
@@ -184,6 +190,17 @@ function getStyles(theme: GrafanaTheme2, height: number) {
       flexDirection: 'column',
       label: 'controlsWrapper',
       marginTop: theme.spacing(0.375),
+    }),
+    bytesProcessed: css({
+      display: 'flex',
+      gap: theme.spacing(1),
+      position: 'relative',
+      top: theme.spacing(-1),
+    }),
+    feedbackWrapper: css({
+      fontSize: theme.typography.bodySmall.fontSize,
+      display: 'flex',
+      justifyContent: 'space-between',
     }),
     filters: css({
       display: 'flex',
