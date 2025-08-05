@@ -14,4 +14,5 @@ tsconfig-for-bundle-types.json
 playwright-report/
 **/*.md
 *.yaml
+**/*.json
 **/*.svg

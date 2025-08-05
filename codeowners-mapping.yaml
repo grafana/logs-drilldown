@@ -1,0 +1,5 @@
+# BENCH - make sure you invite your grafana-bench app to your channel!
+# from the channel you want alerts in: `/invite @grafana-bench`
+mapping:
+  - slack_channel: 'C090RGXKL23'
+    github_team: '@grafana/observability-logs'
