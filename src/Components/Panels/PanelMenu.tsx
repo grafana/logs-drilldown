@@ -140,7 +140,8 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         }),
       });
 
-      try {
+      // `getObservablePluginLinks` is introduced in Grafana v12 which is called by isAssistantAvailable
+      if (getObservablePluginLinks !== undefined) {
         this._subs.add(
           isAssistantAvailable().subscribe(async (isAvailable) => {
             if (isAvailable) {
@@ -179,8 +180,6 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
             }
           })
         );
-      } catch (error) {
-        logger.error(error, { msg: `Grafana assistant requires Grafana >= 12.0.0` });
       }
 
       this._subs.add(
@@ -351,19 +350,15 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
   }
 
   // `getObservablePluginLinks` is introduced in Grafana v12
-  try {
-    if (getObservablePluginLinks !== undefined) {
-      const links: PluginExtensionLink[] = await firstValueFrom(
-        getObservablePluginLinks({
-          context,
-          extensionPointId,
-        })
-      );
+  if (getObservablePluginLinks !== undefined) {
+    const links: PluginExtensionLink[] = await firstValueFrom(
+      getObservablePluginLinks({
+        context,
+        extensionPointId,
+      })
+    );
 
-      return links[0];
-    }
-  } catch (e) {
-    logger.error(e, { msg: `Grafana assistant requires Grafana >= 12.0.0` });
+    return links[0];
   }
 
   return undefined;

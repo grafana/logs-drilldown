@@ -2,7 +2,7 @@ import React from 'react';
 
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
-import { config, getAppEvents, locationService } from '@grafana/runtime';
+import { config, getAppEvents, locationService, getObservablePluginLinks } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -286,8 +286,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     ) {
       getMetadataService().setEmbedded(this.state.embedded);
     }
-
-    try {
+    // `getObservablePluginLinks` is introduced in Grafana v12 which is called by isAssistantAvailable
+    if (getObservablePluginLinks !== undefined) {
       this._subs.add(
         isAssistantAvailable().subscribe((isAvailable) => {
           if (isAvailable && !this.assistantInitialized) {
@@ -295,8 +295,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
           }
         })
       );
-    } catch (error) {
-      logger.error(error, { msg: `Grafana assistant requires Grafana >= 12.0.0` });
     }
 
     return () => {
