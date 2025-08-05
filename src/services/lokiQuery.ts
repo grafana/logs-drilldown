@@ -20,7 +20,6 @@ export type LokiQuery = {
   maxLines?: number;
   queryType?: LokiQueryType;
   refId: string;
-  splitDuration?: string;
   step?: string;
   supportingQueryType?: string;
 };

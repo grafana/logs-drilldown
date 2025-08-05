@@ -1,20 +1,27 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
-
-import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
+import { DataFrame, FieldConfig, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   QueryRunnerState,
   SceneComponentProps,
   SceneCSSGridItem,
   SceneCSSGridLayout,
+  SceneDataProvider,
+  SceneDataTransformer,
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
+  SceneQueryRunner,
   VizPanel,
+  VizPanelBuilder,
 } from '@grafana/scenes';
-import { DrawStyle, IconButton, InlineSwitch, Label, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
+import { Options as TextOptions } from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
+import {
+  FieldConfig as TimeSeriesFieldConfig,
+  Options as TimeSeriesOptions,
+} from '@grafana/schema/dist/esm/raw/composable/timeseries/panelcfg/x/TimeSeriesPanelCfg_types.gen';
+import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { ValueSlugs } from '../../../services/enums';
@@ -25,9 +32,9 @@ import {
   isAvgField,
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
-import { getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
+import { getFieldsPanelTypes, getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
@@ -35,7 +42,7 @@ import {
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
-import { AvgFieldPanelType, getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
+import { getPanelWrapperStyles, PanelMenu, TimeSeriesPanelType } from '../../Panels/PanelMenu';
 import {
   getDetectedFieldsFrame,
   getDetectedFieldsFrameFromQueryRunnerState,
@@ -46,10 +53,15 @@ import {
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
+import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
+import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+
+export type FieldsPanelsType = 'text' | 'timeseries';
 
 export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
+  fieldsPanelsType: FieldsPanelsType;
   showErrorPanels: boolean;
   showErrorPanelToggle: boolean;
 }
@@ -57,6 +69,7 @@ export interface FieldsAggregatedBreakdownSceneState extends SceneObjectState {
 export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggregatedBreakdownSceneState> {
   constructor(state: Partial<FieldsAggregatedBreakdownSceneState>) {
     super({
+      fieldsPanelsType: getFieldsPanelTypes() ?? 'timeseries',
       showErrorPanels: getShowErrorPanels(),
       showErrorPanelToggle: false,
       ...state,
@@ -67,7 +80,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   private onDetectedFieldsChange = (newState: QueryRunnerState) => {
     if (newState.data?.state === LoadingState.Done) {
-      //@todo cardinality looks wrong in API response
       this.updateChildren(newState);
     }
   };
@@ -96,9 +108,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                 const existingParser = index && index !== -1 ? newParsersField?.values[index] : undefined;
 
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
-                if (existingParser !== newParser) {
+                if (this.state.fieldsPanelsType === 'timeseries' && existingParser !== newParser) {
                   const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
-                  const dataTransformer = this.getQueryRunnerForPanel(
+                  const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
                     detectedFieldsFrame,
                     fieldType
@@ -180,6 +192,16 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     this._subs.add(serviceScene.state.$detectedFieldsData?.subscribeToState(this.onDetectedFieldsChange));
     this._subs.add(this.subscribeToFieldsVar());
+    this._subs.add(
+      this.subscribeToState((newState, prevState) => {
+        if (newState.fieldsPanelsType !== prevState.fieldsPanelsType) {
+          // All query runners need to be rebuilt
+          this.setState({
+            body: this.build(),
+          });
+        }
+      })
+    );
   }
 
   private subscribeToFieldsVar() {
@@ -225,13 +247,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       active: 'grid',
       layouts: [
         new SceneCSSGridLayout({
-          autoRows: '200px',
+          autoRows: this.state.fieldsPanelsType === 'timeseries' ? '200px' : '35px',
           children: children,
           isLazy: true,
           templateColumns: FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          autoRows: '200px',
+          autoRows: this.state.fieldsPanelsType === 'timeseries' ? '200px' : '35px',
           children: childrenClones,
           isLazy: true,
           templateColumns: '1fr',
@@ -260,6 +282,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
               this.setState({ showErrorPanelToggle: true });
             }
             this.updateFieldCount();
+          } else {
+            setPanelNotices(result, panel);
           }
         })
       );
@@ -271,8 +295,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const activeLayout = this.getActiveGridLayouts();
     const children: SceneCSSGridItem[] = [];
     const panelType =
-      getPanelOption('panelType', [AvgFieldPanelType.histogram, AvgFieldPanelType.timeseries]) ??
-      AvgFieldPanelType.timeseries;
+      getPanelOption('panelType', [TimeSeriesPanelType.histogram, TimeSeriesPanelType.timeseries]) ??
+      TimeSeriesPanelType.timeseries;
 
     activeLayout?.state.children.forEach((child) => {
       if (
@@ -308,8 +332,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const children: SceneCSSGridItem[] = [];
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
     const panelType =
-      getPanelOption('panelType', [AvgFieldPanelType.timeseries, AvgFieldPanelType.histogram]) ??
-      AvgFieldPanelType.timeseries;
+      getPanelOption('panelType', [TimeSeriesPanelType.timeseries, TimeSeriesPanelType.histogram]) ??
+      TimeSeriesPanelType.timeseries;
     for (const option of options) {
       if (option === ALL_VARIABLE_VALUE || !option) {
         continue;
@@ -323,16 +347,59 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     return children;
   }
 
-  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType?: AvgFieldPanelType) {
+  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType?: TimeSeriesPanelType) {
     if (labelName === ALL_VARIABLE_VALUE || !labelName) {
       return;
     }
 
     const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
-    const dataTransformer = this.getQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
-    let body;
 
-    const headerActions = [];
+    let body: VizPanelBuilder<TextOptions, FieldConfig> | VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig>;
+    if (this.state.fieldsPanelsType === 'text') {
+      const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName);
+      body = this.buildText(labelName, fieldType, dataTransformer);
+    } else {
+      const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
+      body = this.buildTimeSeries(fieldType, labelName, dataTransformer, panelType);
+    }
+
+    body.setShowMenuAlways(true);
+
+    const viz = body.build();
+
+    return new SceneCSSGridItem({
+      body: viz,
+    });
+  }
+
+  private buildText = (
+    labelName: string,
+    fieldType: DetectedFieldType | undefined,
+    queryProvider: SceneDataProvider
+  ): VizPanelBuilder<TextOptions, FieldConfig> => {
+    const text = PanelBuilders.text()
+      .setTitle(labelName)
+      .setData(queryProvider)
+      .setHeaderActions(
+        new SelectLabelActionScene({
+          fieldType: ValueSlugs.field,
+          hasNumericFilters: fieldType === 'int',
+          labelName: String(labelName),
+        })
+      );
+
+    text.setOption('content', '');
+    return text;
+  };
+
+  private buildTimeSeries = (
+    fieldType: 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string' | undefined,
+    labelName: string,
+    dataTransformer: SceneDataTransformer | SceneQueryRunner,
+    panelType: TimeSeriesPanelType | undefined
+  ): VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig> => {
+    let body;
+    let headerActions = [];
     if (!isAvgField(fieldType)) {
       body = PanelBuilders.timeseries()
         .setTitle(labelName)
@@ -370,17 +437,12 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         })
       );
     }
-    body.setHeaderActions(headerActions);
     body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
-    body.setShowMenuAlways(true);
+    body.setHeaderActions(headerActions);
+    return body;
+  };
 
-    const viz = body.build();
-    return new SceneCSSGridItem({
-      body: viz,
-    });
-  }
-
-  private getQueryRunnerForPanel(
+  private getTimeSeriesQueryRunnerForPanel(
     optionValue: string,
     detectedFieldsFrame: DataFrame | undefined,
     fieldType?: DetectedFieldType
@@ -394,6 +456,12 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     });
 
     return getQueryRunner([query]);
+  }
+
+  private getEstimatedCardinalityQueryRunnerForPanel(optionValue: string) {
+    return new SceneDataTransformer({
+      transformations: [],
+    });
   }
 
   private getActiveGridLayouts() {
@@ -439,6 +507,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   public static ShowErrorPanelToggle = ShowErrorPanelToggle;
 
+  public static ShowFieldDisplayToggle = ShowFieldDisplayToggle;
+
   public static Selector({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
     const { body } = model.useState();
     return <>{body && <LayoutSwitcher.Selector model={body} />}</>;
@@ -453,47 +523,4 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     return <LoadingPlaceholder text={'Loading...'} />;
   };
-}
-
-const errorToggleStyles = (theme: GrafanaTheme2) => {
-  return {
-    toggleIcon: css({
-      color: theme.colors.error.main,
-      marginRight: theme.spacing(1),
-    }),
-    toggleLabel: css({
-      display: 'flex',
-
-      marginRight: theme.spacing(2),
-    }),
-    toggleLabelText: css({
-      marginRight: theme.spacing(1),
-    }),
-  };
-};
-
-export function ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
-  const { showErrorPanels, showErrorPanelToggle } = model.useState();
-  const styles = useStyles2(errorToggleStyles);
-
-  if (showErrorPanelToggle) {
-    return (
-      <Label className={styles.toggleLabel}>
-        <IconButton
-          className={styles.toggleIcon}
-          tooltip={'One or more requests could not be processed'}
-          name={'exclamation-triangle'}
-          variant={'secondary'}
-        />
-        <span className={styles.toggleLabelText}>Show panels with errors</span>
-
-        <InlineSwitch
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}
-          value={showErrorPanels}
-        />
-      </Label>
-    );
-  }
-
-  return null;
 }

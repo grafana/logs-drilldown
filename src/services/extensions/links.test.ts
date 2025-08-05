@@ -1,4 +1,4 @@
-import { dateTime, PluginExtensionPanelContext } from '@grafana/data';
+import { dateTime, PluginExtensionPanelContext, CustomVariableModel, VariableHide, LoadingState } from '@grafana/data';
 
 import {
   ValidByteUnitValues,
@@ -6,7 +6,7 @@ import {
 } from '../../Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
 import { LokiQuery } from '../lokiQuery';
 import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from '../variables';
-import { LinkConfigs, linkConfigs } from './links';
+import { interpolateQueryExpr, LinkConfigs, linkConfigs } from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
 
 // Mocking templateSrv is such a pain, if you are fighting variable interpolation start here.
@@ -921,5 +921,34 @@ describe('contextToLink', () => {
         });
       });
     });
+  });
+});
+
+describe('interpolateQueryExpr', () => {
+  it('interpolates dashboard custom multi variable', () => {
+    const variable: CustomVariableModel = {
+      current: {
+        selected: false,
+        text: '',
+        value: '',
+      },
+      multi: true,
+      includeAll: false,
+      allowCustomValue: true,
+      type: 'custom',
+      options: [],
+      query: '',
+      name: '',
+      id: '',
+      rootStateKey: null,
+      global: false,
+      skipUrlSync: false,
+      index: 0,
+      error: undefined,
+      description: null,
+      hide: VariableHide.dontHide,
+      state: LoadingState.Done,
+    };
+    expect(interpolateQueryExpr(['value1', 'value2'], variable)).toEqual('value1|value2');
   });
 });

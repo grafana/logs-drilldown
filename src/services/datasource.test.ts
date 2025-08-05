@@ -10,7 +10,7 @@ import {
 } from '@grafana/data';
 import { DataSourceWithBackend } from '@grafana/runtime';
 
-import { WrappedLokiDatasource } from './datasource';
+import { mergeLokiSamples, WrappedLokiDatasource } from './datasource';
 import { SceneDataQueryResourceRequest } from './datasourceTypes';
 import { DetectedFieldsResponse } from './fields';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
@@ -172,6 +172,29 @@ describe('datasource', () => {
           done();
         }
       });
+    });
+  });
+  describe('mergeLokiSamples', () => {
+    it('should merge dataframes', () => {
+      expect(
+        mergeLokiSamples(
+          [
+            [100, 10],
+            [110, 20],
+          ],
+          [
+            [90, 3],
+            [100, 7],
+            [110, 11],
+            [120, 13],
+          ]
+        )
+      ).toEqual([
+        [90, 3],
+        [100, 17],
+        [110, 31],
+        [120, 13],
+      ]);
     });
   });
 });

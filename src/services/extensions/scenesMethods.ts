@@ -11,3 +11,11 @@
 export function escapeLabelValueInExactSelector(labelValue: string): string {
   return labelValue.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/"/g, '\\"');
 }
+
+// Pulled from loki datasource
+export function lokiSpecialRegexEscape<T>(value: T) {
+  if (typeof value === 'string') {
+    return value.replace(/\\/g, '\\\\\\\\').replace(/[$^*{}\[\]+?.()|]/g, '\\\\$&');
+  }
+  return value;
+}

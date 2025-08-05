@@ -18,6 +18,8 @@ import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode } from '@gr
 
 import { areArraysEqual } from '../../../../services/comparison';
 import { logger } from '../../../../services/logger';
+import { isOperatorInclusive } from '../../../../services/operatorHelpers';
+import { getLevelsVariable } from '../../../../services/variableGetters';
 import { IndexScene } from '../../../IndexScene/IndexScene';
 import { ServiceScene } from '../../ServiceScene';
 import { onPatternClick } from './FilterByPatternsButton';
@@ -59,6 +61,8 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
   private onActivate() {
     this.updateBody();
+    const patternsBreakdownScene = sceneGraph.getAncestor(this, PatternsBreakdownScene);
+    this.updatePatterns(patternsBreakdownScene.state.patternFrames);
 
     // If the patterns have changed, recalculate the dataframes
     this._subs.add(
@@ -92,10 +96,22 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
         }
       })
     );
+
+    this._subs.add(
+      getLevelsVariable(this).subscribeToState((newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          const patternsBreakdownScene = sceneGraph.getAncestor(this, PatternsBreakdownScene);
+          this.updatePatterns(patternsBreakdownScene.state.patternFrames);
+        }
+      })
+    );
   }
 
   private async updatePatterns(patternFrames: PatternFrame[] = []) {
+    patternFrames = this.filterPatternFramesByLevel(patternFrames);
+
     // CSS Grid doesn't need rebuilding, just the children need the updated dataframe
+    // @todo we should probably be setting the state on this scene and subscribing to it from the children
     this.state.body?.forEachChild((child) => {
       if (child instanceof VizPanel) {
         child.setState({
@@ -109,6 +125,31 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
       }
     });
   }
+
+  private filterPatternFramesByLevel = (patternFrames: PatternFrame[]) => {
+    const levelsVar = getLevelsVariable(this);
+    const filters = levelsVar.state.filters;
+
+    if (
+      filters.length &&
+      patternFrames.some((patternFrame) => {
+        return patternFrame.levels.length > 0;
+      })
+    ) {
+      const levelsSet = new Set();
+      filters.forEach((filter) => {
+        if (isOperatorInclusive(filter.operator)) {
+          levelsSet.add(filter.value);
+        }
+      });
+
+      patternFrames = patternFrames.filter((patternFrame) => {
+        return patternFrame.levels.some((level) => levelsSet.has(level));
+      });
+    }
+
+    return patternFrames;
+  };
 
   private async updateBody() {
     const patternsBreakdownScene = sceneGraph.getAncestor(this, PatternsBreakdownScene);
@@ -225,7 +266,6 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
   private getTimeseriesDataNode(patternFrames: PatternFrame[]) {
     const timeRange = sceneGraph.getTimeRange(this).state.value;
-
     return new SceneDataNode({
       data: {
         series: patternFrames.map((patternFrame, seriesIndex) => {

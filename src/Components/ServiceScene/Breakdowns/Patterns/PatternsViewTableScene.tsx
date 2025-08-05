@@ -6,6 +6,7 @@ import { CellProps } from 'react-table';
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import {
+  AdHocFilterWithLabels,
   PanelBuilders,
   SceneComponentProps,
   SceneDataNode,
@@ -14,13 +15,16 @@ import {
   SceneObjectBase,
   SceneObjectState,
 } from '@grafana/scenes';
-import { AxisPlacement, Column, InteractiveTable, TooltipDisplayMode, useTheme2 } from '@grafana/ui';
+import { AxisPlacement, Column, InteractiveTable, TooltipDisplayMode, useTheme2, Button } from '@grafana/ui';
 
+import { isOperatorInclusive } from '../../../../services/operatorHelpers';
 import { LINE_LIMIT } from '../../../../services/query';
 import { testIds } from '../../../../services/testIds';
-import { AppliedPattern } from '../../../../services/variables';
+import { getLevelsVariable } from '../../../../services/variableGetters';
+import { AppliedPattern, LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../../services/variables';
 import { FilterButton } from '../../../FilterButton';
 import { IndexScene } from '../../../IndexScene/IndexScene';
+import { addToFilters } from '../AddToFiltersButton';
 import { onPatternClick } from './FilterByPatternsButton';
 import { PatternNameLabel } from './PatternNameLabel';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
@@ -45,8 +49,10 @@ export interface PatternsTableCellData {
   dataFrame: DataFrame;
   excludeLink: () => void;
   includeLink: () => void;
+  levels: string[];
   pattern: string;
   sum: number;
+  togglePatternLevel: (level: string) => void;
   undoLink: () => void;
 }
 
@@ -66,18 +72,15 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
 
   /**
    * Build columns for interactive table (wrapper for react-table v7)
-   * @param total
-   * @param appliedPatterns
-   * @param theme
-   * @param patternsNotMatchingFilters
-   * @protected
    */
   public buildColumns(
     total: number,
     appliedPatterns: AppliedPattern[] | undefined,
     theme: GrafanaTheme2,
     maxLines: number,
-    patternsNotMatchingFilters?: string[]
+    patternFrames: PatternFrame[],
+    patternsNotMatchingFilters: string[] | undefined,
+    filters: AdHocFilterWithLabels[]
   ) {
     const styles = getColumnStyles(theme);
     const timeRange = sceneGraph.getTimeRange(this).state.value;
@@ -187,6 +190,36 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
         id: 'include',
       },
     ];
+
+    if (patternFrames.some((pattern) => pattern.levels.length > 0)) {
+      columns.splice(1, 0, {
+        header: 'Levels',
+        id: 'levels',
+        // @todo custom sort method?
+        cell: (props: CellProps<PatternsTableCellData>) => {
+          props.cell.row.original.levels.sort();
+          return props.cell.row.original.levels.map((level) => (
+            <Button
+              key={level}
+              size={'sm'}
+              variant={
+                filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level)
+                  ? 'primary'
+                  : 'secondary'
+              }
+              fill={'outline'}
+              className={styles.levelWrap}
+              onClick={() => {
+                props.cell.row.original.togglePatternLevel(level);
+              }}
+            >
+              {level}
+            </Button>
+          ));
+        },
+      });
+    }
+
     return columns;
   }
 
@@ -217,8 +250,12 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
               pattern: pattern.pattern,
               type: 'include',
             }),
+          togglePatternLevel: (level: string) => {
+            addToFilters(LEVEL_VARIABLE_VALUE, level, 'toggle', logExploration, VAR_LEVELS);
+          },
           pattern: pattern.pattern,
           sum: pattern.sum,
+          levels: pattern.levels,
           undoLink: () =>
             onPatternClick({
               indexScene: logExploration,
@@ -265,9 +302,15 @@ const getTableStyles = (theme: GrafanaTheme2) => {
 };
 const getColumnStyles = (theme: GrafanaTheme2) => {
   return {
+    levelWrap: css({
+      fontSize: theme.typography.bodySmall.fontSize,
+      fontFamily: theme.typography.fontFamilyMonospace,
+      '&:not(:last-child)': {
+        marginRight: theme.spacing(0.5),
+      },
+    }),
     countTextWrap: css({
       fontSize: theme.typography.bodySmall.fontSize,
-      textAlign: 'right',
     }),
     tablePatternTextDefault: css({
       fontFamily: theme.typography.fontFamilyMonospace,
@@ -301,7 +344,9 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
 
   // Must use local patternFrames as the parent decides if we get the filtered or not
   const { patternFrames: patternFramesRaw, patternsNotMatchingFilters } = model.useState();
-  const patternFrames = patternFramesRaw ?? [];
+  let patternFrames = patternFramesRaw ?? [];
+  const levelsVar = getLevelsVariable(model);
+  const { filters } = levelsVar.useState();
 
   // Get unfiltered patterns for percentage calculation
   const patternsBreakdownScene = sceneGraph.getAncestor(model, PatternsBreakdownScene);
@@ -318,7 +363,9 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     appliedPatterns,
     theme,
     model.state.maxLines ?? LINE_LIMIT,
-    patternsNotMatchingFilters
+    patternFrames,
+    patternsNotMatchingFilters,
+    filters
   );
 
   return (

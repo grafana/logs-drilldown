@@ -38,6 +38,8 @@ test.describe('explore services breakdown page', () => {
     await explorePage.serviceBreakdownSearch.fill('broadcast');
     // Submit filter
     await page.getByRole('button', { name: 'Include' }).click();
+    // ng-logs panel
+    // await expect(page.locator('.unwrapped-log-line').first().getByText('broadcast').first()).toBeVisible();
     await expect(page.getByRole('table').locator('tr').first().getByText('broadcast').first()).toBeVisible();
     await expect(page).toHaveURL(/broadcast/);
   });
@@ -201,7 +203,7 @@ test.describe('explore services breakdown page', () => {
     await panelMenu.click();
     await expect(panelMenuItem).toHaveCount(1);
     await panelMenuItem.click();
-    await expect(page.getByLabel('Go Queryless')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Go queryless' })).toBeVisible();
     await expect(page.getByText(`drop __error__, __error_details__`)).toBeVisible();
   });
 
@@ -209,6 +211,10 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLogsTab();
 
     // Open log details
+    //ng-logs-panel
+    // const logPanelMenuLoc = page.getByLabel('Log menu').nth(1);
+    // await logPanelMenuLoc.click();
+    // await page.getByRole('menuitem', { name: 'Show log details' }).click();
     await page.getByTitle('See log details').nth(1).click();
     await page.getByLabel('Show this field instead of').nth(1).click();
 
@@ -222,7 +228,6 @@ test.describe('explore services breakdown page', () => {
     const urlObj = new URL(currentUrl);
     const displayedFields = JSON.parse(urlObj.searchParams.get('displayedFields') || '[]');
     const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
-    const visualizationType = urlObj.searchParams.get('visualizationType');
 
     // Filter out default columns from urlColumns
     const filteredUrlColumns = urlColumns.filter((col: string) => !DEFAULT_URL_COLUMNS.includes(col));
@@ -429,6 +434,18 @@ test.describe('explore services breakdown page', () => {
     }
   });
 
+  test('should show warning when partial results are returned', async ({ page }) => {
+    explorePage.blockAllQueriesExcept({
+      refIds: ['ts'],
+    });
+    await explorePage.goToFieldsTab();
+    await expect(
+      page.getByTestId('data-testid Panel header ts').getByTestId('data-testid Panel status error')
+    ).toBeVisible();
+    await page.getByRole('link', { name: 'Select ts' }).click();
+    await expect(page.getByTestId('data-testid Panel status error')).toBeVisible();
+  });
+
   test('should search for tenant field, changing sort order updates value breakdown position', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
@@ -570,7 +587,9 @@ test.describe('explore services breakdown page', () => {
 
     // Filter will not change output
     await expect(panels).toHaveCount(9);
-    await expect(page.getByTestId(/data-testid Panel header .+st.+/).getByTestId('header-container')).toHaveCount(3);
+    await expect(
+      page.getByTestId(/data-testid Panel header .+st.+/).locator(explorePage.getPanelHeaderLocator())
+    ).toHaveCount(3);
 
     await explorePage.goToFieldsTab();
     // Verify that the regex query worked after navigating back to the label breakdown
@@ -597,9 +616,9 @@ test.describe('explore services breakdown page', () => {
 
     const panels = explorePage.getAllPanelsLocator();
     await expect(panels).toHaveCount(5);
-    await expect(page.getByTestId(/data-testid Panel header debug|error/).getByTestId('header-container')).toHaveCount(
-      2
-    );
+    await expect(
+      page.getByTestId(/data-testid Panel header debug|error/).locator(explorePage.getPanelHeaderLocator())
+    ).toHaveCount(2);
   });
 
   test(`Metadata: can regex include ${metadataName} values containing "0\\d"`, async ({ page }) => {
@@ -660,7 +679,7 @@ test.describe('explore services breakdown page', () => {
       .poll(() =>
         page
           .getByTestId(/data-testid Panel header tempo-ingester-[hc]{2}-\d.+/)
-          .getByTestId('header-container')
+          .locator(explorePage.getPanelHeaderLocator())
           .count()
       )
       .toBe(8);
@@ -941,6 +960,57 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByTestId(testIds.patterns.buttonIncludedPattern)).toBeVisible();
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonRemovePattern).nth(0)).toBeVisible();
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonRemovePattern).nth(1)).toBeVisible();
+  });
+
+  test('Should filter patterns by level', async ({ page }) => {
+    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+    await explorePage.assertTabsNotLoading();
+    // Get total count of rows
+    const unfilteredRowsCount = await page
+      .getByTestId('data-testid table-wrapper')
+      .locator('[role="rowgroup"] [role="row"]')
+      .count();
+    // Click on level within table
+    await page.getByTestId('data-testid table-wrapper').getByRole('button', { name: 'debug' }).click();
+    const filteredRowsCount = await page
+      .getByTestId('data-testid table-wrapper')
+      .locator('[role="rowgroup"] [role="row"]')
+      .count();
+
+    // Assert only one pattern has debug level
+    expect(filteredRowsCount).toBe(1);
+    // Assert total count of rows is greater than 1
+    expect(unfilteredRowsCount).toBeGreaterThan(filteredRowsCount);
+
+    // remove level filter from variable
+    await page
+      .getByTestId('data-testid detected_level filter variable')
+      .getByRole('button', { name: 'Remove' })
+      .click();
+
+    // assert after removing the level filter we see the full count of rows again
+    expect(
+      await page.getByTestId('data-testid table-wrapper').locator('[role="rowgroup"] [role="row"]').count()
+    ).toEqual(unfilteredRowsCount);
+  });
+  test('Should only call patterns API once on time range change', async ({ page }) => {
+    let patternsCount = 0;
+    await page.route('**/patterns?**', async (route, request) => {
+      patternsCount++;
+      // Let the request go through normally
+      const response = await route.fetch();
+      const json = await response.json();
+      return route.fulfill({ json, response });
+    });
+
+    await explorePage.assertTabsNotLoading();
+    await expect.poll(() => patternsCount).toEqual(1);
+    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+    await explorePage.assertTabsNotLoading();
+    await expect.poll(() => patternsCount).toEqual(2);
+    await page.getByTestId('data-testid RefreshPicker run button').click();
+    await explorePage.assertTabsNotLoading();
+    await expect.poll(() => patternsCount).toEqual(3);
   });
 
   test('should update a filter and run new logs', async ({ page }) => {
@@ -1344,20 +1414,18 @@ test.describe('explore services breakdown page', () => {
 
     // Go to the fields tab and assert errors aren't showing
     await explorePage.goToFieldsTab();
-    await expect(panelErrorLocator).toHaveCount(0);
-
-    // Now assert that content is hidden (will hit 1000 series limit and throw error)
-    await expect(contentPanelLocator).toHaveCount(0);
-    await expect(versionPanelLocator).toHaveCount(1);
+    await expect.poll(() => panelErrorLocator.count()).toEqual(1);
+    await expect.poll(() => contentPanelLocator.count()).toEqual(1);
+    await expect.poll(() => versionPanelLocator.count()).toEqual(1);
 
     // Open the dropdown and change from include to exclude
     await versionPanelLocator.getByTestId(testIds.breakdowns.common.filterSelect).click();
     await versionFilterButton.getByText('Exclude', { exact: true }).click();
 
     // Exclude version
-    await expect(versionVariableLocator).toHaveCount(1);
-    await expect(versionVariableLocator).toContainText('=');
-    await expect(versionVariableLocator).not.toContainText('!=');
+    await expect.poll(() => versionVariableLocator.count()).toEqual(1);
+    await expect.poll(() => versionVariableLocator.textContent()).toContain('=');
+    await expect.poll(() => versionVariableLocator.textContent()).not.toContain('!=');
 
     // Open the menu
     await versionVariableLocator.click();
@@ -1379,10 +1447,12 @@ test.describe('explore services breakdown page', () => {
     // Check the right options are visible
     await expect(versionVariableLocator).toContainText('!=');
 
-    // Assert no errors are visible
+    // Assert errors are visible
     await expect(panelErrorLocator).toHaveCount(0);
+
     // Now assert that content is hidden (will hit 1000 series limit and throw error)
-    await expect(contentPanelLocator).toHaveCount(0);
+    // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning
+    await expect(contentPanelLocator).toHaveCount(1);
     // But version should exist
     await expect(versionPanelLocator).toHaveCount(1);
   });
@@ -1410,7 +1480,8 @@ test.describe('explore services breakdown page', () => {
     await expect(panels).toHaveCount(parseInt((await tabCountLocator.textContent()) as string, 10));
   });
 
-  test('logs panel options: line wrap', async ({ page }) => {
+  // @todo get it working with new logs panel options which were GA-ed in 12.1.3
+  test.skip('logs panel options: line wrap', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery'],
     });
@@ -1447,7 +1518,8 @@ test.describe('explore services breakdown page', () => {
     expect((await firstRow.boundingBox())?.width).toBeLessThanOrEqual(viewportSize?.width ?? Infinity);
   });
 
-  test('logs panel options: sortOrder', async ({ page }) => {
+  // @todo get it working with new logs panel options which were GA-ed in 12.1.3
+  test.skip('logs panel options: sortOrder', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery'],
     });
@@ -1509,7 +1581,8 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('logs panel options: url sync', async ({ page }) => {
+  // @todo get it working with new logs panel options which were GA-ed in 12.1.3
+  test.skip('logs panel options: url sync', async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery', 'A'],
     });

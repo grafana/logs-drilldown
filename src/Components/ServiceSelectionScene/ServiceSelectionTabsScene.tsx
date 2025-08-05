@@ -196,7 +196,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
   };
 
   getLabelsFromQueryRunnerState(state = this.state.$labelsData?.state): LabelOptions[] | undefined {
-    return state.data?.series[0].fields.map((f) => {
+    return state.data?.series?.[0]?.fields.map((f) => {
       return {
         cardinality: f.values[0],
         label: f.name,

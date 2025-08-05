@@ -3,14 +3,17 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { AvgFieldPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
+import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
-import { getDataSourceName, getServiceName } from './variableGetters';
-import { SERVICE_NAME } from './variables';
+import { getRouteParams } from './routing';
+import { getDataSourceName } from './variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -196,9 +199,25 @@ export function setSortByPreference(target: string, sortBy: string, direction: s
 }
 
 function getExplorationPrefix(sceneRef: SceneObject) {
+  const { labelName, labelValue } = getRouteParams(sceneRef);
+  return getExplorationPrefixForLabelValue(sceneRef, labelName, labelValue);
+}
+
+function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
-  const serviceName = getServiceName(sceneRef);
-  return `${ds}.${serviceName}`;
+  if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
+    return `${ds}.${replaceSlash(value)}`;
+  }
+  return `${ds}.${label}.${replaceSlash(value)}`;
+}
+
+export function getDisplayedFieldsForLabelValue(sceneRef: SceneObject, label: string, value: string): string[] {
+  const PREFIX = getExplorationPrefixForLabelValue(sceneRef, label, value);
+  const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
+  if (storedFields) {
+    return unknownToStrings(JSON.parse(storedFields)) ?? [];
+  }
+  return [];
 }
 
 export function getDisplayedFields(sceneRef: SceneObject): string[] {
@@ -381,7 +400,7 @@ export function getLineFilterExclusive(defaultValue: boolean): boolean {
 const PANEL_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.panel.option`;
 export interface PanelOptions {
   collapsed: CollapsablePanelText;
-  panelType: AvgFieldPanelType;
+  panelType: TimeSeriesPanelType;
 }
 export function getPanelOption<K extends keyof PanelOptions, V extends PanelOptions[K]>(
   option: K,
@@ -421,4 +440,17 @@ export function getSceneLayout(): string | null {
 }
 export function setSceneLayout(layout: string) {
   localStorage.setItem(SCENE_LAYOUT_LOCALSTORAGE_KEY, layout);
+}
+
+const FIELDS_PANEL_TYPES = `${pluginJson.id}.fieldsBreakdown.fieldsPanelType`;
+export function getFieldsPanelTypes(): FieldsPanelsType | null {
+  const stored = localStorage.getItem(FIELDS_PANEL_TYPES);
+  if (stored === 'text' || stored === 'timeseries') {
+    return stored;
+  }
+  return null;
+}
+
+export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
+  localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
 }

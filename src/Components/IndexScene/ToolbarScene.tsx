@@ -34,7 +34,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
         aggregatedMetrics: {
           active: active ?? false,
           disabled: false,
-          userOverride: userOverride === 'true' ?? false,
+          userOverride: userOverride === 'true',
         },
       },
       ...state,

@@ -8,6 +8,7 @@ import {
   FieldType,
   getFieldDisplayName,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   FieldConfigBuilder,
@@ -16,6 +17,7 @@ import {
   PanelBuilders,
   QueryRunnerState,
   SceneDataProvider,
+  SceneDataProviderResult,
   SceneDataTransformer,
   SceneObject,
   SceneQueryRunner,
@@ -30,6 +32,7 @@ import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
+import { maxSeriesReached } from './shardQuerySplitting';
 import { getLogOption } from './store';
 import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
@@ -271,10 +274,11 @@ export function sortLevelTransformation() {
   };
 }
 
-export function getResourceQueryRunner(queries: LokiQuery[]) {
+export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partial<QueryRunnerState>) {
   return new SceneQueryRunner({
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: queries,
+    ...queryRunnerOptions,
   });
 }
 
@@ -346,6 +350,22 @@ export function getQueryRunnerFromProvider(provider: SceneDataProvider): SceneQu
 
   throw new Error('SceneDataProvider is missing SceneQueryRunner');
 }
+
+export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel<{}, {}>) {
+  if (maxSeriesReached(result.data.series)) {
+    panel.setState({
+      _pluginLoadError: t(
+        'drilldown-logs.notices.max-series-reached',
+        'Maximum limit of results reached. Displaying partial results.'
+      ),
+    });
+  } else if (panel.state._pluginLoadError) {
+    panel.setState({
+      _pluginLoadError: undefined,
+    });
+  }
+}
+
 export const logsControlsSupported =
   config.featureToggles.logsPanelControls &&
   (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));
