@@ -140,44 +140,47 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         }),
       });
 
-      this._subs.add(
-        isAssistantAvailable().subscribe(async (isAvailable) => {
-          if (isAvailable) {
-            const datasource = await getDataSourceSrv().get(getDataSource(this));
-            this.addItem({
-              text: '',
-              type: 'divider',
-            });
-            this.addItem({
-              text: 'AI',
-              type: 'group',
-            });
-            this.addItem({
-              iconClassName: 'ai-sparkle',
-              text: 'Explain in Assistant',
-              onClick: () => {
-                openAssistant({
-                  prompt:
-                    'Help me understand this query and provide a summary of the data. Be concise and to the point.',
-                  context: [
-                    createContext(ItemDataType.Datasource, {
-                      datasourceName: datasource.name,
-                      datasourceUid: datasource.uid,
-                      datasourceType: datasource.type,
-                    }),
-                    createContext(ItemDataType.Structured, {
-                      title: 'Logs Drilldown Query',
-                      data: {
-                        query: getQueryExpression(this),
-                      },
-                    }),
-                  ],
-                });
-              },
-            });
-          }
-        })
-      );
+      // `getObservablePluginLinks` is introduced in Grafana v12 which is called by isAssistantAvailable
+      if (getObservablePluginLinks !== undefined) {
+        this._subs.add(
+          isAssistantAvailable().subscribe(async (isAvailable) => {
+            if (isAvailable) {
+              const datasource = await getDataSourceSrv().get(getDataSource(this));
+              this.addItem({
+                text: '',
+                type: 'divider',
+              });
+              this.addItem({
+                text: 'AI',
+                type: 'group',
+              });
+              this.addItem({
+                iconClassName: 'ai-sparkle',
+                text: 'Explain in Assistant',
+                onClick: () => {
+                  openAssistant({
+                    prompt:
+                      'Help me understand this query and provide a summary of the data. Be concise and to the point.',
+                    context: [
+                      createContext(ItemDataType.Datasource, {
+                        datasourceName: datasource.name,
+                        datasourceUid: datasource.uid,
+                        datasourceType: datasource.type,
+                      }),
+                      createContext(ItemDataType.Structured, {
+                        title: 'Logs Drilldown Query',
+                        data: {
+                          query: getQueryExpression(this),
+                        },
+                      }),
+                    ],
+                  });
+                },
+              });
+            }
+          })
+        );
+      }
 
       this._subs.add(
         this.state.investigationsButton?.subscribeToState(async () => {
