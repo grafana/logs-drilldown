@@ -11,13 +11,14 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 // Determine test directory based on GRAFANA_VERSION
 const getTestDir = () => {
   const grafanaVersion = process.env.GRAFANA_VERSION;
+  // TODO: local dev return './tests'
   console.log('grafanaVersion', grafanaVersion);
 
   // Find matching version configuration
   const versionConfig = GRAFANA_VERSIONS_SUPPORTED.find((config) => config.version === grafanaVersion);
 
   // Return the configured test directory or default to './tests'
-  return versionConfig?.testDir || './tests';
+  return versionConfig?.testDir || './tests/smoke';
 };
 
 const testDir = getTestDir();
