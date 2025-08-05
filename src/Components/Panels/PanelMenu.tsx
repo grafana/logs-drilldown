@@ -140,44 +140,48 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         }),
       });
 
-      this._subs.add(
-        isAssistantAvailable().subscribe(async (isAvailable) => {
-          if (isAvailable) {
-            const datasource = await getDataSourceSrv().get(getDataSource(this));
-            this.addItem({
-              text: '',
-              type: 'divider',
-            });
-            this.addItem({
-              text: 'AI',
-              type: 'group',
-            });
-            this.addItem({
-              iconClassName: 'ai-sparkle',
-              text: 'Explain in Assistant',
-              onClick: () => {
-                openAssistant({
-                  prompt:
-                    'Help me understand this query and provide a summary of the data. Be concise and to the point.',
-                  context: [
-                    createContext(ItemDataType.Datasource, {
-                      datasourceName: datasource.name,
-                      datasourceUid: datasource.uid,
-                      datasourceType: datasource.type,
-                    }),
-                    createContext(ItemDataType.Structured, {
-                      title: 'Logs Drilldown Query',
-                      data: {
-                        query: getQueryExpression(this),
-                      },
-                    }),
-                  ],
-                });
-              },
-            });
-          }
-        })
-      );
+      try {
+        this._subs.add(
+          isAssistantAvailable().subscribe(async (isAvailable) => {
+            if (isAvailable) {
+              const datasource = await getDataSourceSrv().get(getDataSource(this));
+              this.addItem({
+                text: '',
+                type: 'divider',
+              });
+              this.addItem({
+                text: 'AI',
+                type: 'group',
+              });
+              this.addItem({
+                iconClassName: 'ai-sparkle',
+                text: 'Explain in Assistant',
+                onClick: () => {
+                  openAssistant({
+                    prompt:
+                      'Help me understand this query and provide a summary of the data. Be concise and to the point.',
+                    context: [
+                      createContext(ItemDataType.Datasource, {
+                        datasourceName: datasource.name,
+                        datasourceUid: datasource.uid,
+                        datasourceType: datasource.type,
+                      }),
+                      createContext(ItemDataType.Structured, {
+                        title: 'Logs Drilldown Query',
+                        data: {
+                          query: getQueryExpression(this),
+                        },
+                      }),
+                    ],
+                  });
+                },
+              });
+            }
+          })
+        );
+      } catch (error) {
+        logger.error(error, { msg: `Grafana assistant requires Grafana >= 12.0.0` });
+      }
 
       this._subs.add(
         this.state.investigationsButton?.subscribeToState(async () => {
@@ -347,15 +351,19 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
   }
 
   // `getObservablePluginLinks` is introduced in Grafana v12
-  if (getObservablePluginLinks !== undefined) {
-    const links: PluginExtensionLink[] = await firstValueFrom(
-      getObservablePluginLinks({
-        context,
-        extensionPointId,
-      })
-    );
+  try {
+    if (getObservablePluginLinks !== undefined) {
+      const links: PluginExtensionLink[] = await firstValueFrom(
+        getObservablePluginLinks({
+          context,
+          extensionPointId,
+        })
+      );
 
-    return links[0];
+      return links[0];
+    }
+  } catch (e) {
+    logger.error(e, { msg: `Grafana assistant requires Grafana >= 12.0.0` });
   }
 
   return undefined;

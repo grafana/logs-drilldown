@@ -287,13 +287,17 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataService().setEmbedded(this.state.embedded);
     }
 
-    this._subs.add(
-      isAssistantAvailable().subscribe((isAvailable) => {
-        if (isAvailable && !this.assistantInitialized) {
-          this.provideAssistantContext();
-        }
-      })
-    );
+    try {
+      this._subs.add(
+        isAssistantAvailable().subscribe((isAvailable) => {
+          if (isAvailable && !this.assistantInitialized) {
+            this.provideAssistantContext();
+          }
+        })
+      );
+    } catch (error) {
+      logger.error(error, { msg: `Grafana assistant requires Grafana >= 12.0.0` });
+    }
 
     return () => {
       clearKeyBindings();
