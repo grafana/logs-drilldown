@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { IconButton, useStyles2, useTheme2 } from '@grafana/ui';
+import { IconButton, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { getJsonParserVariableVisibility } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
@@ -48,7 +48,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
-    const theme = useTheme2();
     const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
     const bytesProcessed = getValueFormat('decbytes')(indexScene.state.bytesProcessed ?? 0);
 
@@ -75,7 +74,14 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 <div className={styles.feedbackWrapper}>
                   <span className={styles.bytesProcessed}>
-                    Bytes processed: {bytesProcessed.text} {bytesProcessed.suffix}{' '}
+                    <Tooltip
+                      content={`Processed bytes are an approximate lower bound, the actual value may be slightly higher`}
+                    >
+                      <span>
+                        Bytes processed: {bytesProcessed.text} {bytesProcessed.suffix}
+                        <sup>*</sup>
+                      </span>
+                    </Tooltip>
                     <IconButton
                       className={styles.bytesProcessedIcon}
                       onClick={() => indexScene.setState({ bytesProcessed: 0 })}
