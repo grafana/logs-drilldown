@@ -2,6 +2,8 @@ import type { Configuration } from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 import { merge } from 'webpack-merge';
 
+import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
+
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 import grafanaConfig from './.config/webpack/webpack.config';
@@ -22,6 +24,34 @@ const config = async (env: any): Promise<Configuration> => {
         port: 35828,
         protocol: 'http',
       }),
+      ...(!!process.env.FEO_SOURCEMAP_TOKEN
+        ? [
+            new FaroSourceMapUploaderPlugin({
+              apiKey: process.env.FEO_SOURCEMAP_TOKEN,
+              appName: 'grafana-logsdrilldown-app-dev',
+              endpoint: 'https://faro-api-ops-eu-south-0.grafana-ops.net/faro/api/v1',
+              appId: '57',
+              stackId: '27821',
+              gzipContents: true,
+            }),
+            new FaroSourceMapUploaderPlugin({
+              apiKey: process.env.FEO_SOURCEMAP_TOKEN,
+              appName: 'grafana-logsdrilldown-app-ops',
+              endpoint: 'https://faro-api-ops-eu-south-0.grafana-ops.net/faro/api/v1',
+              appId: '59',
+              stackId: '27821',
+              gzipContents: true,
+            }),
+            new FaroSourceMapUploaderPlugin({
+              apiKey: process.env.FEO_SOURCEMAP_TOKEN,
+              appName: 'grafana-logsdrilldown-app-prod',
+              endpoint: 'https://faro-api-ops-eu-south-0.grafana-ops.net/faro/api/v1',
+              appId: '60',
+              stackId: '27821',
+              gzipContents: true,
+            }),
+          ]
+        : []),
     ],
   });
 };
