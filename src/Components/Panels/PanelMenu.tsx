@@ -164,6 +164,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
                       datasourceName: datasource.name,
                       datasourceUid: datasource.uid,
                       datasourceType: datasource.type,
+                      img: datasource.meta?.info?.logos?.small,
                     }),
                     createContext(ItemDataType.Structured, {
                       title: 'Logs Drilldown Query',
