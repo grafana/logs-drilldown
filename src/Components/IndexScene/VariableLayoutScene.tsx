@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { IconButton, useStyles2, useTheme2 } from '@grafana/ui';
 
 import { getJsonParserVariableVisibility } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
@@ -48,6 +48,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
+    const theme = useTheme2();
     const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
     const bytesProcessed = getValueFormat('decbytes')(indexScene.state.bytesProcessed ?? 0);
 
@@ -76,6 +77,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                   <span className={styles.bytesProcessed}>
                     Bytes processed: {bytesProcessed.text} {bytesProcessed.suffix}{' '}
                     <IconButton
+                      className={styles.bytesProcessedIcon}
                       onClick={() => indexScene.setState({ bytesProcessed: 0 })}
                       tooltip={'Reset bytes processed'}
                       name={'times'}
@@ -198,6 +200,9 @@ function getStyles(theme: GrafanaTheme2, height: number) {
       label: 'controlsWrapper',
       marginTop: theme.spacing(0.375),
     }),
+    bytesProcessedIcon: css({
+      color: theme.colors.text.secondary,
+    }),
     bytesProcessed: css({
       display: 'flex',
       gap: theme.spacing(1),
@@ -207,7 +212,8 @@ function getStyles(theme: GrafanaTheme2, height: number) {
     feedbackWrapper: css({
       fontSize: theme.typography.bodySmall.fontSize,
       display: 'flex',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
+      color: theme.colors.text.secondary,
     }),
     filters: css({
       display: 'flex',
