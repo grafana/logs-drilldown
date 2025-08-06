@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { getJsonParserVariableVisibility } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
@@ -74,7 +74,14 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 <div className={styles.feedbackWrapper}>
                   <span className={styles.bytesProcessed}>
-                    Total bytes processed: {bytesProcessed.text} {bytesProcessed.suffix}
+                    Bytes processed: {bytesProcessed.text} {bytesProcessed.suffix}{' '}
+                    <IconButton
+                      onClick={() => indexScene.setState({ bytesProcessed: 0 })}
+                      tooltip={'Reset bytes processed'}
+                      name={'times'}
+                      size={'xs'}
+                      variant={'secondary'}
+                    />
                   </span>
                   {!indexScene.state.embedded && <GiveFeedbackButton />}
                 </div>

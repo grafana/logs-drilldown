@@ -38,6 +38,7 @@ import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } fr
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
 import { findObjectOfType } from '../../services/scenes';
+import { setBytesProcessedToSession } from '../../services/store';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -441,6 +442,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     // Migrations
     migrateLineFilterV1(this);
+
+    return () => {
+      const indexScene = sceneGraph.getAncestor(this, IndexScene);
+      setBytesProcessedToSession(indexScene.state.bytesProcessed ?? 0);
+    };
   }
 
   private subscribeToPatternsVariable() {

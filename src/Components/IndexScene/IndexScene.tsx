@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { debounce } from 'lodash';
+
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
@@ -95,8 +97,10 @@ import {
 } from 'services/query';
 import {
   addLastUsedDataSourceToStorage,
+  getBytesProcessedFromSession,
   getDefaultDatasourceFromDatasourceSrv,
   getLastUsedDataSourceFromStorage,
+  setBytesProcessedToSession,
 } from 'services/store';
 import {
   AdHocFiltersWithLabelsAndMeta,
@@ -236,7 +240,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   };
 
   public onActivate() {
-    const stateUpdate: Partial<IndexSceneState> = {};
+    const stateUpdate: Partial<IndexSceneState> = {
+      bytesProcessed: getBytesProcessedFromSession(),
+    };
     this.setVariableProviders();
 
     // Show "show logs" button
@@ -257,8 +263,12 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     this._subs.add(
-      this.subscribeToState((newState) => {
+      this.subscribeToState((newState, prevState) => {
         this.updatePatterns(newState, getPatternsVariable(this));
+
+        if (newState.bytesProcessed !== prevState.bytesProcessed) {
+          this.updateBytesProcessedDebounced(newState.bytesProcessed ?? 0);
+        }
       })
     );
 
@@ -298,6 +308,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     return () => {
       clearKeyBindings();
+      setBytesProcessedToSession(this.state.bytesProcessed ?? 0);
     };
   }
 
@@ -345,6 +356,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataVariable(this).updateFilters(metadataFilters);
     }
   };
+
+  /**
+   * Debounce session storage updates
+   */
+  updateBytesProcessedDebounced = debounce((bytes: number) => {
+    setBytesProcessedToSession(bytes);
+  }, 350);
 
   private setTagProviders() {
     this.setLabelsProviders();

@@ -3,7 +3,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
@@ -453,4 +453,14 @@ export function getFieldsPanelTypes(): FieldsPanelsType | null {
 
 export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
   localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
+}
+
+const BYTES_PROCESSED = `${pluginJson.id}.all.bytesProcessed`;
+export function setBytesProcessedToSession(bytesProcessed: number) {
+  sessionStorage.setItem(BYTES_PROCESSED, bytesProcessed.toString());
+}
+
+export function getBytesProcessedFromSession() {
+  const bytesProcessedString = sessionStorage.getItem(BYTES_PROCESSED);
+  return bytesProcessedString ? parseInt(bytesProcessedString, 10) : 0;
 }
