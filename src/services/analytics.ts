@@ -98,6 +98,18 @@ export const USER_EVENTS_ACTIONS = {
     visualization_init: 'visualization_init',
     // fields rollup viz type toggle
     fields_panel_type_toggle: 'fields_panel_type_toggle',
+    // table header buttons
+    table_columns_header_button_reset_width: 'table_columns_header_button_reset_width',
+    table_columns_header_button_show_labels: 'table_columns_header_button_show_labels',
+    table_columns_header_button_show_text: 'table_columns_header_button_show_text',
+    // table column header menu
+    table_columns_header_menu_show: 'table_columns_header_menu_show',
+    table_columns_header_menu_reset_width: 'table_columns_header_menu_reset_width',
+    table_columns_header_menu_show_labels: 'table_columns_header_menu_show_labels',
+    table_columns_header_menu_show_text: 'table_columns_header_menu_show_text',
+    table_columns_header_menu_slide_left: 'table_columns_header_menu_slide_left',
+    table_columns_header_menu_slide_right: 'table_columns_header_menu_slide_right',
+    table_columns_header_menu_hide_column: 'table_columns_header_menu_hide_column',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
