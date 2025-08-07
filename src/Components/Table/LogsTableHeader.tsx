@@ -3,11 +3,12 @@ import React, { PropsWithChildren, useRef } from 'react';
 import { css } from '@emotion/css';
 
 import { Field, GrafanaTheme2 } from '@grafana/data';
-import { ClickOutsideWrapper, IconButton, Popover, useTheme2 } from '@grafana/ui';
+import { IconButton, Popover, useTheme2 } from '@grafana/ui';
 
 import { getBodyName } from '../../services/logsFrame';
 import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from './Context/TableColumnsContext';
+import { LogsTableHeaderMenu } from './LogsTableHeaderMenu';
 import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
 
 export interface LogsTableHeaderProps extends PropsWithChildren<CustomHeaderRendererProps> {
@@ -20,6 +21,11 @@ export interface CustomHeaderRendererProps {
 }
 
 const getStyles = (theme: GrafanaTheme2, isFirstColumn: boolean, isLine: boolean) => ({
+  closeButton: css({
+    position: 'absolute',
+    top: '14px',
+    right: '2px',
+  }),
   clearButton: css({
     marginLeft: '5px',
   }),
@@ -43,6 +49,8 @@ const getStyles = (theme: GrafanaTheme2, isFirstColumn: boolean, isLine: boolean
     marginRight: '5px',
   }),
   tableHeaderMenu: css({
+    display: 'block',
+    position: 'static',
     backgroundColor: theme.colors.background.primary,
     border: `1px solid ${theme.colors.border.weak}`,
     borderRadius: theme.shape.radius.default,
@@ -138,13 +146,17 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
       </span>
 
       {referenceElement.current && (
-        //@ts-ignore
         <Popover
           show={isHeaderMenuActive}
           content={
-            <ClickOutsideWrapper onClick={() => setHeaderMenuActive(false)} useCapture={true}>
-              <div className={styles.tableHeaderMenu}>{props.children}</div>
-            </ClickOutsideWrapper>
+            <LogsTableHeaderMenu
+              setHeaderMenuActive={(active) => {
+                setHeaderMenuActive(active);
+                referenceElement.current?.focus();
+              }}
+            >
+              {props.children}
+            </LogsTableHeaderMenu>
           }
           referenceElement={referenceElement.current}
         />
