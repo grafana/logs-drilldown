@@ -1,28 +1,28 @@
-import { defineConfig, devices } from '@playwright/test';
-import { dirname } from 'node:path';
+import { defineConfig } from '@playwright/test';
 
 import type { PluginOptions } from '@grafana/plugin-e2e';
 
-import { GRAFANA_VERSIONS_SUPPORTED } from './tests/config/grafana-versions-supported';
+import { authProject, baseConfig, chromiumProjectWithPermissions } from './playwright.base.config';
+import { GRAFANA_LATEST_SUPPORTED_VERSION } from './tests/config/grafana-versions-supported';
 import { E2ESubPath } from './tests/fixtures/explore';
 
-const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
-
-// Determine test directory based on GRAFANA_VERSION
+// Determine test directory based on the latest supported Grafana version
 const getTestDir = () => {
   const grafanaVersion = process.env.GRAFANA_VERSION;
-  // TODO: local dev return './tests'
-  console.log('grafanaVersion', grafanaVersion);
+
+  // Local dev there is no GRAFANA_VERSION env variable, run all tests
+  if (!grafanaVersion) {
+    return './tests';
+  }
 
   // Find matching version configuration
-  const versionConfig = GRAFANA_VERSIONS_SUPPORTED.find((config) => config.version === grafanaVersion);
+  const versionConfig = GRAFANA_LATEST_SUPPORTED_VERSION.find((config) => config.version === grafanaVersion);
 
-  // Return the configured test directory or default to './tests'
-  return versionConfig?.testDir || './tests/smoke';
+  // Return all tests for the latest supported Grafana version otherwise run matrix tests
+  return versionConfig?.testDir || './tests/matrix-tests';
 };
 
 const testDir = getTestDir();
-console.log('testDir', testDir);
 
 /**
  * Read environment variables from file.
@@ -34,47 +34,19 @@ console.log('testDir', testDir);
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig<PluginOptions>({
-  expect: { timeout: 15000 },
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Run tests in files in parallel */
-  fullyParallel: true,
+  ...baseConfig,
+  testDir,
   /* Configure projects for major browsers */
   projects: [
     // 1. Login to Grafana and store the cookie on disk for use in other tests.
-    {
-      name: 'auth',
-      testDir: pluginE2eAuth,
-      testMatch: [/.*\.js/],
-    },
+    authProject,
     // 2. Run tests in Google Chrome. Every test will start authenticated as admin user.
-    {
-      dependencies: ['auth'],
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/admin.json',
-        permissions: ['clipboard-read', 'clipboard-write'],
-      },
-    },
+    chromiumProjectWithPermissions,
   ],
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
-  testDir,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    ...baseConfig.use,
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: `http://localhost:3001${E2ESubPath}`,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    // Turn on when debugging local tests
-    // video: {
-    //   mode: 'on',
-    // },
   },
-
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
 });
