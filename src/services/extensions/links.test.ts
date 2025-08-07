@@ -63,6 +63,28 @@ function getTestTarget(lokiQuery?: Partial<LokiQuery>): Partial<LokiQuery> & { r
 }
 
 describe('contextToLink', () => {
+  it('should return default app url when loki datasource has no expression', () => {
+    const target = getTestTarget({
+      expr: undefined, // No expression provided
+    });
+    const config = getTestConfig(linkConfigs, target);
+
+    expect(config).toEqual({
+      path: '/a/grafana-lokiexplore-app/explore',
+    });
+  });
+
+  it('should return default app url when loki datasource has empty expression', () => {
+    const target = getTestTarget({
+      expr: '', // Empty expression
+    });
+    const config = getTestConfig(linkConfigs, target);
+
+    expect(config).toEqual({
+      path: '/a/grafana-lokiexplore-app/explore',
+    });
+  });
+
   it('should strip slashes', () => {
     const target = getTestTarget({
       expr: '{service_name=`cloud/gcp`, resource_type!=`gce_firewall_rule`} | json | logfmt | drop __error__, __error_details__',
