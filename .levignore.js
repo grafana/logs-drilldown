@@ -1,3 +1,3 @@
 module.exports = {
-  removals: [/getPluginLinkExtensions/, /PluginExtensionLinkConfig/],
+  removals: [/getPluginLinkExtensions/, /PluginExtensionLinkConfig/, /PluginExtensionAddedLinkConfig/],
 };
