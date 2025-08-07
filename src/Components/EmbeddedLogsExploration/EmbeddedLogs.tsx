@@ -53,7 +53,7 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
 
   useEffect(() => {
     if (!exploration) {
-      initializeMetadataService();
+      initializeMetadataService(true);
       setExploration(buildLogsExplorationFromState(props));
     }
   }, [exploration, props]);

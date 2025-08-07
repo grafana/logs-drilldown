@@ -2,8 +2,8 @@ import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene
 
 let metadataService: MetadataService;
 
-export function initializeMetadataService(): void {
-  if (!metadataService) {
+export function initializeMetadataService(force = false): void {
+  if (!metadataService || force) {
     metadataService = new MetadataService();
   }
 }
