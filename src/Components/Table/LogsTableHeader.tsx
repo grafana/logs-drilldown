@@ -3,11 +3,13 @@ import React, { PropsWithChildren, useRef } from 'react';
 import { css } from '@emotion/css';
 
 import { Field, GrafanaTheme2 } from '@grafana/data';
-import { ClickOutsideWrapper, IconButton, Popover, useTheme2 } from '@grafana/ui';
+import { IconButton, Popover, useTheme2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getBodyName } from '../../services/logsFrame';
 import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from './Context/TableColumnsContext';
+import { LogsTableHeaderMenu } from './LogsTableHeaderMenu';
 import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
 
 export interface LogsTableHeaderProps extends PropsWithChildren<CustomHeaderRendererProps> {
@@ -20,6 +22,11 @@ export interface CustomHeaderRendererProps {
 }
 
 const getStyles = (theme: GrafanaTheme2, isFirstColumn: boolean, isLine: boolean) => ({
+  closeButton: css({
+    position: 'absolute',
+    top: '14px',
+    right: '2px',
+  }),
   clearButton: css({
     marginLeft: '5px',
   }),
@@ -43,6 +50,8 @@ const getStyles = (theme: GrafanaTheme2, isFirstColumn: boolean, isLine: boolean
     marginRight: '5px',
   }),
   tableHeaderMenu: css({
+    display: 'block',
+    position: 'static',
     backgroundColor: theme.colors.background.primary,
     border: `1px solid ${theme.colors.border.weak}`,
     borderRadius: theme.shape.radius.default,
@@ -95,6 +104,10 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
             onClick={() => {
               const { [props.field.name]: omit, ...map } = { ...columnWidthMap };
               setColumnWidthMap?.(map);
+              reportAppInteraction(
+                USER_EVENTS_PAGES.service_details,
+                USER_EVENTS_ACTIONS.service_details.table_columns_header_button_reset_width
+              );
             }}
           />
         )}
@@ -105,7 +118,13 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
                 tooltipPlacement={'top'}
                 tooltip={'Show log labels'}
                 aria-label={'Show log labels'}
-                onClick={onLogTextToggle}
+                onClick={() => {
+                  onLogTextToggle();
+                  reportAppInteraction(
+                    USER_EVENTS_PAGES.service_details,
+                    USER_EVENTS_ACTIONS.service_details.table_columns_header_button_show_labels
+                  );
+                }}
                 className={styles.logLineButton}
                 name={'tag-alt'}
                 size={'md'}
@@ -115,7 +134,13 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
                 tooltipPlacement={'top'}
                 tooltip={'Show log text'}
                 aria-label={'Show log text'}
-                onClick={onLogTextToggle}
+                onClick={() => {
+                  onLogTextToggle();
+                  reportAppInteraction(
+                    USER_EVENTS_PAGES.service_details,
+                    USER_EVENTS_ACTIONS.service_details.table_columns_header_button_show_text
+                  );
+                }}
                 className={styles.logLineButton}
                 name={'text-fields'}
                 size={'md'}
@@ -132,19 +157,27 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
           aria-label={`Show ${props.field.name} menu`}
           onClick={(e) => {
             setHeaderMenuActive(!isHeaderMenuActive);
+            reportAppInteraction(
+              USER_EVENTS_PAGES.service_details,
+              USER_EVENTS_ACTIONS.service_details.table_columns_header_menu_show
+            );
           }}
           name={'ellipsis-v'}
         />
       </span>
 
       {referenceElement.current && (
-        //@ts-ignore
         <Popover
           show={isHeaderMenuActive}
           content={
-            <ClickOutsideWrapper onClick={() => setHeaderMenuActive(false)} useCapture={true}>
-              <div className={styles.tableHeaderMenu}>{props.children}</div>
-            </ClickOutsideWrapper>
+            <LogsTableHeaderMenu
+              setHeaderMenuActive={(active) => {
+                setHeaderMenuActive(active);
+                referenceElement.current?.focus();
+              }}
+            >
+              {props.children}
+            </LogsTableHeaderMenu>
           }
           referenceElement={referenceElement.current}
         />

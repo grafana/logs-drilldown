@@ -5,6 +5,7 @@ import { css, cx } from '@emotion/css';
 import { Field } from '@grafana/data';
 import { Icon } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getBodyName } from '../../services/logsFrame';
 import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
@@ -62,7 +63,16 @@ export function LogsTableHeaderWrap(props: {
   return (
     <LogsTableHeader {...props.headerProps}>
       <div className={styles.linkWrap}>
-        <button className={cx(linkButton, styles.link)} onClick={() => hideColumn(props.headerProps.field)}>
+        <button
+          className={cx(linkButton, styles.link)}
+          onClick={() => {
+            hideColumn(props.headerProps.field);
+            reportAppInteraction(
+              USER_EVENTS_PAGES.service_details,
+              USER_EVENTS_ACTIONS.service_details.table_columns_header_menu_hide_column
+            );
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 17 16"
@@ -88,7 +98,16 @@ export function LogsTableHeaderWrap(props: {
       </div>
       {props.slideLeft && (
         <div className={styles.linkWrap}>
-          <button className={cx(linkButton, styles.link)} onClick={() => props.slideLeft?.(columns)}>
+          <button
+            className={cx(linkButton, styles.link)}
+            onClick={() => {
+              props.slideLeft?.(columns);
+              reportAppInteraction(
+                USER_EVENTS_PAGES.service_details,
+                USER_EVENTS_ACTIONS.service_details.table_columns_header_menu_slide_left
+              );
+            }}
+          >
             <Icon className={cx(styles.icon, styles.reverse)} name={'arrow-from-right'} size={'md'} />
             Move left
           </button>
@@ -96,7 +115,16 @@ export function LogsTableHeaderWrap(props: {
       )}
       {props.slideRight && (
         <div className={styles.linkWrap}>
-          <button className={cx(linkButton, styles.link)} onClick={() => props.slideRight?.(columns)}>
+          <button
+            className={cx(linkButton, styles.link)}
+            onClick={() => {
+              props.slideRight?.(columns);
+              reportAppInteraction(
+                USER_EVENTS_PAGES.service_details,
+                USER_EVENTS_ACTIONS.service_details.table_columns_header_menu_slide_right
+              );
+            }}
+          >
             <Icon className={styles.icon} name={'arrow-from-right'} size={'md'} />
             Move right
           </button>
@@ -112,6 +140,14 @@ export function LogsTableHeaderWrap(props: {
               } else {
                 setBodyState(LogLineState.text);
               }
+
+              reportAppInteraction(
+                USER_EVENTS_PAGES.service_details,
+                USER_EVENTS_ACTIONS.service_details.table_columns_header_menu_show_labels,
+                {
+                  state: bodyState === LogLineState.text ? LogLineState.labels : LogLineState.text,
+                }
+              );
             }}
           >
             {bodyState === LogLineState.text ? (
@@ -127,7 +163,16 @@ export function LogsTableHeaderWrap(props: {
 
       {props.autoColumnWidths && (
         <div className={styles.linkWrap}>
-          <button className={cx(linkButton, styles.link)} onClick={() => props.autoColumnWidths?.()}>
+          <button
+            className={cx(linkButton, styles.link)}
+            onClick={() => {
+              props.autoColumnWidths?.();
+              reportAppInteraction(
+                USER_EVENTS_PAGES.service_details,
+                USER_EVENTS_ACTIONS.service_details.table_columns_header_menu_reset_width
+              );
+            }}
+          >
             <Icon className={styles.icon} name={'arrows-h'} size={'md'} />
             Reset column widths
           </button>
