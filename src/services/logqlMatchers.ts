@@ -265,12 +265,8 @@ function getStringFieldOperator(matcher: SyntaxNode) {
   return undefined;
 }
 
-function parseFields(
-  query: string,
-  fields: FieldFilter[],
-  context?: PluginExtensionPanelContext,
-  lokiQuery?: LokiQuery
-) {
+function parseFields(query: string, context?: PluginExtensionPanelContext, lokiQuery?: LokiQuery) {
+  const fields: FieldFilter[] = [];
   const dataFrame = context?.data?.series.find((frame) => frame.refId === lokiQuery?.refId);
   // We do not currently support "or" in Grafana Logs Drilldown, so grab the left hand side LabelFilter leaf nodes as this will be the first filter expression in a given pipeline stage
   const allFields = getNodesFromQuery(query, [LabelFilter]);
@@ -352,6 +348,7 @@ function parseFields(
       });
     }
   }
+  return fields;
 }
 
 export function getMatcherFromQuery(
@@ -367,7 +364,6 @@ export function getMatcherFromQuery(
   const filter: IndexedLabelFilter[] = [];
   const lineFilters: LineFilterType[] = [];
   const patternFilters: PatternFilterType[] = [];
-  const fields: FieldFilter[] = [];
   const selector = getNodesFromQuery(query, [Selector]);
 
   if (selector.length === 0) {
@@ -379,7 +375,7 @@ export function getMatcherFromQuery(
 
   parseLabelFilters(selectorQuery, filter);
   parseLineFilters(query, lineFilters, patternFilters);
-  parseFields(query, fields, context, lokiQuery);
+  const fields = parseFields(query, context, lokiQuery);
 
   return { fields, labelFilters: filter, lineFilters, patternFilters };
 }
