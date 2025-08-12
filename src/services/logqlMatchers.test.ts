@@ -69,4 +69,45 @@ describe('getMatcherFromQuery', () => {
       ]);
     });
   });
+
+  describe('Label filters', () => {
+    test('Parses fields filters in queries', () => {
+      const result = getMatcherFromQuery('{label="value", other_label=~"other value", another_label!="another value"}');
+
+      expect(result.labelFilters).toEqual([
+        {
+          key: 'label',
+          operator: '=',
+          type: 'I',
+          value: 'value',
+        },
+        {
+          key: 'other_label',
+          operator: '=~',
+          type: 'I',
+          value: 'other value',
+        },
+        {
+          key: 'another_label',
+          operator: '!=',
+          type: 'I',
+          value: 'another value',
+        },
+      ]);
+    });
+  });
+
+  describe('Line filters', () => {
+    test('Line filters', () => {
+      const result = getMatcherFromQuery('{service_name="tempo-distributor"} |~ "(?i)Error"');
+
+      expect(result.lineFilters).toEqual([
+        {
+          key: 'caseInsensitive',
+          operator: '|~',
+          value: 'Error',
+        },
+      ]);
+    });
+  });
 });
