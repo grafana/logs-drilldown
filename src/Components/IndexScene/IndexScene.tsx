@@ -711,7 +711,11 @@ function getVariableSet(
 
   const lineFiltersVariable = new AdHocFiltersVariable({
     expressionBuilder: renderLogQLLineFilter,
-    filters: defaultLineFilters ?? [],
+    filters:
+      defaultLineFilters?.map((lineFilter, index) => ({
+        ...lineFilter,
+        keyLabel: index.toString(),
+      })) ?? [],
     getTagKeysProvider: () => Promise.resolve({ replace: true, values: [] }),
     getTagValuesProvider: () => Promise.resolve({ replace: true, values: [] }),
     hide: VariableHide.hideVariable,
