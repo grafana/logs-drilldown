@@ -57,6 +57,7 @@ Using Grafana Logs Drilldown you can:
 - Uncover related logs and monitor changes over time.
 - Browse automatic visualizations of your log data based on its characteristics.
 - Do all of this without writing LogQL queries.
+- And if you do want to write a LogQL query, there is a link to Grafana Explore available on every panel in Logs Drilldown.
 
 {{< docs/play title="Grafana Logs Drilldown" url="https://play.grafana.org/a/grafana-lokiexplore-app/explore" >}}
 
