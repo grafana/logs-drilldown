@@ -85,6 +85,17 @@ describe('contextToLink', () => {
     });
   });
 
+  it('should return default app url when loki datasource has no label selector', () => {
+    const target = getTestTarget({
+      expr: '{}',
+    });
+    const config = getTestConfig(linkConfigs, target);
+
+    expect(config).toEqual({
+      path: '/a/grafana-lokiexplore-app/explore',
+    });
+  });
+
   it('should strip slashes', () => {
     const target = getTestTarget({
       expr: '{service_name=`cloud/gcp`, resource_type!=`gce_firewall_rule`} | json | logfmt | drop __error__, __error_details__',

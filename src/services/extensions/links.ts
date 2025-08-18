@@ -191,9 +191,12 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   const { fields, labelFilters, lineFilters, patternFilters } = getMatcherFromQuery(expr, context, lokiQuery);
   const labelSelector = labelFilters.find((selector) => isOperatorInclusive(selector.operator));
 
-  // Require at least one inclusive operator to run a valid Loki query
+  // If there's no label selector, return a link to the service selection
+  // @todo it would be better if we could change the button copy (or tooltip) depending on the link destination
   if (!labelSelector) {
-    return undefined;
+    return {
+      path: createAppUrl(),
+    };
   }
 
   // If there are a bunch of values for the same field, the value slug can get really long, let's just use the first one in the URL
