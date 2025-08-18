@@ -102,7 +102,8 @@ function getAllPositionsInNodeByType(node: SyntaxNode, type: number): NodePositi
   return positions;
 }
 
-function parseLabelFilters(query: string, filter: IndexedLabelFilter[]) {
+function parseLabelFilters(query: string) {
+  const filters: IndexedLabelFilter[] = [];
   // `Matcher` will select field filters as well as indexed label filters
   const allMatcher = getNodesFromQuery(query, [Matcher]);
   for (const matcher of allMatcher) {
@@ -127,13 +128,14 @@ function parseLabelFilters(query: string, filter: IndexedLabelFilter[]) {
       continue;
     }
 
-    filter.push({
+    filters.push({
       key,
       operator,
       type: LabelType.Indexed,
       value,
     });
   }
+  return filters;
 }
 
 function parseNonPatternFilters(
@@ -185,7 +187,9 @@ function parsePatternFilters(lineFilterValue: string, patternFilters: PatternFil
   });
 }
 
-function parseLineFilters(query: string, lineFilters: LineFilterType[], patternFilters: PatternFilterType[]) {
+function parseLineFilters(query: string) {
+  const lineFilters: LineFilterType[] = [];
+  const patternFilters: PatternFilterType[] = [];
   const allLineFilters = getNodesFromQuery(query, [LineFilter]);
   for (const [index, matcher] of allLineFilters.entries()) {
     const equal = getAllPositionsInNodeByType(matcher, PipeExact);
@@ -233,6 +237,7 @@ function parseLineFilters(query: string, lineFilters: LineFilterType[], patternF
       }
     }
   }
+  return { lineFilters, patternFilters };
 }
 
 function getNumericFieldOperator(matcher: SyntaxNode) {
@@ -265,12 +270,8 @@ function getStringFieldOperator(matcher: SyntaxNode) {
   return undefined;
 }
 
-function parseFields(
-  query: string,
-  fields: FieldFilter[],
-  context?: PluginExtensionPanelContext,
-  lokiQuery?: LokiQuery
-) {
+function parseFields(query: string, context?: PluginExtensionPanelContext, lokiQuery?: LokiQuery) {
+  const fields: FieldFilter[] = [];
   const dataFrame = context?.data?.series.find((frame) => frame.refId === lokiQuery?.refId);
   // We do not currently support "or" in Grafana Logs Drilldown, so grab the left hand side LabelFilter leaf nodes as this will be the first filter expression in a given pipeline stage
   const allFields = getNodesFromQuery(query, [LabelFilter]);
@@ -352,6 +353,7 @@ function parseFields(
       });
     }
   }
+  return fields;
 }
 
 export function getMatcherFromQuery(
@@ -365,9 +367,6 @@ export function getMatcherFromQuery(
   patternFilters?: PatternFilterType[];
 } {
   const filter: IndexedLabelFilter[] = [];
-  const lineFilters: LineFilterType[] = [];
-  const patternFilters: PatternFilterType[] = [];
-  const fields: FieldFilter[] = [];
   const selector = getNodesFromQuery(query, [Selector]);
 
   if (selector.length === 0) {
@@ -376,12 +375,11 @@ export function getMatcherFromQuery(
 
   // Get the stream selector portion of the query
   const selectorQuery = getAllPositionsInNodeByType(selector[0], Selector)[0].getExpression(query);
+  const labelFilters = parseLabelFilters(selectorQuery);
+  const fields = parseFields(query, context, lokiQuery);
+  const { lineFilters, patternFilters } = parseLineFilters(query);
 
-  parseLabelFilters(selectorQuery, filter);
-  parseLineFilters(query, lineFilters, patternFilters);
-  parseFields(query, fields, context, lokiQuery);
-
-  return { fields, labelFilters: filter, lineFilters, patternFilters };
+  return { fields, labelFilters, lineFilters, patternFilters };
 }
 
 export function isQueryWithNode(query: string, nodeType: number): boolean {
