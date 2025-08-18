@@ -138,11 +138,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
         showMenuAlways={true}
         statusMessage={$data.state.data?.errors?.[0].message}
         loadingState={$data.state.data?.state}
-        title={
-          <>
-            JSON <Badge color={'blue'} text={'Experimental'} />
-          </>
-        }
+        title={'JSON'}
         menu={menu ? <menu.Component model={menu} /> : undefined}
         actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
