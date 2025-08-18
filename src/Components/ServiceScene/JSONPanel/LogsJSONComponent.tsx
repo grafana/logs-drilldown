@@ -4,10 +4,10 @@ import { css } from '@emotion/css';
 
 import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
-import { Alert, Badge, PanelChrome, useStyles2 } from '@grafana/ui';
+import { Alert, PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { NoMatchingLabelsScene } from '../Breakdowns/NoMatchingLabelsScene';
-import { JSONVizRootName, JSONLogsScene } from '../JSONLogsScene';
+import { JSONLogsScene, JSONVizRootName } from '../JSONLogsScene';
 import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
