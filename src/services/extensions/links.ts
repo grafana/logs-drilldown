@@ -52,6 +52,7 @@ export const linkConfigs: LinkConfigs = [
       PluginExtensionPoints.DashboardPanelMenu,
       PluginExtensionPoints.ExploreToolbarAction,
       'grafana-metricsdrilldown-app/open-in-logs-drilldown/v1',
+      'grafana-assistant-app/navigateToDrilldown/v1',
     ],
     title,
     description,
@@ -179,6 +180,11 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
 
   if (!lokiQuery || !dataSourceUid) {
     return undefined;
+  }
+
+  // if there is no loki expression but the datasource is loki, then return createAppUrl()
+  if (!lokiQuery?.expr) {
+    return { path: createAppUrl() };
   }
 
   const expr = templateSrv.replace(lokiQuery.expr, context.scopedVars, interpolateQueryExpr);
