@@ -49,6 +49,7 @@ To take a tour of Grafana Logs Drilldown, follow these steps:
 1. Select the **Fields** tab to see visualizations of the log volume for each field. To drill down into the details in the same way as labels, click the **Select** button for one of the fields.
 1. Click the **Patterns** tab to see the log volume for each automatically detected pattern.
    Log patterns let you work with groups of similar log lines. You can hide log patterns that are noisy, or focus only on the patterns that are most useful. Learn more about [Log Patterns](../patterns/).
+1. Click the **Logs** tab. Click the menu icon (three stacked dots) on either panel and select **Explore**.  Grafana displays the Explore page, with a query based on the selections you made in Logs Drilldown.
 
 ## Further resources
 
