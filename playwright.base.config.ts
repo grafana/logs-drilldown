@@ -49,7 +49,9 @@ export const chromiumProject = {
   name: 'chromium',
   use: {
     ...devices['Desktop Chrome'],
-    storageState: 'playwright/.auth/admin.json',
+    // storage state file is the username used to authenticate
+    // user env variable or admin
+    storageState: `playwright/.auth/${process.env.GRAFANA_ADMIN_USER ?? 'admin'}.json`,
   },
 };
 
