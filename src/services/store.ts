@@ -211,15 +211,6 @@ function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string,
   return `${ds}.${label}.${replaceSlash(value)}`;
 }
 
-export function getDisplayedFieldsForLabelValue(sceneRef: SceneObject, label: string, value: string): string[] {
-  const PREFIX = getExplorationPrefixForLabelValue(sceneRef, label, value);
-  const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
-  if (storedFields) {
-    return unknownToStrings(JSON.parse(storedFields)) ?? [];
-  }
-  return [];
-}
-
 export function getDisplayedFields(sceneRef: SceneObject): string[] {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
