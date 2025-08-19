@@ -76,12 +76,7 @@ import {
   unwrapWildcardSearch,
   wrapWildcardSearch,
 } from 'services/query';
-import {
-  addTabToLocalStorage,
-  getDisplayedFieldsForLabelValue,
-  getFavoriteLabelValuesFromStorage,
-  getServiceSelectionPageCount,
-} from 'services/store';
+import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
 import {
   EXPLORATION_DS,
   LEVEL_VARIABLE_VALUE,
