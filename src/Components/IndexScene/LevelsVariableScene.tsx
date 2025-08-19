@@ -147,7 +147,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           onFocus={() => model.openSelect(true)}
           menuShouldPortal={true}
           allowCustomValue={true}
-          onCreateOption={model.onCreateCustomOption(model, options)}
+          onCreateOption={model.onCreateCustomOption()}
           isOpen={isOpen}
           isLoading={isLoading}
           isClearable={true}
@@ -165,11 +165,11 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
       </div>
     );
   };
-  private onCreateCustomOption = (model: LevelsVariableScene, options: ChipOption[] | undefined) => {
+  private onCreateCustomOption = () => {
     return (value: string) => {
       const newOption = { selected: true, text: value, value };
-      model.setState({
-        options: options ? [...options, newOption] : [newOption],
+      this.setState({
+        options: this.state.options ? [...this.state.options, newOption] : [newOption],
       });
     };
   };
