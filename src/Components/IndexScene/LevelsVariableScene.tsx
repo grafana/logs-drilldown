@@ -146,6 +146,8 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           onOpenMenu={model.getTagValues}
           onFocus={() => model.openSelect(true)}
           menuShouldPortal={true}
+          allowCustomValue={true}
+          onCreateOption={model.onCreateCustomOption(model, options)}
           isOpen={isOpen}
           isLoading={isLoading}
           isClearable={true}
@@ -162,6 +164,14 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         />
       </div>
     );
+  };
+  private onCreateCustomOption = (model: LevelsVariableScene, options: ChipOption[] | undefined) => {
+    return (value: string) => {
+      const newOption = { selected: true, text: value, value };
+      model.setState({
+        options: options ? [...options, newOption] : [newOption],
+      });
+    };
   };
 }
 export function syncLevelsVariable(sceneRef: SceneObject) {
