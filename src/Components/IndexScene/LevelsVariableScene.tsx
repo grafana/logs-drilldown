@@ -65,15 +65,21 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     );
     levelsKeys?.then((response) => {
       if (Array.isArray(response.values)) {
+        const newOptions = response.values.map((value) => {
+          return {
+            selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
+            text: value.text,
+            value: value.value ?? value.text,
+          };
+        });
+        const existingSelectedOptions = this.state.options?.filter(
+          (existingOption) =>
+            existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
+        );
+        const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
         this.setState({
           isLoading: false,
-          options: response.values.map((value) => {
-            return {
-              selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
-              text: value.text,
-              value: value.value ?? value.text,
-            };
-          }),
+          options,
         });
       }
     });
@@ -147,7 +153,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           onFocus={() => model.openSelect(true)}
           menuShouldPortal={true}
           allowCustomValue={true}
-          onCreateOption={model.onCreateCustomOption()}
+          onCreateOption={model.onCreateCustomOption}
           isOpen={isOpen}
           isLoading={isLoading}
           isClearable={true}
@@ -165,13 +171,12 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
       </div>
     );
   };
-  private onCreateCustomOption = () => {
-    return (value: string) => {
-      const newOption = { selected: true, text: value, value };
-      this.setState({
-        options: this.state.options ? [...this.state.options, newOption] : [newOption],
-      });
-    };
+
+  private onCreateCustomOption = (value: string) => {
+    const newOption: ChipOption = { selected: true, text: value, value };
+    this.setState({
+      options: this.state.options ? [...this.state.options, newOption] : [newOption],
+    });
   };
 }
 export function syncLevelsVariable(sceneRef: SceneObject) {
