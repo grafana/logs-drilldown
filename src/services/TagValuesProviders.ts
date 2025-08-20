@@ -37,7 +37,7 @@ export type DetectedFieldsResult = Array<{
   type: DetectedFieldType;
 }>;
 
-export interface LokiLanguageProviderWithDetectedLabelValues {
+export interface LokiLanguageProvider {
   fetchDetectedFields: (
     queryOptions?: FetchDetectedFieldsOptions,
     requestOptions?: Partial<BackendSrvRequest>
@@ -48,6 +48,9 @@ export interface LokiLanguageProviderWithDetectedLabelValues {
     queryOptions?: FetchDetectedLabelValuesOptions,
     requestOptions?: Partial<BackendSrvRequest>
   ) => Promise<string[] | Error>;
+
+  // @todo type
+  getGlobalConfig: (queryOptions?: FetchDetectedLabelValuesOptions) => Promise<any | Error>;
 }
 
 export const getDetectedFieldValuesTagValuesProvider = async (
@@ -71,7 +74,7 @@ export const getDetectedFieldValuesTagValuesProvider = async (
   // Assert datasource is Loki
   const lokiDatasource = datasourceUnknownType as LokiDatasource;
   // Assert language provider is LokiLanguageProvider
-  const languageProvider = lokiDatasource.languageProvider as LokiLanguageProviderWithDetectedLabelValues;
+  const languageProvider = lokiDatasource.languageProvider as LokiLanguageProvider;
 
   let values: MetricFindValue[] = [];
 

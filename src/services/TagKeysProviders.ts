@@ -16,7 +16,7 @@ import { LABELS_TO_REMOVE } from './filters';
 import { logger } from './logger';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { getDataSource } from './scenes';
-import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
+import { DetectedFieldsResult, LokiLanguageProvider } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
 
 export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): Promise<{
@@ -75,7 +75,7 @@ export async function getFieldsKeysProvider({
     throw new Error('Invalid datasource!');
   }
   const datasource = datasource_ as LokiDatasource;
-  const languageProvider = datasource.languageProvider as LokiLanguageProviderWithDetectedLabelValues;
+  const languageProvider = datasource.languageProvider as LokiLanguageProvider;
 
   const options: DetectedFieldQueryOptions = {
     expr,

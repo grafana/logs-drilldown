@@ -36,6 +36,7 @@ import { isFilterMetadata } from '../../services/filters';
 import { FilterOp, LineFilterType } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
+import { getGlobalConfig } from '../../services/LokiConfig';
 import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
@@ -237,6 +238,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   public onActivate() {
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
+
+    getGlobalConfig(this).then((res) => {
+      console.log('globalConfig', res);
+    });
 
     // Show "show logs" button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
