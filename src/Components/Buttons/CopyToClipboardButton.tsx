@@ -4,7 +4,9 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, InlineToast, useStyles2 } from '@grafana/ui';
+import { InlineToast, useStyles2 } from '@grafana/ui';
+
+import ImgButton from '../UI/ImgButton';
 
 const SHOW_SUCCESS_DURATION = 2 * 1000;
 const COPY_TO_CLIPBOARD_TEXT = t('logs.log-line-details.copy-to-clipboard', 'Copy to clipboard');
@@ -48,12 +50,10 @@ export default function CopyToClipboardButton({
           {copiedText}
         </InlineToast>
       )}
-      <IconButton
+      <ImgButton
         className={styles}
         aria-pressed={copied}
         tooltip={copied ? '' : defaultText}
-        tooltipPlacement="top"
-        size="md"
         name={type}
         ref={buttonRef}
         onClick={(e) => {

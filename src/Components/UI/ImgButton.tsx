@@ -6,20 +6,33 @@ import { css, cx } from '@emotion/css';
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { PopoverContent, Tooltip, useStyles2 } from '@grafana/ui';
 
-import copy from 'img/icons/copy.svg';
-import copyHover from 'img/icons/copy--hover.svg';
-import eye from 'img/icons/eye.svg';
+// Dark theme
+import copyDark from 'img/icons/dark/copy.svg';
+import copyHoverDark from 'img/icons/dark/copy--hover.svg';
+import eyeDark from 'img/icons/dark/eye.svg';
+import eyeHoverDark from 'img/icons/dark/eye--hover.svg';
+import searchMinusDark from 'img/icons/dark/search-minus.svg';
+import searchMinusHoverDark from 'img/icons/dark/search-minus--hover.svg';
+import searchPlusDark from 'img/icons/dark/search-plus.svg';
+import searchPlusHoverDark from 'img/icons/dark/search-plus--hover.svg';
+import shareAltDark from 'img/icons/dark/share-alt.svg';
+import shareAltHoverDark from 'img/icons/dark/share-alt--hover.svg';
 import eyeActive from 'img/icons/eye--active.svg';
-import eyeHover from 'img/icons/eye--hover.svg';
-import searchMinus from 'img/icons/search-minus.svg';
+// Light theme
+import copyLight from 'img/icons/light/copy.svg';
+import copyHoverLight from 'img/icons/light/copy--hover.svg';
+import eyeLight from 'img/icons/light/eye.svg';
+import eyeHoverLight from 'img/icons/light/eye--hover.svg';
+import searchMinusLight from 'img/icons/light/search-minus.svg';
+import searchMinusHoverLight from 'img/icons/light/search-minus--hover.svg';
+import searchPlusLight from 'img/icons/light/search-plus.svg';
+import searchPlusHoverLight from 'img/icons/light/search-plus--hover.svg';
+import shareAltLight from 'img/icons/light/share-alt.svg';
+import shareAltHoverLight from 'img/icons/light/share-alt--hover.svg';
 import searchMinusActive from 'img/icons/search-minus--active.svg';
-import searchMinusHover from 'img/icons/search-minus--hover.svg';
-import searchPlus from 'img/icons/search-plus.svg';
 import searchPlusActive from 'img/icons/search-plus--active.svg';
-import searchPlusHover from 'img/icons/search-plus--hover.svg';
-import shareAlt from 'img/icons/share-alt.svg';
-import shareAltHover from 'img/icons/share-alt--hover.svg';
 
+type ThemeVariant = 'dark' | 'light';
 type IconButtonVariant = 'primary' | 'secondary';
 type IconName = 'copy' | 'eye' | 'search-minus' | 'search-plus' | 'share-alt';
 
@@ -35,35 +48,72 @@ export interface BasePropsWithTooltip extends BaseProps {
   tooltip: PopoverContent;
 }
 
-type Images = Record<IconName, Record<IconButtonVariant | 'hover', string>>;
+type Images = Record<IconName, Record<ThemeVariant, Record<IconButtonVariant | 'hover', string>>>;
 
 const images: Images = {
   eye: {
-    secondary: eye,
-    primary: eyeActive,
-    hover: eyeHover,
+    dark: {
+      secondary: eyeDark,
+      primary: eyeActive,
+      hover: eyeHoverDark,
+    },
+    light: {
+      secondary: eyeLight,
+      primary: eyeActive,
+      hover: eyeHoverLight,
+    },
   },
   'search-minus': {
-    secondary: searchMinus,
-    primary: searchMinusActive,
-    hover: searchMinusHover,
+    dark: {
+      secondary: searchMinusDark,
+      primary: searchMinusActive,
+      hover: searchMinusHoverDark,
+    },
+    light: {
+      secondary: searchMinusLight,
+      primary: searchMinusActive,
+      hover: searchMinusHoverLight,
+    },
   },
   'search-plus': {
-    secondary: searchPlus,
-    primary: searchPlusActive,
-    hover: searchPlusHover,
+    dark: {
+      secondary: searchPlusDark,
+      primary: searchPlusActive,
+      hover: searchPlusHoverDark,
+    },
+    light: {
+      secondary: searchPlusLight,
+      primary: searchPlusActive,
+      hover: searchPlusHoverLight,
+    },
   },
   'share-alt': {
-    secondary: shareAlt,
-    hover: shareAltHover,
-    // Unused
-    primary: '',
+    dark: {
+      secondary: shareAltDark,
+      hover: shareAltHoverDark,
+      // Unused
+      primary: '',
+    },
+    light: {
+      secondary: shareAltLight,
+      hover: shareAltHoverLight,
+      // Unused
+      primary: '',
+    },
   },
   copy: {
-    secondary: copy,
-    hover: copyHover,
-    // Unused
-    primary: '',
+    dark: {
+      secondary: copyDark,
+      hover: copyHoverDark,
+      // Unused
+      primary: '',
+    },
+    light: {
+      secondary: copyLight,
+      hover: copyHoverLight,
+      // Unused
+      primary: '',
+    },
   },
 };
 
@@ -104,6 +154,11 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant, name: IconN
     iconColor = theme.colors.primary.text;
   }
 
+  console.log('secondary theme.colors.action.hover', theme.colors.action.hover);
+  console.log('primary colorManipulator.alpha(iconColor, 0.12)', colorManipulator.alpha(iconColor, 0.12));
+
+  const themeType = theme.isDark ? 'dark' : 'light';
+
   return {
     button: css({
       zIndex: 0,
@@ -142,7 +197,8 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant, name: IconN
       verticalAlign: 'baseline',
     }),
     img: css({
-      backgroundImage: variant === 'primary' ? `url(${images[name].primary})` : `url(${images[name].secondary})`,
+      backgroundImage:
+        variant === 'primary' ? `url(${images[name][themeType].primary})` : `url(${images[name][themeType].secondary})`,
       width: '16px',
       height: '16px',
 
@@ -164,7 +220,7 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant, name: IconN
       },
 
       '&:hover': {
-        backgroundImage: `url(${images[name].hover})`,
+        backgroundImage: `url(${images[name][themeType].hover})`,
         '&:before': {
           backgroundColor:
             variant === 'secondary' ? theme.colors.action.hover : colorManipulator.alpha(iconColor, 0.12),
