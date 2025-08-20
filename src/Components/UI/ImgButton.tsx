@@ -154,9 +154,6 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant, name: IconN
     iconColor = theme.colors.primary.text;
   }
 
-  console.log('secondary theme.colors.action.hover', theme.colors.action.hover);
-  console.log('primary colorManipulator.alpha(iconColor, 0.12)', colorManipulator.alpha(iconColor, 0.12));
-
   const themeType = theme.isDark ? 'dark' : 'light';
 
   return {
