@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
-import { createContext, isAssistantAvailable, ItemDataType, openAssistant } from '@grafana/assistant';
+import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
@@ -157,16 +157,14 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
               text: 'Explain in Assistant',
               onClick: () => {
                 openAssistant({
+                  origin: 'logs-drilldown-explore',
                   prompt:
                     'Help me understand this query and provide a summary of the data. Be concise and to the point.',
                   context: [
-                    createContext(ItemDataType.Datasource, {
-                      datasourceName: datasource.name,
+                    createAssistantContextItem('datasource', {
                       datasourceUid: datasource.uid,
-                      datasourceType: datasource.type,
-                      img: datasource.meta?.info?.logos?.small,
                     }),
-                    createContext(ItemDataType.Structured, {
+                    createAssistantContextItem('structured', {
                       title: 'Logs Drilldown Query',
                       data: {
                         query: getQueryExpression(this),
