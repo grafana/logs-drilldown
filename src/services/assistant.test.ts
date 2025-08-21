@@ -1,3 +1,4 @@
+import { createAssistantContextItem } from '@grafana/assistant';
 import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
 
 import { updateAssistantContext } from './assistant';
@@ -9,8 +10,20 @@ import { VAR_LABELS } from './variables';
 jest.mock('./scenes');
 jest.mock('./variableGetters');
 
+// Mock relevant assistant sdk functions
+jest.mock('@grafana/assistant', () => ({
+  createAssistantContextItem: jest.fn((_, data) => ({
+    node: {
+      data,
+    },
+  })),
+}));
+
 const mockGetLokiDatasource = getLokiDatasource as jest.MockedFunction<typeof getLokiDatasource>;
 const mockGetLabelsVariable = getLabelsVariable as jest.MockedFunction<typeof getLabelsVariable>;
+const mockCreateAssistantContextItem = createAssistantContextItem as jest.MockedFunction<
+  typeof createAssistantContextItem
+>;
 
 describe('assistant', () => {
   let mockModel: SceneObject;
@@ -52,17 +65,9 @@ describe('assistant', () => {
 
       expect(mockGetLokiDatasource).toHaveBeenCalledWith(mockModel);
       expect(mockGetLabelsVariable).toHaveBeenCalledWith(mockModel);
-      expect(mockSetAssistantContext).toHaveBeenCalledWith([
-        expect.objectContaining({
-          node: expect.objectContaining({
-            data: expect.objectContaining({
-              datasourceName: 'test-loki',
-              datasourceUid: 'loki-uid-123',
-              datasourceType: 'loki',
-            }),
-          }),
-        }),
-      ]);
+      expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('datasource', {
+        datasourceUid: 'loki-uid-123',
+      });
     });
 
     it('should create datasource context and label value contexts when filters are present', async () => {
@@ -88,37 +93,19 @@ describe('assistant', () => {
       expect(mockGetLokiDatasource).toHaveBeenCalledWith(mockModel);
       expect(mockGetLabelsVariable).toHaveBeenCalledWith(mockModel);
 
-      expect(mockSetAssistantContext).toHaveBeenCalledWith([
-        expect.objectContaining({
-          node: expect.objectContaining({
-            data: expect.objectContaining({
-              datasourceName: 'test-loki',
-              datasourceUid: 'loki-uid-123',
-              datasourceType: 'loki',
-            }),
-          }),
-        }),
-        expect.objectContaining({
-          node: expect.objectContaining({
-            data: expect.objectContaining({
-              datasourceUid: 'loki-uid-123',
-              datasourceType: 'loki',
-              labelName: 'service',
-              labelValue: 'frontend',
-            }),
-          }),
-        }),
-        expect.objectContaining({
-          node: expect.objectContaining({
-            data: expect.objectContaining({
-              datasourceUid: 'loki-uid-123',
-              datasourceType: 'loki',
-              labelName: 'environment',
-              labelValue: 'production',
-            }),
-          }),
-        }),
-      ]);
+      expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('datasource', {
+        datasourceUid: 'loki-uid-123',
+      });
+      expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('label_value', {
+        datasourceUid: 'loki-uid-123',
+        labelName: 'service',
+        labelValue: 'frontend',
+      });
+      expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('label_value', {
+        datasourceUid: 'loki-uid-123',
+        labelName: 'environment',
+        labelValue: 'production',
+      });
     });
 
     it('should handle single label filter correctly', async () => {
@@ -139,27 +126,14 @@ describe('assistant', () => {
 
       await updateAssistantContext(mockModel, mockSetAssistantContext);
 
-      expect(mockSetAssistantContext).toHaveBeenCalledWith([
-        expect.objectContaining({
-          node: expect.objectContaining({
-            data: expect.objectContaining({
-              datasourceName: 'single-loki',
-              datasourceUid: 'single-uid',
-              datasourceType: 'loki',
-            }),
-          }),
-        }),
-        expect.objectContaining({
-          node: expect.objectContaining({
-            data: expect.objectContaining({
-              datasourceUid: 'single-uid',
-              datasourceType: 'loki',
-              labelName: 'app',
-              labelValue: 'api-server',
-            }),
-          }),
-        }),
-      ]);
+      expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('datasource', {
+        datasourceUid: 'single-uid',
+      });
+      expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('label_value', {
+        datasourceUid: 'single-uid',
+        labelName: 'app',
+        labelValue: 'api-server',
+      });
     });
 
     it('should handle null datasource gracefully', async () => {
