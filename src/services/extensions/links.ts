@@ -53,6 +53,7 @@ export const linkConfigs: LinkConfigs = [
       PluginExtensionPoints.ExploreToolbarAction,
       'grafana-metricsdrilldown-app/open-in-logs-drilldown/v1',
       'grafana-assistant-app/navigateToDrilldown/v1',
+      'grafana/datalink/action',
     ],
     title,
     description,
@@ -170,7 +171,7 @@ export function setUrlParamsFromPatterns(patternFilters: PatternFilterType[], pa
   return appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
 }
 
-function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
+export function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   if (!context) {
     return undefined;
   }

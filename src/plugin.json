@@ -70,10 +70,18 @@
           "grafana/dashboard/panel/menu",
           "grafana/explore/toolbar/action",
           "grafana-metricsdrilldown-app/open-in-logs-drilldown/v1",
-          "grafana-assistant-app/navigateToDrilldown/v1"
+          "grafana-assistant-app/navigateToDrilldown/v1",
+          "grafana/datalink/action"
         ],
         "title": "Open in Grafana Logs Drilldown",
         "description": "Open current query in the Grafana Logs Drilldown view"
+      }
+    ],
+    "addedFunctions": [
+      {
+        "targets": ["grafana-exploretraces-app/open-logs-drilldown"],
+        "title": "Open Logs Drilldown",
+        "description": "Returns url to logs drilldown app"
       }
     ],
     "exposedComponents": [

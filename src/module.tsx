@@ -6,7 +6,7 @@ import {
   SuspendedEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
-import { linkConfigs } from 'services/extensions/links';
+import { contextToLink, linkConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -41,6 +41,13 @@ export const plugin = new AppPlugin<{}>().setRootPage(App).addConfigPage({
 for (const linkConfig of linkConfigs) {
   plugin.addLink(linkConfig);
 }
+
+plugin.addFunction({
+  targets: 'grafana-exploretraces-app/open-logs-drilldown',
+  title: 'Open Logs Drilldown',
+  description: 'Returns url to logs drilldown app',
+  fn: contextToLink,
+});
 
 plugin.exposeComponent({
   component: SuspendedOpenInLogsDrilldownButton,
