@@ -157,7 +157,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
               text: 'Explain in Assistant',
               onClick: () => {
                 openAssistant({
-                  origin: 'logs-drilldown-explore',
+                  origin: 'logs-drilldown-panel',
                   prompt:
                     'Help me understand this query and provide a summary of the data. Be concise and to the point.',
                   context: [
