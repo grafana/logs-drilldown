@@ -2,11 +2,14 @@ import { map, Observable } from 'rxjs';
 
 import {
   DataFrame,
+  DataTopic,
+  Field,
   FieldColorModeId,
   FieldConfig,
   FieldMatcherID,
   FieldType,
   getFieldDisplayName,
+  Labels,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -26,6 +29,7 @@ import {
 import { HideSeriesConfig, LogsSortOrder } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
+import { extractValueFromString } from '../Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
 import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
@@ -34,6 +38,7 @@ import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
 import { maxSeriesReached } from './shardQuerySplitting';
 import { getLogOption } from './store';
+import { parseLokiDuration } from './time';
 import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
@@ -269,6 +274,97 @@ export function sortLevelTransformation() {
 
             return aVal - bVal;
           });
+      })
+    );
+  };
+}
+
+export const convertLogsFrameToAnnotation = <T>(
+  panelDataFrame: DataFrame[],
+  logsFrameProvider: SceneDataProvider | undefined,
+  fieldType: 'bytes' | 'duration' | 'float'
+) => {
+  const refId = panelDataFrame[0]?.refId;
+  const logsFrame = logsFrameProvider?.state.data?.series[0];
+  const timeField = logsFrame?.fields.find((f) => f.type === FieldType.time);
+  const labels: Field<Labels> | undefined = logsFrame?.fields.find(
+    (f) => f.type === FieldType.other && f.name === 'labels'
+  );
+
+  if (refId && logsFrame?.length && timeField && labels) {
+    const values: number[] = [];
+    const timeValues: number[] = [];
+
+    for (let i = 0; i < labels.values.length; i++) {
+      const label = labels.values[i];
+      if (label[refId]) {
+        let extracted: number | undefined;
+        if (fieldType === 'duration') {
+          try {
+            extracted = parseLokiDuration(label[refId]);
+          } catch (e) {
+            console.log('failed to extract duration', label[refId], e);
+          }
+        } else {
+          extracted = extractValueFromString(label[refId], fieldType)?.value;
+        }
+
+        if (extracted !== undefined) {
+          values.push(extracted);
+          timeValues.push(timeField.values[i]);
+        } else {
+          console.log('Extraction failed', { value: label[refId] });
+        }
+      }
+    }
+
+    const exemplarFrame: DataFrame = {
+      length: values.length,
+      name: 'exemplar',
+      refId: 'exemplar',
+
+      fields: [
+        {
+          name: 'Time',
+          type: FieldType.time,
+          values: timeValues,
+          config: {},
+        },
+        {
+          name: 'Value',
+          type: FieldType.number,
+          values,
+          config: {
+            displayNameFromDS: refId,
+          },
+        },
+      ],
+      meta: {
+        typeVersion: [0, 0],
+        custom: {
+          resultType: 'exemplar',
+        },
+        dataTopic: DataTopic.Annotations,
+      },
+    };
+
+    return [exemplarFrame];
+  }
+
+  return undefined;
+};
+
+export function exemplarTransformation(
+  logsFrameProvider: SceneDataProvider | undefined,
+  fieldType: 'bytes' | 'duration' | 'float'
+) {
+  // need to extract numeric from labels
+
+  //extractValueFromString
+  return (source: Observable<DataFrame[]>) => {
+    return source.pipe(
+      map((data: DataFrame[]) => {
+        return convertLogsFrameToAnnotation(data, logsFrameProvider, fieldType);
       })
     );
   };

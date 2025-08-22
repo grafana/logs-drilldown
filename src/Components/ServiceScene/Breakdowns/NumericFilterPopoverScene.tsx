@@ -144,7 +144,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
       if (gtFilter) {
         const extractedValue = extractValueFromString(getValueFromFieldsFilter(gtFilter).value, this.state.fieldType);
 
-        if (extractedValue) {
+        if (extractedValue && extractedValue.unit) {
           stateUpdate.gt = extractedValue.value;
           stateUpdate.gtu = extractedValue.unit;
           stateUpdate.gte = gtFilter.operator === FilterOp.gte;
@@ -154,7 +154,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
       if (ltFilter) {
         const extractedValue = extractValueFromString(getValueFromFieldsFilter(ltFilter).value, this.state.fieldType);
 
-        if (extractedValue) {
+        if (extractedValue && extractedValue.unit) {
           stateUpdate.lt = extractedValue.value;
           stateUpdate.ltu = extractedValue.unit;
           stateUpdate.lte = ltFilter.operator === FilterOp.lte;
@@ -416,10 +416,15 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
   };
 }
 
+/**
+ * This works with bytes and duration values that are generated within the UI, not to be used with arbitrary duration values from Loki!
+ * @param inputString
+ * @param inputType
+ */
 export function extractValueFromString(
   inputString: string,
-  inputType: 'bytes' | 'duration'
-): { unit: DisplayByteUnits | DisplayDurationUnits; value: number } | undefined {
+  inputType: 'bytes' | 'duration' | 'float'
+): { unit: DisplayByteUnits | DisplayDurationUnits | null; value: number } | undefined {
   if (inputType === 'duration') {
     const durationValues = Object.values(DisplayDurationUnits);
 
@@ -460,6 +465,14 @@ export function extractValueFromString(
         };
       }
     }
+  }
+
+  if (inputType === 'float') {
+    const value = Number(inputString);
+    return {
+      unit: null,
+      value,
+    };
   }
 
   return undefined;

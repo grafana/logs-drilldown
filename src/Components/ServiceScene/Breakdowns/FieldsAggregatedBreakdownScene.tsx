@@ -32,7 +32,13 @@ import {
   isAvgField,
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
-import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
+import {
+  convertLogsFrameToAnnotation,
+  exemplarTransformation,
+  getQueryRunner,
+  setLevelColorOverrides,
+  setPanelNotices,
+} from '../../../services/panel';
 import { buildDataQuery } from '../../../services/query';
 import { getFieldsPanelTypes, getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
@@ -454,6 +460,43 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
       refId: optionValue,
     });
+
+    if (isAvgField(fieldType)) {
+      const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+
+      const queryRunner = getQueryRunner([query]);
+
+      const dataProvider = new SceneDataTransformer({
+        $data: queryRunner,
+        transformations: [],
+        // transformations: [() => exemplarTransformation(serviceScene.state.$data, fieldType)],
+      });
+
+      queryRunner.addActivationHandler(() => {
+        this._subs.add(
+          queryRunner.subscribeToState((newState, prevState) => {
+            if (prevState.data?.state !== LoadingState.Done && newState.data?.state === LoadingState.Done) {
+              const annotations = convertLogsFrameToAnnotation(
+                newState.data.series,
+                serviceScene.state.$data,
+                fieldType
+              );
+
+              newState.$data?.setState({
+                data: {
+                  ...newState.data,
+                  annotations,
+                },
+              });
+
+              console.log('state change', { newState, prevState, annotations });
+            }
+          })
+        );
+      });
+
+      return dataProvider;
+    }
 
     return getQueryRunner([query]);
   }

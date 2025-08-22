@@ -16,4 +16,12 @@ describe('extractValueFromString', () => {
     expect(extractValueFromString('1e9m', 'duration')).toEqual({ unit: 'm', value: 1000000000 });
     expect(extractValueFromString('99µs', 'duration')).toEqual({ unit: 'µs', value: 99 });
   });
+
+  it('should parse floats', () => {
+    expect(extractValueFromString('10.1', 'float')).toEqual({ unit: null, value: 10.1 });
+  });
+
+  it('should return undefined for complex values', () => {
+    expect(extractValueFromString('30m7.343118469s', 'duration')).toEqual(undefined);
+  });
 });
