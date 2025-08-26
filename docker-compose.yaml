@@ -28,7 +28,10 @@ services:
       - '3100:3100'
     volumes:
       - ./config/loki-config.yaml:/etc/loki/local-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
+      - ./config/loki-overrides.yaml:/etc/loki/overrides.yaml
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+      - -runtime-config.file=/etc/loki/overrides.yaml
     restart: on-failure
   generator:
     image: us-docker.pkg.dev/grafanalabs-global/docker-explore-logs-prod/fake-log-generator:latest

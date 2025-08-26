@@ -30,7 +30,10 @@ services:
       - '3100:3100'
     volumes:
       - ./config/loki-config.yaml:/etc/loki/local-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
+      - ./config/loki-overrides.yaml:/etc/loki/overrides.yaml
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+      - -runtime-config.file=/etc/loki/overrides.yaml
     restart: on-failure
   generator:
     build:
