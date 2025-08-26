@@ -1,41 +1,12 @@
-import React from 'react';
-
 import { toURLRange, urlUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
-import { ToolbarButton } from '@grafana/ui';
 
 import { DATAPLANE_LABELS_NAME } from '../../services/logsFrame';
 import { unknownToStrings } from '../../services/narrowing';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getDataSource, getQueryExpr } from 'services/scenes';
 import { getDisplayedFields, getLogsVisualizationType } from 'services/store';
-import { testIds } from 'services/testIds';
-interface GoToExploreButtonState {
-  exploration: IndexScene;
-}
-
-export const GoToExploreButton = ({ exploration }: GoToExploreButtonState) => {
-  const onClick = () => {
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.open_in_explore_clicked
-    );
-    onExploreLinkClick(exploration, undefined, true);
-  };
-
-  return (
-    <ToolbarButton
-      data-testid={testIds.exploreServiceDetails.openExplore}
-      variant={'canvas'}
-      icon={'compass'}
-      onClick={onClick}
-    >
-      Open in Explore
-    </ToolbarButton>
-  );
-};
 
 export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open = false) => {
   if (!expr) {

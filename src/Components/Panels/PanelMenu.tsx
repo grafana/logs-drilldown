@@ -36,7 +36,7 @@ import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/Field
 import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
-import { onExploreLinkClick } from '../ServiceScene/GoToExploreButton';
+import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
