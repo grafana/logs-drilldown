@@ -49,6 +49,6 @@ services:
     build:
       context: ./generator
       dockerfile: Dockerfile.syslog
-    command: -otel=false -syslog=true -syslog-network=udp -syslog-addr=alloy:1514
+    command: -otel=false -syslog=true -syslog-network=udp -syslog-addr=alloy:1514 -tenant-id=1
     depends_on:
       - alloy

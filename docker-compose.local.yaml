@@ -41,7 +41,7 @@ services:
   generator:
     build:
       context: ./generator
-    command: -url http://loki:3100/loki/api/v1/push
+    command: -url http://loki:3100/loki/api/v1/push -tenant-id=1
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp
   alloy:
