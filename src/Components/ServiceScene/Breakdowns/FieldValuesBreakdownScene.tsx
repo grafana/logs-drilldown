@@ -86,7 +86,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         <span className={styles.panelWrapper}>
           <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />
           {hasError && errorBody && (
-            <div className={styles.errorWrapper}>
+            <div>
               <errorBody.Component model={errorBody} />
             </div>
           )}

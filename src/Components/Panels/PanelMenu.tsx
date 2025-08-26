@@ -404,7 +404,6 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
 
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
   return {
-    errorWrapper: css({}),
     panelWrapper: css({
       display: 'flex',
       flexDirection: 'column',
@@ -412,6 +411,11 @@ export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
       label: 'panel-wrapper',
       position: 'absolute',
       width: '100%',
+      // Downgrade severity of panel error
+      'button[aria-label="Panel status"]': {
+        background: 'transparent',
+        color: theme.colors.error.text,
+      },
     }),
   };
 };
