@@ -4,6 +4,7 @@ import { AbstractLabelOperator } from '@grafana/data';
 import { useReturnToPrevious } from '@grafana/runtime';
 import { LinkButton } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { OpenInLogsDrilldownButtonProps } from './types';
 import {
   appendUrlParameter,
@@ -86,7 +87,10 @@ export default function OpenInLogsDrilldownButton({
     <LinkButton
       variant="secondary"
       href={href}
-      onClick={() => setReturnToPrevious(returnToPreviousSource || 'previous')}
+      onClick={() => {
+        reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.link_button_click);
+        setReturnToPrevious(returnToPreviousSource || 'previous');
+      }}
     >
       Open in Logs Drilldown
     </LinkButton>

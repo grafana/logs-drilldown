@@ -110,6 +110,11 @@ export const USER_EVENTS_ACTIONS = {
     table_columns_header_menu_slide_left: 'table_columns_header_menu_slide_left',
     table_columns_header_menu_slide_right: 'table_columns_header_menu_slide_right',
     table_columns_header_menu_hide_column: 'table_columns_header_menu_hide_column',
+    // Embedded
+    embedded_init: 'embedded_init',
+    embedded_error: 'embedded_error',
+    // link button on click
+    link_button_click: 'link_button_click',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
@@ -24,6 +25,9 @@ export function buildLogsExplorationFromState({
 
   if (!query) {
     console.error('No query parameter found! Please pass in a valid logQL query string when embedding Logs Drilldown.');
+
+    // Report invalid init
+    reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_error);
     return null;
   }
 
@@ -36,6 +40,9 @@ export function buildLogsExplorationFromState({
     operator: filter.operator,
     value: filter.value,
   }));
+
+  // Report valid init
+  reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_init);
 
   return new IndexScene({
     ...state,

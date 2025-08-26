@@ -36,7 +36,7 @@ import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/Field
 import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
-import { onExploreLinkClick } from '../ServiceScene/GoToExploreButton';
+import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
@@ -404,7 +404,6 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
 
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
   return {
-    errorWrapper: css({}),
     panelWrapper: css({
       display: 'flex',
       flexDirection: 'column',
@@ -412,6 +411,11 @@ export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
       label: 'panel-wrapper',
       position: 'absolute',
       width: '100%',
+      // Downgrade severity of panel error
+      'button[aria-label="Panel status"]': {
+        background: 'transparent',
+        color: theme.colors.error.text,
+      },
     }),
   };
 };

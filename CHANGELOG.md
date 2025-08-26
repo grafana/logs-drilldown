@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.0.26
+
+##### Chores
+
+* **@grafana/assistant:**  bump grafana/assistant sdk (#1514) (f23ba6d5)
+* **JSON:**  remove experimental banner (#1508) (37c843bc)
+* **playwright:**  run smoke tests for older grafana versions (#1479) (d803b75c)
+*  bump @grafana/create-plugin configuration to 5.25.7 (#1470) (45980e3f)
+
+##### Documentation Changes
+
+*  Add links to Explore (#1504) (83ea6090)
+
+##### New Features
+
+* **levels:**  allow custom options in level variable (#1509) (2d6bec3f)
+* **EmbeddedLogs:**  fix missing keyLabel in parsed line filters (#1500) (4a8678d7)
+*  grafana assistant expr based links (#1491) (92d76722)
+*  add data source image (#1485) (764cda81)
+
+##### Bug Fixes
+
+* **json:**  light icon buttons (#1513) (20cd5a2e)
+* **ServiceSelectionScene:**  roll back showing stored displayed fields (#1510) (9f99a2f1)
+* **links:**  show queryless button when no label selector is present (#1507) (9eeafdcc)
+* **table:**  make column menu keyboard accessible (#1490) (b177429a)
+* **ci:**  e2e fails (#1506) (d9e707f7)
+*  force reset metadata on embedded instantation (#1489) (b844998c)
+
+##### Tests
+
+* **e2e:**  add matrix test suite (#1480) (44ebd92f)
+
+
 ## 1.0.25
 
 ##### New Features

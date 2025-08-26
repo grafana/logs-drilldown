@@ -3,7 +3,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { AbstractLabelOperator } from '@grafana/data';
-import { useReturnToPrevious } from '@grafana/runtime';
+import { useReturnToPrevious, reportInteraction } from '@grafana/runtime';
 
 import OpenInLogsDrilldownButton from './OpenInLogsDrilldownButton';
 import { OpenInLogsDrilldownButtonProps } from './types';
@@ -14,13 +14,16 @@ jest.mock('@grafana/runtime', () => ({
     getLocation: jest.fn(),
   },
   useReturnToPrevious: jest.fn(),
+  reportInteraction: jest.fn(),
 }));
 
 describe('OpenInLogsDrilldownButton', () => {
   const setReturnToPreviousMock = jest.fn();
+  const reportInteractionMock = jest.fn();
 
   beforeEach(() => {
     (useReturnToPrevious as jest.Mock).mockReturnValue(setReturnToPreviousMock);
+    (reportInteraction as jest.Mock).mockReturnValue(reportInteractionMock);
   });
 
   it('should render the button with correct href (Equal operator)', () => {
@@ -121,6 +124,7 @@ describe('OpenInLogsDrilldownButton', () => {
     fireEvent.click(linkButton);
 
     expect(setReturnToPreviousMock).toHaveBeenCalledWith('test-source');
+    expect(reportInteraction).toHaveBeenCalledTimes(1);
   });
 
   it('should render using custom renderButton prop', () => {
