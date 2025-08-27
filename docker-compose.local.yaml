@@ -34,14 +34,17 @@ services:
       - '3100:3100'
     volumes:
       - ./config/loki-config.yaml:/etc/loki/local-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
+      - ./config/loki-overrides.yaml:/etc/loki/overrides.yaml
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+      - -runtime-config.file=/etc/loki/overrides.yaml
     restart: on-failure
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   generator:
     build:
       context: ./generator
-    command: -url http://loki:3100/loki/api/v1/push
+    command: -url http://loki:3100/loki/api/v1/push -tenant-id=1
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp
   alloy:

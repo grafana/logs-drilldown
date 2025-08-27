@@ -9,3 +9,7 @@ datasources:
     uid: gdev-loki-copy
     access: proxy
     url: http://host.docker.internal:3100
+    jsonData:
+      httpHeaderName1: 'X-Scope-OrgID'
+    secureJsonData:
+      httpHeaderValue1: '1'
