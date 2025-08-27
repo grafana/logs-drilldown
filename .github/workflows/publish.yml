@@ -36,5 +36,6 @@ jobs:
       auto-merge-environments: dev,ops
       argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
 
-      # TODO: Faro sourcemap token
-      # faro-sourcemap-token: ${{ secrets.FEO_SOURCEMAP_TOKEN }}
+      # Repo secrets Faro sourcemap token
+      frontend-secrets: |
+        FARO_SOURCEMAP_TOKEN=faro:faro-source-map
