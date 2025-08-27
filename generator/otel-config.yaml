@@ -23,6 +23,8 @@ exporters:
     endpoint: ${OTLP_ENDPOINT}
     tls:
       insecure: true
+    headers:
+      X-Scope-OrgID: '1'
 
 service:
   pipelines:

@@ -5,6 +5,9 @@ loki.write "default" {
 
 	endpoint {
 		url = "http://host.docker.internal:3100/loki/api/v1/push"
+		headers = {
+			"X-Scope-OrgID" = "1"
+		}
 	}
 }
 
