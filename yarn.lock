@@ -1163,7 +1163,7 @@
     uplot "1.6.32"
     xss "^1.0.14"
 
-"@grafana/e2e-selectors@12.1.0", "@grafana/e2e-selectors@^12.1.0-254610":
+"@grafana/e2e-selectors@12.1.0":
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/@grafana/e2e-selectors/-/e2e-selectors-12.1.0.tgz#596fc83aa1bf013e92167a4279953acb45cbfafd"
   integrity sha512-RrZI4TnXU0KjKFDBUniuv0mkkLPizWiCFeXmF717TJ4Qq3oCR15nxYemOQqSJXU4aR6QQ1eNhKC6noOOIQFFPA==
@@ -1172,6 +1172,15 @@
     semver "^7.7.0"
     tslib "2.8.1"
     typescript "5.8.3"
+
+"@grafana/e2e-selectors@^12.2.0-255920":
+  version "12.2.0-17311094888"
+  resolved "https://registry.yarnpkg.com/@grafana/e2e-selectors/-/e2e-selectors-12.2.0-17311094888.tgz#98ce1e9c28832638520eb3700c3abecf45b1dec8"
+  integrity sha512-2yxxdaBQ1o/FkUFsnV+hSlvvFdrq98qrO+PQ74w0hWeUcxfCZHJYaJxWRdQjdWr1ZbjVF0C3xjBIn3uyYB/aBg==
+  dependencies:
+    semver "^7.7.0"
+    tslib "2.8.1"
+    typescript "5.9.2"
 
 "@grafana/eslint-config@^8.0.0":
   version "8.1.0"
@@ -1234,12 +1243,12 @@
   resolved "https://registry.yarnpkg.com/@grafana/lezer-logql/-/lezer-logql-0.2.8.tgz#08a9ddb6f4883e98f7b445378298a0a75b33c471"
   integrity sha512-GbWKZ8BdLUFyh5ZMwOo6sZXaYcOTYFkFhBLGJ5law6V78nKoLAn77aqIEBs9mJsJ34lBsApmK77FJOFqJ8fnbg==
 
-"@grafana/plugin-e2e@^2.1.7":
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-2.1.7.tgz#bb17b9c4f6081e0013ab3fa00a8403ac819a6d26"
-  integrity sha512-gf2Zu9YnF3QJeFnYkLN/TXUqemBDjwNjjBQ05IZw1LQiHR1Qg/TogZd4KiV9AvI9O2Vorb1kzVLr4eokWEMD2g==
+"@grafana/plugin-e2e@^2.1.9":
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-2.1.10.tgz#a3682fad85930db41dc555f31055ab304f8c61ed"
+  integrity sha512-j8iayggOAoFWvfEqy0ZgIcQPqb1FhnfOcBPX7rPXQLNnRGWceLnHLIgKzNu3biULNEq/QbEQffVBzsL30VLuvw==
   dependencies:
-    "@grafana/e2e-selectors" "^12.1.0-254610"
+    "@grafana/e2e-selectors" "^12.2.0-255920"
     semver "^7.5.4"
     uuid "^11.0.2"
     yaml "^2.3.4"
@@ -10597,6 +10606,11 @@ typescript@5.8.3, typescript@>=5.0.2, typescript@^5.0.4:
   version "5.8.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.8.3.tgz#92f8a3e5e3cf497356f4178c34cd65a7f5e8440e"
   integrity sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==
+
+typescript@5.9.2:
+  version "5.9.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.9.2.tgz#d93450cddec5154a2d5cabe3b8102b83316fb2a6"
+  integrity sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==
 
 ua-parser-js@^1.0.32:
   version "1.0.40"
