@@ -13,10 +13,6 @@ const MATCHERS: Array<{ environment: Environment; regExp: RegExp }> = [
     regExp: /grafana-ops\.net/,
     environment: 'ops',
   },
-  {
-    regExp: /grafana\.net/,
-    environment: 'prod',
-  },
 ];
 
 export function getEnvironment(): Environment | null {
@@ -24,7 +20,8 @@ export function getEnvironment(): Environment | null {
     return null;
   }
 
+  // Default to prod if no match for local, dev, or ops is found
   const found = MATCHERS.find(({ regExp }) => regExp.test(window.location.host));
 
-  return found ? found.environment : null;
+  return found ? found.environment : 'prod';
 }

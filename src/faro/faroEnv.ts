@@ -2,15 +2,14 @@ import { type Environment } from './getEnv';
 import { type FaroEnvironment } from './getFaroEnv';
 
 export const FARO_ENVIRONMENTS = new Map<Environment, FaroEnvironment>([
-  // Uncomment this map entry to test from your local machine
-  // [
-  //   'local',
-  //   {
-  //     environment: 'local',
-  //     appName: 'grafana-logsdrilldown-app-local',
-  //     faroUrl: 'https://faro-collector-ops-eu-south-0.grafana-ops.net/collect/54fb57556eb45f8857edb9f0345c0d7a',
-  //   },
-  // ],
+  [
+    'local',
+    {
+      environment: 'local',
+      appName: 'grafana-logsdrilldown-app-local',
+      faroUrl: 'https://faro-collector-ops-eu-south-0.grafana-ops.net/collect/54fb57556eb45f8857edb9f0345c0d7a',
+    },
+  ],
   [
     'dev',
     {

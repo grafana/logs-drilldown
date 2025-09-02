@@ -44,7 +44,7 @@ export function initFaro() {
       instrumentations: [
         // Mandatory, omits default instrumentations otherwise.
         ...getWebInstrumentations({
-          captureConsole: false,
+          captureConsole: true,
         }),
         // Tracing package to get end-to-end visibility for HTTP requests.
         new TracingInstrumentation(),
