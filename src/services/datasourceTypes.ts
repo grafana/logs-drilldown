@@ -11,6 +11,7 @@ export type SceneDataQueryResourceRequest = {
 };
 
 export type SceneDataQueryResourceRequestOptions =
+  | 'config'
   | 'detected_fields'
   | 'detected_labels'
   | 'labels'

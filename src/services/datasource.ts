@@ -45,6 +45,8 @@ type IndexVolumeResponse = {
   };
 };
 
+type ConfigResponse = {};
+
 type LabelsResponse = {
   data: string[];
   status: string;
@@ -136,6 +138,11 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
             }
             case 'labels': {
               await this.getLabels(request, lokiDs, subscriber);
+              break;
+            }
+            case 'config': {
+              console.log('config??');
+              await this.getConfig(request, lokiDs, subscriber);
               break;
             }
             default: {
@@ -493,6 +500,37 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
 
     subscriber.complete();
 
+    return subscriber;
+  }
+
+  private async getConfig(
+    request: DataQueryRequest<LokiQuery & SceneDataQueryResourceRequest>,
+    ds: LokiDatasource,
+    subscriber: Subscriber<DataQueryResponse>
+  ) {
+    try {
+      const config: ConfigResponse = await ds.getResource(
+        'config',
+        // Don't show warnings if the endpoint doesn't exist
+        { showErrorAlert: false },
+        {
+          headers: {
+            'X-Grafana-Cache': `private, max-age=60000`,
+          },
+        }
+      );
+      console.log('config', config);
+      // @todo need to convert to dataframe
+      const df = createDataFrame({
+        fields: [{ name: 'config', values: config }],
+      });
+
+      subscriber.next({ data: [df], state: LoadingState.Done });
+    } catch (e) {
+      subscriber.next({ data: [], state: LoadingState.Error });
+    }
+
+    subscriber.complete();
     return subscriber;
   }
 

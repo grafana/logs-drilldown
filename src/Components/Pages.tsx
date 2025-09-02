@@ -30,7 +30,7 @@ import {
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
-import { IndexScene } from './IndexScene/IndexScene';
+import { getConfigQueryRunner, IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
 
 export type RouteProps = { breakdownLabel?: string; labelName: string; labelValue: string };
@@ -101,6 +101,7 @@ function getEmbeddedScene() {
     embedderName: 'EmbeddedLogs',
     query,
     timeRangeState: $timeRange.state,
+    $config: getConfigQueryRunner(),
   };
 
   return new EmbeddedScene({

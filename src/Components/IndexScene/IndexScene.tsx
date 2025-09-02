@@ -40,6 +40,7 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
+import { getResourceQueryRunner } from '../../services/panel';
 import { ReadOnlyAdHocFiltersVariable } from '../../services/ReadOnlyAdHocFiltersVariable';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
@@ -82,6 +83,7 @@ import { IndexSceneState } from './types';
 import { updateAssistantContext } from 'services/assistant';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
+  buildResourceQuery,
   getJsonParserExpressionBuilder,
   getLineFormatExpressionBuilder,
   interpolateExpression,
@@ -110,6 +112,7 @@ import {
   VAR_FIELDS_AND_METADATA,
   VAR_JSON_FIELDS,
   VAR_LABELS,
+  VAR_LABELS_EXPR,
   VAR_LEVELS,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
@@ -203,6 +206,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     super({
       $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
+      $config: getConfigQueryRunner(),
       controls: state.controls ?? controls,
       embedded: state.embedded ?? false,
       // Need to clear patterns state when the class in constructed
@@ -294,6 +298,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         }
       })
     );
+
+    // run config queries
+    this.state.$config.runQueries();
 
     return () => {
       clearKeyBindings();
@@ -793,4 +800,12 @@ function getVariableSet(
       ],
     }),
   };
+}
+
+export const CONFIG_QUERY_REFID = 'config';
+
+export function getConfigQueryRunner() {
+  return getResourceQueryRunner([buildResourceQuery(``, 'config', {})], {
+    runQueriesMode: 'manual',
+  });
 }
