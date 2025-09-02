@@ -59,16 +59,6 @@ describe('initFaro()', () => {
     });
   });
 
-  describe('when running in an unknown environment', () => {
-    test('does not initialize Faro', () => {
-      const { initializeFaro } = setup({ host: 'unknownhost' });
-
-      initFaro();
-
-      expect(initializeFaro).not.toHaveBeenCalled();
-    });
-  });
-
   describe('when running in an known environment', () => {
     beforeEach(() => {
       jest.clearAllMocks();
@@ -138,7 +128,7 @@ describe('initFaro()', () => {
       expect(user).toStrictEqual({ email: 'sixty.four@grafana.com' });
 
       expect(getWebInstrumentations).toHaveBeenCalledWith({
-        captureConsole: false,
+        captureConsole: true,
       });
       expect(instrumentations).toBeInstanceOf(Array);
       expect(instrumentations.length).toBe(2);

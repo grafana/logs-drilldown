@@ -4,7 +4,7 @@ describe('getEnvironment()', () => {
   test.each([
     // edge cases
     [undefined, null],
-    ['unknownhost', null],
+    ['unknownhost', 'prod'],
     // local
     ['localhost', 'local'],
     // dev
