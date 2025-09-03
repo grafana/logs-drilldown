@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
-import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
+import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -112,7 +112,6 @@ import {
   VAR_FIELDS_AND_METADATA,
   VAR_JSON_FIELDS,
   VAR_LABELS,
-  VAR_LABELS_EXPR,
   VAR_LEVELS,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
@@ -206,7 +205,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     super({
       $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
-      $config: getConfigQueryRunner(),
+      $lokiConfig: getConfigQueryRunner(),
       controls: state.controls ?? controls,
       embedded: state.embedded ?? false,
       // Need to clear patterns state when the class in constructed
@@ -299,8 +298,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       })
     );
 
-    // run config queries
-    this.state.$config.runQueries();
+    this._subs.add(this.subscribeToLokiConfigAPI());
 
     return () => {
       clearKeyBindings();
@@ -321,6 +319,25 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
+  }
+
+  /**
+   * Subscribes to Loki config resource api call, sets response to IndexScene state
+   */
+  private subscribeToLokiConfigAPI() {
+    if (this.state.lokiConfig !== null && !this.state.$lokiConfig.state.data?.series.length) {
+      this.state.$lokiConfig.runQueries();
+    }
+
+    return this.state.$lokiConfig.subscribeToState((newState, prevState) => {
+      // @todo update comment when we know what Loki will contain https://github.com/grafana/loki/pull/19028
+      // Loki versions before 3.6? will not have the new API endpoint
+      if (newState.data?.state === LoadingState.Error) {
+        this.setState({ lokiConfig: null });
+      } else if (newState.data?.state === LoadingState.Done && newState.data?.series.length > 0) {
+        this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
+      }
+    });
   }
 
   private provideAssistantContext() {

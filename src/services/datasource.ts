@@ -13,7 +13,12 @@ import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtim
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
 
-import { SceneDataQueryRequest, SceneDataQueryResourceRequest, VolumeRequestProps } from './datasourceTypes';
+import {
+  LokiConfig,
+  SceneDataQueryRequest,
+  SceneDataQueryResourceRequest,
+  VolumeRequestProps,
+} from './datasourceTypes';
 import { DetectedFieldsResponse, DetectedLabelsResponse } from './fields';
 import { FIELDS_TO_REMOVE, LABELS_TO_REMOVE, sortLabelsByCardinality } from './filters';
 import { logger } from './logger';
@@ -44,8 +49,6 @@ type IndexVolumeResponse = {
     result: VolumeResult[];
   };
 };
-
-type ConfigResponse = {};
 
 type LabelsResponse = {
   data: string[];
@@ -141,7 +144,6 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
               break;
             }
             case 'config': {
-              console.log('config??');
               await this.getConfig(request, lokiDs, subscriber);
               break;
             }
@@ -509,24 +511,25 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
     subscriber: Subscriber<DataQueryResponse>
   ) {
     try {
-      const config: ConfigResponse = await ds.getResource(
+      const config: LokiConfig = await ds.getResource(
         'config',
-        // Don't show warnings if the endpoint doesn't exist
-        { showErrorAlert: false },
+        {},
         {
+          // Don't show warnings if the endpoint doesn't exist
+          showErrorAlert: false,
+          // Cache for 1 day
           headers: {
-            'X-Grafana-Cache': `private, max-age=60000`,
+            'X-Grafana-Cache': `private, max-age=86400`,
           },
         }
       );
-      console.log('config', config);
-      // @todo need to convert to dataframe
       const df = createDataFrame({
-        fields: [{ name: 'config', values: config }],
+        fields: [{ name: 'config', values: [config] }],
       });
 
       subscriber.next({ data: [df], state: LoadingState.Done });
     } catch (e) {
+      console.log('error');
       subscriber.next({ data: [], state: LoadingState.Error });
     }
 

@@ -1,6 +1,7 @@
 import { AdHocVariableFilter } from '@grafana/data';
 import { SceneObject, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 
+import { LokiConfig } from '../../services/datasourceTypes';
 import { LineFilterType } from '../../services/filterTypes';
 import { LokiDatasource } from '../../services/lokiQuery';
 import { AppliedPattern } from '../../services/variables';
@@ -8,7 +9,7 @@ import { OptionalRouteMatch } from '../Pages';
 import { LayoutScene } from './LayoutScene';
 
 export interface IndexSceneState extends SceneObjectState {
-  $config: SceneQueryRunner;
+  $lokiConfig: SceneQueryRunner;
   body?: LayoutScene;
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
@@ -17,6 +18,9 @@ export interface IndexSceneState extends SceneObjectState {
   ds?: LokiDatasource;
   embedded?: boolean;
   embedderName?: string;
+  // @todo update comment when we know what Loki will contain https://github.com/grafana/loki/pull/19028
+  // A null response indicates the Loki instance does not support the new config endpoint, and is probably < 3.6
+  lokiConfig?: LokiConfig | null;
   patterns?: AppliedPattern[];
   readOnlyLabelFilters?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;

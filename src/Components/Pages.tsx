@@ -101,7 +101,7 @@ function getEmbeddedScene() {
     embedderName: 'EmbeddedLogs',
     query,
     timeRangeState: $timeRange.state,
-    $config: getConfigQueryRunner(),
+    $lokiConfig: getConfigQueryRunner(),
   };
 
   return new EmbeddedScene({
