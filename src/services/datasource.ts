@@ -529,7 +529,6 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
 
       subscriber.next({ data: [df], state: LoadingState.Done });
     } catch (e) {
-      console.log('error');
       subscriber.next({ data: [], state: LoadingState.Error });
     }
 
