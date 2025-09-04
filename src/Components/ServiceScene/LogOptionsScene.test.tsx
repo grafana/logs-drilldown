@@ -7,7 +7,7 @@ import { LogsSortOrder } from '@grafana/data';
 import { sceneGraph } from '@grafana/scenes';
 
 import { LogsListScene } from './LogsListScene';
-import { getLogOption, setLogOption } from 'services/store';
+import { getLogOption, getMaxLines, setLogOption } from 'services/store';
 
 jest.mock('services/store');
 jest.mock('./LogsListScene');
@@ -24,6 +24,7 @@ jest.mock('@grafana/runtime', () => ({
 
 describe('LogOptionsScene', () => {
   beforeEach(() => {
+    jest.mocked(getMaxLines).mockReturnValue(1000);
     jest.mocked(setLogOption).mockClear();
   });
 
