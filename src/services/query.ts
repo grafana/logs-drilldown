@@ -1,5 +1,5 @@
 import { AdHocVariableFilter, SelectableValue } from '@grafana/data';
-import { AdHocFilterWithLabels, sceneGraph, SceneObject, sceneUtils } from '@grafana/scenes';
+import { AdHocFilterWithLabels, sceneGraph, SceneObject, SceneQueryRunner, sceneUtils } from '@grafana/scenes';
 
 import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
 import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
@@ -243,3 +243,12 @@ export function getLineFormatExpressionBuilder() {
 
 // default line limit; each data source can define it's own line limit too
 export const LINE_LIMIT = 1000;
+
+export function runSceneQueries(sceneRef: SceneObject) {
+  const $data = sceneGraph.getData(sceneRef);
+  const queryRunner =
+    $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
+  if (queryRunner) {
+    queryRunner.runQueries();
+  }
+}

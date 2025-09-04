@@ -159,7 +159,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     >
   ) {
     super({
-      $data: getServiceSceneQueryRunner(),
+      $data: undefined,
       $detectedFieldsData: getDetectedFieldsQueryRunner(),
       $detectedLabelsData: getDetectedLabelsQueryRunner(),
       $logsCount: getLogCountQueryRunner(),
@@ -404,6 +404,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private onActivate() {
     if (!this.state.body) {
       this.setState({ body: this.buildGraphScene() });
+    }
+    if (!this.state.$data) {
+      this.setState({
+        $data: getServiceSceneQueryRunner(this),
+      });
     }
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
@@ -665,11 +670,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
   }
 
-  private resetBodyAndData() {
+  private resetBodyAndData = () => {
     let stateUpdate: Partial<ServiceSceneState> = {};
 
     if (!this.state.$data) {
-      stateUpdate.$data = getServiceSceneQueryRunner();
+      stateUpdate.$data = getServiceSceneQueryRunner(this);
     }
 
     if (!this.state.$patternsData) {
@@ -695,7 +700,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (Object.keys(stateUpdate).length) {
       this.setState(stateUpdate);
     }
-  }
+  };
 
   private buildGraphScene() {
     return new SceneFlexLayout({
@@ -799,8 +804,12 @@ function getDetectedFieldsQueryRunner() {
   );
 }
 
-function getServiceSceneQueryRunner() {
-  return getQueryRunner([buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID })]);
+function getServiceSceneQueryRunner(sceneRef: SceneObject) {
+  return getQueryRunner(
+    [buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID })],
+    undefined,
+    sceneRef
+  );
 }
 
 function getLogCountQueryRunner() {

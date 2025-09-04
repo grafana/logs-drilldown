@@ -11,7 +11,6 @@ import {
   SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
-  SceneQueryRunner,
 } from '@grafana/scenes';
 import { PanelChrome, useStyles2 } from '@grafana/ui';
 
@@ -33,6 +32,7 @@ import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
+import { runSceneQueries } from 'services/query';
 
 const TableProvider = lazy(() => import('../Table/TableProvider'));
 
@@ -207,12 +207,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       return;
     }
     setLogOption('sortOrder', newOrder);
-    const $data = sceneGraph.getData(this);
-    const queryRunner =
-      $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
-    if (queryRunner) {
-      queryRunner.runQueries();
-    }
+    runSceneQueries(this);
     this.setState({ sortOrder: newOrder });
   };
 
@@ -274,7 +269,13 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           title={'Logs'}
           menu={menu ? <menu.Component model={menu} /> : undefined}
           showMenuAlways={true}
-          actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />}
+          actions={
+            <LogsPanelHeaderActions
+              vizType={visualizationType}
+              onChange={parentModel.setVisualizationType}
+              sceneRef={model}
+            />
+          }
         >
           <div className={styles.container}>
             {logsControlsSupported && dataFrame && dataFrame.length > 0 && (

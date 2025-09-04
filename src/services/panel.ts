@@ -33,7 +33,7 @@ import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMeta
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery, LokiQueryDirection } from './lokiQuery';
 import { maxSeriesReached } from './shardQuerySplitting';
-import { getLogOption } from './store';
+import { getLogOption, getMaxLines } from './store';
 import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
@@ -282,7 +282,11 @@ export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?
   });
 }
 
-export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partial<QueryRunnerState>) {
+export function getQueryRunner(
+  queries: LokiQuery[],
+  queryRunnerOptions?: Partial<QueryRunnerState>,
+  sceneRef?: SceneObject
+) {
   // if there's a legendFormat related to any `level` like label, we want to
   // sort the output equally. That's purposefully not `LEVEL_VARIABLE_VALUE`,
   // such that the `detected_level` graph looks the same as a graph for the
@@ -320,6 +324,9 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         const sortOrder =
           getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
         return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
+      },
+      get maxLines() {
+        return sceneRef ? getMaxLines(sceneRef) : query.maxLines;
       },
     }));
   }

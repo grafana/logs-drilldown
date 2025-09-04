@@ -8,7 +8,6 @@ import {
   SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
-  SceneQueryRunner,
 } from '@grafana/scenes';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
@@ -26,6 +25,7 @@ import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
+import { runSceneQueries } from 'services/query';
 import {
   getBooleanLogOption,
   getJSONHighlightState,
@@ -208,12 +208,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       return;
     }
     setLogOption('sortOrder', newOrder);
-    const $data = sceneGraph.getData(this);
-    const queryRunner =
-      $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
-    if (queryRunner) {
-      queryRunner.runQueries();
-    }
+    runSceneQueries(this);
     this.setState({ sortOrder: newOrder });
   };
 

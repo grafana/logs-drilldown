@@ -122,7 +122,7 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
           </InlineField>
         </>
       )}
-      <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} />
+      <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} sceneRef={model} />
     </div>
   );
 }
@@ -158,6 +158,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     alignItems: 'center',
     display: 'flex',
     gap: theme.spacing(1),
-    marginTop: theme.spacing(0.5),
   }),
 });

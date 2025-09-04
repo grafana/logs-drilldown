@@ -11,7 +11,6 @@ import {
   SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
-  SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
 import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
@@ -50,6 +49,7 @@ import { ServiceScene } from './ServiceScene';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
+import { runSceneQueries } from 'services/query';
 import { getPrettyQueryExpr } from 'services/scenes';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
 import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
@@ -296,12 +296,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       return;
     }
     if ('sortOrder' in options && options.sortOrder !== this.state.body.state.options.sortOrder) {
-      const $data = sceneGraph.getData(this);
-      const queryRunner =
-        $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
-      if (queryRunner) {
-        queryRunner.runQueries();
-      }
+      runSceneQueries(this);
     }
     this.state.body.onOptionsChange(options);
   }
