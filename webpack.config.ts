@@ -1,10 +1,9 @@
 import type { Configuration } from 'webpack';
+// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 import { merge } from 'webpack-merge';
 
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
-
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 import grafanaConfig from './.config/webpack/webpack.config';
 

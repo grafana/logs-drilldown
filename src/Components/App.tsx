@@ -7,9 +7,8 @@ const LogExplorationView = lazy(() => import('./LogExplorationPage'));
 const PluginPropsContext = React.createContext<AppRootProps | null>(null);
 
 // Initialize Faro for internal observability
-import('faro/faroInit').then((module) => {
-  module.initFaro();
-});
+const { initFaro } = await import('faro/faroInit');
+initFaro();
 
 class App extends React.PureComponent<AppRootProps> {
   render() {
