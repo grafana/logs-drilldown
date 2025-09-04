@@ -46,7 +46,7 @@ export function LogsPanelHeaderActions(props: {
       {maxLines && (
         <InlineField
           className={styles.inlineField}
-          tooltip={t('logs.log-options.max-lines-tooltip', 'Upper limit for number of log lines returned by query.')}
+          aria-label={t('logs.log-options.max-lines-label', 'Number of log lines to request')}
         >
           <ButtonCascader
             options={maxLinesOptions}

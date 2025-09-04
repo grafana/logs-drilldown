@@ -7,9 +7,10 @@ import { LogsSortOrder } from '@grafana/data';
 import { sceneGraph } from '@grafana/scenes';
 
 import { LogsListScene } from './LogsListScene';
-import { getLogOption, getMaxLines, setLogOption } from 'services/store';
+import { getLogOption, getMaxLines, setLogOption, setMaxLines } from 'services/store';
 
 jest.mock('services/store');
+jest.mock('services/query');
 jest.mock('./LogsListScene');
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
@@ -96,5 +97,17 @@ describe('LogOptionsScene', () => {
     await act(async () => userEvent.click(screen.getByText('Show original log line')));
 
     expect(scene.clearDisplayedFields).toHaveBeenCalledTimes(1);
+  });
+
+  test('Allows to change the line limit', async () => {
+    const scene = new LogsListScene({});
+    render(<scene.Component model={scene} />);
+
+    expect(screen.getByText('1000 logs')).toBeInTheDocument();
+
+    await act(async () => userEvent.click(screen.getByText('1000 logs')));
+    await act(async () => userEvent.click(screen.getByText('5000')));
+
+    expect(setMaxLines).toHaveBeenCalledTimes(1);
   });
 });
