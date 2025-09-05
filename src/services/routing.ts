@@ -134,7 +134,7 @@ export function getPrimaryLabelFromUrl(): RouteProps {
   const routeParams = endOfUrl.split('/');
 
   let labelName = routeParams[0];
-  const labelValue = routeParams[1];
+  const labelValue = decodeURIComponent(routeParams[1]);
   const breakdownLabel = routeParams[3];
 
   return { breakdownLabel, labelName: getUILabelName(labelName), labelValue };

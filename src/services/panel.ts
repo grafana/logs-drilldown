@@ -23,7 +23,7 @@ import {
   SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
-import { HideSeriesConfig, LogsSortOrder } from '@grafana/schema';
+import { HideSeriesConfig } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
@@ -31,10 +31,8 @@ import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
-import { LokiQuery, LokiQueryDirection } from './lokiQuery';
+import { LokiQuery } from './lokiQuery';
 import { maxSeriesReached } from './shardQuerySplitting';
-import { getLogOption, getMaxLines } from './store';
-import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
@@ -282,11 +280,7 @@ export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?
   });
 }
 
-export function getQueryRunner(
-  queries: LokiQuery[],
-  queryRunnerOptions?: Partial<QueryRunnerState>,
-  sceneRef?: SceneObject
-) {
+export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partial<QueryRunnerState>) {
   // if there's a legendFormat related to any `level` like label, we want to
   // sort the output equally. That's purposefully not `LEVEL_VARIABLE_VALUE`,
   // such that the `detected_level` graph looks the same as a graph for the
@@ -317,18 +311,6 @@ export function getQueryRunner(
       }),
       transformations: [setColorByDisplayNameTransformation],
     });
-  } else {
-    queries = queries.map((query) => ({
-      ...query,
-      get direction() {
-        const sortOrder =
-          getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
-        return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
-      },
-      get maxLines() {
-        return sceneRef ? getMaxLines(sceneRef) : query.maxLines;
-      },
-    }));
   }
 
   return getSceneQueryRunner({
