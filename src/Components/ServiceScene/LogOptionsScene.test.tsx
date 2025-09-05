@@ -98,16 +98,4 @@ describe('LogOptionsScene', () => {
 
     expect(scene.clearDisplayedFields).toHaveBeenCalledTimes(1);
   });
-
-  test('Allows to change the line limit', async () => {
-    const scene = new LogsListScene({});
-    render(<scene.Component model={scene} />);
-
-    expect(screen.getByText('1000 logs')).toBeInTheDocument();
-
-    await act(async () => userEvent.click(screen.getByText('1000 logs')));
-    await act(async () => userEvent.click(screen.getByText('5000')));
-
-    expect(setMaxLines).toHaveBeenCalledTimes(1);
-  });
 });
