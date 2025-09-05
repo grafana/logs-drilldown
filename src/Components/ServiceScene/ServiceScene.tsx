@@ -410,7 +410,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
     if (!this.state.$data) {
       this.setState({
-        $data: getServiceSceneQueryRunner(this),
+        $data: getLogsQueryQueryRunner(this),
       });
     }
     // Hide show logs button
@@ -677,7 +677,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     let stateUpdate: Partial<ServiceSceneState> = {};
 
     if (!this.state.$data) {
-      stateUpdate.$data = getServiceSceneQueryRunner(this);
+      stateUpdate.$data = getLogsQueryQueryRunner(this);
     }
 
     if (!this.state.$patternsData) {
@@ -807,7 +807,7 @@ function getDetectedFieldsQueryRunner() {
   );
 }
 
-function getServiceSceneQueryRunner(sceneRef: SceneObject) {
+function getLogsQueryQueryRunner(sceneRef: SceneObject) {
   const query = {
     ...buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID }),
     get direction() {
