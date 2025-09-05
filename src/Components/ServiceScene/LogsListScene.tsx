@@ -24,6 +24,7 @@ import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
+import { LineLimitScene } from './LineLimitScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import {
@@ -242,6 +243,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                   body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
                   xSizing: 'fill',
                 }),
+                new SceneFlexItem({
+                  body: new LineLimitScene(),
+                  xSizing: 'content',
+                }),
               ],
             }),
             new SceneFlexItem({
@@ -251,9 +256,17 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           ]
         : this.state.visualizationType === 'json'
         ? [
-            new SceneFlexItem({
-              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-              xSizing: 'fill',
+            new SceneFlexLayout({
+              children: [
+                new SceneFlexItem({
+                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                  xSizing: 'fill',
+                }),
+                new SceneFlexItem({
+                  body: new LineLimitScene(),
+                  xSizing: 'content',
+                }),
+              ],
             }),
             new SceneFlexItem({
               body: new JSONLogsScene({}),
@@ -261,9 +274,17 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
             }),
           ]
         : [
-            new SceneFlexItem({
-              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-              xSizing: 'fill',
+            new SceneFlexLayout({
+              children: [
+                new SceneFlexItem({
+                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                  xSizing: 'fill',
+                }),
+                new SceneFlexItem({
+                  body: new LineLimitScene(),
+                  xSizing: 'content',
+                }),
+              ],
             }),
             new SceneFlexItem({
               body: new LogsTableScene({}),

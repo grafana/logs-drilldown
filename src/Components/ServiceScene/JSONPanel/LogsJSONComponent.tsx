@@ -140,13 +140,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
         loadingState={$data.state.data?.state}
         title={'JSON'}
         menu={menu ? <menu.Component model={menu} /> : undefined}
-        actions={
-          <LogsPanelHeaderActions
-            vizType={visualizationType}
-            onChange={logsListScene.setVisualizationType}
-            sceneRef={model}
-          />
-        }
+        actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
       >
         <div className={styles.container}>
           {lineField?.values && lineField?.values.length > 0 && (

@@ -269,13 +269,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           title={'Logs'}
           menu={menu ? <menu.Component model={menu} /> : undefined}
           showMenuAlways={true}
-          actions={
-            <LogsPanelHeaderActions
-              vizType={visualizationType}
-              onChange={parentModel.setVisualizationType}
-              sceneRef={model}
-            />
-          }
+          actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />}
         >
           <div className={styles.container}>
             {logsControlsSupported && dataFrame && dataFrame.length > 0 && (

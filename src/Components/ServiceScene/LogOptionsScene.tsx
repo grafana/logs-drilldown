@@ -122,7 +122,7 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
           </InlineField>
         </>
       )}
-      <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} sceneRef={model} />
+      <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} />
     </div>
   );
 }
