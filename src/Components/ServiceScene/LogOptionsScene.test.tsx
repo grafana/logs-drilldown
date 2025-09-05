@@ -7,7 +7,7 @@ import { LogsSortOrder } from '@grafana/data';
 import { sceneGraph } from '@grafana/scenes';
 
 import { LogsListScene } from './LogsListScene';
-import { getLogOption, getMaxLines, setLogOption, setMaxLines } from 'services/store';
+import { getLogOption, getMaxLines, setLogOption } from 'services/store';
 
 jest.mock('services/store');
 jest.mock('services/query');
