@@ -5,14 +5,14 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { ButtonCascader, CascaderOption, IconButton, InlineField, useStyles2 } from '@grafana/ui';
+import { ComboboxOption, Combobox, IconButton, InlineField, useStyles2 } from '@grafana/ui';
 
 import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';
 
 interface LineLimitState extends SceneObjectState {
   maxLines?: number;
-  maxLinesOptions: CascaderOption[];
+  maxLinesOptions: Array<ComboboxOption<number>>;
 }
 
 /**
@@ -40,11 +40,11 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
     });
   };
 
-  onChangeMaxLines = (value: string[]) => {
-    if (!value.length) {
+  onChangeMaxLines = (option: ComboboxOption<number>) => {
+    if (!option.value) {
       return;
     }
-    const newMaxLines = parseInt(value[0], 10);
+    const newMaxLines = option.value;
     setMaxLines(this, newMaxLines);
     this.setState({
       maxLines: newMaxLines,
@@ -71,14 +71,15 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
           aria-label={t('logs.log-options.max-lines-label', 'Number of log lines to request')}
           className={styles.label}
         >
-          <ButtonCascader
+          <Combobox<number>
             options={maxLinesOptions}
-            buttonProps={{ variant: 'secondary' }}
-            value={[maxLines.toString()]}
+            value={maxLines}
+            width="auto"
+            minWidth={8}
             onChange={model.onChangeMaxLines}
-          >
-            {t('logs.log-options.max-lines-label', '{{logs}} logs', { logs: maxLines })}
-          </ButtonCascader>
+            placeholder={t('logs.log-options.max-lines-label', '{{logs}} logs', { logs: maxLines })}
+            createCustomValue
+          />
         </InlineField>
       )}
     </div>
@@ -95,23 +96,22 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-function getMaxLinesOptions(currentMaxLines: number) {
-  const stringMaxLines = currentMaxLines.toString();
+function getMaxLinesOptions(currentMaxLines: number): Array<ComboboxOption<number>> {
   const defaultOptions = [
-    { value: '100', label: '100' },
-    { value: '500', label: '500' },
-    { value: '1000', label: '1000' },
-    { value: '2000', label: '2000' },
-    { value: '5000', label: '5000' },
+    { value: 100, label: '100' },
+    { value: 500, label: '500' },
+    { value: 1000, label: '1000' },
+    { value: 2000, label: '2000' },
+    { value: 5000, label: '5000' },
   ];
-  if (defaultOptions.find((option) => option.value === stringMaxLines)) {
+  if (defaultOptions.find((option) => option.value === currentMaxLines)) {
     return defaultOptions;
   }
-  let index = defaultOptions.findIndex((option) => parseInt(option.value, 10) > currentMaxLines);
+  let index = defaultOptions.findIndex((option) => option.value > currentMaxLines);
   index = index <= 0 ? 0 : index;
   defaultOptions.splice(index, 0, {
-    value: stringMaxLines,
-    label: stringMaxLines,
+    value: currentMaxLines,
+    label: currentMaxLines.toString(),
   });
   return defaultOptions;
 }
