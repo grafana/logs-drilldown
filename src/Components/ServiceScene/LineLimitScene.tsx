@@ -2,9 +2,10 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { ButtonCascader, CascaderOption, InlineField } from '@grafana/ui';
+import { ButtonCascader, CascaderOption, IconButton, InlineField, useStyles2 } from '@grafana/ui';
 
 import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';
@@ -54,9 +55,17 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
 
 function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
   const { maxLines, maxLinesOptions } = model.useState();
-
+  const styles = useStyles2(getStyles);
   return (
-    <div>
+    <div className={styles.container}>
+      <IconButton
+        name="info-circle"
+        tooltip={t(
+          'logs.log-options.max-lines-tooltip',
+          'Number of log lines to request. Depends on the Loki configuration value for max_entries_limit.'
+        )}
+        tooltipPlacement="left-start"
+      />
       {maxLines && (
         <InlineField
           aria-label={t('logs.log-options.max-lines-label', 'Number of log lines to request')}
@@ -76,11 +85,15 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
   );
 }
 
-const styles = {
+const getStyles = (theme: GrafanaTheme2) => ({
+  container: css({
+    display: 'flex',
+    gap: theme.spacing(0.5),
+  }),
   label: css({
     marginRight: 0,
   }),
-};
+});
 
 function getMaxLinesOptions(currentMaxLines: number) {
   const stringMaxLines = currentMaxLines.toString();
