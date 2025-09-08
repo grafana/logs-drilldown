@@ -31,7 +31,7 @@ export enum LogLineState {
 }
 
 const TableColumnsContext = createContext<TableColumnsContextType>({
-  bodyState: LogLineState.auto,
+  bodyState: LogLineState.text,
   clearSelectedLine: () => {},
   columns: {},
   columnWidthMap: {},
@@ -104,7 +104,7 @@ export const TableColumnContextProvider = ({
   urlTableBodyState?: LogLineState;
 }) => {
   const [columns, setColumns] = useState<FieldNameMetaStore>(removeExtraColumns(initialColumns));
-  const [bodyState, setBodyState] = useState<LogLineState>(urlTableBodyState ?? LogLineState.auto);
+  const [bodyState, setBodyState] = useState<LogLineState>(urlTableBodyState ?? LogLineState.text);
   const [filteredColumns, setFilteredColumns] = useState<FieldNameMetaStore | undefined>(undefined);
 
   const initialColumnWidths = getColumnWidthsFromLocalStorage();
