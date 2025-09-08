@@ -7,7 +7,7 @@ import { DataFrame, Field, FieldType, getLinksSupplier, GrafanaTheme2, LinkModel
 import { getTemplateSrv } from '@grafana/runtime';
 import { getCellLinks, useTheme2 } from '@grafana/ui';
 
-import { LEVEL_NAME } from './constants';
+import { DETECTED_LEVEL, LEVEL } from './constants';
 import { CellContextMenu } from 'Components/Table/CellContextMenu';
 import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
@@ -76,7 +76,7 @@ function LogLinePillValue(props: {
   const { linkButton } = useSharedStyles();
 
   let levelColor;
-  if (props.label === LEVEL_NAME) {
+  if (props.label === DETECTED_LEVEL || props.label === LEVEL) {
     const mappings = getFieldMappings().options;
     if (props.value in mappings) {
       levelColor = mappings[props.value].color;

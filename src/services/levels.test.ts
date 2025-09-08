@@ -7,7 +7,7 @@ import { getLevelLabelsFromSeries, getVisibleLevels, toggleLevelFromFilter, togg
 import { getLevelsVariable } from './variableGetters';
 import { VAR_LEVELS } from './variables';
 import { addToFilters, replaceFilter } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { LEVEL_NAME } from 'Components/Table/constants';
+import { DETECTED_LEVEL } from 'Components/Table/constants';
 
 jest.mock('./variables');
 jest.mock('./variableGetters');
@@ -301,6 +301,6 @@ describe('toggleLevelFromFilter', () => {
     setup([]);
 
     expect(toggleLevelFromFilter('logs', scene)).toBe('include');
-    expect(addToFilters).toHaveBeenCalledWith(LEVEL_NAME, '""', 'include', scene, VAR_LEVELS);
+    expect(addToFilters).toHaveBeenCalledWith(DETECTED_LEVEL, '""', 'include', scene, VAR_LEVELS);
   });
 });
