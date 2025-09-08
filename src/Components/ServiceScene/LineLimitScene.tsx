@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { reportInteraction } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { ComboboxOption, Combobox, InlineField, useStyles2 } from '@grafana/ui';
 
@@ -50,6 +51,9 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
       maxLines: newMaxLines,
     });
     runSceneQueries(this);
+    reportInteraction('grafana_logs_app_line_limit_changed', {
+      maxLines: newMaxLines,
+    });
   };
 }
 
