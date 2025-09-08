@@ -2,7 +2,7 @@ import React, { lazy, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
-import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { AdHocVariableFilter, GrafanaTheme2, LoadingState, LogsSortOrder } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
@@ -21,7 +21,7 @@ import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes'
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_URL_COLUMNS } from '../Table/constants';
+import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
@@ -100,6 +100,18 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
 
+    // Subscribe to data changes to update URL columns
+    const dataProvider = sceneGraph.getData(this);
+    this._subs.add(
+      dataProvider.subscribeToState((newState, prevState) => {
+        if (newState.data && newState.data !== prevState.data) {
+          if (newState.data.state === LoadingState.Done) {
+            this.updateUrlColumnsBasedOnData();
+          }
+        }
+      })
+    );
+
     // Subscribe to location changes to detect URL parameter changes
     this._subs.add(
       locationService.getHistory().listen(() => {
@@ -140,6 +152,15 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
   // on activate sync displayed fields with url columns
   onActivateSyncDisplayedFieldsWithUrlColumns = () => {
+    this.updateDefualtUrlColumns();
+  };
+
+  // on data change sync displayed fields with url columns
+  updateUrlColumnsBasedOnData = () => {
+    this.updateDefualtUrlColumns();
+  };
+
+  updateDefualtUrlColumns = () => {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
     let urlColumnsUrl: string[] | null = [];
     try {
@@ -158,7 +179,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
         ? this.updateDefaultUrlColumns(urlColumnsUrl)
         : defaultUrlColumns
       : defaultUrlColumns;
-    defaultUrlColumns = defaultUrlColumns.length > 0 ? defaultUrlColumns : defaultUrlColumns;
     parentModel.setState({
       urlColumns: Array.from(new Set([...defaultUrlColumns, ...parentModel.state.displayedFields])),
     });
@@ -195,8 +215,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
   // update defaultUrlColumns and match order
   updateDefaultUrlColumns = (urlColumns: string[]) => {
-    defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
-      // return the column in the same index position as urlColumns
+    // Keep existing default columns that are in the URL, preserving their order
+    const existingDefaults = defaultUrlColumns.reduce<string[]>((acc, col) => {
       if (urlColumns.includes(col)) {
         const urlIndex = urlColumns.indexOf(col);
         acc[urlIndex] = col;
@@ -204,7 +224,51 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       return acc;
     }, []);
 
+    // Add any new default columns that aren't in the URL yet
+    let newDefaults = DEFAULT_URL_COLUMNS.filter((col) => !urlColumns.includes(col));
+
+    // Only include the level field if it exists in the data
+    const levelFieldName = this.hasDetectedLevel();
+    if (levelFieldName) {
+      newDefaults = [...newDefaults, levelFieldName];
+    }
+
+    // Combine existing defaults (in URL order) with new defaults and remove duplicates
+    defaultUrlColumns = Array.from(new Set([...existingDefaults.filter(Boolean), ...newDefaults]));
+
     return defaultUrlColumns;
+  };
+
+  // check if the data has a detected_level or level field
+  hasDetectedLevel = () => {
+    const dataProvider = sceneGraph.getData(this);
+    const data = dataProvider.state.data;
+    if (!data || !data.series || data.series.length === 0) {
+      return null;
+    }
+
+    // Check if any of the data frames have a detected_level or level field with actual values
+    for (const frame of data.series) {
+      // Find the labels field which contains the log metadata
+      const labelsField = frame.fields.find((field) => field.name === 'labels' && field.values);
+
+      if (labelsField && labelsField.values && labelsField.values.length > 0) {
+        // Check if any log entry has detected_level or level in its labels
+        for (const labels of labelsField.values) {
+          if (labels && typeof labels === 'object') {
+            // Return the actual field name that exists in the data
+            if (labels[DETECTED_LEVEL]) {
+              return DETECTED_LEVEL;
+            }
+            if (labels[LEVEL]) {
+              return LEVEL;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
   };
 
   handleSortChange = (newOrder: LogsSortOrder) => {
