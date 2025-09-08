@@ -342,7 +342,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 onSortOrderChange={model.handleSortChange}
                 onLineStateClick={model.onLineStateClick}
                 // "Auto" defaults to display "show text"
-                lineState={tableLogLineState ?? LogLineState.labels}
+                lineState={tableLogLineState ?? LogLineState.text}
                 disabledLineState={!model.state.isDisabledLineState}
               />
             )}
