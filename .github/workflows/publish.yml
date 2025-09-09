@@ -35,3 +35,7 @@ jobs:
       grafana-cloud-deployment-type: provisioned
       auto-merge-environments: dev,ops
       argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
+
+      # Repo secrets Faro sourcemap token
+      frontend-secrets: |
+        FARO_SOURCEMAP_TOKEN=faro:faro-source-map
