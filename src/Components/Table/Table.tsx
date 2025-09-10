@@ -21,7 +21,7 @@ import {
   transformDataFrame,
   ValueMap,
 } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
+import { getTemplateSrv, locationService } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
 import { Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
@@ -121,18 +121,22 @@ function TableAndContext(props: {
   logsFrame: LogsFrame;
   logsSortOrder: LogsSortOrder;
   onResize: (fieldDisplayName: string, width: number) => void;
+  onSortByChange?: (sortBy: Array<{ desc?: boolean; displayName: string }>) => void;
   selectedLine?: number;
+  sortBy?: { desc: boolean; fieldName: string };
   width: number;
 }) {
   return (
     <GrafanaTable
       onColumnResize={props.onResize}
+      onSortByChange={props.onSortByChange}
       initialRowIndex={props.selectedLine}
       cellHeight={TableCellHeight.Sm}
       data={props.data}
       height={props.height}
       width={props.width}
       footerOptions={{ countRows: true, reducer: ['count'], show: true }}
+      initialSortBy={props.sortBy ? [{ displayName: props.sortBy.fieldName, desc: props.sortBy.desc }] : []}
     />
   );
 }
@@ -145,6 +149,7 @@ export const Table = (props: Props) => {
   const [tableFrame, setTableFrame] = useState<DataFrame | undefined>(undefined);
   const [sidebarWidth, setSidebarWidth] = useState(220);
   const [isTableSidebarCollapsed, setIsTableSidebarCollapsed] = useState(false);
+  const [sortBy, setSortBy] = useState<{ desc: boolean; fieldName: string } | undefined>(undefined);
   const tableWidth = width - (isTableSidebarCollapsed ? 40 : sidebarWidth);
   const styles = getStyles(theme, height, sidebarWidth);
 
@@ -156,6 +161,43 @@ export const Table = (props: Props) => {
   const [localSelectedLine] = useState(selectedLine);
 
   const reorderColumn = getReorderColumn(setColumns);
+
+  // Initialize sort from URL on component mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    const sortFieldParam = searchParams.get('urlColumnsSortBy');
+    const sortDirParam = searchParams.get('urlColumnsSortDir');
+
+    if (sortFieldParam && sortDirParam) {
+      setSortBy({
+        desc: sortDirParam === 'desc',
+        fieldName: sortFieldParam,
+      });
+    }
+  }, []);
+
+  // Handle sort changes from table
+  const onSortByChange = useCallback((sortBy: Array<{ desc?: boolean; displayName: string }>) => {
+    const location = locationService.getLocation();
+    if (!location) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(location.search);
+
+    if (sortBy.length > 0) {
+      const { desc = false, displayName: fieldName } = sortBy[0];
+      setSortBy({ desc, fieldName });
+      searchParams.set('urlColumnsSortBy', fieldName);
+      searchParams.set('urlColumnsSortDir', desc ? 'desc' : 'asc');
+    } else {
+      setSortBy(undefined);
+      searchParams.delete('urlColumnsSortBy');
+      searchParams.delete('urlColumnsSortDir');
+    }
+
+    locationService.replace(`${location.pathname}?${searchParams.toString()}${location.hash}`);
+  }, []);
 
   const templateSrv = getTemplateSrv();
   const replace = useMemo(() => templateSrv.replace.bind(templateSrv), [templateSrv]);
@@ -190,6 +232,7 @@ export const Table = (props: Props) => {
           custom: {
             cellOptions: getTableCellOptions(field, index, labels, logsFrame),
             filterable: true, // This sets the columns to be filterable
+            sortable: true, // Enable sorting for all columns
             headerComponent: (props: CustomHeaderRendererProps) => (
               <TableHeaderContextProvider>
                 <LogsTableHeaderWrap
@@ -349,6 +392,8 @@ export const Table = (props: Props) => {
               height={height}
               width={tableWidth}
               onResize={debounce(onResize, 100)}
+              onSortByChange={onSortByChange}
+              sortBy={sortBy}
               logsSortOrder={props.logsSortOrder}
             />
           </ScrollSync>
