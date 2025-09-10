@@ -211,10 +211,6 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLogsTab();
 
     // Open log details
-    //ng-logs-panel
-    // const logPanelMenuLoc = page.getByLabel('Log menu').nth(1);
-    // await logPanelMenuLoc.click();
-    // await page.getByRole('menuitem', { name: 'Show log details' }).click();
     await page.getByTitle('See log details').nth(1).click();
     await page.getByLabel('Show this field instead of').nth(1).click();
 
@@ -234,6 +230,57 @@ test.describe('explore services breakdown page', () => {
 
     // Check if filtered urlColumns matches displayedFields
     expect(displayedFields).toEqual(filteredUrlColumns);
+  });
+
+  test('table should show detected_level column when log data contains detected_level', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
+
+    // Check that detected_level column is present (if data contains detected_level info)
+    const detectedLevelHeader = table.getByRole('columnheader').filter({ hasText: 'detected_level' });
+    const hasDetectedLevel = (await detectedLevelHeader.count()) > 0;
+    await expect(hasDetectedLevel).toBeTruthy();
+  });
+
+  test('table should support table column sorting with URL persistence', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
+
+    const bodyHeader = table.getByRole('columnheader').filter({ hasText: /body|Line/ });
+    if ((await bodyHeader.count()) > 0) {
+      await bodyHeader.first().click();
+
+      // Check URL contains sort parameters for body
+      await expect(page).toHaveURL(/urlColumnsSortBy=(body|Line)/);
+      await expect(page).toHaveURL(/urlColumnsSortDir=(asc|desc)/);
+
+      // Reload to verify persistence
+      await page.reload();
+      await expect(table).toBeVisible();
+      await expect(page).toHaveURL(/urlColumnsSortBy=(body|Line)/);
+      await expect(page).toHaveURL(/urlColumnsSortDir=(asc|desc)/);
+    }
+  });
+
+  test('table should show log line by default', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
+
+    // Show log labels button should be visible since text is shown by default
+    const bodyShowLogLabels = table.getByRole('columnheader').filter({ hasText: /show log labels/ });
+    await expect(bodyShowLogLabels).toHaveCount(1);
   });
 
   test(`should persist column ordering`, async ({ page }) => {
