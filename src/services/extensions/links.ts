@@ -42,6 +42,7 @@ const icon = 'gf-logs';
 
 export const ExtensionPoints = {
   MetricInvestigation: 'grafana-lokiexplore-app/investigation/v1',
+  IRMAttach: 'grafana-lokiexplore-app/attach-to-incident/v1',
 } as const;
 
 export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
