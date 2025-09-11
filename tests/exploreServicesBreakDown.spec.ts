@@ -254,19 +254,20 @@ test.describe('explore services breakdown page', () => {
     const table = page.getByTestId(testIds.table.wrapper);
     await expect(table).toBeVisible();
 
-    const bodyHeader = table.getByRole('columnheader').filter({ hasText: /body|Line/ });
+    const bodyHeader = page.getByRole('button', { name: 'body', exact: true });
+
     if ((await bodyHeader.count()) > 0) {
-      await bodyHeader.first().click();
+      await bodyHeader.click();
 
       // Check URL contains sort parameters for body
-      await expect(page).toHaveURL(/urlColumnsSortBy=(body|Line)/);
-      await expect(page).toHaveURL(/urlColumnsSortDir=(asc|desc)/);
+      await expect(page).toHaveURL(/urlColumnsSortBy=(body)/);
+      await expect(page).toHaveURL(/urlColumnsSortDir=(asc)/);
 
       // Reload to verify persistence
       await page.reload();
       await expect(table).toBeVisible();
-      await expect(page).toHaveURL(/urlColumnsSortBy=(body|Line)/);
-      await expect(page).toHaveURL(/urlColumnsSortDir=(asc|desc)/);
+      await expect(page).toHaveURL(/urlColumnsSortBy=(body)/);
+      await expect(page).toHaveURL(/urlColumnsSortDir=(asc)/);
     }
   });
 
@@ -279,7 +280,7 @@ test.describe('explore services breakdown page', () => {
     await expect(table).toBeVisible();
 
     // Show log labels button should be visible since text is shown by default
-    const bodyShowLogLabels = table.getByRole('columnheader').filter({ hasText: /show log labels/ });
+    const bodyShowLogLabels = page.getByRole('button', { name: 'Show log labels' });
     await expect(bodyShowLogLabels).toHaveCount(1);
   });
 
