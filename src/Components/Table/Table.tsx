@@ -111,7 +111,6 @@ const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number) =
   wrapper: css({
     display: 'flex',
     position: 'relative',
-    flexWrap: 'wrap',
   }),
 });
 
