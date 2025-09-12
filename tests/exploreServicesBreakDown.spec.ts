@@ -1,6 +1,6 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-import { DEFAULT_URL_COLUMNS } from '../src/Components/Table/constants';
+import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../src/Components/Table/constants';
 import { FilterOp } from '../src/services/filterTypes';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
@@ -226,7 +226,9 @@ test.describe('explore services breakdown page', () => {
     const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
 
     // Filter out default columns from urlColumns
-    const filteredUrlColumns = urlColumns.filter((col: string) => !DEFAULT_URL_COLUMNS.includes(col));
+    const filteredUrlColumns = urlColumns.filter(
+      (col: string) => !DEFAULT_URL_COLUMNS.includes(col) && col !== DETECTED_LEVEL
+    );
 
     // Check if filtered urlColumns matches displayedFields
     expect(displayedFields).toEqual(filteredUrlColumns);
@@ -254,7 +256,9 @@ test.describe('explore services breakdown page', () => {
     const table = page.getByTestId(testIds.table.wrapper);
     await expect(table).toBeVisible();
 
-    const bodyHeader = page.getByRole('button', { name: 'body', exact: true });
+    const bodyHeader = table
+      .locator('button[title="Toggle SortBy"]')
+      .getByRole('button', { name: 'body', exact: true });
 
     if ((await bodyHeader.count()) > 0) {
       await bodyHeader.click();
@@ -311,6 +315,9 @@ test.describe('explore services breakdown page', () => {
     await explorePage.getTableToggleLocator().click();
 
     const table = page.getByTestId(testIds.table.wrapper);
+    // switch table body to label view
+    await page.getByRole('button', { name: 'Show log labels' }).click();
+
     // Get a level pill, and click it
     const levelPill = table.getByRole('cell').getByText('level=').first();
     await levelPill.click();
@@ -322,7 +329,7 @@ test.describe('explore services breakdown page', () => {
     await pillContextMenu.click();
     // New level filter should be added
     await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toBeVisible();
-    await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toContainText(levelTextMatch);
+    await expect(page.getByTestId(testIds.variables.serviceName.label)).toContainText(levelTextMatch);
   });
 
   test('table log line state should persist in the url', async ({ page }) => {
@@ -332,24 +339,17 @@ test.describe('explore services breakdown page', () => {
     await explorePage.getTableToggleLocator().click();
     const table = page.getByTestId(testIds.table.wrapper);
 
-    // assert the table doesn't contain the raw log line option by default
-    await expect(table.getByTestId(testIds.table.rawLogLine)).toHaveCount(0);
-
-    // Open menu
-    await await page.getByLabel(/Show body|Line menu/).click();
-
+    // assert the table shows the raw log line option by default
+    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
     // Show log text option should be visible by default
-    await expect(page.getByText('Show log text')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Show log labels' })).toBeVisible();
 
     // Change the option
-    await page.getByText('Show log text').click();
-
-    // Assert the change was made to the table
-    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
+    await page.getByRole('button', { name: 'Show log labels' }).click();
 
     await page.reload();
     await explorePage.assertNotLoading();
-    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
+    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).not.toBeVisible();
   });
 
   test('should show inspect modal', async ({ page }) => {
