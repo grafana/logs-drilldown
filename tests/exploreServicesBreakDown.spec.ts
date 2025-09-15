@@ -318,18 +318,17 @@ test.describe('explore services breakdown page', () => {
     // switch table body to label view
     await page.getByRole('button', { name: 'Show log labels' }).click();
 
-    // Get a level pill, and click it
-    const levelPill = table.getByRole('cell').getByText('level=').first();
-    await levelPill.click();
+    // Get a detected_level debug pill, and click it
+    await table.getByRole('button', { name: 'error', exact: true }).nth(1).click();
     // Get the context menu
-    const pillContextMenu = table.getByRole('img', { name: 'Add to search' });
+    const pillContextMenu = page.getByRole('button', { name: 'Add to search', exact: true });
     // Assert menu is open
     await expect(pillContextMenu).toBeVisible();
     // Click the filter button
     await pillContextMenu.click();
     // New level filter should be added
     await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toBeVisible();
-    await expect(page.getByTestId(testIds.variables.serviceName.label)).toContainText(levelTextMatch);
+    await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toContainText(levelTextMatch);
   });
 
   test('table log line state should persist in the url', async ({ page }) => {
