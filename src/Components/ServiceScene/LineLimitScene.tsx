@@ -12,6 +12,7 @@ import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';
 
 interface LineLimitState extends SceneObjectState {
+  isInvalid?: boolean;
   maxLines?: number;
   maxLinesOptions: Array<ComboboxOption<number>>;
 }
@@ -26,6 +27,7 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
     super({
       ...state,
       maxLinesOptions: [],
+      isInvalid: false,
     });
     this.addActivationHandler(this.onActivate);
   }
@@ -38,13 +40,32 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
     this.setState({
       maxLines,
       maxLinesOptions: getMaxLinesOptions(maxLines),
+      isInvalid: false,
     });
   };
 
-  onChangeMaxLines = (option: ComboboxOption<number>) => {
-    if (!option.value) {
-      return;
+  /**
+   * Validate if the max lines value is number
+   */
+  private validateMaxLines = (value: number): boolean => {
+    if (!value) {
+      return false;
     }
+    // Check if it's a valid positive integer
+    if (isNaN(value) || value <= 0 || !Number.isInteger(value)) {
+      return false;
+    }
+    return true;
+  };
+
+  onChangeMaxLines = (option: ComboboxOption<number>) => {
+    const isValid = this.validateMaxLines(option.value);
+    if (!isValid) {
+      this.setState({
+        isInvalid: true,
+      });
+    }
+
     const newMaxLines = option.value;
     setMaxLines(this, newMaxLines);
     this.setState({
@@ -58,7 +79,7 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
 }
 
 function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
-  const { maxLines, maxLinesOptions } = model.useState();
+  const { maxLines, maxLinesOptions, isInvalid } = model.useState();
   const styles = useStyles2(getStyles);
   return (
     <div className={styles.container}>
@@ -70,6 +91,7 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
             'logs.log-options.max-lines-tooltip',
             'Number of log lines to request. Depends on the Loki configuration value for max_entries_limit.'
           )}
+          invalid={isInvalid}
         >
           <Combobox<number>
             options={maxLinesOptions}

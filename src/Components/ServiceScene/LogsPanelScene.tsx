@@ -210,6 +210,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     } else if (errorResponse?.includes('response larger than the max message size')) {
       errorMessage =
         'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
+    } else if (errorResponse?.includes('max entries limit')) {
+      errorMessage = 'Max entries limit per query exceeded. Please review your Line limit setting and try again.';
     }
 
     this.showLogsError(errorMessage);
