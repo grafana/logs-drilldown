@@ -6,6 +6,7 @@ import { testIds } from '../../services/testIds';
 import { FieldsBreakdownScene } from './Breakdowns/FieldsBreakdownScene';
 import { LabelBreakdownScene } from './Breakdowns/LabelBreakdownScene';
 import { PatternsBreakdownScene } from './Breakdowns/Patterns/PatternsBreakdownScene';
+import { InsightsWidgetScene } from './InsightsWidgetScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsVolumePanel } from './LogsVolumePanel';
 
@@ -112,6 +113,11 @@ function buildLogsListScene() {
     children: [
       new SceneFlexItem({
         body: new LogsVolumePanel({}),
+      }),
+      new SceneFlexItem({
+        body: new InsightsWidgetScene({}),
+        height: '20px',
+        minHeight: '20px',
       }),
       new SceneFlexItem({
         body: new LogsListScene({}),

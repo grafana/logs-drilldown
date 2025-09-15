@@ -134,7 +134,11 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const isCollapsed = getLogsVolumeOption('collapsed');
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
-      .setOption('legend', { calcs: ['sum'], displayMode: LegendDisplayMode.List, showLegend: true })
+      .setOption('legend', {
+        calcs: ['sum'],
+        displayMode: LegendDisplayMode.List,
+        showLegend: true,
+      })
       .setUnit('short')
       .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
       .setCollapsible(true)
