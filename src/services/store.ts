@@ -266,7 +266,7 @@ export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   return localStorageResult ? (localStorageResult as T) : defaultValue;
 }
 
-export function getBooleanLogOption(option: keyof Options, defaultValue: boolean): boolean {
+export function getBooleanLogOption(option: keyof Options | 'controlsExpanded', defaultValue: boolean): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
     return defaultValue;
@@ -274,7 +274,10 @@ export function getBooleanLogOption(option: keyof Options, defaultValue: boolean
   return !(localStorageResult === '' || localStorageResult === 'false');
 }
 
-export function setLogOption(option: keyof Options | 'maxLines', value: string | number | boolean) {
+export function setLogOption(
+  option: keyof Options | 'maxLines' | 'controlsExpanded',
+  value: string | number | boolean
+) {
   let storedValue = value.toString();
   localStorage.setItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`, storedValue);
 }
