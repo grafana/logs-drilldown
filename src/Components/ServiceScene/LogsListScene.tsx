@@ -217,7 +217,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     } else if (errorResponse?.includes('response larger than the max message size')) {
       errorMessage =
         'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
-    } else if (errorResponse?.includes('max entries limit')) {
+    } else if (errorResponse?.toLowerCase().includes('max entries limit')) {
       errorMessage = 'Max entries limit per query exceeded. Please review your Line limit setting and try again.';
     }
 
@@ -335,7 +335,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                   xSizing: 'fill',
                 }),
                 new SceneFlexItem({
-                  body: new LineLimitScene(),
+                  body: new LineLimitScene({ error }),
                   xSizing: 'content',
                 }),
               ],
@@ -354,7 +354,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                   xSizing: 'fill',
                 }),
                 new SceneFlexItem({
-                  body: new LineLimitScene(),
+                  body: new LineLimitScene({ error }),
                   xSizing: 'content',
                 }),
               ],
@@ -372,7 +372,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                   xSizing: 'fill',
                 }),
                 new SceneFlexItem({
-                  body: new LineLimitScene(),
+                  body: new LineLimitScene({ error }),
                   xSizing: 'content',
                 }),
               ],
