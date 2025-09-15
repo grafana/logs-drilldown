@@ -13,6 +13,7 @@ import {
   LogsSortOrder,
 } from '@grafana/data';
 
+import { CONTROLS_WIDTH, CONTROLS_WIDTH_EXPANDED } from '../ServiceScene/LogListControls';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
@@ -30,6 +31,7 @@ const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3,})?(?:Z|[-+]
 
 interface TableWrapProps {
   clearSelectedLine: () => void;
+  controlsExpanded: boolean;
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   setUrlColumns: (columns: string[]) => void;
@@ -120,6 +122,9 @@ export const TableWrap = (props: TableWrapProps) => {
     setSpecialFieldMeta(active, specialFields, pendingLabelState);
   }
 
+  const logControlOptionsWidth = props.controlsExpanded ? CONTROLS_WIDTH_EXPANDED : CONTROLS_WIDTH;
+  const tableWidth = panelWrapSize.width - 25 + (logsControlsSupported ? logControlOptionsWidth * -1 : 0);
+
   return (
     <section className={styles.section}>
       <TableColumnContextProvider
@@ -134,7 +139,7 @@ export const TableWrap = (props: TableWrapProps) => {
           logsFrame={logsFrame}
           timeZone={timeZone}
           height={panelWrapSize.height - 50}
-          width={panelWrapSize.width - 25 + (logsControlsSupported ? -32 : 0)}
+          width={tableWidth}
           labels={labels}
           logsSortOrder={props.logsSortOrder}
         />

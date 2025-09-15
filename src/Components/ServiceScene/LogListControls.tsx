@@ -1,16 +1,19 @@
 import React, { useCallback } from 'react';
 
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
+import { LogListControlsOption } from './LogListControlsOption';
 import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 interface Props {
+  controlsExpanded: boolean;
   disabledLineState?: boolean;
   lineState?: LogLineState;
+  onExpandControlsClick: () => void;
   onLineStateClick?(): void;
   onScrollToBottomClick?(): void;
   onScrollToTopClick?(): void;
@@ -42,8 +45,10 @@ export const LogListControls = ({
   showMetadata,
   sortOrder,
   wrapLogMessage,
+  controlsExpanded,
+  onExpandControlsClick,
 }: Props) => {
-  const styles = useStyles2(getStyles);
+  const styles = useStyles2(getStyles, controlsExpanded);
 
   const toggleSortOrder = useCallback(() => {
     onSortOrderChange(sortOrder === LogsSortOrder.Ascending ? LogsSortOrder.Descending : LogsSortOrder.Ascending);
@@ -51,29 +56,62 @@ export const LogListControls = ({
 
   return (
     <div className={styles.navContainer}>
+      <LogListControlsOption
+        expanded={controlsExpanded}
+        name="arrow-from-right"
+        className={cx(styles.controlButton, styles.controlsExpandedButton)}
+        variant="secondary"
+        onClick={onExpandControlsClick}
+        label={
+          controlsExpanded
+            ? t('logs.logs-controls.label.collapse', 'Expanded')
+            : t('logs.logs-controls.label.expand', 'Collapsed')
+        }
+        tooltip={
+          controlsExpanded ? t('logs.logs-controls.collapse', 'Collapse') : t('logs.logs-controls.expand', 'Expand')
+        }
+        size="lg"
+      />
       {onScrollToBottomClick && (
-        <IconButton
+        <LogListControlsOption
+          expanded={controlsExpanded}
           name="arrow-down"
           className={styles.controlButton}
           variant="secondary"
           onClick={onScrollToBottomClick}
-          tooltip={'Scroll to bottom'}
+          tooltip={t('logs.logs-controls.scrollToBottom', 'Scroll to bottom')}
           size="lg"
         />
       )}
-      <IconButton
+      <LogListControlsOption
+        expanded={controlsExpanded}
         name={sortOrder === LogsSortOrder.Descending ? 'sort-amount-up' : 'sort-amount-down'}
         className={styles.controlButton}
         onClick={toggleSortOrder}
-        tooltip={sortOrder === LogsSortOrder.Descending ? 'Newest logs first' : 'Oldest logs first'}
+        tooltip={
+          sortOrder === LogsSortOrder.Descending
+            ? t('logs.logs-controls.tooltip.sort.oldest-first', 'Set oldest logs first')
+            : t('logs.logs-controls.tooltip.sort.newest-first', 'Set newest logs first')
+        }
+        label={
+          sortOrder === LogsSortOrder.Descending
+            ? t('logs.logs-controls.labels.sort.oldest-first', 'Newest logs first')
+            : t('logs.logs-controls.labels.sort.newest-first', 'Oldest logs first')
+        }
         size="lg"
       />
       {wrapLogMessage !== undefined && onWrapLogMessageClick && (
-        <IconButton
+        <LogListControlsOption
+          expanded={controlsExpanded}
           name="wrap-text"
           className={wrapLogMessage ? styles.controlButtonActive : styles.controlButton}
           aria-pressed={wrapLogMessage}
           onClick={() => onWrapLogMessageClick(!wrapLogMessage)}
+          label={
+            wrapLogMessage
+              ? t('logs.logs-controls.label.unwrap-lines', 'Wrap lines')
+              : t('logs.logs-controls.label.wrap-lines', 'Unwrap lines')
+          }
           tooltip={
             wrapLogMessage
               ? t('logs.logs-controls.unwrap-lines', 'Unwrap lines')
@@ -83,53 +121,94 @@ export const LogListControls = ({
         />
       )}
       {showMetadata !== undefined && onToggleStructuredMetadataClick && (
-        <IconButton
+        <LogListControlsOption
+          expanded={controlsExpanded}
           name="document-info"
           aria-pressed={showMetadata}
           className={showMetadata ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleStructuredMetadataClick(!showMetadata)}
-          tooltip={showMetadata ? 'Hide structured metadata' : 'Show structured metadata'}
+          tooltip={
+            showMetadata
+              ? t('logs.logs-controls.json.tooltip.metadata.disable', 'Hide structured metadata')
+              : t('logs.logs-controls.json.tooltip.metadata.enable', 'Show structured metadata')
+          }
+          label={
+            showMetadata
+              ? t('logs.logs-controls.json.label.metadata.disable', 'Show metadata')
+              : t('logs.logs-controls.json.label.metadata.enable', 'Hide metadata')
+          }
           size="lg"
         />
       )}
       {showLabels !== undefined && onToggleLabelsClick && (
-        <IconButton
+        <LogListControlsOption
+          expanded={controlsExpanded}
           name="tag-alt"
           aria-pressed={showLabels}
           className={showLabels ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleLabelsClick(!showLabels)}
-          tooltip={showLabels ? 'Hide Labels' : 'Show labels'}
+          tooltip={
+            showLabels
+              ? t('logs.logs-controls.json.tooltip.labels.disable', 'Hide Labels')
+              : t('logs.logs-controls.json.tooltip.labels.enable', 'Show labels')
+          }
+          label={
+            showLabels
+              ? t('logs.logs-controls.json.tooltip.labels.enable', 'Show labels')
+              : t('logs.logs-controls.json.tooltip.labels.disable', 'Hide Labels')
+          }
           size="lg"
         />
       )}
       {showHighlight !== undefined && onToggleHighlightClick && (
-        <IconButton
+        <LogListControlsOption
+          expanded={controlsExpanded}
           name="brackets-curly"
           aria-pressed={showHighlight}
           className={showHighlight ? styles.controlButtonActive : styles.controlButton}
           onClick={() => onToggleHighlightClick(!showHighlight)}
-          tooltip={showHighlight ? 'Disable highlighting' : 'Enable highlighting'}
+          tooltip={
+            showHighlight
+              ? t('logs.logs-controls.tooltip.highlight.disable', 'Disable highlighting')
+              : t('logs.logs-controls.tooltip.highlight.enable', 'Enable highlighting')
+          }
+          label={
+            showHighlight
+              ? t('logs.logs-controls.label.highlight.enable', 'Highlight enabled')
+              : t('logs.logs-controls.label.highlight.disable', 'Highlight disabled')
+          }
           size="lg"
         />
       )}
       {onLineStateClick && lineState && (
-        <IconButton
+        <LogListControlsOption
+          expanded={controlsExpanded}
           disabled={disabledLineState}
           name={lineState === LogLineState.text ? 'tag-alt' : 'text-fields'}
           className={styles.controlButton}
           onClick={onLineStateClick}
-          tooltip={lineState === LogLineState.text ? 'Show labels' : 'Show log text'}
+          tooltip={
+            lineState === LogLineState.text
+              ? t('logs.logs-controls.table.tooltip.show-labels', 'Show labels')
+              : t('logs.logs-controls.table.tooltip.show-text', 'Show log text')
+          }
+          label={
+            lineState === LogLineState.text
+              ? t('logs.logs-controls.table.label.show-labels', 'Log text')
+              : t('logs.logs-controls.table.label.show-text', 'Log labels')
+          }
           size="lg"
         />
       )}
       {onScrollToTopClick && (
-        <IconButton
+        <LogListControlsOption
+          stickToBottom={true}
+          expanded={controlsExpanded}
           name="arrow-up"
           data-testid="scrollToTop"
-          className={styles.scrollToTopButton}
           variant="secondary"
           onClick={onScrollToTopClick}
-          tooltip="Scroll to top"
+          tooltip={t('logs.logs-controls.scrollToTop', 'Scroll to top')}
           size="lg"
         />
       )}
@@ -137,8 +216,14 @@ export const LogListControls = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
+export const CONTROLS_WIDTH = 35;
+export const CONTROLS_WIDTH_EXPANDED = 176;
+
+const getStyles = (theme: GrafanaTheme2, controlsExpanded: boolean) => {
   return {
+    controlsExpandedButton: css({
+      transform: !controlsExpanded ? 'rotate(180deg)' : '',
+    }),
     controlButton: css({
       color: theme.colors.text.secondary,
       height: theme.spacing(2),
@@ -176,7 +261,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       overflow: 'hidden',
       paddingLeft: theme.spacing(1),
       paddingTop: theme.spacing(0.75),
-      width: theme.spacing(4),
+      width: controlsExpanded ? CONTROLS_WIDTH_EXPANDED : CONTROLS_WIDTH,
     }),
     scrollToTopButton: css({
       color: theme.colors.text.secondary,

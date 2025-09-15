@@ -28,6 +28,7 @@ import { LineLimitScene } from './LineLimitScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import {
+  getBooleanLogOption,
   getDisplayedFields,
   getLogsVisualizationType,
   LogsVisualizationType,
@@ -36,6 +37,7 @@ import {
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
+  controlsExpanded: boolean;
   displayedFields: string[];
   lineFilter?: string;
   loading?: boolean;
@@ -58,6 +60,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       ...state,
       displayedFields: [],
       visualizationType: getLogsVisualizationType(),
+      // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
+      controlsExpanded: getBooleanLogOption('controlsExpanded', false),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));

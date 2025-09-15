@@ -2,9 +2,11 @@ import { urlUtil } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { sceneGraph, SceneObject, SceneObjectUrlValues, SceneQueryRunner, SceneTimePicker } from '@grafana/scenes';
 
+import { LogsListScene } from '../Components/ServiceScene/LogsListScene';
 import { logger } from './logger';
 import { LokiDatasource } from './lokiQuery';
 import { EXPLORATIONS_ROUTE } from './routing';
+import { getBooleanLogOption } from './store';
 import {
   LOG_STREAM_SELECTOR_EXPR,
   PRETTY_LOG_STREAM_SELECTOR_EXPR,
@@ -78,4 +80,12 @@ export function findObjectOfType<T extends SceneObject>(
 
 export function getTimePicker(scene: IndexScene) {
   return scene.state.controls?.find((s) => s instanceof SceneTimePicker) as SceneTimePicker;
+}
+
+// Need to check for changes to local storage in controlsExpanded on activation as it can be changed by the logs panel without updating scene state
+export function setControlsExpandedStateFromLocalStorage(logsListScene: LogsListScene) {
+  const controlsExpandedFromLocalStorage = getBooleanLogOption('controlsExpanded', false);
+  if (logsListScene.state.controlsExpanded !== controlsExpandedFromLocalStorage) {
+    logsListScene.setState({ controlsExpanded: controlsExpandedFromLocalStorage });
+  }
 }

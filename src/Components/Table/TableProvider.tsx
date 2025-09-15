@@ -11,6 +11,7 @@ import { TableWrap } from 'Components/Table/TableWrap';
 interface TableProviderProps {
   addFilter: (filter: AdHocVariableFilter) => void;
   clearSelectedLine: () => void;
+  controlsExpanded: boolean;
   dataFrame: DataFrame;
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
@@ -34,6 +35,7 @@ export default function TableProvider({
   timeRange,
   urlColumns,
   urlTableBodyState,
+  controlsExpanded,
 }: TableProviderProps) {
   const logsFrame = useMemo(() => {
     if (!dataFrame) {
@@ -59,6 +61,7 @@ export default function TableProvider({
         panelWrap={panelWrap}
         clearSelectedLine={clearSelectedLine}
         logsSortOrder={logsSortOrder}
+        controlsExpanded={controlsExpanded}
       />
     </QueryContextProvider>
   );
