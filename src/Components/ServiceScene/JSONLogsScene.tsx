@@ -38,8 +38,10 @@ import {
 const LogsJSONComponent = lazy(() => import('./JSONPanel/LogsJSONComponent'));
 
 interface JSONLogsSceneState extends SceneObjectState {
+  canClearFilters?: boolean;
   data?: PanelData;
   emptyScene?: NoMatchingLabelsScene;
+  error?: string;
   hasHighlight: boolean;
   hasJSONFields?: boolean;
   hasLabels: boolean;

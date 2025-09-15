@@ -2,6 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
+import { LoadingState, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
@@ -19,6 +20,8 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
+import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
+import { IndexScene } from '../IndexScene/IndexScene';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
@@ -27,18 +30,25 @@ import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { ServiceScene } from './ServiceScene';
+import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getDisplayedFields,
   getLogsVisualizationType,
+  getLogsVolumeOption,
   LogsVisualizationType,
   setLogsVisualizationType,
 } from 'services/store';
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
+  canClearFilters?: boolean;
   displayedFields: string[];
+  error?: string;
   lineFilter?: string;
   loading?: boolean;
+  logsVolumeCollapsedByError?: boolean;
   panel?: SceneFlexLayout;
   selectedLine?: SelectedTableRow;
   tableLogLineState?: LogLineState;
@@ -170,6 +180,85 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
         }
       })
     );
+
+    // Subscribe to ServiceScene data changes for error handling (all visualization types)
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this._subs.add(
+      serviceScene.subscribeToState((newState, prevState) => {
+        if (newState.$data?.state.data?.state === LoadingState.Error) {
+          this.handleLogsError(newState.$data?.state.data);
+        } else if (
+          newState.$data?.state.data?.state === LoadingState.Done &&
+          isEmptyLogsResult(newState.$data?.state.data.series)
+        ) {
+          this.handleNoData();
+        } else if (this.state.error) {
+          this.clearLogsError();
+        }
+      })
+    );
+  }
+
+  handleLogsError(data: PanelData) {
+    const error = data.errors?.length ? data.errors[0] : data.error;
+    const errorResponse = error?.message;
+    if (errorResponse) {
+      logger.error(new Error('Logs Panel error'), {
+        msg: errorResponse,
+        status: error.statusText ?? 'N/A',
+        type: error.type ?? 'N/A',
+      });
+    }
+
+    let errorMessage = 'Unexpected error response. Please review your filters or try a different time range.';
+    if (errorResponse?.includes('parse error')) {
+      errorMessage =
+        'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
+    } else if (errorResponse?.includes('response larger than the max message size')) {
+      errorMessage =
+        'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
+    } else if (errorResponse?.includes('max entries limit')) {
+      errorMessage = 'Max entries limit per query exceeded. Please review your Line limit setting and try again.';
+    }
+
+    this.showLogsError(errorMessage);
+  }
+
+  handleNoData() {
+    if (this.state.canClearFilters) {
+      this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+    } else {
+      this.showLogsError('No logs match your search. Please try a different time range.');
+    }
+  }
+
+  showLogsError(error: string) {
+    const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const clearableVariables = getVariablesThatCanBeCleared(indexScene);
+    const canClearFilters = clearableVariables.length > 0;
+
+    this.setState({ canClearFilters, error, logsVolumeCollapsedByError });
+
+    // Recreate the panel with the new error state
+    this.updateLogsPanel();
+
+    if (logsVolumeCollapsedByError) {
+      const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
+      logsVolume?.state.panel?.setState({ collapsed: true });
+    }
+  }
+
+  clearLogsError() {
+    if (this.state.logsVolumeCollapsedByError) {
+      const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
+      logsVolume?.state.panel?.setState({ collapsed: false });
+    }
+
+    this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
+
+    // Recreate the panel with the cleared error state
+    this.updateLogsPanel();
   }
 
   private setStateFromUrl(searchParams: URLSearchParams) {
@@ -232,7 +321,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   private getVizPanel() {
-    this.logsPanelScene = new LogsPanelScene({});
+    const { error, canClearFilters } = this.state;
+
+    this.logsPanelScene = new LogsPanelScene({ error, canClearFilters });
 
     const children =
       this.state.visualizationType === 'logs'
@@ -269,7 +360,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               ],
             }),
             new SceneFlexItem({
-              body: new JSONLogsScene({}),
+              body: new JSONLogsScene({ error, canClearFilters }),
               height: 'calc(100vh - 220px)',
             }),
           ]
@@ -287,7 +378,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               ],
             }),
             new SceneFlexItem({
-              body: new LogsTableScene({}),
+              body: new LogsTableScene({ error, canClearFilters }),
               height: 'calc(100vh - 220px)',
             }),
           ];
