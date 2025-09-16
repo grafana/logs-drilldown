@@ -15,6 +15,7 @@ import { getRouteParams } from './routing';
 import { getDataSourceName } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -462,4 +463,13 @@ export function getFieldsPanelTypes(): FieldsPanelsType | null {
 
 export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
   localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
+}
+
+// Table settings
+const TABLE_LOG_LINE_LOCALSTORAGE_KEY = `${pluginJson.id}.table.logLine`;
+export function getTableLogLine(): LogLineState {
+  return localStorage.getItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY) as LogLineState;
+}
+export function setTableLogLine(value: LogLineState) {
+  localStorage.setItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY, value);
 }

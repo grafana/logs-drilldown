@@ -11,6 +11,7 @@ import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from './Context/TableColumnsContext';
 import { LogsTableHeaderMenu } from './LogsTableHeaderMenu';
 import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
+import { setTableLogLine } from 'services/store';
 
 export interface LogsTableHeaderProps extends PropsWithChildren<CustomHeaderRendererProps> {
   fieldIndex: number;
@@ -88,6 +89,8 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
 
   const onLogTextToggle = () => {
     setBodyState(bodyState === LogLineState.text ? LogLineState.labels : LogLineState.text);
+    // Set table log line state in local storage
+    setTableLogLine(bodyState === LogLineState.text ? LogLineState.labels : LogLineState.text);
   };
 
   return (

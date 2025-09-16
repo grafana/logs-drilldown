@@ -18,7 +18,7 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { getAllLabelsFromDF } from '../../services/labels';
-import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
+import { getLogOption, setDisplayedFields, setLogOption, setTableLogLine, getTableLogLine } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
@@ -284,6 +284,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     parentModel.setState({
       tableLogLineState: tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text,
     });
+    // Set table log line state in local storage
+    setTableLogLine(tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text);
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
@@ -350,7 +352,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                     onSortOrderChange={model.handleSortChange}
                     onLineStateClick={model.onLineStateClick}
                     // "Auto" defaults to display "show text"
-                    lineState={tableLogLineState ?? LogLineState.text}
+                    lineState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
                     disabledLineState={!model.state.isDisabledLineState}
                   />
                 )}
@@ -365,7 +367,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                     dataFrame={dataFrame}
                     clearSelectedLine={clearSelectedLine}
                     setUrlTableBodyState={setUrlTableBodyState}
-                    urlTableBodyState={tableLogLineState}
+                    urlTableBodyState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
                     logsSortOrder={sortOrder}
                   />
                 )}
