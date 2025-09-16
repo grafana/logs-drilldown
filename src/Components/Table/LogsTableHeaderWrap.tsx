@@ -11,6 +11,7 @@ import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { LogsTableHeader, LogsTableHeaderProps } from 'Components/Table/LogsTableHeader';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { setTableLogLine } from 'services/store';
 import { useSharedStyles } from 'styles/shared-styles';
 
 export function LogsTableHeaderWrap(props: {
@@ -137,8 +138,12 @@ export function LogsTableHeaderWrap(props: {
             onClick={() => {
               if (bodyState === LogLineState.text) {
                 setBodyState(LogLineState.labels);
+                // Set table log line state in local storage
+                setTableLogLine(LogLineState.labels);
               } else {
                 setBodyState(LogLineState.text);
+                // Set table log line state in local storage
+                setTableLogLine(LogLineState.text);
               }
 
               reportAppInteraction(
