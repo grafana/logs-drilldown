@@ -15,6 +15,7 @@ import {
   getValueFromFieldsFilter,
 } from './variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
+import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 
 export const LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
 
@@ -39,6 +40,25 @@ export function buildLabelsQuery(sceneRef: SceneObject, optionValue: string, opt
     })} [$__auto])) by (${optionValue})`,
     { legendFormat: `{{${optionValue}}}`, refId: 'LABEL_BREAKDOWN_VALUES' }
   );
+}
+
+export function getAllLabelsFromDF(series: DataFrame[]): string[] {
+  const allLabelKeys = new Set<string>();
+
+  for (const dataFrame of series) {
+    const labelsField = dataFrame.fields.find((field) => field.name === 'labels' && field.values);
+
+    if (labelsField && labelsField.values && labelsField.values.length > 0) {
+      for (const logEntry of labelsField.values) {
+        if (logEntry && typeof logEntry === 'object') {
+          const keys = Object.keys(logEntry);
+          keys.forEach((key) => allLabelKeys.add(key));
+        }
+      }
+    }
+  }
+
+  return Array.from(allLabelKeys);
 }
 
 export function getLabelsFromSeries(series: DataFrame[]): string[] {
@@ -118,3 +138,10 @@ export function getVisibleFilters(key: string, allLabels: string[], variable: Ad
 // Regex that grabs invalid chars in a loki label name
 // From https://grafana.com/docs/loki/latest/get-started/labels/#label-format
 export const LABEL_NAME_INVALID_CHARS = /[^a-zA-Z0-9_:]/g;
+
+export function hasLabelLevel(label: string): boolean {
+  if (label === DETECTED_LEVEL || label === LEVEL) {
+    return true;
+  }
+  return false;
+}

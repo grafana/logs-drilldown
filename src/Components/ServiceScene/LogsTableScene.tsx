@@ -17,6 +17,7 @@ import { PanelChrome, useStyles2 } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
+import { getAllLabelsFromDF } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
@@ -107,12 +108,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       })
     );
 
-    // Subscribe to data changes to update URL columns
+    // Subscribe to data changes to update URL columns and detected_level exists in the data
     const dataProvider = sceneGraph.getData(this);
     this._subs.add(
       dataProvider.subscribeToState((newState, prevState) => {
-        if (newState.data && newState.data !== prevState.data) {
-          if (newState.data.state === LoadingState.Done) {
+        if (newState.data?.state !== prevState.data?.state) {
+          if (newState.data?.state === LoadingState.Done) {
             this.updateTableColumnsWithSceneLifeCycle();
           }
         }
@@ -172,7 +173,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     let newUrlColumns = urlColumnsUrl;
 
     // if urlColumns is populated in the url
-    if (urlColumnsUrl && urlColumnsUrl.length > 0) {
+    if (urlColumnsUrl?.length > 0) {
       if (this.urlHasDefaultUrlColumns(urlColumnsUrl)) {
         newUrlColumns = this.updateDefaultUrlColumns(urlColumnsUrl);
         // Check for detected level or level field and add it
@@ -223,29 +224,19 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   hasDetectedLevel = () => {
     const dataProvider = sceneGraph.getData(this);
     const data = dataProvider.state.data;
-    if (!data || !data.series || data.series.length === 0) {
+    if (!data?.series?.length) {
       return null;
     }
 
-    // Check if any of the data frames have a detected_level or level field with actual values
-    for (const frame of data.series) {
-      // Find the labels field which contains the log metadata
-      const labelsField = frame.fields.find((field) => field.name === 'labels' && field.values);
+    // Get all available labels from the series
+    const allLabels = getAllLabelsFromDF(data.series);
 
-      if (labelsField && labelsField.values && labelsField.values.length > 0) {
-        // Check if any log entry has detected_level or level in its labels
-        for (const labels of labelsField.values) {
-          if (labels && typeof labels === 'object') {
-            // Return the actual field name that exists in the data
-            if (labels[DETECTED_LEVEL]) {
-              return DETECTED_LEVEL;
-            }
-            if (labels[LEVEL]) {
-              return LEVEL;
-            }
-          }
-        }
-      }
+    // Check if detected_level or level exists in the labels
+    if (allLabels.includes(DETECTED_LEVEL)) {
+      return DETECTED_LEVEL;
+    }
+    if (allLabels.includes(LEVEL)) {
+      return LEVEL;
     }
 
     return null;
@@ -368,7 +359,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                     onSortOrderChange={model.handleSortChange}
                     onLineStateClick={model.onLineStateClick}
                     // "Auto" defaults to display "show text"
-                    lineState={tableLogLineState ?? LogLineState.labels}
+                    lineState={tableLogLineState ?? LogLineState.text}
                     disabledLineState={!model.state.isDisabledLineState}
                   />
                 )}
