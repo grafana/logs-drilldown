@@ -46,14 +46,18 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
   };
 
   /**
-   * Validate if the max lines value is number
+   * Validate if the max lines value is number, custom input is a string
    */
-  private validateMaxLines = (value: number): boolean => {
+  private validateMaxLines = (value: number | string): boolean => {
     if (!value) {
       return false;
     }
+
+    // Convert string to number
+    const numValue = typeof value === 'string' ? Number(value) : value;
+
     // Check if it's a valid positive integer
-    if (isNaN(value) || value <= 0 || !Number.isInteger(value)) {
+    if (isNaN(numValue) || numValue <= 0 || !Number.isInteger(numValue)) {
       return false;
     }
     return true;
@@ -65,8 +69,11 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
       this.setState({
         isInvalid: true,
       });
+    } else {
+      this.setState({
+        isInvalid: false,
+      });
     }
-
     const newMaxLines = option.value;
     setMaxLines(this, newMaxLines);
     this.setState({

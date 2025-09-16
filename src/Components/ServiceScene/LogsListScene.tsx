@@ -181,22 +181,22 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       })
     );
 
-    // Subscribe to ServiceScene data changes for error handling (all visualization types)
+    // Subscribe to logs query runner for error handling (all visualization types)
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    this._subs.add(
-      serviceScene.subscribeToState((newState, prevState) => {
-        if (newState.$data?.state.data?.state === LoadingState.Error) {
-          this.handleLogsError(newState.$data?.state.data);
-        } else if (
-          newState.$data?.state.data?.state === LoadingState.Done &&
-          isEmptyLogsResult(newState.$data?.state.data.series)
-        ) {
-          this.handleNoData();
-        } else if (this.state.error) {
-          this.clearLogsError();
-        }
-      })
-    );
+    const logsQueryRunner = serviceScene.state.$data;
+    if (logsQueryRunner) {
+      this._subs.add(
+        logsQueryRunner.subscribeToState((newState, prevState) => {
+          if (newState.data?.state === LoadingState.Error) {
+            this.handleLogsError(newState.data);
+          } else if (newState.data?.state === LoadingState.Done && isEmptyLogsResult(newState.data.series)) {
+            this.handleNoData();
+          } else if (this.state.error) {
+            this.clearLogsError();
+          }
+        })
+      );
+    }
   }
 
   handleLogsError(data: PanelData) {
