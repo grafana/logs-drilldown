@@ -1,10 +1,11 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
-import { logger } from '../../../services/logger';
-import { getBodyName, getTimeName, LogsFrame } from '../../../services/logsFrame';
-import { NarrowingError, narrowRecordStringNumber } from '../../../services/narrowing';
-import { PLUGIN_ID } from '../../../services/plugin';
 import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { logger } from 'services/logger';
+import { getBodyName, getTimeName, LogsFrame } from 'services/logsFrame';
+import { NarrowingError, narrowRecordStringNumber } from 'services/narrowing';
+import { PLUGIN_ID } from 'services/plugin';
+import { setTableLogLine } from 'services/store';
 
 const tableColumnCustomWidths = `${PLUGIN_ID}.tableColumnWidths`;
 
@@ -150,6 +151,8 @@ export const TableColumnContextProvider = ({
 
       // Sync change with url state
       setUrlTableBodyState(logLineState);
+      // Set table log line state in local storage
+      setTableLogLine(logLineState);
     },
     [setUrlTableBodyState]
   );
