@@ -89,7 +89,7 @@ export function LineFilterEditor({
             </span>
           }
           prefix={null}
-          placeholder="Search in log lines"
+          placeholder="Filter logs by string"
           onClear={onClearLineFilter}
           onKeyUp={(e) => {
             handleEnter(e, lineFilter);
