@@ -10,7 +10,14 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode, useStyles2 } from '@grafana/ui';
+import {
+  DrawStyle,
+  LegendDisplayMode,
+  PanelContext,
+  SeriesVisibilityChangeMode,
+  StackingMode,
+  useStyles2,
+} from '@grafana/ui';
 
 import { areArraysEqual } from '../../services/comparison';
 import { getTimeSeriesExpr } from '../../services/expressions';
@@ -132,11 +139,17 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private getVizPanel() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const isCollapsed = getLogsVolumeOption('collapsed');
-    // Overrides are defined by setLogsVolumeFieldConfigOverrides
+    // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', { calcs: ['sum'], displayMode: LegendDisplayMode.List, showLegend: true })
       .setUnit('short')
+      .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
+      .setCustomFieldConfig('fillOpacity', 100)
+      .setCustomFieldConfig('lineWidth', 0)
+      .setCustomFieldConfig('pointSize', 0)
+      .setCustomFieldConfig('axisSoftMin', 0)
+      .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
       .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
       .setCollapsible(true)
       .setCollapsed(isCollapsed)

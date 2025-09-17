@@ -124,23 +124,25 @@ export function setLabelSeriesOverrides(labels: string[], overrideConfig: FieldC
 
 /**
  * Sets labels series visibility in the panel
+ * WARNING: Overwrites any fieldConfig overrides set in the panel builder!
  */
 export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sceneRef: SceneObject) {
   const focusedLevels = getVisibleLevels(getLevelLabelsFromSeries(series), sceneRef);
   const config = setLogsVolumeFieldConfigOverrides(FieldConfigBuilders.timeseries()).setOverrides(
     setLabelSeriesOverrides.bind(null, focusedLevels)
   );
+
   if (config instanceof FieldConfigBuilder && panel.getPlugin()) {
-    console.log('config.build()', config.build());
-    console.log('panel', panel.state.fieldConfig);
     const fieldConfig = config.build();
-    panel.onFieldConfigChange({ ...fieldConfig, defaults: { ...panel.state.fieldConfig.defaults } }, true);
+    const mergedConfig = { overrides: fieldConfig.overrides, defaults: panel.state.fieldConfig.defaults };
+    panel.onFieldConfigChange(mergedConfig, true);
   }
 }
 
 /**
  * @todo unit test
- * Set levels series visibility in the panel
+ * Set field visibility in the panel
+ * WARNING: Overwrites fieldConfig set in the panel builder!
  */
 export function syncLabelsValueSummaryVisibleSeries(
   key: string,
