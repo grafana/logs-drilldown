@@ -78,17 +78,10 @@ export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<Fi
   });
 }
 
-export function setLogsVolumeFieldConfigs(
+export function setLogsVolumeFieldConfigOverrides(
   builder: ReturnType<typeof PanelBuilders.timeseries> | ReturnType<typeof FieldConfigBuilders.timeseries>
 ) {
-  return builder
-    .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
-    .setCustomFieldConfig('fillOpacity', 100)
-    .setCustomFieldConfig('lineWidth', 0)
-    .setCustomFieldConfig('pointSize', 0)
-    .setCustomFieldConfig('axisSoftMin', 0)
-    .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
-    .setOverrides(setLevelColorOverrides);
+  return builder.setOverrides(setLevelColorOverrides);
 }
 
 export function setValueSummaryFieldConfigs(
@@ -134,11 +127,14 @@ export function setLabelSeriesOverrides(labels: string[], overrideConfig: FieldC
  */
 export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sceneRef: SceneObject) {
   const focusedLevels = getVisibleLevels(getLevelLabelsFromSeries(series), sceneRef);
-  const config = setLogsVolumeFieldConfigs(FieldConfigBuilders.timeseries()).setOverrides(
+  const config = setLogsVolumeFieldConfigOverrides(FieldConfigBuilders.timeseries()).setOverrides(
     setLabelSeriesOverrides.bind(null, focusedLevels)
   );
   if (config instanceof FieldConfigBuilder && panel.getPlugin()) {
-    panel.onFieldConfigChange(config.build(), true);
+    console.log('config.build()', config.build());
+    console.log('panel', panel.state.fieldConfig);
+    const fieldConfig = config.build();
+    panel.onFieldConfigChange({ ...fieldConfig, defaults: { ...panel.state.fieldConfig.defaults } }, true);
   }
 }
 
@@ -298,7 +294,7 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [sortLevelTransformation],
+      transformations: [],
     });
   }
 

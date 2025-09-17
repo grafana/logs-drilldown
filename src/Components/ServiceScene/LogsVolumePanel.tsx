@@ -24,7 +24,7 @@ import { ServiceScene } from './ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
-import { getQueryRunner, setLogsVolumeFieldConfigs, syncLevelsVisibleSeries } from 'services/panel';
+import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
@@ -132,6 +132,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private getVizPanel() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const isCollapsed = getLogsVolumeOption('collapsed');
+    // Overrides are defined by setLogsVolumeFieldConfigOverrides
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', { calcs: ['sum'], displayMode: LegendDisplayMode.List, showLegend: true })
@@ -151,7 +152,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
             ])
       );
 
-    setLogsVolumeFieldConfigs(viz);
+    setLogsVolumeFieldConfigOverrides(viz);
 
     const panel = viz.build();
     panel.setState({
