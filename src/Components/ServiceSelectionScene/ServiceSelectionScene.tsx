@@ -78,6 +78,7 @@ import {
 } from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
 import {
+  DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,
   LEVEL_VARIABLE_VALUE,
   SERVICE_NAME,
@@ -562,6 +563,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
+        // @todo unhardcode, any reason to use line_format instead?
+        .setOption('displayedFields', ['msg', 'detected_level', 'service_name'])
         // @ts-expect-error Requires Grafana 12.2
         .setOption('noInteractions', true)
         .build(),
@@ -1001,7 +1004,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private getLogExpression(labelName: string, labelValue: string, levelFilter: string) {
-    return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+    // @todo if config for this labelName/labelValue add parsers
+    return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
   }
 
   private getMetricExpression(
