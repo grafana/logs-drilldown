@@ -116,8 +116,8 @@ function buildLogsListScene() {
       }),
       new SceneFlexItem({
         body: new InsightsWidgetScene({}),
-        height: '20px',
-        minHeight: '20px',
+        height: 'auto',
+        minHeight: 'auto',
       }),
       new SceneFlexItem({
         body: new LogsListScene({}),
