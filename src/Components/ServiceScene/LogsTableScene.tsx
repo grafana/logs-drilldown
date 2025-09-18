@@ -2,7 +2,7 @@ import React, { lazy, useRef } from 'react';
 
 import { css } from '@emotion/css';
 
-import { AdHocVariableFilter, GrafanaTheme2, LoadingState, LogsSortOrder } from '@grafana/data';
+import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
@@ -108,18 +108,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       })
     );
 
-    // Subscribe to data changes to update URL columns and detected_level exists in the data
-    const dataProvider = sceneGraph.getData(this);
-    this._subs.add(
-      dataProvider.subscribeToState((newState, prevState) => {
-        if (newState.data?.state !== prevState.data?.state) {
-          if (newState.data?.state === LoadingState.Done) {
-            this.updateTableColumnsWithSceneLifeCycle();
-          }
-        }
-      })
-    );
-
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.visualization_init,
@@ -137,12 +125,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   subscribeFromUrl = () => {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
     // Check URL columns for body parameter and update isDisabledLineState accordingly
-    let urlColumnsUrl: string[] | null = [];
+    let urlColumns: string[] | null = [];
     try {
-      urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
 
       // If body or line is in the url columns, show the line state controls
-      if (urlColumnsUrl.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumnsUrl.includes(DATAPLANE_LINE_NAME)) {
+      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
         this.setState({ isDisabledLineState: true });
       } else {
         this.setState({ isDisabledLineState: false });
@@ -152,62 +140,37 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     }
   };
 
-  // on activate sync displayed fields with url columns
-  onActivateSyncDisplayedFieldsWithUrlColumns = () => {
-    this.updateTableColumnsWithSceneLifeCycle();
-  };
-
-  updateTableColumnsWithSceneLifeCycle = () => {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
-    let urlColumnsUrl: string[] | null = [];
-    try {
-      urlColumnsUrl = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
-      // If body or line is in the url columns, show the line state controls
-      if (urlColumnsUrl.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumnsUrl.includes(DATAPLANE_LINE_NAME)) {
-        this.setState({ isDisabledLineState: true });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    // Sync from url
-    let newUrlColumns = urlColumnsUrl;
-
-    // if urlColumns is populated in the url
-    if (urlColumnsUrl?.length > 0) {
-      if (this.urlHasDefaultUrlColumns(urlColumnsUrl)) {
-        newUrlColumns = this.updateDefaultUrlColumns(urlColumnsUrl);
-        // Check for detected level or level field and add it
-        const levelFieldName = this.hasDetectedLevel();
-        if (levelFieldName && !newUrlColumns.includes(levelFieldName)) {
-          newUrlColumns = [...newUrlColumns, levelFieldName];
-        }
-      }
-    }
-
-    // If urlColumns is empty, use default columns
-    if (urlColumnsUrl.length === 0) {
-      newUrlColumns = [...DEFAULT_URL_COLUMNS];
-      // Check for detected level or level field and add it
-      const levelFieldName = this.hasDetectedLevel();
-      if (levelFieldName && !newUrlColumns.includes(levelFieldName)) {
-        newUrlColumns = [...newUrlColumns, levelFieldName];
-      }
-    }
-
+  // Update displayed fields in the parent scene
+  updateDisplayedFields = (urlColumns: string[]) => {
     const parentModel = this.getParentScene();
+    // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
+    defaultUrlColumns = this.findDefaultUrlColumns(urlColumns);
+    // If body or line is in the url columns, show the line state controls
+    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
+      this.setState({ isDisabledLineState: true });
+    } else {
+      this.setState({ isDisabledLineState: false });
+    }
 
+    // Remove any default urlColumn for displayedFields
+    const levelFieldName = this.hasDetectedLevel();
+    const allDefaultColumns = [...defaultUrlColumns];
+    if (levelFieldName) {
+      allDefaultColumns.push(levelFieldName);
+    }
+    const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
+      (field) => !allDefaultColumns.includes(field)
+    );
+    // sync state displayedFields for LogsPanelScene
     parentModel.setState({
-      urlColumns: Array.from(new Set([...newUrlColumns, ...parentModel.state.displayedFields])),
+      displayedFields: newDisplayedFields,
     });
+    // sync LocalStorage displayedFields for Go to explore
+    setDisplayedFields(this, parentModel.state.displayedFields);
   };
 
-  // check if url has default columns initially there are none so we need to keep default values
-  urlHasDefaultUrlColumns = (urlColumns: string[]) => {
-    return defaultUrlColumns.some((col) => urlColumns.includes(col));
-  };
-
-  // update defaultUrlColumns and match order
-  updateDefaultUrlColumns = (urlColumns: string[]) => {
+  // find defaultUrlColumns and match order
+  findDefaultUrlColumns = (urlColumns: string[]) => {
     defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
       // return the column in the same index position as urlColumns
       if (urlColumns.includes(col)) {
@@ -240,35 +203,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     }
 
     return null;
-  };
-
-  // setUrlColumns update displayed fields in the parent scene
-  updateDisplayedFields = (urlColumns: string[]) => {
-    const parentModel = this.getParentScene();
-    // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
-    defaultUrlColumns = this.updateDefaultUrlColumns(urlColumns);
-    // If body or line is in the url columns, show the line state controls
-    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
-      this.setState({ isDisabledLineState: true });
-    } else {
-      this.setState({ isDisabledLineState: false });
-    }
-
-    // Remove any default urlColumn for displayedFields
-    const levelFieldName = this.hasDetectedLevel();
-    const allDefaultColumns = [...defaultUrlColumns];
-    if (levelFieldName) {
-      allDefaultColumns.push(levelFieldName);
-    }
-    const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
-      (field) => !allDefaultColumns.includes(field)
-    );
-    // sync state displayedFields for LogsPanelScene
-    parentModel.setState({
-      displayedFields: newDisplayedFields,
-    });
-    // sync LocalStorage displayedFields for Go to explore
-    setDisplayedFields(this, parentModel.state.displayedFields);
   };
 
   handleSortChange = (newOrder: LogsSortOrder) => {
