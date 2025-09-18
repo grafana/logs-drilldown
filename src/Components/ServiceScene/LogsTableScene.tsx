@@ -108,6 +108,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       })
     );
 
+    this.onLoadSyncDisplayedFieldsWithUrlColumns();
+
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.visualization_init,
@@ -137,6 +139,26 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       }
     } catch (e) {
       console.error('Error parsing urlColumns:', e);
+    }
+  };
+
+  onLoadSyncDisplayedFieldsWithUrlColumns = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    let urlColumns: string[] | null = [];
+    try {
+      urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    const parentModel = this.getParentScene();
+    if (urlColumns && parentModel.state.displayedFields) {
+      parentModel.setState({
+        urlColumns: Array.from(new Set([...urlColumns, ...parentModel.state.displayedFields])),
+      });
     }
   };
 

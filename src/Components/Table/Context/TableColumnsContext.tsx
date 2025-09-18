@@ -144,7 +144,6 @@ export const TableColumnContextProvider = ({
         // URL columns empty state
         // Check for detected_level or level if the url columns are empty or the default columns
         if (urlColumns.length <= 0) {
-          console.log('handleSetColumns urlColumns are empty');
           // check if the columns has DETECTED_LEVEL or LEVEL
           const hasDetectedLevel = columns[DETECTED_LEVEL] ? DETECTED_LEVEL : columns[LEVEL] ? LEVEL : null;
           if (hasDetectedLevel) {
