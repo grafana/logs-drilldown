@@ -30,7 +30,7 @@ import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
-import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import {

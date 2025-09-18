@@ -42,7 +42,7 @@ import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelError } from './LogsPanelError';
-import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { logsControlsSupported } from 'services/panel';

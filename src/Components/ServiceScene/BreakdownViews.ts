@@ -7,7 +7,7 @@ import { FieldsBreakdownScene } from './Breakdowns/FieldsBreakdownScene';
 import { LabelBreakdownScene } from './Breakdowns/LabelBreakdownScene';
 import { PatternsBreakdownScene } from './Breakdowns/Patterns/PatternsBreakdownScene';
 import { LogsListScene } from './LogsListScene';
-import { LogsVolumePanel } from './LogsVolumePanel';
+import { LogsVolumeContainerScene } from './LogsVolume/LogsVolumeContainerScene';
 
 interface ValueBreakdownViewDefinition {
   displayName: string;
@@ -109,9 +109,12 @@ function buildLabelValuesBreakdownActionScene(value: string) {
 
 function buildLogsListScene() {
   return new SceneFlexLayout({
+    height: 'auto',
+    maxHeight: 'auto',
+    minHeight: 'auto',
     children: [
       new SceneFlexItem({
-        body: new LogsVolumePanel({}),
+        body: new LogsVolumeContainerScene({}),
       }),
       new SceneFlexItem({
         body: new LogsListScene({}),
