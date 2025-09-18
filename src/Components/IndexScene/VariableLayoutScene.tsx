@@ -109,7 +109,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                   </div>
 
                   <ToolbarButton
-                    variant={collapsed ? 'primary' : 'canvas'}
+                    variant={collapsed ? 'active' : 'canvas'}
                     icon={collapsed ? 'table-expand-all' : 'table-collapse-all'}
                     onClick={model.toggleCollapsedState}
                     tooltip={
