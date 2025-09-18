@@ -19,21 +19,21 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../services/comparison';
-import { getTimeSeriesExpr } from '../../services/expressions';
-import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from '../../services/variableGetters';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
-import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { AddFilterEvent } from './Breakdowns/AddToFiltersButton';
-import { LogsVolumeActions } from './LogsVolumeActions';
-import { ServiceScene } from './ServiceScene';
+import { LogsVolumeActions } from '../LogsVolumeActions';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
+import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
+import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual } from 'services/comparison';
+import { getTimeSeriesExpr } from 'services/expressions';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
+import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
@@ -147,6 +147,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         displayMode: LegendDisplayMode.List,
         showLegend: true,
       })
+      .setDisplayMode('default')
       .setUnit('short')
       .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
       .setCustomFieldConfig('fillOpacity', 100)

@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
 import { usePluginComponent } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
@@ -45,16 +44,14 @@ export function InsightsTimelineWidget({ serviceName, model }: Props) {
   );
 }
 
-function getStyles(theme: GrafanaTheme2) {
+function getStyles() {
   return {
     container: css({
+      '&:not(:empty)': {
+        marginTop: '10px',
+      },
       label: 'insights-timeline-widget',
-      marginLeft: '15px',
+      marginLeft: '40px',
     }),
-    // label: css({
-    //   fontSize: '12px',
-    //   color: theme.colors.text.secondary,
-    //   marginTop: '-3px',
-    // }),
   };
 }
