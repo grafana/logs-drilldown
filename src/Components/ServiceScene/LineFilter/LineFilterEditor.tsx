@@ -18,6 +18,7 @@ export interface LineFilterEditorProps extends LineFilterProps {
 }
 
 const INITIAL_INPUT_WIDTH = 30;
+const DEFAULT_WIDTH = 29;
 
 export function LineFilterEditor({
   caseSensitive,
@@ -73,7 +74,7 @@ export function LineFilterEditor({
         <LineFilterInput
           regex={regex}
           // Only set width if focused
-          width={focus ? width : undefined}
+          width={focus ? width : DEFAULT_WIDTH}
           onFocus={() => setFocus(true)}
           data-testid={testIds.exploreServiceDetails.searchLogs}
           value={lineFilter ?? ''}
@@ -89,7 +90,7 @@ export function LineFilterEditor({
             </span>
           }
           prefix={null}
-          placeholder="Search in log lines"
+          placeholder="Filter logs by string"
           onClear={onClearLineFilter}
           onKeyUp={(e) => {
             handleEnter(e, lineFilter);

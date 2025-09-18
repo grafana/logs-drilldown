@@ -78,17 +78,10 @@ export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<Fi
   });
 }
 
-export function setLogsVolumeFieldConfigs(
+export function setLogsVolumeFieldConfigOverrides(
   builder: ReturnType<typeof PanelBuilders.timeseries> | ReturnType<typeof FieldConfigBuilders.timeseries>
 ) {
-  return builder
-    .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
-    .setCustomFieldConfig('fillOpacity', 100)
-    .setCustomFieldConfig('lineWidth', 0)
-    .setCustomFieldConfig('pointSize', 0)
-    .setCustomFieldConfig('axisSoftMin', 0)
-    .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
-    .setOverrides(setLevelColorOverrides);
+  return builder.setOverrides(setLevelColorOverrides);
 }
 
 export function setValueSummaryFieldConfigs(
@@ -131,20 +124,25 @@ export function setLabelSeriesOverrides(labels: string[], overrideConfig: FieldC
 
 /**
  * Sets labels series visibility in the panel
+ * WARNING: Overwrites any fieldConfig overrides set in the panel builder!
  */
 export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sceneRef: SceneObject) {
   const focusedLevels = getVisibleLevels(getLevelLabelsFromSeries(series), sceneRef);
-  const config = setLogsVolumeFieldConfigs(FieldConfigBuilders.timeseries()).setOverrides(
+  const config = setLogsVolumeFieldConfigOverrides(FieldConfigBuilders.timeseries()).setOverrides(
     setLabelSeriesOverrides.bind(null, focusedLevels)
   );
+
   if (config instanceof FieldConfigBuilder && panel.getPlugin()) {
-    panel.onFieldConfigChange(config.build(), true);
+    const fieldConfig = config.build();
+    const mergedConfig = { overrides: fieldConfig.overrides, defaults: panel.state.fieldConfig.defaults };
+    panel.onFieldConfigChange(mergedConfig, true);
   }
 }
 
 /**
  * @todo unit test
- * Set levels series visibility in the panel
+ * Set field visibility in the panel
+ * WARNING: Overwrites fieldConfig set in the panel builder!
  */
 export function syncLabelsValueSummaryVisibleSeries(
   key: string,
@@ -298,7 +296,7 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [sortLevelTransformation],
+      transformations: [],
     });
   }
 

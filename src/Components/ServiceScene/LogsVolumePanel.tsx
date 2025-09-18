@@ -10,7 +10,14 @@ import {
   SceneObjectState,
   VizPanel,
 } from '@grafana/scenes';
-import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode, useStyles2 } from '@grafana/ui';
+import {
+  DrawStyle,
+  LegendDisplayMode,
+  PanelContext,
+  SeriesVisibilityChangeMode,
+  StackingMode,
+  useStyles2,
+} from '@grafana/ui';
 
 import { areArraysEqual } from '../../services/comparison';
 import { getTimeSeriesExpr } from '../../services/expressions';
@@ -24,7 +31,7 @@ import { ServiceScene } from './ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
-import { getQueryRunner, setLogsVolumeFieldConfigs, syncLevelsVisibleSeries } from 'services/panel';
+import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
@@ -132,6 +139,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private getVizPanel() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const isCollapsed = getLogsVolumeOption('collapsed');
+    // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', {
@@ -140,6 +148,12 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         showLegend: true,
       })
       .setUnit('short')
+      .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
+      .setCustomFieldConfig('fillOpacity', 100)
+      .setCustomFieldConfig('lineWidth', 0)
+      .setCustomFieldConfig('pointSize', 0)
+      .setCustomFieldConfig('axisSoftMin', 0)
+      .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
       .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
       .setCollapsible(true)
       .setCollapsed(isCollapsed)
@@ -155,7 +169,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
             ])
       );
 
-    setLogsVolumeFieldConfigs(viz);
+    setLogsVolumeFieldConfigOverrides(viz);
 
     const panel = viz.build();
     panel.setState({

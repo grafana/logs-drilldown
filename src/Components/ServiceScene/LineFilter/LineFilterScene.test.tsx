@@ -51,7 +51,7 @@ describe('LineFilter', () => {
 
     test('Updates the variable with the user input', async () => {
       render(<scene.Component model={scene} />);
-      await act(() => userEvent.type(screen.getByPlaceholderText('Search in log lines'), 'some text'));
+      await act(() => userEvent.type(screen.getByPlaceholderText('Filter logs by string'), 'some text'));
 
       expect(await screen.findByDisplayValue('some text')).toBeInTheDocument();
       expect(scene.state.lineFilter).toEqual('some text');
@@ -96,7 +96,7 @@ describe('LineFilter', () => {
     test('Updates the variable with the user input', async () => {
       render(<scene.Component model={scene} />);
 
-      await act(() => userEvent.type(screen.getByPlaceholderText('Search in log lines'), 'some text'));
+      await act(() => userEvent.type(screen.getByPlaceholderText('Filter logs by string'), 'some text'));
 
       expect(await screen.findByDisplayValue('some text')).toBeInTheDocument();
       expect(scene.state.lineFilter).toEqual('some text');
@@ -143,7 +143,7 @@ describe('LineFilter', () => {
       render(<scene.Component model={scene} />);
 
       const string = `((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}`;
-      const input = screen.getByPlaceholderText('Search in log lines');
+      const input = screen.getByPlaceholderText('Filter logs by string');
       await act(() => fireEvent.change(input, { target: { value: string } }));
 
       expect(await screen.findByDisplayValue(string)).toBeInTheDocument();
@@ -191,7 +191,7 @@ describe('LineFilter', () => {
       render(<scene.Component model={scene} />);
 
       const string = `((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}`;
-      const input = screen.getByPlaceholderText('Search in log lines');
+      const input = screen.getByPlaceholderText('Filter logs by string');
       await act(() => fireEvent.change(input, { target: { value: string } }));
 
       expect(await screen.findByDisplayValue(string)).toBeInTheDocument();
