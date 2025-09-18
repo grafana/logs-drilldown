@@ -132,6 +132,7 @@ export const TableWrap = (props: TableWrapProps) => {
         logsFrame={logsFrame}
         initialColumns={pendingLabelState}
         setUrlColumns={props.setUrlColumns}
+        urlColumns={props.urlColumns}
         clearSelectedLine={props.clearSelectedLine}
         urlTableBodyState={props.urlTableBodyState}
       >
