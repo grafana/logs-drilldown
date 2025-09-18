@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
-import { Field, IconButton, Input, useTheme2 } from '@grafana/ui';
+import { Field, IconButton, Input, useStyles2 } from '@grafana/ui';
 
 import { debouncedFuzzySearch } from '../../../services/search';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
@@ -17,11 +17,15 @@ function getStyles(theme: GrafanaTheme2) {
       right: theme.spacing(0.2),
       top: theme.spacing(1),
     }),
+    iconExpanded: css({
+      svg: {
+        transform: 'rotate(-180deg)',
+      },
+    }),
   };
 }
 
 interface LogsColumnSearchProps {
-  collapseButtonClassName?: string;
   isTableSidebarCollapsed?: boolean;
   onToggleTableSidebarCollapse?: () => void;
   searchValue: string;
@@ -29,7 +33,6 @@ interface LogsColumnSearchProps {
 }
 
 export function LogsColumnSearch({
-  collapseButtonClassName,
   isTableSidebarCollapsed,
   onToggleTableSidebarCollapse,
   searchValue,
@@ -69,14 +72,13 @@ export function LogsColumnSearch({
     }
   };
 
-  const theme = useTheme2();
-  const styles = getStyles(theme);
+  const styles = useStyles2(getStyles);
   return (
     <>
       <IconButton
-        className={collapseButtonClassName || styles.collapseTableSidebarButton}
+        className={`${styles.collapseTableSidebarButton} ${isTableSidebarCollapsed ? '' : styles.iconExpanded}`}
         onClick={onToggleTableSidebarCollapse}
-        name={isTableSidebarCollapsed ? 'angle-right' : 'angle-left'}
+        name="arrow-from-right"
         tooltip={isTableSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         size="sm"
       />
