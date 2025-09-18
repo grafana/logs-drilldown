@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
+import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 import { logger } from 'services/logger';
 import { getBodyName, getTimeName, LogsFrame } from 'services/logsFrame';
@@ -64,6 +65,7 @@ function setDefaultColumns(
     percentOfLinesWithLabel: 100,
     type: 'BODY_FIELD',
   };
+
   handleSetColumns(pendingColumns);
 }
 
@@ -92,6 +94,7 @@ export const TableColumnContextProvider = ({
   clearSelectedLine,
   initialColumns,
   logsFrame,
+  urlColumns,
   setUrlColumns,
   setUrlTableBodyState,
   urlTableBodyState,
@@ -102,6 +105,7 @@ export const TableColumnContextProvider = ({
   logsFrame: LogsFrame;
   setUrlColumns: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
+  urlColumns: string[];
   urlTableBodyState?: LogLineState;
 }) => {
   const [columns, setColumns] = useState<FieldNameMetaStore>(removeExtraColumns(initialColumns));
@@ -135,14 +139,24 @@ export const TableColumnContextProvider = ({
     (newColumns: FieldNameMetaStore) => {
       if (newColumns) {
         const columns = removeExtraColumns(newColumns);
-
         setColumns(columns);
+        let newUrlColumns: string[] = [];
+        // URL columns empty state
+        // Check for detected_level or level if the url columns are empty or the default columns
+        if (urlColumns.length <= 0) {
+          console.log('handleSetColumns urlColumns are empty');
+          // check if the columns has DETECTED_LEVEL or LEVEL
+          const hasDetectedLevel = columns[DETECTED_LEVEL] ? DETECTED_LEVEL : columns[LEVEL] ? LEVEL : null;
+          if (hasDetectedLevel) {
+            newUrlColumns.push(hasDetectedLevel);
+          }
+        }
 
         // Sync react state update with scenes url management
-        setUrlColumns(getActiveColumns(columns));
+        setUrlColumns([...getActiveColumns(columns), ...newUrlColumns]);
       }
     },
-    [setUrlColumns]
+    [setUrlColumns, urlColumns]
   );
 
   const handleSetBodyState = useCallback(
