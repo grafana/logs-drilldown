@@ -6,6 +6,7 @@ import { logger } from '../../../services/logger';
 import { FieldNameMetaStore } from '../TableTypes';
 import { LogsColumnSearch } from 'Components/Table/ColumnSelection/LogsColumnSearch';
 import { LogsTableMultiSelect } from 'Components/Table/ColumnSelection/LogsTableMultiSelect';
+import { LEVEL, DETECTED_LEVEL } from 'Components/Table/constants';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 
 export function getReorderColumn(setColumns: (cols: FieldNameMetaStore) => void) {
@@ -132,13 +133,22 @@ export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps)
   const clearSelection = () => {
     const pendingLabelState = { ...columns };
     let index = 0;
+
+    // First pass: handle all default fields except DETECTED_LEVEL
     Object.keys(pendingLabelState).forEach((key) => {
       const isDefaultField =
         pendingLabelState[key].type === 'BODY_FIELD' || pendingLabelState[key].type === 'TIME_FIELD';
-      // after reset the only active fields are the special time and body fields
+
       pendingLabelState[key].active = isDefaultField;
-      // reset the index
       pendingLabelState[key].index = isDefaultField ? index++ : undefined;
+    });
+
+    // Handle DETECTED_LEVEL last, or LEVEL if DETECTED_LEVEL doesn't exist to keep the default order
+    Object.keys(pendingLabelState).forEach((key) => {
+      if (key === DETECTED_LEVEL || (key === LEVEL && !Object.keys(pendingLabelState).includes(DETECTED_LEVEL))) {
+        pendingLabelState[key].active = true;
+        pendingLabelState[key].index = index++;
+      }
     });
 
     setColumns(pendingLabelState);

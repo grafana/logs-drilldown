@@ -1,10 +1,12 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
-import { logger } from '../../../services/logger';
-import { getBodyName, getTimeName, LogsFrame } from '../../../services/logsFrame';
-import { NarrowingError, narrowRecordStringNumber } from '../../../services/narrowing';
-import { PLUGIN_ID } from '../../../services/plugin';
+import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { logger } from 'services/logger';
+import { getBodyName, getTimeName, LogsFrame } from 'services/logsFrame';
+import { NarrowingError, narrowRecordStringNumber } from 'services/narrowing';
+import { PLUGIN_ID } from 'services/plugin';
+import { setTableLogLine } from 'services/store';
 
 const tableColumnCustomWidths = `${PLUGIN_ID}.tableColumnWidths`;
 
@@ -31,7 +33,7 @@ export enum LogLineState {
 }
 
 const TableColumnsContext = createContext<TableColumnsContextType>({
-  bodyState: LogLineState.auto,
+  bodyState: LogLineState.text,
   clearSelectedLine: () => {},
   columns: {},
   columnWidthMap: {},
@@ -63,6 +65,7 @@ function setDefaultColumns(
     percentOfLinesWithLabel: 100,
     type: 'BODY_FIELD',
   };
+
   handleSetColumns(pendingColumns);
 }
 
@@ -91,6 +94,7 @@ export const TableColumnContextProvider = ({
   clearSelectedLine,
   initialColumns,
   logsFrame,
+  urlColumns,
   setUrlColumns,
   setUrlTableBodyState,
   urlTableBodyState,
@@ -101,10 +105,11 @@ export const TableColumnContextProvider = ({
   logsFrame: LogsFrame;
   setUrlColumns: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
+  urlColumns: string[];
   urlTableBodyState?: LogLineState;
 }) => {
   const [columns, setColumns] = useState<FieldNameMetaStore>(removeExtraColumns(initialColumns));
-  const [bodyState, setBodyState] = useState<LogLineState>(urlTableBodyState ?? LogLineState.auto);
+  const [bodyState, setBodyState] = useState<LogLineState>(urlTableBodyState ?? LogLineState.text);
   const [filteredColumns, setFilteredColumns] = useState<FieldNameMetaStore | undefined>(undefined);
 
   const initialColumnWidths = getColumnWidthsFromLocalStorage();
@@ -134,14 +139,23 @@ export const TableColumnContextProvider = ({
     (newColumns: FieldNameMetaStore) => {
       if (newColumns) {
         const columns = removeExtraColumns(newColumns);
-
         setColumns(columns);
+        let newUrlColumns: string[] = [];
+        // URL columns empty state
+        // Check for detected_level or level if the url columns are empty or the default columns
+        if (urlColumns.length <= 0) {
+          // check if the columns has DETECTED_LEVEL or LEVEL
+          const hasDetectedLevel = columns[DETECTED_LEVEL] ? DETECTED_LEVEL : columns[LEVEL] ? LEVEL : null;
+          if (hasDetectedLevel) {
+            newUrlColumns.push(hasDetectedLevel);
+          }
+        }
 
         // Sync react state update with scenes url management
-        setUrlColumns(getActiveColumns(columns));
+        setUrlColumns([...getActiveColumns(columns), ...newUrlColumns]);
       }
     },
-    [setUrlColumns]
+    [setUrlColumns, urlColumns]
   );
 
   const handleSetBodyState = useCallback(
@@ -150,6 +164,8 @@ export const TableColumnContextProvider = ({
 
       // Sync change with url state
       setUrlTableBodyState(logLineState);
+      // Set table log line state in local storage
+      setTableLogLine(logLineState);
     },
     [setUrlTableBodyState]
   );
