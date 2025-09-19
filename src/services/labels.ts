@@ -42,7 +42,7 @@ export function buildLabelsQuery(sceneRef: SceneObject, optionValue: string, opt
   );
 }
 
-export function getAllLabelsFromDF(series: DataFrame[]): string[] {
+export function getAllLabelsFromDataFrame(series: DataFrame[]): string[] {
   const allLabelKeys = new Set<string>();
 
   for (const dataFrame of series) {
@@ -139,7 +139,7 @@ export function getVisibleFilters(key: string, allLabels: string[], variable: Ad
 // From https://grafana.com/docs/loki/latest/get-started/labels/#label-format
 export const LABEL_NAME_INVALID_CHARS = /[^a-zA-Z0-9_:]/g;
 
-export function hasLabelLevel(label: string): boolean {
+export function isLabelLevel(label: string): boolean {
   if (label === DETECTED_LEVEL || label === LEVEL) {
     return true;
   }

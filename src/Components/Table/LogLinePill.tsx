@@ -12,7 +12,7 @@ import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { getFieldMappings } from 'Components/Table/Table';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { hasLabelLevel } from 'services/labels';
+import { isLabelLevel } from 'services/labels';
 import { useSharedStyles } from 'styles/shared-styles';
 
 interface LogLinePillProps {
@@ -76,7 +76,7 @@ function LogLinePillValue(props: {
   const { linkButton } = useSharedStyles();
 
   let levelColor;
-  if (hasLabelLevel(props.label)) {
+  if (isLabelLevel(props.label)) {
     const mappings = getFieldMappings().options;
     if (props.value in mappings) {
       levelColor = mappings[props.value].color;
