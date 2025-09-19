@@ -65,8 +65,8 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
-    const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
     const { collapsed } = model.useState();
+    const styles = useStyles2((theme) => getStyles(theme, height ?? 40, collapsed));
 
     return (
       <div
@@ -124,7 +124,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
           )}
 
           {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
-          <div className={styles.controlsRowContainer} style={collapsed ? { display: 'none ' } : undefined}>
+          <div className={styles.controlsRowContainer}>
             {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
             {controls && (
               <div className={styles.filtersWrap}>
@@ -142,7 +142,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
           {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}
           {getJsonParserVariableVisibility() && (
-            <div className={styles.controlsRowContainer} style={collapsed ? { display: 'none ' } : undefined}>
+            <div className={styles.controlsRowContainer}>
               {controls && (
                 <div className={styles.filtersWrap}>
                   <div className={styles.filters}>
@@ -159,7 +159,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
           )}
 
           {/* 3rd row - Patterns */}
-          <div className={styles.controlsRowContainer} style={collapsed ? { display: 'none ' } : undefined}>
+          <div className={styles.controlsRowContainer}>
             <PatternControls
               patterns={patterns}
               onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
@@ -167,7 +167,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
           </div>
 
           {/* 4th row - Line filters - custom renderer */}
-          <div className={styles.controlsRowContainer} style={collapsed ? { display: 'none ' } : undefined}>
+          <div className={styles.controlsRowContainer}>
             {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
           </div>
         </>
@@ -176,7 +176,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   };
 }
 
-function getStyles(theme: GrafanaTheme2, height: number) {
+function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false) {
   return {
     controlsContainer: css({
       display: 'flex',
@@ -203,7 +203,7 @@ function getStyles(theme: GrafanaTheme2, height: number) {
         display: 'none',
       },
       alignItems: 'flex-start',
-      display: 'flex',
+      display: headerCollapsed ? 'none' : 'flex',
       // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
       gap: theme.spacing(2),
       label: 'controls-row',
