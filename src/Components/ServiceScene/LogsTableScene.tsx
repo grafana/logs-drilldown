@@ -17,7 +17,7 @@ import { PanelChrome, useStyles2 } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
-import { getAllLabelsFromDF } from '../../services/labels';
+import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { getLogOption, setDisplayedFields, setLogOption, setTableLogLine, getTableLogLine } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
@@ -38,8 +38,6 @@ import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
 
 const TableProvider = lazy(() => import('../Table/TableProvider'));
-
-let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
   canClearFilters?: boolean;
@@ -166,7 +164,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   updateDisplayedFields = (urlColumns: string[]) => {
     const parentModel = this.getParentScene();
     // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
-    defaultUrlColumns = this.findDefaultUrlColumns(urlColumns);
+    const defaultUrlColumns = this.findDefaultUrlColumns(urlColumns);
     // If body or line is in the url columns, show the line state controls
     if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
       this.setState({ isDisabledLineState: true });
@@ -193,6 +191,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
   // find defaultUrlColumns and match order
   findDefaultUrlColumns = (urlColumns: string[]) => {
+    let defaultUrlColumns = DEFAULT_URL_COLUMNS;
     defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
       // return the column in the same index position as urlColumns
       if (urlColumns.includes(col)) {
@@ -214,7 +213,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     }
 
     // Get all available labels from the series
-    const allLabels = getAllLabelsFromDF(data.series);
+    const allLabels = getAllLabelsFromDataFrame(data.series);
 
     // Check if detected_level or level exists in the labels
     if (allLabels.includes(DETECTED_LEVEL)) {
