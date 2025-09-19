@@ -39,8 +39,13 @@ import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSu
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
-const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
 const ADD_TO_INVESTIGATION_MENU_GROUP_TEXT = 'Investigations';
+const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
+
+// IRM
+const ADD_TO_IRM_MENU_TEXT = 'Attach to incident';
+const ADD_TO_IRM_MENU_GROUP_TEXT = 'IRM';
+const ADD_TO_IRM_MENU_DIVIDER_TEXT = 'irm_divider';
 
 export enum TimeSeriesPanelType {
   'timeseries' = 'timeseries',
@@ -360,6 +365,30 @@ const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton
   return undefined;
 };
 
+const getIrmLink = async () => {
+  const extensionPointId = ExtensionPoints.IRMAttach;
+
+  if (getPluginLinkExtensions !== undefined) {
+    const links = getPluginLinkExtensions({
+      extensionPointId,
+    });
+
+    return links.extensions[0];
+  }
+
+  if (getObservablePluginLinks !== undefined) {
+    const links: PluginExtensionLink[] = await firstValueFrom(
+      getObservablePluginLinks({
+        extensionPointId,
+      })
+    );
+
+    return links[0];
+  }
+
+  return undefined;
+};
+
 async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu) {
   const addToInvestigationButton = exploreLogsVizPanelMenu.state.investigationsButton;
   if (addToInvestigationButton) {
@@ -369,6 +398,7 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
 
     const existingAddToExplorationLink = existingMenuItems.find((item) => item.text === ADD_TO_INVESTIGATION_MENU_TEXT);
 
+    // Add or remove Investigations link based on extension availability
     if (link) {
       if (!existingAddToExplorationLink) {
         exploreLogsVizPanelMenu.state.body?.addItem({
@@ -384,20 +414,48 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
           onClick: (e) => link.onClick && link.onClick(e),
           text: ADD_TO_INVESTIGATION_MENU_TEXT,
         });
-      } else {
-        if (existingAddToExplorationLink) {
-          exploreLogsVizPanelMenu.state.body?.setItems(
-            existingMenuItems.filter(
-              (item) =>
-                [
-                  ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT,
-                  ADD_TO_INVESTIGATION_MENU_GROUP_TEXT,
-                  ADD_TO_INVESTIGATION_MENU_TEXT,
-                ].includes(item.text) === false
-            )
-          );
-        }
       }
+    } else if (existingAddToExplorationLink) {
+      exploreLogsVizPanelMenu.state.body?.setItems(
+        existingMenuItems.filter(
+          (item) =>
+            [
+              ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT,
+              ADD_TO_INVESTIGATION_MENU_GROUP_TEXT,
+              ADD_TO_INVESTIGATION_MENU_TEXT,
+            ].includes(item.text) === false
+        )
+      );
+    }
+
+    // Add or remove IRM link based on extension availability
+    const irmLink = await getIrmLink();
+    const existingAttachToIncidentLink = existingMenuItems.find((item) => item.text === ADD_TO_IRM_MENU_TEXT);
+
+    if (irmLink) {
+      if (!existingAttachToIncidentLink) {
+        exploreLogsVizPanelMenu.state.body?.addItem({
+          text: ADD_TO_IRM_MENU_DIVIDER_TEXT,
+          type: 'divider',
+        });
+        exploreLogsVizPanelMenu.state.body?.addItem({
+          text: ADD_TO_IRM_MENU_GROUP_TEXT,
+          type: 'group',
+        });
+        exploreLogsVizPanelMenu.state.body?.addItem({
+          iconClassName: 'link',
+          onClick: (e) => irmLink.onClick && irmLink.onClick(e),
+          text: ADD_TO_IRM_MENU_TEXT,
+        });
+      }
+    } else if (existingAttachToIncidentLink) {
+      exploreLogsVizPanelMenu.state.body?.setItems(
+        existingMenuItems.filter(
+          (item) =>
+            [ADD_TO_IRM_MENU_DIVIDER_TEXT, ADD_TO_IRM_MENU_GROUP_TEXT, ADD_TO_IRM_MENU_TEXT].includes(item.text) ===
+            false
+        )
+      );
     }
   }
 }
