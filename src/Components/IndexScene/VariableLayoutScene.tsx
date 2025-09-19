@@ -91,6 +91,17 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
+                  <ToolbarButton
+                    variant={collapsed ? 'active' : 'canvas'}
+                    icon={collapsed ? 'table-expand-all' : 'table-collapse-all'}
+                    onClick={model.toggleCollapsedState}
+                    tooltip={
+                      collapsed
+                        ? t('logs.logs-drilldown-header.expand', 'Expand filters')
+                        : t('logs.logs-drilldown-header.collapse', 'Collapse filters')
+                    }
+                  />
+
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
                   {controls.map((control) => {
@@ -107,17 +118,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       ) : null;
                     })}
                   </div>
-
-                  <ToolbarButton
-                    variant={collapsed ? 'active' : 'canvas'}
-                    icon={collapsed ? 'table-expand-all' : 'table-collapse-all'}
-                    onClick={model.toggleCollapsedState}
-                    tooltip={
-                      collapsed
-                        ? t('logs.logs-drilldown-header.expand', 'Expand filters')
-                        : t('logs.logs-drilldown-header.collapse', 'Collapse filters')
-                    }
-                  />
                 </div>
               </div>
             </div>
