@@ -466,3 +466,13 @@ export function getFieldsPanelTypes(): FieldsPanelsType | null {
 export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
   localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
 }
+
+// Collapsible filters
+const COLLAPSIBLE_FILTERS_KEY = `${pluginJson.id}.filters.collapsed`;
+export function getCollapsibleFiltersState(): boolean {
+  return !!localStorage.getItem(COLLAPSIBLE_FILTERS_KEY);
+}
+
+export function setCollapsibleFiltersState(state: boolean) {
+  localStorage.setItem(COLLAPSIBLE_FILTERS_KEY, state ? 'true' : '');
+}
