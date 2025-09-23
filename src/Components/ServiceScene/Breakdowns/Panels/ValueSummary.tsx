@@ -283,6 +283,8 @@ function buildValueSummaryPanel(title: string, options?: { levelColor?: boolean 
     getPanelOption('collapsed', [CollapsablePanelText.collapsed, CollapsablePanelText.expanded]) ??
     CollapsablePanelText.expanded;
 
+  // Field config is overwritten by `syncLabelsValueSummaryVisibleSeries`
+  // @todo merge existing options or make sure to set any changes in `setValueSummaryFieldConfigs` as well
   const body = PanelBuilders.timeseries()
     .setTitle(title)
     .setMenu(new PanelMenu({}))

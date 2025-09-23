@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.0.27
+
+##### Chores
+
+* **LineFilter:**  increase default width to accommodate for placeholder (#1539) (9ed579a4)
+*  update line filters placeholder (#1538) (4b3e342e)
+*  bump @grafana/create-plugin configuration to 5.26.0 (#1524) (eca1d90a)
+*  add tenant id to generator, and enable auth in loki (#1519) (6ff03d0a)
+*  downgrade field errors (#1518) (defa358e)
+*  externalized component events (#1517) (a032cf2a)
+* **faro:**  faro log successful plugin load (#1529) (025ed256)
+
+##### New Features
+
+* **LineLimitScene:**
+  *  error message, invalidation state (#1537) (d978a797)
+  *  track max lines (#1530) (b82d9768)
+* **logs:**  expose line limit in all visualizations (#1527) (f107e0e7)
+
+##### Bug Fixes
+
+*  add tenant id to log-generator (#1522) (5225d621)
+
+
 ## 1.0.26
 
 ##### Chores

@@ -28,6 +28,7 @@ import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
+import { LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
@@ -40,7 +41,9 @@ const TableProvider = lazy(() => import('../Table/TableProvider'));
 let defaultUrlColumns = DEFAULT_URL_COLUMNS;
 
 interface LogsTableSceneState extends SceneObjectState {
+  canClearFilters?: boolean;
   emptyScene?: NoMatchingLabelsScene;
+  error?: string;
   isDisabledLineState: boolean;
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
@@ -225,6 +228,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const styles = useStyles2(getStyles);
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
+    const { error, canClearFilters } = model.useState();
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
     const { emptyScene, menu, sortOrder } = model.useState();
@@ -267,51 +271,60 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
     return (
       <div className={styles.panelWrapper} ref={panelWrap}>
-        {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
-        <PanelChrome
-          loadingState={data?.state}
-          title={'Logs'}
-          menu={menu ? <menu.Component model={menu} /> : undefined}
-          showMenuAlways={true}
-          actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />}
-        >
-          <div className={styles.container}>
-            {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
-              <LogListControls
-                controlsExpanded={controlsExpanded}
-                onExpandControlsClick={() => {
-                  parentModel.setState({ controlsExpanded: !controlsExpanded });
-                  setLogOption('controlsExpanded', !controlsExpanded);
-                }}
-                sortOrder={sortOrder}
-                onSortOrderChange={model.handleSortChange}
-                onLineStateClick={model.onLineStateClick}
-                // "Auto" defaults to display "show text"
-                lineState={tableLogLineState ?? LogLineState.labels}
-                disabledLineState={!model.state.isDisabledLineState}
-              />
-            )}
-            {dataFrame && (
-              <TableProvider
-                controlsExpanded={controlsExpanded}
-                panelWrap={panelWrap}
-                addFilter={addFilter}
-                timeRange={timeRangeValue}
-                selectedLine={selectedLine}
-                urlColumns={urlColumns ?? []}
-                setUrlColumns={setUrlColumns}
-                dataFrame={dataFrame}
-                clearSelectedLine={clearSelectedLine}
-                setUrlTableBodyState={setUrlTableBodyState}
-                urlTableBodyState={tableLogLineState}
-                logsSortOrder={sortOrder}
-              />
-            )}
-            {emptyScene && dataFrame && dataFrame.length === 0 && (
-              <NoMatchingLabelsScene.Component model={emptyScene} />
-            )}
-          </div>
-        </PanelChrome>
+        {!error && (
+          <>
+            {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
+            <PanelChrome
+              loadingState={data?.state}
+              title={'Logs'}
+              menu={menu ? <menu.Component model={menu} /> : undefined}
+              showMenuAlways={true}
+              actions={
+                <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+              }
+            >
+              <div className={styles.container}>
+                {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
+                  <LogListControls
+                    controlsExpanded={controlsExpanded}
+                    onExpandControlsClick={() => {
+                      parentModel.setState({ controlsExpanded: !controlsExpanded });
+                      setLogOption('controlsExpanded', !controlsExpanded);
+                    }}
+                    sortOrder={sortOrder}
+                    onSortOrderChange={model.handleSortChange}
+                    onLineStateClick={model.onLineStateClick}
+                    // "Auto" defaults to display "show text"
+                    lineState={tableLogLineState ?? LogLineState.labels}
+                    disabledLineState={!model.state.isDisabledLineState}
+                  />
+                )}
+                {dataFrame && (
+                  <TableProvider
+                    controlsExpanded={controlsExpanded}
+                    panelWrap={panelWrap}
+                    addFilter={addFilter}
+                    timeRange={timeRangeValue}
+                    selectedLine={selectedLine}
+                    urlColumns={urlColumns ?? []}
+                    setUrlColumns={setUrlColumns}
+                    dataFrame={dataFrame}
+                    clearSelectedLine={clearSelectedLine}
+                    setUrlTableBodyState={setUrlTableBodyState}
+                    urlTableBodyState={tableLogLineState}
+                    logsSortOrder={sortOrder}
+                  />
+                )}
+                {emptyScene && dataFrame && dataFrame.length === 0 && (
+                  <NoMatchingLabelsScene.Component model={emptyScene} />
+                )}
+              </div>
+            </PanelChrome>
+          </>
+        )}
+        {error && (
+          <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(model) : undefined} />
+        )}
       </div>
     );
   };
