@@ -96,7 +96,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       menu: new PanelMenu({ addInvestigationsLink: false }),
     });
     setControlsExpandedStateFromLocalStorage(this.getParentScene());
-    this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
 
     // Subscribe to location changes to detect URL parameter changes
