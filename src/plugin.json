@@ -58,12 +58,20 @@
     "extensions": {
       "exposedComponents": [
         "grafana-adaptivelogs-app/temporary-exemptions/v1",
-        "grafana-lokiexplore-app/embedded-logs-exploration/v1"
+        "grafana-lokiexplore-app/embedded-logs-exploration/v1",
+        "grafana-asserts-app/insights-timeline-widget/v1"
       ]
     }
   },
   "preload": true,
   "extensions": {
+    "addedComponents": [
+      {
+        "targets": ["grafana-asserts-app/insights-timeline-widget/v1"],
+        "title": "Insights Timeline Widget",
+        "description": "Widget for displaying insights timeline in other apps"
+      }
+    ],
     "addedLinks": [
       {
         "targets": [
