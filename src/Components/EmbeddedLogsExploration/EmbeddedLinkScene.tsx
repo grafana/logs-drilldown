@@ -26,7 +26,7 @@ export class EmbeddedLinkScene extends SceneObjectBase {
 
     // Rerender this scene whenever any dependent variables are updated
     // @todo how do we keep this up to date if new variables are added?
-    labelsVar.useState();
+    const { filters: labelsVarFilters } = labelsVar.useState();
     getFieldsVariable(model).useState();
     getLevelsVariable(model).useState();
     getMetadataVariable(model).useState();
@@ -41,6 +41,13 @@ export class EmbeddedLinkScene extends SceneObjectBase {
       return null;
     }
     const params = sceneUtils.getUrlState(indexScene);
+
+    // The link to breakdown cannot be created without labels
+    // Alternatively we could build a link to ServiceSelectionScene
+    if (labelsVarFilters.length === 0) {
+      return null;
+    }
+
     const { labelName, labelValue } = getPrimaryLabelFromEmbeddedScene(serviceScene, labelsVar);
 
     return (

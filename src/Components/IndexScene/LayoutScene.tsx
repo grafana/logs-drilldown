@@ -3,13 +3,21 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import {
+  SceneComponentProps,
+  sceneGraph,
+  SceneObject,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneReactObject,
+} from '@grafana/scenes';
+import { Alert, useStyles2 } from '@grafana/ui';
 
 import { PageSlugs } from '../../services/enums';
 import { logger } from '../../services/logger';
 import { PLUGIN_ID } from '../../services/plugin';
 import { getDrilldownSlug } from '../../services/routing';
+import { getLabelsVariable } from '../../services/variableGetters';
 import { IndexScene } from './IndexScene';
 import { InterceptBanner } from './InterceptBanner';
 import { LevelsVariableScene } from './LevelsVariableScene';
@@ -49,8 +57,19 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
 
   static Component = ({ model }: SceneComponentProps<LayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { contentScene } = indexScene.useState();
+    let { contentScene } = indexScene.useState();
     const { interceptDismissed, variableLayout } = model.useState();
+    const { filters } = getLabelsVariable(model).useState();
+
+    if (filters.length === 0) {
+      contentScene = new SceneReactObject({
+        reactNode: (
+          <Alert title="No labels selected" severity="info">
+            Please select at least one label to see logs breakdown.
+          </Alert>
+        ),
+      });
+    }
 
     if (!contentScene) {
       logger.warn('content scene not defined');

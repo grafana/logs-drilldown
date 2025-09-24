@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { differenceWith } from 'lodash';
+
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
@@ -40,7 +42,6 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
-import { ReadOnlyAdHocFiltersVariable } from '../../services/ReadOnlyAdHocFiltersVariable';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -141,7 +142,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       datasourceUid,
       state?.readOnlyLabelFilters,
       state.embedded,
-      state.embedderName,
       state.defaultLineFilters
     );
     const controls: SceneObject[] = [
@@ -287,6 +287,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataService().setEmbedded(this.state.embedded);
     }
 
+    this.setState({ isDifferentFromReference: this.compareWithReference() });
+    this._subs.add(
+      getLabelsVariable(this).subscribeToState(async () => {
+        this.setState({ isDifferentFromReference: this.compareWithReference() });
+      })
+    );
+
     this._subs.add(
       isAssistantAvailable().subscribe((isAvailable) => {
         if (isAvailable && !this.assistantInitialized) {
@@ -298,6 +305,34 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
     };
+  }
+
+  public compareWithReference() {
+    const referenceLabels = [...(this.state.referenceLabels || [])];
+    const currentLabels = [...getLabelsVariable(this).state.filters];
+
+    referenceLabels.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
+    currentLabels.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
+
+    const areTheSame =
+      differenceWith(
+        referenceLabels,
+        currentLabels,
+        (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value
+      ).length === 0 &&
+      differenceWith(
+        currentLabels,
+        referenceLabels,
+        (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value
+      ).length === 0;
+
+    if (!referenceLabels || referenceLabels.length === 0) {
+      return false;
+    }
+    if (!areTheSame) {
+      return true;
+    }
+    return false;
   }
 
   public getContentScene() {
@@ -617,6 +652,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this.setState(stateUpdate);
   }
+
+  resetManagedFilters() {
+    getLabelsVariable(this).setState({ filters: this.state.referenceLabels || [] });
+  }
 }
 
 function getContentScene(drillDownLabel?: string) {
@@ -632,12 +671,11 @@ function getContentScene(drillDownLabel?: string) {
 
 function getVariableSet(
   initialDatasourceUid: string,
-  readOnlyLabelFilters?: AdHocVariableFilter[],
+  initialLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  embedderName?: string,
   defaultLineFilters?: LineFilterType[]
 ) {
-  const labelVariable = new ReadOnlyAdHocFiltersVariable({
+  const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
@@ -647,7 +685,7 @@ function getVariableSet(
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
-    readonlyFilters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, origin: embedderName, readOnly: true })),
+    filters: initialLabelFilters || [],
   });
 
   labelVariable._getOperators = function () {

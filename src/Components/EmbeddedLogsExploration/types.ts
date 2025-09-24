@@ -8,8 +8,10 @@ interface SceneTimeRangeStateStub {
 
 interface EmbeddedLogsCommonProps {
   embedderName: string;
+  namespace?: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   query: string;
+  referenceQuery?: string;
   timeRangeState: SceneTimeRangeStateStub;
 }
 
