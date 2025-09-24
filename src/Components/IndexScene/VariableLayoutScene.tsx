@@ -103,7 +103,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                   <Button
                     icon="repeat"
                     variant="secondary"
-                    onClick={() => indexScene.resetManagedFilters()}
+                    onClick={() => indexScene.resetToReferenceQuery()}
                     tooltip="Reset filters to initial values."
                   >
                     Reset

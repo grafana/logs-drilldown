@@ -630,7 +630,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this.setState(stateUpdate);
   }
 
-  resetManagedFilters() {
+  resetToReferenceQuery() {
     getLabelsVariable(this).setState({ filters: this.state.referenceLabels || [] });
   }
 }
