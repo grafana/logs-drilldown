@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { differenceWith } from 'lodash';
-
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
@@ -57,7 +55,7 @@ import {
   getPatternsVariable,
   getUrlParamNameForVariable,
 } from '../../services/variableGetters';
-import { operatorFunction } from '../../services/variableHelpers';
+import { areLabelFiltersEqual, operatorFunction } from '../../services/variableHelpers';
 import { JsonData } from '../AppConfig/AppConfig';
 import { NoLokiSplash } from '../NoLokiSplash';
 import { DEFAULT_TIME_RANGE } from '../Pages';
@@ -287,10 +285,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataService().setEmbedded(this.state.embedded);
     }
 
-    this.setState({ isDifferentFromReference: this.compareWithReference() });
+    this.setState({ currentFiltersMatchReference: this.currentFiltersMatchReference() });
     this._subs.add(
       getLabelsVariable(this).subscribeToState(async () => {
-        this.setState({ isDifferentFromReference: this.compareWithReference() });
+        this.setState({ currentFiltersMatchReference: this.currentFiltersMatchReference() });
       })
     );
 
@@ -307,32 +305,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     };
   }
 
-  public compareWithReference() {
-    const referenceLabels = [...(this.state.referenceLabels || [])];
-    const currentLabels = [...getLabelsVariable(this).state.filters];
-
-    referenceLabels.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
-    currentLabels.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
-
-    const areTheSame =
-      differenceWith(
-        referenceLabels,
-        currentLabels,
-        (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value
-      ).length === 0 &&
-      differenceWith(
-        currentLabels,
-        referenceLabels,
-        (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value
-      ).length === 0;
-
-    if (!referenceLabels || referenceLabels.length === 0) {
-      return false;
-    }
-    if (!areTheSame) {
-      return true;
-    }
-    return false;
+  public currentFiltersMatchReference() {
+    return (
+      !this.state.referenceLabels ||
+      areLabelFiltersEqual(this.state.referenceLabels || [], getLabelsVariable(this).state.filters)
+    );
   }
 
   public getContentScene() {

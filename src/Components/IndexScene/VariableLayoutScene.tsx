@@ -72,7 +72,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns, isDifferentFromReference } = indexScene.useState();
+    const { controls, patterns, currentFiltersMatchReference } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
@@ -99,7 +99,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                     ) : null;
                   })}
                 </div>
-                {isDifferentFromReference && (
+                {!currentFiltersMatchReference && (
                   <Button
                     icon="repeat"
                     variant="secondary"

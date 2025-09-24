@@ -1,3 +1,6 @@
+import { differenceWith } from 'lodash';
+
+import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
@@ -103,4 +106,17 @@ export function getPrimaryLabelFromEmbeddedScene(scene: ServiceScene, variable =
     labelName: variable.state.filters[0].key,
     labelValue: variable.state.filters[0].value,
   };
+}
+
+export function areLabelFiltersEqual(a: AdHocVariableFilter[], b: AdHocVariableFilter[]) {
+  a = [...a];
+  b = [...b];
+
+  a.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
+  b.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
+
+  return (
+    differenceWith(a, b, (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value).length === 0 &&
+    differenceWith(b, a, (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value).length === 0
+  );
 }
