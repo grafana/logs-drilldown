@@ -70,7 +70,6 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
               .setHoverHeader(true)
               .setOption('showLogContextToggle', true)
               .setOption('showTime', true)
-              // @ts-expect-error Requires Grafana 12.2
               .setOption('noInteractions', true)
               .setOption('controlsStorageKey', LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY)
               .setData(queryRunnerWithFilters)

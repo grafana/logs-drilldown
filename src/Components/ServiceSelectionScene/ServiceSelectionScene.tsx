@@ -562,7 +562,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
-        // @ts-expect-error Requires Grafana 12.2
         .setOption('noInteractions', true)
         .build(),
     });

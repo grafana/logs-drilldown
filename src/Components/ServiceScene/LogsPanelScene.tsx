@@ -294,7 +294,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('showControls', true)
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
-        // @ts-expect-error Requires Grafana 12.2
         .setOption('setDisplayedFields', this.setDisplayedFields)
         .setOption('logLineMenuCustomItems', [
           {
