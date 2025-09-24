@@ -17,6 +17,7 @@ import { PanelChrome, useStyles2 } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
+import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { getLogOption, setDisplayedFields, setLogOption } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
@@ -95,6 +96,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
       menu: new PanelMenu({ addInvestigationsLink: false }),
     });
+    setControlsExpandedStateFromLocalStorage(this.getParentScene());
     this.onActivateSyncDisplayedFieldsWithUrlColumns();
     this.setStateFromUrl();
 
@@ -265,6 +267,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       }
     };
 
+    const controlsExpanded = parentModel.state.controlsExpanded;
+
     return (
       <div className={styles.panelWrapper} ref={panelWrap}>
         {!error && (
@@ -282,6 +286,11 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               <div className={styles.container}>
                 {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
                   <LogListControls
+                    controlsExpanded={controlsExpanded}
+                    onExpandControlsClick={() => {
+                      parentModel.setState({ controlsExpanded: !controlsExpanded });
+                      setLogOption('controlsExpanded', !controlsExpanded);
+                    }}
                     sortOrder={sortOrder}
                     onSortOrderChange={model.handleSortChange}
                     onLineStateClick={model.onLineStateClick}
@@ -292,6 +301,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 )}
                 {dataFrame && (
                   <TableProvider
+                    controlsExpanded={controlsExpanded}
                     panelWrap={panelWrap}
                     addFilter={addFilter}
                     timeRange={timeRangeValue}

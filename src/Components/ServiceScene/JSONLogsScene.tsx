@@ -18,10 +18,11 @@ import {
 } from '../../services/fields';
 import { preProcessJSONDataFrame } from '../../services/JSONDataFrame';
 import { narrowLogsSortOrder } from '../../services/narrowing';
-import { getPrettyQueryExpr } from '../../services/scenes';
+import { getPrettyQueryExpr, setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { LogsListScene } from './LogsListScene';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
@@ -133,6 +134,8 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       }),
     });
 
+    setControlsExpandedStateFromLocalStorage(sceneGraph.getAncestor(this, LogsListScene));
+
     const $data = sceneGraph.getData(this);
     if ($data.state.data?.state === LoadingState.Done) {
       this.updateJSONDataFrame($data.state.data);
@@ -198,6 +201,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       true
     );
   }
+
   private updateJSONDataFrame(panelData: PanelData) {
     this.setState(preProcessJSONDataFrame(panelData, this));
   }

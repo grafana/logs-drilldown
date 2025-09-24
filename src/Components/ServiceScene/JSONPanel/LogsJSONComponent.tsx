@@ -133,6 +133,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
 
   const showNoJSONDetected = lineField && lineField.values.length > 0 && hasJSONFields === false;
   const showLokiNotSupported = !JSONFiltersSupported && showNoJSONDetected !== true;
+  const controlsExpanded = logsListScene.state.controlsExpanded;
 
   return (
     <div className={styles.panelChromeWrap}>
@@ -153,6 +154,11 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
             <div className={styles.container}>
               {lineField?.values && lineField?.values.length > 0 && (
                 <LogListControls
+                  controlsExpanded={controlsExpanded}
+                  onExpandControlsClick={() => {
+                    logsListScene.setState({ controlsExpanded: !controlsExpanded });
+                    setLogOption('controlsExpanded', !controlsExpanded);
+                  }}
                   onWrapLogMessageClick={onWrapLogMessageClick}
                   wrapLogMessage={wrapLogMessage}
                   showHighlight={hasHighlight}
