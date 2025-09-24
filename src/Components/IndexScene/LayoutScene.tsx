@@ -57,11 +57,11 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
 
   static Component = ({ model }: SceneComponentProps<LayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    let { contentScene } = indexScene.useState();
+    let { contentScene, embedded } = indexScene.useState();
     const { interceptDismissed, variableLayout } = model.useState();
     const { filters } = getLabelsVariable(model).useState();
 
-    if (filters.length === 0) {
+    if (filters.length === 0 && embedded) {
       contentScene = new SceneReactObject({
         reactNode: (
           <Alert title="No labels selected" severity="info">
