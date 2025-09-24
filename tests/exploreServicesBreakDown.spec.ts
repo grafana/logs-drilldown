@@ -217,6 +217,9 @@ test.describe('explore services breakdown page', () => {
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
 
+    // Wait for URL to be updated after switching to table view
+    await page.waitForTimeout(100);
+
     // Extract the current URL
     const currentUrl = page.url();
 
@@ -362,7 +365,7 @@ test.describe('explore services breakdown page', () => {
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
     const columnHeaders = await page.getByRole('columnheader');
-    await expect(columnHeaders).toHaveCount(7);
+    await expect(columnHeaders).toHaveCount(8);
 
     // Switch to logs view
     await explorePage.getLogsToggleLocator().click();

@@ -32,6 +32,7 @@ const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3,})?(?:Z|[-+]
 interface TableWrapProps {
   clearSelectedLine: () => void;
   controlsExpanded: boolean;
+  displayFields: string[];
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   setUrlColumns: (columns: string[]) => void;
@@ -133,6 +134,7 @@ export const TableWrap = (props: TableWrapProps) => {
         initialColumns={pendingLabelState}
         setUrlColumns={props.setUrlColumns}
         urlColumns={props.urlColumns}
+        displayFields={props.displayFields}
         clearSelectedLine={props.clearSelectedLine}
         urlTableBodyState={props.urlTableBodyState}
       >

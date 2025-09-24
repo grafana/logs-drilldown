@@ -152,7 +152,9 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       console.error(e);
     }
     const parentModel = this.getParentScene();
-    if (urlColumns && parentModel.state.displayedFields) {
+
+    // Add displayed fields to url columns
+    if (urlColumns.length > 0 && parentModel.state.displayedFields.length > 0) {
       parentModel.setState({
         urlColumns: Array.from(new Set([...urlColumns, ...parentModel.state.displayedFields])),
       });
@@ -327,6 +329,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                     timeRange={timeRangeValue}
                     selectedLine={selectedLine}
                     urlColumns={urlColumns ?? []}
+                    displayFields={parentModel.state.displayedFields}
                     setUrlColumns={setUrlColumns}
                     dataFrame={dataFrame}
                     clearSelectedLine={clearSelectedLine}
