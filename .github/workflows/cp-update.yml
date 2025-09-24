@@ -3,7 +3,7 @@ name: Create Plugin Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 1 * *' # run once a month on the 1st day
+    - cron: '0 0 * * 0' # run once a week at 00:00 UTC on Sunday
 
 # To use the default github token with the following elevated permissions make sure to check:
 # **Allow GitHub Actions to create and approve pull requests** in https://github.com/ORG_NAME/REPO_NAME/settings/actions.
