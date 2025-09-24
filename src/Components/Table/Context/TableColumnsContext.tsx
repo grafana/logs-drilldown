@@ -95,12 +95,14 @@ export const TableColumnContextProvider = ({
   initialColumns,
   logsFrame,
   urlColumns,
+  displayFields,
   setUrlColumns,
   setUrlTableBodyState,
   urlTableBodyState,
 }: {
   children: ReactNode;
   clearSelectedLine: () => void;
+  displayFields: string[];
   initialColumns: FieldNameMetaStore;
   logsFrame: LogsFrame;
   setUrlColumns: (columns: string[]) => void;
@@ -149,13 +151,17 @@ export const TableColumnContextProvider = ({
           if (hasDetectedLevel) {
             newUrlColumns.push(hasDetectedLevel);
           }
+          // Add displayed fields to url columns
+          if (displayFields.length > 0) {
+            newUrlColumns.push(...displayFields);
+          }
         }
 
         // Sync react state update with scenes url management
         setUrlColumns([...getActiveColumns(columns), ...newUrlColumns]);
       }
     },
-    [setUrlColumns, urlColumns]
+    [setUrlColumns, urlColumns, displayFields]
   );
 
   const handleSetBodyState = useCallback(
