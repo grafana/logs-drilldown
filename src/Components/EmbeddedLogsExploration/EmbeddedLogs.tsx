@@ -57,7 +57,7 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
-    readOnlyLabelFilters: initialLabels,
+    initialLabels,
     referenceLabels,
   });
 }

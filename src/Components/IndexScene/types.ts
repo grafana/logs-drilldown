@@ -16,9 +16,9 @@ export interface IndexSceneState extends SceneObjectState {
   ds?: LokiDatasource;
   embedded?: boolean;
   embedderName?: string;
+  initialLabels?: AdHocVariableFilter[];
   isDifferentFromReference?: boolean;
   patterns?: AppliedPattern[];
-  readOnlyLabelFilters?: AdHocVariableFilter[];
   referenceLabels?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
 }

@@ -140,7 +140,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
-      state?.readOnlyLabelFilters,
+      state?.initialLabels,
       state.embedded,
       state.defaultLineFilters
     );
