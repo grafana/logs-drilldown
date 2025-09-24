@@ -351,6 +351,31 @@ test.describe('explore services breakdown page', () => {
     await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).not.toBeVisible();
   });
 
+  test('table urlColumns should be reset on log panel show original line click', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // open log details
+    await page.getByTitle('See log details').nth(1).click();
+    // click a displayed field to
+    await page.getByLabel('Show this field instead of').nth(1).click();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const columnHeaders = await page.getByRole('columnheader');
+    await expect(columnHeaders).toHaveCount(7);
+
+    // Switch to logs view
+    await explorePage.getLogsToggleLocator().click();
+
+    // click show original log line
+    await page.getByRole('button', { name: 'Show original log line' }).click();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const defaultColumnHeaders = await page.getByRole('columnheader');
+    await expect(defaultColumnHeaders).toHaveCount(6);
+  });
+
   test('should show inspect modal', async ({ page }) => {
     await explorePage.getTableToggleLocator().click();
     // Expect table to be rendered
