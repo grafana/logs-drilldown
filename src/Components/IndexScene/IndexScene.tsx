@@ -140,6 +140,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
       state?.readOnlyLabelFilters,
+      state?.labelFilters,
       state.embedded,
       state.embedderName,
       state.defaultLineFilters
@@ -633,6 +634,7 @@ function getContentScene(drillDownLabel?: string) {
 function getVariableSet(
   initialDatasourceUid: string,
   readOnlyLabelFilters?: AdHocVariableFilter[],
+  labelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
   embedderName?: string,
   defaultLineFilters?: LineFilterType[]
@@ -647,6 +649,7 @@ function getVariableSet(
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
+    filters: labelFilters ?? [],
     readonlyFilters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, origin: embedderName, readOnly: true })),
   });
 

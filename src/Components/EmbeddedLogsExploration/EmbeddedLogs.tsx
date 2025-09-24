@@ -49,7 +49,7 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
-    readOnlyLabelFilters: initialLabels,
+    labelFilters: initialLabels,
   });
 }
 
