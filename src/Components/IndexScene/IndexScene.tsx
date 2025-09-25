@@ -663,7 +663,7 @@ function getVariableSet(
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
-    filters: initialLabelFilters || [],
+    filters: initialLabelFilters ?? [],
   });
 
   labelVariable._getOperators = function () {
