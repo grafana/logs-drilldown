@@ -101,6 +101,21 @@ export interface ServiceSceneCustomState {
   totalLogsCount?: number;
 }
 
+enum LabelFiltersInvalidReason {
+  Empty = 'empty',
+  PrimaryLabelRemoved = 'primary_label_removed',
+}
+
+type LabelFiltersStatus =
+  | {
+      isValid: true;
+    }
+  | {
+      isValid: false;
+      newPrimaryLabel?: AdHocFilterWithLabels<{}>;
+      reason: LabelFiltersInvalidReason;
+    };
+
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
   $data: SceneDataProvider | undefined;
   $detectedFieldsData: SceneQueryRunner | undefined;
@@ -181,52 +196,84 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
+  private handleInvalidLabels(status: LabelFiltersStatus) {
+    if (status.isValid) {
+      return status;
+    }
+
+    if (status.reason === LabelFiltersInvalidReason.Empty) {
+      if (!this.state.embedded) {
+        this.redirectToStart();
+      }
+    }
+
+    if (status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved) {
+      // If we have a new label let's update the slugs in the url
+      if (status.newPrimaryLabel) {
+        let { breakdownLabel } = getRouteParams(this);
+        this.handlePrimaryLabelChange(status.newPrimaryLabel, breakdownLabel);
+      }
+      // Otherwise we don't have any labels, redirect back to start
+      else if (!this.state.embedded) {
+        this.redirectToStart();
+      }
+    }
+
+    return status;
+  }
+
+  /**
+   * Returns the correctness of the current label filters, and newPrimaryLabel if it's possible to switch over to a new primary label
+   */
+  public getLabelFiltersStatus(newFilters: AdHocFilterWithLabels[]): LabelFiltersStatus {
+    const labelsVariable = getLabelsVariable(this);
+
+    // check if we have any labels at all
+    if (labelsVariable.state.filters.length === 0) {
+      return { isValid: false, reason: LabelFiltersInvalidReason.Empty };
+    }
+    // check if we have any inclusive labels at all
+    else {
+      // If we remove the service name filter, we should redirect to the start
+      let { labelName, labelValue } = getRouteParams(this);
+
+      // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
+      if (labelName === SERVICE_UI_LABEL) {
+        labelName = SERVICE_NAME;
+      }
+
+      // The "primary" label used in the URL is no longer active, pick a new one
+      if (
+        !newFilters.some(
+          (f) =>
+            f.key === labelName && isOperatorInclusive(f.operator) && replaceSlash(f.value) === replaceSlash(labelValue)
+        )
+      ) {
+        const newPrimaryLabel = newFilters.find(
+          (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
+        );
+
+        if (newPrimaryLabel) {
+          return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved, newPrimaryLabel };
+        } else {
+          return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved };
+        }
+      }
+    }
+
+    return { isValid: true };
+  }
+
   private setSubscribeToLabelsVariable() {
     const labelsVariable = getLabelsVariable(this);
-    if (labelsVariable.state.filters.length === 0) {
-      this.redirectToStart();
-      return;
-    }
+    this.handleInvalidLabels(this.getLabelFiltersStatus(labelsVariable.state.filters));
 
     this._subs.add(
       labelsVariable.subscribeToState((newState, prevState) => {
-        // If there are no label filters, the logQL query is not valid, redirect back to start so the user can select an initial label/value pair.
-        if (newState.filters.length === 0) {
-          this.redirectToStart();
-        }
+        const { isValid } = this.handleInvalidLabels(this.getLabelFiltersStatus(newState.filters));
 
-        // If we remove the service name filter, we should redirect to the start
-        let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
-
-        // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
-        if (labelName === SERVICE_UI_LABEL) {
-          labelName = SERVICE_NAME;
-        }
-
-        // The "primary" label used in the URL is no longer active, pick a new one
-        if (
-          !newState.filters.some(
-            (f) =>
-              f.key === labelName &&
-              isOperatorInclusive(f.operator) &&
-              replaceSlash(f.value) === replaceSlash(labelValue)
-          )
-        ) {
-          const newPrimaryLabel = newState.filters.find(
-            (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
-          );
-
-          // If we have a new label let's update the slugs in the url
-          if (newPrimaryLabel) {
-            this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
-
-            // Otherwise we don't have any labels, redirect back to start
-          } else {
-            this.redirectToStart();
-          }
-
-          // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
-        } else if (!areArraysEqual(newState.filters, prevState.filters)) {
+        // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
+        if (isValid && !areArraysEqual(newState.filters, prevState.filters)) {
           this.state.$patternsData?.runQueries();
           this.state.$detectedLabelsData?.runQueries();
           this.state.$detectedFieldsData?.runQueries();
