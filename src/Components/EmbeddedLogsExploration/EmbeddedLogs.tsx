@@ -35,7 +35,7 @@ export function buildLogsExplorationFromState({
   initRuntimeDs();
 
   const { labelFilters, lineFilters } = getMatcherFromQuery(query);
-  const referenceFilters = getMatcherFromQuery(referenceQuery || '');
+  const referenceFilters = getMatcherFromQuery(referenceQuery ?? '');
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
     key: filter.key,
@@ -83,7 +83,7 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
       scene={exploration}
       updateUrlOnInit={false}
       createBrowserHistorySteps={true}
-      namespace={props.namespace || VARIABLE_NAMESPACE}
+      namespace={props.namespace ?? VARIABLE_NAMESPACE}
       excludeFromNamespace={['from', 'to', 'timezone', drilldownLabelUrlKey, pageSlugUrlKey]}
     >
       <exploration.Component model={exploration} />
