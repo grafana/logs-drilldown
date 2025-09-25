@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
@@ -21,7 +23,7 @@ import {
   VariableDependencyConfig,
 } from '@grafana/scenes';
 import { LogsSortOrder, VariableHide } from '@grafana/schema';
-import { LoadingPlaceholder } from '@grafana/ui';
+import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
@@ -52,6 +54,7 @@ import {
 import { JsonData } from '../AppConfig/AppConfig';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
@@ -101,6 +104,8 @@ export interface ServiceSceneCustomState {
   totalLogsCount?: number;
 }
 
+type ServiceQueryLabelsValidity = 'invalid_empty' | 'invalid_no_primary_label' | 'valid';
+
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
   $data: SceneDataProvider | undefined;
   $detectedFieldsData: SceneQueryRunner | undefined;
@@ -109,6 +114,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $patternsData?: SceneQueryRunner | undefined;
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
+  labelsValidity?: ServiceQueryLabelsValidity;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
 }
@@ -168,6 +174,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       $logsCount: getLogCountQueryRunner(),
       $patternsData: getPatternsQueryRunner(),
       body: state.body ?? buildGraphScene(),
+      labelsValidity: 'valid',
       loading: true,
       loadingStates: {
         [TabNames.patterns]: false,
@@ -184,53 +191,69 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private setSubscribeToLabelsVariable() {
     const labelsVariable = getLabelsVariable(this);
     if (labelsVariable.state.filters.length === 0) {
-      this.redirectToStart();
-      return;
+      this.setState({
+        labelsValidity: 'invalid_empty',
+      });
+
+      if (!this.state.embedded) {
+        this.redirectToStart();
+        return;
+      }
     }
 
     this._subs.add(
       labelsVariable.subscribeToState((newState, prevState) => {
+        let labelsValidity: ServiceQueryLabelsValidity = 'valid';
+
         // If there are no label filters, the logQL query is not valid, redirect back to start so the user can select an initial label/value pair.
         if (newState.filters.length === 0) {
-          this.redirectToStart();
-        }
+          labelsValidity = 'invalid_empty';
+        } else {
+          // If we remove the service name filter, we should redirect to the start
+          let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
 
-        // If we remove the service name filter, we should redirect to the start
-        let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
-
-        // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
-        if (labelName === SERVICE_UI_LABEL) {
-          labelName = SERVICE_NAME;
-        }
-
-        // The "primary" label used in the URL is no longer active, pick a new one
-        if (
-          !newState.filters.some(
-            (f) =>
-              f.key === labelName &&
-              isOperatorInclusive(f.operator) &&
-              replaceSlash(f.value) === replaceSlash(labelValue)
-          )
-        ) {
-          const newPrimaryLabel = newState.filters.find(
-            (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
-          );
-
-          // If we have a new label let's update the slugs in the url
-          if (newPrimaryLabel) {
-            this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
-
-            // Otherwise we don't have any labels, redirect back to start
-          } else {
-            this.redirectToStart();
+          // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
+          if (labelName === SERVICE_UI_LABEL) {
+            labelName = SERVICE_NAME;
           }
 
-          // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
-        } else if (!areArraysEqual(newState.filters, prevState.filters)) {
-          this.state.$patternsData?.runQueries();
-          this.state.$detectedLabelsData?.runQueries();
-          this.state.$detectedFieldsData?.runQueries();
-          this.state.$logsCount?.runQueries();
+          // The "primary" label used in the URL is no longer active, pick a new one
+          if (
+            !newState.filters.some(
+              (f) =>
+                f.key === labelName &&
+                isOperatorInclusive(f.operator) &&
+                replaceSlash(f.value) === replaceSlash(labelValue)
+            )
+          ) {
+            const newPrimaryLabel = newState.filters.find(
+              (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
+            );
+
+            // If we have a new label let's update the slugs in the url
+            if (newPrimaryLabel) {
+              this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
+
+              // Otherwise we don't have any labels, redirect back to start
+            } else {
+              labelsValidity = 'invalid_no_primary_label';
+            }
+
+            // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
+          } else if (!areArraysEqual(newState.filters, prevState.filters)) {
+            this.state.$patternsData?.runQueries();
+            this.state.$detectedLabelsData?.runQueries();
+            this.state.$detectedFieldsData?.runQueries();
+            this.state.$logsCount?.runQueries();
+          }
+        }
+
+        this.setState({
+          labelsValidity: labelsValidity,
+        });
+
+        if (labelsValidity !== 'valid' && !this.state.embedded) {
+          this.redirectToStart();
         }
       })
     );
@@ -760,7 +783,23 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body } = model.useState();
+    const { body, labelsValidity } = model.useState();
+    const indexScene = sceneGraph.getAncestor(model, IndexScene);
+
+    if (labelsValidity !== 'valid') {
+      return (
+        <Alert title="Invalid labels selected" severity="info">
+          <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
+            {labelsValidity === 'invalid_no_primary_label' && (
+              <p>You need at least one label with inclusive matching.</p>
+            )}
+            {labelsValidity === 'invalid_empty' && <p>Please select at least one label to see logs breakdown.</p>}
+            <ResetFiltersButton indexScene={indexScene} />
+          </div>
+        </Alert>
+      );
+    }
+
     if (body) {
       return <body.Component model={body} />;
     }

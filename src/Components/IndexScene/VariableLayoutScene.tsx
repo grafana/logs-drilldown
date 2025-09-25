@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Button, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import {
   getCollapsibleFiltersState,
@@ -25,6 +25,7 @@ import {
   LayoutScene,
 } from './LayoutScene';
 import { PatternControls } from './PatternControls';
+import { ResetFiltersButton } from './ResetFiltersButton';
 import { PageSlugs } from 'services/enums';
 import { getDrilldownSlug } from 'services/routing';
 
@@ -72,7 +73,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns, currentFiltersMatchReference } = indexScene.useState();
+    const { controls, patterns } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
@@ -99,16 +100,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                     ) : null;
                   })}
                 </div>
-                {!currentFiltersMatchReference && (
-                  <Button
-                    icon="repeat"
-                    variant="secondary"
-                    onClick={() => indexScene.resetToReferenceQuery()}
-                    tooltip="Reset filters to initial values."
-                  >
-                    Reset
-                  </Button>
-                )}
+                <ResetFiltersButton indexScene={indexScene} />
               </div>
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
