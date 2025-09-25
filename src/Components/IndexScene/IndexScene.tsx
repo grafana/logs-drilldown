@@ -306,8 +306,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   }
 
   public currentFiltersMatchReference() {
+    const referenceLabelsDefined = this.state.referenceLabels && this.state.referenceLabels.length > 0;
     return (
-      !this.state.referenceLabels ||
+      !referenceLabelsDefined ||
       areLabelFiltersEqual(this.state.referenceLabels || [], getLabelsVariable(this).state.filters)
     );
   }
