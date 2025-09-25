@@ -218,6 +218,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       parent.setState({ displayedFields });
       setDisplayedFields(this, displayedFields);
 
+      // Remove displayed fields from url columns
+      parent.setState({
+        urlColumns: parent.state.urlColumns?.filter((urlColumn) => urlColumn !== field) || [],
+      });
+
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.logs_toggle_displayed_field
