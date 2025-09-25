@@ -35,7 +35,7 @@ export function buildLogsExplorationFromState({
   initRuntimeDs();
 
   const { labelFilters, lineFilters } = getMatcherFromQuery(query);
-  const referenceFilters = getMatcherFromQuery(referenceQuery || '');
+  const referenceFilters = getMatcherFromQuery(referenceQuery ?? '');
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
     key: filter.key,
