@@ -239,17 +239,32 @@ test.describe('embed', () => {
     await expect(page.getByTestId(testIds.index.addNewLabelTab)).toHaveCount(1);
   });
 
-  test('can add label and refresh page without losing readonly', async ({ page }) => {
+  test('can reset to reference query after clearing all filters', async ({ page }) => {
     async function assertFiltersAreReadOnly() {
       await expect(page.getByLabel('Edit filter with key service_name')).toHaveCount(1);
       await expect(page.getByLabel('Edit filter with key cluster')).toHaveCount(1);
-      await expect(page.getByLabel('Remove filter with key service_name')).toHaveCount(0);
+      await expect(page.getByLabel('Remove filter with key service_name')).toHaveCount(1);
       await expect(page.getByLabel('Remove filter with key cluster')).toHaveCount(1);
     }
 
     await explorePage.addCustomValueToCombobox(labelName, FilterOp.RegexEqual, ComboBoxIndex.labels, `us-.+`);
     await assertFiltersAreReadOnly();
     await page.reload();
+    await assertFiltersAreReadOnly();
+
+    // Remove all filters
+    await page.getByLabel('Remove filter with key service_name').click();
+    await page.getByLabel('Remove filter with key cluster').click();
+    await expect(page.getByText('Please select at least one label to see logs breakdown.')).toHaveCount(1);
+    await page.getByText('Reset').first().click();
+    await explorePage.addCustomValueToCombobox(
+      labelName,
+      FilterOp.RegexEqual,
+      ComboBoxIndex.labels,
+      `us-.+`,
+      undefined,
+      true
+    );
     await assertFiltersAreReadOnly();
   });
 });
