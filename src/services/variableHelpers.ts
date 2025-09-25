@@ -1,10 +1,9 @@
-import { differenceWith } from 'lodash';
-
 import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { areArraysEqual } from './comparison';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
 import { isOperatorInclusive } from './operatorHelpers';
@@ -109,14 +108,7 @@ export function getPrimaryLabelFromEmbeddedScene(scene: ServiceScene, variable =
 }
 
 export function areLabelFiltersEqual(a: AdHocVariableFilter[], b: AdHocVariableFilter[]) {
-  a = [...a];
-  b = [...b];
-
-  a.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
-  b.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value));
-
-  return (
-    differenceWith(a, b, (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value).length === 0 &&
-    differenceWith(b, a, (a, b) => a.key === b.key && a.operator === b.operator && a.value === b.value).length === 0
-  );
+  // use only a subset of properties for comparison as more properties may be added in to filters comparing to reference labels
+  const mapAdHocFilters = (a: AdHocVariableFilter) => ({ key: a.key, operator: a.operator, value: a.value });
+  return areArraysEqual(a.map(mapAdHocFilters), b.map(mapAdHocFilters));
 }
