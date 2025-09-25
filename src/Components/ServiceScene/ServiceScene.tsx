@@ -104,7 +104,20 @@ export interface ServiceSceneCustomState {
   totalLogsCount?: number;
 }
 
-type ServiceQueryLabelsValidity = 'invalid_empty' | 'invalid_no_primary_label' | 'valid';
+enum LabelFiltersInvalidReason {
+  Empty = 'empty',
+  PrimaryLabelRemoved = 'primary_label_removed',
+}
+
+type LabelFiltersStatus =
+  | {
+      isValid: true;
+    }
+  | {
+      isValid: false;
+      newPrimaryLabel?: AdHocFilterWithLabels<{}>;
+      reason: LabelFiltersInvalidReason;
+    };
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
   $data: SceneDataProvider | undefined;
@@ -114,7 +127,6 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $patternsData?: SceneQueryRunner | undefined;
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
-  labelsValidity?: ServiceQueryLabelsValidity;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
 }
@@ -174,7 +186,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       $logsCount: getLogCountQueryRunner(),
       $patternsData: getPatternsQueryRunner(),
       body: state.body ?? buildGraphScene(),
-      labelsValidity: 'valid',
       loading: true,
       loadingStates: {
         [TabNames.patterns]: false,
@@ -188,72 +199,87 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  private setSubscribeToLabelsVariable() {
-    const labelsVariable = getLabelsVariable(this);
-    if (labelsVariable.state.filters.length === 0) {
-      this.setState({
-        labelsValidity: 'invalid_empty',
-      });
+  private handleInvalidLabels(status: LabelFiltersStatus) {
+    if (status.isValid) {
+      return status;
+    }
 
+    if (status.reason === LabelFiltersInvalidReason.Empty) {
       if (!this.state.embedded) {
         this.redirectToStart();
-        return;
       }
     }
 
+    if (status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved) {
+      // If we have a new label let's update the slugs in the url
+      if (status.newPrimaryLabel) {
+        let { breakdownLabel } = getRouteParams(this);
+        this.handlePrimaryLabelChange(status.newPrimaryLabel, breakdownLabel);
+      }
+      // Otherwise we don't have any labels, redirect back to start
+      else if (!this.state.embedded) {
+        this.redirectToStart();
+      }
+    }
+
+    return status;
+  }
+
+  /**
+   * Returns the correctness of the current label filters, and newPrimaryLabel if it's possible to switch over to a new primary label
+   */
+  public getLabelFiltersStatus(newFilters: AdHocFilterWithLabels[]): LabelFiltersStatus {
+    const labelsVariable = getLabelsVariable(this);
+
+    // check if we have any labels at all
+    if (labelsVariable.state.filters.length === 0) {
+      return { isValid: false, reason: LabelFiltersInvalidReason.Empty };
+    }
+    // check if we have any inclusive labels at all
+    else {
+      // If we remove the service name filter, we should redirect to the start
+      let { labelName, labelValue } = getRouteParams(this);
+
+      // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
+      if (labelName === SERVICE_UI_LABEL) {
+        labelName = SERVICE_NAME;
+      }
+
+      // The "primary" label used in the URL is no longer active, pick a new one
+      if (
+        !newFilters.some(
+          (f) =>
+            f.key === labelName && isOperatorInclusive(f.operator) && replaceSlash(f.value) === replaceSlash(labelValue)
+        )
+      ) {
+        const newPrimaryLabel = newFilters.find(
+          (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
+        );
+
+        if (newPrimaryLabel) {
+          return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved, newPrimaryLabel };
+        } else {
+          return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved };
+        }
+      }
+    }
+
+    return { isValid: true };
+  }
+
+  private setSubscribeToLabelsVariable() {
+    const labelsVariable = getLabelsVariable(this);
+    this.handleInvalidLabels(this.getLabelFiltersStatus(labelsVariable.state.filters));
+
     this._subs.add(
       labelsVariable.subscribeToState((newState, prevState) => {
-        let labelsValidity: ServiceQueryLabelsValidity = 'valid';
+        const { isValid } = this.handleInvalidLabels(this.getLabelFiltersStatus(newState.filters));
 
-        // If there are no label filters, the logQL query is not valid, redirect back to start so the user can select an initial label/value pair.
-        if (newState.filters.length === 0) {
-          labelsValidity = 'invalid_empty';
-        } else {
-          // If we remove the service name filter, we should redirect to the start
-          let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
-
-          // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
-          if (labelName === SERVICE_UI_LABEL) {
-            labelName = SERVICE_NAME;
-          }
-
-          // The "primary" label used in the URL is no longer active, pick a new one
-          if (
-            !newState.filters.some(
-              (f) =>
-                f.key === labelName &&
-                isOperatorInclusive(f.operator) &&
-                replaceSlash(f.value) === replaceSlash(labelValue)
-            )
-          ) {
-            const newPrimaryLabel = newState.filters.find(
-              (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
-            );
-
-            // If we have a new label let's update the slugs in the url
-            if (newPrimaryLabel) {
-              this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
-
-              // Otherwise we don't have any labels, redirect back to start
-            } else {
-              labelsValidity = 'invalid_no_primary_label';
-            }
-
-            // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
-          } else if (!areArraysEqual(newState.filters, prevState.filters)) {
-            this.state.$patternsData?.runQueries();
-            this.state.$detectedLabelsData?.runQueries();
-            this.state.$detectedFieldsData?.runQueries();
-            this.state.$logsCount?.runQueries();
-          }
-        }
-
-        this.setState({
-          labelsValidity: labelsValidity,
-        });
-
-        if (labelsValidity !== 'valid' && !this.state.embedded) {
-          this.redirectToStart();
+        if (isValid && !areArraysEqual(newState.filters, prevState.filters)) {
+          this.state.$patternsData?.runQueries();
+          this.state.$detectedLabelsData?.runQueries();
+          this.state.$detectedFieldsData?.runQueries();
+          this.state.$logsCount?.runQueries();
         }
       })
     );
@@ -783,17 +809,22 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body, labelsValidity } = model.useState();
+    const { body } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
-    if (labelsValidity !== 'valid') {
+    const { filters } = getLabelsVariable(model).useState();
+    const status = model.getLabelFiltersStatus(filters);
+
+    if (!status.isValid) {
       return (
         <Alert title="Invalid labels selected" severity="info">
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
-            {labelsValidity === 'invalid_no_primary_label' && (
+            {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
               <p>You need at least one label with inclusive matching.</p>
             )}
-            {labelsValidity === 'invalid_empty' && <p>Please select at least one label to see logs breakdown.</p>}
+            {status.reason === LabelFiltersInvalidReason.Empty && (
+              <p>Please select at least one label to see logs breakdown.</p>
+            )}
             <ResetFiltersButton indexScene={indexScene} />
           </div>
         </Alert>
