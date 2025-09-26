@@ -823,7 +823,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
               <p>You need at least one label with inclusive matching.</p>
             )}
             {status.reason === LabelFiltersInvalidReason.Empty && (
-              <p>Please select at least one label to see logs breakdown.</p>
+              <p>Please select at least one label to see the logs breakdown.</p>
             )}
             <ResetFiltersButton indexScene={indexScene} />
           </div>
