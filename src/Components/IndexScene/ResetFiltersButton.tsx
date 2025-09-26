@@ -17,7 +17,7 @@ export function ResetFiltersButton({ indexScene }: Props) {
         icon="repeat"
         variant="secondary"
         onClick={() => indexScene.resetToReferenceQuery()}
-        tooltip="Reset filters to initial values."
+        tooltip="Reset label filters to initial values."
       >
         Reset
       </Button>
