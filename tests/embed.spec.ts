@@ -255,7 +255,7 @@ test.describe('embed', () => {
     // Remove all filters
     await page.getByLabel('Remove filter with key service_name').click();
     await page.getByLabel('Remove filter with key cluster').click();
-    await expect(page.getByText('Please select at least one label to see logs breakdown.')).toHaveCount(1);
+    await expect(page.getByText('Please select at least one label to see the logs breakdown.')).toHaveCount(1);
     await page.getByText('Reset').first().click();
     await explorePage.addCustomValueToCombobox(
       labelName,
