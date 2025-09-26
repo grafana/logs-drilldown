@@ -817,7 +817,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     if (!status.isValid) {
       return (
-        <Alert title="Invalid labels selected" severity="info">
+        <Alert title={status.reason === LabelFiltersInvalidReason.Empty ? "No labels selected" : "Invalid labels selected"} severity="info">
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
             {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
               <p>You need at least one label with inclusive matching.</p>
