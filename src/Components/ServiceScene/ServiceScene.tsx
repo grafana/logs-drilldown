@@ -199,30 +199,24 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  private handleInvalidLabels(status: LabelFiltersStatus) {
-    if (status.isValid) {
-      return status;
-    }
-
-    if (status.reason === LabelFiltersInvalidReason.Empty) {
+  private handleInvalidLabels(reason: LabelFiltersInvalidReason, newPrimaryLabel?: AdHocFilterWithLabels) {
+    if (reason === LabelFiltersInvalidReason.Empty) {
       if (!this.state.embedded) {
         this.redirectToStart();
       }
     }
 
-    if (status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved) {
+    if (reason === LabelFiltersInvalidReason.PrimaryLabelRemoved) {
       // If we have a new label let's update the slugs in the url
-      if (status.newPrimaryLabel) {
+      if (newPrimaryLabel) {
         let { breakdownLabel } = getRouteParams(this);
-        this.handlePrimaryLabelChange(status.newPrimaryLabel, breakdownLabel);
+        this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
       }
       // Otherwise we don't have any labels, redirect back to start
       else if (!this.state.embedded) {
         this.redirectToStart();
       }
     }
-
-    return status;
   }
 
   /**
@@ -269,13 +263,19 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private setSubscribeToLabelsVariable() {
     const labelsVariable = getLabelsVariable(this);
-    this.handleInvalidLabels(this.getLabelFiltersStatus(labelsVariable.state.filters));
+    const status = this.getLabelFiltersStatus(labelsVariable.state.filters);
+    if (!status.isValid) {
+      this.handleInvalidLabels(status.reason, status.newPrimaryLabel);
+    }
 
     this._subs.add(
       labelsVariable.subscribeToState((newState, prevState) => {
-        const { isValid } = this.handleInvalidLabels(this.getLabelFiltersStatus(newState.filters));
+        const status = this.getLabelFiltersStatus(newState.filters);
+        if (!status.isValid) {
+          this.handleInvalidLabels(status.reason, status.newPrimaryLabel);
+        }
 
-        if (isValid && !areArraysEqual(newState.filters, prevState.filters)) {
+        if (status.isValid && !areArraysEqual(newState.filters, prevState.filters)) {
           this.state.$patternsData?.runQueries();
           this.state.$detectedLabelsData?.runQueries();
           this.state.$detectedFieldsData?.runQueries();
@@ -817,7 +817,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     if (!status.isValid) {
       return (
-        <Alert title={status.reason === LabelFiltersInvalidReason.Empty ? "No labels selected" : "Invalid labels selected"} severity="info">
+        <Alert
+          title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
+          severity="info"
+        >
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
             {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
               <p>You need at least one label with inclusive matching.</p>
