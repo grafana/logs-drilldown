@@ -1,38 +1,24 @@
+import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
+import { areArraysEqual } from './comparison';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
 import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
-import { ReadOnlyAdHocFiltersVariable } from './ReadOnlyAdHocFiltersVariable';
 import { getRouteParams } from './routing';
 import { getLabelsVariable } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
 
-type ClearableVariable = AdHocFiltersVariable | CustomConstantVariable | ReadOnlyAdHocFiltersVariable;
+type ClearableVariable = AdHocFiltersVariable | CustomConstantVariable;
 export function getVariablesThatCanBeCleared(indexScene: IndexScene): ClearableVariable[] {
   const variables = sceneGraph.getVariables(indexScene);
   let variablesToClear: ClearableVariable[] = [];
 
   for (const variable of variables.state.variables) {
-    if (variable instanceof ReadOnlyAdHocFiltersVariable) {
-      if (
-        !variable.state.filters.every((filter) =>
-          variable
-            .getReadonlyFilters()
-            ?.find(
-              (readonlyFilter) =>
-                readonlyFilter.key === filter.key &&
-                readonlyFilter.value === filter.value &&
-                readonlyFilter.operator === filter.operator
-            )
-        )
-      ) {
-        variablesToClear.push(variable);
-      }
-    } else if (variable instanceof AdHocFiltersVariable && variable.state.filters.length) {
+    if (variable instanceof AdHocFiltersVariable && variable.state.filters.length) {
       variablesToClear.push(variable);
     }
     if (variable instanceof CustomConstantVariable && variable.state.value && variable.state.name !== 'logsFormat') {
@@ -52,26 +38,16 @@ export function clearVariables(sceneRef: SceneObject) {
   const variablesToClear = getVariablesThatCanBeCleared(indexScene);
 
   variablesToClear.forEach((variable) => {
-    if (variable instanceof ReadOnlyAdHocFiltersVariable) {
+    if (variable instanceof AdHocFiltersVariable) {
       let { labelName, labelValue } = getRouteParams(sceneRef);
       // labelName is the label that exists in the URL, which is "service" not "service_name"
       if (labelName === SERVICE_UI_LABEL) {
         labelName = SERVICE_NAME;
       }
-      const readonlyFilters = variable.getReadonlyFilters();
-      const readonlyFiltersSet = new Set<string>();
-      addFiltersToSet(readonlyFilters ?? [], readonlyFiltersSet);
       const filters = variable.state.filters.filter((filter) => {
-        return (
-          (filter.key === labelName && isOperatorInclusive(filter.operator) && filter.value === labelValue) ||
-          readonlyFiltersSet.has(getFilterSetKey(filter))
-        );
+        return filter.key === labelName && isOperatorInclusive(filter.operator) && filter.value === labelValue;
       });
       variable.setState({ filters });
-    } else if (variable instanceof AdHocFiltersVariable) {
-      variable.setState({
-        filters: [],
-      });
     } else if (variable instanceof CustomConstantVariable) {
       variable.setState({
         text: '',
@@ -129,4 +105,10 @@ export function getPrimaryLabelFromEmbeddedScene(scene: ServiceScene, variable =
     labelName: variable.state.filters[0].key,
     labelValue: variable.state.filters[0].value,
   };
+}
+
+export function areLabelFiltersEqual(a: AdHocVariableFilter[], b: AdHocVariableFilter[]) {
+  // use only a subset of properties for comparison as more properties may be added in to filters comparing to reference labels
+  const mapAdHocFilters = (a: AdHocVariableFilter) => ({ key: a.key, operator: a.operator, value: a.value });
+  return areArraysEqual(a.map(mapAdHocFilters), b.map(mapAdHocFilters));
 }

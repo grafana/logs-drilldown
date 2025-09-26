@@ -40,7 +40,6 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
-import { ReadOnlyAdHocFiltersVariable } from '../../services/ReadOnlyAdHocFiltersVariable';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -56,7 +55,7 @@ import {
   getPatternsVariable,
   getUrlParamNameForVariable,
 } from '../../services/variableGetters';
-import { operatorFunction } from '../../services/variableHelpers';
+import { areLabelFiltersEqual, operatorFunction } from '../../services/variableHelpers';
 import { JsonData } from '../AppConfig/AppConfig';
 import { NoLokiSplash } from '../NoLokiSplash';
 import { DEFAULT_TIME_RANGE } from '../Pages';
@@ -139,9 +138,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
-      state?.readOnlyLabelFilters,
+      state?.initialLabels,
       state.embedded,
-      state.embedderName,
       state.defaultLineFilters
     );
     const controls: SceneObject[] = [
@@ -287,6 +285,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataService().setEmbedded(this.state.embedded);
     }
 
+    this.setState({ currentFiltersMatchReference: this.currentFiltersMatchReference() });
+    this._subs.add(
+      getLabelsVariable(this).subscribeToState(async () => {
+        this.setState({ currentFiltersMatchReference: this.currentFiltersMatchReference() });
+      })
+    );
+
     this._subs.add(
       isAssistantAvailable().subscribe((isAvailable) => {
         if (isAvailable && !this.assistantInitialized) {
@@ -298,6 +303,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
     };
+  }
+
+  public currentFiltersMatchReference() {
+    const referenceLabelsDefined = this.state.referenceLabels && this.state.referenceLabels.length > 0;
+    return (
+      !referenceLabelsDefined ||
+      areLabelFiltersEqual(this.state.referenceLabels || [], getLabelsVariable(this).state.filters)
+    );
   }
 
   public getContentScene() {
@@ -617,6 +630,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this.setState(stateUpdate);
   }
+
+  resetToReferenceQuery() {
+    getLabelsVariable(this).setState({ filters: this.state.referenceLabels || [] });
+  }
 }
 
 function getContentScene(drillDownLabel?: string) {
@@ -632,12 +649,11 @@ function getContentScene(drillDownLabel?: string) {
 
 function getVariableSet(
   initialDatasourceUid: string,
-  readOnlyLabelFilters?: AdHocVariableFilter[],
+  initialLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  embedderName?: string,
   defaultLineFilters?: LineFilterType[]
 ) {
-  const labelVariable = new ReadOnlyAdHocFiltersVariable({
+  const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
     expressionBuilder: renderLogQLLabelFilters,
@@ -647,7 +663,7 @@ function getVariableSet(
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
-    readonlyFilters: (readOnlyLabelFilters ?? []).map((f) => ({ ...f, origin: embedderName, readOnly: true })),
+    filters: initialLabelFilters ?? [],
   });
 
   labelVariable._getOperators = function () {

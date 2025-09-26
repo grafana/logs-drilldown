@@ -101,6 +101,7 @@ function getEmbeddedScene() {
     embedderName: 'EmbeddedLogs',
     query,
     timeRangeState: $timeRange.state,
+    referenceQuery: query,
   };
 
   return new EmbeddedScene({

@@ -12,11 +12,13 @@ export interface IndexSceneState extends SceneObjectState {
   // contentScene is the scene that is displayed in the main body of the index scene - it can be either the service selection or service scene
   contentScene?: SceneObject;
   controls?: SceneObject[];
+  currentFiltersMatchReference?: boolean;
   defaultLineFilters?: LineFilterType[];
   ds?: LokiDatasource;
   embedded?: boolean;
   embedderName?: string;
+  initialLabels?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
-  readOnlyLabelFilters?: AdHocVariableFilter[];
+  referenceLabels?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
 }
