@@ -2,8 +2,8 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { LoadingState, PanelData } from '@grafana/data';
 import { openAssistant } from '@grafana/assistant';
+import { LoadingState, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
@@ -33,8 +33,8 @@ import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
-import { isEmptyLogsResult } from 'services/logsFrame';
 import { buildAssistantContext } from 'services/assistant';
+import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getBooleanLogOption,
   getDisplayedFields,
@@ -265,7 +265,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
   }
 
-  showLogsError({ message, isEmptyResult }: { message: string; isEmptyResult: boolean }) {
+  showLogsError({ message, isEmptyResult }: { isEmptyResult: boolean; message: string }) {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const clearableVariables = getVariablesThatCanBeCleared(indexScene);
@@ -297,7 +297,12 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
 
     this.whereAreMyLogsHandler = undefined;
-    this.setState({ error: undefined, isEmptyResult: undefined, logsVolumeCollapsedByError: undefined, onWhereAreMyLogs: null });
+    this.setState({
+      error: undefined,
+      isEmptyResult: undefined,
+      logsVolumeCollapsedByError: undefined,
+      onWhereAreMyLogs: null,
+    });
 
     // Recreate the panel with the cleared error state
     this.updateLogsPanel();
