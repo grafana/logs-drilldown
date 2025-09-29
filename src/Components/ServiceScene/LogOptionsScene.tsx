@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { GrafanaTheme2, LogsSortOrder, shallowCompare } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, InlineField, RadioButtonGroup, Tooltip, useStyles2 } from '@grafana/ui';
@@ -67,14 +68,16 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const { onChangeVisualizationType, visualizationType } = model.useState();
   const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
-  const { displayedFields } = model.getLogsListScene().useState();
+  const { displayedFields, defaultDisplayedFields } = model.getLogsListScene().useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
 
+  const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
+
   return (
     <div className={styles.container}>
-      {displayedFields.length > 0 && (
-        <Tooltip content={`Clear displayed fields: ${displayedFields.join(', ')}`}>
+      {displayedFields.length > 0 && shallowCompare(displayedFields, defaultDisplayedFields) === false && (
+        <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line
           </Button>
@@ -160,3 +163,15 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(1),
   }),
 });
+
+export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME = '___OTEL_LOG_ATTRIBUTES___';
+export const LOG_LINE_BODY_FIELD_NAME = '___LOG_LINE_BODY___';
+
+export function getNormalizedFieldName(field: string) {
+  if (field === LOG_LINE_BODY_FIELD_NAME) {
+    return t('logs.logs-drilldown.fields.log-line-field', 'Log line');
+  } else if (field === OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME) {
+    return t('logs.logs-drilldown.fields.log-attributes-field', 'Log attributes');
+  }
+  return field;
+}
