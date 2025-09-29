@@ -47,6 +47,7 @@ export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
   canClearFilters?: boolean;
   controlsExpanded: boolean;
+  defaultDisplayedFields: string[];
   displayedFields: string[];
   error?: string;
   errorType?: ErrorType;
@@ -71,6 +72,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: [],
+      defaultDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
       // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
       controlsExpanded: getBooleanLogOption('controlsExpanded', false),

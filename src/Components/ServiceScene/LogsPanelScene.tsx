@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react';
 
-import { DataFrame, getValueFormat, LogRowModel } from '@grafana/data';
+import { DataFrame, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -183,8 +183,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: fields,
     });
-    setDisplayedFields(this, fields);
     const parent = this.getParentScene();
+    if (!fields.length || shallowCompare(fields, parent.state.defaultDisplayedFields) === false) {
+      setDisplayedFields(this, fields);
+    }
     parent.setState({ displayedFields: fields });
   };
 
@@ -324,7 +326,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     return panel.build();
   };
 
-  private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {
+  private handleLogOptionsChange = (
+    option: keyof Options | 'defaultDisplayedFields',
+    value: string | string[] | boolean
+  ) => {
     if (option === 'sortOrder' && isLogsSortOrder(value)) {
       this.setState({ sortOrder: value });
       this.setLogsVizOption({ sortOrder: value });
@@ -338,6 +343,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       setDedupStrategy(this, value);
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
+    } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
+      const parent = this.getParentScene();
+      parent.setState({ defaultDisplayedFields: value });
     }
   };
 
