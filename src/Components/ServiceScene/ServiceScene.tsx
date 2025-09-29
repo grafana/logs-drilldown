@@ -808,43 +808,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
-  public getIndexScene() {
-    try {
-      return sceneGraph.getAncestor(this, IndexScene);
-    } catch (e) {
-      return sceneGraph.findDescendents(this, IndexScene)[0];
-    }
-  }
-
-  private handleServiceSceneUrlSync(values: SceneObjectUrlValues) {
-    const stateUpdate: Partial<ServiceSceneState> = {};
-
-    // pageSlug and drillDownLabel url params are only used when embedded
-    if (!this.state.embedded) {
-      return;
-    }
-
-    if (values && typeof values.pageSlug === 'string' && values.pageSlug !== this.state.pageSlug) {
-      const pageSlug = narrowPageOrValueSlug(values.pageSlug);
-      if (pageSlug) {
-        stateUpdate.pageSlug = pageSlug;
-      }
-    }
-
-    if (
-      (values && typeof values.drillDownLabel === 'string') ||
-      (values.drillDownLabel === null && values.drillDownLabel !== this.state.drillDownLabel)
-    ) {
-      stateUpdate.drillDownLabel = values.drillDownLabel ?? undefined;
-    }
-
-    if (Object.keys(stateUpdate).length) {
-      this.setState(stateUpdate);
-      // Need to manually re-render content scene when updated
-      this.updateContentScene();
-    }
-  }
-
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
     const { body } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
