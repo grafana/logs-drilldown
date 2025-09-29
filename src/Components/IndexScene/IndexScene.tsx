@@ -203,6 +203,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       $variables: state.$variables ?? variablesScene,
       controls: state.controls ?? controls,
       embedded: state.embedded ?? false,
+      embedderName: state.embedderName,
+      isAssistantAvailable: false,
       // Need to clear patterns state when the class in constructed
       patterns: [],
       ...state,
@@ -294,6 +296,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this._subs.add(
       isAssistantAvailable().subscribe((isAvailable) => {
+        this.setState({ isAssistantAvailable: isAvailable });
         if (isAvailable && !this.assistantInitialized) {
           this.provideAssistantContext();
         }

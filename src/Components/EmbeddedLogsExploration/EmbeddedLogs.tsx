@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
@@ -11,6 +11,7 @@ import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
 
 export function buildLogsExplorationFromState({
+  embedderName,
   onTimeRangeChange,
   query,
   referenceQuery,
@@ -57,6 +58,7 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
+    embedderName,
     initialLabels,
     referenceLabels,
   });
@@ -72,7 +74,13 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
       initializeMetadataService(true);
       setExploration(buildLogsExplorationFromState(props));
     }
-  }, [exploration, props]);
+  }, [exploration, props.datasourceUid, props.embedderName, props.onTimeRangeChange, props.query, props.referenceQuery, props.timeRangeState.from, props.timeRangeState.to]);
+
+  useEffect(() => {
+    if (exploration) {
+      exploration.setState({ embedderName: props.embedderName });
+    }
+  }, [exploration, props.embedderName]);
 
   if (!exploration) {
     return null;

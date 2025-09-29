@@ -323,7 +323,11 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           </>
         )}
         {error && (
-          <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(model) : undefined} />
+          <LogsPanelError
+            error={error}
+            clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+            onWhereAreMyLogs={parentModel.state.onWhereAreMyLogs}
+          />
         )}
       </div>
     );

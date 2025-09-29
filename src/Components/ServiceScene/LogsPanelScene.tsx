@@ -477,7 +477,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         <span className={styles.panelWrapper}>
           {!error && <body.Component model={body} />}
           {error && (
-            <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(body) : undefined} />
+            <LogsPanelError
+              error={error}
+              clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
+              onWhereAreMyLogs={model.getParentScene().state.onWhereAreMyLogs}
+            />
           )}
         </span>
       );
