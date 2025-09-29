@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
@@ -74,7 +74,7 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
       initializeMetadataService(true);
       setExploration(buildLogsExplorationFromState(props));
     }
-  }, [exploration, props.datasourceUid, props.embedderName, props.onTimeRangeChange, props.query, props.referenceQuery, props.timeRangeState.from, props.timeRangeState.to]);
+  }, [exploration, props]);
 
   useEffect(() => {
     if (exploration) {
