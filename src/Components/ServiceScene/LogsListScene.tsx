@@ -438,7 +438,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   private getWhereAreMyLogsHandler(indexScene: IndexScene, isEmptyResult: boolean) {
     if (
-      !isEmptyResult ||
+      !this.state.isEmptyResult ||
       !indexScene.state.embedded ||
       indexScene.state.embedderName !== 'Asserts' ||
       !indexScene.state.currentFiltersMatchReference ||
