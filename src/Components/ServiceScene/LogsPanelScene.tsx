@@ -37,6 +37,7 @@ import {
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
+import { DEFAULT_URL_COLUMNS_LEVELS, DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
@@ -217,6 +218,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       parent.setState({ displayedFields });
       setDisplayedFields(this, displayedFields);
 
+      // Remove displayed fields from url columns
+      parent.setState({
+        urlColumns: parent.state.urlColumns?.filter((urlColumn) => urlColumn !== field) || [],
+      });
+
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.logs_toggle_displayed_field
@@ -242,6 +248,17 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       displayedFields: [],
     });
     setDisplayedFields(this, []);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    const urlColumns = parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
   };
 
   private getParentScene() {

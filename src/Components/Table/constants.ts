@@ -1,2 +1,4 @@
-export const LEVEL_NAME = 'detected_level';
+export const DETECTED_LEVEL = 'detected_level';
+export const LEVEL = 'level';
 export const DEFAULT_URL_COLUMNS = ['timestamp', 'body', 'Time', 'Line'];
+export const DEFAULT_URL_COLUMNS_LEVELS = ['detected_level', 'level'];
