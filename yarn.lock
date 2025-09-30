@@ -1204,10 +1204,10 @@
     tslib "2.8.1"
     typescript "5.9.2"
 
-"@grafana/eslint-config@^8.0.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@grafana/eslint-config/-/eslint-config-8.1.0.tgz#1ecc0c676f9ba5de814ae0a285b4cd9408d47d94"
-  integrity sha512-Erz/YU8XwouTmIXIxxkgaEx8xmZG13Qa0vQSkTONy/RK2uqVPl88lMsiGFyr/UlkQ1g3unxa0o4ZF67aGlLDTw==
+"@grafana/eslint-config@^8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@grafana/eslint-config/-/eslint-config-8.2.0.tgz#3334f4c763597297223f3ae8a258434a62860111"
+  integrity sha512-siCxTY3uuCg2ekztQwS8i7DBPHH8xDGiWlZAf+d/TVZVB0TluIsM2jHEhNyC2XzTZdgDLbmDJwUt5SCnHC7iAg==
 
 "@grafana/faro-core@^1.19.0":
   version "1.19.0"
@@ -1265,10 +1265,10 @@
   resolved "https://registry.yarnpkg.com/@grafana/lezer-logql/-/lezer-logql-0.2.8.tgz#08a9ddb6f4883e98f7b445378298a0a75b33c471"
   integrity sha512-GbWKZ8BdLUFyh5ZMwOo6sZXaYcOTYFkFhBLGJ5law6V78nKoLAn77aqIEBs9mJsJ34lBsApmK77FJOFqJ8fnbg==
 
-"@grafana/plugin-e2e@^2.1.9":
-  version "2.1.10"
-  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-2.1.10.tgz#a3682fad85930db41dc555f31055ab304f8c61ed"
-  integrity sha512-j8iayggOAoFWvfEqy0ZgIcQPqb1FhnfOcBPX7rPXQLNnRGWceLnHLIgKzNu3biULNEq/QbEQffVBzsL30VLuvw==
+"@grafana/plugin-e2e@^2.1.13":
+  version "2.1.13"
+  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-2.1.13.tgz#8d53fc5f09047de7f7b9b9ef170494cf3ad651b0"
+  integrity sha512-INAf0399pz+PTe3k1uuRm4V0fPa0oz5dJpXPrcktiOnvfdSKsvahUDig/iDeM6+5MfWMikNJF87Rv1gd/VhSbA==
   dependencies:
     "@grafana/e2e-selectors" "^12.2.0-255920"
     semver "^7.5.4"
