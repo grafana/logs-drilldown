@@ -11,6 +11,7 @@ import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
 
 export function buildLogsExplorationFromState({
+  embedderName,
   onTimeRangeChange,
   query,
   referenceQuery,
@@ -57,6 +58,7 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
+    embedderName,
     initialLabels,
     referenceLabels,
   });
@@ -73,6 +75,12 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
       setExploration(buildLogsExplorationFromState(props));
     }
   }, [exploration, props]);
+
+  useEffect(() => {
+    if (exploration) {
+      exploration.setState({ embedderName: props.embedderName });
+    }
+  }, [exploration, props.embedderName]);
 
   if (!exploration) {
     return null;

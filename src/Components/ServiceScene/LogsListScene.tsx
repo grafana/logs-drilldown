@@ -2,6 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
+import { openAssistant } from '@grafana/assistant';
 import { LoadingState, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
@@ -32,6 +33,7 @@ import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
+import { buildAssistantContext } from 'services/assistant';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getBooleanLogOption,
@@ -48,9 +50,11 @@ export interface LogsListSceneState extends SceneObjectState {
   controlsExpanded: boolean;
   displayedFields: string[];
   error?: string;
+  isEmptyResult?: boolean;
   lineFilter?: string;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
+  onWhereAreMyLogs?: (() => void | Promise<void>) | null;
   panel?: SceneFlexLayout;
   selectedLine?: SelectedTableRow;
   tableLogLineState?: LogLineState;
@@ -64,6 +68,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   });
 
   private logsPanelScene?: LogsPanelScene = undefined;
+  private whereAreMyLogsHandler?: () => Promise<void>;
 
   constructor(state: Partial<LogsListSceneState>) {
     super({
@@ -168,11 +173,29 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   public onActivate() {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
     this.setStateFromUrl(searchParams);
 
     if (!this.state.panel) {
       this.updateLogsPanel();
     }
+
+    this._subs.add(
+      indexScene.subscribeToState(() => {
+        if (!this.state.error || !this.state.isEmptyResult) {
+          if (this.state.onWhereAreMyLogs) {
+            this.whereAreMyLogsHandler = undefined;
+            this.setState({ onWhereAreMyLogs: null });
+          }
+          return;
+        }
+
+        const handler = this.getWhereAreMyLogsHandler(indexScene, true);
+        if (this.state.onWhereAreMyLogs !== handler) {
+          this.setState({ onWhereAreMyLogs: handler });
+        }
+      })
+    );
 
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
@@ -225,24 +248,38 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       errorMessage = 'Max entries limit per query exceeded. Please review your "Line limit" setting and try again.';
     }
 
-    this.showLogsError(errorMessage);
+    this.showLogsError({ message: errorMessage, isEmptyResult: false });
   }
 
   handleNoData() {
     if (this.state.canClearFilters) {
-      this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+      this.showLogsError({
+        isEmptyResult: true,
+        message: 'No logs match your search. Please review your filters or try a different time range.',
+      });
     } else {
-      this.showLogsError('No logs match your search. Please try a different time range.');
+      this.showLogsError({
+        isEmptyResult: true,
+        message: 'No logs match your search. Please try a different time range.',
+      });
     }
   }
 
-  showLogsError(error: string) {
+  showLogsError({ message, isEmptyResult }: { isEmptyResult: boolean; message: string }) {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const clearableVariables = getVariablesThatCanBeCleared(indexScene);
     const canClearFilters = clearableVariables.length > 0;
 
-    this.setState({ canClearFilters, error, logsVolumeCollapsedByError });
+    const onWhereAreMyLogs = this.getWhereAreMyLogsHandler(indexScene, isEmptyResult);
+
+    this.setState({
+      canClearFilters,
+      error: message,
+      isEmptyResult,
+      logsVolumeCollapsedByError,
+      onWhereAreMyLogs,
+    });
 
     // Recreate the panel with the new error state
     this.updateLogsPanel();
@@ -259,7 +296,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       logsVolume?.state.panel?.setState({ collapsed: false });
     }
 
-    this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
+    this.whereAreMyLogsHandler = undefined;
+    this.setState({
+      error: undefined,
+      isEmptyResult: undefined,
+      logsVolumeCollapsedByError: undefined,
+      onWhereAreMyLogs: null,
+    });
 
     // Recreate the panel with the cleared error state
     this.updateLogsPanel();
@@ -391,6 +434,37 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       children,
       direction: 'column',
     });
+  }
+
+  private getWhereAreMyLogsHandler(indexScene: IndexScene, isEmptyResult: boolean) {
+    if (
+      !this.state.isEmptyResult ||
+      !indexScene.state.embedded ||
+      indexScene.state.embedderName !== 'Asserts' ||
+      !indexScene.state.currentFiltersMatchReference ||
+      !indexScene.state.isAssistantAvailable
+    ) {
+      this.whereAreMyLogsHandler = undefined;
+      return null;
+    }
+
+    if (!this.whereAreMyLogsHandler) {
+      this.whereAreMyLogsHandler = async () => {
+        const context = await buildAssistantContext(indexScene);
+        if (!context.length) {
+          return;
+        }
+
+        openAssistant({
+          origin: 'logs-drilldown-empty-results',
+          prompt:
+            'Investigate why the Asserts KPI drawer shows an empty logs table. Validate the label-to-log mapping and suggest next steps to restore logs visibility.',
+          context,
+        });
+      };
+    }
+
+    return this.whereAreMyLogsHandler;
   }
 }
 

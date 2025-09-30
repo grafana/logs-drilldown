@@ -57,7 +57,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
   $data.useState();
 
   const logsListScene = sceneGraph.getAncestor(model, LogsListScene);
-  const { visualizationType, selectedLine } = logsListScene.useState();
+  const { visualizationType, selectedLine, onWhereAreMyLogs } = logsListScene.useState();
   const styles = useStyles2(getStyles, wrapLogMessage);
 
   const fieldsVar = getFieldsVariable(model);
@@ -235,7 +235,11 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
         </>
       )}
       {error && (
-        <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(model) : undefined} />
+        <LogsPanelError
+          error={error}
+          clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+          onWhereAreMyLogs={onWhereAreMyLogs}
+        />
       )}
     </div>
   );

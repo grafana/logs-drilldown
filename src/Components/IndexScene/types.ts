@@ -18,6 +18,7 @@ export interface IndexSceneState extends SceneObjectState {
   embedded?: boolean;
   embedderName?: string;
   initialLabels?: AdHocVariableFilter[];
+  isAssistantAvailable?: boolean;
   patterns?: AppliedPattern[];
   referenceLabels?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
