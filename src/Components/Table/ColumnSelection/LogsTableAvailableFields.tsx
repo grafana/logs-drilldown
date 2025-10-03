@@ -8,6 +8,7 @@ import { useTheme2 } from '@grafana/ui';
 import { FieldNameMeta } from '../TableTypes';
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
@@ -58,7 +59,9 @@ export const LogsTableAvailableFields = (props: {
   const { labels, toggleColumn, valueFilter } = props;
   const theme = useTheme2();
   const styles = getLogsFieldsStyles(theme);
-  const labelKeys = Object.keys(labels).filter((labelName) => valueFilter(labelName));
+  const labelKeys = Object.keys(labels)
+    .filter((labelName) => labelName !== OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME)
+    .filter((labelName) => valueFilter(labelName));
   if (labelKeys.length) {
     // Otherwise show list with a hardcoded order
     return (
