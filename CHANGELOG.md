@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.0.28
+
+##### Chores
+
+*  fix runtime error when viewing label value breakdown (#1552) (e55074b5)
+*  upgrade Scenes and Grafana deps (#1548) (1f4455a7)
+* **docker:**  use grafana version from base docker file, run cp weekly (#1550) (c0955ffa)
+
+##### New Features
+
+* **embedded:**  allow resetting filters (#1549) (d6e536c6)
+*  add expanded log controls state (#1546) (77c9815f)
+*  Asserts insight timeline widget integration (#1543) (ec1c37ad)
+* **VariableLayoutScene:**
+  *  add control to expand and collapse (#1541) (053d8c90)
+  *  add control to expand and collapse (12eee7b1)
+
+##### Bug Fixes
+
+* **volume:**  Y-axis labels not shortened (#1540) (d63e2a32)
+
+##### Other Changes
+
+* **VariableLayoutScene:**  add control to expand and collapse" (f801ae66)
+
+
 ## 1.0.27
 
 ##### Chores
