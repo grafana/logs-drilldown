@@ -39,7 +39,7 @@ export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;
 export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
 export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
 export const ERROR_LEVEL_FIELD_NAME_REGEX = /^(error|errors)$/i;
-export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
+export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal|severe)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
 export const logsLabelLevelsMatches: Record<string, RegExp> = {
