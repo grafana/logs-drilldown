@@ -35,10 +35,10 @@ import { LokiQuery } from './lokiQuery';
 import { maxSeriesReached } from './shardQuerySplitting';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
-export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
+export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;
 export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
 export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
-export const ERROR_LEVEL_FIELD_NAME_REGEX = /^error$/i;
+export const ERROR_LEVEL_FIELD_NAME_REGEX = /^(error|errors)$/i;
 export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
@@ -52,27 +52,28 @@ export const logsLabelLevelsMatches: Record<string, RegExp> = {
 };
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  console.log('regex as string', INFO_LEVEL_FIELD_NAME_REGEX.toString());
+  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-green',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-blue',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-orange',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-red',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: '#705da0',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'darkgray',
     mode: 'fixed',
   });
