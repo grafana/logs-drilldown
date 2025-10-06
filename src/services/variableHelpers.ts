@@ -40,12 +40,15 @@ export function clearVariables(sceneRef: SceneObject) {
   variablesToClear.forEach((variable) => {
     if (variable instanceof AdHocFiltersVariable) {
       let { labelName, labelValue } = getRouteParams(sceneRef);
-      // labelName is the label that exists in the URL, which is "service" not "service_name"
-      if (labelName === SERVICE_UI_LABEL) {
-        labelName = SERVICE_NAME;
-      }
+
       const filters = variable.state.filters.filter((filter) => {
-        return filter.key === labelName && isOperatorInclusive(filter.operator) && filter.value === labelValue;
+        if (!isOperatorInclusive(filter.operator) && filter.value === labelValue) {
+          return false;
+        }
+        if (filter.key === labelName || (labelName === SERVICE_UI_LABEL && filter.key === SERVICE_NAME)) {
+          return true;
+        }
+        return false;
       });
       variable.setState({ filters });
     } else if (variable instanceof CustomConstantVariable) {
