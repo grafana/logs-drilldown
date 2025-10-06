@@ -232,20 +232,27 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // check if we have any inclusive labels at all
     else {
       // If we remove the service name filter, we should redirect to the start
-      let { labelName, labelValue } = getRouteParams(this);
+      let { labelName: primaryLabelInRoute, labelValue } = getRouteParams(this);
 
       // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
-      if (labelName === SERVICE_UI_LABEL) {
-        labelName = SERVICE_NAME;
-      }
+      const isValidLegacyURL =
+        primaryLabelInRoute === SERVICE_UI_LABEL &&
+        newFilters.some(
+          (f) =>
+            f.key === SERVICE_NAME &&
+            isOperatorInclusive(f.operator) &&
+            replaceSlash(f.value) === replaceSlash(labelValue)
+        );
+
+      const primaryLabelMissingInFilters = !newFilters.some(
+        (f) =>
+          f.key === primaryLabelInRoute &&
+          isOperatorInclusive(f.operator) &&
+          replaceSlash(f.value) === replaceSlash(labelValue)
+      );
 
       // The "primary" label used in the URL is no longer active, pick a new one
-      if (
-        !newFilters.some(
-          (f) =>
-            f.key === labelName && isOperatorInclusive(f.operator) && replaceSlash(f.value) === replaceSlash(labelValue)
-        )
-      ) {
+      if (primaryLabelMissingInFilters && !isValidLegacyURL) {
         const newPrimaryLabel = newFilters.find(
           (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
         );
