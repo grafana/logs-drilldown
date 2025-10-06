@@ -52,7 +52,6 @@ export const logsLabelLevelsMatches: Record<string, RegExp> = {
 };
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  console.log('regex as string', INFO_LEVEL_FIELD_NAME_REGEX.toString());
   overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-green',
     mode: 'fixed',
