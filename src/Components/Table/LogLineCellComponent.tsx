@@ -15,6 +15,7 @@ import { LineActionIcons } from 'Components/Table/LineActionIcons';
 import { LogLinePill } from 'Components/Table/LogLinePill';
 import { RawLogLineText } from 'Components/Table/RawLogLineText';
 import { Scroller } from 'Components/Table/Scroller';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 
 export type SelectedTableRow = {
   id: string;
@@ -52,6 +53,7 @@ export const LogLineCellComponent = (props: Props) => {
     const columnLabelNames = Object.keys(columns);
     const labelNames = columnLabelNames
       .filter((name) => name !== getBodyName(logsFrame))
+      .filter((name) => name !== OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME)
       .sort((a, b) => {
         // Sort level first
         if (a === DETECTED_LEVEL) {
