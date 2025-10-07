@@ -1,12 +1,17 @@
 import { lazy } from 'react';
 
 import { AppPlugin } from '@grafana/data';
+import { initPluginTranslations } from '@grafana/i18n';
 
+import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
 import { linkConfigs } from 'services/extensions/links';
+
+// Initialize i18n
+await initPluginTranslations(pluginJson.id);
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
