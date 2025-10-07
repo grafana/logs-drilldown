@@ -8,14 +8,15 @@ import { emptyStateStyles } from './FieldsBreakdownScene';
 
 export interface ClearFiltersLayoutSceneState extends SceneObjectState {
   clearCallback: () => void;
+  type?: 'fields' | 'labels';
 }
 export class NoMatchingLabelsScene extends SceneObjectBase<ClearFiltersLayoutSceneState> {
   public static Component = ({ model }: SceneComponentProps<NoMatchingLabelsScene>) => {
-    const { clearCallback } = model.useState();
+    const { clearCallback, type = 'labels' } = model.useState();
     return (
       <GrotError>
         <Alert title="" severity="info">
-          No labels match these filters.{' '}
+          No {type} match these filters.{' '}
           <Button className={emptyStateStyles.button} onClick={() => clearCallback()}>
             Clear filters
           </Button>{' '}

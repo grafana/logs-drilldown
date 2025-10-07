@@ -10,14 +10,20 @@ import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
 import { getRouteParams } from './routing';
 import { getLabelsVariable } from './variableGetters';
-import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
+import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS } from './variables';
 
 type ClearableVariable = AdHocFiltersVariable | CustomConstantVariable;
-export function getVariablesThatCanBeCleared(indexScene: IndexScene): ClearableVariable[] {
+export function getVariablesThatCanBeCleared(
+  indexScene: IndexScene,
+  variableName?: typeof VAR_LABELS | typeof VAR_FIELDS
+): ClearableVariable[] {
   const variables = sceneGraph.getVariables(indexScene);
   let variablesToClear: ClearableVariable[] = [];
 
   for (const variable of variables.state.variables) {
+    if (variableName && variable.state.name !== variableName) {
+      continue;
+    }
     if (variable instanceof AdHocFiltersVariable && variable.state.filters.length) {
       variablesToClear.push(variable);
     }
