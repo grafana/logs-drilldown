@@ -29,12 +29,12 @@ describe('setLevelColorOverrides', () => {
     expect(overrideColorMock).toHaveBeenCalledTimes(6);
 
     // Check that regex is called correctly for each field
-    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(INFO_LEVEL_FIELD_NAME_REGEX).source);
-    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(DEBUG_LEVEL_FIELD_NAME_REGEX).source);
-    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(WARNING_LEVEL_FIELD_NAME_REGEX).source);
-    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(ERROR_LEVEL_FIELD_NAME_REGEX).source);
-    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(CRITICAL_LEVEL_FIELD_NAME_REGEX).source);
-    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(UNKNOWN_LEVEL_FIELD_NAME_REGEX).source);
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(INFO_LEVEL_FIELD_NAME_REGEX).toString());
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(DEBUG_LEVEL_FIELD_NAME_REGEX).toString());
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(WARNING_LEVEL_FIELD_NAME_REGEX).toString());
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(ERROR_LEVEL_FIELD_NAME_REGEX).toString());
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(CRITICAL_LEVEL_FIELD_NAME_REGEX).toString());
+    expect(matchFieldsWithNameByRegexMock).toHaveBeenCalledWith(new RegExp(UNKNOWN_LEVEL_FIELD_NAME_REGEX).toString());
   });
 });
 

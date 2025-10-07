@@ -31,7 +31,7 @@ You can install Grafana Logs Drilldown in your own Grafana instance using `grafa
 >   discover_log_levels: true
 > ```
 >
-> - Grafana v11.3+
+> - Grafana v11.6+
 
 ```sh
 grafana-cli --pluginUrl=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip plugins install grafana-lokiexplore-app
@@ -39,11 +39,7 @@ grafana-cli --pluginUrl=https://storage.googleapis.com/integration-artifacts/gra
 
 ### Installation via environment variables
 
-If you want to [install the app in a docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), you need to configure the following environment variable:
-
-```
-GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip;grafana-lokiexplore-app
-```
+If you want to [install the app in a docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), Logs Drilldown and other Drilldown plugins will be installed by default in Grafana 11.3+, so no additional configuration is required.
 
 ## Test Out with Docker Compose
 
@@ -59,7 +55,7 @@ Once the docker container started, navigate to http://localhost:3000/a/grafana-l
 
 ## Getting Started
 
-1. In the main navigation bar click on Explore > Logs
+1. In the main navigation bar click on Drilldown > Logs
 2. You’ll land in the service overview page that shows time series and log visualizations for all the services in your selected Loki instance.
 3. Change your data source with the drop-down on the top left.
 4. Modify your time range in two ways:
