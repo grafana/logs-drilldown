@@ -1414,7 +1414,7 @@ test.describe('explore services breakdown page', () => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
     );
-    await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
+    await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
     await expect(page.getByLabel(E2EComboboxStrings.editByKey('bytes'))).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
     await page.getByText('Clear filters').click();
