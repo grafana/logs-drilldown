@@ -15,6 +15,16 @@ weight: 900
 
 This page address common issues when getting started and using Grafana Logs Drilldown.
 
+## Can't see Logs Drilldown in the menu
+
+Grafana Explore Logs is installed by default in Grafana versions Grafana v11.3.0 through v11.5.  
+
+Grafana Logs Drilldown is installed by default in Grafana versions Grafana 11.6 and later.
+
+For more information about the name change for this feature, see this [blog post](https://grafana.com/blog/2025/02/20/grafana-drilldown-apps-the-improved-queryless-experience-formerly-known-as-the-explore-apps/).
+
+If you do not see Logs Drilldown under either name, then check to make sure you have the [Grafana Logs Drilldown plugin](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/) installed and configured.
+
 ## Ensure Loki is properly configured
 
 To use Grafana Logs Drilldown, you need to have Loki properly configured. You can find full instructions on how to do this when [installing Grafana Logs Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
