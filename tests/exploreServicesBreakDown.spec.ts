@@ -1379,6 +1379,7 @@ test.describe('explore services breakdown page', () => {
     expect(responses[responses.length - 1][key[0]].results[key[0]].status).toBe(200);
   });
 
+  // @todo add labels test
   test('should see empty fields UI', async ({ page }) => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'

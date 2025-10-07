@@ -172,9 +172,8 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     if (!dataFrame || !dataFrame.length) {
       const indexScene = sceneGraph.getAncestor(this, IndexScene);
       const variablesToClear = getVariablesThatCanBeCleared(indexScene);
-
       let body;
-      if (variablesToClear.length > 1) {
+      if (variablesToClear.length > 0) {
         this.state.changeFieldCount?.(0);
         body = new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) });
       } else {
@@ -237,7 +236,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       const indexScene = sceneGraph.getAncestor(this, IndexScene);
       const variablesToClear = getVariablesThatCanBeCleared(indexScene);
 
-      if (variablesToClear.length > 1) {
+      if (variablesToClear.length > 0) {
         this.state.changeFieldCount?.(0);
         stateUpdate.body = new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) });
       } else {
