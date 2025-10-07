@@ -2,8 +2,8 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { LoadingState, PanelData } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
+import { config, locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneFlexItem,
@@ -320,8 +320,21 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   public setVisualizationType = (type: LogsVisualizationType) => {
+    let extraStateChanges: Partial<LogsListSceneState> = {};
+
+    // Clean up default displayed fields
+    if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
+      if (shallowCompare(this.state.displayedFields, this.state.defaultDisplayedFields)) {
+        extraStateChanges = {
+          displayedFields: [],
+          defaultDisplayedFields: [],
+        };
+      }
+    }
+
     this.setState({
       visualizationType: type,
+      ...extraStateChanges,
     });
 
     reportAppInteraction(
