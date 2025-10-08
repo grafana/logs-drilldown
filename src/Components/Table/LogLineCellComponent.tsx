@@ -7,7 +7,7 @@ import { FieldType, formattedValueToString, GrafanaTheme2, Labels } from '@grafa
 import { CustomCellRendererProps, useTheme2 } from '@grafana/ui';
 
 import { getBodyName } from '../../services/logsFrame';
-import { LEVEL_NAME } from './constants';
+import { DETECTED_LEVEL } from './constants';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { DefaultCellWrapComponent } from 'Components/Table/DefaultCellWrapComponent';
@@ -54,10 +54,10 @@ export const LogLineCellComponent = (props: Props) => {
       .filter((name) => name !== getBodyName(logsFrame))
       .sort((a, b) => {
         // Sort level first
-        if (a === LEVEL_NAME) {
+        if (a === DETECTED_LEVEL) {
           return -1;
         }
-        if (b === LEVEL_NAME) {
+        if (b === DETECTED_LEVEL) {
           return 1;
         }
         // Then sort links

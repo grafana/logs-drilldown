@@ -13,6 +13,7 @@ interface TableProviderProps {
   clearSelectedLine: () => void;
   controlsExpanded: boolean;
   dataFrame: DataFrame;
+  displayFields: string[];
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   selectedLine?: SelectedTableRow;
@@ -26,7 +27,9 @@ interface TableProviderProps {
 export default function TableProvider({
   addFilter,
   clearSelectedLine,
+  controlsExpanded,
   dataFrame,
+  displayFields,
   logsSortOrder,
   panelWrap,
   selectedLine,
@@ -35,7 +38,6 @@ export default function TableProvider({
   timeRange,
   urlColumns,
   urlTableBodyState,
-  controlsExpanded,
 }: TableProviderProps) {
   const logsFrame = useMemo(() => {
     if (!dataFrame) {
@@ -58,6 +60,7 @@ export default function TableProvider({
         setUrlColumns={setUrlColumns}
         setUrlTableBodyState={setUrlTableBodyState}
         urlColumns={urlColumns}
+        displayFields={displayFields}
         panelWrap={panelWrap}
         clearSelectedLine={clearSelectedLine}
         logsSortOrder={logsSortOrder}
