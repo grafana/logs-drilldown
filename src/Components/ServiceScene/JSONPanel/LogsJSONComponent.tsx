@@ -41,6 +41,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
     canClearFilters,
     emptyScene,
     error,
+    errorType,
     hasJSONFields,
     JSONFiltersSupported,
     menu,
@@ -235,7 +236,11 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
         </>
       )}
       {error && (
-        <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(model) : undefined} />
+        <LogsPanelError
+          error={error}
+          errorType={errorType}
+          clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+        />
       )}
     </div>
   );

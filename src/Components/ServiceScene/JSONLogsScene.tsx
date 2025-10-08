@@ -23,6 +23,7 @@ import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogsListScene } from './LogsListScene';
+import { ErrorType } from './LogsPanelError';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
@@ -43,6 +44,7 @@ interface JSONLogsSceneState extends SceneObjectState {
   data?: PanelData;
   emptyScene?: NoMatchingLabelsScene;
   error?: string;
+  errorType?: ErrorType;
   hasHighlight: boolean;
   hasJSONFields?: boolean;
   hasLabels: boolean;

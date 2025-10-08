@@ -42,7 +42,7 @@ import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
-import { LogsPanelError } from './LogsPanelError';
+import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
@@ -57,6 +57,7 @@ interface LogsPanelSceneState extends SceneObjectState {
   canClearFilters?: boolean;
   dedupStrategy: LogsDedupStrategy;
   error?: string;
+  errorType?: ErrorType;
   prettifyLogMessage: boolean;
   series: DataFrame[];
   sortOrder: LogsSortOrder;
@@ -486,7 +487,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
-    const { body, canClearFilters, error } = model.useState();
+    const { body, canClearFilters, error, errorType } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
 
     if (body) {
@@ -494,7 +495,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         <span className={styles.panelWrapper}>
           {!error && <body.Component model={body} />}
           {error && (
-            <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(body) : undefined} />
+            <LogsPanelError
+              error={error}
+              errorType={errorType}
+              clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
+            />
           )}
         </span>
       );

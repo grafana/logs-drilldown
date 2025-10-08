@@ -29,7 +29,7 @@ import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
-import { LogsPanelError } from './LogsPanelError';
+import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
@@ -43,6 +43,7 @@ interface LogsTableSceneState extends SceneObjectState {
   canClearFilters?: boolean;
   emptyScene?: NoMatchingLabelsScene;
   error?: string;
+  errorType?: ErrorType;
   isDisabledLineState: boolean;
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
@@ -250,7 +251,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const styles = useStyles2(getStyles);
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
-    const { error, canClearFilters } = model.useState();
+    const { error, errorType, canClearFilters } = model.useState();
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
     const { emptyScene, menu, sortOrder } = model.useState();
@@ -346,7 +347,11 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
           </>
         )}
         {error && (
-          <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(model) : undefined} />
+          <LogsPanelError
+            error={error}
+            errorType={errorType}
+            clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+          />
         )}
       </div>
     );

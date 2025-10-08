@@ -28,6 +28,7 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
+import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
@@ -48,6 +49,7 @@ export interface LogsListSceneState extends SceneObjectState {
   controlsExpanded: boolean;
   displayedFields: string[];
   error?: string;
+  errorType?: ErrorType;
   lineFilter?: string;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
@@ -230,19 +232,25 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   handleNoData() {
     if (this.state.canClearFilters) {
-      this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+      this.showLogsError(
+        'No logs match your search. Please review your filters or try a different time range.',
+        'no-logs'
+      );
     } else {
-      this.showLogsError('No logs match your search. Please try a different time range.');
+      this.showLogsError(
+        'No logs match your search. Please try a with different labels or an alternative time range.',
+        'no-logs'
+      );
     }
   }
 
-  showLogsError(error: string) {
+  showLogsError(error: string, errorType: ErrorType = 'other') {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const clearableVariables = getVariablesThatCanBeCleared(indexScene);
     const canClearFilters = clearableVariables.length > 0;
 
-    this.setState({ canClearFilters, error, logsVolumeCollapsedByError });
+    this.setState({ canClearFilters, error, errorType, logsVolumeCollapsedByError });
 
     // Recreate the panel with the new error state
     this.updateLogsPanel();
@@ -259,7 +267,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       logsVolume?.state.panel?.setState({ collapsed: false });
     }
 
-    this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
+    this.setState({ error: undefined, errorType: undefined, logsVolumeCollapsedByError: undefined });
 
     // Recreate the panel with the cleared error state
     this.updateLogsPanel();
@@ -325,9 +333,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   private getVizPanel() {
-    const { error, canClearFilters } = this.state;
+    const { error, errorType, canClearFilters } = this.state;
 
-    this.logsPanelScene = new LogsPanelScene({ error, canClearFilters });
+    this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
 
     const children =
       this.state.visualizationType === 'logs'
