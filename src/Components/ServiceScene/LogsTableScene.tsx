@@ -27,6 +27,7 @@ import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';
@@ -159,8 +160,13 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
         : defaultUrlColumns
       : defaultUrlColumns;
     defaultUrlColumns = defaultUrlColumns.length > 0 ? defaultUrlColumns : defaultUrlColumns;
+
+    const displayedFields = parentModel.state.displayedFields.filter(
+      (field) => field !== OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME
+    );
+
     parentModel.setState({
-      urlColumns: Array.from(new Set([...defaultUrlColumns, ...parentModel.state.displayedFields])),
+      urlColumns: Array.from(new Set([...defaultUrlColumns, ...displayedFields])),
     });
   };
 
