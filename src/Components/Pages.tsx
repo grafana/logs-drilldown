@@ -101,6 +101,7 @@ function getEmbeddedScene() {
     embedderName: 'EmbeddedLogs',
     options: {
       noLogsCustomPrompt: 'Write a haiku about Loki Logs',
+      noLogsPromptCTA: 'Where are my logs?',
     },
     query,
     timeRangeState: $timeRange.state,

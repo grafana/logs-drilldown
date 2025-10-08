@@ -7,7 +7,8 @@ interface SceneTimeRangeStateStub {
 }
 
 export interface EmbeddedLogsOptions {
-  noLogsCustomPrompt: string;
+  noLogsCustomPrompt?: string;
+  noLogsPromptCTA?: string;
 }
 
 interface EmbeddedLogsCommonProps {

@@ -18,6 +18,9 @@ export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
   const [assistantAvailable, setAssitantAvailable] = useState<boolean | undefined>(undefined);
+  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+  const embedded = indexScene?.state.embedded;
+
   useEffect(() => {
     if (errorType !== 'no-logs') {
       return;
@@ -38,8 +41,14 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
             </Button>
           )}
           {errorType === 'no-logs' && assistantAvailable && (
-            <Button variant="secondary" onClick={() => solveWithAssistant(sceneRef)} icon="ai-sparkle">
-              Ask Grafana Assistant
+            <Button
+              variant="secondary"
+              onClick={() =>
+                solveWithAssistant(embedded ? indexScene?.state.embeddedOptions?.noLogsCustomPrompt : undefined)
+              }
+              icon="ai-sparkle"
+            >
+              {indexScene?.state.embeddedOptions?.noLogsPromptCTA ?? 'Ask Grafana Assistant'}
             </Button>
           )}
         </Stack>
@@ -48,13 +57,9 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
   );
 };
 
-function solveWithAssistant(sceneRef: SceneObject) {
-  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
-
-  const prompt =
-    indexScene?.state.embeddedOptions?.noLogsCustomPrompt ??
-    'Investigate why there are no logs to display with the current filters and time range.';
-
+function solveWithAssistant(
+  prompt = 'Investigate why there are no logs to display with the current filters and time range.'
+) {
   openAssistant({
     origin: 'logs-drilldown-empty-results',
     prompt,
