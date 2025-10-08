@@ -499,6 +499,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
               error={error}
               errorType={errorType}
               clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
+              sceneRef={model}
             />
           )}
         </span>

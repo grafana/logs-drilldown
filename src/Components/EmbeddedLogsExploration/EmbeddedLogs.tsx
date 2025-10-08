@@ -15,6 +15,7 @@ export function buildLogsExplorationFromState({
   query,
   referenceQuery,
   timeRangeState,
+  options,
   ...state
 }: EmbeddedLogsExplorationProps) {
   const $timeRange = new SceneTimeRange(timeRangeState);
@@ -57,6 +58,7 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
+    embeddedOptions: options,
     initialLabels,
     referenceLabels,
   });

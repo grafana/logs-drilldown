@@ -351,6 +351,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
             error={error}
             errorType={errorType}
             clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+            sceneRef={model}
           />
         )}
       </div>

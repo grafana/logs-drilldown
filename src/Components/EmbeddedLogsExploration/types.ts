@@ -6,10 +6,15 @@ interface SceneTimeRangeStateStub {
   value: TimeRange;
 }
 
+export interface EmbeddedLogsOptions {
+  noLogsCustomPrompt: string;
+}
+
 interface EmbeddedLogsCommonProps {
   embedderName: string;
   namespace?: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
+  options?: EmbeddedLogsOptions;
   query: string;
   referenceQuery?: string;
   timeRangeState: SceneTimeRangeStateStub;

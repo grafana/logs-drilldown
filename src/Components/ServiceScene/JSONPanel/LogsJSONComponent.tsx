@@ -240,6 +240,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
           error={error}
           errorType={errorType}
           clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+          sceneRef={model}
         />
       )}
     </div>
