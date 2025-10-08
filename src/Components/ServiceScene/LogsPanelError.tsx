@@ -17,7 +17,7 @@ interface Props {
 export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
-  const [assistantAvailable, setAssitantAvailable] = useState<boolean | undefined>(undefined);
+  const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
   const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
   const embedded = indexScene?.state.embedded;
 
@@ -26,7 +26,7 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
       return;
     }
     isAssistantAvailable().subscribe((isAvailable: boolean) => {
-      setAssitantAvailable(isAvailable);
+      setAssistantAvailable(isAvailable);
     });
   }, [errorType]);
 
