@@ -4,7 +4,7 @@ import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../src/Components/Table/con
 import { FilterOp } from '../src/services/filterTypes';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
-import { SERVICE_NAME } from '../src/services/variables';
+import { SERVICE_NAME, VAR_FIELDS } from '../src/services/variables';
 import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
 import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 
@@ -1454,18 +1454,42 @@ test.describe('explore services breakdown page', () => {
     expect(responses[responses.length - 1][key[0]].results[key[0]].status).toBe(200);
   });
 
+  test('should see empty labels UI', async ({ page }) => {
+    explorePage.blockAllQueriesExcept({
+      legendFormats: [`{{${labelName}}}`],
+    });
+    await page.goto(
+      '/a/grafana-lokiexplore-app/explore/service/nginx/labels?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+    );
+    await page.getByRole('link', { name: 'Select cluster' }).click();
+    await expect.poll(() => page.getByTestId('data-testid button-filter-exclude').count()).toBeGreaterThan(0);
+    const excludeButtons = await page.getByTestId('data-testid button-filter-exclude').all();
+
+    for (const locator of excludeButtons) {
+      await locator.click();
+    }
+    await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
+    await page.getByText('Clear filters').click();
+    await expect.poll(() => explorePage.getAllPanelsLocator().count()).toBeGreaterThan(0);
+  });
+
   test('should see empty fields UI', async ({ page }) => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
     );
     await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
+    await explorePage.addCustomValueToCombobox('test', FilterOp.Equal, ComboBoxIndex.fields, 'test', 'test');
+    await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
+    await page.getByText('Clear filters').click();
+    await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
   });
+
   test('should see clear fields UI', async ({ page }) => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
     );
-    await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
+    await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
     await expect(page.getByLabel(E2EComboboxStrings.editByKey('bytes'))).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
     await page.getByText('Clear filters').click();

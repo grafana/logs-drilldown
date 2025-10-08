@@ -23,6 +23,8 @@ import { ValueSlugs } from '../../../services/enums';
 import { navigateToValueBreakdown } from '../../../services/navigate';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
+import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
+import { IndexScene } from '../../IndexScene/IndexScene';
 import { getDetectedLabelsFrame, ServiceScene } from '../ServiceScene';
 import { BreakdownSearchReset, BreakdownSearchScene } from './BreakdownSearchScene';
 import { ByFrameRepeater } from './ByFrameRepeater';
@@ -30,6 +32,7 @@ import { EmptyLayoutScene } from './EmptyLayoutScene';
 import { FieldSelector } from './FieldSelector';
 import { LabelsAggregatedBreakdownScene } from './LabelsAggregatedBreakdownScene';
 import { LabelValuesBreakdownScene } from './LabelValuesBreakdownScene';
+import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
@@ -123,7 +126,8 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
       newState.value !== prevState.value ||
       !areArraysEqual(newState.options, prevState.options) ||
       this.state.body === undefined ||
-      this.state.body instanceof EmptyLayoutScene
+      this.state.body instanceof EmptyLayoutScene ||
+      this.state.body instanceof NoMatchingLabelsScene
     ) {
       this.updateBody();
     }
@@ -157,18 +161,14 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
    * @param prevState
    */
   private onDetectedLabelsDataChange = (newState: QueryRunnerState, prevState: QueryRunnerState) => {
-    if (
-      newState.data?.state === LoadingState.Done &&
-      newState.data.series?.[0] &&
-      !areArraysEqual(newState.data.series?.[0]?.fields, prevState.data?.series?.[0]?.fields)
-    ) {
-      this.updateOptions(newState.data.series?.[0]);
-    } else if (newState.data?.state === LoadingState.Done) {
+    if (newState.data?.state === LoadingState.Done) {
       // we got a new response, but nothing changed, just need to clear loading
       const variable = getLabelGroupByVariable(this);
       variable.setState({
         loading: false,
       });
+      this.setEmptyStates(newState.data?.series[0]);
+      this.updateOptions(newState.data.series?.[0]);
     }
   };
 
@@ -195,22 +195,39 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   };
 
   private updateOptions(detectedLabels: DataFrame | undefined) {
+    if (detectedLabels && detectedLabels.length) {
+      const variable = getLabelGroupByVariable(this);
+      const options = getLabelOptions(detectedLabels.fields.map((label) => label.name));
+
+      variable.setState({
+        loading: false,
+        options,
+        value: this.state.value ?? ALL_VARIABLE_VALUE,
+      });
+    }
+  }
+
+  private setEmptyStates = (detectedLabels: DataFrame | undefined) => {
     if (!detectedLabels || !detectedLabels.length) {
+      const indexScene = sceneGraph.getAncestor(this, IndexScene);
+      const variablesToClear = getVariablesThatCanBeCleared(indexScene);
+      let body;
+      if (variablesToClear.length > 0) {
+        body = new NoMatchingLabelsScene({
+          clearCallback: () => {
+            clearVariables(this);
+            this.updateBody();
+          },
+        });
+      } else {
+        body = new EmptyLayoutScene({ type: 'labels' });
+      }
       this.setState({
-        body: new EmptyLayoutScene({ type: 'labels' }),
+        body,
         loading: false,
       });
-      return;
     }
-    const variable = getLabelGroupByVariable(this);
-    const options = getLabelOptions(detectedLabels.fields.map((label) => label.name));
-
-    variable.setState({
-      loading: false,
-      options,
-      value: this.state.value ?? ALL_VARIABLE_VALUE,
-    });
-  }
+  };
 
   private updateBody() {
     const variable = getLabelGroupByVariable(this);
@@ -237,7 +254,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
       } else {
         stateUpdate.body = new EmptyLayoutScene({ type: 'labels' });
       }
-    } else if (this.state.body instanceof EmptyLayoutScene) {
+    } else if (this.state.body instanceof EmptyLayoutScene || this.state.body instanceof NoMatchingLabelsScene) {
       if (variable.state.options.length > 0) {
         stateUpdate.body = variable.hasAllValue()
           ? new LabelsAggregatedBreakdownScene({})

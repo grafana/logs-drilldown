@@ -10,14 +10,20 @@ import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
 import { getRouteParams } from './routing';
 import { getLabelsVariable } from './variableGetters';
-import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABELS } from './variables';
+import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS } from './variables';
 
 type ClearableVariable = AdHocFiltersVariable | CustomConstantVariable;
-export function getVariablesThatCanBeCleared(indexScene: IndexScene): ClearableVariable[] {
+export function getVariablesThatCanBeCleared(
+  indexScene: IndexScene,
+  variableName?: typeof VAR_LABELS | typeof VAR_FIELDS
+): ClearableVariable[] {
   const variables = sceneGraph.getVariables(indexScene);
   let variablesToClear: ClearableVariable[] = [];
 
   for (const variable of variables.state.variables) {
+    if (variableName && variable.state.name !== variableName) {
+      continue;
+    }
     if (variable instanceof AdHocFiltersVariable && variable.state.filters.length) {
       variablesToClear.push(variable);
     }
@@ -40,12 +46,15 @@ export function clearVariables(sceneRef: SceneObject) {
   variablesToClear.forEach((variable) => {
     if (variable instanceof AdHocFiltersVariable) {
       let { labelName, labelValue } = getRouteParams(sceneRef);
-      // labelName is the label that exists in the URL, which is "service" not "service_name"
-      if (labelName === SERVICE_UI_LABEL) {
-        labelName = SERVICE_NAME;
-      }
+
       const filters = variable.state.filters.filter((filter) => {
-        return filter.key === labelName && isOperatorInclusive(filter.operator) && filter.value === labelValue;
+        if (!isOperatorInclusive(filter.operator) && filter.value === labelValue) {
+          return false;
+        }
+        if (filter.key === labelName || (labelName === SERVICE_UI_LABEL && filter.key === SERVICE_NAME)) {
+          return true;
+        }
+        return false;
       });
       variable.setState({ filters });
     } else if (variable instanceof CustomConstantVariable) {

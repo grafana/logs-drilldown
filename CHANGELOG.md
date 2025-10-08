@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.29
+
+##### Documentation Changes
+
+*  Update troubleshooting page (#1568) (437a568a)
+*  Update install and troubleshooting (#1564) (657880b3)
+*  update stale readme, fix docker install script (#1565) (fc776d76)
+
+##### Bug Fixes
+
+*  unexpected clear variable behavior (#1567) (089fdfa2)
+*  validate primary label correctly (#1561) (ee12a20b)
+*  fix RegExp.source removing flags, use toString instead (#1563) (a9207d23)
+*  stale urls (#1562) (e2eae8b8)
+
+
 ## 1.0.28
 
 ##### Chores
