@@ -10,7 +10,7 @@ import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
 import { getRouteParams } from './routing';
 import { getLabelsVariable } from './variableGetters';
-import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS } from './variables';
+import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS, VAR_LABELS_LABEL } from './variables';
 
 type ClearableVariable = AdHocFiltersVariable | CustomConstantVariable;
 export function getVariablesThatCanBeCleared(
@@ -70,7 +70,7 @@ function isPrimaryLabelAdHocFilter(
   filter: AdHocFilterWithLabels,
   sceneRef: SceneObject
 ) {
-  if (variable.state.label !== 'Labels') {
+  if (variable.state.label !== VAR_LABELS_LABEL) {
     return false;
   }
   let { labelName, labelValue } = getRouteParams(sceneRef);
