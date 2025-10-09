@@ -51,7 +51,7 @@ function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabe
 
 function solveWithAssistant(
   type: 'fields' | 'labels',
-  prompt = `'Investigate why there are no ${type} to display with the current filters and time range.'`
+  prompt = `Investigate why there are no ${type} to display with the current filters and time range.`
 ) {
   openAssistant({
     origin: 'logs-drilldown-empty-results',
