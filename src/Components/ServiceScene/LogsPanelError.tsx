@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { sceneGraph, SceneObject } from '@grafana/scenes';
+import { SceneObject } from '@grafana/scenes';
 import { Button, Stack } from '@grafana/ui';
 
 import { GrotError } from 'Components/GrotError';
-import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { getEmptyStateOptions } from 'services/extensions/embedding';
 
 interface Props {
   clearFilters?: () => void;
@@ -18,8 +18,6 @@ export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
   const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
-  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
-  const embedded = indexScene?.state.embedded;
 
   useEffect(() => {
     if (errorType !== 'no-logs') {
@@ -29,6 +27,8 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
       setAssistantAvailable(isAvailable);
     });
   }, [errorType]);
+
+  const embeddedOptions = getEmptyStateOptions('logs', sceneRef);
 
   return (
     <GrotError>
@@ -43,12 +43,10 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
           {errorType === 'no-logs' && assistantAvailable && (
             <Button
               variant="secondary"
-              onClick={() =>
-                solveWithAssistant(embedded ? indexScene?.state.embeddedOptions?.noLogsCustomPrompt : undefined)
-              }
+              onClick={() => solveWithAssistant(embeddedOptions?.customPrompt)}
               icon="ai-sparkle"
             >
-              {indexScene?.state.embeddedOptions?.noLogsPromptCTA ?? 'Ask Grafana Assistant'}
+              {embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
             </Button>
           )}
         </Stack>
