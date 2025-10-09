@@ -16,5 +16,5 @@ export function getEmptyStateOptions(
     return undefined;
   }
   const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
-  return indexScene?.state.embeddedOptions?.emptyStates[state];
+  return indexScene?.state.embeddedOptions?.emptyStates?.[state];
 }
