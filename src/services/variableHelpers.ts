@@ -70,7 +70,7 @@ function isPrimaryLabelAdHocFilter(
   filter: AdHocFilterWithLabels,
   sceneRef: SceneObject
 ) {
-  if (variable.state.label !== 'Labels') {
+  if (variable.state.name !== VAR_LABELS) {
     return false;
   }
   let { labelName, labelValue } = getRouteParams(sceneRef);
