@@ -40,8 +40,12 @@ describe('LogsPanelError', () => {
     state: {
       embedded: true,
       embeddedOptions: {
-        noLogsCustomPrompt: 'Custom embedded prompt',
-        noLogsPromptCTA: 'Custom CTA',
+        emptyStates: {
+          logs: {
+            customPrompt: 'Custom embedded prompt',
+            promptCTA: 'Custom CTA',
+          },
+        },
       },
     },
   };
