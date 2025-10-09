@@ -25,7 +25,16 @@ export function getVariablesThatCanBeCleared(
       continue;
     }
     if (variable instanceof AdHocFiltersVariable && variable.state.filters.length) {
-      variablesToClear.push(variable);
+      const containsPrimaryLabelFilter = variable.state.filters.some((filter) =>
+        isPrimaryLabelAdHocFilter(variable, filter, indexScene)
+      );
+      /**
+       * If the variable doesn't contain the primary label filter, or has the primary label filter and other filters,
+       * then it can be cleared.
+       */
+      if (!containsPrimaryLabelFilter || (containsPrimaryLabelFilter && variable.state.filters.length > 1)) {
+        variablesToClear.push(variable);
+      }
     }
     if (variable instanceof CustomConstantVariable && variable.state.value && variable.state.name !== 'logsFormat') {
       variablesToClear.push(variable);
@@ -45,17 +54,7 @@ export function clearVariables(sceneRef: SceneObject) {
 
   variablesToClear.forEach((variable) => {
     if (variable instanceof AdHocFiltersVariable) {
-      let { labelName, labelValue } = getRouteParams(sceneRef);
-
-      const filters = variable.state.filters.filter((filter) => {
-        if (!isOperatorInclusive(filter.operator) && filter.value === labelValue) {
-          return false;
-        }
-        if (filter.key === labelName || (labelName === SERVICE_UI_LABEL && filter.key === SERVICE_NAME)) {
-          return true;
-        }
-        return false;
-      });
+      const filters = variable.state.filters.filter((filter) => isPrimaryLabelAdHocFilter(variable, filter, sceneRef));
       variable.setState({ filters });
     } else if (variable instanceof CustomConstantVariable) {
       variable.setState({
@@ -64,6 +63,24 @@ export function clearVariables(sceneRef: SceneObject) {
       });
     }
   });
+}
+
+function isPrimaryLabelAdHocFilter(
+  variable: AdHocFiltersVariable,
+  filter: AdHocFilterWithLabels,
+  sceneRef: SceneObject
+) {
+  if (variable.state.label !== 'Labels') {
+    return false;
+  }
+  let { labelName, labelValue } = getRouteParams(sceneRef);
+  if (!isOperatorInclusive(filter.operator) && filter.value === labelValue) {
+    return false;
+  }
+  if (filter.key === labelName || (labelName === SERVICE_UI_LABEL && filter.key === SERVICE_NAME)) {
+    return true;
+  }
+  return false;
 }
 
 export const operatorFunction = function (variable: AdHocFiltersVariable) {
