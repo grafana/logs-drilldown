@@ -193,7 +193,7 @@ describe('LogsPanelError', () => {
     });
   });
 
-  it.only('handles assistant availability changes', async () => {
+  it('handles assistant availability changes', async () => {
     const assistantSubject = new BehaviorSubject(false);
     mockIsAssistantAvailable.mockReturnValue(assistantSubject);
 
