@@ -6,9 +6,19 @@ interface SceneTimeRangeStateStub {
   value: TimeRange;
 }
 
+export interface EmptyStateOptions {
+  customPrompt?: string;
+  promptCTA?: string;
+}
+
+type EmptyStateConfig = {
+  fields?: EmptyStateOptions;
+  labels?: EmptyStateOptions;
+  logs?: EmptyStateOptions;
+};
+
 export interface EmbeddedLogsOptions {
-  noLogsCustomPrompt?: string;
-  noLogsPromptCTA?: string;
+  emptyStates: EmptyStateConfig;
 }
 
 interface EmbeddedLogsCommonProps {
