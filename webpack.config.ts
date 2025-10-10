@@ -15,13 +15,13 @@ const config = async (env: any): Promise<Configuration> => {
     },
     plugins: [
       // new BundleAnalyzerPlugin(),
-      /*new LiveReloadPlugin({
+      new LiveReloadPlugin({
         appendScriptTag: true,
         delay: 1000,
         hostname: 'localhost',
         port: 35828,
         protocol: 'http',
-      }),*/
+      }),
     ],
   });
 };
