@@ -62,6 +62,15 @@ export const linkConfigs: LinkConfigs = [
   },
 ];
 
+export const functionConfigs = [
+  {
+    targets: 'grafana-exploretraces-app/get-logs-drilldown-link/v1',
+    title: 'Open Logs Drilldown',
+    description: 'Returns url to logs drilldown app',
+    fn: contextToLink,
+  },
+];
+
 function stringifyValues(value?: string): string {
   if (!value) {
     return EMPTY_VARIABLE_VALUE;
