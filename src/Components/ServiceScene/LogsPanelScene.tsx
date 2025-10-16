@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react';
 
-import { DataFrame, getValueFormat, LogRowModel } from '@grafana/data';
+import { DataFrame, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -37,11 +37,12 @@ import {
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
+import { DEFAULT_URL_COLUMNS_LEVELS, DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
-import { LogsPanelError } from './LogsPanelError';
+import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
@@ -56,6 +57,7 @@ interface LogsPanelSceneState extends SceneObjectState {
   canClearFilters?: boolean;
   dedupStrategy: LogsDedupStrategy;
   error?: string;
+  errorType?: ErrorType;
   prettifyLogMessage: boolean;
   series: DataFrame[];
   sortOrder: LogsSortOrder;
@@ -181,8 +183,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: fields,
     });
-    setDisplayedFields(this, fields);
     const parent = this.getParentScene();
+    if (!fields.length || shallowCompare(fields, parent.state.defaultDisplayedFields) === false) {
+      setDisplayedFields(this, fields);
+    }
     parent.setState({ displayedFields: fields });
   };
 
@@ -217,6 +221,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       parent.setState({ displayedFields });
       setDisplayedFields(this, displayedFields);
 
+      // Remove displayed fields from url columns
+      parent.setState({
+        urlColumns: parent.state.urlColumns?.filter((urlColumn) => urlColumn !== field) || [],
+      });
+
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.logs_toggle_displayed_field
@@ -242,6 +251,17 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       displayedFields: [],
     });
     setDisplayedFields(this, []);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    const urlColumns = parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
   };
 
   private getParentScene() {
@@ -306,7 +326,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     return panel.build();
   };
 
-  private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {
+  private handleLogOptionsChange = (
+    option: keyof Options | 'defaultDisplayedFields',
+    value: string | string[] | boolean
+  ) => {
     if (option === 'sortOrder' && isLogsSortOrder(value)) {
       this.setState({ sortOrder: value });
       this.setLogsVizOption({ sortOrder: value });
@@ -320,6 +343,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       setDedupStrategy(this, value);
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
+    } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
+      const parent = this.getParentScene();
+      parent.setState({ defaultDisplayedFields: value });
     }
   };
 
@@ -469,7 +495,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
-    const { body, canClearFilters, error } = model.useState();
+    const { body, canClearFilters, error, errorType } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
 
     if (body) {
@@ -477,7 +503,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         <span className={styles.panelWrapper}>
           {!error && <body.Component model={body} />}
           {error && (
-            <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(body) : undefined} />
+            <LogsPanelError
+              error={error}
+              errorType={errorType}
+              clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
+              sceneRef={model}
+            />
           )}
         </span>
       );

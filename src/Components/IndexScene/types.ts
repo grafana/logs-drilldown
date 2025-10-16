@@ -6,6 +6,7 @@ import { LokiDatasource } from '../../services/lokiQuery';
 import { AppliedPattern } from '../../services/variables';
 import { OptionalRouteMatch } from '../Pages';
 import { LayoutScene } from './LayoutScene';
+import { EmbeddedLogsOptions } from 'Components/EmbeddedLogsExploration/types';
 
 export interface IndexSceneState extends SceneObjectState {
   body?: LayoutScene;
@@ -16,6 +17,7 @@ export interface IndexSceneState extends SceneObjectState {
   defaultLineFilters?: LineFilterType[];
   ds?: LokiDatasource;
   embedded?: boolean;
+  embeddedOptions?: EmbeddedLogsOptions;
   embedderName?: string;
   initialLabels?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];

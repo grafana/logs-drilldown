@@ -1,6 +1,6 @@
 {
   "name": "grafana-lokiexplore-app",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "description": "Query less exploration of log data stored in Loki",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
@@ -37,8 +37,8 @@
     "@babel/core": "^7.21.4",
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
-    "@grafana/eslint-config": "^8.0.0",
-    "@grafana/plugin-e2e": "^2.1.9",
+    "@grafana/eslint-config": "^8.2.0",
+    "@grafana/plugin-e2e": "^2.2.0",
     "@grafana/plugin-types-bundler": "^0.3.7",
     "@grafana/tsconfig": "^2.0.0",
     "@playwright/test": "^1.52.0",
@@ -106,7 +106,7 @@
   "dependencies": {
     "@bsull/augurs": "^0.6.0",
     "@emotion/css": "11.10.6",
-    "@grafana/assistant": "0.0.16",
+    "@grafana/assistant": "0.1.0",
     "@grafana/data": "^12.2.0",
     "@grafana/i18n": "^12.2.0",
     "@grafana/lezer-logql": "^0.2.7",
@@ -118,8 +118,8 @@
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
-    "re-resizable": "^6.11.2",
     "@types/react-table": "^7.7.20",
+    "re-resizable": "^6.11.2",
     "re2js": "^1.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -129,7 +129,8 @@
     "uuid": "^10.0.0"
   },
   "resolutions": {
-    "react-router-dom": "^6.22.0"
+    "react-router-dom": "^6.22.0",
+    "uuid": "8.3.2"
   },
   "packageManager": "yarn@1.22.21"
 }
