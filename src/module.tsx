@@ -8,7 +8,7 @@ import {
   SuspendedEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
-import { linkConfigs } from 'services/extensions/links';
+import { linkConfigs, functionConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -45,6 +45,10 @@ export const plugin = new AppPlugin<{}>().setRootPage(App).addConfigPage({
 
 for (const linkConfig of linkConfigs) {
   plugin.addLink(linkConfig);
+}
+
+for (const functionConfig of functionConfigs) {
+  plugin.addFunction(functionConfig);
 }
 
 plugin.exposeComponent({
