@@ -34,7 +34,7 @@
   "author": "Grafana",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@babel/core": "^7.21.4",
+    "@babel/core": "^7.28.0",
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
     "@grafana/eslint-config": "^8.2.0",
