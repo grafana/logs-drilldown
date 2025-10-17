@@ -1,5 +1,5 @@
 # Final stage
-FROM golang:1.24
+FROM golang:1.24@sha256:02ce1d7ea7825dccb7cd10222e44e7c0565a08c5a38795e50fbf43936484507b
 
 WORKDIR /go/src/app
 
