@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/brianvoe/gofakeit/v7 v7.0.2
-	github.com/grafana/loki-client-go v0.0.0-20240913101849-64514f8fa38a
+	github.com/grafana/loki-client-go v0.0.0-20251015150631-c42bbddc310a
 	github.com/grafana/loki/pkg/push v0.0.0-20240912152814-63e84b476a9a
 	github.com/prometheus/common v0.34.0
 	github.com/spf13/pflag v1.0.5

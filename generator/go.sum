@@ -630,8 +630,8 @@ github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB7
 github.com/gorilla/websocket v0.0.0-20170926233335-4201258b820c/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
-github.com/grafana/loki-client-go v0.0.0-20240913101849-64514f8fa38a h1:K5qWKmdey8o4YlLfjNa6A0G1DEe1SK5PSqdNHK1A88g=
-github.com/grafana/loki-client-go v0.0.0-20240913101849-64514f8fa38a/go.mod h1:z4lrnn1Zkg6GKxQ67C1FB2VDWx14ogZOY6DIrlKfnWM=
+github.com/grafana/loki-client-go v0.0.0-20251015150631-c42bbddc310a h1:iiKc9C+1uNztJlrm+87u0yyxV3DK2nqskFncdFuSTQ8=
+github.com/grafana/loki-client-go v0.0.0-20251015150631-c42bbddc310a/go.mod h1:ZXSe0Hy5fQPZP6B9134/g33za4TTEJm4yj0utRb8H+8=
 github.com/grafana/loki/pkg/push v0.0.0-20240912152814-63e84b476a9a h1:azssgwCZo0RpSGECl9oi8mqv/x1yCkMh1B7WxjCWk/w=
 github.com/grafana/loki/pkg/push v0.0.0-20240912152814-63e84b476a9a/go.mod h1:lJEF/Wh5MYlmBem6tOYAFObkLsuikfrEf8Iy9AdMPiQ=
 github.com/grafana/regexp v0.0.0-20220304095617-2e8d9baf4ac2 h1:uirlL/j72L93RhV4+mkWhjv0cov2I0MIgPOG9rMDr1k=
