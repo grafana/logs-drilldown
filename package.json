@@ -54,7 +54,6 @@
     "@types/lodash": "4.17.20",
     "@types/node": "20.19.8",
     "@types/react-scroll-sync": "0.9.0",
-    "@types/react-table": "7.7.20",
     "@types/testing-library__jest-dom": "5.14.8",
     "@types/uuid": "10.0.0",
     "@typescript-eslint/eslint-plugin": "8.37.0",
@@ -109,7 +108,7 @@
     "@grafana/assistant": "0.1.0",
     "@grafana/data": "^12.2.0",
     "@grafana/i18n": "^12.2.0",
-    "@grafana/lezer-logql": "^0.2.7",
+    "@grafana/lezer-logql": "^0.2.9",
     "@grafana/runtime": "^12.2.0",
     "@grafana/scenes": "^6.39.0",
     "@grafana/schema": "^12.2.0",
@@ -122,6 +121,7 @@
     "re-resizable": "^6.11.2",
     "re2js": "^1.1.0",
     "react": "18.2.0",
+    "react-table": "^7.8.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.22.0",
     "rxjs": "7.8.2",
@@ -130,7 +130,7 @@
   },
   "resolutions": {
     "react-router-dom": "^6.22.0",
-    "uuid": "8.3.2"
+    "uuid": "^10.0.0"
   },
   "packageManager": "yarn@1.22.21"
 }
