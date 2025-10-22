@@ -13,8 +13,8 @@
   "packageRules": [
     {
       "description": "Group all Grafana packages together",
-      "matchPackagePatterns": ["^@grafana/"],
-      "groupName": "Grafana packages"
+      "groupName": "Grafana packages",
+      "matchPackageNames": ["/^@grafana//"]
     }
   ]
 }
