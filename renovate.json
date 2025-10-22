@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  "minimumReleaseAge": "30 days",
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": null
+  },
+  "prConcurrentLimit": 10,
+  "rebaseWhen": "behind-base-branch",
+  "schedule": ["on the first day of the month"],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "📦 Dependency Updates",
+  "semanticCommits": "enabled",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Group all Grafana packages together",
+      "matchPackagePatterns": ["^@grafana/"],
+      "groupName": "Grafana packages"
+    }
+  ]
+}
