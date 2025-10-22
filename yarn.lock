@@ -1221,10 +1221,10 @@
   resolved "https://registry.yarnpkg.com/@grafana/lezer-logql/-/lezer-logql-0.2.9.tgz#2c70626544cf93ac4a9557f07d24cb69ca6d316d"
   integrity sha512-SB9E2LQ689PiI/OPuBoTF93O5hBb1n8DbS3uSXfH2YYTsQELHqwU2HSM8BAI/ThX1ggkvIN9y0JyNTqfMKjlBA==
 
-"@grafana/plugin-e2e@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-2.2.0.tgz#e27c9c6182c4945d81d5d377a705c8a69fd0ed31"
-  integrity sha512-naw55M2UCJCKNZuZPzcAUPyRhQ7VEm+JLT6y7yuixMg3lhJKNnuHwE6pIOcvUdWsVPByOipixK84OJd5ODpaow==
+"@grafana/plugin-e2e@2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@grafana/plugin-e2e/-/plugin-e2e-2.2.2.tgz#a57011130d44e4cdff66f192c0cfa2f23a8797e3"
+  integrity sha512-mUvh/I2HyFYjLQkdGHSJ+leUcGa/92z8J+juD3b2+deerEUk6nmCpxTqkE91EcWhGxwhDH05E4oOhVeg/6Nd4Q==
   dependencies:
     "@grafana/e2e-selectors" "^12.2.0-255920"
     semver "^7.5.4"
