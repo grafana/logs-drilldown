@@ -34,11 +34,11 @@
   "author": "Grafana",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@babel/core": "7.28.0",
+    "@babel/core": "7.28.4",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "@grafana/eslint-config": "8.2.0",
-    "@grafana/plugin-e2e": "2.2.0",
+    "@grafana/plugin-e2e": "2.2.2",
     "@grafana/plugin-types-bundler": "0.3.7",
     "@grafana/tsconfig": "2.0.0",
     "@playwright/test": "1.54.1",
