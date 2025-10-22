@@ -62,7 +62,7 @@
     "cspell": "6.13.3",
     "css-loader": "6.11.0",
     "eslint": "8.57.1",
-    "eslint-config-prettier": "8.10.0",
+    "eslint-config-prettier": "8.10.2",
     "eslint-plugin-deprecation": "2.0.0",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsdoc": "46.10.1",
