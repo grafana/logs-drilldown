@@ -320,7 +320,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
             label: 'Copy link to log line',
             onClick: this.handleShareLogLine,
           },
-        ]);
+        ])
+        // @ts-expect-error Requires Grafana 12.3
+        .setOption('showFieldSelector', this.setDisplayedFields);
     }
 
     return panel.build();
