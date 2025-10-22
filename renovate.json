@@ -1,17 +1,15 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Extend Grafana Renovate Self-Hosted Configuration Template",
+  "ignorePresets": [
+    "github>grafana/grafana-renovate-config//presets/automerge",
+    "github>grafana/grafana-renovate-config//presets/labels",
+    "github>grafana/grafana-renovate-config//presets/docker"
+  ],
   "extends": ["config:best-practices"],
   "minimumReleaseAge": "30 days",
-  "vulnerabilityAlerts": {
-    "minimumReleaseAge": null
-  },
-  "prConcurrentLimit": 10,
-  "rebaseWhen": "behind-base-branch",
   "schedule": ["on the first day of the month"],
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "📦 Dependency Updates",
-  "semanticCommits": "enabled",
-  "labels": ["dependencies"],
+  "rebaseWhen": "behind-base-branch",
   "packageRules": [
     {
       "description": "Group all Grafana packages together",
