@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.0.30
+
+##### Chores
+
+* **renovate:**  add renovate.json, pin gha to versions, remove old workflows (#1591) (bfca4fb9)
+* **deps:**
+  *  update dependency @types/testing-library__jest-dom to v5.14.9 (#1587) (a71d0d49)
+  *  update dependency @grafana/plugin-e2e to v2.2.2 (#1585) (b9177b7f)
+  *  update dependency @babel/core to v7.28.4 (#1584) (12bbee06)
+  *  update grafana/shared-workflows/ action to (#1583) (d47ab19c)
+  *  update grafana/shared-workflows/ action to (#1578) (379bbf45)
+  *  pin dependencies (#1577) (e02237b2)
+*  bump @grafana/assistant to 0.1.0 (#1575) (fee5ebb0)
+*  bump @grafana/create-plugin configuration to 5.26.9 (#1559) (9e677349)
+
+##### New Features
+
+* **LogsPanel:**  enable field selector (#1590) (44f217f6)
+* **LogsListScene:**  add defaultDisplayedFields support (#1554) (cf080432)
+* **EmptyLogs:**  add button to fix with assistant (#1571) (01e343da)
+* **table:**  preferences (#1534) (924ebd23)
+
+##### Bug Fixes
+
+* **extensions:**  context.targets null check (#1589) (bdccee20)
+* **deps:**  update github.com/grafana/loki-client-go digest to c42bbdd (#1579) (9e08a22a)
+
+
 ## 1.0.29
 
 ##### Documentation Changes

@@ -180,7 +180,7 @@ export function setUrlParamsFromPatterns(patternFilters: PatternFilterType[], pa
 }
 
 function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
-  if (!context) {
+  if (!context || !context.targets) {
     return undefined;
   }
   const lokiQuery = context.targets.find((target) => target.datasource?.type === 'loki') as LokiQuery | undefined;
