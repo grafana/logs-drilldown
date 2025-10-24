@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { isAssistantAvailable, providePageContext, provideQuestions } from '@grafana/assistant';
+import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {

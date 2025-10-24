@@ -4,8 +4,14 @@ import { SceneObject } from '@grafana/scenes';
 import { FilterOp } from './filterTypes';
 import { PLUGIN_BASE_URL } from './plugin';
 import { getLokiDatasource } from './scenes';
-import { getFieldsVariable, getLabelsVariable, getLevelsVariable, getValueFromFieldsFilter } from './variableGetters';
-import { stripAdHocFilterUserInputPrefix, USER_INPUT_ADHOC_VALUE_PREFIX } from './variables';
+import {
+  getFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+  getMetadataVariable,
+  getValueFromFieldsFilter,
+} from './variableGetters';
+import { stripAdHocFilterUserInputPrefix } from './variables';
 
 export const updateAssistantContext = async (
   model: SceneObject,
@@ -50,24 +56,43 @@ export const updateAssistantContext = async (
     );
   }
 
-  const fieldsVar = getFieldsVariable(model);
-  if (fieldsVar.state.filters.length > 0) {
+  const metadataVar = getMetadataVariable(model);
+  if (metadataVar.state.filters.length > 0) {
     contexts.push(
-      ...fieldsVar.state.filters.map((filter) =>
-        createAssistantContextItem('structured', {
-          title: 'Field filters',
+      ...metadataVar.state.filters.map((filter) => {
+        return createAssistantContextItem('structured', {
+          title: 'Structured metadata filters',
           hidden: true,
           data: {
             datasourceUid: ds.uid,
             fieldName: filter.key,
-            fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(
-              getValueFromFieldsFilter(filter).value
-            )}`,
+            fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(filter.value)}`,
           },
-        })
-      )
+        });
+      })
     );
   }
+
+  const fieldsVar = getFieldsVariable(model);
+  if (fieldsVar.state.filters.length > 0) {
+    contexts.push(
+      ...fieldsVar.state.filters.map((filter) => {
+        const parsedFilter = getValueFromFieldsFilter(filter);
+        return createAssistantContextItem('structured', {
+          title: 'Parsed fields filters',
+          hidden: true,
+          data: {
+            datasourceUid: ds.uid,
+            fieldName: filter.key,
+            parser: parsedFilter.parser,
+            fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(parsedFilter.value)}`,
+          },
+        });
+      })
+    );
+  }
+
+  console.log(contexts);
 
   setAssistantContext(contexts);
 };
