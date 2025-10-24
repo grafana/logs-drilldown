@@ -4,7 +4,7 @@ import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
-import { EmbeddedLogsExplorationProps } from './types';
+import { MiniEmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import initRuntimeDs from 'services/datasource';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
@@ -15,9 +15,8 @@ export function buildLogsExplorationFromState({
   query,
   referenceQuery,
   timeRangeState,
-  options,
   ...state
-}: EmbeddedLogsExplorationProps) {
+}: MiniEmbeddedLogsExplorationProps) {
   const $timeRange = new SceneTimeRange(timeRangeState);
   $timeRange.subscribeToState((state) => {
     if (onTimeRangeChange) {
@@ -58,7 +57,6 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
-    embeddedOptions: options,
     initialLabels,
     referenceLabels,
   });

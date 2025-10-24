@@ -13,6 +13,7 @@ export enum PageSlugs {
   patterns = 'patterns',
   fields = 'fields',
   embed = 'embed',
+  miniembed = 'miniembed',
 }
 
 export enum ValueSlugs {

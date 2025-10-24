@@ -32,11 +32,13 @@ export type ParentDrilldownSlugs =
   | PageSlugs.logs
   | PageSlugs.labels
   | PageSlugs.patterns
-  | PageSlugs.embed;
+  | PageSlugs.embed
+  | PageSlugs.miniembed;
 export type ChildDrilldownSlugs = ValueSlugs.field | ValueSlugs.label;
 
 export const ROUTES = {
   embed: () => prefixRoute(PageSlugs.embed),
+  miniembed: () => prefixRoute(PageSlugs.miniembed),
   explore: () => prefixRoute(PageSlugs.explore),
   fields: (labelValue: string, labelName = 'service') =>
     prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.fields}`),
@@ -61,6 +63,7 @@ export const SUB_ROUTES = {
 
 export const ROUTE_DEFINITIONS: Record<keyof typeof PageSlugs, string> = {
   embed: `${PageSlugs.embed}/*`,
+  miniembed: `${PageSlugs.miniembed}/*`,
   explore: `${PageSlugs.explore}/*`,
   fields: `:labelName/:labelValue/${PageSlugs.fields}`,
   labels: `:labelName/:labelValue/${PageSlugs.labels}`,

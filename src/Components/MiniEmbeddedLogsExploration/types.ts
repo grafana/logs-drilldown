@@ -6,26 +6,10 @@ interface SceneTimeRangeStateStub {
   value: TimeRange;
 }
 
-export interface EmptyStateOptions {
-  customPrompt?: string;
-  promptCTA?: string;
-}
-
-type EmptyStateConfig = {
-  fields?: EmptyStateOptions;
-  labels?: EmptyStateOptions;
-  logs?: EmptyStateOptions;
-};
-
-export interface EmbeddedLogsOptions {
-  emptyStates: EmptyStateConfig;
-}
-
-interface EmbeddedLogsCommonProps {
+interface MiniEmbeddedLogsCommonProps {
   embedderName: string;
   namespace?: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
-  options?: EmbeddedLogsOptions;
   query: string;
   referenceQuery?: string;
   timeRangeState: SceneTimeRangeStateStub;
@@ -41,6 +25,6 @@ interface EmbeddedLogsExplorationTestingRoute {
   datasourceUid?: string;
 }
 
-export type EmbeddedLogsExplorationProps =
-  | (EmbeddedLogsExplorationFromQuery & EmbeddedLogsCommonProps)
-  | (EmbeddedLogsExplorationTestingRoute & EmbeddedLogsCommonProps);
+export type MiniEmbeddedLogsExplorationProps =
+  | (EmbeddedLogsExplorationFromQuery & MiniEmbeddedLogsCommonProps)
+  | (EmbeddedLogsExplorationTestingRoute & MiniEmbeddedLogsCommonProps);
