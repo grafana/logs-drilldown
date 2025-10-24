@@ -72,6 +72,13 @@
         "description": "Widget for displaying insights timeline in other apps"
       }
     ],
+    "addedFunctions": [
+      {
+        "targets": ["grafana-exploretraces-app/get-logs-drilldown-link/v1"],
+        "title": "Open Logs Drilldown",
+        "description": "Returns url to logs drilldown app"
+      }
+    ],
     "addedLinks": [
       {
         "targets": [
