@@ -342,6 +342,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         await updateAssistantContext(this, setAssistantContext);
       })
     );
+    this._subs.add(
+      getLevelsVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
     this.assistantInitialized = true;
   }
 

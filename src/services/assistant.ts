@@ -2,7 +2,7 @@ import { createAssistantContextItem, providePageContext } from '@grafana/assista
 import { SceneObject } from '@grafana/scenes';
 
 import { getLokiDatasource } from './scenes';
-import { getLabelsVariable } from './variableGetters';
+import { getLabelsVariable, getLevelsVariable } from './variableGetters';
 import { USER_INPUT_ADHOC_VALUE_PREFIX } from './variables';
 
 export const updateAssistantContext = async (
@@ -30,6 +30,19 @@ export const updateAssistantContext = async (
           datasourceUid: ds.uid,
           labelName: filter.key,
           labelValue: sanitizeValue(filter.value),
+        })
+      )
+    );
+  }
+
+  const levelsVar = getLevelsVariable(model);
+  if (levelsVar.state.filters.length > 0) {
+    contexts.push(
+      ...levelsVar.state.filters.map((filter) =>
+        createAssistantContextItem('label_value', {
+          datasourceUid: ds.uid,
+          labelName: filter.key,
+          labelValue: filter.value,
         })
       )
     );
