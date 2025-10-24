@@ -3,6 +3,7 @@ import { SceneObject } from '@grafana/scenes';
 
 import { getLokiDatasource } from './scenes';
 import { getLabelsVariable } from './variableGetters';
+import { USER_INPUT_ADHOC_VALUE_PREFIX } from './variables';
 
 export const updateAssistantContext = async (
   model: SceneObject,
@@ -28,7 +29,7 @@ export const updateAssistantContext = async (
         createAssistantContextItem('label_value', {
           datasourceUid: ds.uid,
           labelName: filter.key,
-          labelValue: filter.value,
+          labelValue: sanitizeValue(filter.value),
         })
       )
     );
@@ -36,3 +37,7 @@ export const updateAssistantContext = async (
 
   setAssistantContext(contexts);
 };
+
+function sanitizeValue(value: string) {
+  return value.replace(USER_INPUT_ADHOC_VALUE_PREFIX, '');
+}
