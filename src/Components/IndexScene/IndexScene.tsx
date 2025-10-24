@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
+import { isAssistantAvailable, providePageContext, provideQuestions } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
@@ -78,7 +78,11 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
-import { updateAssistantContext } from 'services/assistant';
+import {
+  provideServiceBreakdownQuestions,
+  provideServiceSelectionQuestions,
+  updateAssistantContext,
+} from 'services/assistant';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
@@ -292,16 +296,19 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       })
     );
 
+    const assistantUnregister: Array<{ unregister(): void }> = [];
     this._subs.add(
       isAssistantAvailable().subscribe((isAvailable) => {
         if (isAvailable && !this.assistantInitialized) {
-          this.provideAssistantContext();
+          assistantUnregister.push(this.provideAssistantQuestions());
+          assistantUnregister.push(this.provideAssistantContext());
         }
       })
     );
 
     return () => {
       clearKeyBindings();
+      assistantUnregister.forEach((callback) => callback.unregister());
     };
   }
 
@@ -329,6 +336,15 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return getContentScene(this.state.routeMatch?.params.breakdownLabel);
   }
 
+  private provideAssistantQuestions() {
+    const slug = getDrilldownSlug();
+    if (slug === PageSlugs.explore) {
+      return provideServiceSelectionQuestions();
+    } else {
+      return provideServiceBreakdownQuestions();
+    }
+  }
+
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
 
@@ -353,6 +369,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       })
     );
     this.assistantInitialized = true;
+
+    return setAssistantContext;
   }
 
   private subscribeToCombinedFieldsVariable = (

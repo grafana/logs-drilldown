@@ -1,7 +1,8 @@
-import { createAssistantContextItem, providePageContext } from '@grafana/assistant';
+import { createAssistantContextItem, providePageContext, provideQuestions } from '@grafana/assistant';
 import { SceneObject } from '@grafana/scenes';
 
 import { FilterOp } from './filterTypes';
+import { PLUGIN_BASE_URL } from './plugin';
 import { getLokiDatasource } from './scenes';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable, getValueFromFieldsFilter } from './variableGetters';
 import { stripAdHocFilterUserInputPrefix, USER_INPUT_ADHOC_VALUE_PREFIX } from './variables';
@@ -73,4 +74,29 @@ export const updateAssistantContext = async (
 
 function inequalityPrefix(operator: string) {
   return operator !== FilterOp.Equal ? operator : '';
+}
+
+export function provideServiceSelectionQuestions() {
+  return provideQuestions(`${PLUGIN_BASE_URL}/**`, [
+    {
+      prompt: 'How do I select the right service to see logs?',
+    },
+    {
+      prompt: 'Help me find labels with error spikes',
+    },
+  ]);
+}
+
+export function provideServiceBreakdownQuestions() {
+  return provideQuestions(`${PLUGIN_BASE_URL}/**`, [
+    {
+      prompt: 'Find the root cause of recent errors',
+    },
+    {
+      prompt: 'Detect spikes or anomalies in log volume',
+    },
+    {
+      prompt: "Summarize what's been happening lately",
+    },
+  ]);
 }
