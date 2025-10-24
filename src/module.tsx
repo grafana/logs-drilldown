@@ -6,6 +6,7 @@ import { initPluginTranslations } from '@grafana/i18n';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
+  SuspendedMiniEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
 import { linkConfigs } from 'services/extensions/links';
@@ -59,4 +60,11 @@ plugin.exposeComponent({
   description: 'A component that renders a logs exploration view that can be embedded in other parts of Grafana.',
   id: `grafana-lokiexplore-app/embedded-logs-exploration/v1`,
   title: 'Embedded Logs Exploration',
+});
+
+plugin.exposeComponent({
+  component: SuspendedMiniEmbeddedLogsExploration,
+  description: 'A component that renders a mini logs exploration view that can be embedded in small placeholders.',
+  id: `grafana-lokiexplore-app/mini-embedded-logs-exploration/v1`,
+  title: 'Mini Embedded Logs Exploration',
 });

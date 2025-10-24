@@ -6,6 +6,7 @@ import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 const OpenInLogsDrilldownButton = lazy(() => import('Components/OpenInLogsDrilldownButton/OpenInLogsDrilldownButton'));
 const EmbeddedLogsExploration = lazy(() => import('Components/EmbeddedLogsExploration/EmbeddedLogs'));
+const MiniEmbeddedLogsExploration = lazy(() => import('Components/MiniEmbeddedLogsExploration/EmbeddedLogs'));
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
   return (
@@ -25,6 +26,14 @@ export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationP
   return (
     <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
       <EmbeddedLogsExploration {...props} />
+    </Suspense>
+  );
+}
+
+export function SuspendedMiniEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
+  return (
+    <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
+      <MiniEmbeddedLogsExploration {...props} />
     </Suspense>
   );
 }

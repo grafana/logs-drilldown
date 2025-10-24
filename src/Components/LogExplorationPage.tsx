@@ -6,7 +6,8 @@ import { config } from '@grafana/runtime';
 import { SceneApp, useSceneApp } from '@grafana/scenes';
 
 import { initializeMetadataService } from '../services/metadata';
-import { makeEmbeddedPage, makeIndexPage, makeRedirectPage } from './Pages';
+import { makeEmbeddedPage } from './EmbeddedPages';
+import { makeIndexPage, makeRedirectPage } from './Pages';
 
 const getSceneApp = () =>
   new SceneApp({
