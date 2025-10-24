@@ -1,9 +1,10 @@
 import { createAssistantContextItem, providePageContext } from '@grafana/assistant';
 import { SceneObject } from '@grafana/scenes';
 
+import { FilterOp } from './filterTypes';
 import { getLokiDatasource } from './scenes';
-import { getLabelsVariable, getLevelsVariable } from './variableGetters';
-import { USER_INPUT_ADHOC_VALUE_PREFIX } from './variables';
+import { getFieldsVariable, getLabelsVariable, getLevelsVariable, getValueFromFieldsFilter } from './variableGetters';
+import { stripAdHocFilterUserInputPrefix, USER_INPUT_ADHOC_VALUE_PREFIX } from './variables';
 
 export const updateAssistantContext = async (
   model: SceneObject,
@@ -29,7 +30,7 @@ export const updateAssistantContext = async (
         createAssistantContextItem('label_value', {
           datasourceUid: ds.uid,
           labelName: filter.key,
-          labelValue: sanitizeValue(filter.value),
+          labelValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(filter.value)}`,
         })
       )
     );
@@ -48,11 +49,28 @@ export const updateAssistantContext = async (
     );
   }
 
-  console.log(contexts);
+  const fieldsVar = getFieldsVariable(model);
+  if (fieldsVar.state.filters.length > 0) {
+    contexts.push(
+      ...fieldsVar.state.filters.map((filter) =>
+        createAssistantContextItem('structured', {
+          title: 'Field filters',
+          hidden: true,
+          data: {
+            datasourceUid: ds.uid,
+            fieldName: filter.key,
+            fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(
+              getValueFromFieldsFilter(filter).value
+            )}`,
+          },
+        })
+      )
+    );
+  }
 
   setAssistantContext(contexts);
 };
 
-function sanitizeValue(value: string) {
-  return value.replace(USER_INPUT_ADHOC_VALUE_PREFIX, '');
+function inequalityPrefix(operator: string) {
+  return operator !== FilterOp.Equal ? operator : '';
 }
