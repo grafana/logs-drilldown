@@ -12,10 +12,10 @@ import { narrowPageSlug } from '../../services/narrowing';
 import { getDrillDownTabLink } from '../../services/navigate';
 import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
-import { IndexScene } from '../IndexScene/IndexScene';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
+import { getMaxLines } from 'services/store';
 
 export interface ActionBarSceneState extends SceneObjectState {
   maxLines?: number;
@@ -30,13 +30,9 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
   }
 
   onActivate() {
-    const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    const dataSource = indexScene.state.ds;
-    if (dataSource?.maxLines !== undefined) {
-      this.setState({
-        maxLines: dataSource.maxLines,
-      });
-    }
+    this.setState({
+      maxLines: getMaxLines(this),
+    });
 
     if (!this.state.shareButtonScene) {
       this.setState({

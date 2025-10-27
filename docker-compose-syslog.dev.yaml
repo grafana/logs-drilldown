@@ -2,6 +2,9 @@ version: '3.0'
 # Assumes you are running loki and the generator locally
 services:
   grafana:
+    extends:
+      file: .config/docker-compose-base.yaml
+      service: grafana
     container_name: 'grafana-logsapp'
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
@@ -10,8 +13,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-        grafana_version: ${GRAFANA_VERSION:-latest}
-    ports:
+    ports: !override
       - 3001:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/grafana-logsapp
@@ -20,7 +22,7 @@ services:
       - 'host.docker.internal:host-gateway'
 
   loki:
-    image: grafana/loki:k263-d446d47
+    image: grafana/loki:k263-d446d47@sha256:0447cac717544cd00bea3eac8647c0c186b6cb6f024fc517c7d10e347a4e9c9d
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -37,7 +39,7 @@ services:
       - 'host.docker.internal:host-gateway'
 
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:latest@sha256:6ab34b8201f0e8b0c4346be4934c9965723af3f7f21dd9a65fd73f270f69b451
     ports:
       - '12345:12345'
       - '1514:1514/udp'

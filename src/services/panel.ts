@@ -23,7 +23,7 @@ import {
   SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
-import { HideSeriesConfig, LogsSortOrder } from '@grafana/schema';
+import { HideSeriesConfig } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
@@ -31,17 +31,15 @@ import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
-import { LokiQuery, LokiQueryDirection } from './lokiQuery';
+import { LokiQuery } from './lokiQuery';
 import { maxSeriesReached } from './shardQuerySplitting';
-import { getLogOption } from './store';
-import { getLogsPanelSortOrderFromURL } from 'Components/ServiceScene/LogOptionsScene';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
-export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
+export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;
 export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
 export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
-export const ERROR_LEVEL_FIELD_NAME_REGEX = /^error$/i;
-export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
+export const ERROR_LEVEL_FIELD_NAME_REGEX = /^(error|errors)$/i;
+export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal|severe)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
 export const logsLabelLevelsMatches: Record<string, RegExp> = {
@@ -54,43 +52,36 @@ export const logsLabelLevelsMatches: Record<string, RegExp> = {
 };
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-green',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-blue',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-orange',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-red',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: '#705da0',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'darkgray',
     mode: 'fixed',
   });
 }
 
-export function setLogsVolumeFieldConfigs(
+export function setLogsVolumeFieldConfigOverrides(
   builder: ReturnType<typeof PanelBuilders.timeseries> | ReturnType<typeof FieldConfigBuilders.timeseries>
 ) {
-  return builder
-    .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
-    .setCustomFieldConfig('fillOpacity', 100)
-    .setCustomFieldConfig('lineWidth', 0)
-    .setCustomFieldConfig('pointSize', 0)
-    .setCustomFieldConfig('axisSoftMin', 0)
-    .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
-    .setOverrides(setLevelColorOverrides);
+  return builder.setOverrides(setLevelColorOverrides);
 }
 
 export function setValueSummaryFieldConfigs(
@@ -133,20 +124,25 @@ export function setLabelSeriesOverrides(labels: string[], overrideConfig: FieldC
 
 /**
  * Sets labels series visibility in the panel
+ * WARNING: Overwrites any fieldConfig overrides set in the panel builder!
  */
 export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sceneRef: SceneObject) {
   const focusedLevels = getVisibleLevels(getLevelLabelsFromSeries(series), sceneRef);
-  const config = setLogsVolumeFieldConfigs(FieldConfigBuilders.timeseries()).setOverrides(
+  const config = setLogsVolumeFieldConfigOverrides(FieldConfigBuilders.timeseries()).setOverrides(
     setLabelSeriesOverrides.bind(null, focusedLevels)
   );
+
   if (config instanceof FieldConfigBuilder && panel.getPlugin()) {
-    panel.onFieldConfigChange(config.build(), true);
+    const fieldConfig = config.build();
+    const mergedConfig = { overrides: fieldConfig.overrides, defaults: panel.state.fieldConfig.defaults };
+    panel.onFieldConfigChange(mergedConfig, true);
   }
 }
 
 /**
  * @todo unit test
- * Set levels series visibility in the panel
+ * Set field visibility in the panel
+ * WARNING: Overwrites fieldConfig set in the panel builder!
  */
 export function syncLabelsValueSummaryVisibleSeries(
   key: string,
@@ -300,7 +296,7 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [sortLevelTransformation],
+      transformations: [],
     });
   }
 
@@ -313,15 +309,6 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
       }),
       transformations: [setColorByDisplayNameTransformation],
     });
-  } else {
-    queries = queries.map((query) => ({
-      ...query,
-      get direction() {
-        const sortOrder =
-          getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
-        return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
-      },
-    }));
   }
 
   return getSceneQueryRunner({

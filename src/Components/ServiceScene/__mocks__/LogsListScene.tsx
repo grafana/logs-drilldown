@@ -10,6 +10,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: state.displayedFields ?? [],
+      defaultDisplayedFields: state.defaultDisplayedFields ?? [],
+      controlsExpanded: false,
       panel: new SceneFlexLayout({
         children: [
           new LogOptionsScene({

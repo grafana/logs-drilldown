@@ -1,6 +1,6 @@
 import { LogsDedupStrategy } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
-import { SceneObject, VariableValue } from '@grafana/scenes';
+import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
@@ -14,6 +14,8 @@ import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
 import { getDataSourceName } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;
@@ -210,6 +212,23 @@ function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string,
   }
   return `${ds}.${label}.${replaceSlash(value)}`;
 }
+// https://github.com/grafana/grafana/blob/3d009ff7edf6095f79e95bc60b728acf04149665/public/app/plugins/datasource/loki/datasource.ts#L102
+const DEFAULT_MAX_LINES = 1000;
+export function getMaxLines(sceneRef: SceneObject): number {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  const maxLines = parseInt(localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`) ?? '0', 10);
+  if (maxLines > 0) {
+    return maxLines;
+  }
+  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+  const dataSource = indexScene.state.ds;
+  return dataSource?.maxLines ?? DEFAULT_MAX_LINES;
+}
+
+export function setMaxLines(sceneRef: SceneObject, maxLines: number) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`, maxLines.toString());
+}
 
 export function getDisplayedFields(sceneRef: SceneObject): string[] {
   const PREFIX = getExplorationPrefix(sceneRef);
@@ -248,7 +267,7 @@ export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   return localStorageResult ? (localStorageResult as T) : defaultValue;
 }
 
-export function getBooleanLogOption(option: keyof Options, defaultValue: boolean): boolean {
+export function getBooleanLogOption(option: keyof Options | 'controlsExpanded', defaultValue: boolean): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
     return defaultValue;
@@ -256,7 +275,10 @@ export function getBooleanLogOption(option: keyof Options, defaultValue: boolean
   return !(localStorageResult === '' || localStorageResult === 'false');
 }
 
-export function setLogOption(option: keyof Options, value: string | number | boolean) {
+export function setLogOption(
+  option: keyof Options | 'maxLines' | 'controlsExpanded',
+  value: string | number | boolean
+) {
   let storedValue = value.toString();
   localStorage.setItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`, storedValue);
 }
@@ -444,4 +466,23 @@ export function getFieldsPanelTypes(): FieldsPanelsType | null {
 
 export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
   localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
+}
+
+// Collapsible filters
+const COLLAPSIBLE_FILTERS_KEY = `${pluginJson.id}.filters.collapsed`;
+export function getCollapsibleFiltersState(): boolean {
+  return !!localStorage.getItem(COLLAPSIBLE_FILTERS_KEY);
+}
+
+export function setCollapsibleFiltersState(state: boolean) {
+  localStorage.setItem(COLLAPSIBLE_FILTERS_KEY, state ? 'true' : '');
+}
+
+// Table settings
+const TABLE_LOG_LINE_LOCALSTORAGE_KEY = `${pluginJson.id}.table.logLine`;
+export function getTableLogLine(): LogLineState {
+  return localStorage.getItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY) as LogLineState;
+}
+export function setTableLogLine(value: LogLineState) {
+  localStorage.setItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY, value);
 }

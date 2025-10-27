@@ -2,6 +2,9 @@ version: '3.0'
 # Assumes you are running loki and the generator locally
 services:
   grafana:
+    extends:
+      file: .config/docker-compose-base.yaml
+      service: grafana
     container_name: 'grafana-logsapp'
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
@@ -10,8 +13,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-        grafana_version: ${GRAFANA_VERSION:-latest}
-    ports:
+    ports: !override
       - 3001:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/grafana-logsapp

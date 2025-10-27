@@ -17,16 +17,16 @@ To use Grafana Logs Drilldown to view your logs data, you can either access it i
 
 {{< docs/play title="the Grafana Play site" url="https://play.grafana.org/a/grafana-lokiexplore-app/explore?var-ds=ddhr3fttaw8aod&var-patterns=&var-lineFilter=&var-logsFormat=" >}}
 
-## Access in Grafana Cloud
+## Access in Grafana and Grafana Cloud
 
-To access Grafana Logs Drilldown:
+Grafana Logs Drilldown is installed by default in both Grafana and Grafana Cloud. To access Grafana Logs Drilldown:
 
 1. Open your Grafana stack in a web browser.
 1. In the main menu, select **Drilldown** > **Logs**.
 
 ## Installation
 
-If you are not using Grafana Cloud, you can install Grafana Logs Drilldown in your Grafana environment.
+Logs Drilldown has been installed by default since Grafana v11.3.0.  If you are upgrading, you may need to manually install the plugin.
 
 ### Install via Plugins catalog
 
@@ -36,7 +36,7 @@ For Enterprise and OSS Grafana users, you can install Grafana Logs Drilldown via
 1. Click the **Installation** tab.
 1. Follow the instructions to install the app.
 
-### Install in Loki
+### Enable in Loki configuration
 
 The following Loki and Grafana version and configuration are required:
 
@@ -64,7 +64,7 @@ The following Loki and Grafana version and configuration are required:
 If you want to [install the app in a Docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), you need to configure the following environment variable:
 
 ```sh
-GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app
+GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip;grafana-lokiexplore-app
 ```
 
 ### Install using grafana-cli
@@ -74,7 +74,7 @@ You can install Grafana Logs Drilldown in your own Grafana instance using `grafa
 Using `grafana-cli` run the following command:
 
 ```sh
-grafana-cli --pluginUrl=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip plugins install grafana-lokiexplore-app
+grafana-cli --pluginUrl=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip plugins install grafana-lokiexplore-app
 ```
 
 ## Test with Docker Compose

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
@@ -20,8 +22,8 @@ import {
   SceneVariableValueChangedEvent,
   VariableDependencyConfig,
 } from '@grafana/scenes';
-import { VariableHide } from '@grafana/schema';
-import { LoadingPlaceholder } from '@grafana/ui';
+import { LogsSortOrder, VariableHide } from '@grafana/schema';
+import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
@@ -52,13 +54,17 @@ import {
 import { JsonData } from '../AppConfig/AppConfig';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
+import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
+import { getLogOption, getMaxLines } from 'services/store';
 import {
   DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
@@ -97,6 +103,21 @@ export interface ServiceSceneCustomState {
   patternsCount?: number;
   totalLogsCount?: number;
 }
+
+enum LabelFiltersInvalidReason {
+  Empty = 'empty',
+  PrimaryLabelRemoved = 'primary_label_removed',
+}
+
+type LabelFiltersStatus =
+  | {
+      isValid: true;
+    }
+  | {
+      isValid: false;
+      newPrimaryLabel?: AdHocFilterWithLabels<{}>;
+      reason: LabelFiltersInvalidReason;
+    };
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
   $data: SceneDataProvider | undefined;
@@ -159,7 +180,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     >
   ) {
     super({
-      $data: getServiceSceneQueryRunner(),
+      $data: undefined,
       $detectedFieldsData: getDetectedFieldsQueryRunner(),
       $detectedLabelsData: getDetectedLabelsQueryRunner(),
       $logsCount: getLogCountQueryRunner(),
@@ -178,52 +199,90 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
+  private handleInvalidLabels(reason: LabelFiltersInvalidReason, newPrimaryLabel?: AdHocFilterWithLabels) {
+    if (reason === LabelFiltersInvalidReason.Empty) {
+      if (!this.state.embedded) {
+        this.redirectToStart();
+      }
+    }
+
+    if (reason === LabelFiltersInvalidReason.PrimaryLabelRemoved) {
+      // If we have a new label let's update the slugs in the url
+      if (newPrimaryLabel) {
+        let { breakdownLabel } = getRouteParams(this);
+        this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
+      }
+      // Otherwise we don't have any labels, redirect back to start
+      else if (!this.state.embedded) {
+        this.redirectToStart();
+      }
+    }
+  }
+
+  /**
+   * Returns the correctness of the current label filters, and newPrimaryLabel if it's possible to switch over to a new primary label
+   */
+  public getLabelFiltersStatus(newFilters: AdHocFilterWithLabels[]): LabelFiltersStatus {
+    const labelsVariable = getLabelsVariable(this);
+
+    // check if we have any labels at all
+    if (labelsVariable.state.filters.length === 0) {
+      return { isValid: false, reason: LabelFiltersInvalidReason.Empty };
+    }
+    // check if we have any inclusive labels at all
+    else {
+      // If we remove the service name filter, we should redirect to the start
+      let { labelName: primaryLabelInRoute, labelValue } = getRouteParams(this);
+
+      // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
+      const isValidLegacyURL =
+        primaryLabelInRoute === SERVICE_UI_LABEL &&
+        newFilters.some(
+          (f) =>
+            f.key === SERVICE_NAME &&
+            isOperatorInclusive(f.operator) &&
+            replaceSlash(f.value) === replaceSlash(labelValue)
+        );
+
+      const primaryLabelMissingInFilters = !newFilters.some(
+        (f) =>
+          f.key === primaryLabelInRoute &&
+          isOperatorInclusive(f.operator) &&
+          replaceSlash(f.value) === replaceSlash(labelValue)
+      );
+
+      // The "primary" label used in the URL is no longer active, pick a new one
+      if (primaryLabelMissingInFilters && !isValidLegacyURL) {
+        const newPrimaryLabel = newFilters.find(
+          (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
+        );
+
+        if (newPrimaryLabel) {
+          return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved, newPrimaryLabel };
+        } else {
+          return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved };
+        }
+      }
+    }
+
+    return { isValid: true };
+  }
+
   private setSubscribeToLabelsVariable() {
     const labelsVariable = getLabelsVariable(this);
-    if (labelsVariable.state.filters.length === 0) {
-      this.redirectToStart();
-      return;
+    const status = this.getLabelFiltersStatus(labelsVariable.state.filters);
+    if (!status.isValid) {
+      this.handleInvalidLabels(status.reason, status.newPrimaryLabel);
     }
 
     this._subs.add(
       labelsVariable.subscribeToState((newState, prevState) => {
-        // If there are no label filters, the logQL query is not valid, redirect back to start so the user can select an initial label/value pair.
-        if (newState.filters.length === 0) {
-          this.redirectToStart();
+        const status = this.getLabelFiltersStatus(newState.filters);
+        if (!status.isValid) {
+          this.handleInvalidLabels(status.reason, status.newPrimaryLabel);
         }
 
-        // If we remove the service name filter, we should redirect to the start
-        let { breakdownLabel, labelName, labelValue } = getRouteParams(this);
-
-        // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
-        if (labelName === SERVICE_UI_LABEL) {
-          labelName = SERVICE_NAME;
-        }
-
-        // The "primary" label used in the URL is no longer active, pick a new one
-        if (
-          !newState.filters.some(
-            (f) =>
-              f.key === labelName &&
-              isOperatorInclusive(f.operator) &&
-              replaceSlash(f.value) === replaceSlash(labelValue)
-          )
-        ) {
-          const newPrimaryLabel = newState.filters.find(
-            (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
-          );
-
-          // If we have a new label let's update the slugs in the url
-          if (newPrimaryLabel) {
-            this.handlePrimaryLabelChange(newPrimaryLabel, breakdownLabel);
-
-            // Otherwise we don't have any labels, redirect back to start
-          } else {
-            this.redirectToStart();
-          }
-
-          // Primary label didn't change, but our labels did, execute the required queries so we're not showing invalid options in the UI
-        } else if (!areArraysEqual(newState.filters, prevState.filters)) {
+        if (status.isValid && !areArraysEqual(newState.filters, prevState.filters)) {
           this.state.$patternsData?.runQueries();
           this.state.$detectedLabelsData?.runQueries();
           this.state.$detectedFieldsData?.runQueries();
@@ -404,6 +463,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private onActivate() {
     if (!this.state.body) {
       this.setState({ body: this.buildGraphScene() });
+    }
+    if (!this.state.$data) {
+      this.setState({
+        $data: getLogsQueryQueryRunner(this),
+      });
     }
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
@@ -665,11 +729,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
   }
 
-  private resetBodyAndData() {
+  private resetBodyAndData = () => {
     let stateUpdate: Partial<ServiceSceneState> = {};
 
     if (!this.state.$data) {
-      stateUpdate.$data = getServiceSceneQueryRunner();
+      stateUpdate.$data = getLogsQueryQueryRunner(this);
     }
 
     if (!this.state.$patternsData) {
@@ -695,7 +759,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (Object.keys(stateUpdate).length) {
       this.setState(stateUpdate);
     }
-  }
+  };
 
   private buildGraphScene() {
     return new SceneFlexLayout({
@@ -753,6 +817,30 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
     const { body } = model.useState();
+    const indexScene = sceneGraph.getAncestor(model, IndexScene);
+
+    const { filters } = getLabelsVariable(model).useState();
+    const status = model.getLabelFiltersStatus(filters);
+
+    if (!status.isValid) {
+      return (
+        <Alert
+          title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
+          severity="info"
+        >
+          <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
+            {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
+              <p>You need at least one label with inclusive matching.</p>
+            )}
+            {status.reason === LabelFiltersInvalidReason.Empty && (
+              <p>Please select at least one label to see the logs breakdown.</p>
+            )}
+            <ResetFiltersButton indexScene={indexScene} />
+          </div>
+        </Alert>
+      );
+    }
+
     if (body) {
       return <body.Component model={body} />;
     }
@@ -799,8 +887,20 @@ function getDetectedFieldsQueryRunner() {
   );
 }
 
-function getServiceSceneQueryRunner() {
-  return getQueryRunner([buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID })]);
+function getLogsQueryQueryRunner(sceneRef: SceneObject) {
+  const query = {
+    ...buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID }),
+    get direction() {
+      const sortOrder =
+        getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
+      return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
+    },
+    get maxLines() {
+      return getMaxLines(sceneRef);
+    },
+  };
+
+  return getQueryRunner([query], undefined);
 }
 
 function getLogCountQueryRunner() {

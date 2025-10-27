@@ -3,11 +3,16 @@ import React from 'react';
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { useChromeHeaderHeight } from '@grafana/runtime';
+import { t } from '@grafana/i18n';
+import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
-import { getJsonParserVariableVisibility } from '../../services/store';
+import {
+  getCollapsibleFiltersState,
+  getJsonParserVariableVisibility,
+  setCollapsibleFiltersState,
+} from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
 import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
@@ -20,17 +25,30 @@ import {
   LayoutScene,
 } from './LayoutScene';
 import { PatternControls } from './PatternControls';
+import { ResetFiltersButton } from './ResetFiltersButton';
+import { PageSlugs } from 'services/enums';
+import { getDrilldownSlug } from 'services/routing';
 
 type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
+  collapsed?: boolean;
   embeddedLink?: EmbeddedLinkScene;
   position: HeaderPosition;
 }
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
   constructor(props: VariableLayoutSceneState) {
-    super(props);
+    const collapsed = getCollapsibleFiltersState();
+
+    super({
+      ...props,
+      collapsed,
+    });
 
     this.addActivationHandler(this.onActivate.bind(this));
+
+    reportInteraction('grafana_logs_app_filters_collapse_state', {
+      collapsed,
+    });
   }
 
   public onActivate() {
@@ -42,13 +60,26 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     }
   }
 
+  public toggleCollapsedState = () => {
+    const collapsed = !this.state.collapsed;
+    this.setState({
+      collapsed,
+    });
+    setCollapsibleFiltersState(collapsed);
+    reportInteraction('grafana_logs_app_filters_collapse_toggled', {
+      collapsed,
+    });
+  };
+
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns } = indexScene.useState();
+    const { controls, patterns, embedded } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
-    const styles = useStyles2((theme) => getStyles(theme, height ?? 40));
+    const { collapsed } = model.useState();
+    const styles = useStyles2((theme) => getStyles(theme, height ?? 40, collapsed));
+    const slug = getDrilldownSlug();
 
     return (
       <div
@@ -69,10 +100,25 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                     ) : null;
                   })}
                 </div>
+                {embedded && <ResetFiltersButton indexScene={indexScene} />}
               </div>
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
+                  {slug !== PageSlugs.explore && (
+                    <ToolbarButton
+                      className={collapsed ? styles.iconCollapsed : styles.iconExpanded}
+                      variant={collapsed ? 'active' : 'canvas'}
+                      icon="arrow-from-right"
+                      onClick={model.toggleCollapsedState}
+                      tooltip={
+                        collapsed
+                          ? t('logs.logs-drilldown-header.expand', 'Expand filters')
+                          : t('logs.logs-drilldown-header.collapse', 'Collapse filters')
+                      }
+                    />
+                  )}
+
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
                   {controls.map((control) => {
@@ -147,7 +193,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   };
 }
 
-function getStyles(theme: GrafanaTheme2, height: number) {
+function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false) {
   return {
     controlsContainer: css({
       display: 'flex',
@@ -174,7 +220,7 @@ function getStyles(theme: GrafanaTheme2, height: number) {
         display: 'none',
       },
       alignItems: 'flex-start',
-      display: 'flex',
+      display: headerCollapsed ? 'none' : 'flex',
       // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
       gap: theme.spacing(2),
       label: 'controls-row',
@@ -228,6 +274,16 @@ function getStyles(theme: GrafanaTheme2, height: number) {
       gap: theme.spacing(1),
       justifyContent: 'flex-end',
       label: 'timeRangeDatasource',
+    }),
+    iconCollapsed: css({
+      svg: {
+        transform: 'rotate(90deg)',
+      },
+    }),
+    iconExpanded: css({
+      svg: {
+        transform: 'rotate(-90deg)',
+      },
     }),
   };
 }

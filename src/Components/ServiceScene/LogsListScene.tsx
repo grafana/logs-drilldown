@@ -2,7 +2,8 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { locationService } from '@grafana/runtime';
+import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
+import { config, locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneFlexItem,
@@ -19,25 +20,40 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
+import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
+import { IndexScene } from '../IndexScene/IndexScene';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
+import { LineLimitScene } from './LineLimitScene';
+import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
+import { ServiceScene } from './ServiceScene';
+import { isEmptyLogsResult } from 'services/logsFrame';
 import {
+  getBooleanLogOption,
   getDisplayedFields,
   getLogsVisualizationType,
+  getLogsVolumeOption,
   LogsVisualizationType,
   setLogsVisualizationType,
 } from 'services/store';
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
+  canClearFilters?: boolean;
+  controlsExpanded: boolean;
+  defaultDisplayedFields: string[];
   displayedFields: string[];
+  error?: string;
+  errorType?: ErrorType;
   lineFilter?: string;
   loading?: boolean;
+  logsVolumeCollapsedByError?: boolean;
   panel?: SceneFlexLayout;
   selectedLine?: SelectedTableRow;
   tableLogLineState?: LogLineState;
@@ -56,7 +72,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: [],
+      defaultDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
+      // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
+      controlsExpanded: getBooleanLogOption('controlsExpanded', false),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -169,6 +188,91 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
         }
       })
     );
+
+    // Subscribe to logs query runner for error handling (all visualization types)
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const logsQueryRunner = serviceScene.state.$data;
+    if (logsQueryRunner) {
+      this._subs.add(
+        logsQueryRunner.subscribeToState((newState, prevState) => {
+          if (newState.data?.state === LoadingState.Error) {
+            this.handleLogsError(newState.data);
+          } else if (newState.data?.state === LoadingState.Done && isEmptyLogsResult(newState.data.series)) {
+            this.handleNoData();
+          } else if (this.state.error) {
+            this.clearLogsError();
+          }
+        })
+      );
+    }
+  }
+
+  handleLogsError(data: PanelData) {
+    const error = data.errors?.length ? data.errors[0] : data.error;
+    const errorResponse = error?.message;
+    if (errorResponse) {
+      logger.error(new Error('Logs Panel error'), {
+        msg: errorResponse,
+        status: error.statusText ?? 'N/A',
+        type: error.type ?? 'N/A',
+      });
+    }
+
+    let errorMessage = 'Unexpected error response. Please review your filters or try a different time range.';
+    if (errorResponse?.includes('parse error')) {
+      errorMessage =
+        'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
+    } else if (errorResponse?.includes('response larger than the max message size')) {
+      errorMessage =
+        'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
+    } else if (errorResponse?.toLowerCase().includes('max entries limit')) {
+      errorMessage = 'Max entries limit per query exceeded. Please review your "Line limit" setting and try again.';
+    }
+
+    this.showLogsError(errorMessage);
+  }
+
+  handleNoData() {
+    if (this.state.canClearFilters) {
+      this.showLogsError(
+        'No logs match your search. Please review your filters or try a different time range.',
+        'no-logs'
+      );
+    } else {
+      this.showLogsError(
+        'No logs match your search. Please try a with different labels or an alternative time range.',
+        'no-logs'
+      );
+    }
+  }
+
+  showLogsError(error: string, errorType: ErrorType = 'other') {
+    const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const clearableVariables = getVariablesThatCanBeCleared(indexScene);
+    const canClearFilters = clearableVariables.length > 0;
+
+    this.setState({ canClearFilters, error, errorType, logsVolumeCollapsedByError });
+
+    // Recreate the panel with the new error state
+    this.updateLogsPanel();
+
+    if (logsVolumeCollapsedByError) {
+      const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
+      logsVolume?.state.panel?.setState({ collapsed: true });
+    }
+  }
+
+  clearLogsError() {
+    if (this.state.logsVolumeCollapsedByError) {
+      const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
+      logsVolume?.state.panel?.setState({ collapsed: false });
+    }
+
+    this.setState({ error: undefined, errorType: undefined, logsVolumeCollapsedByError: undefined });
+
+    // Recreate the panel with the cleared error state
+    this.updateLogsPanel();
   }
 
   private setStateFromUrl(searchParams: URLSearchParams) {
@@ -216,8 +320,21 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   public setVisualizationType = (type: LogsVisualizationType) => {
+    let extraStateChanges: Partial<LogsListSceneState> = {};
+
+    // Clean up default displayed fields
+    if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
+      if (shallowCompare(this.state.displayedFields, this.state.defaultDisplayedFields)) {
+        extraStateChanges = {
+          displayedFields: [],
+          defaultDisplayedFields: [],
+        };
+      }
+    }
+
     this.setState({
       visualizationType: type,
+      ...extraStateChanges,
     });
 
     reportAppInteraction(
@@ -231,7 +348,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   private getVizPanel() {
-    this.logsPanelScene = new LogsPanelScene({});
+    const { error, errorType, canClearFilters } = this.state;
+
+    this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
 
     const children =
       this.state.visualizationType === 'logs'
@@ -242,6 +361,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                   body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
                   xSizing: 'fill',
                 }),
+                new SceneFlexItem({
+                  body: new LineLimitScene({ error }),
+                  xSizing: 'content',
+                }),
               ],
             }),
             new SceneFlexItem({
@@ -251,22 +374,38 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           ]
         : this.state.visualizationType === 'json'
         ? [
-            new SceneFlexItem({
-              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-              xSizing: 'fill',
+            new SceneFlexLayout({
+              children: [
+                new SceneFlexItem({
+                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                  xSizing: 'fill',
+                }),
+                new SceneFlexItem({
+                  body: new LineLimitScene({ error }),
+                  xSizing: 'content',
+                }),
+              ],
             }),
             new SceneFlexItem({
-              body: new JSONLogsScene({}),
+              body: new JSONLogsScene({ error, canClearFilters }),
               height: 'calc(100vh - 220px)',
             }),
           ]
         : [
-            new SceneFlexItem({
-              body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-              xSizing: 'fill',
+            new SceneFlexLayout({
+              children: [
+                new SceneFlexItem({
+                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                  xSizing: 'fill',
+                }),
+                new SceneFlexItem({
+                  body: new LineLimitScene({ error }),
+                  xSizing: 'content',
+                }),
+              ],
             }),
             new SceneFlexItem({
-              body: new LogsTableScene({}),
+              body: new LogsTableScene({ error, canClearFilters }),
               height: 'calc(100vh - 220px)',
             }),
           ];

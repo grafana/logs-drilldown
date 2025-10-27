@@ -334,6 +334,9 @@ export class AddToFiltersButton extends SceneObjectBase<AddToFiltersButtonState>
 
     // Check if the filter is already there
     const filterInSelectedFilters = variable.state.filters.find((f) => {
+      if (variable.state.name === VAR_LABELS) {
+        return f.key === filter.name && f.value === filter.value;
+      }
       const isMetadata = isFilterMetadata(filter);
       const value = getValueFromAdHocVariableFilter(isMetadata ? VAR_METADATA : VAR_FIELDS, f);
       return f.key === filter.name && value.value === filter.value;

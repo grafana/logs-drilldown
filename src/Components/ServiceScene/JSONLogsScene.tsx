@@ -8,7 +8,6 @@ import {
   SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
-  SceneQueryRunner,
 } from '@grafana/scenes';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
@@ -19,13 +18,16 @@ import {
 } from '../../services/fields';
 import { preProcessJSONDataFrame } from '../../services/JSONDataFrame';
 import { narrowLogsSortOrder } from '../../services/narrowing';
-import { getPrettyQueryExpr } from '../../services/scenes';
+import { getPrettyQueryExpr, setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { LogsListScene } from './LogsListScene';
+import { ErrorType } from './LogsPanelError';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 import { logger } from 'services/logger';
+import { runSceneQueries } from 'services/query';
 import {
   getBooleanLogOption,
   getJSONHighlightState,
@@ -38,8 +40,11 @@ import {
 const LogsJSONComponent = lazy(() => import('./JSONPanel/LogsJSONComponent'));
 
 interface JSONLogsSceneState extends SceneObjectState {
+  canClearFilters?: boolean;
   data?: PanelData;
   emptyScene?: NoMatchingLabelsScene;
+  error?: string;
+  errorType?: ErrorType;
   hasHighlight: boolean;
   hasJSONFields?: boolean;
   hasLabels: boolean;
@@ -131,6 +136,8 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       }),
     });
 
+    setControlsExpandedStateFromLocalStorage(sceneGraph.getAncestor(this, LogsListScene));
+
     const $data = sceneGraph.getData(this);
     if ($data.state.data?.state === LoadingState.Done) {
       this.updateJSONDataFrame($data.state.data);
@@ -196,6 +203,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       true
     );
   }
+
   private updateJSONDataFrame(panelData: PanelData) {
     this.setState(preProcessJSONDataFrame(panelData, this));
   }
@@ -208,12 +216,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       return;
     }
     setLogOption('sortOrder', newOrder);
-    const $data = sceneGraph.getData(this);
-    const queryRunner =
-      $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
-    if (queryRunner) {
-      queryRunner.runQueries();
-    }
+    runSceneQueries(this);
     this.setState({ sortOrder: newOrder });
   };
 

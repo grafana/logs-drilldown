@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react';
 
-import { DataFrame, getValueFormat, LoadingState, LogRowModel, PanelData } from '@grafana/data';
+import { DataFrame, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -11,7 +11,6 @@ import {
   SceneObjectState,
   SceneObjectUrlSyncConfig,
   SceneObjectUrlValues,
-  SceneQueryRunner,
   VizPanel,
 } from '@grafana/scenes';
 import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
@@ -27,7 +26,6 @@ import {
   getBooleanLogOption,
   getDedupStrategy,
   getLogOption,
-  getLogsVolumeOption,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
   setDisplayedFields,
@@ -38,28 +36,28 @@ import {
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
-import { IndexScene } from '../IndexScene/IndexScene';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
+import { DEFAULT_URL_COLUMNS_LEVELS, DEFAULT_URL_COLUMNS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
-import { LogsPanelError } from './LogsPanelError';
-import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolumePanel';
+import { ErrorType, LogsPanelError } from './LogsPanelError';
+import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
-import { isEmptyLogsResult } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
+import { runSceneQueries } from 'services/query';
 import { getPrettyQueryExpr } from 'services/scenes';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
-import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
+import { clearVariables } from 'services/variableHelpers';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
   canClearFilters?: boolean;
   dedupStrategy: LogsDedupStrategy;
   error?: string;
-  logsVolumeCollapsedByError?: boolean;
+  errorType?: ErrorType;
   prettifyLogMessage: boolean;
   series: DataFrame[];
   sortOrder: LogsSortOrder;
@@ -74,7 +72,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
       dedupStrategy: LogsDedupStrategy.none,
-      error: undefined,
       prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
@@ -158,16 +155,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(
       serviceScene.subscribeToState((newState, prevState) => {
-        if (newState.$data?.state.data?.state === LoadingState.Error) {
-          this.handleLogsError(newState.$data?.state.data);
-        } else if (
-          newState.$data?.state.data?.state === LoadingState.Done &&
-          isEmptyLogsResult(newState.$data?.state.data.series)
-        ) {
-          this.handleNoData();
-        } else if (this.state.error) {
-          this.clearLogsError();
-        }
         if (newState.logsCount !== prevState.logsCount) {
           if (!this.state.body) {
             this.setState({
@@ -192,64 +179,14 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     );
   }
 
-  handleLogsError(data: PanelData) {
-    const error = data.errors?.length ? data.errors[0] : data.error;
-    const errorResponse = error?.message;
-    if (errorResponse) {
-      logger.error(new Error('Logs Panel error'), {
-        msg: errorResponse,
-        status: error.statusText ?? 'N/A',
-        type: error.type ?? 'N/A',
-      });
-    }
-
-    let errorMessage = 'Unexpected error response. Please review your filters or try a different time range.';
-    if (errorResponse?.includes('parse error')) {
-      errorMessage =
-        'Logs could not be retrieved due to invalid filter parameters. Please review your filters and try again.';
-    } else if (errorResponse?.includes('response larger than the max message size')) {
-      errorMessage =
-        'The response is too large to process. Try narrowing your search or using filters to reduce the data size.';
-    }
-
-    this.showLogsError(errorMessage);
-  }
-
-  handleNoData() {
-    if (this.state.canClearFilters) {
-      this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
-    } else {
-      this.showLogsError('No logs match your search. Please try a different time range.');
-    }
-  }
-
-  showLogsError(error: string) {
-    const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
-    const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    const clearableVariables = getVariablesThatCanBeCleared(indexScene);
-    this.setState({ canClearFilters: clearableVariables.length > 0, error, logsVolumeCollapsedByError });
-
-    if (logsVolumeCollapsedByError) {
-      const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
-      logsVolume.state.panel?.setState({ collapsed: true });
-    }
-  }
-
-  clearLogsError() {
-    if (this.state.logsVolumeCollapsedByError) {
-      const logsVolume = sceneGraph.findByKeyAndType(this, logsVolumePanelKey, LogsVolumePanel);
-      logsVolume.state.panel?.setState({ collapsed: false });
-    }
-
-    this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
-  }
-
   setDisplayedFields = (fields: string[]) => {
     this.setLogsVizOption({
       displayedFields: fields,
     });
-    setDisplayedFields(this, fields);
     const parent = this.getParentScene();
+    if (!fields.length || shallowCompare(fields, parent.state.defaultDisplayedFields) === false) {
+      setDisplayedFields(this, fields);
+    }
     parent.setState({ displayedFields: fields });
   };
 
@@ -284,6 +221,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       parent.setState({ displayedFields });
       setDisplayedFields(this, displayedFields);
 
+      // Remove displayed fields from url columns
+      parent.setState({
+        urlColumns: parent.state.urlColumns?.filter((urlColumn) => urlColumn !== field) || [],
+      });
+
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.logs_toggle_displayed_field
@@ -296,12 +238,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       return;
     }
     if ('sortOrder' in options && options.sortOrder !== this.state.body.state.options.sortOrder) {
-      const $data = sceneGraph.getData(this);
-      const queryRunner =
-        $data instanceof SceneQueryRunner ? $data : sceneGraph.findDescendents($data, SceneQueryRunner)[0];
-      if (queryRunner) {
-        queryRunner.runQueries();
-      }
+      runSceneQueries(this);
     }
     this.state.body.onOptionsChange(options);
   }
@@ -314,6 +251,17 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       displayedFields: [],
     });
     setDisplayedFields(this, []);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    const urlColumns = parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
   };
 
   private getParentScene() {
@@ -366,20 +314,24 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('showControls', true)
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
-        // @ts-expect-error Requires Grafana 12.2
         .setOption('setDisplayedFields', this.setDisplayedFields)
         .setOption('logLineMenuCustomItems', [
           {
             label: 'Copy link to log line',
             onClick: this.handleShareLogLine,
           },
-        ]);
+        ])
+        // @ts-expect-error Requires Grafana 12.3
+        .setOption('showFieldSelector', this.setDisplayedFields);
     }
 
     return panel.build();
   };
 
-  private handleLogOptionsChange = (option: keyof Options, value: string | string[] | boolean) => {
+  private handleLogOptionsChange = (
+    option: keyof Options | 'defaultDisplayedFields',
+    value: string | string[] | boolean
+  ) => {
     if (option === 'sortOrder' && isLogsSortOrder(value)) {
       this.setState({ sortOrder: value });
       this.setLogsVizOption({ sortOrder: value });
@@ -393,6 +345,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       setDedupStrategy(this, value);
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
+    } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
+      const parent = this.getParentScene();
+      parent.setState({ defaultDisplayedFields: value });
     }
   };
 
@@ -542,14 +497,20 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
-    const { body, canClearFilters, error } = model.useState();
+    const { body, canClearFilters, error, errorType } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
+
     if (body) {
       return (
         <span className={styles.panelWrapper}>
           {!error && <body.Component model={body} />}
           {error && (
-            <LogsPanelError error={error} clearFilters={canClearFilters ? () => clearVariables(body) : undefined} />
+            <LogsPanelError
+              error={error}
+              errorType={errorType}
+              clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
+              sceneRef={model}
+            />
           )}
         </span>
       );

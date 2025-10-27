@@ -309,7 +309,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
         const indexScene = sceneGraph.getAncestor(this, IndexScene);
         const variablesToClear = getVariablesThatCanBeCleared(indexScene);
 
-        if (variablesToClear.length > 1) {
+        if (variablesToClear.length > 0) {
           this.setState({
             body: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
           });
