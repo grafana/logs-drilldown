@@ -121,6 +121,7 @@ errwrap
 esac
 estargz
 evanphx
+exploretraces
 Extrated
 fastuuid
 fatih

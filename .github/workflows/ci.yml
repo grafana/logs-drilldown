@@ -1,4 +1,4 @@
-name: Plugins - CI / CD
+name: Plugins Platform - CI / CD
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   cd:
     name: CI / CD
-    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@main # zizmor: ignore[unpinned-uses]
+    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@ci-cd-workflows/v3.2.0
     permissions:
       contents: write
       id-token: write
