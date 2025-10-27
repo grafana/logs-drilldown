@@ -92,8 +92,6 @@ export const updateAssistantContext = async (
     );
   }
 
-  console.log(contexts);
-
   setAssistantContext(contexts);
 };
 
