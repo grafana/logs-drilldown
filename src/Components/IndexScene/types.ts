@@ -21,10 +21,10 @@ export interface IndexSceneState extends SceneObjectState {
   embedded?: boolean;
   embeddedOptions?: EmbeddedLogsOptions;
   embedderName?: string;
+  initialLabels?: AdHocVariableFilter[];
   // @todo update comment when we know what Loki will contain https://github.com/grafana/loki/pull/19028
   // A null response indicates the Loki instance does not support the new config endpoint, and is probably < 3.6
   lokiConfig?: LokiConfig | null;
-  initialLabels?: AdHocVariableFilter[];
   patterns?: AppliedPattern[];
   referenceLabels?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;

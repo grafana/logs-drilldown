@@ -40,6 +40,7 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
+import { getResourceQueryRunner } from '../../services/panel';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -118,7 +119,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-import { getResourceQueryRunner } from '../../services/panel';
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
