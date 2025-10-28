@@ -30,6 +30,7 @@ import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from '../../services/datasourceTypes';
 import { PageSlugs } from '../../services/enums';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
@@ -336,19 +337,34 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
   /**
    * Subscribes to Loki config resource api call, sets response to IndexScene state
+   * @todo clean this up if loki < 3.6 is not supported
    */
   private subscribeToLokiConfigAPI() {
-    if (this.state.lokiConfig !== null && !this.state.$lokiConfig.state.data?.series.length) {
-      this.state.$lokiConfig.runQueries();
+    const isLokiConfigAPIAvailable = this.state.lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED;
+    if (isLokiConfigAPIAvailable && !this.state.$lokiConfig.state.data?.series.length) {
+      // Check singleton for cached config for uncached scenes
+      const lokiConfig = getMetadataService().getLokiConfig();
+      if (lokiConfig) {
+        this.setState({
+          lokiConfig,
+        });
+      } else {
+        this.state.$lokiConfig.runQueries();
+      }
     }
 
     return this.state.$lokiConfig.subscribeToState((newState, prevState) => {
-      // @todo update comment when we know what Loki will contain https://github.com/grafana/loki/pull/19028
-      // Loki versions before 3.6? will not have the new API endpoint
+      // Loki versions before 3.6 will not have the new API endpoint, so we expect a 404 response
       if (newState.data?.state === LoadingState.Error) {
-        this.setState({ lokiConfig: null });
+        this.setState({ lokiConfig: LOKI_CONFIG_API_NOT_SUPPORTED });
+        getMetadataService().setLokiConfig(LOKI_CONFIG_API_NOT_SUPPORTED);
       } else if (newState.data?.state === LoadingState.Done && newState.data?.series.length > 0) {
-        this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
+        const lokiConfig = newState.data?.series[0].fields[0].values[0];
+        if (lokiConfig) {
+          // @todo we can't subscribe to metadata singleton like we can scene state, so we can't just pull config from singleton?
+          this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
+          getMetadataService().setLokiConfig(lokiConfig);
+        }
       }
     });
   }

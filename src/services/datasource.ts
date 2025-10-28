@@ -512,7 +512,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   ) {
     try {
       const config: LokiConfig = await ds.getResource(
-        'config',
+        'drilldown-limits',
         {},
         {
           // Don't show warnings if the endpoint doesn't exist
@@ -524,7 +524,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
         }
       );
       const df = createDataFrame({
-        fields: [{ name: 'config', values: [config] }],
+        fields: [{ name: 'drilldown-limits', values: [config] }],
       });
 
       subscriber.next({ data: [df], state: LoadingState.Done });

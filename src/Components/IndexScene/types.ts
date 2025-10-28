@@ -1,7 +1,7 @@
 import { AdHocVariableFilter } from '@grafana/data';
 import { SceneObject, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 
-import { LokiConfig } from '../../services/datasourceTypes';
+import { LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { LineFilterType } from '../../services/filterTypes';
 import { LokiDatasource } from '../../services/lokiQuery';
 import { AppliedPattern } from '../../services/variables';
@@ -22,9 +22,8 @@ export interface IndexSceneState extends SceneObjectState {
   embeddedOptions?: EmbeddedLogsOptions;
   embedderName?: string;
   initialLabels?: AdHocVariableFilter[];
-  // @todo update comment when we know what Loki will contain https://github.com/grafana/loki/pull/19028
   // A null response indicates the Loki instance does not support the new config endpoint, and is probably < 3.6
-  lokiConfig?: LokiConfig | null;
+  lokiConfig?: LokiConfig | LokiConfigNotSupported;
   patterns?: AppliedPattern[];
   referenceLabels?: AdHocVariableFilter[];
   routeMatch?: OptionalRouteMatch;
