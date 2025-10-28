@@ -359,7 +359,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       } else if (newState.data?.state === LoadingState.Done && newState.data?.series.length > 0) {
         const lokiConfig = newState.data?.series[0].fields[0].values[0];
         if (lokiConfig) {
-          // @todo we can't subscribe to metadata singleton like we can scene state, so we can't just pull config from singleton?
+          // we can't subscribe to metadata singleton like we can scene state, so we shouldn't pull config from singleton except to set the initial indexScene state
           this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
           getMetadataService().setLokiConfig(lokiConfig);
         }
