@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getConfigQueryRunner } from '../../services/panel';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
@@ -61,6 +62,7 @@ export function buildLogsExplorationFromState({
     embeddedOptions: options,
     initialLabels,
     referenceLabels,
+    $lokiConfig: getConfigQueryRunner(),
   });
 }
 

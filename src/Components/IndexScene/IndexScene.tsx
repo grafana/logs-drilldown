@@ -41,7 +41,7 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
-import { getResourceQueryRunner } from '../../services/panel';
+import { getConfigQueryRunner } from '../../services/panel';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -83,7 +83,6 @@ import { IndexSceneState } from './types';
 import { updateAssistantContext } from 'services/assistant';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
-  buildResourceQuery,
   getJsonParserExpressionBuilder,
   getLineFormatExpressionBuilder,
   interpolateExpression,
@@ -305,7 +304,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     );
 
     this._subs.add(this.subscribeToLokiConfigAPI());
-
     return () => {
       clearKeyBindings();
     };
@@ -849,12 +847,4 @@ function getVariableSet(
       ],
     }),
   };
-}
-
-export const CONFIG_QUERY_REFID = 'config';
-
-export function getConfigQueryRunner() {
-  return getResourceQueryRunner([buildResourceQuery(``, 'config', {})], {
-    runQueriesMode: 'manual',
-  });
 }

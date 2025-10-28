@@ -30,7 +30,7 @@ import {
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
-import { getConfigQueryRunner, IndexScene } from './IndexScene/IndexScene';
+import { IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
 
 export type RouteProps = { breakdownLabel?: string; labelName: string; labelValue: string };
@@ -96,7 +96,7 @@ function getEmbeddedScene() {
     value: timeRange,
   });
 
-  const props: EmbeddedLogsExplorationProps & IndexSceneState = {
+  const props: EmbeddedLogsExplorationProps & Pick<IndexSceneState, 'embedded'> = {
     embedded: true,
     embedderName: 'EmbeddedLogs',
     options: {
@@ -110,7 +110,6 @@ function getEmbeddedScene() {
     query,
     timeRangeState: $timeRange.state,
     referenceQuery: query,
-    $lokiConfig: getConfigQueryRunner(),
   };
 
   return new EmbeddedScene({
