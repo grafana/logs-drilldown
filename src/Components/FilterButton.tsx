@@ -67,7 +67,8 @@ const getStyles = (theme: GrafanaTheme2, isIncluded: boolean, isExcluded: boolea
       borderRadius: `0 ${theme.shape.radius.default} ${theme.shape.radius.default} 0`,
     }),
     includeButton: css({
-      borderRadius: 0,
+      borderBottomRightRadius: 0,
+      borderTopRightRadius: 0,
       borderRight: isIncluded || hideExclude ? undefined : 'none',
     }),
   };
