@@ -206,6 +206,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          showErrorAlert: false,
           requestId: request.requestId ?? 'patterns',
         }
       );
