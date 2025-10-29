@@ -24,7 +24,7 @@ services:
       # Using "host-gateway" would be more portable across different Docker setups but fails in our CI build
       - 'host.docker.internal:172.17.0.1'
   loki:
-    image: grafana/loki:k263-d446d47@sha256:0447cac717544cd00bea3eac8647c0c186b6cb6f024fc517c7d10e347a4e9c9d
+    image: grafana/loki:k276-c416352
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'

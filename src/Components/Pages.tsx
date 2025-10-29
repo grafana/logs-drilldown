@@ -96,7 +96,7 @@ function getEmbeddedScene() {
     value: timeRange,
   });
 
-  const props: EmbeddedLogsExplorationProps & IndexSceneState = {
+  const props: EmbeddedLogsExplorationProps & Pick<IndexSceneState, 'embedded'> = {
     embedded: true,
     embedderName: 'EmbeddedLogs',
     options: {

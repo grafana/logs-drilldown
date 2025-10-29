@@ -1,7 +1,9 @@
 import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
+import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
 
 let metadataService: MetadataService;
 
+type LokiConfigState = LokiConfig | undefined | LokiConfigNotSupported;
 export function initializeMetadataService(force = false): void {
   if (!metadataService || force) {
     metadataService = new MetadataService();
@@ -13,6 +15,7 @@ export function initializeMetadataService(force = false): void {
  */
 export class MetadataService {
   private serviceSceneState: ServiceSceneCustomState | undefined = undefined;
+  private lokiConfig: LokiConfigState;
   public getServiceSceneState() {
     return this.serviceSceneState;
   }
@@ -58,6 +61,15 @@ export class MetadataService {
       patternsCount: state.patternsCount,
       totalLogsCount: state.totalLogsCount,
     };
+  }
+
+  public setLokiConfig(lokiConfig: LokiConfig | LokiConfigNotSupported) {
+    this.lokiConfig = lokiConfig;
+  }
+
+  // Don't call this except to init the IndexScene.lokiConfig state!
+  public getLokiConfig() {
+    return this.lokiConfig;
   }
 }
 
