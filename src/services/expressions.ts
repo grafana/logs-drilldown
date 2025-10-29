@@ -28,16 +28,8 @@ import {
  * @param streamSelectorName - the name of the stream selector we are aggregating by
  * @param excludeEmpty - if true, the query will exclude empty values for the given streamSelectorName
  */
-export function getTimeSeriesExpr(sceneRef: SceneObject, streamSelectorName: string, excludeEmpty = true): string {
+export function getTimeSeriesExpr(sceneRef: SceneObject, streamSelectorName: string): string {
   const fieldsVariable = getFieldsVariable(sceneRef);
-
-  let metadataExpressionToAdd = '';
-  if (excludeEmpty) {
-    // `LEVEL_VARIABLE_VALUE` is a special case where we don't want to add this to the stream selector
-    if (streamSelectorName === LEVEL_VARIABLE_VALUE) {
-      metadataExpressionToAdd = `| ${LEVEL_VARIABLE_VALUE} != ""`;
-    }
-  }
 
   const fieldFilters = fieldsVariable.state.filters;
   const parser = getParserFromFieldsFilters(fieldsVariable);
@@ -45,16 +37,16 @@ export function getTimeSeriesExpr(sceneRef: SceneObject, streamSelectorName: str
   // if we have fields, we also need to add parsers
   if (fieldFilters.length) {
     if (parser === 'mixed') {
-      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
+      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }
     if (parser === 'json') {
-      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
+      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${JSON_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }
     if (parser === 'logfmt') {
-      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
+      return `sum(count_over_time({${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }
   }
-  return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
+  return `sum(count_over_time({${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
 }
 
 /**

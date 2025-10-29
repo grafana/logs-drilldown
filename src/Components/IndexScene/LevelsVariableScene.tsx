@@ -15,10 +15,11 @@ import {
 import { Icon, MultiSelect, useStyles2 } from '@grafana/ui';
 
 import { FilterOp } from '../../services/filterTypes';
+import { isDetectedLevelSupported } from '../../services/levels';
 import { addCurrentUrlToHistory } from '../../services/navigate';
 import { testIds } from '../../services/testIds';
 import { getLevelsVariable } from '../../services/variableGetters';
-import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
+import { LEVEL_LABEL_VALUE, LEVEL_VARIABLE_VALUE } from '../../services/variables';
 
 type ChipOption = MetricFindValue & { selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
@@ -59,10 +60,9 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
   getTagValues = () => {
     this.setState({ isLoading: true });
     const levelsVar = getLevelsVariable(this);
-    const levelsKeys = levelsVar?.state?.getTagValuesProvider?.(
-      levelsVar,
-      levelsVar.state.filters[0] ?? { key: LEVEL_VARIABLE_VALUE }
-    );
+    const key = isDetectedLevelSupported(this) ? LEVEL_VARIABLE_VALUE : LEVEL_LABEL_VALUE;
+    const levelsKeys = levelsVar?.state?.getTagValuesProvider?.(levelsVar, levelsVar.state.filters[0] ?? { key });
+
     levelsKeys?.then((response) => {
       if (Array.isArray(response.values)) {
         const newOptions = response.values.map((value) => {
@@ -91,6 +91,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
     levelsVar.updateFilters(
       filterOptions?.map((filterOpt) => ({
+        // @todo discover_log_levels: false
         key: LEVEL_VARIABLE_VALUE,
         operator: FilterOp.Equal,
         value: filterOpt.text,

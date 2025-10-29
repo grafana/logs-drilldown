@@ -465,6 +465,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       .setData(
         getQueryRunner(
           [
+            // @todo discover_log_levels: false
             buildDataQuery(this.getMetricExpression(primaryLabelValue, serviceLabelVar, primaryLabelVar), {
               legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
               refId: `ts-${primaryLabelValue}`,

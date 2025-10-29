@@ -231,6 +231,7 @@ export async function getLabelsTagValuesProvider(
       }
     }
 
+    console.log('results', results);
     return { replace: true, values: results };
   } else {
     logger.error(new Error('getTagValuesProvider: missing or invalid datasource!'));

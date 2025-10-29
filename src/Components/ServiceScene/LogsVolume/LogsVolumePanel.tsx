@@ -19,22 +19,23 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
+import { toggleLabelFromFilter } from '../../../services/labels';
 import { LogsVolumeActions } from '../LogsVolumeActions';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
-import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { AddFilterEvent, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
 import { getTimeSeriesExpr } from 'services/expressions';
-import { toggleLevelFromFilter } from 'services/levels';
+import { isDetectedLevelSupported, toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
-import { LEVEL_VARIABLE_VALUE } from 'services/variables';
+import { LEVEL_LABEL_VALUE, LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
   panel?: VizPanel;
@@ -64,6 +65,17 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const labels = getLabelsVariable(this);
     const fields = getFieldsVariable(this);
 
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    this._subs.add(
+      indexScene.subscribeToState((newState, prevState) => {
+        if (newState.lokiConfig !== prevState.lokiConfig) {
+          this.setState({
+            panel: this.getVizPanel(),
+          });
+        }
+      })
+    );
+
     // Set panel on labels variable filter update
     this._subs.add(
       labels.subscribeToState((newState, prevState) => {
@@ -89,7 +101,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     // trigger variable render on AddFilterEvent, set filter state to trigger logs panel query
     this._subs.add(
       this.subscribeToEvent(AddFilterEvent, (event) => {
-        if (event.key === LEVEL_VARIABLE_VALUE) {
+        const detectedLevelSupported = isDetectedLevelSupported(this);
+        if (detectedLevelSupported && event.key === LEVEL_VARIABLE_VALUE) {
           const levelsVariableScene = sceneGraph.findObject(this, (obj) => obj instanceof LevelsVariableScene);
           if (levelsVariableScene instanceof LevelsVariableScene) {
             const levelsVar = getLevelsVariable(this);
@@ -118,15 +131,18 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private setCollapsed(collapsed: boolean | undefined, panel: VizPanel) {
+    console.log('setCollapsed', collapsed);
     if (collapsed) {
       panel.setState({
         $data: undefined,
       });
     } else {
+      const detectedLevelSupported = isDetectedLevelSupported(this);
+      console.log('detectedLevelSupported', detectedLevelSupported);
       panel.setState({
         $data: getQueryRunner([
-          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
+          buildDataQuery(getTimeSeriesExpr(this, detectedLevelSupported ? LEVEL_VARIABLE_VALUE : LEVEL_LABEL_VALUE), {
+            legendFormat: `{{${detectedLevelSupported ? LEVEL_VARIABLE_VALUE : LEVEL_LABEL_VALUE}}}`,
           }),
         ]),
       });
@@ -139,6 +155,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private getVizPanel() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const isCollapsed = getLogsVolumeOption('collapsed');
+    console.log('isCollapsed', isCollapsed);
+    const detectedLevelSupported = isDetectedLevelSupported(this);
     // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
@@ -164,9 +182,12 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         isCollapsed
           ? undefined
           : getQueryRunner([
-              buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-                legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
-              }),
+              buildDataQuery(
+                getTimeSeriesExpr(this, detectedLevelSupported ? LEVEL_VARIABLE_VALUE : LEVEL_LABEL_VALUE),
+                {
+                  legendFormat: `{{${detectedLevelSupported ? LEVEL_VARIABLE_VALUE : LEVEL_LABEL_VALUE}}}`,
+                }
+              ),
             ])
       );
 
@@ -267,7 +288,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private extendTimeSeriesLegendBus = (context: PanelContext) => {
-    const levelFilter = getLevelsVariable(this);
+    const detectedLevelSupported = isDetectedLevelSupported(this);
+    const levelFilter = detectedLevelSupported ? getLevelsVariable(this) : getLabelsVariable(this);
     this._subs.add(
       levelFilter?.subscribeToState(() => {
         const panel = this.state.panel;
@@ -280,8 +302,24 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     );
 
     context.onToggleSeriesVisibility = (label: string, mode: SeriesVisibilityChangeMode) => {
-      const action = toggleLevelFromFilter(label, this);
-      this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, label), true);
+      const detectedLevelSupported = isDetectedLevelSupported(this);
+      let action: FilterType;
+      if (detectedLevelSupported) {
+        action = toggleLevelFromFilter(label, this);
+      } else {
+        action = toggleLabelFromFilter(LEVEL_LABEL_VALUE, label, this);
+      }
+
+      console.log('onToggleSeriesVisibility', { label, detectedLevelSupported, action });
+      this.publishEvent(
+        new AddFilterEvent(
+          'legend',
+          'include',
+          detectedLevelSupported ? LEVEL_VARIABLE_VALUE : LEVEL_LABEL_VALUE,
+          label
+        ),
+        true
+      );
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,

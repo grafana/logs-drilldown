@@ -36,6 +36,7 @@ import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
 import { FilterOp, LineFilterType } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
+import { isDetectedLevelSupported } from '../../services/levels';
 import { logger } from '../../services/logger';
 import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
@@ -237,6 +238,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
   public onActivate() {
     const stateUpdate: Partial<IndexSceneState> = {};
+    this._subs.add(this.subscribeToLokiConfigAPI());
     this.setVariableProviders();
 
     // Show "show logs" button
@@ -302,8 +304,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         }
       })
     );
-
-    this._subs.add(this.subscribeToLokiConfigAPI());
     return () => {
       clearKeyBindings();
     };
@@ -360,7 +360,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         const lokiConfig = newState.data?.series[0].fields[0].values[0];
         if (lokiConfig) {
           // we can't subscribe to metadata singleton like we can scene state, so we shouldn't pull config from singleton except to set the initial indexScene state
-          this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
+          this.setState({ lokiConfig });
           getMetadataService().setLokiConfig(lokiConfig);
         }
       }
@@ -603,14 +603,19 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
       const interpolated = interpolateExpression(this, expr);
 
-      return getDetectedFieldValuesTagValuesProvider(
-        filter,
-        variable,
-        interpolated,
-        this,
-        sceneGraph.getTimeRange(this).state.value,
-        VAR_LEVELS
-      );
+      if (isDetectedLevelSupported(this)) {
+        return getDetectedFieldValuesTagValuesProvider(
+          filter,
+          variable,
+          interpolated,
+          this,
+          sceneGraph.getTimeRange(this).state.value,
+          VAR_LEVELS
+        );
+      } else {
+        // @todo this is a giant mess doomed to fail
+        return getLabelsTagValuesProvider(variable, filter);
+      }
     };
   }
 

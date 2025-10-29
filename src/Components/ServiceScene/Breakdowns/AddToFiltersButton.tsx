@@ -288,6 +288,7 @@ export function replaceFilter(
 
 export function validateVariableNameForField(field: string, variableName: InterpolatedFilterType) {
   // Special case: If the key is LEVEL_VARIABLE_VALUE, we need to use the VAR_FIELDS.
+  // @todo discover_log_levels: false
   if (field === LEVEL_VARIABLE_VALUE) {
     return VAR_LEVELS;
   }

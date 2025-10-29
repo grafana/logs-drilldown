@@ -28,6 +28,7 @@ import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from '../../services/datasourceTypes';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
 import { clearJSONParserFields } from '../../services/fields';
@@ -395,9 +396,9 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
   }
 
-  private showVariables() {
+  private setVariableVisibility(levelVisible = true) {
     const levelsVar = sceneGraph.findByKeyAndType(this, LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene);
-    levelsVar.setState({ visible: true });
+    levelsVar.setState({ visible: levelVisible });
     getFieldsAndMetadataVariable(this).setState({ hide: VariableHide.dontHide });
   }
 
@@ -469,12 +470,25 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         $data: getLogsQueryQueryRunner(this),
       });
     }
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    indexScene.subscribeToState((newState, prevState) => {
+      if (
+        newState.lokiConfig !== prevState.lokiConfig &&
+        newState.lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED &&
+        !newState.lokiConfig?.limits.discover_log_levels
+      ) {
+        this.setVariableVisibility(false);
+      } else {
+        this.setVariableVisibility(true);
+      }
+    });
+
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: true });
-    this.showVariables();
     this.getMetadata();
     this.resetBodyAndData();
+    this.setVariableVisibility(true);
 
     this.setBreakdownView();
 
@@ -659,6 +673,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
             (f) => LEVEL_VARIABLE_VALUE !== f.name
           );
 
+          // @todo discover_log_levels: false
           this.setState({
             labelsCount: removeSpecialFields.length + 1, // Add one for detected_level
           });

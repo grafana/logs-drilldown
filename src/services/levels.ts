@@ -1,7 +1,9 @@
 import { DataFrame } from '@grafana/data';
-import { SceneObject } from '@grafana/scenes';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
+import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from './datasourceTypes';
 import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
 import { getLevelsVariable } from './variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from './variables';
@@ -108,4 +110,14 @@ export function toggleLevelFromFilter(level: string, sceneRef: SceneObject): Fil
     addToFilters(LEVEL_VARIABLE_VALUE, level, 'toggle', sceneRef, VAR_LEVELS);
     return 'toggle';
   }
+}
+
+export function isDetectedLevelSupported(sceneObject: SceneObject): boolean {
+  const lokiConfig = sceneGraph.getAncestor(sceneObject, IndexScene).state.lokiConfig;
+  if (lokiConfig && lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED) {
+    console.log('isDetectedLevelSupported', lokiConfig.limits.discover_log_levels);
+    return lokiConfig.limits.discover_log_levels;
+  }
+  console.log('isDetectedLevelSupported', true);
+  return true;
 }

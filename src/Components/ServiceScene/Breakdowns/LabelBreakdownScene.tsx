@@ -20,6 +20,7 @@ import { Alert, useStyles2 } from '@grafana/ui';
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
 import { ValueSlugs } from '../../../services/enums';
+import { isDetectedLevelSupported } from '../../../services/levels';
 import { navigateToValueBreakdown } from '../../../services/navigate';
 import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
@@ -197,7 +198,10 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   private updateOptions(detectedLabels: DataFrame | undefined) {
     if (detectedLabels && detectedLabels.length) {
       const variable = getLabelGroupByVariable(this);
-      const options = getLabelOptions(detectedLabels.fields.map((label) => label.name));
+      const options = getLabelOptions(
+        detectedLabels.fields.map((label) => label.name),
+        isDetectedLevelSupported(this)
+      );
 
       variable.setState({
         loading: false,

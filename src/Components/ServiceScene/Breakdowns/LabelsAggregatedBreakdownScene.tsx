@@ -18,9 +18,10 @@ import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafan
 
 import { ValueSlugs } from '../../../services/enums';
 import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
+import { isDetectedLevelSupported } from '../../../services/levels';
 import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
 import { getFieldsVariable, getLabelGroupByVariable } from '../../../services/variableGetters';
-import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/variables';
+import { ALL_VARIABLE_VALUE, LEVEL_LABEL_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
 import { ServiceScene } from '../ServiceScene';
 import { LabelBreakdownScene } from './LabelBreakdownScene';
@@ -234,15 +235,28 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
   }
 
   private sortChildren(cardinalityMap: Map<string, number>) {
+    const detectedLevelSupported = isDetectedLevelSupported(this);
     return (a: SceneCSSGridItem, b: SceneCSSGridItem) => {
       const aPanel = a.state.body as VizPanel;
       const bPanel = b.state.body as VizPanel;
-      if (aPanel.state.title === LEVEL_VARIABLE_VALUE) {
-        return -1;
+
+      // Put levels first
+      if (detectedLevelSupported) {
+        if (aPanel.state.title === LEVEL_VARIABLE_VALUE) {
+          return -1;
+        }
+        if (bPanel.state.title === LEVEL_VARIABLE_VALUE) {
+          return 1;
+        }
+      } else {
+        if (aPanel.state.title === LEVEL_LABEL_VALUE) {
+          return -1;
+        }
+        if (bPanel.state.title === LEVEL_LABEL_VALUE) {
+          return 1;
+        }
       }
-      if (bPanel.state.title === LEVEL_VARIABLE_VALUE) {
-        return 1;
-      }
+
       const aCardinality = cardinalityMap.get(aPanel.state.title) ?? 0;
       const bCardinality = cardinalityMap.get(bPanel.state.title) ?? 0;
       return bCardinality - aCardinality;

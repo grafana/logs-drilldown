@@ -67,7 +67,7 @@ describe('getLabelOptions', () => {
       { label: 'Label B', value: 'Label B' },
     ];
 
-    expect(getLabelOptions(labels)).toEqual(expectedOptions);
+    expect(getLabelOptions(labels, true)).toEqual(expectedOptions);
   });
 
   it('should not add LEVEL_VARIABLE_VALUE if it is already in the list', () => {
@@ -79,7 +79,7 @@ describe('getLabelOptions', () => {
       { label: 'Label B', value: 'Label B' },
     ];
 
-    expect(getLabelOptions(labels)).toEqual(expectedOptions);
+    expect(getLabelOptions(labels, true)).toEqual(expectedOptions);
   });
 
   it('should always add the All option at the beginning', () => {
@@ -91,7 +91,7 @@ describe('getLabelOptions', () => {
       { label: 'Label B', value: 'Label B' },
     ];
 
-    expect(getLabelOptions(labels)).toEqual(expectedOptions);
+    expect(getLabelOptions(labels, true)).toEqual(expectedOptions);
   });
 
   it('should work correctly with an empty label list', () => {
@@ -101,7 +101,7 @@ describe('getLabelOptions', () => {
       { label: LEVEL_VARIABLE_VALUE, value: LEVEL_VARIABLE_VALUE },
     ];
 
-    expect(getLabelOptions(labels)).toEqual(expectedOptions);
+    expect(getLabelOptions(labels, true)).toEqual(expectedOptions);
   });
 });
 

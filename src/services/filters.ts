@@ -9,6 +9,7 @@ import { getFieldsVariable, getJSONFieldsVariable, getLineFormatVariable } from 
 import {
   ALL_VARIABLE_VALUE,
   isAdHocFilterValueUserInput,
+  LEVEL_LABEL_VALUE,
   LEVEL_VARIABLE_VALUE,
   stripAdHocFilterUserInputPrefix,
 } from './variables';
@@ -33,10 +34,19 @@ export function sortLabelsByCardinality(a: DetectedLabel, b: DetectedLabel) {
 
 // Creates label options by taking all labels and if LEVEL_VARIABLE_VALUE is not in the list, it is added at the beginning.
 // It also adds 'All' option at the beginning
-export function getLabelOptions(labels: string[]) {
+export function getLabelOptions(labels: string[], detectedLevelSupported: boolean) {
   const options = [...labels];
-  if (!labels.includes(LEVEL_VARIABLE_VALUE)) {
-    options.unshift(LEVEL_VARIABLE_VALUE);
+  if (detectedLevelSupported) {
+    if (!labels.includes(LEVEL_VARIABLE_VALUE)) {
+      options.unshift(LEVEL_VARIABLE_VALUE);
+    }
+  } else {
+    // Move "level" first if found
+    const levelIndex = options.findIndex((v) => v === LEVEL_LABEL_VALUE);
+    if (levelIndex !== -1) {
+      options.splice(levelIndex, 1);
+      options.unshift(LEVEL_LABEL_VALUE);
+    }
   }
 
   const labelOptions: VariableValueOption[] = options.map((label) => ({
