@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
+import { BusEventBase, DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink, TimeRange } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
 // @ts-expect-error
@@ -27,6 +27,7 @@ import {
   VizPanel,
   VizPanelMenu,
 } from '@grafana/scenes';
+import { Panel } from '@grafana/schema';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { ExtensionPoints } from '../../services/extensions/links';
@@ -42,6 +43,7 @@ import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValue
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
+import { isLogsQuery } from 'services/logql';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
@@ -150,7 +152,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           if (isAvailable) {
             const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
-              text: '',
+              text: 'ai_divider',
               type: 'divider',
             });
             this.addItem({
@@ -223,7 +225,9 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           model,
           {
             text: 'Add to Dashboard',
-            onClick: () => {},
+            onClick: () => {
+              model.publishEvent(new AddToDashboardEvent(getAddToDashboardPayload(model)), true);
+            },
             iconClassName: 'dashboard',
           },
           'Navigation'
@@ -241,7 +245,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
 function addVisualizationHeader(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
-    text: '',
+    text: 'visualization_divider',
     type: 'divider',
   });
   items.push({
@@ -352,6 +356,25 @@ export const getExploreLink = (sceneRef: SceneObject) => {
   return onExploreLinkClick(indexScene, expr);
 };
 
+export const getAddToDashboardPayload = (sceneRef: SceneObject) => {
+  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+  const expr = getQueryExpression(sceneRef);
+  const datasource = getDataSource(indexScene);
+  const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
+
+  const panel: Panel = {
+    type: isLogsQuery(expr) ? 'logs' : 'timeseries',
+    title: 'Logs',
+    targets: [{ refId: 'A', expr }],
+    datasource: {
+      type: 'loki',
+      uid: datasource,
+    },
+  };
+
+  return { panel, timeRange };
+};
+
 const onExploreLinkClickTracking = () => {
   reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
@@ -457,6 +480,18 @@ function addItemToGroup(model: PanelMenu, item: PanelMenuItem, group: string) {
   const items = model.state.body.state.items.slice();
   items.splice(index, 0, item);
   model.setItems(items);
+}
+
+export interface AddToDashboardPayload {
+  panel: Panel;
+  timeRange: TimeRange;
+}
+
+export class AddToDashboardEvent extends BusEventBase {
+  constructor(public payload: AddToDashboardPayload) {
+    super();
+  }
+  public static type = 'add-to-dashboard';
 }
 
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
