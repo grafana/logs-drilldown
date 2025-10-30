@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
@@ -8,7 +8,12 @@ import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@g
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
 // @ts-expect-error
-import { getDataSourceSrv, getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
+import {
+  getDataSourceSrv,
+  getObservablePluginLinks,
+  getPluginLinkExtensions,
+  usePluginComponent,
+} from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -191,6 +196,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       this.state.body.addItem(item);
     }
   }
+
   setItems(items: PanelMenuItem[]): void {
     if (this.state.body) {
       this.state.body.setItems(items);
@@ -199,6 +205,31 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
   public static Component = ({ model }: SceneComponentProps<PanelMenu>) => {
     const { body } = model.useState();
+    const { component: AddToDashboardComponent, isLoading: isLoadingAddToDashboard } = usePluginComponent(
+      'grafana/add-to-dashboard-form/v1'
+    );
+
+    // Update availability flag when component loads
+    useEffect(() => {
+      const isAvailable = !isLoadingAddToDashboard && Boolean(AddToDashboardComponent);
+
+      // Log warning if component failed to load
+      if (!isLoadingAddToDashboard && !AddToDashboardComponent) {
+        logger.warn(`Failed to load add to dashboard component: grafana/add-to-dashboard-form/v1`);
+      }
+
+      if (isAvailable) {
+        addItemToGroup(
+          model,
+          {
+            text: 'Add to Dashboard',
+            onClick: () => {},
+            iconClassName: 'dashboard',
+          },
+          'Navigation'
+        );
+      }
+    }, [isLoadingAddToDashboard, AddToDashboardComponent, model]);
 
     if (body) {
       return <body.Component model={body} />;
@@ -400,6 +431,32 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
       }
     }
   }
+}
+
+function addItemToGroup(model: PanelMenu, item: PanelMenuItem, group: string) {
+  if (!model.state.body || !model.state.body.state.items) {
+    return;
+  }
+  let groupIndex: undefined | number = undefined;
+  const index = model.state.body.state.items.findIndex((item, i) => {
+    if (item.type === 'group' && item.text === group) {
+      groupIndex = i;
+      return false;
+    }
+    if ((groupIndex !== undefined && item.type === 'group') || item.type === 'divider') {
+      return true;
+    }
+    return false;
+  });
+  // There is no other group or divider after the provided group, the item can be added as the last item.
+  if (index < 0) {
+    model.addItem(item);
+    return;
+  }
+  // Insert item at the last position of the group
+  const items = model.state.body.state.items.slice();
+  items.splice(index, 0, item);
+  model.setItems(items);
 }
 
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
