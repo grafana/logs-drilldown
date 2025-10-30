@@ -482,13 +482,13 @@ function addItemToGroup(model: PanelMenu, item: PanelMenuItem, group: string) {
   model.setItems(items);
 }
 
-export interface AddToDashboardPayload {
+export interface AddToDashboardData {
   panel: Panel;
   timeRange: TimeRange;
 }
 
 export class AddToDashboardEvent extends BusEventBase {
-  constructor(public payload: AddToDashboardPayload) {
+  constructor(public payload: AddToDashboardData) {
     super();
   }
   public static type = 'add-to-dashboard';

@@ -57,11 +57,12 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
+import { AddToDashboardModal } from './AddToDashboardModal';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardEvent } from 'Components/Panels/PanelMenu';
+import { AddToDashboardEvent, AddToDashboardData } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -126,6 +127,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
   $patternsData?: SceneQueryRunner | undefined;
+  addToDashboardData?: AddToDashboardData;
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
@@ -733,7 +735,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private subscribeToAddToDashboard = (event: AddToDashboardEvent) => {
-    console.log(event);
+    this.setState({
+      addToDashboardData: event.payload,
+    });
+  };
+
+  public hideAddToDashboard = () => {
+    this.setState({
+      addToDashboardData: undefined,
+    });
   };
 
   private resetBodyAndData = () => {
@@ -823,7 +833,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body } = model.useState();
+    const { body, addToDashboardData } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
@@ -849,7 +859,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (body) {
-      return <body.Component model={body} />;
+      return (
+        <>
+          {addToDashboardData && <AddToDashboardModal data={addToDashboardData} onClose={model.hideAddToDashboard} />}
+          <body.Component model={body} />
+        </>
+      );
     }
 
     return <LoadingPlaceholder text={'Loading...'} />;
