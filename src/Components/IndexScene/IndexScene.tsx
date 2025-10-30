@@ -78,7 +78,6 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
-import { AddToDashboardEvent } from 'Components/Panels/PanelMenu';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -268,7 +267,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this._subs.add(timeRange.subscribeToState(this.limitMaxInterval(timeRange)));
     this._subs.add(this.subscribeToEvent(PasteTimeEvent, this.subscribeToPasteTimeEvent));
-    this._subs.add(this.subscribeToEvent(AddToDashboardEvent, this.subscribeToAddToDashboard));
 
     const fieldFilters = getFieldsVariable(this).state.filters;
     const metadataFilters = getMetadataVariable(this).state.filters;
@@ -429,10 +427,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         to: to ?? '',
       });
     }
-  };
-
-  private subscribeToAddToDashboard = (event: AddToDashboardEvent) => {
-    console.log(event);
   };
 
   /**

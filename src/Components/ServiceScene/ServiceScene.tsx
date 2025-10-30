@@ -61,6 +61,7 @@ import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
+import { AddToDashboardEvent } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -503,6 +504,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
 
+    this._subs.add(this.subscribeToEvent(AddToDashboardEvent, this.subscribeToAddToDashboard));
+
     // Migrations
     migrateLineFilterV1(this);
   }
@@ -728,6 +731,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       this.state.$logsCount?.runQueries();
     });
   }
+
+  private subscribeToAddToDashboard = (event: AddToDashboardEvent) => {
+    console.log(event);
+  };
 
   private resetBodyAndData = () => {
     let stateUpdate: Partial<ServiceSceneState> = {};
