@@ -72,7 +72,7 @@ interface PanelMenuState extends SceneObjectState {
   body?: VizPanelMenu;
   investigationOptions?: InvestigationOptions;
   investigationsButton?: AddToInvestigationButton;
-
+  labelName?: string;
   panelType?: TimeSeriesPanelType;
 }
 
@@ -356,15 +356,21 @@ export const getExploreLink = (sceneRef: SceneObject) => {
   return onExploreLinkClick(indexScene, expr);
 };
 
-export const getAddToDashboardPayload = (sceneRef: SceneObject) => {
-  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
-  const expr = getQueryExpression(sceneRef);
+export const getAddToDashboardPayload = (model: PanelMenu) => {
+  const indexScene = sceneGraph.getAncestor(model, IndexScene);
+  const expr = getQueryExpression(model);
   const datasource = getDataSource(indexScene);
   const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
 
+  const type = model.state.investigationOptions?.type ?? (isLogsQuery(expr) ? 'logs' : 'timeseries');
+  const labelName = model.state.investigationOptions?.getLabelName
+    ? model.state.investigationOptions?.getLabelName()
+    : model.state.investigationOptions?.labelName;
+  const title = labelName ?? (isLogsQuery(expr) ? 'Logs' : 'Metric query');
+
   const panel: Panel = {
-    type: isLogsQuery(expr) ? 'logs' : 'timeseries',
-    title: 'Logs',
+    type,
+    title,
     targets: [{ refId: 'A', expr }],
     datasource: {
       type: 'loki',
