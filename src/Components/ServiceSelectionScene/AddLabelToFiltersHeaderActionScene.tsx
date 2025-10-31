@@ -71,7 +71,6 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           fill={'outline'}
           size="sm"
           aria-selected={included === true}
-          className={styles.includeButton}
           onClick={() => (included === true ? model.onClick('clear') : model.onClick('include'))}
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >
@@ -107,9 +106,6 @@ const getStyles = () => {
     container: css({
       display: 'flex',
       justifyContent: 'center',
-    }),
-    includeButton: css({
-      borderRadius: 0,
     }),
     wrapper: css({
       alignSelf: 'center',

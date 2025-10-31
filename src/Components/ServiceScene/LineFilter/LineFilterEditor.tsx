@@ -140,7 +140,7 @@ const getStyles = (theme: GrafanaTheme2, type: 'editor' | 'variable') => ({
       borderLeft: 'none',
     },
     borderLeft: 'none',
-    borderRadius: `0 ${theme.shape.radius.default} ${theme.shape.radius.default} 0`,
+    borderRadius: `0`,
   }),
   exclusiveBtn: css({
     marginRight: '1rem',
