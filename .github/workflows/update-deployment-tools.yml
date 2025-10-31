@@ -68,7 +68,7 @@ jobs:
         with:
           repository: grafana/deployment_tools
           ref: 'master'
-          token: ${{ steps.generate-github-token.token }}
+          token: ${{ steps.generate-github-token.outputs.token }}
 
       # Map the selected environment to the corresponding libsonnet path(s)
       - name: Map input environment to libsonnet path
