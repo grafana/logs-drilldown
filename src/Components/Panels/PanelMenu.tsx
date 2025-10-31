@@ -357,7 +357,10 @@ export const getExploreLink = (sceneRef: SceneObject) => {
 
 export const getAddToDashboardPayload = (model: PanelMenu) => {
   const indexScene = sceneGraph.getAncestor(model, IndexScene);
-  const sourcePanel = sceneGraph.getAncestor(model, VizPanel);
+  let sourcePanel: VizPanel | undefined = undefined;
+  try {
+    sourcePanel = sceneGraph.getAncestor(model, VizPanel);
+  } catch (e) {}
 
   const expr = getQueryExpression(model);
   const datasource = getDataSource(indexScene);
@@ -369,7 +372,7 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
     : model.state.investigationOptions?.labelName;
   const title = labelName ?? (isLogsQuery(expr) ? 'Logs' : 'Metric query');
 
-  const request = sourcePanel.state.$data?.state.data?.request;
+  const request = sourcePanel?.state.$data?.state.data?.request;
   const target = request?.targets?.[0];
 
   const legendFormat: string =
@@ -385,8 +388,8 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
       uid: datasource,
     },
     // @ts-expect-error
-    fieldConfig: sourcePanel.state.fieldConfig,
-    options: sourcePanel.state.options,
+    fieldConfig: sourcePanel?.state.fieldConfig,
+    options: sourcePanel?.state.options,
   };
   return { panel, timeRange };
 };
