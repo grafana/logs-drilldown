@@ -23,11 +23,15 @@ export const AddToDashboardModal = ({ data, onClose }: { data: AddToDashboardDat
   }
 
   return (
-    <Modal title={t('logs.logs-drilldown.add-todashboard.title', 'Add to Dashboard')} isOpen={true} onDismiss={onClose}>
+    <Modal
+      title={t('logs.logs-drilldown.add-to-dashboard.title', 'Add to Dashboard')}
+      isOpen={true}
+      onDismiss={onClose}
+    >
       {createElement(AddToDashboardComponent as React.ComponentType<AddToDashboardFormProps>, {
         onClose: onClose,
         buildPanel: () => {
-          reportInteraction('grafana_logs_app_filters_collapse_state', { type: data.panel.type });
+          reportInteraction('grafana_logs_app_add_panel_to_dashboard', { type: data.panel.type });
           return data.panel;
         },
         timeRange: data.timeRange,
