@@ -72,7 +72,6 @@ interface PanelMenuState extends SceneObjectState {
   body?: VizPanelMenu;
   investigationOptions?: InvestigationOptions;
   investigationsButton?: AddToInvestigationButton;
-  labelName?: string;
   panelType?: TimeSeriesPanelType;
 }
 
