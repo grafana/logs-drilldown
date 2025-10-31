@@ -227,7 +227,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
             onClick: () => {
               model.publishEvent(new AddToDashboardEvent(getAddToDashboardPayload(model)), true);
             },
-            iconClassName: 'dashboard',
+            iconClassName: 'apps',
           },
           'Navigation'
         );
