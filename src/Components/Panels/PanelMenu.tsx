@@ -7,10 +7,10 @@ import { createAssistantContextItem, isAssistantAvailable, openAssistant } from 
 import { BusEventBase, DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink, TimeRange } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
-// @ts-expect-error
 import {
   getDataSourceSrv,
   getObservablePluginLinks,
+  // @ts-expect-error
   getPluginLinkExtensions,
   usePluginComponent,
 } from '@grafana/runtime';
