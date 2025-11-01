@@ -50,7 +50,7 @@ services:
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp
   alloy:
-    image: grafana/alloy:latest@sha256:6ab34b8201f0e8b0c4346be4934c9965723af3f7f21dd9a65fd73f270f69b451
+    image: grafana/alloy:latest@sha256:8c7256f412feb9f5f48f9f6f9394dc97ca887f63dea9304f347970ecc1787669
     environment:
       - AGENT_MODE=flow
     command:
