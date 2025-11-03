@@ -31,6 +31,9 @@ jobs:
       attestation: true
       run-playwright: false
 
+      # Explicitly set Node.js version to 22 to ensure compatibility with yargs@18.0.0
+      node-version: '22'
+
       # Use argo workflows, auto merge to dev,ops in deployment tools
       grafana-cloud-deployment-type: provisioned
       auto-merge-environments: dev,ops

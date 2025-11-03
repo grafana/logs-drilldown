@@ -31,6 +31,9 @@ jobs:
       # Add the git head ref sha to the plugin version as suffix (`+abcdef`). This is required for CD builds.
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
 
+      # Explicitly set Node.js version to 22 to ensure compatibility with yargs@18.0.0
+      node-version: '22'
+
       # Same settings as publish
       run-playwright-with-skip-grafana-dev-image: true
       run-playwright-with-grafana-dependency: '>=11.6'
