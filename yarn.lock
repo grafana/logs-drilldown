@@ -1134,10 +1134,10 @@
   dependencies:
     tslib "^2.8.0"
 
-"@grafana/assistant@0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@grafana/assistant/-/assistant-0.1.3.tgz#a77a80bfeaec9a83f902ab9872e0a607b452d6d2"
-  integrity sha512-lXRuNSABbPsty2UnjMRZDyzM05XHNV0PO030AgASBLJtLozsG1E4t+CBy7ox/ZIZAHBUnGSdjN0o3spqC35S0Q==
+"@grafana/assistant@0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@grafana/assistant/-/assistant-0.1.4.tgz#cf4d9053f2e3045217617a8ec116955791a9cbf5"
+  integrity sha512-/FPDOjPgjIQ57KBB6lz80IfZG9uLfMZZUTPNdzzDQw+R3c5O2oevjOfDW6CWDW70q+2X4DZm7pf6AzLU/nNyAw==
 
 "@grafana/data@12.2.1", "@grafana/data@^12.2.0":
   version "12.2.1"
@@ -8852,7 +8852,7 @@ react-custom-scrollbars-2@4.5.0:
     prop-types "^15.5.10"
     raf "^3.1.0"
 
-"react-data-grid@github:grafana/react-data-grid#a922856b5ede21d55db3fdffb6d38dc76bdc7c58":
+react-data-grid@grafana/react-data-grid#a922856b5ede21d55db3fdffb6d38dc76bdc7c58:
   version "7.0.0-beta.56"
   resolved "https://codeload.github.com/grafana/react-data-grid/tar.gz/a922856b5ede21d55db3fdffb6d38dc76bdc7c58"
   dependencies:
