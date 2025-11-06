@@ -12,7 +12,6 @@ import { FilterOp } from '../../services/filterTypes';
 export interface AddLabelToFiltersHeaderActionSceneState extends SceneObjectState {
   name: string;
   value: string;
-  hidden?: boolean;
   included: boolean | null;
 }
 
@@ -58,11 +57,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
   };
 
   public static Component = ({ model }: SceneComponentProps<AddLabelToFiltersHeaderActionScene>) => {
-    const { value, hidden, included } = model.useState();
-
-    if (hidden) {
-      return <></>;
-    }
+    const { value, included } = model.useState();
 
     const styles = useStyles2(getStyles);
     return (
@@ -71,13 +66,14 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           tooltip={included === true ? `Remove ${value} from filters` : `Add ${value} to filters`}
           variant={'secondary'}
           fill={'outline'}
-          icon={included === true ? 'minus' : 'plus'}
           size="sm"
           aria-selected={included === true}
           className={styles.includeButton}
           onClick={() => (included === true ? model.onClick('clear') : model.onClick('include'))}
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
-        />
+        >
+          {included ? 'Remove' : 'Include'}
+        </Button>
       </span>
     );
   };

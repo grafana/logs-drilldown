@@ -1,3 +1,16 @@
 {
-  "extends": "./.config/.eslintrc"
+  "extends": "./.config/.eslintrc",
+  "rules": {
+    // throw error when using global location object, use Grafana's LocationService instead!
+    "no-restricted-globals": ["error", "location"]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.test.{ts,tsx}"],
+      // Allow location to be used in test files
+      "rules": {
+        "no-restricted-globals": 0
+      }
+    }
+  ]
 }

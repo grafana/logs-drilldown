@@ -214,4 +214,33 @@ describe('LineFilter', () => {
       expect(await screen.findByDisplayValue(string)).toBeInTheDocument();
     });
   });
+  describe('regex validation', () => {
+    beforeEach(() => {
+      lineFilterVariable = new AdHocFiltersVariable({
+        name: VAR_LINE_FILTER,
+        expressionBuilder: renderLogQLLineFilter,
+      });
+      lineFiltersVariable = new AdHocFiltersVariable({
+        name: VAR_LINE_FILTERS,
+        expressionBuilder: renderLogQLLineFilter,
+      });
+      scene = new LineFilterScene({
+        caseSensitive: true,
+        regex: true,
+        lineFilter: '(',
+        $variables: new SceneVariableSet({
+          variables: [lineFilterVariable, lineFiltersVariable],
+        }),
+      });
+    });
+
+    test('Shows error when invalid', async () => {
+      render(<scene.Component model={scene} />);
+      await setTimeout(() => {}, 1);
+      expect(await screen.findByText('missing closing )')).toBeInTheDocument();
+      const input: HTMLInputElement = await screen.findByTestId('data-testid search-logs');
+      expect(input).toBeInTheDocument();
+      expect(input.attributes.getNamedItem('aria-invalid')?.value).toEqual('true');
+    });
+  });
 });

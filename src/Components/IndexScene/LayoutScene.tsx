@@ -11,6 +11,7 @@ import { logger } from '../../services/logger';
 import { LineFilterVariablesScene } from './LineFilterVariablesScene';
 import { VariableLayoutScene } from './VariableLayoutScene';
 import { LevelsVariableScene } from './LevelsVariableScene';
+import { getDrilldownSlug, PageSlugs } from '../../services/routing';
 
 interface LayoutSceneState extends SceneObjectState {
   interceptDismissed: boolean;
@@ -74,10 +75,11 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
   };
 
   public onActivate() {
+    const slug = getDrilldownSlug();
     this.setState({
       lineFilterRenderer: new LineFilterVariablesScene({}),
       levelsRenderer: new LevelsVariableScene({}),
-      variableLayout: new VariableLayoutScene({}),
+      variableLayout: new VariableLayoutScene({ position: slug === PageSlugs.explore ? 'sticky' : 'relative' }),
     });
   }
 
@@ -102,7 +104,6 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       minHeight: '100%',
       flexDirection: 'column',
-      padding: theme.spacing(2),
       maxWidth: '100vw',
     }),
     body: css({
@@ -111,6 +112,7 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(1),
+      padding: `0 ${theme.spacing(2)} ${theme.spacing(2)}`,
     }),
     controlsContainer: css({
       label: 'controlsContainer',

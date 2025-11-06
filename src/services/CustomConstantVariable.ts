@@ -2,7 +2,7 @@ import { Observable, of } from 'rxjs';
 import {
   MultiValueVariable,
   MultiValueVariableState,
-  renderSelectForVariable,
+  MultiOrSingleValueSelect,
   SceneComponentProps,
   VariableGetOptionsArgs,
   VariableValueOption,
@@ -29,8 +29,7 @@ export class CustomConstantVariable extends MultiValueVariable<CustomConstantVar
   public getValueOptions(args: VariableGetOptionsArgs): Observable<VariableValueOption[]> {
     return of(this.state.options);
   }
-
   public static Component = ({ model }: SceneComponentProps<MultiValueVariable>) => {
-    return renderSelectForVariable(model);
+    return MultiOrSingleValueSelect({ model });
   };
 }

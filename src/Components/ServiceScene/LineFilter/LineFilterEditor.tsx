@@ -68,12 +68,12 @@ export function LineFilterEditor({
       )}
       <Field className={styles.field}>
         <LineFilterInput
+          regex={regex}
           // Only set width if focused
           width={focus ? width : undefined}
           onFocus={() => setFocus(true)}
-          // onBlur={() => setFocus(false)}
           data-testid={testIds.exploreServiceDetails.searchLogs}
-          value={lineFilter}
+          value={lineFilter ?? ''}
           className={cx(onSubmitLineFilter ? styles.inputNoBorderRight : undefined, styles.input)}
           onChange={onInputChange}
           suffix={

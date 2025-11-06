@@ -77,10 +77,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
     return (
       <div className={styles.panelWrapper} ref={panelWrap}>
+        {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
         <PanelChrome
           loadingState={data?.state}
           title={'Logs'}
           menu={menu ? <menu.Component model={menu} /> : undefined}
+          showMenuAlways={true}
           actions={
             <>
               <Button onClick={() => model.showColumnManagementDrawer(true)} variant={'secondary'} size={'sm'}>
@@ -117,16 +119,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     width: '100%',
     height: '100%',
     label: 'panel-wrapper-table',
-
-    // @todo remove this wrapper and styles when core changes are introduced in 11.5
-    // Need more specificity to override core style
-    'button.show-on-hover': {
-      opacity: 1,
-      visibility: 'visible',
-      background: 'none',
-      '&:hover': {
-        background: theme.colors.secondary.shade,
-      },
-    },
   }),
 });

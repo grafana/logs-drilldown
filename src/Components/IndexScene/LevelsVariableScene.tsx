@@ -9,7 +9,7 @@ import {
 } from '@grafana/scenes';
 import React from 'react';
 import { getLevelsVariable } from '../../services/variableGetters';
-import { GrafanaTheme2, MetricFindValue, SelectableValue } from '@grafana/data';
+import { MetricFindValue, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
 import { Icon, MultiSelect, useStyles2 } from '@grafana/ui';
 import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
@@ -131,13 +131,13 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     }
 
     return (
-      <div data-testid={testIds.variables.levels.inputWrap}>
+      <div data-testid={testIds.variables.levels.inputWrap} className={styles.wrapper}>
         <ControlsLabel layout="vertical" label={'Log levels'} />
         <MultiSelect
           aria-label={'Log level filters'}
           prefix={<Icon size={'lg'} name={'filter'} />}
           placeholder={'All levels'}
-          className={styles.flex}
+          className={styles.control}
           onChange={model.onChangeOptions}
           onCloseMenu={() => model.onCloseMenu()}
           onOpenMenu={model.getTagValues}
@@ -168,8 +168,12 @@ export function syncLevelsVariable(sceneRef: SceneObject) {
   }
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  flex: css({
+const getStyles = () => ({
+  control: css({
     flex: '1',
+  }),
+  wrapper: css({
+    flex: '0 0 auto',
+    whiteSpace: 'nowrap',
   }),
 });

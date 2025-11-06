@@ -449,6 +449,19 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     if (timeRange.to.diff(timeRange.from, 'hours') >= 4 && timeRange.to.diff(timeRange.from, 'hours') <= 26) {
       splitDuration = '2h';
     }
+    const headerActions = [];
+
+    if (this.isAggregatedMetricsActive()) {
+      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+    } else {
+      headerActions.push(
+        new AddLabelToFiltersHeaderActionScene({
+          name: primaryLabelName,
+          value: primaryLabelValue,
+        })
+      );
+      headerActions.push(new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }));
+    }
     const panel = PanelBuilders.timeseries()
       // If service was previously selected, we show it in the title
       .setTitle(primaryLabelValue)
@@ -480,16 +493,11 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       })
       .setHeaderActions([
         new FavoriteServiceHeaderActionScene({
-          ds: datasourceVar.getValue()?.toString(),
+          ds: datasourceVar.getValue()?.toString() ?? '',
           labelName: primaryLabelName,
           labelValue: primaryLabelValue,
         }),
-        new AddLabelToFiltersHeaderActionScene({
-          name: primaryLabelName,
-          value: primaryLabelValue,
-          hidden: this.isAggregatedMetricsActive(),
-        }),
-        new SelectServiceButton({ labelValue: primaryLabelValue, labelName: primaryLabelName }),
+        ...headerActions,
       ])
       .build();
 
@@ -963,7 +971,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       this.state.body.setState({
         children: newChildren,
         isLazy: true,
-        templateColumns: 'repeat(auto-fit, minmax(500px, 1fr) minmax(300px, 70vw))',
+        templateColumns: 'repeat(auto-fit, minmax(350px, 1fr) minmax(300px, calc(70vw - 100px)))',
         autoRows: '200px',
         md: {
           templateColumns: '1fr',

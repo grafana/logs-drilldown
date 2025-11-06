@@ -363,17 +363,6 @@ export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {
       label: 'panel-wrapper',
       position: 'absolute',
       display: 'flex',
-
-      // @todo remove this wrapper and styles when core changes are introduced in 11.5
-      // Need more specificity to override core style
-      'button.show-on-hover': {
-        opacity: 1,
-        visibility: 'visible',
-        background: 'none',
-        '&:hover': {
-          background: theme.colors.secondary.shade,
-        },
-      },
     }),
   };
 };

@@ -8,6 +8,9 @@ import { addCustomInputPrefixAndValueLabels, encodeFilter } from 'services/exten
 
 jest.mock('@grafana/runtime', () => ({
   useReturnToPrevious: jest.fn(),
+  locationService: {
+    getLocation: jest.fn(),
+  },
 }));
 
 describe('OpenInLogsDrilldownButton', () => {

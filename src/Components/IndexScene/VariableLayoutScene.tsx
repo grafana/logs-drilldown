@@ -10,7 +10,10 @@ import { useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { AppliedPattern } from '../../services/variables';
 
-interface VariableLayoutSceneState extends SceneObjectState {}
+type HeaderPosition = 'sticky' | 'relative';
+interface VariableLayoutSceneState extends SceneObjectState {
+  position: HeaderPosition;
+}
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
@@ -19,10 +22,15 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { lineFilterRenderer, levelsRenderer } = layoutScene.useState();
 
-    const styles = useStyles2(getStyles);
+    const styles = useStyles2((theme) => getStyles(theme, model.state.position));
 
     return (
-      <div className={styles.controlsContainer}>
+      <div
+        className={cx(
+          styles.controlsContainer,
+          model.state.position === 'sticky' ? styles.stickyControlsContainer : undefined
+        )}
+      >
         <>
           {/* First row - datasource, timepicker, refresh, labels, button */}
           {controls && (
@@ -58,13 +66,9 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             </div>
           )}
 
-          {/* Second row - Levels - custom renderer */}
+          {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
           <div className={styles.controlsRowContainer}>
             {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
-          </div>
-
-          {/* 3rd row - Combined fields (fields + metadata)  */}
-          <div className={styles.controlsRowContainer}>
             {controls && (
               <div className={styles.filtersWrap}>
                 <div className={styles.filters}>
@@ -79,7 +83,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             )}
           </div>
 
-          {/* 4th row - Patterns */}
+          {/* 3rd row - Patterns */}
           <div className={styles.controlsRowContainer}>
             <PatternControls
               patterns={patterns}
@@ -87,7 +91,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             />
           </div>
 
-          {/* 5th row - Line filters - custom renderer */}
+          {/* 4th row - Line filters - custom renderer */}
           <div className={styles.controlsRowContainer}>
             {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
           </div>
@@ -97,7 +101,9 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   };
 }
 
-function getStyles(theme: GrafanaTheme2) {
+// @todo remove hardcoded height: https://github.com/grafana/grafana/issues/103795
+const grafanaTopBarHeight = 40;
+function getStyles(theme: GrafanaTheme2, position: HeaderPosition) {
   return {
     firstRowWrapper: css({
       '& > div > div': {
@@ -109,32 +115,15 @@ function getStyles(theme: GrafanaTheme2) {
         },
       },
     }),
-    bodyContainer: css({
-      flexGrow: 1,
-      display: 'flex',
-      minHeight: '100%',
-      flexDirection: 'column',
-    }),
-    container: css({
-      flexGrow: 1,
-      display: 'flex',
-      minHeight: '100%',
-      flexDirection: 'column',
-      padding: theme.spacing(2),
-      maxWidth: '100vw',
-    }),
-    body: css({
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(1),
-    }),
     controlsFirstRowContainer: css({
       label: 'controls-first-row',
       display: 'flex',
       gap: theme.spacing(2),
       justifyContent: 'space-between',
       alignItems: 'flex-start',
+      [theme.breakpoints.down('md')]: {
+        flexDirection: 'column-reverse',
+      },
     }),
     controlsRowContainer: css({
       '&:empty': {
@@ -143,15 +132,27 @@ function getStyles(theme: GrafanaTheme2) {
       label: 'controls-row',
       display: 'flex',
       // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
-      gap: theme.spacing(1),
+      gap: theme.spacing(2),
       alignItems: 'flex-start',
-      paddingLeft: theme.spacing(2),
+      [theme.breakpoints.down('lg')]: {
+        flexDirection: 'column',
+      },
+    }),
+    stickyControlsContainer: css({
+      position: 'sticky',
+      top: grafanaTopBarHeight,
+      left: 0,
+      background: theme.colors.background.canvas,
+      zIndex: theme.zIndex.navbarFixed,
+      gap: theme.spacing(0),
+      boxShadow: theme.shadows.z1,
     }),
     controlsContainer: css({
       label: 'controlsContainer',
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(1),
+      padding: theme.spacing(2),
     }),
     filters: css({
       label: 'filters',
@@ -183,16 +184,6 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'row',
       gap: theme.spacing(1),
-    }),
-    controls: css({
-      display: 'flex',
-      gap: theme.spacing(1),
-    }),
-    feedback: css({
-      textAlign: 'end',
-    }),
-    rotateIcon: css({
-      svg: { transform: 'rotate(180deg)' },
     }),
   };
 }

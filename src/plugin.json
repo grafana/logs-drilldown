@@ -53,7 +53,7 @@
   ],
   "roles": [],
   "dependencies": {
-    "grafanaDependency": ">=11.3.0",
+    "grafanaDependency": ">=11.6.0",
     "plugins": [],
     "extensions": {
       "exposedComponents": ["grafana-adaptivelogs-app/temporary-exemptions/v1"]
@@ -78,10 +78,6 @@
     "extensionPoints": [
       {
         "id": "grafana-lokiexplore-app/investigation/v1"
-      },
-      {
-        "id": "grafana-lokiexplore-app/toolbar-open-related/v1",
-        "title": "Open related signals like metrics/traces/profiles"
       }
     ]
   }

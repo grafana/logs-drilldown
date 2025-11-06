@@ -119,8 +119,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setCollapsible(true)
       .setCollapsed(getLogsVolumeOption('collapsed'))
       .setHeaderActions(new LogsVolumeActions({}))
-      // 11.5
-      // .setShowMenuAlways(true)
+      .setShowMenuAlways(true)
       .setData(
         getQueryRunner([
           buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
