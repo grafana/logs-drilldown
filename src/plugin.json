@@ -59,7 +59,8 @@
       "exposedComponents": [
         "grafana-adaptivelogs-app/temporary-exemptions/v1",
         "grafana-lokiexplore-app/embedded-logs-exploration/v1",
-        "grafana-asserts-app/insights-timeline-widget/v1"
+        "grafana-asserts-app/insights-timeline-widget/v1",
+        "grafana/add-to-dashboard-form/v1"
       ]
     }
   },
