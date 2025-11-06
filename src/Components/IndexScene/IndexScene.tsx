@@ -377,7 +377,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         const lokiConfig = newState.data?.series[0].fields[0].values[0];
         if (lokiConfig) {
           // we can't subscribe to metadata singleton like we can scene state, so we shouldn't pull config from singleton except to set the initial indexScene state
-          this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
+          this.setState({ lokiConfig });
           getMetadataService().setLokiConfig(lokiConfig);
         }
       }
