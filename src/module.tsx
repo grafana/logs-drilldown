@@ -8,7 +8,7 @@ import {
   SuspendedEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
-import { linkConfigs, functionConfigs } from 'services/extensions/links';
+import { functionConfigs, linkConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -19,11 +19,8 @@ const App = lazy(async () => {
 
   const { wasmSupported } = await import('services/sorting');
 
-  const { default: initRuntimeDs } = await import('services/datasource');
   const { default: initChangepoint } = await import('@bsull/augurs/changepoint');
   const { default: initOutlier } = await import('@bsull/augurs/outlier');
-
-  initRuntimeDs();
 
   if (wasmSupported()) {
     await Promise.all([initChangepoint(), initOutlier()]);

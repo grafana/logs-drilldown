@@ -69,6 +69,12 @@ export const functionConfigs = [
     description: 'Returns url to logs drilldown app',
     fn: contextToLink,
   },
+  {
+    targets: 'grafana-lokiexplore-app/get-logs-drilldown-link/v1',
+    title: 'Title',
+    description: 'Desc url to logs drilldown app',
+    fn: () => ({ path: 'string' }),
+  },
 ];
 
 function stringifyValues(value?: string): string {

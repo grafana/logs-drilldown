@@ -1,24 +1,36 @@
-import React, { lazy } from 'react';
+import React, { lazy, useEffect } from 'react';
 
 import { AppRootProps } from '@grafana/data';
+import { usePluginFunctions } from '@grafana/runtime';
 
-import { logger } from 'services/logger';
+import initRuntimeDs from '../services/datasource';
+import { logger } from '../services/logger';
 
 const LogExplorationView = lazy(() => import('./LogExplorationPage'));
 const PluginPropsContext = React.createContext<AppRootProps | null>(null);
 
-class App extends React.PureComponent<AppRootProps> {
-  componentDidMount() {
-    // Log plugin loading success for SLO monitoring
+type ContextForLinksFn = () => string;
+
+function App(props: AppRootProps) {
+  const { functions: logsDrilldownExtensions, isLoading } = usePluginFunctions<ContextForLinksFn>({
+    extensionPointId: 'grafana-lokiexplore-app/get-logs-drilldown-link/v1',
+    limitPerPlugin: 1,
+  });
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
     logger.info('Plugin loaded successfully');
-  }
-  render() {
-    return (
-      <PluginPropsContext.Provider value={this.props}>
-        <LogExplorationView />
-      </PluginPropsContext.Provider>
-    );
-  }
+    const fn: ContextForLinksFn = logsDrilldownExtensions?.[0].fn ?? (() => null);
+    initRuntimeDs(fn);
+  }, [isLoading, logsDrilldownExtensions]);
+
+  return (
+    <PluginPropsContext.Provider value={props}>
+      <LogExplorationView />
+    </PluginPropsContext.Provider>
+  );
 }
 
 export default App;

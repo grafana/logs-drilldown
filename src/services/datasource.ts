@@ -80,7 +80,8 @@ export const DETECTED_FIELDS_PATH_NAME = 'jsonPath';
 export const MAX_PATTERNS_LIMIT = 500;
 
 export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
-  constructor(pluginId: string, uid: string) {
+  constructor(pluginId: string, uid: string, api?: string | null) {
+    console.log('runtimedatasource', api);
     super(pluginId, uid);
   }
 
@@ -563,13 +564,13 @@ export function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
 }
 
 let initialized = false;
-function init() {
+function init(fn: () => null | string) {
   if (initialized) {
     return;
   }
   initialized = true;
   sceneUtils.registerRuntimeDataSource({
-    dataSource: new WrappedLokiDatasource('wrapped-loki-ds', WRAPPED_LOKI_DS_UID),
+    dataSource: new WrappedLokiDatasource('wrapped-loki-ds', WRAPPED_LOKI_DS_UID, fn()),
   });
 }
 

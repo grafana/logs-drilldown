@@ -33,7 +33,7 @@ export function buildLogsExplorationFromState({
     return null;
   }
 
-  initRuntimeDs();
+  initRuntimeDs(() => null);
 
   const { labelFilters, lineFilters } = getMatcherFromQuery(query);
   const referenceFilters = getMatcherFromQuery(referenceQuery ?? '');
