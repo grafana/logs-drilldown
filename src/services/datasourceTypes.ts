@@ -11,6 +11,7 @@ export type SceneDataQueryResourceRequest = {
 };
 
 export type SceneDataQueryResourceRequestOptions =
+  | 'annos'
   | 'detected_fields'
   | 'detected_labels'
   | 'labels'

@@ -8,6 +8,7 @@ import {
   PluginExtensionPoints,
   QueryVariableModel,
 } from '@grafana/data';
+import { PluginExtensionAddedFunctionConfig } from '@grafana/data/dist/types/types/pluginExtensions';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 
 import pluginJson from '../../plugin.json';
@@ -62,7 +63,7 @@ export const linkConfigs: LinkConfigs = [
   },
 ];
 
-export const functionConfigs = [
+export const functionConfigs: PluginExtensionAddedFunctionConfig[] = [
   {
     targets: 'grafana-exploretraces-app/get-logs-drilldown-link/v1',
     title: 'Open Logs Drilldown',
@@ -73,7 +74,7 @@ export const functionConfigs = [
     targets: 'grafana-lokiexplore-app/get-logs-drilldown-link/v1',
     title: 'Title',
     description: 'Desc url to logs drilldown app',
-    fn: () => ({ path: 'string' }),
+    fn: () => 'string',
   },
 ];
 

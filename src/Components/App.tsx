@@ -22,9 +22,10 @@ function App(props: AppRootProps) {
       return;
     }
     logger.info('Plugin loaded successfully');
-    const fn: ContextForLinksFn = logsDrilldownExtensions?.[0].fn ?? (() => null);
+    const fn: ContextForLinksFn = logsDrilldownExtensions?.[0]?.fn ?? (() => null);
     initRuntimeDs(fn);
-  }, [isLoading, logsDrilldownExtensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   return (
     <PluginPropsContext.Provider value={props}>

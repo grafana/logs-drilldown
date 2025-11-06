@@ -80,9 +80,10 @@ export const DETECTED_FIELDS_PATH_NAME = 'jsonPath';
 export const MAX_PATTERNS_LIMIT = 500;
 
 export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
+  private api: string | null | undefined;
   constructor(pluginId: string, uid: string, api?: string | null) {
-    console.log('runtimedatasource', api);
     super(pluginId, uid);
+    this.api = api;
   }
 
   query(request: SceneDataQueryRequest): Promise<DataQueryResponse> | Observable<DataQueryResponse> {
@@ -137,6 +138,10 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
             }
             case 'labels': {
               await this.getLabels(request, lokiDs, subscriber);
+              break;
+            }
+            case 'annos': {
+              await this.getAnnos(request, lokiDs, subscriber);
               break;
             }
             default: {
@@ -496,6 +501,32 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
     subscriber.complete();
 
     return subscriber;
+  }
+
+  private async getAnnos(
+    request: SceneDataQueryRequest,
+    ds: LokiDatasource,
+    subscriber: Subscriber<DataQueryResponse>
+  ) {
+    if (!this.api) {
+      console.warn('annos api not supported!');
+      return null;
+    }
+
+    const updatedRequest = {
+      ...request,
+      targets: ds.interpolateVariablesInQueries(request.targets, request.scopedVars).map((target) => ({
+        ...target,
+        expr: sanitizeStreamSelector(target.expr),
+        resource: undefined,
+      })),
+    };
+
+    // This assumes the annotation api can take a logQL query as input, but we could parse the logQL with lezer and return an array of k/v
+    return await fetch(this.api, {
+      method: 'POST',
+      body: JSON.stringify({ expr: updatedRequest.targets[0].expr }),
+    });
   }
 
   private async getLabels(

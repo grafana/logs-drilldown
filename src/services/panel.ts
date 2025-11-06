@@ -11,11 +11,13 @@ import {
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
+  dataLayers,
   FieldConfigBuilder,
   FieldConfigBuilders,
   FieldConfigOverridesBuilder,
   PanelBuilders,
   QueryRunnerState,
+  SceneDataLayerSet,
   SceneDataProvider,
   SceneDataProviderResult,
   SceneDataTransformer,
@@ -32,7 +34,9 @@ import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery } from './lokiQuery';
+import { buildResourceQuery } from './query';
 import { maxSeriesReached } from './shardQuerySplitting';
+import { VAR_LABELS_EXPR } from './variables';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;
@@ -295,6 +299,23 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         datasource: { uid: WRAPPED_LOKI_DS_UID },
         queries: queries,
         ...queryRunnerOptions,
+
+        $data: new SceneDataLayerSet({
+          layers: [
+            new dataLayers.AnnotationsDataLayer({
+              name: 'externalized annotation api call',
+              query: {
+                name: 'anno',
+                enable: true,
+                iconColor: 'blue',
+                datasource: { uid: WRAPPED_LOKI_DS_UID },
+                target: {
+                  ...buildResourceQuery(`{${VAR_LABELS_EXPR}}`, 'annos', { refId: 'anno_query' }),
+                },
+              },
+            }),
+          ],
+        }),
       }),
       transformations: [],
     });
