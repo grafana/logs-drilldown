@@ -25,12 +25,13 @@ on:
 env:
   PLUGIN_ID: grafana-lokiexplore-app
 
+permissions:
+  id-token: write # Required for OIDC authentication with Vault
+  contents: read # Required to read repository contents
+
 jobs:
   build-latest-version:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write # Required for OIDC authentication with Vault
-      contents: read # Required to read repository contents
     env:
       ENV_INPUT: ${{ inputs.env }}
       VERSION_INPUT: ${{ inputs.version }}
@@ -44,31 +45,18 @@ jobs:
           echo "PROD_CANARY_LIBSONNET_PATH=ksonnet/environments/hosted-grafana/waves/provisioned-plugins/$PLUGIN_ID/prod-canary.libsonnet" >> "$GITHUB_ENV"
           echo "PROD_LIBSONNET_PATH=ksonnet/environments/hosted-grafana/waves/provisioned-plugins/$PLUGIN_ID/prod.libsonnet" >> "$GITHUB_ENV"
 
-      - name: Get secrets from Vault
-        id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@a37de51f3d713a30a9e4b21bcdfbd38170020593 # get-vault-secrets/v1.3.0
-        env:
-          VAULT_INSTANCE: ops
+      - name: Get GitHub App token
+        id: get-github-app-token
+        uses: grafana/shared-workflows/actions/create-github-app-token@d2db509c45f0d0e75e26fe03c276225d6bbc3e0d # create-github-app-token/v0.2.0
         with:
-          vault_instance: ${{ env.VAULT_INSTANCE }}
-          common_secrets: |
-            GITHUB_APP_ID=DrilldownBot:app_id
-            GITHUB_APP_PRIVATE_KEY=DrilldownBot:key
-
-      - name: Generate GitHub token
-        id: generate-github-token
-        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
-        with:
-          app-id: ${{ env.GITHUB_APP_ID }}
-          private-key: ${{ env.GITHUB_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          github_app: DrilldownBot
 
       - name: Check out deployment_tools repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: grafana/deployment_tools
           ref: 'master'
-          token: ${{ steps.generate-github-token.outputs.token }}
+          token: ${{ steps.get-github-app-token.outputs.token }}
 
       # Map the selected environment to the corresponding libsonnet path(s)
       - name: Map input environment to libsonnet path
@@ -118,6 +106,6 @@ jobs:
         id: commit-update
         uses: grafana/github-api-commit-action@ccf9b520c5698380ad3b9619c5add427369b7ef1 # v0.2.0
         with:
-          token: ${{ steps.generate-github-token.outputs.token }}
+          token: ${{ steps.get-github-app-token.outputs.token }}
           commit-message: ${{ steps.commit-msg.outputs.message }}
           use-checkout-repo: true
