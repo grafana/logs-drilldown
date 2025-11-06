@@ -384,40 +384,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     });
   }
 
-  /**
-   * Subscribes to Loki config resource api call, sets response to IndexScene state
-   * @todo clean this up if loki < 3.6 is not supported
-   */
-  private subscribeToLokiConfigAPI() {
-    const isLokiConfigAPIAvailable = this.state.lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED;
-    if (isLokiConfigAPIAvailable && !this.state.$lokiConfig.state.data?.series.length) {
-      // Check singleton for cached config for uncached scenes
-      const lokiConfig = getMetadataService().getLokiConfig();
-      if (lokiConfig) {
-        this.setState({
-          lokiConfig,
-        });
-      } else {
-        this.state.$lokiConfig.runQueries();
-      }
-    }
-
-    return this.state.$lokiConfig.subscribeToState((newState, prevState) => {
-      // Loki versions before 3.6 will not have the new API endpoint, so we expect a 404 response
-      if (newState.data?.state === LoadingState.Error) {
-        this.setState({ lokiConfig: LOKI_CONFIG_API_NOT_SUPPORTED });
-        getMetadataService().setLokiConfig(LOKI_CONFIG_API_NOT_SUPPORTED);
-      } else if (newState.data?.state === LoadingState.Done && newState.data?.series.length > 0) {
-        const lokiConfig = newState.data?.series[0].fields[0].values[0];
-        if (lokiConfig) {
-          // we can't subscribe to metadata singleton like we can scene state, so we shouldn't pull config from singleton except to set the initial indexScene state
-          this.setState({ lokiConfig: newState.data?.series[0].fields[0].values[0] });
-          getMetadataService().setLokiConfig(lokiConfig);
-        }
-      }
-    });
-  }
-
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
 
