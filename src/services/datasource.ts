@@ -521,7 +521,9 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           // Cache for 1 day
           headers: {
             'X-Grafana-Cache': `private, max-age=86400`,
+            'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
+          requestId: ds.uid,
         }
       );
       const df = createDataFrame({
