@@ -310,6 +310,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     );
 
     this._subs.add(this.subscribeToLokiConfigAPI());
+    this._subs.add(this.subscribeToDataSourceChange());
+
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
@@ -347,6 +349,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     } else {
       return provideServiceBreakdownQuestions();
     }
+  }
+
+  private subscribeToDataSourceChange() {
+    getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+      if (newState.value !== prevState.value) {
+        this.state.$lokiConfig.runQueries();
+      }
+    });
   }
 
   /**
