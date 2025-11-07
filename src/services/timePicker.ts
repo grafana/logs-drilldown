@@ -13,22 +13,30 @@ import { logger } from './logger';
  */
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-  if (jsonData?.interval || lokiConfig?.limits.retention_period) {
+  if (jsonData?.interval || lokiConfig?.limits.retention_period || lokiConfig?.limits.max_query_length) {
     let maxPluginConfigSeconds = 0,
+      maxQueryLengthSeconds = 0,
       maxRetentionSeconds = 0;
 
     try {
       maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
     } catch (e) {
-      logger.error(e, { msg: `${jsonData?.interval} is not a valid interval string!` });
+      logger.error(e, { msg: `${jsonData?.interval} is not a valid interval!` });
     }
+
     try {
       maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period ?? '');
     } catch (e) {
-      logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval string!` });
+      logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval!` });
     }
 
-    const maxInterval = maxRetentionSeconds || maxPluginConfigSeconds;
+    try {
+      maxQueryLengthSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.max_query_length ?? '');
+    } catch (e) {
+      logger.error(e, { msg: `${lokiConfig?.limits.max_query_length} is not a valid interval!` });
+    }
+
+    const maxInterval = maxQueryLengthSeconds || maxRetentionSeconds || maxPluginConfigSeconds;
     if (maxInterval) {
       const timeZone = getTimeZone();
       return timeOptions.filter((timeOption) => {
