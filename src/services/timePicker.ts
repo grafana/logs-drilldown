@@ -40,8 +40,8 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
       const timeZone = getTimeZone();
       return timeOptions.filter((timeOption) => {
         const timeRange = rangeUtil.convertRawToRange(timeOption, timeZone);
-
         if (timeRange) {
+          // This will return the exact duration for the interval, if the interval covers DST there will be an extra/missing hour!
           const intervalSeconds = Math.floor((timeRange.to.valueOf() - timeRange.from.valueOf()) / 1000);
           // Pad retention by 10%, there's no downside to querying over retention besides some empty space in the query, and it might be frustrating to not get a time range if retention is close
           const retentionGreaterThanInterval = intervalSeconds <= maxRetentionSeconds * 1.1;
