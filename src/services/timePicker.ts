@@ -5,6 +5,7 @@ import { JsonData } from '../Components/AppConfig/AppConfig';
 import { plugin } from '../module';
 import { LokiConfig } from './datasourceTypes';
 import { logger } from './logger';
+import { parsePrometheusDuration } from './parsePrometheusDuration';
 
 /**
  * Filters TimeOptions that are more than the max query duration, the retention period, or duration defined in plugin admin config
@@ -21,7 +22,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
 
     if (jsonData?.interval) {
       try {
-        maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData.interval);
+        maxPluginConfigSeconds = parsePrometheusDuration(jsonData.interval);
       } catch (e) {
         logger.error(e, { msg: `${jsonData.interval} is not a valid interval string!` });
       }
@@ -29,7 +30,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
 
     if (lokiConfig?.limits.retention_period) {
       try {
-        maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period);
+        maxRetentionSeconds = Math.floor(parsePrometheusDuration(lokiConfig?.limits.retention_period) / 1000);
       } catch (e) {
         logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval string!` });
       }
