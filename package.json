@@ -121,9 +121,9 @@
     "re-resizable": "^6.11.2",
     "re2js": "^1.1.0",
     "react": "18.2.0",
+    "react-table": "^7.8.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.22.0",
-    "react-table": "^7.8.0",
     "rxjs": "7.8.2",
     "tslib": "2.5.3",
     "uuid": "^10.0.0"

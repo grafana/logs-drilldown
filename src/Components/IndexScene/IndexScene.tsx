@@ -321,6 +321,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     );
 
     this._subs.add(this.subscribeToLokiConfigAPI());
+    this._subs.add(this.subscribeToDataSourceChange());
+
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
@@ -360,6 +362,14 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
   }
 
+  private subscribeToDataSourceChange() {
+    getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+      if (newState.value !== prevState.value) {
+        this.state.$lokiConfig.runQueries();
+      }
+    });
+  }
+
   /**
    * Subscribes to Loki config resource api call, sets response to IndexScene state
    * @todo clean this up if loki < 3.6 is not supported
@@ -378,7 +388,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       }
     }
 
-    return this.state.$lokiConfig.subscribeToState((newState) => {
+    return this.state.$lokiConfig.subscribeToState((newState, prevState) => {
       // Loki versions before 3.6 will not have the new API endpoint, so we expect a 404 response
       if (newState.data?.state === LoadingState.Error) {
         this.setState({ lokiConfig: LOKI_CONFIG_API_NOT_SUPPORTED });
