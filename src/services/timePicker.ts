@@ -2,6 +2,9 @@ import { AppPluginMeta, rangeUtil, RelativeTimeRange, TimeOption } from '@grafan
 
 import { JsonData } from '../Components/AppConfig/AppConfig';
 import { plugin } from '../module';
+import { LokiConfig } from './datasourceTypes';
+
+type FuzzyTimeOption = TimeOption & { fuzzySeconds: number };
 
 /**
  * Filters TimeOptions that are more than the configured max query duration.
@@ -9,19 +12,31 @@ import { plugin } from '../module';
  * @todo ideally we could ask Loki what the maximum duration is,
  * but for now let's only show options that are less than the max duration configured for the Logs Drilldown app
  */
-export const filterInvalidTimeOptions = (timeOptions: TimeOption[]) => {
+export const filterInvalidTimeOptions = (timeOptions: FuzzyTimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-  if (jsonData?.interval) {
-    const maxSeconds = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
+  if (jsonData?.interval || lokiConfig?.limits.max_query_length || lokiConfig?.limits.retention_period) {
+    let maxQueryLengthSeconds = 0,
+      maxPluginConfigSeconds = 0,
+      maxRetentionSeconds = 0;
 
-    if (maxSeconds) {
+    try {
+      maxQueryLengthSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.max_query_length ?? '');
+    } catch (e) {}
+
+    try {
+      maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
+    } catch (e) {}
+    try {
+      maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period ?? '');
+    } catch (e) {}
+
+    if (maxPluginConfigSeconds || maxQueryLengthSeconds) {
       return timeOptions.filter((timeOption) => {
         const timeRange = mapOptionToRelativeTimeRange(timeOption);
-        const delta = timeRange.from - timeRange.to;
-        console.log('delta', delta);
+        const delta = timeRange.from - timeRange.to || timeOption.fuzzySeconds;
 
         // see https://github.com/grafana/grafana/issues/103480, mapOptionToRelativeTimeRange doesn't work with months or years
-        return delta === 0 || delta <= maxSeconds;
+        return delta === 0 || delta <= (maxQueryLengthSeconds || maxRetentionSeconds || maxPluginConfigSeconds);
       });
     }
   }
@@ -46,7 +61,7 @@ export const mapOptionToRelativeTimeRange = (option: TimeOption): RelativeTimeRa
     to: relativeToSeconds(option.to),
   };
 };
-
+// @todo get rid of this, pre-calc is same accuracy
 const relativeToSeconds = (relative: string): number => {
   const match = regex.exec(relative);
 
@@ -58,7 +73,6 @@ const relativeToSeconds = (relative: string): number => {
   const parsed = parseInt(value, 10);
 
   if (isNaN(parsed)) {
-    console.log('nan', { parsed, relative });
     return 0;
   }
 
@@ -66,30 +80,30 @@ const relativeToSeconds = (relative: string): number => {
   return sign === '+' ? seconds * -1 : seconds;
 };
 
-export const quickOptions: TimeOption[] = [
-  { from: 'now-5m', to: 'now', display: 'Last 5 minutes' },
-  { from: 'now-15m', to: 'now', display: 'Last 15 minutes' },
-  { from: 'now-30m', to: 'now', display: 'Last 30 minutes' },
-  { from: 'now-1h', to: 'now', display: 'Last 1 hour' },
-  { from: 'now-3h', to: 'now', display: 'Last 3 hours' },
-  { from: 'now-6h', to: 'now', display: 'Last 6 hours' },
-  { from: 'now-12h', to: 'now', display: 'Last 12 hours' },
-  { from: 'now-24h', to: 'now', display: 'Last 24 hours' },
-  { from: 'now-2d', to: 'now', display: 'Last 2 days' },
-  { from: 'now-7d', to: 'now', display: 'Last 7 days' },
-  { from: 'now-30d', to: 'now', display: 'Last 30 days' },
-  { from: 'now-60d', to: 'now', display: 'Last 60 days' },
-  { from: 'now-90d', to: 'now', display: 'Last 90 days' },
-  { from: 'now-1d/d', to: 'now-1d/d', display: 'Yesterday' },
-  { from: 'now-2d/d', to: 'now-2d/d', display: 'Day before yesterday' },
-  { from: 'now-7d/d', to: 'now-7d/d', display: 'This day last week' },
-  { from: 'now-1w/w', to: 'now-1w/w', display: 'Previous week' },
-  { from: 'now-1M/M', to: 'now-1M/M', display: 'Previous month' },
-  { from: 'now-1Q/fQ', to: 'now-1Q/fQ', display: 'Previous fiscal quarter' },
-  { from: 'now/d', to: 'now/d', display: 'Today' },
-  { from: 'now/d', to: 'now', display: 'Today so far' },
-  { from: 'now/w', to: 'now/w', display: 'This week' },
-  { from: 'now/w', to: 'now', display: 'This week so far' },
-  { from: 'now/M', to: 'now/M', display: 'This month' },
-  { from: 'now/M', to: 'now', display: 'This month so far' },
+export const quickOptions: FuzzyTimeOption[] = [
+  { from: 'now-5m', to: 'now', display: 'Last 5 minutes', fuzzySeconds: units.m * 5 },
+  { from: 'now-15m', to: 'now', display: 'Last 15 minutes', fuzzySeconds: units.m * 15 },
+  { from: 'now-30m', to: 'now', display: 'Last 30 minutes', fuzzySeconds: units.m * 30 },
+  { from: 'now-1h', to: 'now', display: 'Last 1 hour', fuzzySeconds: units.h },
+  { from: 'now-3h', to: 'now', display: 'Last 3 hours', fuzzySeconds: units.h * 3 },
+  { from: 'now-6h', to: 'now', display: 'Last 6 hours', fuzzySeconds: units.h * 6 },
+  { from: 'now-12h', to: 'now', display: 'Last 12 hours', fuzzySeconds: units.h * 12 },
+  { from: 'now-24h', to: 'now', display: 'Last 24 hours', fuzzySeconds: units.h * 24 },
+  { from: 'now-2d', to: 'now', display: 'Last 2 days', fuzzySeconds: units.d * 2 },
+  { from: 'now-7d', to: 'now', display: 'Last 7 days', fuzzySeconds: units.d * 7 },
+  { from: 'now-30d', to: 'now', display: 'Last 30 days', fuzzySeconds: units.d * 30 },
+  { from: 'now-60d', to: 'now', display: 'Last 60 days', fuzzySeconds: units.d * 60 },
+  { from: 'now-90d', to: 'now', display: 'Last 90 days', fuzzySeconds: units.d * 90 },
+  { from: 'now-1d/d', to: 'now-1d/d', display: 'Yesterday', fuzzySeconds: units.d },
+  { from: 'now-2d/d', to: 'now-2d/d', display: 'Day before yesterday', fuzzySeconds: units.d },
+  { from: 'now-7d/d', to: 'now-7d/d', display: 'This day last week', fuzzySeconds: units.d },
+  { from: 'now-1w/w', to: 'now-1w/w', display: 'Previous week', fuzzySeconds: units.d * 7 },
+  { from: 'now-1M/M', to: 'now-1M/M', display: 'Previous month', fuzzySeconds: units.d * 28 },
+  { from: 'now-1Q/fQ', to: 'now-1Q/fQ', display: 'Previous fiscal quarter', fuzzySeconds: (units.d * 365) / 4 },
+  { from: 'now/d', to: 'now/d', display: 'Today', fuzzySeconds: units.d },
+  { from: 'now/d', to: 'now', display: 'Today so far', fuzzySeconds: units.d },
+  { from: 'now/w', to: 'now/w', display: 'This week', fuzzySeconds: units.d * 7 },
+  { from: 'now/w', to: 'now', display: 'This week so far', fuzzySeconds: units.d * 7 },
+  { from: 'now/M', to: 'now/M', display: 'This month', fuzzySeconds: units.d * 28 },
+  { from: 'now/M', to: 'now', display: 'This month so far', fuzzySeconds: units.d * 28 },
 ];
