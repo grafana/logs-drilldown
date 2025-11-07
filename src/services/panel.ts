@@ -32,6 +32,7 @@ import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery } from './lokiQuery';
+import { buildResourceQuery } from './query';
 import { maxSeriesReached } from './shardQuerySplitting';
 
 const UNKNOWN_LEVEL_LOGS = 'logs';
@@ -275,6 +276,12 @@ export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?
     datasource: { uid: WRAPPED_LOKI_DS_UID },
     queries: queries,
     ...queryRunnerOptions,
+  });
+}
+
+export function getConfigQueryRunner() {
+  return getResourceQueryRunner([buildResourceQuery(``, 'config', {})], {
+    runQueriesMode: 'manual',
   });
 }
 

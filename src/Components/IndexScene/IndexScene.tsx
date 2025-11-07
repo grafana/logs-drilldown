@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
-import { AdHocVariableFilter, AppEvents, AppPluginMeta, rangeUtil, urlUtil } from '@grafana/data';
+import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -30,6 +30,7 @@ import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from '../../services/datasourceTypes';
 import { PageSlugs } from '../../services/enums';
 import { getFieldsTagValuesExpression } from '../../services/expressions';
 import { isFilterMetadata } from '../../services/filters';
@@ -40,6 +41,7 @@ import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
+import { getConfigQueryRunner } from '../../services/panel';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
@@ -205,6 +207,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     super({
       $timeRange: state.$timeRange ?? new SceneTimeRange({}),
       $variables: state.$variables ?? variablesScene,
+      $lokiConfig: getConfigQueryRunner(),
       controls: state.controls ?? controls,
       embedded: state.embedded ?? false,
       // Need to clear patterns state when the class in constructed
@@ -306,6 +309,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       })
     );
 
+    this._subs.add(this.subscribeToLokiConfigAPI());
+    this._subs.add(this.subscribeToDataSourceChange());
+
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
@@ -343,6 +349,48 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     } else {
       return provideServiceBreakdownQuestions();
     }
+  }
+
+  private subscribeToDataSourceChange() {
+    getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+      if (newState.value !== prevState.value) {
+        this.state.$lokiConfig.runQueries();
+      }
+    });
+  }
+
+  /**
+   * Subscribes to Loki config resource api call, sets response to IndexScene state
+   * @todo clean this up if loki < 3.6 is not supported
+   */
+  private subscribeToLokiConfigAPI() {
+    const isLokiConfigAPIAvailable = this.state.lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED;
+    if (isLokiConfigAPIAvailable && !this.state.$lokiConfig.state.data?.series.length) {
+      // Check singleton for cached config for uncached scenes
+      const lokiConfig = getMetadataService().getLokiConfig();
+      if (lokiConfig) {
+        this.setState({
+          lokiConfig,
+        });
+      } else {
+        this.state.$lokiConfig.runQueries();
+      }
+    }
+
+    return this.state.$lokiConfig.subscribeToState((newState, prevState) => {
+      // Loki versions before 3.6 will not have the new API endpoint, so we expect a 404 response
+      if (newState.data?.state === LoadingState.Error) {
+        this.setState({ lokiConfig: LOKI_CONFIG_API_NOT_SUPPORTED });
+        getMetadataService().setLokiConfig(LOKI_CONFIG_API_NOT_SUPPORTED);
+      } else if (newState.data?.state === LoadingState.Done && newState.data?.series.length > 0) {
+        const lokiConfig = newState.data?.series[0].fields[0].values[0];
+        if (lokiConfig) {
+          // we can't subscribe to metadata singleton like we can scene state, so we shouldn't pull config from singleton except to set the initial indexScene state
+          this.setState({ lokiConfig });
+          getMetadataService().setLokiConfig(lokiConfig);
+        }
+      }
+    });
   }
 
   private provideAssistantContext() {

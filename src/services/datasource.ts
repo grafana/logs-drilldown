@@ -13,7 +13,12 @@ import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtim
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
 
-import { SceneDataQueryRequest, SceneDataQueryResourceRequest, VolumeRequestProps } from './datasourceTypes';
+import {
+  LokiConfig,
+  SceneDataQueryRequest,
+  SceneDataQueryResourceRequest,
+  VolumeRequestProps,
+} from './datasourceTypes';
 import { DetectedFieldsResponse, DetectedLabelsResponse } from './fields';
 import { FIELDS_TO_REMOVE, LABELS_TO_REMOVE, sortLabelsByCardinality } from './filters';
 import { logger } from './logger';
@@ -136,6 +141,10 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
             }
             case 'labels': {
               await this.getLabels(request, lokiDs, subscriber);
+              break;
+            }
+            case 'config': {
+              await this.getConfig(request, lokiDs, subscriber);
               break;
             }
             default: {
@@ -494,6 +503,39 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
 
     subscriber.complete();
 
+    return subscriber;
+  }
+
+  private async getConfig(
+    request: DataQueryRequest<LokiQuery & SceneDataQueryResourceRequest>,
+    ds: LokiDatasource,
+    subscriber: Subscriber<DataQueryResponse>
+  ) {
+    try {
+      const config: LokiConfig = await ds.getResource(
+        'drilldown-limits',
+        {},
+        {
+          // Don't show warnings if the endpoint doesn't exist
+          showErrorAlert: false,
+          // Cache for 1 day
+          headers: {
+            'X-Grafana-Cache': `private, max-age=86400`,
+            'X-Query-Tags': `Source=${PLUGIN_ID}`,
+          },
+          requestId: ds.uid,
+        }
+      );
+      const df = createDataFrame({
+        fields: [{ name: 'drilldown-limits', values: [config] }],
+      });
+
+      subscriber.next({ data: [df], state: LoadingState.Done });
+    } catch (e) {
+      subscriber.next({ data: [], state: LoadingState.Error });
+    }
+
+    subscriber.complete();
     return subscriber;
   }
 

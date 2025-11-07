@@ -536,3 +536,4 @@ shellcheck
 radical
 rerooted
 nodetype
+lookback
