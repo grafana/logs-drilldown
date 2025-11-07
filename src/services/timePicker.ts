@@ -13,39 +13,62 @@ import { logger } from './logger';
  */
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+
+  // @todo add new plugin config to use max query length or not
+  // @todo also check query splitting ff?
   if (jsonData?.interval || lokiConfig?.limits.retention_period || lokiConfig?.limits.max_query_length) {
     let maxPluginConfigSeconds = 0,
       maxQueryLengthSeconds = 0,
       maxRetentionSeconds = 0;
 
-    try {
-      maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
-    } catch (e) {
-      logger.error(e, { msg: `${jsonData?.interval} is not a valid interval!` });
+    console.log({ lokiConfig });
+
+    if (jsonData?.interval) {
+      try {
+        maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData.interval);
+      } catch (e) {
+        logger.error(e, { msg: `${jsonData.interval} is not a valid interval!` });
+      }
     }
 
-    try {
-      maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period ?? '');
-    } catch (e) {
-      logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval!` });
+    if (lokiConfig?.limits.retention_period) {
+      try {
+        maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period);
+      } catch (e) {
+        logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval!` });
+      }
+
+      if (lokiConfig?.limits.max_query_length) {
+        try {
+          maxQueryLengthSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.max_query_length ?? '');
+        } catch (e) {
+          logger.error(e, { msg: `${lokiConfig?.limits.max_query_length} is not a valid interval!` });
+        }
+      }
     }
 
-    try {
-      maxQueryLengthSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.max_query_length ?? '');
-    } catch (e) {
-      logger.error(e, { msg: `${lokiConfig?.limits.max_query_length} is not a valid interval!` });
-    }
-
-    const maxInterval = maxQueryLengthSeconds || maxRetentionSeconds || maxPluginConfigSeconds;
-    if (maxInterval) {
+    if (maxPluginConfigSeconds || maxRetentionSeconds || maxQueryLengthSeconds) {
       const timeZone = getTimeZone();
       return timeOptions.filter((timeOption) => {
         const timeRange = rangeUtil.convertRawToRange(timeOption, timeZone);
+
         if (timeRange) {
+          // this will be an hour off if the interval includes DST
           const intervalSeconds = Math.floor((timeRange.to.valueOf() - timeRange.from.valueOf()) / 1000);
-          return intervalSeconds === 0 || intervalSeconds <= maxInterval;
+          const maxQueryLengthGreaterThanInterval = intervalSeconds <= maxQueryLengthSeconds;
+
+          if (maxQueryLengthSeconds && !maxQueryLengthGreaterThanInterval) {
+            return false;
+          }
+
+          // Pad retention by 10%, there's no downside to querying over retention besides some empty space in the query, and it might be frustrating to not get a time range if retention is close
+          const retentionGreaterThanInterval = intervalSeconds <= maxRetentionSeconds * 1.1;
+          const pluginConfigGreaterThanInterval = intervalSeconds <= maxPluginConfigSeconds;
+
+          return intervalSeconds === 0 || retentionGreaterThanInterval || pluginConfigGreaterThanInterval;
         }
-        return 0;
+
+        return false;
       });
     }
   }

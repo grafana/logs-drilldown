@@ -8,3 +8,4 @@ overrides:
     pattern_persistence_enabled: true
     volume_enabled: true
     retention_period: 30d
+    max_query_length: 7d2h
