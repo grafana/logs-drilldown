@@ -82,13 +82,31 @@ export const quickOptions: TimeOption[] = [
     display: t('grafana-ui.date-time-pickers.quick-options.last-6-months', 'Last 6 months'),
   },
   { from: 'now-1y', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-1-year', 'Last 1 year') },
-  { from: 'now-2y', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-2-years', 'Last 2 years') },
-  { from: 'now-5y', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-5-years', 'Last 5 years') },
   { from: 'now-1d/d', to: 'now-1d/d', display: t('grafana-ui.date-time-pickers.quick-options.yesterday', 'Yesterday') },
   {
     from: 'now-2d/d',
     to: 'now-2d/d',
     display: t('grafana-ui.date-time-pickers.quick-options.day-before-yesterday', 'Day before yesterday'),
+  },
+  {
+    from: 'now-3d/d',
+    to: 'now-3d/d',
+    display: t('grafana-ui.date-time-pickers.quick-options.day-three-days-ago', 'Three days ago'),
+  },
+  {
+    from: 'now-4d/d',
+    to: 'now-4d/d',
+    display: t('grafana-ui.date-time-pickers.quick-options.day-four-days-ago', 'Four days ago'),
+  },
+  {
+    from: 'now-5d/d',
+    to: 'now-5d/d',
+    display: t('grafana-ui.date-time-pickers.quick-options.day-five-days-ago', 'Five days ago'),
+  },
+  {
+    from: 'now-6d/d',
+    to: 'now-6d/d',
+    display: t('grafana-ui.date-time-pickers.quick-options.day-five-days-ago', 'Six days ago'),
   },
   {
     from: 'now-7d/d',
@@ -101,9 +119,34 @@ export const quickOptions: TimeOption[] = [
     display: t('grafana-ui.date-time-pickers.quick-options.previous-week', 'Previous week'),
   },
   {
+    from: 'now-2w/w',
+    to: 'now-2w/w',
+    display: t('grafana-ui.date-time-pickers.quick-options.two-weeks-ago', 'Two weeks ago'),
+  },
+  {
+    from: 'now-3w/w',
+    to: 'now-3w/w',
+    display: t('grafana-ui.date-time-pickers.quick-options.three-weeks-ago', 'Three weeks ago'),
+  },
+  {
+    from: 'now-4w/w',
+    to: 'now-4w/w',
+    display: t('grafana-ui.date-time-pickers.quick-options.four-weeks-ago', 'Four weeks ago'),
+  },
+  {
     from: 'now-1M/M',
     to: 'now-1M/M',
     display: t('grafana-ui.date-time-pickers.quick-options.previous-month', 'Previous month'),
+  },
+  {
+    from: 'now-2M/M',
+    to: 'now-2M/M',
+    display: t('grafana-ui.date-time-pickers.quick-options.two-months-ago', 'Two months ago'),
+  },
+  {
+    from: 'now-3M/M',
+    to: 'now-3M/M',
+    display: t('grafana-ui.date-time-pickers.quick-options.three-months-ago', 'Three months ago'),
   },
   {
     from: 'now-1Q/fQ',
