@@ -13,7 +13,7 @@ import { LokiConfig } from './datasourceTypes';
  */
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-  if (jsonData?.interval || lokiConfig?.limits.max_query_length || lokiConfig?.limits.retention_period) {
+  if (jsonData?.interval || lokiConfig?.limits.retention_period) {
     let maxQueryLengthSeconds = 0,
       maxPluginConfigSeconds = 0,
       maxRetentionSeconds = 0;
@@ -47,6 +47,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
 };
 
 export const quickOptions: TimeOption[] = [
+  { from: 'now-1m', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-1-mins', 'Last minute') },
   { from: 'now-5m', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-5-mins', 'Last 5 minutes') },
   {
     from: 'now-15m',
@@ -81,9 +82,6 @@ export const quickOptions: TimeOption[] = [
     to: 'now',
     display: t('grafana-ui.date-time-pickers.quick-options.last-6-months', 'Last 6 months'),
   },
-  { from: 'now-1y', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-1-year', 'Last 1 year') },
-  { from: 'now-2y', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-2-years', 'Last 2 years') },
-  { from: 'now-5y', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-5-years', 'Last 5 years') },
   { from: 'now-1d/d', to: 'now-1d/d', display: t('grafana-ui.date-time-pickers.quick-options.yesterday', 'Yesterday') },
   {
     from: 'now-2d/d',
@@ -105,21 +103,6 @@ export const quickOptions: TimeOption[] = [
     to: 'now-1M/M',
     display: t('grafana-ui.date-time-pickers.quick-options.previous-month', 'Previous month'),
   },
-  {
-    from: 'now-1Q/fQ',
-    to: 'now-1Q/fQ',
-    display: t('grafana-ui.date-time-pickers.quick-options.previous-fiscal-quarter', 'Previous fiscal quarter'),
-  },
-  {
-    from: 'now-1y/y',
-    to: 'now-1y/y',
-    display: t('grafana-ui.date-time-pickers.quick-options.previous-year', 'Previous year'),
-  },
-  {
-    from: 'now-1y/fy',
-    to: 'now-1y/fy',
-    display: t('grafana-ui.date-time-pickers.quick-options.previous-fiscal-year', 'Previous fiscal year'),
-  },
   { from: 'now/d', to: 'now/d', display: t('grafana-ui.date-time-pickers.quick-options.today', 'Today') },
   { from: 'now/d', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.today-so-far', 'Today so far') },
   { from: 'now/w', to: 'now/w', display: t('grafana-ui.date-time-pickers.quick-options.this-week', 'This week') },
@@ -133,31 +116,5 @@ export const quickOptions: TimeOption[] = [
     from: 'now/M',
     to: 'now',
     display: t('grafana-ui.date-time-pickers.quick-options.this-month-so-far', 'This month so far'),
-  },
-  { from: 'now/y', to: 'now/y', display: t('grafana-ui.date-time-pickers.quick-options.this-year', 'This year') },
-  {
-    from: 'now/y',
-    to: 'now',
-    display: t('grafana-ui.date-time-pickers.quick-options.this-year-so-far', 'This year so far'),
-  },
-  {
-    from: 'now/fQ',
-    to: 'now',
-    display: t('grafana-ui.date-time-pickers.quick-options.this-fiscal-quarter-so-far', 'This fiscal quarter so far'),
-  },
-  {
-    from: 'now/fQ',
-    to: 'now/fQ',
-    display: t('grafana-ui.date-time-pickers.quick-options.this-fiscal-quarter', 'This fiscal quarter'),
-  },
-  {
-    from: 'now/fy',
-    to: 'now',
-    display: t('grafana-ui.date-time-pickers.quick-options.this-fiscal-year-so-far', 'This fiscal year so far'),
-  },
-  {
-    from: 'now/fy',
-    to: 'now/fy',
-    display: t('grafana-ui.date-time-pickers.quick-options.this-fiscal-year', 'This fiscal year'),
   },
 ];
