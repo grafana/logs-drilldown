@@ -378,7 +378,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       }
     }
 
-    return this.state.$lokiConfig.subscribeToState((newState, prevState) => {
+    return this.state.$lokiConfig.subscribeToState((newState) => {
       // Loki versions before 3.6 will not have the new API endpoint, so we expect a 404 response
       if (newState.data?.state === LoadingState.Error) {
         this.setState({ lokiConfig: LOKI_CONFIG_API_NOT_SUPPORTED });
