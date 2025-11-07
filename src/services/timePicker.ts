@@ -4,31 +4,31 @@ import { t } from '@grafana/i18n';
 import { JsonData } from '../Components/AppConfig/AppConfig';
 import { plugin } from '../module';
 import { LokiConfig } from './datasourceTypes';
+import { logger } from './logger';
 
 /**
  * Filters TimeOptions that are more than the max query duration, the retention period, or duration defined in plugin admin config
  * Loki config will override admin config
  * max_query_length will override retention_period
- * @todo should we support only applying limits to sharded/split for backward compat?
  */
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
   if (jsonData?.interval || lokiConfig?.limits.retention_period) {
-    let maxQueryLengthSeconds = 0,
-      maxPluginConfigSeconds = 0,
+    let maxPluginConfigSeconds = 0,
       maxRetentionSeconds = 0;
 
     try {
-      maxQueryLengthSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.max_query_length ?? '');
-    } catch (e) {}
-    try {
       maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
-    } catch (e) {}
+    } catch (e) {
+      logger.error(e, { msg: `${jsonData?.interval} is not a valid interval string!` });
+    }
     try {
       maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period ?? '');
-    } catch (e) {}
+    } catch (e) {
+      logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval string!` });
+    }
 
-    const maxInterval = maxQueryLengthSeconds || maxRetentionSeconds || maxPluginConfigSeconds;
+    const maxInterval = maxRetentionSeconds || maxPluginConfigSeconds;
     if (maxInterval) {
       const timeZone = getTimeZone();
       return timeOptions.filter((timeOption) => {
@@ -37,7 +37,6 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
           const intervalSeconds = Math.floor((timeRange.to.valueOf() - timeRange.from.valueOf()) / 1000);
           return intervalSeconds === 0 || intervalSeconds <= maxInterval;
         }
-
         return 0;
       });
     }
@@ -46,6 +45,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
   return timeOptions;
 };
 
+// Taken from grafana-ui/src/components/DateTimePickers/options.ts and adapted for typical logs searches and retentions
 export const quickOptions: TimeOption[] = [
   { from: 'now-1m', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-1-mins', 'Last minute') },
   { from: 'now-5m', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-5-mins', 'Last 5 minutes') },
