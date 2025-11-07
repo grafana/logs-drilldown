@@ -39,7 +39,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
 
       if (lokiConfig?.limits.max_query_length) {
         try {
-          maxQueryLengthSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.max_query_length ?? '');
+          maxQueryLengthSeconds = Math.floor(parsePrometheusDuration(lokiConfig?.limits.max_query_length ?? '') / 1000);
         } catch (e) {
           logger.error(e, { msg: `${lokiConfig?.limits.max_query_length} is not a valid interval!` });
         }
