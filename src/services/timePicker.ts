@@ -18,11 +18,9 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
     let maxPluginConfigSeconds = 0,
       maxRetentionSeconds = 0;
 
-    console.log({ lokiConfig });
-
     if (jsonData?.interval) {
       try {
-        maxPluginConfigSeconds = parsePrometheusDuration(jsonData.interval);
+        maxPluginConfigSeconds = Math.floor(parsePrometheusDuration(jsonData.interval) / 1000);
       } catch (e) {
         logger.error(e, { msg: `${jsonData.interval} is not a valid interval string!` });
       }
