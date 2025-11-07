@@ -148,21 +148,7 @@ export const quickOptions: TimeOption[] = [
     to: 'now-3M/M',
     display: t('grafana-ui.date-time-pickers.quick-options.three-months-ago', 'Three months ago'),
   },
-  {
-    from: 'now-1Q/fQ',
-    to: 'now-1Q/fQ',
-    display: t('grafana-ui.date-time-pickers.quick-options.previous-fiscal-quarter', 'Previous fiscal quarter'),
-  },
-  {
-    from: 'now-1y/y',
-    to: 'now-1y/y',
-    display: t('grafana-ui.date-time-pickers.quick-options.previous-year', 'Previous year'),
-  },
-  {
-    from: 'now-1y/fy',
-    to: 'now-1y/fy',
-    display: t('grafana-ui.date-time-pickers.quick-options.previous-fiscal-year', 'Previous fiscal year'),
-  },
+
   { from: 'now/d', to: 'now/d', display: t('grafana-ui.date-time-pickers.quick-options.today', 'Today') },
   { from: 'now/d', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.today-so-far', 'Today so far') },
   { from: 'now/w', to: 'now/w', display: t('grafana-ui.date-time-pickers.quick-options.this-week', 'This week') },
