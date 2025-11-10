@@ -10,7 +10,6 @@ import { parsePrometheusDuration } from './parsePrometheusDuration';
 /**
  * Filters TimeOptions that are more than the max query duration, the retention period, or duration defined in plugin admin config
  * Loki config will override admin config
- * max_query_length will override retention_period
  */
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
@@ -47,7 +46,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
           return intervalSeconds === 0 || retentionGreaterThanInterval || pluginConfigGreaterThanInterval;
         }
 
-        return 0;
+        return false;
       });
     }
   }
