@@ -5,11 +5,11 @@ import { JsonData } from '../Components/AppConfig/AppConfig';
 import { plugin } from '../module';
 import { LokiConfig } from './datasourceTypes';
 import { logger } from './logger';
+import { parsePrometheusDuration } from './parsePrometheusDuration';
 
 /**
  * Filters TimeOptions that are more than the max query duration, the retention period, or duration defined in plugin admin config
  * Loki config will override admin config
- * max_query_length will override retention_period
  */
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
@@ -17,27 +17,36 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
     let maxPluginConfigSeconds = 0,
       maxRetentionSeconds = 0;
 
-    try {
-      maxPluginConfigSeconds = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
-    } catch (e) {
-      logger.error(e, { msg: `${jsonData?.interval} is not a valid interval string!` });
-    }
-    try {
-      maxRetentionSeconds = rangeUtil.intervalToSeconds(lokiConfig?.limits.retention_period ?? '');
-    } catch (e) {
-      logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval string!` });
+    if (jsonData?.interval) {
+      try {
+        maxPluginConfigSeconds = Math.floor(parsePrometheusDuration(jsonData.interval) / 1000);
+      } catch (e) {
+        logger.error(e, { msg: `${jsonData.interval} is not a valid interval string!` });
+      }
     }
 
-    const maxInterval = maxRetentionSeconds || maxPluginConfigSeconds;
-    if (maxInterval) {
+    if (lokiConfig?.limits.retention_period) {
+      try {
+        maxRetentionSeconds = Math.floor(parsePrometheusDuration(lokiConfig?.limits.retention_period) / 1000);
+      } catch (e) {
+        logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval string!` });
+      }
+    }
+
+    if (maxPluginConfigSeconds || maxRetentionSeconds) {
       const timeZone = getTimeZone();
       return timeOptions.filter((timeOption) => {
         const timeRange = rangeUtil.convertRawToRange(timeOption, timeZone);
         if (timeRange) {
+          // This will return the exact duration for the interval, if the interval covers DST there will be an extra/missing hour!
           const intervalSeconds = Math.floor((timeRange.to.valueOf() - timeRange.from.valueOf()) / 1000);
-          return intervalSeconds === 0 || intervalSeconds <= maxInterval;
+          // Pad retention by 10%, there's no downside to querying over retention besides some empty space in the query, and it might be frustrating to not get a time range if retention is close
+          const retentionGreaterThanInterval = intervalSeconds <= maxRetentionSeconds * 1.1;
+          const pluginConfigGreaterThanInterval = intervalSeconds <= maxPluginConfigSeconds;
+          return intervalSeconds === 0 || retentionGreaterThanInterval || pluginConfigGreaterThanInterval;
         }
-        return 0;
+
+        return false;
       });
     }
   }
