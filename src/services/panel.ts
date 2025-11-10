@@ -303,7 +303,7 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [],
+      transformations: [sortLevelTransformation],
     });
   }
 
