@@ -17,10 +17,17 @@ test.describe('play', () => {
     explorePage.echoConsoleLogsOnRetry();
   });
 
-  test('can load', async ({ page }) => {
+  test('app can load', async ({ page }) => {
     await page.goto('/a/grafana-lokiexplore-app/explore');
-    await page.pause();
     await expect(page.getByText('Grafana Logs Drilldown').first()).toBeVisible();
     await expect(page.getByText('Grafana Logs Drilldown').last()).toBeVisible();
+  });
+
+  test('plugin config can load', async ({ page }) => {
+    await page.goto('/plugins/grafana-lokiexplore-app/');
+    await expect(page.getByText('Grafana Logs Drilldown').first()).toBeVisible();
+    await expect(page.getByText('Settings').first()).toBeVisible();
+    await expect(page.getByText('Default data source').first()).toBeVisible();
+    await expect(page.getByText('Maximum time picker interval').first()).toBeVisible();
   });
 });
