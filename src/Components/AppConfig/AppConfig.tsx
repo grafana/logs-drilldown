@@ -21,6 +21,7 @@ import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage
 export type JsonData = {
   dataSource?: string;
   interval?: string;
+  limitMaxQueryLength?: boolean;
   patternsDisabled?: boolean;
 };
 
@@ -28,6 +29,7 @@ type State = {
   dataSource: string;
   interval: string;
   isValid: boolean;
+  limitMaxQueryLength: boolean;
   patternsDisabled: boolean;
 };
 
@@ -46,6 +48,7 @@ const AppConfig = ({ plugin }: Props) => {
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
     patternsDisabled: jsonData?.patternsDisabled ?? false,
+    limitMaxQueryLength: jsonData?.limitMaxQueryLength ?? false,
   });
 
   const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
@@ -72,6 +75,14 @@ const AppConfig = ({ plugin }: Props) => {
     });
   };
 
+  const onChangeLimitMaxQueryLength = (event: ChangeEvent<HTMLInputElement>) => {
+    const limitMaxQueryLength = event.currentTarget.checked;
+    setState({
+      ...state,
+      limitMaxQueryLength,
+    });
+  };
+
   return (
     <div data-testid={testIds.appConfig.container}>
       <FieldSet label="Settings">
@@ -89,30 +100,6 @@ const AppConfig = ({ plugin }: Props) => {
             filter={(ds) => ds.type === 'loki'}
             current={state.dataSource}
             onChange={onChangeDatasource}
-          />
-        </Field>
-
-        <Field
-          invalid={!isValid(state.interval)}
-          error={'Interval is invalid. Please enter an interval longer then "60m". For example: 3d, 1w, 1m'}
-          description={
-            <span>
-              The maximum interval that can be selected in the time picker within the Grafana Logs Drilldown app. If
-              empty, users can select any time range interval in Grafana Logs Drilldown. <br />
-              Example values: 7d, 24h, 2w
-            </span>
-          }
-          label={'Maximum time picker interval'}
-          className={styles.marginTop}
-        >
-          <Input
-            width={60}
-            id="interval"
-            data-testid={testIds.appConfig.interval}
-            label={`Max interval`}
-            value={state?.interval}
-            placeholder={`7d`}
-            onChange={onChangeInterval}
           />
         </Field>
 
@@ -136,11 +123,67 @@ const AppConfig = ({ plugin }: Props) => {
         >
           <Checkbox
             id="disable-patterns"
-            data-testid={testIds.appConfig.interval}
+            data-testid={testIds.appConfig.pattern}
             label={`Disable patterns`}
             value={state?.patternsDisabled}
-            placeholder={`7d`}
             onChange={onChangePatternsDisabled}
+          />
+        </Field>
+
+        <hr />
+
+        <h5>Time range limits:</h5>
+
+        <Field
+          invalid={!isValid(state.interval)}
+          error={'Interval is invalid. Please enter an interval longer then "60m". For example: 3d, 1w, 1m'}
+          description={
+            <span>
+              The maximum interval that can be selected in the time picker within the Grafana Logs Drilldown app. If
+              empty, users can select any time range interval. <br />
+              Example values: 7d, 24h, 2w
+            </span>
+          }
+          label={'Maximum time picker interval'}
+          className={styles.marginTop}
+        >
+          <Input
+            width={60}
+            id="interval"
+            data-testid={testIds.appConfig.interval}
+            label={`Max interval`}
+            value={state?.interval}
+            placeholder={`7d`}
+            onChange={onChangeInterval}
+          />
+        </Field>
+
+        <Field
+          className={styles.marginTop}
+          description={
+            <span>
+              Prevents querying intervals longer than{' '}
+              <a
+                className="external-link"
+                href="https://grafana.com/docs/loki/latest/configure/#limits_config"
+                target="_blank"
+                rel="noreferrer"
+              >
+                max_query_length
+              </a>{' '}
+              set in Loki config. Overrides other time range limits if set.
+              <br />
+              <em>Requires Loki 3.6 or greater.</em>
+            </span>
+          }
+          label={'Enforce Loki max query length'}
+        >
+          <Checkbox
+            id="limit-query-length"
+            data-testid={testIds.appConfig.maxQueryLength}
+            label={`Limit time range`}
+            value={state?.limitMaxQueryLength}
+            onChange={onChangeLimitMaxQueryLength}
           />
         </Field>
 
@@ -155,6 +198,7 @@ const AppConfig = ({ plugin }: Props) => {
                   dataSource: state.dataSource,
                   interval: state.interval,
                   patternsDisabled: state.patternsDisabled,
+                  limitMaxQueryLength: state.limitMaxQueryLength,
                 },
                 pinned,
               })
@@ -213,6 +257,7 @@ const testIds = {
     datasource: 'data-testid ac-datasource-input',
     interval: 'data-testid ac-interval-input',
     pattern: 'data-testid ac-patterns-disabled',
+    maxQueryLength: 'data-testid ac-limit-query-length',
     submit: 'data-testid ac-submit-form',
   },
 };

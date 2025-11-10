@@ -5,6 +5,7 @@ import { JsonData } from '../Components/AppConfig/AppConfig';
 import { plugin } from '../module';
 import { LokiConfig } from './datasourceTypes';
 import { logger } from './logger';
+import { getMaxQueryLengthSeconds } from './lokiConfig';
 import { parsePrometheusDuration } from './parsePrometheusDuration';
 
 /**
@@ -36,14 +37,10 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
       } catch (e) {
         logger.error(e, { msg: `${lokiConfig?.limits.retention_period} is not a valid interval!` });
       }
+    }
 
-      if (lokiConfig?.limits.max_query_length) {
-        try {
-          maxQueryLengthSeconds = Math.floor(parsePrometheusDuration(lokiConfig?.limits.max_query_length ?? '') / 1000);
-        } catch (e) {
-          logger.error(e, { msg: `${lokiConfig?.limits.max_query_length} is not a valid interval!` });
-        }
-      }
+    if (lokiConfig) {
+      maxQueryLengthSeconds = getMaxQueryLengthSeconds(lokiConfig);
     }
 
     if (maxPluginConfigSeconds || maxRetentionSeconds || maxQueryLengthSeconds) {

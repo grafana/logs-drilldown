@@ -37,6 +37,7 @@ import { isFilterMetadata } from '../../services/filters';
 import { FilterOp, LineFilterType } from '../../services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
 import { logger } from '../../services/logger';
+import { getMaxQueryLengthSeconds } from '../../services/lokiConfig';
 import { getMetadataService } from '../../services/metadata';
 import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
 import { isOperatorInclusive } from '../../services/operatorHelpers';
@@ -497,39 +498,50 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return (newState: SceneTimeRangeState, prevState: SceneTimeRangeState) => {
       const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
       if (jsonData?.interval) {
+        let maxInterval: number;
+        let notice: string;
+        const lokiConfig = sceneGraph.getAncestor(timeRange, IndexScene).state.lokiConfig;
+
         try {
-          const maxInterval = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
-          if (!maxInterval) {
-            return;
+          // Check if max_query_length should limit time range selections
+          if (jsonData.limitMaxQueryLength && lokiConfig && lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED) {
+            maxInterval = getMaxQueryLengthSeconds(lokiConfig);
+            notice = 'Time range exceeds Loki max_query_length limit.';
+          } else {
+            maxInterval = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
+            notice = 'Time range interval exceeds maximum interval configured by the administrator.';
           }
-          const timeRangeInterval = newState.value.to.diff(newState.value.from, 'seconds');
-          if (timeRangeInterval > maxInterval) {
-            const prevInterval = prevState.value.to.diff(prevState.value.from, 'seconds');
-            if (timeRangeInterval <= prevInterval) {
-              timeRange.setState({
-                from: prevState.from,
-                to: prevState.to,
-                value: prevState.value,
+
+          if (maxInterval) {
+            const timeRangeInterval = newState.value.to.diff(newState.value.from, 'seconds');
+            if (timeRangeInterval > maxInterval) {
+              const prevInterval = prevState.value.to.diff(prevState.value.from, 'seconds');
+              if (timeRangeInterval <= prevInterval) {
+                timeRange.setState({
+                  from: prevState.from,
+                  to: prevState.to,
+                  value: prevState.value,
+                });
+              } else {
+                const defaultRange = new SceneTimeRange(DEFAULT_TIME_RANGE);
+                timeRange.setState({
+                  from: defaultRange.state.from,
+                  to: defaultRange.state.to,
+                  value: defaultRange.state.value,
+                });
+              }
+
+              const appEvents = getAppEvents();
+              appEvents.publish({
+                payload: [notice],
+                type: AppEvents.alertWarning.name,
               });
-            } else {
-              const defaultRange = new SceneTimeRange(DEFAULT_TIME_RANGE);
-              timeRange.setState({
-                from: defaultRange.state.from,
-                to: defaultRange.state.to,
-                value: defaultRange.state.value,
+
+              reportAppInteraction('all', 'interval_too_long', {
+                attempted_duration_seconds: timeRangeInterval,
+                configured_max_interval: maxInterval,
               });
             }
-
-            const appEvents = getAppEvents();
-            appEvents.publish({
-              payload: [`Time range interval exceeds maximum interval configured by the administrator.`],
-              type: AppEvents.alertWarning.name,
-            });
-
-            reportAppInteraction('all', 'interval_too_long', {
-              attempted_duration_seconds: timeRangeInterval,
-              configured_max_interval: maxInterval,
-            });
           }
         } catch (e) {
           console.error(e);
