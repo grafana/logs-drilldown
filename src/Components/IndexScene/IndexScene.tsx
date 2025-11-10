@@ -47,6 +47,7 @@ import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
+import { filterInvalidTimeOptions, quickOptions } from '../../services/timePicker';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -191,7 +192,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         key: CONTROLS_JSON_FIELDS,
         layout: 'vertical',
       }),
-      new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER }),
+      new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER, quickRanges: filterInvalidTimeOptions(quickOptions) }),
       new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
     ];
 
@@ -261,8 +262,18 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     this._subs.add(
-      this.subscribeToState((newState) => {
+      this.subscribeToState((newState, prevState) => {
         this.updatePatterns(newState, getPatternsVariable(this));
+
+        const lokiConfig = newState.lokiConfig;
+        const configChanged =
+          lokiConfig && lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED && lokiConfig !== prevState.lokiConfig;
+        if (configChanged) {
+          const timePicker = sceneGraph.findByKeyAndType(this, CONTROLS_VARS_TIMEPICKER, SceneTimePicker);
+          timePicker.setState({
+            quickRanges: filterInvalidTimeOptions(quickOptions, lokiConfig),
+          });
+        }
       })
     );
 
