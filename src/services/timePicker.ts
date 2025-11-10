@@ -16,9 +16,8 @@ import { parsePrometheusDuration } from './parsePrometheusDuration';
 export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?: LokiConfig) => {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
 
-  // @todo add new plugin config to use max query length or not
-  // @todo also check query splitting ff?
   if (jsonData?.interval || lokiConfig?.limits.retention_period || lokiConfig?.limits.max_query_length) {
+    // Loki sets numeric limits to zero to indicate they are infinite, or not applied. Since the config API returns values like 0m, we will assume that same logic in this method.
     let maxPluginConfigSeconds = 0,
       maxQueryLengthSeconds = 0,
       maxRetentionSeconds = 0;
@@ -57,7 +56,8 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
           }
 
           // Pad retention by 10%, there's no downside to querying over retention besides some empty space in the query, and it might be frustrating to not get a time range if retention is close
-          const retentionGreaterThanInterval = intervalSeconds <= maxRetentionSeconds * 1.1;
+          const RETENTION_PADDING_FACTOR = 1.1;
+          const retentionGreaterThanInterval = intervalSeconds <= maxRetentionSeconds * RETENTION_PADDING_FACTOR;
           const pluginConfigGreaterThanInterval = intervalSeconds <= maxPluginConfigSeconds;
 
           return intervalSeconds === 0 || retentionGreaterThanInterval || pluginConfigGreaterThanInterval;

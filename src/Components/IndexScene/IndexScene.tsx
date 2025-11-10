@@ -497,7 +497,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private limitMaxInterval(timeRange: SceneTimeRangeLike) {
     return (newState: SceneTimeRangeState, prevState: SceneTimeRangeState) => {
       const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-      if (jsonData?.interval) {
+      if (jsonData?.interval || jsonData?.limitMaxQueryLength) {
         let maxInterval: number;
         let notice: string;
         const lokiConfig = sceneGraph.getAncestor(timeRange, IndexScene).state.lokiConfig;
@@ -508,7 +508,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
             maxInterval = getMaxQueryLengthSeconds(lokiConfig);
             notice = 'Time range exceeds Loki max_query_length limit.';
           } else {
-            maxInterval = rangeUtil.intervalToSeconds(jsonData?.interval ?? '');
+            maxInterval = rangeUtil.intervalToSeconds(jsonData.interval ?? '');
             notice = 'Time range interval exceeds maximum interval configured by the administrator.';
           }
 

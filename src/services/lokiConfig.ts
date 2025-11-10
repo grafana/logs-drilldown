@@ -16,9 +16,9 @@ export function getMaxQueryLengthSeconds(lokiConfig: LokiConfig): number {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
   if (lokiConfig?.limits.max_query_length && jsonData?.limitMaxQueryLength) {
     try {
-      return Math.floor(parsePrometheusDuration(lokiConfig?.limits.max_query_length ?? '') / 1000);
+      return Math.floor(parsePrometheusDuration(lokiConfig.limits.max_query_length) / 1000);
     } catch (e) {
-      logger.error(e, { msg: `${lokiConfig?.limits.max_query_length} is not a valid interval!` });
+      logger.error(e, { msg: `${lokiConfig.limits.max_query_length} is not a valid interval!` });
     }
   }
   return 0;
