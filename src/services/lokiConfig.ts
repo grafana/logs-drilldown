@@ -8,6 +8,7 @@ import { parsePrometheusDuration } from './parsePrometheusDuration';
 
 /**
  * Parses Loki config API limit into seconds
+ * max_query_length is only used to limit time range options if `limitMaxQueryLength` is set in the admin plugin config
  * Returns 0 if no limit is set
  * @param lokiConfig
  */
