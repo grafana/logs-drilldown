@@ -3,6 +3,7 @@ import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
+import { UNKNOWN_LEVEL_LOGS } from './panel';
 import { getLevelsVariable } from './variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from './variables';
 import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
@@ -37,7 +38,7 @@ export function toggleLevelVisibility(
 }
 
 export function getLevelLabelsFromSeries(series: DataFrame[]) {
-  return series.map((dataFrame) => getLabelValueFromDataFrame(dataFrame) ?? 'logs');
+  return series.map((dataFrame) => getLabelValueFromDataFrame(dataFrame) ?? UNKNOWN_LEVEL_LOGS);
 }
 
 export function getLabelValueFromDataFrame(frame: DataFrame) {
@@ -79,7 +80,7 @@ export function getVisibleLevels(allLevels: string[], sceneRef: SceneObject) {
 
 export function normalizeLevelName(level: string) {
   if (level === '""') {
-    return 'logs';
+    return UNKNOWN_LEVEL_LOGS;
   }
   return level;
 }
@@ -91,7 +92,7 @@ export function normalizeLevelName(level: string) {
  * If the filter exists, it's removed.
  */
 export function toggleLevelFromFilter(level: string, sceneRef: SceneObject): FilterType {
-  if (level === 'logs') {
+  if (level === UNKNOWN_LEVEL_LOGS) {
     level = '""';
   }
   const levelFilter = getLevelsVariable(sceneRef);
