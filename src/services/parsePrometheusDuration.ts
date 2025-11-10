@@ -24,6 +24,12 @@ const PROMETHEUS_SUFFIX_MULTIPLIER: Record<string, number> = {
   y: 365 * 24 * 60 * 60 * 1000,
 };
 
+/**
+ * Supports parsing prometheus style durations in the frontend, e.g. 1h10m31s13ms
+ *
+ * Copied from `/grafana/grafana/public/app/features/alerting/unified/utils/time.ts`
+ * @param duration
+ */
 export function parsePrometheusDuration(duration: string): number {
   let input = duration;
   const parts: Array<[number, string]> = [];
