@@ -4,6 +4,7 @@ import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import { FilterOp } from './filterTypes';
 import { getLevelLabelsFromSeries, getVisibleLevels, toggleLevelFromFilter, toggleLevelVisibility } from './levels';
+import { UNKNOWN_LEVEL_LOGS } from './panel';
 import { getLevelsVariable } from './variableGetters';
 import { VAR_LEVELS } from './variables';
 import { addToFilters, replaceFilter } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
@@ -185,7 +186,7 @@ describe('getVisibleLevels', () => {
         value: '""',
       },
     ]);
-    expect(getVisibleLevels(['error', 'logs'], scene)).toEqual(['logs']);
+    expect(getVisibleLevels(['error', UNKNOWN_LEVEL_LOGS], scene)).toEqual([UNKNOWN_LEVEL_LOGS]);
   });
 
   it('Handles negative positive log level filter', () => {
@@ -196,7 +197,7 @@ describe('getVisibleLevels', () => {
         value: '""',
       },
     ]);
-    expect(getVisibleLevels(['error', 'logs'], scene)).toEqual(['error']);
+    expect(getVisibleLevels(['error', UNKNOWN_LEVEL_LOGS], scene)).toEqual(['error']);
   });
 
   it('Handles exclusion regex negative log level filter', () => {
@@ -207,7 +208,7 @@ describe('getVisibleLevels', () => {
         value: '""',
       },
     ]);
-    expect(getVisibleLevels(['error', 'logs'], scene)).toEqual(['error']);
+    expect(getVisibleLevels(['error', UNKNOWN_LEVEL_LOGS], scene)).toEqual(['error']);
   });
 
   it('Handles matching regex positive log level filter', () => {
@@ -218,7 +219,7 @@ describe('getVisibleLevels', () => {
         value: '""',
       },
     ]);
-    expect(getVisibleLevels(['error', 'logs'], scene)).toEqual(['logs']);
+    expect(getVisibleLevels(['error', UNKNOWN_LEVEL_LOGS], scene)).toEqual([UNKNOWN_LEVEL_LOGS]);
   });
 
   it('Handles matching regex positive log levels filter', () => {
@@ -240,7 +241,7 @@ describe('getVisibleLevels', () => {
         value: 'error|info',
       },
     ]);
-    expect(getVisibleLevels(ALL_LEVELS, scene)).toEqual(['logs', 'debug', 'warn', 'crit']);
+    expect(getVisibleLevels(ALL_LEVELS, scene)).toEqual([UNKNOWN_LEVEL_LOGS, 'debug', 'warn', 'crit']);
   });
 });
 
@@ -300,7 +301,14 @@ describe('toggleLevelFromFilter', () => {
   it('Handles empty log levels', () => {
     setup([]);
 
-    expect(toggleLevelFromFilter('logs', scene)).toBe('include');
+    expect(toggleLevelFromFilter(UNKNOWN_LEVEL_LOGS, scene)).toBe('include');
     expect(addToFilters).toHaveBeenCalledWith(DETECTED_LEVEL, '""', 'include', scene, VAR_LEVELS);
+  });
+
+  it('Toggles empty log levels', () => {
+    setup([{ key: 'detected_level', operator: FilterOp.Equal, value: '""' }]);
+
+    expect(toggleLevelFromFilter(UNKNOWN_LEVEL_LOGS, scene)).toBe('toggle');
+    expect(addToFilters).toHaveBeenCalledWith(DETECTED_LEVEL, '""', 'toggle', scene, VAR_LEVELS);
   });
 });

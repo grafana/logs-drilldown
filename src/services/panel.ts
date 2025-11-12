@@ -35,7 +35,7 @@ import { LokiQuery } from './lokiQuery';
 import { buildResourceQuery } from './query';
 import { maxSeriesReached } from './shardQuerySplitting';
 
-const UNKNOWN_LEVEL_LOGS = 'logs';
+export const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;
 export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
 export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
@@ -303,7 +303,7 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [],
+      transformations: [sortLevelTransformation],
     });
   }
 
