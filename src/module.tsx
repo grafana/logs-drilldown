@@ -33,6 +33,8 @@ const App = lazy(async () => {
 });
 
 const AppConfig = lazy(async () => {
+  // Initialize i18n before loading any components
+  await initPluginTranslations(pluginJson.id);
   return await import('./Components/AppConfig/AppConfig');
 });
 
