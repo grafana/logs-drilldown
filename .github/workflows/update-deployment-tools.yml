@@ -27,7 +27,7 @@ env:
 
 permissions:
   id-token: write # Required for OIDC authentication with Vault
-  contents: read # Required to read repository contents
+  contents: write # Required to create commits and update files
 
 jobs:
   build-latest-version:
