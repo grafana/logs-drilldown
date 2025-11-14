@@ -15,7 +15,6 @@ import {
   usePluginComponent,
 } from '@grafana/runtime';
 import {
-  PanelBuilders,
   SceneComponentProps,
   SceneCSSGridItem,
   SceneFlexLayout,
@@ -23,32 +22,24 @@ import {
   SceneObject,
   SceneObjectBase,
   SceneObjectState,
-  SceneQueryRunner,
   VizPanel,
   VizPanelMenu,
 } from '@grafana/scenes';
 import { Panel } from '@grafana/schema';
-import { Options } from '@grafana/schema/dist/esm/raw/composable/timeseries/panelcfg/x/TimeSeriesPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { ExtensionPoints } from '../../services/extensions/links';
-import { buildFieldsQueryString } from '../../services/fields';
 import { logger } from '../../services/logger';
-import { LokiQuery } from '../../services/lokiQuery';
-import { setLevelColorOverrides } from '../../services/panel';
-import { interpolateExpression, isQueryAvg } from '../../services/query';
-import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
+import { getQueryExpression } from '../../services/queryRunner';
+import { findObjectOfType, getDataSource } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
-import { getFieldsVariable, getJSONFieldsVariable } from '../../services/variableGetters';
 import { DetectedFieldType } from '../../services/variables';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
 import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
-import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
+import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
-import { getDetectedFieldsFrame } from '../ServiceScene/ServiceScene';
 import { isLogsQuery } from 'services/logql';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
@@ -58,6 +49,11 @@ const ADD_TO_INVESTIGATION_MENU_GROUP_TEXT = 'Investigations';
 export enum TimeSeriesPanelType {
   'timeseries' = 'timeseries',
   'histogram' = 'histogram',
+}
+
+export enum TimeSeriesQueryType {
+  'avg' = 'avg',
+  'count' = 'count',
 }
 
 export enum CollapsablePanelText {
@@ -136,19 +132,20 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
       // Visualization options
       if (this.state.panelType || viz?.state.collapsible) {
-        addVisualizationHeader(items, this);
+        addVisualizationHeader(items);
       }
 
       if (viz?.state.collapsible) {
         addCollapsableItem(items, this);
       }
 
-      if (this.state.panelType) {
+      const vizPanelWrapper = findObjectOfType(this, (o) => o instanceof FieldsVizPanelWrapper, FieldsVizPanelWrapper);
+      if (this.state.panelType && vizPanelWrapper?.state.queryType === TimeSeriesQueryType.avg) {
         addHistogramItem(items, this);
       }
 
-      if (this.state.fieldType === 'int') {
-        addConvertToAvgQuery(items, this);
+      if (vizPanelWrapper?.state.supportsHistogram && this.state.fieldType === 'int') {
+        addToggleQueryType(items, this);
       }
 
       this.setState({
@@ -253,7 +250,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
   };
 }
 
-function addVisualizationHeader(items: PanelMenuItem[], sceneRef: PanelMenu) {
+function addVisualizationHeader(items: PanelMenuItem[]) {
   items.push({
     text: 'visualization_divider',
     type: 'divider',
@@ -285,45 +282,33 @@ function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
   });
 }
 
-function addConvertToAvgQuery(items: PanelMenuItem[], sceneRef: PanelMenu) {
-  const vizPanel: VizPanel<Options> = sceneGraph.getAncestor(sceneRef, VizPanel);
-  const queryRunner = getQueryRunnerFromSceneGraph(vizPanel);
-  const queries = queryRunner.state.queries as LokiQuery[];
-  const expr = queries[0].expr;
-  const isAvgQuery = isQueryAvg(expr);
+/**
+ * "int" fields are ambiguous if they should be count_over_time or avg queries, so we allow the user to toggle individual panels between avg and count queries
+ * @param items
+ * @param sceneRef
+ */
+function addToggleQueryType(items: PanelMenuItem[], sceneRef: PanelMenu) {
+  const vizPanelWrapper = sceneGraph.getAncestor(sceneRef, FieldsVizPanelWrapper);
+  const isAvgQuery = vizPanelWrapper.state.queryType === TimeSeriesQueryType.avg;
 
   items.push({
-    iconClassName: 'chart-line',
+    iconClassName: 'heart-rate',
     onClick: () => {
-      const newExpr = buildFieldsQueryString(
-        vizPanel.state.title,
-        getFieldsVariable(sceneRef),
-        getDetectedFieldsFrame(sceneRef),
-        getJSONFieldsVariable(sceneRef),
-        isAvgQuery ? 'count' : 'avg'
+      vizPanelWrapper.setState({
+        queryType:
+          vizPanelWrapper.state.queryType === TimeSeriesQueryType.avg
+            ? TimeSeriesQueryType.count
+            : TimeSeriesQueryType.avg,
+      });
+
+      const fieldsAggregatedBreakdownScene = findObjectOfType(
+        sceneRef,
+        (o) => o instanceof FieldsAggregatedBreakdownScene,
+        FieldsAggregatedBreakdownScene
       );
-
-      if (isAvgQuery) {
-        queryRunner.setState({
-          queries: [...queries.map((q) => ({ ...q, expr: newExpr, legendFormat: `{{${vizPanel.state.title}}}` }))],
-        });
-      } else {
-        queryRunner.setState({
-          queries: [...queries.map((q) => ({ ...q, expr: newExpr, legendFormat: vizPanel.state.title }))],
-        });
+      if (fieldsAggregatedBreakdownScene) {
+        fieldsAggregatedBreakdownScene.rebuildChangedPanels('queryType');
       }
-
-      console.log('expr', { expr, isAvgQuery, queries, newExpr });
-      queryRunner.runQueries();
-
-      // const fieldsAggregatedBreakdownScene = findObjectOfType(
-      //   sceneRef,
-      //   (o) => o instanceof FieldsAggregatedBreakdownScene,
-      //   FieldsAggregatedBreakdownScene
-      // );
-      // if (fieldsAggregatedBreakdownScene) {
-      //   fieldsAggregatedBreakdownScene.rebuildAvgFields();
-      // }
     },
     text: isAvgQuery ? 'Plot series' : 'Plot values',
   });
@@ -334,30 +319,21 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
     iconClassName: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'graph-bar' : 'chart-line',
     onClick: () => {
       const gridItem = sceneGraph.getAncestor(sceneRef, SceneCSSGridItem);
-      const viz = sceneGraph.getAncestor(sceneRef, VizPanel).clone();
-      const $data = sceneGraph.getData(sceneRef).clone();
-      const menu = sceneRef.clone();
-      const headerActions = Array.isArray(viz.state.headerActions)
-        ? viz.state.headerActions.map((o) => o.clone())
-        : viz.state.headerActions;
-      let body;
-
-      if (sceneRef.state.panelType !== TimeSeriesPanelType.histogram) {
-        body = PanelBuilders.timeseries().setOverrides(setLevelColorOverrides);
-      } else {
-        body = PanelBuilders.histogram();
-      }
-
-      gridItem.setState({
-        body: body.setMenu(menu).setTitle(viz.state.title).setHeaderActions(headerActions).setData($data).build(),
-      });
-
+      const vizWrap = sceneGraph.getAncestor(sceneRef, FieldsVizPanelWrapper);
+      const viz = vizWrap.state.viz.clone();
       const newPanelType =
         sceneRef.state.panelType !== TimeSeriesPanelType.timeseries
           ? TimeSeriesPanelType.timeseries
           : TimeSeriesPanelType.histogram;
       setPanelOption('panelType', newPanelType);
-      menu.setState({ panelType: newPanelType });
+
+      gridItem.setState({
+        body: new FieldsVizPanelWrapper({
+          viz: viz,
+          queryType: vizWrap.state.queryType,
+          supportsHistogram: true,
+        }),
+      });
 
       const fieldsAggregatedBreakdownScene = findObjectOfType(
         gridItem,
@@ -365,7 +341,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
         FieldsAggregatedBreakdownScene
       );
       if (fieldsAggregatedBreakdownScene) {
-        fieldsAggregatedBreakdownScene.rebuildAvgFields();
+        fieldsAggregatedBreakdownScene.rebuildChangedPanels('panelType');
       }
 
       onSwitchVizTypeTracking(newPanelType);
@@ -374,40 +350,6 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
     text: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'Histogram' : 'Time series',
   });
 }
-
-export function getQueryRunnerFromSceneGraph(sceneRef: SceneObject) {
-  const $data = sceneGraph.getData(sceneRef);
-  let queryRunner = $data instanceof SceneQueryRunner ? $data : getQueryRunnerFromChildren($data)[0];
-
-  // If we don't have a query runner, then our panel is within a SceneCSSGridItem, we need to get the query runner from there
-  if (!queryRunner) {
-    const breakdownScene = sceneGraph.findObject(
-      sceneRef,
-      (o) => o instanceof FieldValuesBreakdownScene || o instanceof LabelValuesBreakdownScene
-    );
-    if (breakdownScene) {
-      const queryProvider = sceneGraph.getData(breakdownScene);
-
-      if (queryProvider instanceof SceneQueryRunner) {
-        queryRunner = queryProvider;
-      } else {
-        queryRunner = getQueryRunnerFromChildren(queryProvider)[0];
-      }
-    } else {
-      logger.error(new Error('Unable to locate query runner!'), {
-        msg: 'PanelMenu - getExploreLink: Unable to locate query runner!',
-      });
-    }
-  }
-
-  return queryRunner;
-}
-
-const getQueryExpression = (sceneRef: SceneObject) => {
-  let queryRunner = getQueryRunnerFromSceneGraph(sceneRef);
-  const uninterpolatedExpr: string | undefined = queryRunner.state.queries[0].expr;
-  return interpolateExpression(sceneRef, uninterpolatedExpr);
-};
 
 export const getExploreLink = (sceneRef: SceneObject) => {
   const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
