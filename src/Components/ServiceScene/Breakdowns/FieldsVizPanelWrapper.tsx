@@ -5,7 +5,6 @@ import { SceneComponentProps, SceneObjectBase, SceneObjectState, VizPanel } from
 import { TimeSeriesQueryType } from '../../Panels/PanelMenu';
 
 export interface FieldsVizPanelWrapperState extends SceneObjectState {
-  // panelType: TimeSeriesPanelType;
   queryType: TimeSeriesQueryType;
   supportsHistogram: boolean;
   viz: VizPanel;

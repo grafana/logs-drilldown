@@ -2,6 +2,8 @@
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
+import { TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
+
 export interface FieldValue {
   parser: ParserType;
   value: string;
@@ -20,7 +22,6 @@ export type ParserType = 'json' | 'logfmt' | 'mixed' | 'structuredMetadata';
 export type DetectedFieldType = 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string';
 export type AdHocFilterWithLabelsMeta = { parser?: ParserType; type?: DetectedFieldType };
 export type AdHocFiltersWithLabelsAndMeta = AdHocFilterWithLabels<AdHocFilterWithLabelsMeta>;
-export type TimeSeriesQueryType = 'avg' | 'count';
 
 export type LogsQueryOptions = {
   fieldExpressionToAdd?: string;

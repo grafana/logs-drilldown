@@ -11,7 +11,7 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
-import { PanelMenu } from '../Components/Panels/PanelMenu';
+import { PanelMenu, TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
 import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { LabelType } from './fieldsTypes';
@@ -37,7 +37,6 @@ import {
   LEVEL_VARIABLE_VALUE,
   LogsQueryOptions,
   ParserType,
-  TimeSeriesQueryType,
   VAR_FIELDS,
   VAR_LABELS,
   VAR_LEVELS,
@@ -389,7 +388,6 @@ export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions)
       options.fieldType +
       `(${optionValue}) | __error__="" [$__auto]) by ()`
     );
-    // Here
   } else if (options.fieldType && (options.fieldType === 'float' || options.queryType === 'avg')) {
     return buildAvgOverTimeFloatExpr(options, optionValue);
   } else {

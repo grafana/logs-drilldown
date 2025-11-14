@@ -111,7 +111,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
                 if (this.state.fieldsPanelsType === 'timeseries' && existingParser !== newParser) {
-                  // Pass existing state
                   const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
                     detectedFieldsFrame,
@@ -312,9 +311,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         const panelWrappers = sceneGraph.findDescendents(child, FieldsVizPanelWrapper);
         if (panelWrappers.length) {
           if (changed === 'panelType') {
-            children.push(this.onPanelTypeChange(panelWrappers, panelTypeFromLocalStorage, detectedFieldsFrame, child));
+            children.push(
+              this.rebuildPanelOnPanelTypeChange(panelWrappers, panelTypeFromLocalStorage, detectedFieldsFrame, child)
+            );
           } else {
-            children.push(this.onQueryTypeChange(panelWrappers, detectedFieldsFrame, panelTypeFromLocalStorage, child));
+            children.push(
+              this.rebuildPanelOnQueryTypeChange(panelWrappers, detectedFieldsFrame, panelTypeFromLocalStorage, child)
+            );
           }
         }
       }
@@ -327,7 +330,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
   }
 
-  private onPanelTypeChange = (
+  private rebuildPanelOnPanelTypeChange = (
     panelWrappers: FieldsVizPanelWrapper[],
     panelTypeFromLocalStorage: TimeSeriesPanelType,
     detectedFieldsFrame: DataFrame | undefined,
@@ -359,7 +362,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     return child;
   };
 
-  private onQueryTypeChange = (
+  private rebuildPanelOnQueryTypeChange = (
     panelWrappers: FieldsVizPanelWrapper[],
     detectedFieldsFrame: DataFrame | undefined,
     panelTypeFromLocalStorage: TimeSeriesPanelType,
