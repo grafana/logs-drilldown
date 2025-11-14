@@ -37,6 +37,7 @@ import {
   LEVEL_VARIABLE_VALUE,
   LogsQueryOptions,
   ParserType,
+  TimeSeriesQueryType,
   VAR_FIELDS,
   VAR_LABELS,
   VAR_LEVELS,
@@ -373,6 +374,14 @@ export function isAvgField(fieldType: DetectedFieldType | undefined) {
   return fieldType === 'duration' || fieldType === 'bytes' || fieldType === 'float';
 }
 
+export const buildAvgOverTimeFloatExpr = (options: LogsQueryOptions, optionValue: string) => {
+  return `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` + optionValue + ` | __error__="" [$__auto]) by ()`;
+};
+
+export const buildCountOverTimeQueryExpr = (optionValue: string, options: LogsQueryOptions) => {
+  return `sum by (${optionValue}) (count_over_time(${getLogsStreamSelector(options)} [$__auto]))`;
+};
+
 export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions) {
   if (options.fieldType && ['bytes', 'duration'].includes(options.fieldType)) {
     return (
@@ -380,12 +389,11 @@ export function buildFieldsQuery(optionValue: string, options: LogsQueryOptions)
       options.fieldType +
       `(${optionValue}) | __error__="" [$__auto]) by ()`
     );
-  } else if (options.fieldType && options.fieldType === 'float') {
-    return (
-      `avg_over_time(${getLogsStreamSelector(options)} | unwrap ` + optionValue + ` | __error__="" [$__auto]) by ()`
-    );
+    // Here
+  } else if (options.fieldType && (options.fieldType === 'float' || options.queryType === 'avg')) {
+    return buildAvgOverTimeFloatExpr(options, optionValue);
   } else {
-    return `sum by (${optionValue}) (count_over_time(${getLogsStreamSelector(options)} [$__auto]))`;
+    return buildCountOverTimeQueryExpr(optionValue, options);
   }
 }
 
@@ -405,7 +413,8 @@ export function buildFieldsQueryString(
   optionValue: string,
   fieldsVariable: AdHocFiltersVariable,
   detectedFieldsFrame?: DataFrame,
-  jsonVariable?: AdHocFiltersVariable
+  jsonVariable?: AdHocFiltersVariable,
+  queryTypeOverride?: TimeSeriesQueryType
 ) {
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
   const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
@@ -455,6 +464,7 @@ export function buildFieldsQueryString(
     fieldType: optionType,
     parser: parser,
     structuredMetadataToAdd,
+    queryType: queryTypeOverride,
   };
 
   if ((parser === 'json' || parser === 'mixed') && pathForThisField) {

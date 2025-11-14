@@ -28,14 +28,19 @@ import {
   VizPanelMenu,
 } from '@grafana/scenes';
 import { Panel } from '@grafana/schema';
+import { Options } from '@grafana/schema/dist/esm/raw/composable/timeseries/panelcfg/x/TimeSeriesPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { ExtensionPoints } from '../../services/extensions/links';
+import { buildFieldsQueryString } from '../../services/fields';
 import { logger } from '../../services/logger';
+import { LokiQuery } from '../../services/lokiQuery';
 import { setLevelColorOverrides } from '../../services/panel';
-import { interpolateExpression } from '../../services/query';
+import { interpolateExpression, isQueryAvg } from '../../services/query';
 import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
+import { getFieldsVariable, getJSONFieldsVariable } from '../../services/variableGetters';
+import { DetectedFieldType } from '../../services/variables';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
 import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
@@ -43,6 +48,7 @@ import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValue
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
+import { getDetectedFieldsFrame } from '../ServiceScene/ServiceScene';
 import { isLogsQuery } from 'services/logql';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
@@ -70,6 +76,7 @@ interface InvestigationOptions {
 interface PanelMenuState extends SceneObjectState {
   addInvestigationsLink?: boolean;
   body?: VizPanelMenu;
+  fieldType?: DetectedFieldType;
   investigationOptions?: InvestigationOptions;
   investigationsButton?: AddToInvestigationButton;
   panelType?: TimeSeriesPanelType;
@@ -138,6 +145,10 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
       if (this.state.panelType) {
         addHistogramItem(items, this);
+      }
+
+      if (this.state.fieldType === 'int') {
+        addConvertToAvgQuery(items, this);
       }
 
       this.setState({
@@ -274,6 +285,50 @@ function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
   });
 }
 
+function addConvertToAvgQuery(items: PanelMenuItem[], sceneRef: PanelMenu) {
+  const vizPanel: VizPanel<Options> = sceneGraph.getAncestor(sceneRef, VizPanel);
+  const queryRunner = getQueryRunnerFromSceneGraph(vizPanel);
+  const queries = queryRunner.state.queries as LokiQuery[];
+  const expr = queries[0].expr;
+  const isAvgQuery = isQueryAvg(expr);
+
+  items.push({
+    iconClassName: 'chart-line',
+    onClick: () => {
+      const newExpr = buildFieldsQueryString(
+        vizPanel.state.title,
+        getFieldsVariable(sceneRef),
+        getDetectedFieldsFrame(sceneRef),
+        getJSONFieldsVariable(sceneRef),
+        isAvgQuery ? 'count' : 'avg'
+      );
+
+      if (isAvgQuery) {
+        queryRunner.setState({
+          queries: [...queries.map((q) => ({ ...q, expr: newExpr, legendFormat: `{{${vizPanel.state.title}}}` }))],
+        });
+      } else {
+        queryRunner.setState({
+          queries: [...queries.map((q) => ({ ...q, expr: newExpr, legendFormat: vizPanel.state.title }))],
+        });
+      }
+
+      console.log('expr', { expr, isAvgQuery, queries, newExpr });
+      queryRunner.runQueries();
+
+      // const fieldsAggregatedBreakdownScene = findObjectOfType(
+      //   sceneRef,
+      //   (o) => o instanceof FieldsAggregatedBreakdownScene,
+      //   FieldsAggregatedBreakdownScene
+      // );
+      // if (fieldsAggregatedBreakdownScene) {
+      //   fieldsAggregatedBreakdownScene.rebuildAvgFields();
+      // }
+    },
+    text: isAvgQuery ? 'Plot series' : 'Plot values',
+  });
+}
+
 function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
     iconClassName: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'graph-bar' : 'chart-line',
@@ -320,7 +375,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   });
 }
 
-const getQueryExpression = (sceneRef: SceneObject) => {
+export function getQueryRunnerFromSceneGraph(sceneRef: SceneObject) {
   const $data = sceneGraph.getData(sceneRef);
   let queryRunner = $data instanceof SceneQueryRunner ? $data : getQueryRunnerFromChildren($data)[0];
 
@@ -344,6 +399,12 @@ const getQueryExpression = (sceneRef: SceneObject) => {
       });
     }
   }
+
+  return queryRunner;
+}
+
+const getQueryExpression = (sceneRef: SceneObject) => {
+  let queryRunner = getQueryRunnerFromSceneGraph(sceneRef);
   const uninterpolatedExpr: string | undefined = queryRunner.state.queries[0].expr;
   return interpolateExpression(sceneRef, uninterpolatedExpr);
 };

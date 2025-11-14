@@ -110,6 +110,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
                 if (this.state.fieldsPanelsType === 'timeseries' && existingParser !== newParser) {
                   const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
+                  // Pass existing state
                   const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
                     detectedFieldsFrame,
@@ -291,6 +292,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   public rebuildAvgFields() {
+    console.log('rebuildAvgFields');
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
     const activeLayout = this.getActiveGridLayouts();
     const children: SceneCSSGridItem[] = [];
@@ -309,7 +311,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
           const panel = panels[0];
           const labelName = panel.state.title;
           const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
-          if (isAvgField(fieldType)) {
+          if (isAvgField(fieldType) || fieldType === 'int') {
             const newChild = this.buildChild(labelName, detectedFieldsFrame, panelType);
             if (newChild) {
               children.push(newChild);
@@ -347,7 +349,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     return children;
   }
 
-  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType?: TimeSeriesPanelType) {
+  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType: TimeSeriesPanelType) {
     if (labelName === ALL_VARIABLE_VALUE || !labelName) {
       return;
     }
@@ -383,7 +385,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       .setHeaderActions(
         new SelectLabelActionScene({
           fieldType: ValueSlugs.field,
-          hasNumericFilters: fieldType === 'int',
+          hasNumericFilters:
+            fieldType === 'int' || fieldType === 'float' || fieldType === 'bytes' || fieldType === 'duration',
           labelName: String(labelName),
         })
       );
@@ -396,7 +399,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     fieldType: 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string' | undefined,
     labelName: string,
     dataTransformer: SceneDataTransformer | SceneQueryRunner,
-    panelType: TimeSeriesPanelType | undefined
+    panelType: TimeSeriesPanelType
   ): VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig> => {
     let body;
     let headerActions = [];
@@ -404,7 +407,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       body = PanelBuilders.timeseries()
         .setTitle(labelName)
         .setData(dataTransformer)
-        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName } }))
+        .setMenu(
+          new PanelMenu({
+            investigationOptions: { labelName: labelName },
+            fieldType,
+            panelType: fieldType === 'int' ? panelType : undefined,
+          })
+        )
         .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
         .setCustomFieldConfig('fillOpacity', 100)
         .setCustomFieldConfig('lineWidth', 0)
@@ -428,7 +437,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       body
         .setTitle(labelName)
         .setData(dataTransformer)
-        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
+        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType, fieldType }));
       headerActions.push(
         new SelectLabelActionScene({
           fieldType: ValueSlugs.field,
@@ -449,6 +458,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   ) {
     const fieldsVariable = getFieldsVariable(this);
     const jsonVariable = getJSONFieldsVariable(this);
+    // pass in current panel state
     const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
     const query = buildDataQuery(queryString, {
       legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
