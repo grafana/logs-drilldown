@@ -130,8 +130,12 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         this.state.investigationsButton?.activate();
       }
 
+      const vizPanelWrapper = findObjectOfType(this, (o) => o instanceof FieldsVizPanelWrapper, FieldsVizPanelWrapper);
+      const histogramSupported = this.state.panelType && vizPanelWrapper?.state.queryType === TimeSeriesQueryType.avg;
+      const queryTypeToggleSupported = vizPanelWrapper?.state.supportsHistogram && this.state.fieldType === 'int';
+
       // Visualization options
-      if (this.state.panelType || viz?.state.collapsible) {
+      if (histogramSupported || queryTypeToggleSupported || viz?.state.collapsible) {
         addVisualizationHeader(items);
       }
 
@@ -139,12 +143,11 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         addCollapsableItem(items, this);
       }
 
-      const vizPanelWrapper = findObjectOfType(this, (o) => o instanceof FieldsVizPanelWrapper, FieldsVizPanelWrapper);
-      if (this.state.panelType && vizPanelWrapper?.state.queryType === TimeSeriesQueryType.avg) {
+      if (histogramSupported) {
         addHistogramItem(items, this);
       }
 
-      if (vizPanelWrapper?.state.supportsHistogram && this.state.fieldType === 'int') {
+      if (queryTypeToggleSupported) {
         addToggleQueryType(items, this);
       }
 

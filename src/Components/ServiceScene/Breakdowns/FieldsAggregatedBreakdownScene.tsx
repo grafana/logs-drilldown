@@ -516,6 +516,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       body
         .setTitle(labelName)
         .setData(dataTransformer)
+        .setUnit('short')
         .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType, fieldType }));
       headerActions.push(
         new SelectLabelActionScene({
