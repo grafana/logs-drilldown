@@ -287,6 +287,7 @@ function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
 
 /**
  * "int" fields are ambiguous if they should be count_over_time or avg queries, so we allow the user to toggle individual panels between avg and count queries
+ * @todo persist selection
  * @param items
  * @param sceneRef
  */
@@ -297,11 +298,13 @@ function addToggleQueryType(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
     iconClassName: 'heart-rate',
     onClick: () => {
+      const newQueryType =
+        vizPanelWrapper.state.queryType === TimeSeriesQueryType.avg
+          ? TimeSeriesQueryType.count
+          : TimeSeriesQueryType.avg;
+
       vizPanelWrapper.setState({
-        queryType:
-          vizPanelWrapper.state.queryType === TimeSeriesQueryType.avg
-            ? TimeSeriesQueryType.count
-            : TimeSeriesQueryType.avg,
+        queryType: newQueryType,
       });
 
       const fieldsAggregatedBreakdownScene = findObjectOfType(
@@ -312,6 +315,7 @@ function addToggleQueryType(items: PanelMenuItem[], sceneRef: PanelMenu) {
       if (fieldsAggregatedBreakdownScene) {
         fieldsAggregatedBreakdownScene.rebuildChangedPanels('queryType');
       }
+      onSwitchQueryTypeTracking(newQueryType);
     },
     text: isAvgQuery ? 'Plot series' : 'Plot values',
   });
@@ -407,6 +411,12 @@ const onExploreLinkClickTracking = () => {
 const onSwitchVizTypeTracking = (newVizType: TimeSeriesPanelType) => {
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.change_viz_type, {
     newVizType,
+  });
+};
+
+const onSwitchQueryTypeTracking = (newQueryType: TimeSeriesQueryType) => {
+  reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.change_query_type, {
+    newQueryType: newQueryType,
   });
 };
 
