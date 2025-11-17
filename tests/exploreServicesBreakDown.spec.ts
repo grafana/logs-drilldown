@@ -4,8 +4,16 @@ import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../src/Components/Table/con
 import { FilterOp } from '../src/services/filterTypes';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
-import { SERVICE_NAME, VAR_FIELDS } from '../src/services/variables';
-import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
+import { SERVICE_NAME } from '../src/services/variables';
+import {
+  CapturedResponse,
+  CapturedResponses,
+  ComboBoxIndex,
+  E2EComboboxStrings,
+  ExplorePage,
+  levelTextMatch,
+  PlaywrightRequest,
+} from './fixtures/explore';
 import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 
 const fieldName = 'caller';
@@ -1421,7 +1429,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should open logs context', async ({ page }) => {
-    let responses = [];
+    let responses: CapturedResponses = [];
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
       refIds: ['logsPanelQuery', /log-row-context-query.+/],
@@ -1944,6 +1952,29 @@ test.describe('explore services breakdown page', () => {
     await explorePage.assertPanelsNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(2);
+  });
+
+  test('int fields should allow avg_over_time queries', async ({ page }) => {
+    let responses: CapturedResponses = [];
+    explorePage.blockAllQueriesExcept({
+      refIds: ['values'],
+      responses,
+    });
+
+    // Navigate to fields break down
+    await explorePage.goToFieldsTab();
+    // Open menu
+    await page.getByTestId('data-testid Panel menu values').click();
+
+    // Convert panel to avg_over_time query
+    await page.getByTestId('data-testid Panel menu item Plot values').click();
+
+    const lastResponse: CapturedResponse = responses[responses.length - 1];
+    await expect
+      .poll(() => {
+        return lastResponse['values'].results['values'].frames[0]?.schema?.meta?.executedQueryString;
+      })
+      .toContain('sum by (values) (count_over_time({service_name="tempo-distributor"}');
   });
 
   test.describe('line filters', () => {

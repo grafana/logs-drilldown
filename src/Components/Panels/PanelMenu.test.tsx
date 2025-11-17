@@ -220,7 +220,6 @@ describe('PanelMenu', () => {
         supportsHistogram: true,
       });
       jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
-      vizPanelWrapper.activate();
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -287,20 +286,17 @@ describe('PanelMenu', () => {
         supportsHistogram: true,
       });
       jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
-      vizPanelWrapper.activate();
       menu.activate();
 
       const items = menu.state.body?.state.items;
       const histogramItem = items?.find((item: PanelMenuItem) => item.text === 'Histogram');
-      jest.mocked(findObjectOfType).mockReturnValue({
-        //@ts-expect-error
-        rebuildChangedPanels: jest.fn(),
-      });
+      //@ts-expect-error
+      jest.mocked(findObjectOfType).mockReturnValue({ rebuildChangedPanels: jest.fn() });
 
       // @ts-expect-error
       histogramItem?.onClick?.();
 
-      // expect(gridItem.setState).toHaveBeenCalled();
+      expect(mockGridItem.setState).toHaveBeenCalled();
       expect(setPanelOption).toHaveBeenCalledWith('panelType', TimeSeriesPanelType.histogram);
     });
   });
@@ -394,7 +390,6 @@ describe('PanelMenu', () => {
       });
 
       jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
-      vizPanelWrapper.activate();
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -416,13 +411,33 @@ describe('PanelMenu', () => {
       });
 
       jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
-      vizPanelWrapper.activate();
       menu.activate();
 
       const items = menu.state.body?.state.items;
       const timeseriesItem = items?.find((item: PanelMenuItem) => item.text === 'Time series');
 
       expect(timeseriesItem?.iconClassName).toBe('chart-line');
+    });
+
+    it('should show plot values option for int fields', () => {
+      const menu = new PanelMenu({
+        addInvestigationsLink: false,
+        panelType: TimeSeriesPanelType.histogram,
+        fieldType: 'int',
+      });
+      const vizPanelWrapper = new FieldsVizPanelWrapper({
+        viz: new VizPanel({ menu }),
+        queryType: TimeSeriesQueryType.avg,
+        supportsHistogram: true,
+      });
+
+      jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      const timeseriesItem = items?.find((item: PanelMenuItem) => item.text === 'Plot values');
+
+      expect(timeseriesItem?.iconClassName).toBe('heart-rate');
     });
   });
 
