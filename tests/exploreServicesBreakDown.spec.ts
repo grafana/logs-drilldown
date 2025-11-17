@@ -1954,7 +1954,7 @@ test.describe('explore services breakdown page', () => {
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(2);
   });
 
-  test('int fields should allow avg_over_time queries', async ({ page }) => {
+  test.only('int fields should allow avg_over_time queries', async ({ page }) => {
     let responses: CapturedResponses = [];
     explorePage.blockAllQueriesExcept({
       refIds: ['values'],
@@ -1965,16 +1965,33 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToFieldsTab();
     // Open menu
     await page.getByTestId('data-testid Panel menu values').click();
-
     // Convert panel to avg_over_time query
     await page.getByTestId('data-testid Panel menu item Plot values').click();
-
-    const lastResponse: CapturedResponse = responses[responses.length - 1];
+    // Assert the last request is avg_over_time
     await expect
       .poll(() => {
+        const lastResponse: CapturedResponse = responses[responses.length - 1];
+        // console.log('lastResponse', JSON.stringify(lastResponse));
         return lastResponse['values'].results['values'].frames[0]?.schema?.meta?.executedQueryString;
       })
-      .toContain('sum by (values) (count_over_time({service_name="tempo-distributor"}');
+      .toContain('avg_over_time({service_name="tempo-distributor"}');
+    const responsesLength = responses.length;
+    // Convert avg_over_time panels to histograms
+    await page.getByTestId('data-testid Panel menu values').click();
+    await page.getByTestId('data-testid Panel menu item Histogram').click();
+    // assert the panel was converted to histogram
+    await page.getByTestId('data-testid Panel menu values').click();
+    await expect(page.getByTestId('data-testid Panel menu item Time series')).toBeVisible();
+
+    for (let i = responsesLength; i < responses.length; i++) {
+      const response = responses[i];
+      // Check that every request that was re-issued is an avg_over_time query
+      // Ideally rebuilding the panel shouldn't re-issue requests, but for now let's at least assert that this doesn't trigger rebuild of panels using count_over_time queries
+      // @todo, is there a way to rebuild the panel without re-creating the query runners which issues fresh requests for the same query?
+      expect(response['values'].results['values'].frames[0]?.schema?.meta?.executedQueryString).toContain(
+        'avg_over_time({service_name="tempo-distributor"}'
+      );
+    }
   });
 
   test.describe('line filters', () => {
