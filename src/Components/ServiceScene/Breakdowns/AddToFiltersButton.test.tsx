@@ -6,9 +6,11 @@ import userEvent from '@testing-library/user-event';
 import { BusEvent, createDataFrame, Field, FieldType, LoadingState, PanelData } from '@grafana/data';
 import { AdHocFiltersVariable, sceneGraph, SceneObject, SceneQueryRunner } from '@grafana/scenes';
 
+import { UNKNOWN_LEVEL_LOGS } from '../../../services/panel';
 import { ServiceScene, ServiceSceneState } from '../ServiceScene';
 import { addAdHocFilter, addToFilters, AddToFiltersButton, FilterType } from './AddToFiltersButton';
 import {
+  EMPTY_VARIABLE_VALUE,
   FieldValue,
   LEVEL_VARIABLE_VALUE,
   VAR_FIELDS,
@@ -227,6 +229,30 @@ describe('addToFilters and addAdHocFilter', () => {
       jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue(serviceScene);
       addToFilters(LEVEL_VARIABLE_VALUE, 'info', 'include', scene, VAR_LEVELS);
       expect(lookupVariable).toHaveBeenCalledWith(VAR_LEVELS, expect.anything());
+    });
+
+    it('handles unknown log level value label', () => {
+      const lookupVariable = jest.spyOn(sceneGraph, 'lookupVariable').mockReturnValue(adHocVariable);
+      jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue(serviceScene);
+      addToFilters(LEVEL_VARIABLE_VALUE, '""', 'include', scene, VAR_LEVELS);
+      expect(lookupVariable).toHaveBeenCalledWith(VAR_LEVELS, expect.anything());
+      expect(adHocVariable.state.filters).toEqual([
+        {
+          key: 'existing',
+          operator: '=',
+          value: JSON.stringify({
+            parser: 'mixed',
+            value: 'existingValue',
+          }),
+          valueLabels: ['existingValue'],
+        },
+        {
+          key: 'detected_level',
+          operator: '=',
+          value: EMPTY_VARIABLE_VALUE,
+          valueLabels: [UNKNOWN_LEVEL_LOGS],
+        },
+      ]);
     });
   });
 
