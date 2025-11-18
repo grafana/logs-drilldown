@@ -1954,7 +1954,7 @@ test.describe('explore services breakdown page', () => {
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(2);
   });
 
-  test.only('int fields should allow avg_over_time queries', async ({ page }) => {
+  test('int fields should allow avg_over_time queries', async ({ page }) => {
     let responses: CapturedResponses = [];
     explorePage.blockAllQueriesExcept({
       refIds: ['values'],
