@@ -18,10 +18,17 @@ import {
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
+import {
+  DEFAULT_DISPLAYED_FIELDS,
+  DEFAULT_URL_COLUMNS,
+  DEFAULT_URL_COLUMNS_LEVELS,
+  DETECTED_LEVEL,
+} from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
@@ -35,6 +42,7 @@ import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePane
 import { ServiceScene } from './ServiceScene';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import {
+  ensureDefaultDisplayedFields,
   getBooleanLogOption,
   getDisplayedFields,
   getLogsVisualizationType,
@@ -57,13 +65,12 @@ export interface LogsListSceneState extends SceneObjectState {
   panel?: SceneFlexLayout;
   selectedLine?: SelectedTableRow;
   tableLogLineState?: LogLineState;
-  urlColumns?: string[];
   visualizationType: LogsVisualizationType;
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['urlColumns', 'selectedLine', 'visualizationType', 'displayedFields', 'tableLogLineState'],
+    keys: ['selectedLine', 'visualizationType', 'displayedFields', 'tableLogLineState'],
   });
 
   private logsPanelScene?: LogsPanelScene = undefined;
@@ -96,7 +103,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   getUrlState() {
-    const urlColumns = this.state.urlColumns ?? [];
     const selectedLine = this.state.selectedLine;
     const visualizationType = this.state.visualizationType;
     const displayedFields = this.state.displayedFields ?? getDisplayedFields(this) ?? [];
@@ -104,7 +110,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       displayedFields: JSON.stringify(displayedFields),
       selectedLine: JSON.stringify(selectedLine),
       tableLogLineState: JSON.stringify(this.state.tableLogLineState),
-      urlColumns: JSON.stringify(urlColumns),
       visualizationType: JSON.stringify(visualizationType),
     };
   }
@@ -112,12 +117,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<LogsListSceneState> = {};
     try {
-      if (typeof values.urlColumns === 'string') {
-        const decodedUrlColumns: string[] = unknownToStrings(JSON.parse(values.urlColumns));
-        if (decodedUrlColumns !== this.state.urlColumns) {
-          stateUpdate.urlColumns = decodedUrlColumns;
-        }
-      }
       if (typeof values.selectedLine === 'string') {
         const unknownTableRow = narrowSelectedTableRow(JSON.parse(values.selectedLine));
         if (unknownTableRow) {
@@ -138,7 +137,15 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       if (typeof values.displayedFields === 'string') {
         const displayedFields = unknownToStrings(JSON.parse(values.displayedFields));
         if (displayedFields && displayedFields.length) {
-          stateUpdate.displayedFields = displayedFields;
+          // Ensure defaults are included
+          const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+          const logsQueryRunner = serviceScene.state.$data;
+          let hasDetectedLevel = true;
+          if (logsQueryRunner?.state.data?.series?.length) {
+            const allLabels = getAllLabelsFromDataFrame(logsQueryRunner.state.data.series);
+            hasDetectedLevel = allLabels.includes(DETECTED_LEVEL);
+          }
+          stateUpdate.displayedFields = ensureDefaultDisplayedFields(displayedFields, hasDetectedLevel);
         }
       }
       if (typeof values.tableLogLineState === 'string') {
@@ -164,7 +171,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 
   clearDisplayedFields = () => {
-    this.setState({ displayedFields: [] });
+    // Reset to defaultDisplayedFields if available, otherwise use DEFAULT_DISPLAYED_FIELDS
+    const defaultFields = this.state.defaultDisplayedFields?.length
+      ? this.state.defaultDisplayedFields
+      : DEFAULT_DISPLAYED_FIELDS;
+    this.setState({ displayedFields: defaultFields });
     if (this.logsPanelScene) {
       this.logsPanelScene.clearDisplayedFields();
     }
@@ -282,11 +293,48 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const displayedFieldsUrl = searchParams.get('displayedFields') ?? JSON.stringify(getDisplayedFields(this));
     const tableLogLineState = searchParams.get('tableLogLineState');
 
+    // Migration: Convert urlColumns to displayedFields if present
+    let migratedDisplayedFields: string[] | undefined;
+    if (urlColumnsUrl) {
+      try {
+        const urlColumns: string[] = unknownToStrings(JSON.parse(decodeURIComponent(urlColumnsUrl)));
+        // Filter out default columns to get only user-selected fields
+        const defaultColumns = [
+          ...DEFAULT_URL_COLUMNS,
+          ...DEFAULT_URL_COLUMNS_LEVELS,
+          '___LOG_LINE_BODY___',
+          '___OTEL_LOG_ATTRIBUTES___',
+        ];
+        const userFields = urlColumns.filter((col) => !defaultColumns.includes(col));
+
+        // Check if detected_level or level is available in the data
+        const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+        const logsQueryRunner = serviceScene.state.$data;
+        let hasDetectedLevel = true;
+        if (logsQueryRunner?.state.data?.series?.length) {
+          const allLabels = getAllLabelsFromDataFrame(logsQueryRunner.state.data.series);
+          hasDetectedLevel = allLabels.includes(DETECTED_LEVEL);
+        }
+
+        // Ensure defaults are included
+        migratedDisplayedFields = ensureDefaultDisplayedFields(userFields, hasDetectedLevel);
+
+        // Remove urlColumns from URL
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('urlColumns');
+        locationService.replace({
+          pathname: currentUrl.pathname,
+          search: currentUrl.search,
+        });
+      } catch (e) {
+        logger.error(e, { msg: 'LogsListScene: Error migrating urlColumns to displayedFields' });
+      }
+    }
+
     this.updateFromUrl({
-      displayedFields: displayedFieldsUrl,
+      displayedFields: migratedDisplayedFields ? JSON.stringify(migratedDisplayedFields) : displayedFieldsUrl,
       selectedLine: selectedLineUrl,
       tableLogLineState,
-      urlColumns: urlColumnsUrl,
       visualizationType: vizTypeUrl,
     });
   }

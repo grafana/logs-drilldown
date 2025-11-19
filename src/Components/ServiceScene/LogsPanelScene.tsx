@@ -20,9 +20,11 @@ import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getVariableForLabel } from '../../services/fields';
 import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
+import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import {
+  ensureDefaultDisplayedFields,
   getBooleanLogOption,
   getDedupStrategy,
   getLogOption,
@@ -37,7 +39,7 @@ import {
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_URL_COLUMNS_LEVELS, DEFAULT_URL_COLUMNS } from '../Table/constants';
+import { DEFAULT_DISPLAYED_FIELDS, DETECTED_LEVEL } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
@@ -221,11 +223,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       parent.setState({ displayedFields });
       setDisplayedFields(this, displayedFields);
 
-      // Remove displayed fields from url columns
-      parent.setState({
-        urlColumns: parent.state.urlColumns?.filter((urlColumn) => urlColumn !== field) || [],
-      });
-
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.logs_toggle_displayed_field
@@ -244,23 +241,33 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   clearDisplayedFields = () => {
+    console.log('clearDisplayedFields logsPanelScene');
     if (!this.state.body) {
       return;
     }
-    this.setLogsVizOption({
-      displayedFields: [],
-    });
-    setDisplayedFields(this, []);
-
-    // Sync with urlColumns
     const parent = this.getParentScene();
-    const urlColumns = parent.state.urlColumns;
-    // Remove any default columns that are no longer in urlColumns
+
+    // Check if detected_level exists in the data
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const logsQueryRunner = serviceScene.state.$data;
+    let hasDetectedLevel = true;
+    if (logsQueryRunner?.state.data?.series?.length) {
+      const allLabels = getAllLabelsFromDataFrame(logsQueryRunner.state.data.series);
+      hasDetectedLevel = allLabels.includes(DETECTED_LEVEL);
+    }
+
+    // Reset to defaultDisplayedFields if available, otherwise use ensureDefaultDisplayedFields
+    // to get the correct defaults (detected_level vs level)
+    const defaultFields = parent.state.defaultDisplayedFields?.length
+      ? parent.state.defaultDisplayedFields
+      : ensureDefaultDisplayedFields([], hasDetectedLevel);
+    console.log('defaultFields :>> ', defaultFields);
+    this.setLogsVizOption({
+      displayedFields: defaultFields,
+    });
+    setDisplayedFields(this, defaultFields);
     parent.setState({
-      urlColumns:
-        urlColumns?.filter(
-          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
-        ) || [],
+      displayedFields: defaultFields,
     });
   };
 

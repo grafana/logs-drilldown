@@ -207,7 +207,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText(`drop __error__, __error_details__`)).toBeVisible();
   });
 
-  test(`sync log panel displayed fields with table url columns`, async ({ page }) => {
+  test(`sync log panel displayed fields with table displayedFields`, async ({ page }) => {
     await explorePage.goToLogsTab();
 
     // Open log details
@@ -226,15 +226,14 @@ test.describe('explore services breakdown page', () => {
     // Parse the URL to get query parameters
     const urlObj = new URL(currentUrl);
     const displayedFields = JSON.parse(urlObj.searchParams.get('displayedFields') || '[]');
-    const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
 
-    // Filter out default columns from urlColumns
-    const filteredUrlColumns = urlColumns.filter(
-      (col: string) => !DEFAULT_URL_COLUMNS.includes(col) && col !== DETECTED_LEVEL
-    );
-
-    // Check if filtered urlColumns matches displayedFields
-    expect(displayedFields).toEqual(filteredUrlColumns);
+    // displayedFields should include default fields and user-selected fields
+    // Default fields: Time, detected_level, ___LOG_LINE_BODY___, ___OTEL_LOG_ATTRIBUTES___
+    expect(displayedFields).toContain('Time');
+    expect(displayedFields).toContain('___LOG_LINE_BODY___');
+    expect(displayedFields).toContain('___OTEL_LOG_ATTRIBUTES___');
+    // Should have at least the default fields
+    expect(displayedFields.length).toBeGreaterThanOrEqual(4);
   });
 
   test('table should show detected_level column when log data contains detected_level', async ({ page }) => {
@@ -354,7 +353,7 @@ test.describe('explore services breakdown page', () => {
     await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).not.toBeVisible();
   });
 
-  test('table urlColumns should be reset on log panel show original line click', async ({ page }) => {
+  test('table displayedFields should be reset on log panel show original line click', async ({ page }) => {
     await explorePage.goToLogsTab();
 
     // open log details

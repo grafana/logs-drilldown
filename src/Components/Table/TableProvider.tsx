@@ -13,14 +13,13 @@ interface TableProviderProps {
   clearSelectedLine: () => void;
   controlsExpanded: boolean;
   dataFrame: DataFrame;
-  displayFields: string[];
+  displayedFields: string[];
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   selectedLine?: SelectedTableRow;
-  setUrlColumns: (columns: string[]) => void;
+  setDisplayedFields: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
   timeRange?: TimeRange;
-  urlColumns: string[];
   urlTableBodyState?: LogLineState;
 }
 
@@ -29,14 +28,13 @@ export default function TableProvider({
   clearSelectedLine,
   controlsExpanded,
   dataFrame,
-  displayFields,
+  displayedFields,
   logsSortOrder,
   panelWrap,
   selectedLine,
-  setUrlColumns,
+  setDisplayedFields,
   setUrlTableBodyState,
   timeRange,
-  urlColumns,
   urlTableBodyState,
 }: TableProviderProps) {
   const logsFrame = useMemo(() => {
@@ -57,10 +55,9 @@ export default function TableProvider({
     <QueryContextProvider addFilter={addFilter} selectedLine={selectedLine} timeRange={timeRange} logsFrame={logsFrame}>
       <TableWrap
         urlTableBodyState={urlTableBodyState}
-        setUrlColumns={setUrlColumns}
+        setDisplayedFields={setDisplayedFields}
         setUrlTableBodyState={setUrlTableBodyState}
-        urlColumns={urlColumns}
-        displayFields={displayFields}
+        displayedFields={displayedFields}
         panelWrap={panelWrap}
         clearSelectedLine={clearSelectedLine}
         logsSortOrder={logsSortOrder}

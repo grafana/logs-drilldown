@@ -1,7 +1,8 @@
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
+import { LOG_LINE_BODY_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { areArraysStrictlyEqual } from 'services/comparison';
 import { logger } from 'services/logger';
 import { getBodyName, getTimeName, LogsFrame } from 'services/logsFrame';
 import { NarrowingError, narrowRecordStringNumber } from 'services/narrowing';
@@ -94,25 +95,24 @@ export const TableColumnContextProvider = ({
   clearSelectedLine,
   initialColumns,
   logsFrame,
-  urlColumns,
-  displayFields,
-  setUrlColumns,
+  displayedFields,
+  setDisplayedFields,
   setUrlTableBodyState,
   urlTableBodyState,
 }: {
   children: ReactNode;
   clearSelectedLine: () => void;
-  displayFields: string[];
+  displayedFields: string[];
   initialColumns: FieldNameMetaStore;
   logsFrame: LogsFrame;
-  setUrlColumns: (columns: string[]) => void;
+  setDisplayedFields: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
-  urlColumns: string[];
   urlTableBodyState?: LogLineState;
 }) => {
   const [columns, setColumns] = useState<FieldNameMetaStore>(removeExtraColumns(initialColumns));
   const [bodyState, setBodyState] = useState<LogLineState>(urlTableBodyState ?? LogLineState.text);
   const [filteredColumns, setFilteredColumns] = useState<FieldNameMetaStore | undefined>(undefined);
+  const prevInitialColumnsRef = useRef<FieldNameMetaStore | null>(null);
 
   const initialColumnWidths = getColumnWidthsFromLocalStorage();
   const [columnWidthMap, setColumnWidthMapState] = useState<Record<string, number>>(initialColumnWidths);
@@ -142,26 +142,35 @@ export const TableColumnContextProvider = ({
       if (newColumns) {
         const columns = removeExtraColumns(newColumns);
         setColumns(columns);
-        let newUrlColumns: string[] = [];
-        // URL columns empty state
-        // Check for detected_level or level if the url columns are empty or the default columns
-        if (urlColumns.length <= 0) {
-          // check if the columns has DETECTED_LEVEL or LEVEL
-          const hasDetectedLevel = columns[DETECTED_LEVEL] ? DETECTED_LEVEL : columns[LEVEL] ? LEVEL : null;
-          if (hasDetectedLevel) {
-            newUrlColumns.push(hasDetectedLevel);
-          }
-          // Add displayed fields to url columns
-          if (displayFields.length > 0) {
-            newUrlColumns.push(...displayFields);
-          }
-        }
 
-        // Sync react state update with scenes url management
-        setUrlColumns([...getActiveColumns(columns), ...newUrlColumns]);
+        // Get active columns from the table
+        const activeColumns = getActiveColumns(columns);
+
+        // Map the actual body field name (e.g., 'Line' or 'body') back to ___LOG_LINE_BODY___
+        // Map the actual time field name back to 'Time'
+        const bodyFieldName = getBodyName(logsFrame);
+        const timeFieldName = getTimeName(logsFrame);
+        const mappedColumns = activeColumns.map((col) => {
+          if (col === bodyFieldName) {
+            return LOG_LINE_BODY_FIELD_NAME;
+          }
+          if (col === timeFieldName) {
+            return 'Time';
+          }
+          return col;
+        });
+
+        // Use mappedColumns as-is to preserve user's ordering
+        // Defaults can be deselected and reordered by the user
+        const finalColumns = mappedColumns;
+
+        // Only update displayedFields if it's actually different to prevent infinite loops
+        if (!areArraysStrictlyEqual(finalColumns, displayedFields)) {
+          setDisplayedFields(finalColumns);
+        }
       }
     },
-    [setUrlColumns, urlColumns, displayFields]
+    [setDisplayedFields, logsFrame, displayedFields]
   );
 
   const handleSetBodyState = useCallback(
@@ -181,11 +190,19 @@ export const TableColumnContextProvider = ({
   };
 
   // When the parent component recalculates new columns on dataframe change, we need to update or the column UI will be stale!
+  // Use a ref to track previous initialColumns and only update if it actually changed to prevent infinite loops
   useEffect(() => {
     if (initialColumns) {
-      handleSetColumns(initialColumns);
+      // Deep comparison to check if initialColumns actually changed
+      const prevInitialColumns = prevInitialColumnsRef.current;
+      if (!prevInitialColumns || JSON.stringify(prevInitialColumns) !== JSON.stringify(initialColumns)) {
+        prevInitialColumnsRef.current = initialColumns;
+        // Only update columns state, don't call handleSetColumns which would update displayedFields
+        const columns = removeExtraColumns(initialColumns);
+        setColumns(columns);
+      }
     }
-  }, [initialColumns, handleSetColumns]);
+  }, [initialColumns]);
 
   useEffect(() => {
     if (urlTableBodyState) {

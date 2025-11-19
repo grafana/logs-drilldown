@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { useResizeObserver } from '@react-aria/utils';
@@ -14,10 +14,12 @@ import {
 } from '@grafana/data';
 
 import { CONTROLS_WIDTH, CONTROLS_WIDTH_EXPANDED } from '../ServiceScene/LogListControls';
+import { LOG_LINE_BODY_FIELD_NAME } from '../ServiceScene/LogOptionsScene';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
 import { FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { getBodyName, getTimeName } from 'services/logsFrame';
 import { logsControlsSupported } from 'services/panel';
 
 export type SpecialFieldsType = {
@@ -32,12 +34,11 @@ const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3,})?(?:Z|[-+]
 interface TableWrapProps {
   clearSelectedLine: () => void;
   controlsExpanded: boolean;
-  displayFields: string[];
+  displayedFields: string[];
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
-  setUrlColumns: (columns: string[]) => void;
+  setDisplayedFields: (columns: string[]) => void;
   setUrlTableBodyState: (logLineState: LogLineState) => void;
-  urlColumns: string[];
   urlTableBodyState?: LogLineState;
 }
 
@@ -71,56 +72,71 @@ export const TableWrap = (props: TableWrapProps) => {
   const styles = getStyles();
   const timeZone = getTimeZone();
 
-  // This function is called when we want to grab the column names that are currently stored in the URL.
-  // So instead we have to grab the current columns directly from the URL.
+  // This function is called when we want to grab the column names from displayedFields.
   const getColumnsFromProps = useCallback(
     (fieldNames: FieldNameMetaStore) => {
-      const previouslySelected = props.urlColumns;
+      const previouslySelected = props.displayedFields;
       if (previouslySelected?.length) {
-        Object.values(previouslySelected).forEach((key, index) => {
-          if (fieldNames[key]) {
-            fieldNames[key].active = true;
-            fieldNames[key].index = index;
+        const bodyFieldName = getBodyName(logsFrame);
+        const timeFieldName = logsFrame ? getTimeName(logsFrame) : 'Time';
+
+        previouslySelected.forEach((key, index) => {
+          // Map ___LOG_LINE_BODY___ to the actual body field name (e.g., 'Line' or 'body')
+          // Map 'Time' to the actual time field name
+          const mappedKey = key === LOG_LINE_BODY_FIELD_NAME ? bodyFieldName : key === 'Time' ? timeFieldName : key;
+          if (fieldNames[mappedKey]) {
+            fieldNames[mappedKey].active = true;
+            fieldNames[mappedKey].index = index;
           }
         });
       }
 
       return fieldNames;
     },
-    [props.urlColumns]
+    [props.displayedFields, logsFrame]
   );
+
+  const labels = useMemo(() => logsFrame?.getLogFrameLabelsAsLabels() ?? [], [logsFrame]);
+  const numberOfLogLines = logsFrame ? logsFrame.raw.length : 0;
+
+  // Memoize initial columns to prevent infinite loops
+  const pendingLabelState = useMemo(() => {
+    // If the data frame is empty, return empty state
+    if (!logsFrame || !logsFrame.raw.length) {
+      return {};
+    }
+
+    // If we have labels and log lines
+    let labelState = mapLabelsToInitialState(logsFrame.raw, labels);
+    const specialFields = {
+      body: logsFrame.bodyField,
+      extraFields: logsFrame.extraFields,
+      time: logsFrame.timeField,
+    };
+
+    // Normalize the other fields
+    if (specialFields) {
+      addSpecialLabelsState(
+        [specialFields.time, specialFields.body, ...specialFields.extraFields],
+        labelState,
+        numberOfLogLines
+      );
+
+      labelState = getColumnsFromProps(labelState);
+
+      // Get all active columns
+      const active = Object.keys(labelState).filter((key) => labelState[key].active);
+
+      // If nothing is selected, then select the default columns
+      setSpecialFieldMeta(active, specialFields, labelState);
+    }
+
+    return labelState;
+  }, [logsFrame, labels, numberOfLogLines, getColumnsFromProps]);
 
   // If the data frame is empty, there's nothing to viz, it could mean the user has unselected all columns
   if (!logsFrame || !logsFrame.raw.length) {
     return null;
-  }
-
-  const labels = logsFrame.getLogFrameLabelsAsLabels() ?? [];
-  const numberOfLogLines = logsFrame ? logsFrame.raw.length : 0;
-
-  // If we have labels and log lines
-  let pendingLabelState = mapLabelsToInitialState(logsFrame.raw, labels);
-  const specialFields = {
-    body: logsFrame.bodyField,
-    extraFields: logsFrame.extraFields,
-    time: logsFrame.timeField,
-  };
-
-  // Normalize the other fields
-  if (specialFields) {
-    addSpecialLabelsState(
-      [specialFields.time, specialFields.body, ...specialFields.extraFields],
-      pendingLabelState,
-      numberOfLogLines
-    );
-
-    pendingLabelState = getColumnsFromProps(pendingLabelState);
-
-    // Get all active columns
-    const active = Object.keys(pendingLabelState).filter((key) => pendingLabelState[key].active);
-
-    // If nothing is selected, then select the default columns
-    setSpecialFieldMeta(active, specialFields, pendingLabelState);
   }
 
   const logControlOptionsWidth = props.controlsExpanded ? CONTROLS_WIDTH_EXPANDED : CONTROLS_WIDTH;
@@ -132,9 +148,8 @@ export const TableWrap = (props: TableWrapProps) => {
         setUrlTableBodyState={props.setUrlTableBodyState}
         logsFrame={logsFrame}
         initialColumns={pendingLabelState}
-        setUrlColumns={props.setUrlColumns}
-        urlColumns={props.urlColumns}
-        displayFields={props.displayFields}
+        setDisplayedFields={props.setDisplayedFields}
+        displayedFields={props.displayedFields}
         clearSelectedLine={props.clearSelectedLine}
         urlTableBodyState={props.urlTableBodyState}
       >
