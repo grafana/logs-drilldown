@@ -26,7 +26,7 @@ export function getQueryRunnerFromSceneGraph(sceneRef: SceneObject) {
       }
     } else {
       logger.error(new Error('Unable to locate query runner!'), {
-        msg: 'PanelMenu - getExploreLink: Unable to locate query runner!',
+        msg: 'getQueryRunnerFromSceneGraph: Unable to locate query runner!',
       });
     }
   }
