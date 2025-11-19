@@ -1,6 +1,6 @@
 {
   "name": "grafana-lokiexplore-app",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Query less exploration of log data stored in Loki",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
@@ -72,7 +72,7 @@
     "eslint-plugin-sort": "4.0.0",
     "eslint-webpack-plugin": "4.2.0",
     "fork-ts-checker-webpack-plugin": "8.0.0",
-    "glob": "10.4.5",
+    "glob": "11.1.0",
     "husky": "9.1.7",
     "identity-obj-proxy": "3.0.0",
     "imports-loader": "5.0.0",
