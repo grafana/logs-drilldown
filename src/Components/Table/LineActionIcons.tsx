@@ -96,7 +96,7 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
           <Modal onDismiss={() => setIsInspecting(false)} isOpen={true} title="Inspect value">
             <pre>{lineValue}</pre>
             <Modal.ButtonRow>
-              <ClipboardButton icon="copy" getText={() => props.value as string}>
+              <ClipboardButton icon="copy" getText={() => lineValue}>
                 Copy to Clipboard
               </ClipboardButton>
             </Modal.ButtonRow>

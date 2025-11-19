@@ -15,6 +15,7 @@ import { addToFavorites } from '../../../services/favorites';
 import { getParserForField } from '../../../services/fields';
 import { isFilterMetadata } from '../../../services/filters';
 import { FilterOp, NumericFilterOp } from '../../../services/filterTypes';
+import { normalizeLevelName } from '../../../services/levels';
 import { logger } from '../../../services/logger';
 import { addCurrentUrlToHistory } from '../../../services/navigate';
 import {
@@ -218,7 +219,7 @@ export function addToFilters(
 
   const variable = getUIAdHocVariable(variableType, key, scene);
   let valueObject: string | undefined = undefined;
-  let valueLabel = value;
+  let valueLabel = variableType === VAR_LEVELS ? normalizeLevelName(value) : value;
   if (variableType === VAR_FIELDS) {
     valueObject = JSON.stringify({
       parser: jsonParser ? 'json' : getParserForField(key, scene),
