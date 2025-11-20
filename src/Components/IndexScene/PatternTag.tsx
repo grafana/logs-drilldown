@@ -79,6 +79,8 @@ const getStyles = (theme: GrafanaTheme2) => {
     removeButton: css({
       paddingLeft: 2.5,
       paddingRight: 2.5,
+      borderTopLeftRadius: 0,
+      borderBottomLeftRadius: 0,
     }),
     tag: css({
       backgroundColor: theme.colors.secondary.main,

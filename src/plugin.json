@@ -59,7 +59,8 @@
       "exposedComponents": [
         "grafana-adaptivelogs-app/temporary-exemptions/v1",
         "grafana-lokiexplore-app/embedded-logs-exploration/v1",
-        "grafana-asserts-app/insights-timeline-widget/v1"
+        "grafana-asserts-app/insights-timeline-widget/v1",
+        "grafana/add-to-dashboard-form/v1"
       ]
     }
   },
@@ -70,6 +71,13 @@
         "targets": ["grafana-asserts-app/insights-timeline-widget/v1"],
         "title": "Insights Timeline Widget",
         "description": "Widget for displaying insights timeline in other apps"
+      }
+    ],
+    "addedFunctions": [
+      {
+        "targets": ["grafana-exploretraces-app/get-logs-drilldown-link/v1"],
+        "title": "Open Logs Drilldown",
+        "description": "Returns url to logs drilldown app"
       }
     ],
     "addedLinks": [

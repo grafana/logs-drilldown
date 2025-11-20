@@ -2,8 +2,8 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { LoadingState, PanelData } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
+import { config, locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneFlexItem,
@@ -28,6 +28,7 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
+import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
@@ -46,8 +47,10 @@ export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
   canClearFilters?: boolean;
   controlsExpanded: boolean;
+  defaultDisplayedFields: string[];
   displayedFields: string[];
   error?: string;
+  errorType?: ErrorType;
   lineFilter?: string;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
@@ -69,6 +72,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: [],
+      defaultDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
       // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
       controlsExpanded: getBooleanLogOption('controlsExpanded', false),
@@ -230,19 +234,25 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   handleNoData() {
     if (this.state.canClearFilters) {
-      this.showLogsError('No logs match your search. Please review your filters or try a different time range.');
+      this.showLogsError(
+        'No logs match your search. Please review your filters or try a different time range.',
+        'no-logs'
+      );
     } else {
-      this.showLogsError('No logs match your search. Please try a different time range.');
+      this.showLogsError(
+        'No logs match your search. Please try a with different labels or an alternative time range.',
+        'no-logs'
+      );
     }
   }
 
-  showLogsError(error: string) {
+  showLogsError(error: string, errorType: ErrorType = 'other') {
     const logsVolumeCollapsedByError = this.state.logsVolumeCollapsedByError ?? !getLogsVolumeOption('collapsed');
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const clearableVariables = getVariablesThatCanBeCleared(indexScene);
     const canClearFilters = clearableVariables.length > 0;
 
-    this.setState({ canClearFilters, error, logsVolumeCollapsedByError });
+    this.setState({ canClearFilters, error, errorType, logsVolumeCollapsedByError });
 
     // Recreate the panel with the new error state
     this.updateLogsPanel();
@@ -259,7 +269,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       logsVolume?.state.panel?.setState({ collapsed: false });
     }
 
-    this.setState({ error: undefined, logsVolumeCollapsedByError: undefined });
+    this.setState({ error: undefined, errorType: undefined, logsVolumeCollapsedByError: undefined });
 
     // Recreate the panel with the cleared error state
     this.updateLogsPanel();
@@ -310,8 +320,21 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   public setVisualizationType = (type: LogsVisualizationType) => {
+    let extraStateChanges: Partial<LogsListSceneState> = {};
+
+    // Clean up default displayed fields
+    if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
+      if (shallowCompare(this.state.displayedFields, this.state.defaultDisplayedFields)) {
+        extraStateChanges = {
+          displayedFields: [],
+          defaultDisplayedFields: [],
+        };
+      }
+    }
+
     this.setState({
       visualizationType: type,
+      ...extraStateChanges,
     });
 
     reportAppInteraction(
@@ -325,9 +348,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   private getVizPanel() {
-    const { error, canClearFilters } = this.state;
+    const { error, errorType, canClearFilters } = this.state;
 
-    this.logsPanelScene = new LogsPanelScene({ error, canClearFilters });
+    this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
 
     const children =
       this.state.visualizationType === 'logs'

@@ -13,7 +13,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-    ports:
+    ports: !override
       - 3001:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/grafana-logsapp
@@ -24,7 +24,7 @@ services:
       # Using "host-gateway" would be more portable across different Docker setups but fails in our CI build
       - 'host.docker.internal:172.17.0.1'
   loki:
-    image: grafana/loki:k263-d446d47
+    image: grafana/loki:k276-c416352
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'

@@ -5,10 +5,10 @@ import { css, cx } from '@emotion/css';
 import { Field, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
-import { LEVEL_NAME } from './constants';
 import { CellContextMenu } from 'Components/Table/CellContextMenu';
 import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
 import { getFieldMappings } from 'Components/Table/Table';
+import { isLabelLevel } from 'services/labels';
 
 interface DefaultPillProps {
   field: Field;
@@ -67,7 +67,7 @@ export const DefaultPill = (props: DefaultPillProps) => {
   const { cellIndex } = useTableCellContext();
   let levelColor;
 
-  if (label === LEVEL_NAME) {
+  if (isLabelLevel(label)) {
     const mappings = getFieldMappings().options;
     if (typeof value === 'string' && value in mappings) {
       levelColor = mappings[value].color;

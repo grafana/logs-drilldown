@@ -57,10 +57,12 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
+import { AddToDashboardModal } from './AddToDashboardModal';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
+import { AddToDashboardEvent, AddToDashboardData } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -125,6 +127,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
   $patternsData?: SceneQueryRunner | undefined;
+  addToDashboardData?: AddToDashboardData;
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
@@ -232,20 +235,27 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // check if we have any inclusive labels at all
     else {
       // If we remove the service name filter, we should redirect to the start
-      let { labelName, labelValue } = getRouteParams(this);
+      let { labelName: primaryLabelInRoute, labelValue } = getRouteParams(this);
 
       // Before we dynamically pulled label filter keys into the URL, we had hardcoded "service" as the primary label slug, we want to keep URLs the same, so overwrite "service_name" with "service" if that's the primary label
-      if (labelName === SERVICE_UI_LABEL) {
-        labelName = SERVICE_NAME;
-      }
+      const isValidLegacyURL =
+        primaryLabelInRoute === SERVICE_UI_LABEL &&
+        newFilters.some(
+          (f) =>
+            f.key === SERVICE_NAME &&
+            isOperatorInclusive(f.operator) &&
+            replaceSlash(f.value) === replaceSlash(labelValue)
+        );
+
+      const primaryLabelMissingInFilters = !newFilters.some(
+        (f) =>
+          f.key === primaryLabelInRoute &&
+          isOperatorInclusive(f.operator) &&
+          replaceSlash(f.value) === replaceSlash(labelValue)
+      );
 
       // The "primary" label used in the URL is no longer active, pick a new one
-      if (
-        !newFilters.some(
-          (f) =>
-            f.key === labelName && isOperatorInclusive(f.operator) && replaceSlash(f.value) === replaceSlash(labelValue)
-        )
-      ) {
+      if (primaryLabelMissingInFilters && !isValidLegacyURL) {
         const newPrimaryLabel = newFilters.find(
           (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
         );
@@ -496,6 +506,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
 
+    this._subs.add(this.subscribeToEvent(AddToDashboardEvent, this.subscribeToAddToDashboard));
+
     // Migrations
     migrateLineFilterV1(this);
   }
@@ -722,6 +734,18 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
   }
 
+  private subscribeToAddToDashboard = (event: AddToDashboardEvent) => {
+    this.setState({
+      addToDashboardData: event.payload,
+    });
+  };
+
+  public hideAddToDashboard = () => {
+    this.setState({
+      addToDashboardData: undefined,
+    });
+  };
+
   private resetBodyAndData = () => {
     let stateUpdate: Partial<ServiceSceneState> = {};
 
@@ -809,7 +833,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body } = model.useState();
+    const { body, addToDashboardData } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
@@ -835,7 +859,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (body) {
-      return <body.Component model={body} />;
+      return (
+        <>
+          {addToDashboardData && <AddToDashboardModal data={addToDashboardData} onClose={model.hideAddToDashboard} />}
+          <body.Component model={body} />
+        </>
+      );
     }
 
     return <LoadingPlaceholder text={'Loading...'} />;

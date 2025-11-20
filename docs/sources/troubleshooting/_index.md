@@ -15,6 +15,20 @@ weight: 900
 
 This page address common issues when getting started and using Grafana Logs Drilldown.
 
+## Can't see Logs Drilldown in the menu
+
+Grafana Explore Logs is installed by default in Grafana versions Grafana v11.3.0 through v11.5.
+
+Grafana Logs Drilldown is installed by default in Grafana versions Grafana 11.6 and later.
+
+For more information about the name change for this feature, see this [blog post](https://grafana.com/blog/2025/02/20/grafana-drilldown-apps-the-improved-queryless-experience-formerly-known-as-the-explore-apps/).
+
+If you do not see Logs Drilldown under either name, then check to make sure you have the [Grafana Logs Drilldown plugin](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/) installed and configured.
+
+{{< admonition type="note" >}}
+Your instance needs internet connection in order to download the Logs Drilldown plugin. If you are working in an offline environment, you can download the Logs Drilldown plugin separately and add it to your Grafana `/plugins` repository.
+{{< /admonition >}}
+
 ## Ensure Loki is properly configured
 
 To use Grafana Logs Drilldown, you need to have Loki properly configured. You can find full instructions on how to do this when [installing Grafana Logs Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
@@ -42,13 +56,22 @@ To learn more about Labels, refer to the [Loki labels documentation](https://gra
 
 ## There are no patterns
 
-Patterns are ephemeral and will only be available for the previous three hours.  
+Patterns are ephemeral and will only be available for the previous three hours. And patterns can change over time as your logging evolves.
 
 If you aren't getting any patterns, you can try the following fixes:
 
-1. Ensure pattern extraction is enabled by setting `pattern-ingester.enabled=true` in your Loki config. [Learn about other necessary config](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
+1. If you see the message "There are no pattern matches. Pattern matching has not been configured." ensure pattern extraction is enabled by setting `pattern-ingester.enabled=true` in your Loki config. [Learn about other necessary config](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
 1. Ensure the volume endpoint is enabled by setting `volume_enabled=true` within your [Loki configuration file](https://grafana.com/docs/loki/latest/configure/#limits_config).
 1. It is possible that no patterns were detected, although this is rare - please [open an issue on GitHub](https://github.com/grafana/explore-logs/issues/new) or [get in touch privately](https://forms.gle/1sYWCTPvD72T1dPH9) so we can see what's going on.
+
+{{< admonition type="note" >}}
+The Patterns feature does not support multi-tenant or cross-stack datasources.
+{{< /admonition >}}
+
+If you see a message in the UI on the Patterns tab that says “An error occurred within the plugin.” or receive an error message HTTP 500 with the message `multiple org IDs present` you have two options to work around the issue:
+
+- Use a single-stack Loki data source to restore Patterns.
+- Disable log patterns to continue using the other Logs Drilldown features with your multi-tenant or cross-stack data source. Go to **Administration** > **Plugins and data** > **Plugins** > **Grafana Logs Drilldown** and select the **Disable patterns** check box. This will disable use of the Patterns API and hide the **Patterns** tab in the user interface.
 
 ## There are no color levels
 

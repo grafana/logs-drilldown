@@ -22,7 +22,7 @@ Loki automatically extracts patterns when your logs are ingested. Patterns are e
 
 The Grafana Logs Drilldown app shows you the patterns alongside their log volumes. From this view, you can investigate spikes and include or exclude specific log lines from your view.
 
-Patterns can change over time as your logging evolves.
+Patterns can change over time as your logging evolves. In order to see patterns displayed on the Patterns page, you must have the [pattern ingester enabled](https://grafana.com/docs/loki/latest/configure/#supported-contents-and-default-values-of-lokiyaml) in your Loki configuration file. If you don't see any patterns, refer to [Troubleshooting](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/troubleshooting/#there-are-no-patterns).
 
 ## Pattern extraction
 

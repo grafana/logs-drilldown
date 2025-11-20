@@ -32,14 +32,15 @@ import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery } from './lokiQuery';
+import { buildResourceQuery } from './query';
 import { maxSeriesReached } from './shardQuerySplitting';
 
-const UNKNOWN_LEVEL_LOGS = 'logs';
-export const INFO_LEVEL_FIELD_NAME_REGEX = /^info$/i;
+export const UNKNOWN_LEVEL_LOGS = 'logs';
+export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;
 export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
 export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
-export const ERROR_LEVEL_FIELD_NAME_REGEX = /^error$/i;
-export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal)$/i;
+export const ERROR_LEVEL_FIELD_NAME_REGEX = /^(error|errors)$/i;
+export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal|severe)$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
 export const logsLabelLevelsMatches: Record<string, RegExp> = {
@@ -52,27 +53,27 @@ export const logsLabelLevelsMatches: Record<string, RegExp> = {
 };
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
-  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-green',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-blue',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-orange',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'semi-dark-red',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: '#705da0',
     mode: 'fixed',
   });
-  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.source).overrideColor({
+  overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: 'darkgray',
     mode: 'fixed',
   });
@@ -278,6 +279,12 @@ export function getResourceQueryRunner(queries: LokiQuery[], queryRunnerOptions?
   });
 }
 
+export function getConfigQueryRunner() {
+  return getResourceQueryRunner([buildResourceQuery(``, 'config', {})], {
+    runQueriesMode: 'manual',
+  });
+}
+
 export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partial<QueryRunnerState>) {
   // if there's a legendFormat related to any `level` like label, we want to
   // sort the output equally. That's purposefully not `LEVEL_VARIABLE_VALUE`,
@@ -296,7 +303,7 @@ export function getQueryRunner(queries: LokiQuery[], queryRunnerOptions?: Partia
         queries: queries,
         ...queryRunnerOptions,
       }),
-      transformations: [],
+      transformations: [sortLevelTransformation],
     });
   }
 

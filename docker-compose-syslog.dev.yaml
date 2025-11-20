@@ -13,7 +13,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-    ports:
+    ports: !override
       - 3001:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/grafana-logsapp
@@ -22,7 +22,7 @@ services:
       - 'host.docker.internal:host-gateway'
 
   loki:
-    image: grafana/loki:k263-d446d47
+    image: grafana/loki:k276-c416352
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -39,7 +39,7 @@ services:
       - 'host.docker.internal:host-gateway'
 
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:latest@sha256:8c7256f412feb9f5f48f9f6f9394dc97ca887f63dea9304f347970ecc1787669
     ports:
       - '12345:12345'
       - '1514:1514/udp'
