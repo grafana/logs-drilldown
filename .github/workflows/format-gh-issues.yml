@@ -13,23 +13,11 @@ jobs:
       issues: write
       contents: read
     steps:
-      - name: Get secrets from Vault
-        id: get-secrets
-        uses: grafana/shared-workflows/actions/get-vault-secrets@main # zizmor: ignore[unpinned-uses]
-        env:
-          VAULT_INSTANCE: ops
-        with:
-          vault_instance: ${{ env.VAULT_INSTANCE }}
-          common_secrets: |
-            GITHUB_APP_ID=DrilldownBot:app_id
-            GITHUB_APP_PRIVATE_KEY=DrilldownBot:key
-
-      - uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+      - name: Get GitHub App token
         id: app-token
+        uses: grafana/shared-workflows/actions/create-github-app-token@d2db509c45f0d0e75e26fe03c276225d6bbc3e0d # create-github-app-token/v0.2.0
         with:
-          app-id: ${{ env.GITHUB_APP_ID }}
-          private-key: ${{ env.GITHUB_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          github_app: DrilldownBot
 
       - uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
         with:

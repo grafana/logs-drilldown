@@ -68,7 +68,7 @@ import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationSce
 import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
-import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides } from 'services/panel';
+import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
 import {
   buildDataQuery,
   buildVolumeQuery,
@@ -530,7 +530,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       return '';
     }
     const filters = serviceLevels.map((level) => {
-      if (level === 'logs') {
+      if (level === UNKNOWN_LEVEL_LOGS) {
         level = '';
       }
       return `${LEVEL_VARIABLE_VALUE}=\`${level}\``;
@@ -565,8 +565,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('fontSize', 'small')
         // @todo unhardcode, any reason to use line_format instead?
         .setOption('displayedFields', ['msg', 'detected_level', 'service_name'])
-        // @ts-expect-error Requires Grafana 12.2
-        .setOption('noInteractions', true)
         .build(),
     });
 

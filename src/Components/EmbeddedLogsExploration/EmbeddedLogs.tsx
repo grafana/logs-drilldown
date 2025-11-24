@@ -13,7 +13,9 @@ import { initializeMetadataService } from 'services/metadata';
 export function buildLogsExplorationFromState({
   onTimeRangeChange,
   query,
+  referenceQuery,
   timeRangeState,
+  options,
   ...state
 }: EmbeddedLogsExplorationProps) {
   const $timeRange = new SceneTimeRange(timeRangeState);
@@ -34,8 +36,15 @@ export function buildLogsExplorationFromState({
   initRuntimeDs();
 
   const { labelFilters, lineFilters } = getMatcherFromQuery(query);
+  const referenceFilters = getMatcherFromQuery(referenceQuery ?? '');
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
+    key: filter.key,
+    operator: filter.operator,
+    value: filter.value,
+  }));
+
+  const referenceLabels: AdHocFilterWithLabels[] = referenceFilters.labelFilters.map((filter) => ({
     key: filter.key,
     operator: filter.operator,
     value: filter.value,
@@ -49,7 +58,9 @@ export function buildLogsExplorationFromState({
     $timeRange,
     defaultLineFilters: lineFilters,
     embedded: true,
-    readOnlyLabelFilters: initialLabels,
+    embeddedOptions: options,
+    initialLabels,
+    referenceLabels,
   });
 }
 
@@ -74,7 +85,7 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
       scene={exploration}
       updateUrlOnInit={false}
       createBrowserHistorySteps={true}
-      namespace={VARIABLE_NAMESPACE}
+      namespace={props.namespace ?? VARIABLE_NAMESPACE}
       excludeFromNamespace={['from', 'to', 'timezone', drilldownLabelUrlKey, pageSlugUrlKey]}
     >
       <exploration.Component model={exploration} />

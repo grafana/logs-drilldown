@@ -389,7 +389,8 @@ export class ExplorePage {
     operator: FilterOpType,
     comboBox: ComboBoxIndex,
     text: string,
-    typeAhead?: string
+    typeAhead?: string,
+    exact = false
   ) {
     // Open combobox
     const comboboxLocator = this.page.getByPlaceholder('Filter by label values').nth(comboBox);
@@ -399,7 +400,7 @@ export class ExplorePage {
       await this.assertNotLoading();
     }
     // Select detected_level key
-    await this.page.getByRole('option', { name: labelName }).click();
+    await this.page.getByRole('option', { name: labelName, exact }).click();
     await expect(this.getOperatorLocator(operator)).toHaveCount(1);
     await expect(this.getOperatorLocator(operator)).toBeVisible();
     // Select operator

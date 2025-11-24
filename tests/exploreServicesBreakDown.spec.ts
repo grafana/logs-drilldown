@@ -1,10 +1,10 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-import { DEFAULT_URL_COLUMNS } from '../src/Components/Table/constants';
+import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../src/Components/Table/constants';
 import { FilterOp } from '../src/services/filterTypes';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
-import { SERVICE_NAME } from '../src/services/variables';
+import { SERVICE_NAME, VAR_FIELDS } from '../src/services/variables';
 import { ComboBoxIndex, E2EComboboxStrings, ExplorePage, levelTextMatch, PlaywrightRequest } from './fixtures/explore';
 import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 
@@ -211,15 +211,14 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLogsTab();
 
     // Open log details
-    //ng-logs-panel
-    // const logPanelMenuLoc = page.getByLabel('Log menu').nth(1);
-    // await logPanelMenuLoc.click();
-    // await page.getByRole('menuitem', { name: 'Show log details' }).click();
     await page.getByTitle('See log details').nth(1).click();
     await page.getByLabel('Show this field instead of').nth(1).click();
 
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
+
+    // Wait for URL to be updated after switching to table view
+    await page.waitForTimeout(100);
 
     // Extract the current URL
     const currentUrl = page.url();
@@ -230,10 +229,66 @@ test.describe('explore services breakdown page', () => {
     const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
 
     // Filter out default columns from urlColumns
-    const filteredUrlColumns = urlColumns.filter((col: string) => !DEFAULT_URL_COLUMNS.includes(col));
+    const filteredUrlColumns = urlColumns.filter(
+      (col: string) => !DEFAULT_URL_COLUMNS.includes(col) && col !== DETECTED_LEVEL
+    );
 
     // Check if filtered urlColumns matches displayedFields
     expect(displayedFields).toEqual(filteredUrlColumns);
+  });
+
+  test('table should show detected_level column when log data contains detected_level', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
+
+    // Check that detected_level column is present (if data contains detected_level info)
+    const detectedLevelHeader = table.getByRole('columnheader').filter({ hasText: 'detected_level' });
+    const hasDetectedLevel = (await detectedLevelHeader.count()) > 0;
+    await expect(hasDetectedLevel).toBeTruthy();
+  });
+
+  test('table should support table column sorting with URL persistence', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
+
+    const bodyHeader = table
+      .locator('button[title="Toggle SortBy"]')
+      .getByRole('button', { name: 'body', exact: true });
+
+    if ((await bodyHeader.count()) > 0) {
+      await bodyHeader.click();
+
+      // Check URL contains sort parameters for body
+      await expect(page).toHaveURL(/urlColumnsSortBy=(body)/);
+      await expect(page).toHaveURL(/urlColumnsSortDir=(asc)/);
+
+      // Reload to verify persistence
+      await page.reload();
+      await expect(table).toBeVisible();
+      await expect(page).toHaveURL(/urlColumnsSortBy=(body)/);
+      await expect(page).toHaveURL(/urlColumnsSortDir=(asc)/);
+    }
+  });
+
+  test('table should show log line by default', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
+
+    // Show log labels button should be visible since text is shown by default
+    const bodyShowLogLabels = page.getByRole('button', { name: 'Show log labels' });
+    await expect(bodyShowLogLabels).toHaveCount(1);
   });
 
   test(`should persist column ordering`, async ({ page }) => {
@@ -263,11 +318,13 @@ test.describe('explore services breakdown page', () => {
     await explorePage.getTableToggleLocator().click();
 
     const table = page.getByTestId(testIds.table.wrapper);
-    // Get a level pill, and click it
-    const levelPill = table.getByRole('cell').getByText('level=').first();
-    await levelPill.click();
+    // switch table body to label view
+    await page.getByRole('button', { name: 'Show log labels' }).click();
+
+    // Get a detected_level debug pill, and click it
+    await table.getByRole('button', { name: 'error', exact: true }).nth(1).click();
     // Get the context menu
-    const pillContextMenu = table.getByRole('img', { name: 'Add to search' });
+    const pillContextMenu = page.getByRole('button', { name: 'Add to search', exact: true });
     // Assert menu is open
     await expect(pillContextMenu).toBeVisible();
     // Click the filter button
@@ -284,24 +341,42 @@ test.describe('explore services breakdown page', () => {
     await explorePage.getTableToggleLocator().click();
     const table = page.getByTestId(testIds.table.wrapper);
 
-    // assert the table doesn't contain the raw log line option by default
-    await expect(table.getByTestId(testIds.table.rawLogLine)).toHaveCount(0);
-
-    // Open menu
-    await await page.getByLabel(/Show body|Line menu/).click();
-
+    // assert the table shows the raw log line option by default
+    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
     // Show log text option should be visible by default
-    await expect(page.getByText('Show log text')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Show log labels' })).toBeVisible();
 
     // Change the option
-    await page.getByText('Show log text').click();
-
-    // Assert the change was made to the table
-    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
+    await page.getByRole('button', { name: 'Show log labels' }).click();
 
     await page.reload();
     await explorePage.assertNotLoading();
-    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
+    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).not.toBeVisible();
+  });
+
+  test('table urlColumns should be reset on log panel show original line click', async ({ page }) => {
+    await explorePage.goToLogsTab();
+
+    // open log details
+    await page.getByTitle('See log details').nth(1).click();
+    // click a displayed field to
+    await page.getByLabel('Show this field instead of').nth(1).click();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const columnHeaders = await page.getByRole('columnheader');
+    await expect(columnHeaders).toHaveCount(8);
+
+    // Switch to logs view
+    await explorePage.getLogsToggleLocator().click();
+
+    // click show original log line
+    await page.getByRole('button', { name: 'Show original log line' }).click();
+
+    // Switch to table view
+    await explorePage.getTableToggleLocator().click();
+    const defaultColumnHeaders = await page.getByRole('columnheader');
+    await expect(defaultColumnHeaders).toHaveCount(6);
   });
 
   test('should show inspect modal', async ({ page }) => {
@@ -1379,18 +1454,42 @@ test.describe('explore services breakdown page', () => {
     expect(responses[responses.length - 1][key[0]].results[key[0]].status).toBe(200);
   });
 
+  test('should see empty labels UI', async ({ page }) => {
+    explorePage.blockAllQueriesExcept({
+      legendFormats: [`{{${labelName}}}`],
+    });
+    await page.goto(
+      '/a/grafana-lokiexplore-app/explore/service/nginx/labels?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+    );
+    await page.getByRole('link', { name: 'Select cluster' }).click();
+    await expect.poll(() => page.getByTestId('data-testid button-filter-exclude').count()).toBeGreaterThan(0);
+    const excludeButtons = await page.getByTestId('data-testid button-filter-exclude').all();
+
+    for (const locator of excludeButtons) {
+      await locator.click();
+    }
+    await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
+    await page.getByText('Clear filters').click();
+    await expect.poll(() => explorePage.getAllPanelsLocator().count()).toBeGreaterThan(0);
+  });
+
   test('should see empty fields UI', async ({ page }) => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
     );
     await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
+    await explorePage.addCustomValueToCombobox('test', FilterOp.Equal, ComboBoxIndex.fields, 'test', 'test');
+    await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
+    await page.getByText('Clear filters').click();
+    await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
   });
+
   test('should see clear fields UI', async ({ page }) => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
     );
-    await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
+    await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
     await expect(page.getByLabel(E2EComboboxStrings.editByKey('bytes'))).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
     await page.getByText('Clear filters').click();

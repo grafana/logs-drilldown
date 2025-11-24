@@ -120,7 +120,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // Now there should be no results
       await expect(userIdentifierInclude).toHaveCount(0);
-      await expect(page.getByText('No labels match these filters. ')).toHaveCount(1);
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
     });
     test('can filter nested level props', async ({ page }) => {
       await explorePage.goToLogsTab();
@@ -154,7 +154,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
         .click();
 
       // Should be no results
-      await expect(page.getByText('No labels match these filters.')).toHaveCount(1);
+      await expect(page.getByText('No logs match your search.')).toHaveCount(1);
     });
     test('can drill into nested nodes', async ({ page }) => {
       await explorePage.goToLogsTab();

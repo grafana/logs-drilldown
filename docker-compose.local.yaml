@@ -2,6 +2,9 @@ version: '3.0'
 
 services:
   grafana:
+    extends:
+      file: .config/docker-compose-base.yaml
+      service: grafana
     container_name: 'grafana-logsapp'
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
@@ -17,8 +20,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-        grafana_version: ${GRAFANA_VERSION:-latest}
-    ports:
+    ports: !override
       - 3001:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/grafana-logsapp
@@ -26,7 +28,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   loki:
-    image: grafana/loki:k263-d446d47
+    image: grafana/loki:k276-c416352
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -48,7 +50,7 @@ services:
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:latest@sha256:8c7256f412feb9f5f48f9f6f9394dc97ca887f63dea9304f347970ecc1787669
     environment:
       - AGENT_MODE=flow
     command:
@@ -61,7 +63,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   tempo:
-    image: grafana/tempo:2.6.0
+    image: grafana/tempo:2.6.0@sha256:f55a8a1937fff0af3a760d376b476c8327fb30e432d5e7630d7938b67691e822
     command: -config.file=/etc/tempo.yaml
     volumes:
       - ./config/tempo.yaml:/etc/tempo.yaml
@@ -71,7 +73,7 @@ services:
       - '4317:4317' # otlp grpc
       - '4318:4318' # otlp http
   prometheus:
-    image: prom/prometheus:v2.54.1
+    image: prom/prometheus:v2.54.1@sha256:f6639335d34a77d9d9db382b92eeb7fc00934be8eae81dbc03b31cfe90411a94
     ports:
       - '9090:9090'
     extra_hosts:

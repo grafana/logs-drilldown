@@ -1,4 +1,4 @@
-name: Plugins - CI / CD
+name: Plugins Platform - CI / CD
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   cd:
     name: CI / CD
-    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@main # zizmor: ignore[unpinned-uses]
+    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@ci-cd-workflows/v4.0.0 # ci-cd-workflows/v4.0.0
     permissions:
       contents: write
       id-token: write
@@ -37,3 +37,6 @@ jobs:
       upload-playwright-artifacts: true
       playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001/grafana
+
+      # TODO remove this eventually. Explicitly set Node.js version to 22 to ensure compatibility with yargs@18.0.0
+      node-version: '22'

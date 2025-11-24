@@ -121,6 +121,7 @@ errwrap
 esac
 estargz
 evanphx
+exploretraces
 Extrated
 fastuuid
 fatih
@@ -535,3 +536,4 @@ shellcheck
 radical
 rerooted
 nodetype
+lookback

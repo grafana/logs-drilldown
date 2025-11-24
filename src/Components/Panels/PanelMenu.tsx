@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink } from '@grafana/data';
+import { BusEventBase, DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink, TimeRange } from '@grafana/data';
 // Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
 // We need both imports to support Grafana v11 and v12.
-// @ts-expect-error
-import { getDataSourceSrv, getObservablePluginLinks, getPluginLinkExtensions } from '@grafana/runtime';
+import {
+  getDataSourceSrv,
+  getObservablePluginLinks,
+  // @ts-expect-error
+  getPluginLinkExtensions,
+  usePluginComponent,
+} from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -22,6 +27,7 @@ import {
   VizPanel,
   VizPanelMenu,
 } from '@grafana/scenes';
+import { Panel } from '@grafana/schema';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { ExtensionPoints } from '../../services/extensions/links';
@@ -37,6 +43,7 @@ import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValue
 import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
+import { isLogsQuery } from 'services/logql';
 
 const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
 const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
@@ -65,7 +72,6 @@ interface PanelMenuState extends SceneObjectState {
   body?: VizPanelMenu;
   investigationOptions?: InvestigationOptions;
   investigationsButton?: AddToInvestigationButton;
-
   panelType?: TimeSeriesPanelType;
 }
 
@@ -145,7 +151,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           if (isAvailable) {
             const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
-              text: '',
+              text: 'ai_divider',
               type: 'divider',
             });
             this.addItem({
@@ -191,6 +197,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       this.state.body.addItem(item);
     }
   }
+
   setItems(items: PanelMenuItem[]): void {
     if (this.state.body) {
       this.state.body.setItems(items);
@@ -199,6 +206,33 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
   public static Component = ({ model }: SceneComponentProps<PanelMenu>) => {
     const { body } = model.useState();
+    const { component: AddToDashboardComponent, isLoading: isLoadingAddToDashboard } = usePluginComponent(
+      'grafana/add-to-dashboard-form/v1'
+    );
+
+    // Update availability flag when component loads
+    useEffect(() => {
+      const isAvailable = !isLoadingAddToDashboard && Boolean(AddToDashboardComponent);
+
+      // Log warning if component failed to load
+      if (!isLoadingAddToDashboard && !AddToDashboardComponent) {
+        logger.warn(`Failed to load add to dashboard component: grafana/add-to-dashboard-form/v1`);
+      }
+
+      if (isAvailable) {
+        addItemToGroup(
+          model,
+          {
+            text: 'Add to Dashboard',
+            onClick: () => {
+              model.publishEvent(new AddToDashboardEvent(getAddToDashboardPayload(model)), true);
+            },
+            iconClassName: 'apps',
+          },
+          'Navigation'
+        );
+      }
+    }, [isLoadingAddToDashboard, AddToDashboardComponent, model]);
 
     if (body) {
       return <body.Component model={body} />;
@@ -210,7 +244,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
 function addVisualizationHeader(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
-    text: '',
+    text: 'visualization_divider',
     type: 'divider',
   });
   items.push({
@@ -321,6 +355,45 @@ export const getExploreLink = (sceneRef: SceneObject) => {
   return onExploreLinkClick(indexScene, expr);
 };
 
+export const getAddToDashboardPayload = (model: PanelMenu) => {
+  const indexScene = sceneGraph.getAncestor(model, IndexScene);
+  let sourcePanel: VizPanel | undefined = undefined;
+  try {
+    sourcePanel = sceneGraph.getAncestor(model, VizPanel);
+  } catch (e) {}
+
+  const expr = getQueryExpression(model);
+  const datasource = getDataSource(indexScene);
+  const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
+
+  const type = model.state.investigationOptions?.type ?? (isLogsQuery(expr) ? 'logs' : 'timeseries');
+  const labelName = model.state.investigationOptions?.getLabelName
+    ? model.state.investigationOptions?.getLabelName()
+    : model.state.investigationOptions?.labelName;
+  const title = labelName ?? (isLogsQuery(expr) ? 'Logs' : 'Metric query');
+
+  const request = sourcePanel?.state.$data?.state.data?.request;
+  const target = request?.targets?.[0];
+
+  const legendFormat: string =
+    target && 'legendFormat' in target && typeof target.legendFormat === 'string' ? target.legendFormat : '';
+
+  const panel: Panel = {
+    ...request,
+    type,
+    title,
+    targets: [{ refId: 'A', expr, legendFormat }],
+    datasource: {
+      type: 'loki',
+      uid: datasource,
+    },
+    // @ts-expect-error
+    fieldConfig: sourcePanel?.state.fieldConfig,
+    options: sourcePanel?.state.options,
+  };
+  return { panel, timeRange };
+};
+
 const onExploreLinkClickTracking = () => {
   reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
@@ -400,6 +473,44 @@ async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu)
       }
     }
   }
+}
+
+function addItemToGroup(model: PanelMenu, item: PanelMenuItem, group: string) {
+  if (!model.state.body || !model.state.body.state.items) {
+    return;
+  }
+  let groupIndex: undefined | number = undefined;
+  const index = model.state.body.state.items.findIndex((item, i) => {
+    if (item.type === 'group' && item.text === group) {
+      groupIndex = i;
+      return false;
+    }
+    if ((groupIndex !== undefined && item.type === 'group') || item.type === 'divider') {
+      return true;
+    }
+    return false;
+  });
+  // There is no other group or divider after the provided group, the item can be added as the last item.
+  if (index < 0) {
+    model.addItem(item);
+    return;
+  }
+  // Insert item at the last position of the group
+  const items = model.state.body.state.items.slice();
+  items.splice(index, 0, item);
+  model.setItems(items);
+}
+
+export interface AddToDashboardData {
+  panel: Panel;
+  timeRange: TimeRange;
+}
+
+export class AddToDashboardEvent extends BusEventBase {
+  constructor(public payload: AddToDashboardData) {
+    super();
+  }
+  public static type = 'add-to-dashboard';
 }
 
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {

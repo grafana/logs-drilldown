@@ -12,6 +12,8 @@ import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';
 
 interface LineLimitState extends SceneObjectState {
+  error?: string;
+  isInvalid?: boolean;
   maxLines?: number;
   maxLinesOptions: Array<ComboboxOption<number>>;
 }
@@ -26,6 +28,7 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
     super({
       ...state,
       maxLinesOptions: [],
+      isInvalid: false,
     });
     this.addActivationHandler(this.onActivate);
   }
@@ -38,12 +41,38 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
     this.setState({
       maxLines,
       maxLinesOptions: getMaxLinesOptions(maxLines),
+      isInvalid: false,
     });
   };
 
+  /**
+   * Validate if the max lines value is number, custom input is a string
+   */
+  private validateMaxLines = (value: number | string): boolean => {
+    if (!value) {
+      return false;
+    }
+
+    // Convert string to number
+    const numValue = typeof value === 'string' ? Number(value) : value;
+
+    // Check if it's a valid positive integer
+    if (isNaN(numValue) || numValue <= 0 || !Number.isInteger(numValue)) {
+      return false;
+    }
+    return true;
+  };
+
   onChangeMaxLines = (option: ComboboxOption<number>) => {
-    if (!option.value) {
-      return;
+    const isValid = this.validateMaxLines(option.value);
+    if (!isValid) {
+      this.setState({
+        isInvalid: true,
+      });
+    } else {
+      this.setState({
+        isInvalid: false,
+      });
     }
     const newMaxLines = option.value;
     setMaxLines(this, newMaxLines);
@@ -58,8 +87,11 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
 }
 
 function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
-  const { maxLines, maxLinesOptions } = model.useState();
+  const { error, maxLines, maxLinesOptions, isInvalid } = model.useState();
+
   const styles = useStyles2(getStyles);
+  const isMaxEntriesError = error?.toLowerCase().includes('max entries limit');
+
   return (
     <div className={styles.container}>
       {maxLines && maxLinesOptions.length > 0 && (
@@ -70,6 +102,7 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
             'logs.log-options.max-lines-tooltip',
             'Number of log lines to request. Depends on the Loki configuration value for max_entries_limit.'
           )}
+          invalid={isInvalid || isMaxEntriesError}
         >
           <Combobox<number>
             options={maxLinesOptions}
@@ -89,6 +122,7 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
 const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     display: 'flex',
+    flexDirection: 'column',
     gap: theme.spacing(0.5),
   }),
   label: css({

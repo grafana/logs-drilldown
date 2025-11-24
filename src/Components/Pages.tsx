@@ -96,11 +96,20 @@ function getEmbeddedScene() {
     value: timeRange,
   });
 
-  const props: EmbeddedLogsExplorationProps & IndexSceneState = {
+  const props: EmbeddedLogsExplorationProps & Pick<IndexSceneState, 'embedded'> = {
     embedded: true,
     embedderName: 'EmbeddedLogs',
+    options: {
+      emptyStates: {
+        logs: {
+          customPrompt: 'Write a haiku about Loki Logs',
+          promptCTA: 'Where are my logs?',
+        },
+      },
+    },
     query,
     timeRangeState: $timeRange.state,
+    referenceQuery: query,
   };
 
   return new EmbeddedScene({

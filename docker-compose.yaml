@@ -2,14 +2,14 @@ version: '3.0'
 
 services:
   grafana:
-    image: grafana/grafana:11.6.0
+    image: grafana/grafana:12.2.0@sha256:74144189b38447facf737dfd0f3906e42e0776212bf575dc3334c3609183adf7
     environment:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_BASIC_ENABLED=false
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
       - GF_PLUGINS_PREINSTALL_DISABLED=true
-      - GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app
+      - GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip;grafana-lokiexplore-app
     ports:
       - 3000:3000/tcp
     volumes:
@@ -20,7 +20,7 @@ services:
       # Using "host-gateway" would be more portable across different Docker setups but fails in our CI build
       - 'host.docker.internal:172.17.0.1'
   loki:
-    image: grafana/loki:k263-d446d47
+    image: grafana/loki:k276-c416352
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -34,7 +34,7 @@ services:
       - -runtime-config.file=/etc/loki/overrides.yaml
     restart: on-failure
   generator:
-    image: us-docker.pkg.dev/grafanalabs-global/docker-explore-logs-prod/fake-log-generator:latest
+    image: us-docker.pkg.dev/grafanalabs-global/docker-explore-logs-prod/fake-log-generator:latest@sha256:70c363baa8e494540736661acfddf63270280c1aa86e22e602bf70e19709c750
     command: -url http://loki:3100/loki/api/v1/push -tenant-id=1
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp

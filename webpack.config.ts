@@ -1,5 +1,5 @@
 import type { Configuration } from 'webpack';
-import LiveReloadPlugin from 'webpack-livereload-plugin';
+//import LiveReloadPlugin from 'webpack-livereload-plugin';
 import { merge } from 'webpack-merge';
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -15,13 +15,13 @@ const config = async (env: any): Promise<Configuration> => {
     },
     plugins: [
       // new BundleAnalyzerPlugin(),
-      // new LiveReloadPlugin({
-      //   appendScriptTag: true,
-      //   delay: 1000,
-      //   hostname: 'localhost',
-      //   port: 35828,
-      //   protocol: 'http',
-      // }),
+      /*new LiveReloadPlugin({
+        appendScriptTag: true,
+        delay: 1000,
+        hostname: 'localhost',
+        port: 35828,
+        protocol: 'http',
+      }),*/
     ],
   });
 };

@@ -12,6 +12,7 @@ import LabelRenderer from '../JSONPanel/LabelRenderer';
 import ValueRenderer from '../JSONPanel/ValueRenderer';
 import { LogListControls } from '../LogListControls';
 import { LogsListScene } from '../LogsListScene';
+import { LogsPanelError } from '../LogsPanelError';
 import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
@@ -31,12 +32,16 @@ import {
   getLevelsVariable,
   getLineFiltersVariable,
 } from 'services/variableGetters';
+import { clearVariables } from 'services/variableHelpers';
 
 export const JSON_VIZ_LINE_HEIGHT = '24px';
 
 export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLogsScene>) {
   const {
+    canClearFilters,
     emptyScene,
+    error,
+    errorType,
     hasJSONFields,
     JSONFiltersSupported,
     menu,
@@ -129,95 +134,115 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
 
   const showNoJSONDetected = lineField && lineField.values.length > 0 && hasJSONFields === false;
   const showLokiNotSupported = !JSONFiltersSupported && showNoJSONDetected !== true;
+  const controlsExpanded = logsListScene.state.controlsExpanded;
 
   return (
     <div className={styles.panelChromeWrap}>
-      {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
-      <PanelChrome
-        padding={'none'}
-        showMenuAlways={true}
-        statusMessage={$data.state.data?.errors?.[0].message}
-        loadingState={$data.state.data?.state}
-        title={'JSON'}
-        menu={menu ? <menu.Component model={menu} /> : undefined}
-        actions={<LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />}
-      >
-        <div className={styles.container}>
-          {lineField?.values && lineField?.values.length > 0 && (
-            <LogListControls
-              onWrapLogMessageClick={onWrapLogMessageClick}
-              wrapLogMessage={wrapLogMessage}
-              showHighlight={hasHighlight}
-              onToggleHighlightClick={onToggleHighlightClick}
-              showMetadata={hasMetadata}
-              onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
-              showLabels={hasLabels}
-              onToggleLabelsClick={onToggleLabelsClick}
-              sortOrder={sortOrder}
-              onSortOrderChange={model.handleSortChange}
-              onScrollToBottomClick={onScrollToBottomClick}
-              onScrollToTopClick={onScrollToTopClick}
-            />
-          )}
-          {lineField?.values && lineField?.values.length > 0 && (
-            <div className={styles.JSONTreeWrap} ref={scrollRef}>
-              {showLokiNotSupported && (
-                <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
-                  This view will be read only until Loki is upgraded to 3.5.0
-                </Alert>
+      {!error && (
+        <>
+          {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
+          <PanelChrome
+            padding={'none'}
+            showMenuAlways={true}
+            statusMessage={$data.state.data?.errors?.[0].message}
+            loadingState={$data.state.data?.state}
+            title={'JSON'}
+            menu={menu ? <menu.Component model={menu} /> : undefined}
+            actions={
+              <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
+            }
+          >
+            <div className={styles.container}>
+              {lineField?.values && lineField?.values.length > 0 && (
+                <LogListControls
+                  controlsExpanded={controlsExpanded}
+                  onExpandControlsClick={() => {
+                    logsListScene.setState({ controlsExpanded: !controlsExpanded });
+                    setLogOption('controlsExpanded', !controlsExpanded);
+                  }}
+                  onWrapLogMessageClick={onWrapLogMessageClick}
+                  wrapLogMessage={wrapLogMessage}
+                  showHighlight={hasHighlight}
+                  onToggleHighlightClick={onToggleHighlightClick}
+                  showMetadata={hasMetadata}
+                  onToggleStructuredMetadataClick={onToggleStructuredMetadataClick}
+                  showLabels={hasLabels}
+                  onToggleLabelsClick={onToggleLabelsClick}
+                  sortOrder={sortOrder}
+                  onSortOrderChange={model.handleSortChange}
+                  onScrollToBottomClick={onScrollToBottomClick}
+                  onScrollToTopClick={onScrollToTopClick}
+                />
               )}
-              {showNoJSONDetected && (
-                <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
-                  This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a
-                  better experience.
-                </Alert>
+              {lineField?.values && lineField?.values.length > 0 && (
+                <div className={styles.JSONTreeWrap} ref={scrollRef}>
+                  {showLokiNotSupported && (
+                    <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
+                      This view will be read only until Loki is upgraded to 3.5.0
+                    </Alert>
+                  )}
+                  {showNoJSONDetected && (
+                    <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
+                      This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view
+                      for a better experience.
+                    </Alert>
+                  )}
+                  <JSONTree
+                    scrollToPath={scrollToPath}
+                    data={lineField.values}
+                    hideRootExpand={true}
+                    valueWrap={''}
+                    shouldExpandNodeInitially={(_, __, level) => level <= 2}
+                    // Render item type string, e.g. (), {}
+                    getItemString={(nodeType, data, itemType, itemString, keyPath) => (
+                      <ItemString
+                        itemString={itemString}
+                        keyPath={keyPath}
+                        itemType={itemType}
+                        data={data}
+                        nodeType={nodeType}
+                        model={model}
+                        levelsVar={levelsVar}
+                      />
+                    )}
+                    // Render node values
+                    valueRenderer={(valueAsString, _, ...keyPath) => (
+                      <ValueRenderer
+                        valueAsString={valueAsString}
+                        keyPath={keyPath}
+                        lineFilters={lineFilterVar.state.filters}
+                        model={model}
+                      />
+                    )}
+                    // Render node labels
+                    labelRenderer={(keyPath, nodeType) => (
+                      <LabelRenderer
+                        model={model}
+                        nodeType={nodeType}
+                        keyPath={keyPath}
+                        fieldsVar={fieldsVar}
+                        lineField={lineField}
+                        JSONFiltersSupported={JSONFiltersSupported}
+                        JSONParserPropsMap={JSONParserPropsMap}
+                        lineFilters={lineFilterVar.state.filters}
+                      />
+                    )}
+                  />
+                </div>
               )}
-              <JSONTree
-                scrollToPath={scrollToPath}
-                data={lineField.values}
-                hideRootExpand={true}
-                valueWrap={''}
-                shouldExpandNodeInitially={(_, __, level) => level <= 2}
-                // Render item type string, e.g. (), {}
-                getItemString={(nodeType, data, itemType, itemString, keyPath) => (
-                  <ItemString
-                    itemString={itemString}
-                    keyPath={keyPath}
-                    itemType={itemType}
-                    data={data}
-                    nodeType={nodeType}
-                    model={model}
-                    levelsVar={levelsVar}
-                  />
-                )}
-                // Render node values
-                valueRenderer={(valueAsString, _, ...keyPath) => (
-                  <ValueRenderer
-                    valueAsString={valueAsString}
-                    keyPath={keyPath}
-                    lineFilters={lineFilterVar.state.filters}
-                    model={model}
-                  />
-                )}
-                // Render node labels
-                labelRenderer={(keyPath, nodeType) => (
-                  <LabelRenderer
-                    model={model}
-                    nodeType={nodeType}
-                    keyPath={keyPath}
-                    fieldsVar={fieldsVar}
-                    lineField={lineField}
-                    JSONFiltersSupported={JSONFiltersSupported}
-                    JSONParserPropsMap={JSONParserPropsMap}
-                    lineFilters={lineFilterVar.state.filters}
-                  />
-                )}
-              />
+              {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
             </div>
-          )}
-          {emptyScene && lineField?.values.length === 0 && <NoMatchingLabelsScene.Component model={emptyScene} />}
-        </div>
-      </PanelChrome>
+          </PanelChrome>
+        </>
+      )}
+      {error && (
+        <LogsPanelError
+          error={error}
+          errorType={errorType}
+          clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+          sceneRef={model}
+        />
+      )}
     </div>
   );
 }

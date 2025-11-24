@@ -1,5 +1,148 @@
 # Changelog
 
+## 1.0.31
+
+##### Chores
+
+* **deps-dev:**  bump glob in the npm_and_yarn group across 1 directory (#1638) (787bb202)
+* **ci:**
+  *  update permissions (#1633) (fb786b2b)
+  *  use new token generation (#1619) (075a6415)
+  *  used outputs (#1610) (57575f65)
+  *  update deployment tools wf (#1603) (d4f4af3c)
+*  update nvmrc (#1628) (48aa341e)
+*  hide toast (#1605) (c8a7663d)
+*  comment local live reload (#1607) (1890b8b3)
+*  update playwright (#1606) (acf6cb1b)
+*  update border radii (#1602) (4c353583)
+*  set override modifier (#1599) (0bc9211b)
+* **deps:**
+  *  update dependency style-loader to v3.3.4 (#1614) (d1a05e05)
+  *  update grafana/alloy:latest docker digest to 8c7256f (#1613) (529289ea)
+  *  update golang:1.24 docker digest to 5034fa4 (#1612) (b46d194b)
+  *  pin grafana/plugin-ci-workflows action to ddc6565 (#1611) (d7b4bf10)
+  *  update dependency sass-loader to v13.3.3 (#1594) (7095a5b4)
+  *  update dependency eslint-config-prettier to v8.10.2 (#1593) (f3f2d9b9)
+  *  update golang:1.24 docker digest to 5056a22 (#1592) (552e5e21)
+* **config:**  migrate config renovate.json (#1596) (d8d23822)
+
+##### Documentation Changes
+
+*  Add patterns troubleshooting (#1600) (3055db7b)
+
+##### New Features
+
+* **time-picker:**  filter time ranges that exceed max retention (#1621) (010becaa)
+* **config:**  Support Loki config API endpoint (#1526) (23c627f2)
+* **Dashboards:**  Add to dashboard from any panel (#1608) (2d3d8c3d)
+* **Grafana Assistant:**  Improve context, provide questions, and cleanup (#1598) (c7024136)
+* **Extensions:**  expose a function to create URL to the app dynamically (#1573) (37b60a11)
+
+##### Bug Fixes
+
+* **Table:**  copy from the right source (#1643) (a444b2ac)
+*  logs volume not showing logs without detected_level (#1630) (01a42e4f)
+* **deps:**  update grafana packages (#1615) (b02e67a1)
+
+##### Other Changes
+
+*  bump version to 0.1.4 (#1618) (2742a609)
+
+
+## 1.0.30
+
+##### Chores
+
+* **renovate:**  add renovate.json, pin gha to versions, remove old workflows (#1591) (bfca4fb9)
+* **deps:**
+  *  update dependency @types/testing-library__jest-dom to v5.14.9 (#1587) (a71d0d49)
+  *  update dependency @grafana/plugin-e2e to v2.2.2 (#1585) (b9177b7f)
+  *  update dependency @babel/core to v7.28.4 (#1584) (12bbee06)
+  *  update grafana/shared-workflows/ action to (#1583) (d47ab19c)
+  *  update grafana/shared-workflows/ action to (#1578) (379bbf45)
+  *  pin dependencies (#1577) (e02237b2)
+*  bump @grafana/assistant to 0.1.0 (#1575) (fee5ebb0)
+*  bump @grafana/create-plugin configuration to 5.26.9 (#1559) (9e677349)
+
+##### New Features
+
+* **LogsPanel:**  enable field selector (#1590) (44f217f6)
+* **LogsListScene:**  add defaultDisplayedFields support (#1554) (cf080432)
+* **EmptyLogs:**  add button to fix with assistant (#1571) (01e343da)
+* **table:**  preferences (#1534) (924ebd23)
+
+##### Bug Fixes
+
+* **extensions:**  context.targets null check (#1589) (bdccee20)
+* **deps:**  update github.com/grafana/loki-client-go digest to c42bbdd (#1579) (9e08a22a)
+
+
+## 1.0.29
+
+##### Documentation Changes
+
+*  Update troubleshooting page (#1568) (437a568a)
+*  Update install and troubleshooting (#1564) (657880b3)
+*  update stale readme, fix docker install script (#1565) (fc776d76)
+
+##### Bug Fixes
+
+*  unexpected clear variable behavior (#1567) (089fdfa2)
+*  validate primary label correctly (#1561) (ee12a20b)
+*  fix RegExp.source removing flags, use toString instead (#1563) (a9207d23)
+*  stale urls (#1562) (e2eae8b8)
+
+
+## 1.0.28
+
+##### Chores
+
+*  fix runtime error when viewing label value breakdown (#1552) (e55074b5)
+*  upgrade Scenes and Grafana deps (#1548) (1f4455a7)
+* **docker:**  use grafana version from base docker file, run cp weekly (#1550) (c0955ffa)
+
+##### New Features
+
+* **embedded:**  allow resetting filters (#1549) (d6e536c6)
+*  add expanded log controls state (#1546) (77c9815f)
+*  Asserts insight timeline widget integration (#1543) (ec1c37ad)
+* **VariableLayoutScene:**
+  *  add control to expand and collapse (#1541) (053d8c90)
+  *  add control to expand and collapse (12eee7b1)
+
+##### Bug Fixes
+
+* **volume:**  Y-axis labels not shortened (#1540) (d63e2a32)
+
+##### Other Changes
+
+* **VariableLayoutScene:**  add control to expand and collapse" (f801ae66)
+
+
+## 1.0.27
+
+##### Chores
+
+* **LineFilter:**  increase default width to accommodate for placeholder (#1539) (9ed579a4)
+*  update line filters placeholder (#1538) (4b3e342e)
+*  bump @grafana/create-plugin configuration to 5.26.0 (#1524) (eca1d90a)
+*  add tenant id to generator, and enable auth in loki (#1519) (6ff03d0a)
+*  downgrade field errors (#1518) (defa358e)
+*  externalized component events (#1517) (a032cf2a)
+* **faro:**  faro log successful plugin load (#1529) (025ed256)
+
+##### New Features
+
+* **LineLimitScene:**
+  *  error message, invalidation state (#1537) (d978a797)
+  *  track max lines (#1530) (b82d9768)
+* **logs:**  expose line limit in all visualizations (#1527) (f107e0e7)
+
+##### Bug Fixes
+
+*  add tenant id to log-generator (#1522) (5225d621)
+
+
 ## 1.0.26
 
 ##### Chores

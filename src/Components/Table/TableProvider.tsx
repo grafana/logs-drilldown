@@ -11,7 +11,9 @@ import { TableWrap } from 'Components/Table/TableWrap';
 interface TableProviderProps {
   addFilter: (filter: AdHocVariableFilter) => void;
   clearSelectedLine: () => void;
+  controlsExpanded: boolean;
   dataFrame: DataFrame;
+  displayFields: string[];
   logsSortOrder: LogsSortOrder;
   panelWrap: React.RefObject<HTMLDivElement | null>;
   selectedLine?: SelectedTableRow;
@@ -25,7 +27,9 @@ interface TableProviderProps {
 export default function TableProvider({
   addFilter,
   clearSelectedLine,
+  controlsExpanded,
   dataFrame,
+  displayFields,
   logsSortOrder,
   panelWrap,
   selectedLine,
@@ -56,9 +60,11 @@ export default function TableProvider({
         setUrlColumns={setUrlColumns}
         setUrlTableBodyState={setUrlTableBodyState}
         urlColumns={urlColumns}
+        displayFields={displayFields}
         panelWrap={panelWrap}
         clearSelectedLine={clearSelectedLine}
         logsSortOrder={logsSortOrder}
+        controlsExpanded={controlsExpanded}
       />
     </QueryContextProvider>
   );

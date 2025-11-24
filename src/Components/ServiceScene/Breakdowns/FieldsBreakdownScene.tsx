@@ -40,7 +40,7 @@ import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getFieldOptions } from 'services/filters';
 import { getSortByPreference } from 'services/store';
-import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_LABELS } from 'services/variables';
+import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_FIELDS, VAR_LABELS } from 'services/variables';
 
 export const averageFields = ['duration', 'count', 'total', 'bytes'];
 export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
@@ -171,12 +171,11 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
   private updateOptions(dataFrame: DataFrame) {
     if (!dataFrame || !dataFrame.length) {
       const indexScene = sceneGraph.getAncestor(this, IndexScene);
-      const variablesToClear = getVariablesThatCanBeCleared(indexScene);
-
+      const variablesToClear = getVariablesThatCanBeCleared(indexScene, VAR_FIELDS);
       let body;
-      if (variablesToClear.length > 1) {
+      if (variablesToClear.length > 0) {
         this.state.changeFieldCount?.(0);
-        body = new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) });
+        body = new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this), type: 'fields' });
       } else {
         body = new EmptyLayoutScene({ type: 'fields' });
       }
@@ -235,11 +234,11 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     if (fieldsVariable.state.options && fieldsVariable.state.options.length <= 1) {
       // If there's 1 or fewer fields build the empty or clear layout UI
       const indexScene = sceneGraph.getAncestor(this, IndexScene);
-      const variablesToClear = getVariablesThatCanBeCleared(indexScene);
+      const variablesToClear = getVariablesThatCanBeCleared(indexScene, VAR_FIELDS);
 
-      if (variablesToClear.length > 1) {
+      if (variablesToClear.length > 0) {
         this.state.changeFieldCount?.(0);
-        stateUpdate.body = new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) });
+        stateUpdate.body = new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this), type: 'fields' });
       } else {
         stateUpdate.body = new EmptyLayoutScene({ type: 'fields' });
       }
