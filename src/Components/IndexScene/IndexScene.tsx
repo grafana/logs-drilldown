@@ -497,55 +497,60 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private limitMaxInterval(timeRange: SceneTimeRangeLike) {
     return (newState: SceneTimeRangeState, prevState: SceneTimeRangeState) => {
       const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-      if (jsonData?.interval || jsonData?.limitMaxQueryLength) {
-        let maxInterval: number;
-        let notice: string;
-        const lokiConfig = sceneGraph.getAncestor(timeRange, IndexScene).state.lokiConfig;
 
-        try {
-          // Check if max_query_length should limit time range selections
-          if (jsonData.limitMaxQueryLength && lokiConfig && lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED) {
-            maxInterval = getMaxQueryLengthSeconds(lokiConfig);
-            notice = 'Time range exceeds Loki max_query_length limit.';
-          } else {
-            maxInterval = rangeUtil.intervalToSeconds(jsonData.interval ?? '');
-            notice = 'Time range interval exceeds maximum interval configured by the administrator.';
-          }
+      if (!(jsonData?.interval || jsonData?.limitMaxQueryLength)) {
+        return;
+      }
 
-          if (maxInterval) {
-            const timeRangeInterval = newState.value.to.diff(newState.value.from, 'seconds');
-            if (timeRangeInterval > maxInterval) {
-              const prevInterval = prevState.value.to.diff(prevState.value.from, 'seconds');
-              if (timeRangeInterval <= prevInterval) {
-                timeRange.setState({
-                  from: prevState.from,
-                  to: prevState.to,
-                  value: prevState.value,
-                });
-              } else {
-                const defaultRange = new SceneTimeRange(DEFAULT_TIME_RANGE);
-                timeRange.setState({
-                  from: defaultRange.state.from,
-                  to: defaultRange.state.to,
-                  value: defaultRange.state.value,
-                });
-              }
+      let maxInterval: number;
+      let notice: string;
+      const lokiConfig = sceneGraph.getAncestor(timeRange, IndexScene).state.lokiConfig;
 
-              const appEvents = getAppEvents();
-              appEvents.publish({
-                payload: [notice],
-                type: AppEvents.alertWarning.name,
-              });
-
-              reportAppInteraction('all', 'interval_too_long', {
-                attempted_duration_seconds: timeRangeInterval,
-                configured_max_interval: maxInterval,
-              });
-            }
-          }
-        } catch (e) {
-          console.error(e);
+      try {
+        // Check if max_query_length should limit time range selections
+        if (jsonData.limitMaxQueryLength && lokiConfig && lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED) {
+          maxInterval = getMaxQueryLengthSeconds(lokiConfig);
+          notice = 'Time range exceeds Loki max_query_length limit.';
+        } else {
+          maxInterval = rangeUtil.intervalToSeconds(jsonData.interval ?? '');
+          notice = 'Time range interval exceeds maximum interval configured by the administrator.';
         }
+
+        if (!maxInterval) {
+          return;
+        }
+
+        const timeRangeInterval = newState.value.to.diff(newState.value.from, 'seconds');
+        if (timeRangeInterval > maxInterval) {
+          const prevInterval = prevState.value.to.diff(prevState.value.from, 'seconds');
+          if (timeRangeInterval <= prevInterval) {
+            timeRange.setState({
+              from: prevState.from,
+              to: prevState.to,
+              value: prevState.value,
+            });
+          } else {
+            const defaultRange = new SceneTimeRange(DEFAULT_TIME_RANGE);
+            timeRange.setState({
+              from: defaultRange.state.from,
+              to: defaultRange.state.to,
+              value: defaultRange.state.value,
+            });
+          }
+
+          const appEvents = getAppEvents();
+          appEvents.publish({
+            payload: [notice],
+            type: AppEvents.alertWarning.name,
+          });
+
+          reportAppInteraction('all', 'interval_too_long', {
+            attempted_duration_seconds: timeRangeInterval,
+            configured_max_interval: maxInterval,
+          });
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
   }
