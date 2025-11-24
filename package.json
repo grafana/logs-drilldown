@@ -126,7 +126,8 @@
     "react-router-dom": "^6.22.0",
     "rxjs": "7.8.2",
     "tslib": "2.5.3",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "@grafana/api-clients": "file:/Users/galen/projects/grafana/grafana/packages/grafana-api-clients/package.tgz"
   },
   "resolutions": {
     "react-router-dom": "^6.22.0"
