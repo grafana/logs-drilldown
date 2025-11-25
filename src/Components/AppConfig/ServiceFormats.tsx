@@ -1,7 +1,7 @@
 import { DataSourcePicker, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppConfigState } from './AppConfig';
-import { Button, Combobox, Field, IconButton, useStyles2 } from '@grafana/ui';
+import { Button, Combobox, ErrorWithStack, Field, IconButton, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 import { DataSourceGetTagValuesOptions, DataSourceInstanceSettings, GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
@@ -12,99 +12,139 @@ import { getDetectedFieldsFn } from '../../services/TagKeysProviders';
 import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { DetectedLabelsResponse } from '../../services/fields';
 import { PLUGIN_ID } from '../../services/plugin';
+import {
+  getAPIBaseURL,
+  getAPINamespace,
+  useGetLogsDrilldownDefaultColumnsQuery,
+  useListLogsDrilldownDefaultColumnsQuery,
+} from '@grafana/api-clients';
+import {
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+  LogsDrilldownDefaultColumnsSpec,
+} from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 
 interface Props {
   state: AppConfigState;
   setState: (state: AppConfigState) => void;
 }
 
+// @todo move to new tab?
 export const ServiceFormats = ({ state, setState }: Props) => {
   const styles = useStyles2(getStyles);
 
   const newDatasource = () => {
-    const newState = state.serviceSelectionFormat;
-    newState[''] = {};
-    setState({ ...state, serviceSelectionFormat: newState });
+    const newState = state.defaultColumns;
+
+    setState({ ...state, defaultColumns: newState });
   };
 
   const onChangeDatasource = (ds: DataSourceInstanceSettings, key: string | '') => {
-    const newState = state.serviceSelectionFormat;
-    if (key === '') {
-      delete newState[''];
-    }
     setState({
       ...state,
-      serviceSelectionFormat: {
-        ...newState,
-        [ds.uid]: { ...state.serviceSelectionFormat?.[ds.uid] },
+      defaultColumnsState: {
+        activeDataSource: ds.uid,
       },
     });
   };
 
   const onDeleteDatasource = (key: string) => {
-    const newState = state.serviceSelectionFormat;
-    delete newState[key];
-    setState({
-      ...state,
-      serviceSelectionFormat: newState,
-    });
+    console.log('onDeleteDatasource', key);
   };
 
-  const onAddLabelName = (dsUID: string, labelName: string) => {};
-  const onAddLabelValue = (dsUID: string, labelName: string, labelValue: string) => {
-    const newState = state.serviceSelectionFormat;
-    setState({
-      ...state,
-      serviceSelectionFormat: {
-        ...newState,
-        dsUID: {
-          ...newState[dsUID],
-          [labelName]: {
-            [labelValue]: {
-              ...newState[dsUID][labelName][labelValue],
-            },
-          },
-        },
-      },
-    });
-  };
+  console.log('getAPIBaseURL', getAPIBaseURL('logsdrilldown', 'v1alpha1'));
+  console.log('getAPINamespace', getAPINamespace());
+  const {
+    currentData: defaultColumnsFromAPI,
+    error: logsDrilldownError,
+    isLoading,
+  } = useListLogsDrilldownDefaultColumnsQuery({});
 
-  const dsUIDs = Object.keys(state.serviceSelectionFormat);
+  console.log('logsDrilldownData', defaultColumnsFromAPI);
+  console.log('defaultColumnsFromAPI.items', defaultColumnsFromAPI?.items);
+  console.log('useGetLogsDrilldownDefaultColumnsQuery', useGetLogsDrilldownDefaultColumnsQuery);
+
+  useEffect(() => {
+    if (defaultColumnsFromAPI) {
+      console.log('LogsDrilldown API Response:', defaultColumnsFromAPI);
+    }
+    if (logsDrilldownError) {
+      console.error('LogsDrilldown API Error:', logsDrilldownError);
+    }
+  }, [defaultColumnsFromAPI, logsDrilldownError]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder text={'Loading...'} />;
+  }
+
+  if (logsDrilldownError) {
+    return (
+      //@todo something better
+      <ErrorWithStack
+        //@ts-expect-error
+        title={logsDrilldownError?.name ?? 'Error getting default columns'}
+        //@ts-expect-error
+        error={logsDrilldownErro?.message}
+        //@ts-expect-error
+        errorInfo={logsDrilldownError?.stack}
+      />
+    );
+  }
+
+  if (!defaultColumnsFromAPI) {
+    throw new Error('Unexpected result for defaultColumnsFromAPI');
+  }
+
+  // @todo create Record<dsUID, [{}]> instead
+  const dsUIDRecord: Record<string, LogsDrilldownDefaultColumnsSpec[]> = {};
+  defaultColumnsFromAPI.items.forEach((ds) => {
+    if (!ds.metadata.name) {
+      throw new Error('Unexpected result for defaultColumnsFromAPI: missing metadata name');
+    }
+    if (dsUIDRecord[ds.metadata.name]) {
+      dsUIDRecord[ds.metadata.name].push(ds.spec);
+    } else {
+      dsUIDRecord[ds.metadata.name] = [ds.spec];
+    }
+  });
+
+  const dsUIDs = Object.keys(dsUIDRecord);
 
   return (
     <section>
-      <pre>{JSON.stringify(state)}</pre>
+      {/* @todo remove debug */}
+      <pre>{JSON.stringify(defaultColumnsFromAPI)}</pre>
 
       <p>Configure default fields to display instead of the full log line:</p>
       <div className={styles.container}>
         {dsUIDs.map((dsUID) => {
-          const labels = state.serviceSelectionFormat[dsUID];
+          const dsRecords = dsUIDRecord[dsUID];
 
-          // @todo don't hardcode service_name
-          const labelNames = ['service_name'] ?? Object.keys(labels);
+          if (dsRecords?.length) {
+            return (
+              <div className={styles.datasourceContainer}>
+                <div className={styles.datasource}>
+                  <DataSourcePicker
+                    width={60}
+                    filter={(ds) => ds.type === 'loki' && !dsUIDs.includes(ds.uid)}
+                    current={dsUID !== '' ? dsUID : null}
+                    onChange={(ds) => onChangeDatasource(ds, dsUID)}
+                  />
+                  <IconButton
+                    className={styles.deleteDatasourceButton}
+                    variant={'destructive'}
+                    aria-label={'Remove datasource config'}
+                    name={'minus'}
+                    size={'lg'}
+                    onClick={() => onDeleteDatasource(dsUID)}
+                  />
+                </div>
 
-          return (
-            <div className={styles.datasourceContainer}>
-              <div className={styles.datasource}>
-                <DataSourcePicker
-                  width={60}
-                  filter={(ds) => ds.type === 'loki' && !dsUIDs.includes(ds.uid)}
-                  current={dsUID !== '' ? dsUID : null}
-                  onChange={(ds) => onChangeDatasource(ds, dsUID)}
-                />
-                <IconButton
-                  className={styles.deleteDatasourceButton}
-                  variant={'destructive'}
-                  aria-label={'Remove datasource config'}
-                  name={'minus'}
-                  size={'lg'}
-                  onClick={() => onDeleteDatasource(dsUID)}
-                />
+                <Records dsRecords={dsRecords} state={state} setState={setState} dsUID={dsUID} />
               </div>
-
-              <Labels labelNames={labelNames} state={state} setState={setState} dsUID={dsUID} />
-            </div>
-          );
+            );
+          } else {
+            return <Button>Add record @TODO</Button>;
+          }
         })}
         <Field className={styles.marginTop}>
           <Button onClick={newDatasource} variant={'secondary'}>
@@ -117,13 +157,13 @@ export const ServiceFormats = ({ state, setState }: Props) => {
 };
 
 interface LabelsProps {
-  labelNames: string[];
+  dsRecords: LogsDrilldownDefaultColumnsSpec[];
   state: AppConfigState;
   setState: (state: AppConfigState) => void;
   dsUID: string;
 }
 
-export const Labels = ({ labelNames, state, setState, dsUID }: LabelsProps) => {
+export const Records = ({ dsRecords, state, setState, dsUID }: LabelsProps) => {
   const styles = useStyles2(getStyles);
   const [pendingLabel, setPendingLabel] = useState(false);
 
@@ -154,64 +194,73 @@ export const Labels = ({ labelNames, state, setState, dsUID }: LabelsProps) => {
 
     return [];
   };
+
   const onSelectLabelValue = (labelName: string, labelValue: string) => {
-    const newState = state.serviceSelectionFormat;
-    const newLabel = {
-      [labelName]: {
-        ...newState[dsUID][labelName],
-        [labelValue]: {
-          ...newState[dsUID]?.[labelName]?.[labelValue],
-        },
-      },
-    };
-    setState({
-      ...state,
-      serviceSelectionFormat: {
-        ...newState,
-        [dsUID]: {
-          ...newState[dsUID],
-          ...newLabel,
-        },
-      },
-    });
+    // const newState = state.defaultColumns;
+    // @todo
+    // const newLabel = {
+    //   [labelName]: {
+    //     ...newState[dsUID][labelName],
+    //     [labelValue]: {
+    //       ...newState[dsUID]?.[labelName]?.[labelValue],
+    //     },
+    //   },
+    // };
+    // setState({
+    //   ...state,
+    //   defaultColumns: {
+    //     ...newState,
+    //     [dsUID]: {
+    //       ...newState[dsUID],
+    //       ...newLabel,
+    //     },
+    //   },
+    // });
     setPendingLabel(false);
   };
 
   return (
     <div className={styles.labelsContainer}>
-      {labelNames.map((labelName) => {
-        const values = state.serviceSelectionFormat[dsUID][labelName] ?? {};
-        const labelValues = Object.keys(values);
+      {dsRecords.map((records: LogsDrilldownDefaultColumnsSpec, recordIndex: number) => {
         return (
-          <div className={styles.labelContainer}>
-            <span className={styles.labelContainer__name}>{labelName}</span>
+          <div key={recordIndex}>
+            <div> Record: </div>
+            {records.records?.map((record: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => {
+              return record.labels.map((label, labelIndex: number) => {
+                const labelName = label.key;
+                const labelValue = label.value;
+                return (
+                  <div key={labelIndex} className={styles.labelContainer}>
+                    <span className={styles.labelContainer__name}>{labelName}</span>
 
-            <div className={styles.valuesContainer}>
-              {labelValues.map((value) => (
-                <Values state={state} setState={setState} label={labelName} value={value} dsUID={dsUID} />
-              ))}
-              {pendingLabel && (
-                <Combobox<string>
-                  width={'auto'}
-                  minWidth={30}
-                  maxWidth={90}
-                  isClearable={false}
-                  onChange={(labelValue) => onSelectLabelValue(labelName, labelValue?.value)}
-                  options={() => getLabelValues(labelName)}
-                />
-              )}
-              <Button
-                disabled={pendingLabel}
-                className={styles.valueContainer__add}
-                variant={'secondary'}
-                fill={'outline'}
-                aria-label={`Add ${labelName} label`}
-                icon={'plus'}
-                onClick={() => setPendingLabel(true)}
-              >
-                Add {labelName}
-              </Button>
-            </div>
+                    <div className={styles.valuesContainer}>
+                      <Values state={state} setState={setState} label={labelName} value={labelValue} dsUID={dsUID} />
+                      {pendingLabel && (
+                        <Combobox<string>
+                          width={'auto'}
+                          minWidth={30}
+                          maxWidth={90}
+                          isClearable={false}
+                          onChange={(labelValue) => onSelectLabelValue(labelName, labelValue?.value)}
+                          options={() => getLabelValues(labelName)}
+                        />
+                      )}
+                      <Button
+                        disabled={pendingLabel}
+                        className={styles.valueContainer__add}
+                        variant={'secondary'}
+                        fill={'outline'}
+                        aria-label={`Add ${labelName} label`}
+                        icon={'plus'}
+                        onClick={() => setPendingLabel(true)}
+                      >
+                        Add {labelName}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              });
+            })}
           </div>
         );
       })}
@@ -231,12 +280,13 @@ export const Values = ({ value, label, dsUID, state, setState }: ValueProps) => 
   const [pendingValue, setPendingValue] = useState(false);
 
   const onRemoveLabelValue = (labelName: string, labelValue: string) => {
-    const newState = state.serviceSelectionFormat;
-    delete newState[dsUID][labelName][labelValue];
-    setState({
-      ...state,
-      serviceSelectionFormat: newState,
-    });
+    //@todo
+    // const newState = state.defaultColumns;
+    // delete newState[dsUID][labelName][labelValue];
+    // setState({
+    //   ...state,
+    //   defaultColumns: newState,
+    // });
   };
 
   const getFieldValues = async (labelName: string, labelValue: string): Promise<Array<ComboboxOption>> => {
@@ -248,9 +298,6 @@ export const Values = ({ value, label, dsUID, state, setState }: ValueProps) => 
     const datasource = datasource_ as LokiDatasource;
     if (datasource) {
       const expr = `{${labelName}="${labelValue}"}`;
-
-      // const getResourceFn = ;
-
       const detectedFieldsFn = getDetectedFieldsFn(datasource);
 
       // @todo map results to combobox input
@@ -306,30 +353,32 @@ export const Values = ({ value, label, dsUID, state, setState }: ValueProps) => 
           // ]
         }),
       ]);
+      console.log('getFieldValues', results);
     }
 
     return [{ value: '@todo' }];
   };
   const onSelectFieldName = (labelName: string, labelValue: string) => {
-    const newState = state.serviceSelectionFormat;
-    const newLabel = {
-      [labelName]: {
-        ...newState[dsUID][labelName],
-        [labelValue]: {
-          ...newState[dsUID]?.[labelName]?.[labelValue],
-        },
-      },
-    };
-    setState({
-      ...state,
-      serviceSelectionFormat: {
-        ...newState,
-        [dsUID]: {
-          ...newState[dsUID],
-          ...newLabel,
-        },
-      },
-    });
+    console.log('onSelectFieldName @TODO');
+    // const newState = state.defaultColumns;
+    // const newLabel = {
+    //   [labelName]: {
+    //     ...newState[dsUID][labelName],
+    //     [labelValue]: {
+    //       ...newState[dsUID]?.[labelName]?.[labelValue],
+    //     },
+    //   },
+    // };
+    // setState({
+    //   ...state,
+    //   defaultColumns: {
+    //     ...newState,
+    //     [dsUID]: {
+    //       ...newState[dsUID],
+    //       ...newLabel,
+    //     },
+    //   },
+    // });
     setPendingValue(false);
   };
 

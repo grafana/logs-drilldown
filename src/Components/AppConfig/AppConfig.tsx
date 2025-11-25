@@ -18,25 +18,26 @@ import { Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/u
 import { logger } from '../../services/logger';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 import { ServiceFormats } from './ServiceFormats';
+import { LogsDrilldownDefaultColumnsSpec } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 
 export type JsonData = {
   dataSource?: string;
   interval?: string;
   patternsDisabled?: boolean;
-  serviceSelectionFormat?: ServiceSelectionFormat;
 };
 
-type DatasourceUID = string;
-type LabelName = string;
-type LabelValue = string;
-type DefaultFields = string[];
-export type ServiceSelectionFormat = Record<DatasourceUID, Record<LabelName, Record<LabelValue, DefaultFields>>>;
+type dsUID = string;
+export type DefaultColumns = Record<dsUID, LogsDrilldownDefaultColumnsSpec>;
 export type AppConfigState = {
   dataSource: string;
   interval: string;
   isValid: boolean;
   patternsDisabled: boolean;
-  serviceSelectionFormat: ServiceSelectionFormat;
+  defaultColumns?: DefaultColumns;
+  defaultColumnsState?: {
+    // @todo do we want to just show one datasource at a time or everything?
+    activeDataSource: string;
+  };
 };
 
 // 1 hour minimum
@@ -54,7 +55,7 @@ const AppConfig = ({ plugin }: Props) => {
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
     patternsDisabled: jsonData?.patternsDisabled ?? false,
-    serviceSelectionFormat: jsonData?.serviceSelectionFormat ?? {},
+    defaultColumns: undefined,
   });
 
   const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
@@ -166,7 +167,6 @@ const AppConfig = ({ plugin }: Props) => {
                   dataSource: state.dataSource,
                   interval: state.interval,
                   patternsDisabled: state.patternsDisabled,
-                  serviceSelectionFormat: state.serviceSelectionFormat,
                 },
                 pinned,
               })
