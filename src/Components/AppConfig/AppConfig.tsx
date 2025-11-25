@@ -17,8 +17,6 @@ import { Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/u
 
 import { logger } from '../../services/logger';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
-import { ServiceFormats } from './ServiceFormats';
-import { LogsDrilldownDefaultColumnsSpec } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 
 export type JsonData = {
   dataSource?: string;
@@ -26,18 +24,11 @@ export type JsonData = {
   patternsDisabled?: boolean;
 };
 
-type dsUID = string;
-export type DefaultColumns = Record<dsUID, LogsDrilldownDefaultColumnsSpec>;
-export type AppConfigState = {
+type State = {
   dataSource: string;
   interval: string;
   isValid: boolean;
   patternsDisabled: boolean;
-  defaultColumns?: DefaultColumns;
-  defaultColumnsState?: {
-    // @todo do we want to just show one datasource at a time or everything?
-    activeDataSource: string;
-  };
 };
 
 // 1 hour minimum
@@ -49,13 +40,12 @@ const AppConfig = ({ plugin }: Props) => {
   const styles = useStyles2(getStyles);
   const { enabled, jsonData, pinned } = plugin.meta;
 
-  const [state, setState] = useState<AppConfigState>({
+  const [state, setState] = useState<State>({
     dataSource:
       jsonData?.dataSource ?? getDefaultDatasourceFromDatasourceSrv() ?? getLastUsedDataSourceFromStorage() ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
     patternsDisabled: jsonData?.patternsDisabled ?? false,
-    defaultColumns: undefined,
   });
 
   const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
@@ -153,8 +143,6 @@ const AppConfig = ({ plugin }: Props) => {
             onChange={onChangePatternsDisabled}
           />
         </Field>
-
-        <ServiceFormats state={state} setState={setState} />
 
         <div className={styles.marginTop}>
           <Button

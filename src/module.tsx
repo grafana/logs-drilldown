@@ -38,12 +38,25 @@ const AppConfig = lazy(async () => {
   return await import('./Components/AppConfig/AppConfig');
 });
 
-export const plugin = new AppPlugin<{}>().setRootPage(App).addConfigPage({
-  body: AppConfig,
-  icon: 'cog',
-  id: 'configuration',
-  title: 'Configuration',
+const DefaultColumnsConfig = lazy(async () => {
+  await initPluginTranslations(pluginJson.id);
+  return await import('./Components/AppConfig/DefaultColumnsConfig');
 });
+
+export const plugin = new AppPlugin<{}>()
+  .setRootPage(App)
+  .addConfigPage({
+    body: AppConfig,
+    icon: 'cog',
+    id: 'configuration',
+    title: 'Configuration',
+  })
+  .addConfigPage({
+    body: DefaultColumnsConfig,
+    icon: 'columns',
+    id: 'admin-default-columns',
+    title: 'Default columns configuration',
+  });
 
 for (const linkConfig of linkConfigs) {
   plugin.addLink(linkConfig);

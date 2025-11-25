@@ -165,12 +165,11 @@ export function getLastUsedDataSourceFromStorage(): string | undefined {
   return localStorage.getItem(DS_LOCALSTORAGE_KEY) ?? undefined;
 }
 export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
-  const ds = getDataSourceSrv()
-    .getList({
-      type: 'loki',
-    })
-    .find((ds) => ds.isDefault);
-  return ds?.uid;
+  const dsList = getDataSourceSrv().getList({
+    type: 'loki',
+  });
+  const ds = dsList.find((ds) => ds.isDefault);
+  return ds?.uid ?? dsList?.[0].uid;
 }
 
 export function addLastUsedDataSourceToStorage(dsKey: string) {
