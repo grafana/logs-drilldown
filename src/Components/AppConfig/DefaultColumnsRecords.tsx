@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { css } from '@emotion/css';
-import { isArray } from 'lodash';
 
-import {
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
-} from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
-import { DataSourceGetTagValuesOptions, GrafanaTheme2 } from '@grafana/data';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { Button, Combobox, useStyles2 } from '@grafana/ui';
-import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, Divider, Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
-import { logger } from '../../services/logger';
-import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
-import { Values } from './DefaultColumns';
+import { DefaultColumnsAddLabel } from './DefaultColumnsAddLabel';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { DefaultColumnsLabelName } from './DefaultColumnsLabelName';
+import { DefaultColumnsLabelValue } from './DefaultColumnsLabelValue';
+import { DefaultColumnsRemoveLabel } from './DefaultColumnsRemoveLabel';
+import {
+  LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
+  LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
+} from './types';
 
 interface RecordsProps {}
 
@@ -27,151 +25,138 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
     throw new Error('Records::missing localDefaultColumnsState');
   }
 
-  const [pendingLabel, setPendingLabel] = useState(false);
-
-  const getLabelValues = async (labelName: string): Promise<ComboboxOption[]> => {
-    console.log('getLabelValues called');
-    const datasource_ = await getDataSourceSrv().get(dsUID);
-    if (!(datasource_ instanceof DataSourceWithBackend)) {
-      logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
-      throw new Error('Invalid datasource!');
-    }
-    const datasource = datasource_ as LokiDatasource;
-    if (datasource && datasource.getTagValues) {
-      const options: DataSourceGetTagValuesOptions<LokiQuery> = {
-        filters: [],
-        key: labelName,
-      };
-      const values = await datasource.getTagValues(options);
-      if (isArray(values)) {
-        console.log('values', values);
-        const returnValues = values.map((metricFindValue) => ({
-          value: metricFindValue.text.toString(),
-        }));
-
-        console.log('returnValues', returnValues);
-        return returnValues;
-      }
-    }
-
-    return [];
-  };
-
-  const onSelectLabelValue = (labelName: string, labelValue: string) => {
-    setPendingLabel(false);
-  };
+  console.log('record', localDefaultColumnsState[dsUID]?.records);
 
   return (
-    <div className={styles.labelsContainer}>
+    <div className={styles.recordsContainer}>
       {localDefaultColumnsState[dsUID]?.records.map(
-        (record: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord, recordIndex: number) => {
+        (record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord, recordIndex: number) => {
           return (
-            <div key={recordIndex}>
-              <div> Record:</div>
-              {record.labels?.map((label: LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel, labelIndex: number) => {
-                const labelName = label.key;
-                const labelValue = label.value;
-                return (
-                  <div key={labelIndex} className={styles.labelContainer}>
-                    <span className={styles.labelContainer__name}>{labelName}</span>
-
-                    <div className={styles.valuesContainer}>
-                      <Values label={labelName} value={labelValue} dsUID={dsUID} />
-                      {pendingLabel && (
-                        <Combobox<string>
-                          width={'auto'}
-                          minWidth={30}
-                          maxWidth={90}
-                          isClearable={false}
-                          onChange={(labelValue) => onSelectLabelValue(labelName, labelValue?.value)}
-                          options={() => getLabelValues(labelName)}
+            <div className={styles.recordContainer} key={recordIndex}>
+              <h5 className={styles.labelContainer__title}>
+                Labels
+                <Tooltip content={'Any query containing all of these labels will display the selected columns'}>
+                  <Icon name="info-circle" />
+                </Tooltip>
+              </h5>
+              {record.labels?.map(
+                (label: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel, labelIndex: number) => {
+                  const labelName = label.key;
+                  const labelValue = label.value;
+                  return (
+                    <div key={labelIndex} className={styles.labelContainer__wrap}>
+                      {/* Label/values */}
+                      <div className={styles.labelContainer}>
+                        <DefaultColumnsLabelName
+                          currentLabel={labelName}
+                          recordIndex={recordIndex}
+                          labelIndex={labelIndex}
                         />
-                      )}
-                      <Button
-                        disabled={pendingLabel}
-                        className={styles.valueContainer__add}
-                        variant={'secondary'}
-                        fill={'outline'}
-                        aria-label={`Add ${labelName} label`}
-                        icon={'plus'}
-                        onClick={() => setPendingLabel(true)}
-                      >
-                        Add {labelName}
-                      </Button>
+
+                        {/* Check that labelName is truthy or the label values call will fail*/}
+                        {labelName && (
+                          <DefaultColumnsLabelValue
+                            labelValue={labelValue}
+                            labelName={labelName}
+                            recordIndex={recordIndex}
+                            labelIndex={labelIndex}
+                          />
+                        )}
+
+                        <DefaultColumnsRemoveLabel
+                          labelName={labelName}
+                          labelValue={labelValue}
+                          recordIndex={recordIndex}
+                          labelIndex={labelIndex}
+                        />
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
+
+              <DefaultColumnsAddLabel recordIndex={recordIndex} />
+
+              <Divider />
+
+              <div>
+                <h5 className={styles.labelContainer__title}>
+                  Columns
+                  <Tooltip content={'These columns will be displayed by default within the logs visualizations.'}>
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </h5>
+
+                {/* Add columns @todo */}
+                <Button
+                  tooltip={'Add a default column to display in the logs'}
+                  variant={'secondary'}
+                  fill={'outline'}
+                  aria-label={`Add label`}
+                  icon={'plus'}
+                  onClick={() => console.warn('@todo add field')}
+                  className={styles.fieldsContainer}
+                >
+                  Add column
+                </Button>
+              </div>
             </div>
           );
         }
       )}
-      <div>
-        <Button
-          variant={'secondary'}
-          fill={'outline'}
-          onClick={() => {
-            const result = localDefaultColumnsState[dsUID];
-            // @todo set record or something else
-            setLocalDefaultColumnsDatasourceState({
-              // records: [...(result?.records ?? []), { columns: undefined, labels: undefined }],
-              records: [...(result?.records ?? [])],
-            });
-          }}
-        >
-          Add record
-        </Button>
-      </div>
+
+      <Button
+        variant={'secondary'}
+        fill={'outline'}
+        icon={'plus'}
+        // disabled={
+        //   !!localDefaultColumnsState[dsUID]?.records.find((r) => r.columns.length === 0 || r.labels.length === 0)
+        // }
+        onClick={() => {
+          setLocalDefaultColumnsDatasourceState({
+            // Add new record with empty label name
+            records: [...(localDefaultColumnsState[dsUID]?.records ?? []), { columns: [], labels: [{ key: '' }] }],
+          });
+        }}
+      >
+        Add record
+      </Button>
     </div>
   );
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  marginTop: css`
-    margin-top: ${theme.spacing(3)};
-  `,
-  deleteDatasourceButton: css({
+  recordContainer: css({
+    border: `1px solid ${theme.colors.border.weak}`,
+    paddingBottom: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+  }),
+  recordsContainer: css({
+    paddingBottom: theme.spacing(2),
+  }),
+  labelContainer__title: css({
+    marginTop: theme.spacing(1.5),
     marginLeft: theme.spacing(2),
   }),
-  container: css({
-    border: `1px solid ${theme.colors.border.weak}`,
-    paddingLeft: theme.spacing(2),
-  }),
-  labelContainer: css({
+  labelContainer__wrap: css({
     label: 'labelContainer',
     display: 'flex',
     flexDirection: 'column',
-    marginLeft: theme.spacing(2),
-    marginTop: theme.spacing(1),
   }),
   labelContainer__add: css({
     marginLeft: theme.spacing(2),
   }),
   labelContainer__name: css({}),
-
   labelsContainer: css({
     label: 'labelsContainer',
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    border: `1px solid ${theme.colors.border.weak}`,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   }),
-  datasource: css({
+  labelContainer: css({
     display: 'flex',
-  }),
-  datasourceContainer: css({
-    label: 'datasourceContainer',
-    marginLeft: theme.spacing(2),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    paddingTop: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-
-  valuesContainer: css({
     label: 'valuesContainer',
     marginLeft: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
     marginTop: theme.spacing(1),
   }),
   valueContainer: css({
@@ -180,20 +165,13 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flexDirection: 'row',
     alignItems: 'center',
   }),
+  fieldsContainer: css({
+    alignSelf: 'flex-start',
+    marginLeft: theme.spacing(2),
+  }),
+
   valueContainer__name: css({}),
   valueContainer__remove: css({
     marginLeft: theme.spacing(1),
   }),
-  valueContainer__add: css({
-    marginTop: theme.spacing(2),
-  }),
-
-  valuesFieldsContainer: css({
-    label: 'valuesFieldsContainer',
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    border: `1px solid ${theme.colors.border.weak}`,
-  }),
-  fieldsContainer: css({ marginLeft: theme.spacing(2) }),
 });

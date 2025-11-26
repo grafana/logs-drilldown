@@ -26,10 +26,7 @@ export const DefaultColumnsDataSource = (props: Props) => {
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  deleteDatasourceButton: css({
-    marginLeft: theme.spacing(2),
-  }),
   datasource: css({
-    display: 'flex',
+    marginBottom: theme.spacing(2),
   }),
 });

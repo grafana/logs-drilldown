@@ -1,30 +1,32 @@
 import React, { useCallback } from 'react';
 
 import {
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
+  LogsDrilldownDefaultColumnsSpec,
   useCreateLogsDrilldownDefaultColumnsMutation,
 } from '@grafana/api-clients';
-import { LogsDrilldownDefaultColumnsSpec } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 import { Button, Icon, LoadingPlaceholder } from '@grafana/ui';
 
 import { areArraysEqual } from '../../services/comparison';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
 
 export function DefaultColumnsSubmit() {
   const { localDefaultColumnsState, apiDefaultColumnsState, dsUID } = useDefaultColumnsContext();
 
   const [update, { isLoading, reset, error }] = useCreateLogsDrilldownDefaultColumnsMutation();
-  console.log('mutate', update);
-  console.log('localDefaultColumnsState', localDefaultColumnsState);
-  console.log('error', error);
+  if (error) {
+    console.error('error', error);
+  }
 
   const isChanged = useCallback(() => {
     return (
       localDefaultColumnsState &&
       Object.keys(localDefaultColumnsState).some((key) => {
-        const lhs: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
+        const lhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
           localDefaultColumnsState?.[key]?.records;
-        const rhs: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
+        const rhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
           apiDefaultColumnsState?.[key]?.records;
         return !(lhs && rhs && areArraysEqual(lhs, rhs));
       })
@@ -38,12 +40,18 @@ export function DefaultColumnsSubmit() {
       onClick={() => {
         if (dsUID && localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
           const updated: LogsDrilldownDefaultColumnsSpec = {
-            records: localDefaultColumnsState[dsUID].records,
+            records: localDefaultColumnsState[dsUID].records.map((r) => {
+              const labels: LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels = r.labels.filter(
+                (label): label is LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel => !!label.value && !!label.key
+              );
+              return {
+                labels,
+                columns: r.columns,
+              };
+            }),
           };
           update({
-            dryRun: 'All',
             pretty: 'true',
-
             logsDrilldownDefaultColumns: {
               metadata: {
                 name: dsUID,

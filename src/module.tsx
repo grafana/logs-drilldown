@@ -55,7 +55,7 @@ export const plugin = new AppPlugin<{}>()
     body: DefaultColumnsConfig,
     icon: 'columns',
     id: 'admin-default-columns',
-    title: 'Default columns configuration',
+    title: 'Default columns',
   });
 
 for (const linkConfig of linkConfigs) {

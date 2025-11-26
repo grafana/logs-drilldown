@@ -15,6 +15,8 @@ const DefaultColumnsConfig = () => {
 
   return (
     <main>
+      <p>Configure default fields to display instead of the full log line:</p>
+
       <DefaultColumnsContextProvider initialDSUID={dsUID}>
         <header>
           <DefaultColumnsDataSource />

@@ -1,10 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 
-import { LogsDrilldownDefaultColumnsSpec } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
-
-type dsUID = string;
-export type DefaultColumnsState = Record<dsUID, LogsDrilldownDefaultColumnsSpec>;
-export type LocalDefaultColumnsState = Record<dsUID, LogsDrilldownDefaultColumnsSpec | undefined>;
+import { DefaultColumnsState, LocalDefaultColumnsState, LocalLogsDrilldownDefaultColumnsSpec } from './types';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;
@@ -12,7 +8,7 @@ type DefaultColumnsContextType = {
   localDefaultColumnsState?: LocalDefaultColumnsState | null;
   setApiDefaultColumnsState: (defaultColumnsState: DefaultColumnsState) => void;
   setDsUID: (dsUID: string) => void;
-  setLocalDefaultColumnsDatasourceState: (localDefaultColumnsState?: LogsDrilldownDefaultColumnsSpec) => void;
+  setLocalDefaultColumnsDatasourceState: (localDefaultColumnsState?: LocalLogsDrilldownDefaultColumnsSpec) => void;
 };
 
 const DefaultColumnsContext = createContext<DefaultColumnsContextType>({
@@ -64,7 +60,7 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
    * Sets the state of a single data source
    */
   const handleSetLocalDefaultColumnsDatasourceState = useCallback(
-    (state?: LogsDrilldownDefaultColumnsSpec) => {
+    (state?: LocalLogsDrilldownDefaultColumnsSpec) => {
       const newState = { ...localDefaultColumnsState, [dsUID ?? '']: state };
       setLocalDefaultColumnsState(newState);
     },
