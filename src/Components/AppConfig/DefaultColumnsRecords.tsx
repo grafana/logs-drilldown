@@ -32,7 +32,7 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
       {localDefaultColumnsState[dsUID]?.records.map(
         (record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord, recordIndex: number) => {
           return (
-            <div className={styles.recordContainer} key={recordIndex}>
+            <div className={styles.recordContainer} key={JSON.stringify(record)}>
               <h5 className={styles.labelContainer__title}>
                 Labels
                 <Tooltip content={'Any query containing all of these labels will display the selected columns'}>
@@ -44,7 +44,7 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
                   const labelName = label.key;
                   const labelValue = label.value;
                   return (
-                    <div key={labelIndex} className={styles.labelContainer__wrap}>
+                    <div key={JSON.stringify(label)} className={styles.labelContainer__wrap}>
                       {/* Label/values */}
                       <div className={styles.labelContainer}>
                         <DefaultColumnsLabelName

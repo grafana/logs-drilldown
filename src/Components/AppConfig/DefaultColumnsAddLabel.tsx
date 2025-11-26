@@ -15,19 +15,24 @@ export function DefaultColumnsAddLabel({ recordIndex }: Props) {
 
   const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
 
+  // @todo don't allow more then one empty record or the react keys get messed up and things get weird!
   const onAddLabelValue = () => {
     if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
       const ds = localDefaultColumnsState[dsUID];
       const records = [...ds.records];
-      const thisRecord = records.splice(recordIndex, 1);
+      const beforeThisRecord = records.slice(0, recordIndex);
+      const thisRecord = records.splice(recordIndex, 1)[0];
+      const afterThisRecord = records.slice(recordIndex, records.length);
+      const newrecords = [
+        ...beforeThisRecord,
+        { ...thisRecord, labels: [...(thisRecord?.labels ?? []), { key: '' }] },
+        ...afterThisRecord,
+      ];
 
       // This is messing up the order
       setLocalDefaultColumnsDatasourceState({
         ...ds,
-        records: [
-          ...records,
-          { ...thisRecord[recordIndex], labels: [...(thisRecord[recordIndex]?.labels ?? []), { key: '' }] },
-        ],
+        records: newrecords,
       });
     }
   };

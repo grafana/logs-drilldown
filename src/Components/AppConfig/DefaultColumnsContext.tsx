@@ -1,18 +1,24 @@
 import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 
+import { ObjectMeta } from '@grafana/api-clients';
+
 import { DefaultColumnsState, LocalDefaultColumnsState, LocalLogsDrilldownDefaultColumnsSpec } from './types';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;
   dsUID: string;
   localDefaultColumnsState?: LocalDefaultColumnsState | null;
+  metadata: ObjectMeta | null;
   setApiDefaultColumnsState: (defaultColumnsState: DefaultColumnsState) => void;
   setDsUID: (dsUID: string) => void;
   setLocalDefaultColumnsDatasourceState: (localDefaultColumnsState?: LocalLogsDrilldownDefaultColumnsSpec) => void;
+  setMetadata: (m: ObjectMeta) => void;
 };
 
 const DefaultColumnsContext = createContext<DefaultColumnsContextType>({
   dsUID: '',
+  setMetadata: () => undefined,
+  metadata: {},
   setDsUID: () => undefined,
   localDefaultColumnsState: undefined,
   apiDefaultColumnsState: undefined,
@@ -27,7 +33,12 @@ interface Props {
 export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props) => {
   const [localDefaultColumnsState, setLocalDefaultColumnsState] = useState<LocalDefaultColumnsState | null>(null);
   const [apiDefaultColumnsState, setApiDefaultColumnsState] = useState<DefaultColumnsState | null>(null);
+  const [metadata, setMetadata] = useState<ObjectMeta | null>(null);
   const [dsUID, setDsUID] = useState(initialDSUID);
+
+  const handleSetMetadata = useCallback((metadata: ObjectMeta) => {
+    setMetadata(metadata);
+  }, []);
 
   const handleSetDsUID = useCallback((dsUID: string) => {
     setDsUID(dsUID);
@@ -70,11 +81,12 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
   return (
     <DefaultColumnsContext.Provider
       value={{
+        metadata,
+        setMetadata: handleSetMetadata,
         dsUID,
         setDsUID: handleSetDsUID,
         apiDefaultColumnsState,
         localDefaultColumnsState,
-        // setLocalDefaultColumnsState: handleSetLocalDefaultColumnsState,
         setApiDefaultColumnsState: handleSetApiDefaultColumnsState,
         setLocalDefaultColumnsDatasourceState: handleSetLocalDefaultColumnsDatasourceState,
       }}

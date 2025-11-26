@@ -5,19 +5,24 @@ import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
   LogsDrilldownDefaultColumnsSpec,
   useCreateLogsDrilldownDefaultColumnsMutation,
+  useReplaceLogsDrilldownDefaultColumnsMutation,
 } from '@grafana/api-clients';
-import { Button, Icon, LoadingPlaceholder } from '@grafana/ui';
+import { Button } from '@grafana/ui';
 
 import { areArraysEqual } from '../../services/comparison';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
 
 export function DefaultColumnsSubmit() {
-  const { localDefaultColumnsState, apiDefaultColumnsState, dsUID } = useDefaultColumnsContext();
+  const { localDefaultColumnsState, apiDefaultColumnsState, dsUID, metadata } = useDefaultColumnsContext();
 
-  const [update, { isLoading, reset, error }] = useCreateLogsDrilldownDefaultColumnsMutation();
-  if (error) {
-    console.error('error', error);
+  const [create, { error: createError }] = useCreateLogsDrilldownDefaultColumnsMutation();
+  const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultColumnsMutation();
+  if (createError) {
+    console.error('createError', createError);
+  }
+  if (updateError) {
+    console.error('updateError', updateError);
   }
 
   const isChanged = useCallback(() => {
@@ -50,21 +55,38 @@ export function DefaultColumnsSubmit() {
               };
             }),
           };
-          update({
-            pretty: 'true',
-            logsDrilldownDefaultColumns: {
-              metadata: {
-                name: dsUID,
+
+          if (metadata === null) {
+            create({
+              pretty: 'true',
+              logsDrilldownDefaultColumns: {
+                metadata: {
+                  name: dsUID,
+                },
+                apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
+                kind: 'LogsDrilldownDefaultColumns',
+                spec: updated,
               },
-              apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
-              kind: 'LogsDrilldownDefaultColumns',
-              spec: updated,
-            },
-          });
+            });
+          } else {
+            update({
+              pretty: 'true',
+              name: dsUID,
+              logsDrilldownDefaultColumns: {
+                metadata: {
+                  name: dsUID,
+                  resourceVersion: metadata.resourceVersion,
+                },
+                apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
+                kind: 'LogsDrilldownDefaultColumns',
+                spec: updated,
+              },
+            });
+          }
         }
       }}
     >
-      Save changes {isLoading ? <LoadingPlaceholder text={<Icon name={'spinner'} />} onClick={reset} /> : null}
+      Save changes
     </Button>
   );
 }

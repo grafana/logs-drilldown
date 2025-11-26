@@ -16,7 +16,7 @@ interface Props {}
 export const DefaultColumns = ({}: Props) => {
   const styles = useStyles2(getStyles);
 
-  const { localDefaultColumnsState, setApiDefaultColumnsState, dsUID, apiDefaultColumnsState } =
+  const { localDefaultColumnsState, setApiDefaultColumnsState, dsUID, apiDefaultColumnsState, setMetadata, metadata } =
     useDefaultColumnsContext();
 
   const {
@@ -36,6 +36,9 @@ export const DefaultColumns = ({}: Props) => {
       return;
     }
 
+    if (defaultColumnsFromAPI && defaultColumnsFromAPI.metadata.resourceVersion !== metadata?.resourceVersion) {
+      setMetadata(defaultColumnsFromAPI.metadata);
+    }
     if (apiDefaultColumnsState && apiDefaultColumnsState[dsUID]) {
       return;
     }
@@ -53,6 +56,7 @@ export const DefaultColumns = ({}: Props) => {
 
       dsUIDRecord[defaultColumnsFromAPI.metadata.name] = { records: defaultColumnsFromAPI.spec.records };
       setApiDefaultColumnsState(dsUIDRecord);
+      setMetadata(defaultColumnsFromAPI.metadata);
 
       // API error
     } else if (defaultColumnsAPIError) {
@@ -67,6 +71,8 @@ export const DefaultColumns = ({}: Props) => {
       throw new Error('DefaultColumns::Unexpected result for default columns');
     }
   }, [
+    metadata?.resourceVersion,
+    setMetadata,
     defaultColumnsFromAPI,
     defaultColumnsAPIError,
     isLoading,
@@ -88,8 +94,5 @@ export const DefaultColumns = ({}: Props) => {
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    // border: `1px solid ${theme.colors.border.weak}`,
-    // paddingLeft: theme.spacing(2),
-  }),
+  container: css({}),
 });
