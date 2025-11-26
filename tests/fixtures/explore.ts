@@ -1,11 +1,26 @@
 import { ConsoleMessage, Locator, Page, TestInfo } from '@playwright/test';
 
+import { DataFrameJSON } from '@grafana/data';
 import { expect } from '@grafana/plugin-e2e';
 
 import pluginJson from '../../src/plugin.json';
 import { FilterOp, FilterOpType } from '../../src/services/filterTypes';
 import { LokiQuery } from '../../src/services/lokiQuery';
 import { testIds } from '../../src/services/testIds';
+
+export type CapturedResponses = CapturedResponse[];
+
+export type CapturedResponse = {
+  [refId: string]: {
+    results: {
+      [refId: string]: {
+        frames: DataFrameJSON[];
+        status: number;
+      };
+    };
+    status: number;
+  };
+};
 
 export interface PlaywrightRequest {
   post: any;
@@ -302,7 +317,7 @@ export class ExplorePage {
     legendFormats?: string[];
     refIds?: Array<string | RegExp>;
     requests?: PlaywrightRequest[];
-    responses?: Array<{ [refIDOrLegendFormat: string]: any }>;
+    responses?: CapturedResponses;
   }) {
     // Let's not wait for all these queries
     this.page.route('**/ds/query**', async (route) => {

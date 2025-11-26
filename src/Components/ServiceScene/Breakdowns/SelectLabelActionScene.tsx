@@ -30,6 +30,7 @@ import { FilterOp } from '../../../services/filterTypes';
 import { logger } from '../../../services/logger';
 import { LokiQuery } from '../../../services/lokiQuery';
 import { getValueBreakdownLink } from '../../../services/navigate';
+import { isQueryAvg } from '../../../services/query';
 import { getRouteParams } from '../../../services/routing';
 import { findObjectOfType } from '../../../services/scenes';
 import { testIds } from '../../../services/testIds';
@@ -355,7 +356,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
     if (queryRunner) {
       const queries = queryRunner.state.queries;
       const query = queries[0] as LokiQuery | undefined;
-      if (query?.expr.includes('avg_over_time')) {
+      if (isQueryAvg(query?.expr ?? '')) {
         this.setState({
           hasNumericFilters: true,
         });
