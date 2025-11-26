@@ -229,6 +229,11 @@ function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   if (patternFilters?.length) {
     params = setUrlParamsFromPatterns(patternFilters, params);
   }
+  // @ts-expect-error Requires Grafana 12.4
+  if (context.sortOrder) {
+    // @ts-expect-error Requires Grafana 12.4
+    params = appendUrlParameter(UrlParameters.SortOrder, JSON.stringify(context.sortOrder), params);
+  }
 
   return {
     path: createAppUrl(`/explore/${labelName}/${labelValue}/logs`, params),
@@ -250,6 +255,7 @@ export const UrlParameters = {
   LineFilters: `var-${VAR_LINE_FILTERS}`,
   Patterns: VAR_PATTERNS,
   PatternsVariable: `var-${VAR_PATTERNS}`,
+  SortOrder: 'sortOrder',
 } as const;
 export type UrlParameterType = (typeof UrlParameters)[keyof typeof UrlParameters];
 
