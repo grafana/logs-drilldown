@@ -9,6 +9,7 @@ import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 import { narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';
+import { isDefaultColumnsStateChanged } from './DefaultColumnsState';
 import { DefaultColumnsState } from './types';
 
 interface Props {}
@@ -36,7 +37,12 @@ export const DefaultColumns = ({}: Props) => {
       return;
     }
 
-    if (apiDefaultColumnsState && apiDefaultColumnsState[dsUID]) {
+    // If we've already set this version to local state, don't do it twice
+    if (
+      apiDefaultColumnsState &&
+      apiDefaultColumnsState[dsUID] &&
+      defaultColumnsFromAPI?.metadata.resourceVersion === metadata?.resourceVersion
+    ) {
       return;
     }
 

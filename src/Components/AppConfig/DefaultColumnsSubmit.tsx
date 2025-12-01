@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
@@ -9,16 +9,15 @@ import {
 } from '@grafana/api-clients';
 import { Button } from '@grafana/ui';
 
-import { areArraysEqual } from '../../services/comparison';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
+import { isDefaultColumnsStateChanged } from './DefaultColumnsState';
 
 export function DefaultColumnsSubmit() {
   const { localDefaultColumnsState, apiDefaultColumnsState, dsUID, metadata } = useDefaultColumnsContext();
-  console.log('default columns submit', { metadata, apiDefaultColumnsState });
-
   const [create, { error: createError }] = useCreateLogsDrilldownDefaultColumnsMutation();
   const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultColumnsMutation();
+
+  // @todo logger
   if (createError) {
     console.error('createError', createError);
   }
@@ -26,23 +25,14 @@ export function DefaultColumnsSubmit() {
     console.error('updateError', updateError);
   }
 
-  const isChanged = useCallback(() => {
-    return (
-      localDefaultColumnsState &&
-      Object.keys(localDefaultColumnsState).some((key) => {
-        const lhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
-          localDefaultColumnsState?.[key]?.records;
-        const rhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
-          apiDefaultColumnsState?.[key]?.records;
-        return !(lhs && rhs && areArraysEqual(lhs, rhs));
-      })
-    );
-  }, [localDefaultColumnsState, apiDefaultColumnsState]);
-
   return (
     <Button
       variant={'primary'}
-      disabled={!localDefaultColumnsState || !isChanged() || !dsUID}
+      disabled={
+        !localDefaultColumnsState ||
+        !isDefaultColumnsStateChanged(localDefaultColumnsState, apiDefaultColumnsState) ||
+        !dsUID
+      }
       onClick={() => {
         if (dsUID && localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
           const updated: LogsDrilldownDefaultColumnsSpec = {
