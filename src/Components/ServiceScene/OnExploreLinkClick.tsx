@@ -1,4 +1,4 @@
-import { toURLRange, urlUtil } from '@grafana/data';
+import { LogsSortOrder, toURLRange, urlUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 
@@ -6,7 +6,7 @@ import { DATAPLANE_LABELS_NAME } from '../../services/logsFrame';
 import { unknownToStrings } from '../../services/narrowing';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { getDataSource, getQueryExpr } from 'services/scenes';
-import { getDisplayedFields, getLogsVisualizationType } from 'services/store';
+import { getDisplayedFields, getLogOption, getLogsVisualizationType } from 'services/store';
 
 export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open = false) => {
   if (!expr) {
@@ -31,6 +31,7 @@ export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open =
           visualisationType: visualisationType === 'json' ? 'logs' : visualisationType,
           columns,
           labelFieldName: visualisationType === 'table' ? DATAPLANE_LABELS_NAME : undefined,
+          sortOrder: getLogOption('sortOrder', LogsSortOrder.Descending),
         },
       },
       datasource,
