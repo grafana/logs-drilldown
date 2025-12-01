@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { Button, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 
@@ -38,28 +38,29 @@ export function DefaultColumnsAddLabel({ recordIndex }: Props) {
   };
 
   return (
-    <div className={styles.valueContainer}>
-      <IconButton
+    <div className={styles.labelContainer}>
+      <Button
+        tooltip={'Add new label to match against user query'}
         variant={'secondary'}
-        tooltip={`Add label`}
-        name={'plus-circle'}
-        size={'lg'}
-        className={styles.valueContainer__add}
+        fill={'outline'}
+        aria-label={`Add label`}
+        icon={'plus'}
         onClick={() => onAddLabelValue()}
-      />
+        className={styles.labelContainer__add}
+      >
+        Add label
+      </Button>
     </div>
   );
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  valueContainer: css({
-    label: 'valueContainer',
+  labelContainer: css({
+    label: 'labelContainer',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   }),
-  valueContainer__name: css({}),
-  valueContainer__add: css({
-    marginLeft: theme.spacing(2),
-  }),
+  labelContainer__name: css({}),
+  labelContainer__add: css({}),
 });

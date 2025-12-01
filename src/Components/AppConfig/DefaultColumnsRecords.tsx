@@ -3,18 +3,11 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Button, Divider, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Divider, useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsAddLabel } from './DefaultColumnsAddLabel';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsLabelName } from './DefaultColumnsLabelName';
-import { DefaultColumnsLabelValue } from './DefaultColumnsLabelValue';
-import { DefaultColumnsRemoveLabel } from './DefaultColumnsRemoveLabel';
-import {
-  LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
-  LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
-} from './types';
 import { DefaultColumnsFields } from './DefaultColumnsFields';
+import { DefaultColumnsLabels } from './DefaultColumnsLabels';
 
 interface RecordsProps {}
 
@@ -26,65 +19,23 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
     throw new Error('Records::missing localDefaultColumnsState');
   }
 
-  console.log('localDefaultColumnsState[dsUID]', localDefaultColumnsState[dsUID]);
-
   return (
     <div className={styles.recordsContainer}>
-      {localDefaultColumnsState[dsUID]?.records.map(
-        (record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord, recordIndex: number) => {
-          return (
-            <div className={styles.recordContainer} key={recordIndex}>
-              <h5 className={styles.labelContainer__title}>
-                Labels match
-                <Tooltip content={'Queries containing these labels will display the selected columns'}>
-                  <Icon name="info-circle" />
-                </Tooltip>
-              </h5>
-              {record.labels?.map(
-                (label: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel, labelIndex: number) => {
-                  const labelName = label.key;
-                  const labelValue = label.value;
-                  return (
-                    <div key={labelIndex} className={styles.labelContainer__wrap}>
-                      {/* Label/values */}
-                      <div className={styles.labelContainer}>
-                        <DefaultColumnsLabelName
-                          currentLabel={labelName}
-                          recordIndex={recordIndex}
-                          labelIndex={labelIndex}
-                        />
+      {localDefaultColumnsState[dsUID]?.records.map((_, recordIndex: number) => {
+        return (
+          <div className={styles.recordContainer} key={recordIndex}>
+            <div className={styles.recordContainer__content}>
+              <DefaultColumnsLabels recordIndex={recordIndex} />
+            </div>
 
-                        {/* Check that labelName is truthy or the label values call will fail*/}
-                        {labelName && (
-                          <DefaultColumnsLabelValue
-                            labelValue={labelValue}
-                            labelName={labelName}
-                            recordIndex={recordIndex}
-                            labelIndex={labelIndex}
-                          />
-                        )}
+            <Divider />
 
-                        <DefaultColumnsRemoveLabel
-                          labelName={labelName}
-                          labelValue={labelValue}
-                          recordIndex={recordIndex}
-                          labelIndex={labelIndex}
-                        />
-                      </div>
-                    </div>
-                  );
-                }
-              )}
-
-              <DefaultColumnsAddLabel recordIndex={recordIndex} />
-
-              <Divider />
-
+            <div className={styles.recordContainer__content}>
               <DefaultColumnsFields recordIndex={recordIndex} />
             </div>
-          );
-        }
-      )}
+          </div>
+        );
+      })}
 
       <Button
         variant={'secondary'}
@@ -115,23 +66,10 @@ const getStyles = (theme: GrafanaTheme2) => ({
     paddingBottom: theme.spacing(2),
     marginBottom: theme.spacing(3),
   }),
+  recordContainer__content: css({
+    paddingLeft: theme.spacing(2),
+  }),
   recordsContainer: css({
     paddingBottom: theme.spacing(2),
-  }),
-  labelContainer__title: css({
-    marginTop: theme.spacing(1.5),
-    marginLeft: theme.spacing(2),
-  }),
-  labelContainer__wrap: css({
-    label: 'labelContainer',
-    display: 'flex',
-    flexDirection: 'column',
-  }),
-  labelContainer: css({
-    display: 'flex',
-    label: 'valuesContainer',
-    marginLeft: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
   }),
 });

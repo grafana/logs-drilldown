@@ -1,19 +1,22 @@
-import { Button, Combobox, ComboboxOption, Icon, Tooltip, useStyles2 } from '@grafana/ui';
 import React from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+
 import { css } from '@emotion/css';
+import { flatten } from 'lodash';
+
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from '@grafana/api-clients';
+import { GrafanaTheme2 } from '@grafana/data';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { AdHocFilterWithLabels } from '@grafana/scenes';
+import { Button, Combobox, ComboboxOption, Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
+
+import { ExpressionBuilder } from '../../services/ExpressionBuilder';
+import { LabelFilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
-import { getLabelsKeys } from '../../services/TagKeysProviders';
+import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProviders';
+import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import {
-  LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
-  LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
-} from './types';
-import { LabelFilterOp } from '../../services/filterTypes';
-import { AdHocFilterWithLabels } from '@grafana/scenes';
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from '@grafana/api-clients';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
 
 interface Props {
   recordIndex: number;
@@ -38,12 +41,29 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.columns[columnIndex] = column;
 
-      setLocalDefaultColumnsDatasourceState({ ...ds, records: [...(records ?? [])] });
+      setLocalDefaultColumnsDatasourceState({ records });
     }
   };
 
-  const getColumns = async () => {
-    return await getKeys(dsUID, record.labels);
+  const onRemoveColumn = (columnIndex: number) => {
+    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
+      const ds = localDefaultColumnsState[dsUID];
+      const records = ds.records;
+      const recordToUpdate = records[recordIndex];
+      recordToUpdate.columns.splice(columnIndex, 1);
+
+      setLocalDefaultColumnsDatasourceState({ records });
+    }
+  };
+
+  const addDisplayField = () => {
+    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
+      const ds = localDefaultColumnsState[dsUID];
+      const records = ds.records;
+      const recordToUpdate = records[recordIndex];
+      recordToUpdate.columns = [...recordToUpdate.columns, ''];
+      setLocalDefaultColumnsDatasourceState({ records });
+    }
   };
 
   return (
@@ -51,31 +71,42 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
       <h5 className={styles.fieldsContainer__title}>
         Display columns
         <Tooltip content={'Default columns to display in logs visualizations'}>
-          <Icon name="info-circle" />
+          <Icon className={styles.fieldsContainer__icon} name="info-circle" />
         </Tooltip>
       </h5>
 
       {columns?.map((column, colIdx) => (
-        <Combobox<string>
-          value={column}
-          placeholder={'Select column'}
-          width={'auto'}
-          minWidth={30}
-          maxWidth={90}
-          isClearable={false}
-          onChange={(column) => onSelectColumn(column?.value, colIdx)}
-          options={() => getColumns()}
-        />
+        <div key={colIdx} className={styles.fieldsContainer__inputContainer}>
+          <Combobox<string>
+            invalid={!column}
+            value={column}
+            placeholder={'Select column'}
+            width={'auto'}
+            minWidth={30}
+            maxWidth={90}
+            isClearable={false}
+            onChange={(column) => onSelectColumn(column?.value, colIdx)}
+            createCustomValue={true}
+            options={() => getKeys(dsUID, record.labels)}
+          />
+          <IconButton
+            variant={'destructive'}
+            tooltip={`Remove ${column}`}
+            name={'minus'}
+            size={'lg'}
+            className={styles.fieldsContainer__remove}
+            onClick={() => onRemoveColumn(colIdx)}
+          />
+        </div>
       ))}
 
-      {/* Add columns @todo */}
       <Button
         tooltip={'Add a default column to display in the logs'}
         variant={'secondary'}
         fill={'outline'}
         aria-label={`Add label`}
         icon={'plus'}
-        onClick={() => addDisplayField(record, dsUID)}
+        onClick={() => addDisplayField()}
         className={styles.fieldsContainer__button}
       >
         Add column
@@ -83,12 +114,6 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
     </div>
   );
 }
-
-const addDisplayField = (record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord, dsUID: string) => {
-  const labels = record.labels;
-  const keys = getKeys(dsUID, labels);
-  console.log('labels', keys);
-};
 
 const getKeys = async (
   dsUID: string,
@@ -101,7 +126,7 @@ const getKeys = async (
   }
   const datasource = datasource_ as LokiDatasource;
   if (datasource) {
-    const labels: AdHocFilterWithLabels[] = columnsLabels
+    const labelFilters: AdHocFilterWithLabels[] = columnsLabels
       .filter((label): label is LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel => !!label.value && !!label.key)
       .map((label) => ({
         key: label.key,
@@ -109,58 +134,59 @@ const getKeys = async (
         operator: LabelFilterOp.Equal,
       }));
 
-    const getLabelsKeysPromise = getLabelsKeys(labels, datasource);
+    const filtersTransformer = new ExpressionBuilder(labelFilters);
+    const expr = filtersTransformer.getLabelsExpr();
+
+    const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
+    const getDetectedFieldsKeysFn = getDetectedFieldsFn(datasource);
+    const getDetectedFieldsKeysPromise = expr
+      ? getDetectedFieldsKeysFn({
+          expr: `{${expr}} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`,
+        })
+      : Promise.resolve([]);
     try {
-      const result = await Promise.all([getLabelsKeysPromise]);
-      console.log('result', result);
+      const combinedRequests = Promise.all([
+        getLabelsKeysPromise.then((res) => res.map((key) => ({ value: key.text }))),
+        getDetectedFieldsKeysPromise.then((res) => {
+          if (res instanceof Error) {
+            logger.error(res, { msg: 'Failed to fetch detected fields' });
+            throw res;
+          }
+          return res.map((key) => ({ value: key.label }));
+        }),
+      ]);
+      console.log('result', combinedRequests);
+      return combinedRequests.then((reqs) => flatten(reqs));
     } catch (e) {
       logger.error(e, { msg: 'DefaultColumnsFields::getLabelsKeys - failed to query Loki labels!' });
+      return [];
     }
-    //
-    // const expr = labelName && labelValue ? `{${labelName}="${labelValue}"}` : undefined;
-    // console.log('expr', expr);
-    // const detectedFieldsFn = getDetectedFieldsFn(datasource);
-    //
-    // const results = await Promise.all([
-    //   datasource
-    //     .getResource<DetectedLabelsResponse>(
-    //       'detected_labels',
-    //       {
-    //         query: expr,
-    //       },
-    //       {
-    //         headers: {
-    //           'X-Query-Tags': `Source=${PLUGIN_ID}`,
-    //         },
-    //         requestId: 'detected_labels',
-    //       }
-    //     )
-    //     .then((detectedLabelsResult) => {
-    //       console.log('detectedLabelsResult', detectedLabelsResult);
-    //       return detectedLabelsResult;
-    //     }),
-    //   detectedFieldsFn({
-    //     expr: `${expr} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`,
-    //   }).then((detectedFieldsResult) => {
-    //     console.log('detectedFieldsResult', detectedFieldsResult);
-    //   }),
-    // ]);
-    // console.log('getFieldValues', results);
   }
 
-  return [{ value: '@todo' }];
+  return [];
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
   fieldsContainer: css({
-    label: 'defaultColumnsFields',
+    label: 'fieldsContainer',
+  }),
+  fieldsContainer__icon: css({
+    marginLeft: theme.spacing(0.5),
   }),
   fieldsContainer__title: css({
     marginTop: theme.spacing(1.5),
-    marginLeft: theme.spacing(2),
+    display: 'flex',
+    alignItems: 'center',
   }),
   fieldsContainer__button: css({
     alignSelf: 'flex-start',
-    marginLeft: theme.spacing(2),
+    marginTop: theme.spacing(1),
+  }),
+  fieldsContainer__inputContainer: css({
+    marginTop: theme.spacing(1),
+    display: 'flex',
+  }),
+  fieldsContainer__remove: css({
+    marginLeft: theme.spacing(1),
   }),
 });

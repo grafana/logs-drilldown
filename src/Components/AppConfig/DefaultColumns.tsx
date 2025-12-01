@@ -36,12 +36,11 @@ export const DefaultColumns = ({}: Props) => {
       return;
     }
 
-    if (defaultColumnsFromAPI && defaultColumnsFromAPI.metadata.resourceVersion !== metadata?.resourceVersion) {
-      setMetadata(defaultColumnsFromAPI.metadata);
-    }
     if (apiDefaultColumnsState && apiDefaultColumnsState[dsUID]) {
       return;
     }
+
+    setMetadata(defaultColumnsFromAPI?.metadata ?? null);
 
     // Success
     if (defaultColumnsFromAPI) {
@@ -56,7 +55,6 @@ export const DefaultColumns = ({}: Props) => {
 
       dsUIDRecord[defaultColumnsFromAPI.metadata.name] = { records: defaultColumnsFromAPI.spec.records };
       setApiDefaultColumnsState(dsUIDRecord);
-      setMetadata(defaultColumnsFromAPI.metadata);
 
       // API error
     } else if (defaultColumnsAPIError) {
@@ -67,8 +65,6 @@ export const DefaultColumns = ({}: Props) => {
         console.error('LogsDrilldown API Error:', defaultColumnsAPIError);
         throw new Error('DefaultColumns::Unexpected result for default columns - api error');
       }
-    } else {
-      throw new Error('DefaultColumns::Unexpected result for default columns');
     }
   }, [
     metadata?.resourceVersion,

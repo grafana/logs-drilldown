@@ -1,9 +1,10 @@
 import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 
+import { cloneDeep } from 'lodash';
+
 import { ObjectMeta } from '@grafana/api-clients';
 
 import { DefaultColumnsState, LocalDefaultColumnsState, LocalLogsDrilldownDefaultColumnsSpec } from './types';
-import { cloneDeep } from 'lodash';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;
@@ -13,7 +14,7 @@ type DefaultColumnsContextType = {
   setApiDefaultColumnsState: (defaultColumnsState: DefaultColumnsState) => void;
   setDsUID: (dsUID: string) => void;
   setLocalDefaultColumnsDatasourceState: (localDefaultColumnsState?: LocalLogsDrilldownDefaultColumnsSpec) => void;
-  setMetadata: (m: ObjectMeta) => void;
+  setMetadata: (m: ObjectMeta | null) => void;
 };
 
 const DefaultColumnsContext = createContext<DefaultColumnsContextType>({
@@ -37,7 +38,7 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
   const [metadata, setMetadata] = useState<ObjectMeta | null>(null);
   const [dsUID, setDsUID] = useState(initialDSUID);
 
-  const handleSetMetadata = useCallback((metadata: ObjectMeta) => {
+  const handleSetMetadata = useCallback((metadata: ObjectMeta | null) => {
     setMetadata(metadata);
   }, []);
 

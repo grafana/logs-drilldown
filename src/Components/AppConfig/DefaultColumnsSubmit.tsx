@@ -15,6 +15,7 @@ import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './typ
 
 export function DefaultColumnsSubmit() {
   const { localDefaultColumnsState, apiDefaultColumnsState, dsUID, metadata } = useDefaultColumnsContext();
+  console.log('default columns submit', { metadata, apiDefaultColumnsState });
 
   const [create, { error: createError }] = useCreateLogsDrilldownDefaultColumnsMutation();
   const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultColumnsMutation();
