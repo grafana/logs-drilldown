@@ -1,6 +1,7 @@
 type dsUID = string;
 export type DefaultColumnsState = Record<dsUID, LocalLogsDrilldownDefaultColumnsSpec>;
 
+// @todo use existing types but make value optional
 export type LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel = {
   key: string;
   value?: string;

@@ -63,6 +63,7 @@ export function DefaultColumnsLabelValue({ labelValue, labelName, recordIndex, l
 
   return (
     <Combobox<string>
+      invalid={!labelValue}
       placeholder={'Select label value'}
       width={'auto'}
       minWidth={30}

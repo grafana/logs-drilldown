@@ -56,47 +56,6 @@ export const DefaultColumnsLabelName = ({ currentLabel, recordIndex, labelIndex 
     return results.detectedLabels.map((label) => ({ value: label.label }));
   };
 
-  // const getFieldValues = async (labelName: string, labelValue: string): Promise<ComboboxOption[]> => {
-  //   const datasource_ = await getDataSourceSrv().get(dsUID);
-  //   if (!(datasource_ instanceof DataSourceWithBackend)) {
-  //     logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
-  //     throw new Error('Invalid datasource!');
-  //   }
-  //   const datasource = datasource_ as LokiDatasource;
-  //   if (datasource) {
-  //     const expr = labelName && labelValue ? `{${labelName}="${labelValue}"}` : undefined;
-  //     console.log('expr', expr);
-  //     const detectedFieldsFn = getDetectedFieldsFn(datasource);
-  //
-  //     const results = await Promise.all([
-  //       datasource
-  //         .getResource<DetectedLabelsResponse>(
-  //           'detected_labels',
-  //           {
-  //             query: expr,
-  //           },
-  //           {
-  //             headers: {
-  //               'X-Query-Tags': `Source=${PLUGIN_ID}`,
-  //             },
-  //             requestId: 'detected_labels',
-  //           }
-  //         )
-  //         .then((detectedLabelsResult) => {
-  //           console.log('detectedLabelsResult', detectedLabelsResult);
-  //           return detectedLabelsResult;
-  //         }),
-  //       detectedFieldsFn({
-  //         expr: `${expr} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`,
-  //       }).then((detectedFieldsResult) => {
-  //         console.log('detectedFieldsResult', detectedFieldsResult);
-  //       }),
-  //     ]);
-  //     console.log('getFieldValues', results);
-  //   }
-  //
-  //   return [{ value: '@todo' }];
-  // };
   const onSelectFieldName = (labelName: string) => {
     if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
       const ds = localDefaultColumnsState[dsUID];
@@ -104,8 +63,9 @@ export const DefaultColumnsLabelName = ({ currentLabel, recordIndex, labelIndex 
       const recordToUpdate = records[recordIndex];
       const labelToUpdate = recordToUpdate.labels[labelIndex];
       labelToUpdate.key = labelName;
+      labelToUpdate.value = undefined;
 
-      setLocalDefaultColumnsDatasourceState({ ...ds, records: [...(ds?.records ?? [])] });
+      setLocalDefaultColumnsDatasourceState({ ...ds, records });
     }
   };
 
@@ -113,6 +73,7 @@ export const DefaultColumnsLabelName = ({ currentLabel, recordIndex, labelIndex 
     <div className={styles.valuesFieldsContainer}>
       <Combobox<string>
         value={currentLabel}
+        invalid={!currentLabel}
         placeholder={'Select label name'}
         width={'auto'}
         minWidth={30}

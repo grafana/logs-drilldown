@@ -3,6 +3,7 @@ import React, { createContext, ReactNode, useCallback, useContext, useState } fr
 import { ObjectMeta } from '@grafana/api-clients';
 
 import { DefaultColumnsState, LocalDefaultColumnsState, LocalLogsDrilldownDefaultColumnsSpec } from './types';
+import { cloneDeep } from 'lodash';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;
@@ -50,7 +51,10 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
    * Sets the entire app state
    */
   const handleSetLocalDefaultColumnsState = useCallback((state: LocalDefaultColumnsState) => {
-    setLocalDefaultColumnsState(state);
+    // the objects returned by the API are readonly/immutable, and it's a huge pain destructuring (shallow cloning) nested objects when you want to update a record at a specific index
+    // Since react state isn't mutatable is there a good reason (besides negligible performance overhead) not to clone (removing the immutable)?
+    // I'm guessing the readonly status of the API response is to keep developers from accidentally mutating and as a result making bad assumptions about the data
+    setLocalDefaultColumnsState(cloneDeep(state));
   }, []);
 
   /**
