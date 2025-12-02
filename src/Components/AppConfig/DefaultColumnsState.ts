@@ -5,6 +5,11 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
 
+/**
+ * Does the local stage have changes that aren't saved in the latest API response?
+ * @param localDefaultColumnsState
+ * @param apiDefaultColumnsState
+ */
 export const isDefaultColumnsStateChanged = (
   localDefaultColumnsState: LocalDefaultColumnsState,
   apiDefaultColumnsState: DefaultColumnsState | null | undefined

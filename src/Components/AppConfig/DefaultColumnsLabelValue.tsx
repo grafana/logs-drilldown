@@ -1,24 +1,29 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { css } from '@emotion/css';
-import { isArray } from 'lodash';
+import { isArray, memoize } from 'lodash';
 
-import { DataSourceGetTagValuesOptions, GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
+import { LabelFilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
-import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
+import { LokiDatasource } from '../../services/lokiQuery';
+import { getLabelValues } from '../../services/TagValuesProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from './types';
 
 interface Props {
   labelIndex: number;
-  labelName: string;
-  labelValue?: string;
   recordIndex: number;
 }
-export function DefaultColumnsLabelValue({ labelValue, labelName, recordIndex, labelIndex }: Props) {
+export function DefaultColumnsLabelValue({ recordIndex, labelIndex }: Props) {
   const { dsUID, localDefaultColumnsState, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
+  const labels = localDefaultColumnsState?.[dsUID]?.records[recordIndex].labels;
+  const label = labels?.[labelIndex];
   const styles = useStyles2(getStyles);
 
   const onSelectLabelValue = (option: ComboboxOption) => {
@@ -33,41 +38,60 @@ export function DefaultColumnsLabelValue({ labelValue, labelName, recordIndex, l
     }
   };
 
-  const getLabelValues = async (labelName: string): Promise<ComboboxOption[]> => {
-    const datasource_ = await getDataSourceSrv().get(dsUID);
-    if (!(datasource_ instanceof DataSourceWithBackend)) {
-      logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
-      throw new Error('Invalid datasource!');
-    }
-    const datasource = datasource_ as LokiDatasource;
-    if (datasource && datasource.getTagValues) {
-      const options: DataSourceGetTagValuesOptions<LokiQuery> = {
-        filters: [],
-        key: labelName,
-      };
-      const values = await datasource.getTagValues(options);
-      if (isArray(values)) {
-        return values.map((metricFindValue) => ({
-          value: metricFindValue.text.toString(),
-        }));
+  const getColumnsLabelValues = memoize(
+    async (label: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel): Promise<ComboboxOption[]> => {
+      const datasource_ = await getDataSourceSrv().get(dsUID);
+      if (!(datasource_ instanceof DataSourceWithBackend)) {
+        logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
+        throw new Error('Invalid datasource!');
       }
-    }
+      const datasource = datasource_ as LokiDatasource;
+      if (datasource) {
+        const labelFilters = labels?.filter((f) => f.key !== label.key) ?? [];
+        const filters = mapColumnsLabelsToAdHocFilters(labelFilters);
+        const filter: AdHocFilterWithLabels = { value: `""`, key: label.key, operator: LabelFilterOp.NotEqual };
+        const result = await getLabelValues(filters, filter, datasource, dsUID);
 
-    return [];
-  };
+        if (isArray(result)) {
+          return result
+            .map((metricFindValue) => {
+              const value = metricFindValue.text.toString();
+              return {
+                value,
+                label: value,
+              };
+            })
+            .filter((v) => {
+              const isThisValueAlreadySelected = v.value === label.value;
+              const doOtherFiltersHaveThisValue = !labels?.some((l) => l.key === filter.key && l.value === v.value);
+              return isThisValueAlreadySelected || doOtherFiltersHaveThisValue;
+            });
+        }
+      }
+
+      return [];
+    }
+  );
+
+  if (!label) {
+    return null;
+  }
 
   return (
     <span className={styles.defaultColumnsLabelValue}>
       <Combobox<string>
-        invalid={!labelValue}
+        invalid={!label?.value}
         placeholder={'Select label value'}
         width={'auto'}
         minWidth={30}
-        value={labelValue}
+        value={label?.value}
         maxWidth={90}
-        isClearable={false}
+        disabled={!label.key}
+        createCustomValue={true}
         onChange={(opt) => onSelectLabelValue(opt)}
-        options={() => getLabelValues(labelName)}
+        options={(typeAhead) =>
+          getColumnsLabelValues(label).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+        }
       />
     </span>
   );

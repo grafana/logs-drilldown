@@ -764,6 +764,7 @@ function getVariableSet(
     hide: VariableHide.hideVariable,
     label: 'Detected fields',
     layout: 'combobox',
+
     name: VAR_FIELDS,
   });
 

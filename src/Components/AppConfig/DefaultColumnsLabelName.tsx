@@ -7,20 +7,21 @@ import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { Combobox, useStyles2 } from '@grafana/ui';
 import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
 
-import { DetectedLabelsResponse } from '../../services/fields';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
-import { PLUGIN_ID } from '../../services/plugin';
+import { getLabelsKeys } from '../../services/TagKeysProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 
 interface ValueProps {
-  currentLabel: string;
   labelIndex: number;
   recordIndex: number;
 }
 
-export const DefaultColumnsLabelName = ({ currentLabel, recordIndex, labelIndex }: ValueProps) => {
+export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps) => {
   const { dsUID, setLocalDefaultColumnsDatasourceState, localDefaultColumnsState } = useDefaultColumnsContext();
+  const columnsLabels = localDefaultColumnsState?.[dsUID]?.records[recordIndex].labels;
+  const labelName = columnsLabels?.[labelIndex].key;
   const styles = useStyles2(getStyles);
 
   const getLabels = async (): Promise<ComboboxOption[]> => {
@@ -33,27 +34,11 @@ export const DefaultColumnsLabelName = ({ currentLabel, recordIndex, labelIndex 
     if (!datasource || !datasource.getResource) {
       throw new Error('Datasource not found');
     }
-    const results = await datasource
-      .getResource<DetectedLabelsResponse>(
-        'detected_labels',
-        {},
-        {
-          headers: {
-            'X-Query-Tags': `Source=${PLUGIN_ID}`,
-          },
-          requestId: 'detected_labels',
-        }
-      )
-      .then((detectedLabelsResult) => {
-        console.log('detectedLabelsResult', detectedLabelsResult);
-        return detectedLabelsResult;
-      })
-      .catch((err) => {
-        logger.error(err, { msg: 'DefaultColumnsValues:: detected_labels error!' });
-        throw err;
-      });
 
-    return results.detectedLabels.map((label) => ({ value: label.label }));
+    const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels ?? []);
+    const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
+    const results = await getLabelsKeysPromise;
+    return results.map((label) => ({ value: label.text }));
   };
 
   const onSelectFieldName = (labelName: string) => {
@@ -72,8 +57,8 @@ export const DefaultColumnsLabelName = ({ currentLabel, recordIndex, labelIndex 
   return (
     <div className={styles.valuesFieldsContainer}>
       <Combobox<string>
-        value={currentLabel}
-        invalid={!currentLabel}
+        value={labelName}
+        invalid={!labelName}
         placeholder={'Select label name'}
         width={'auto'}
         minWidth={30}

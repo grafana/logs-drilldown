@@ -3,19 +3,16 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { flatten } from 'lodash';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from '@grafana/api-clients';
 import { GrafanaTheme2 } from '@grafana/data';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Button, Combobox, ComboboxOption, Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
 
-import { ExpressionBuilder } from '../../services/ExpressionBuilder';
-import { LabelFilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
 import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProviders';
 import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
 
 interface Props {
@@ -126,39 +123,33 @@ const getKeys = async (
   }
   const datasource = datasource_ as LokiDatasource;
   if (datasource) {
-    const labelFilters: AdHocFilterWithLabels[] = columnsLabels
-      .filter((label): label is LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel => !!label.value && !!label.key)
-      .map((label) => ({
-        key: label.key,
-        value: label.value,
-        operator: LabelFilterOp.Equal,
-      }));
-
-    const filtersTransformer = new ExpressionBuilder(labelFilters);
-    const expr = filtersTransformer.getLabelsExpr();
-
+    // Get labels query
+    const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels);
     const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
+
+    // Get fields query
     const getDetectedFieldsKeysFn = getDetectedFieldsFn(datasource);
+    const expr = getColumnsLabelsExpr(labelFilters);
     const getDetectedFieldsKeysPromise = expr
       ? getDetectedFieldsKeysFn({
           expr: `{${expr}} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`,
         })
       : Promise.resolve([]);
+
     try {
-      const combinedRequests = Promise.all([
-        getLabelsKeysPromise.then((res) => res.map((key) => ({ value: key.text }))),
-        getDetectedFieldsKeysPromise.then((res) => {
+      const combinedRequests: Promise<[ComboboxOption[], ComboboxOption[]]> = Promise.all([
+        getLabelsKeysPromise.then((res) => res.map((key) => ({ value: key.text, group: 'Labels' }))),
+        getDetectedFieldsKeysPromise.then((res): ComboboxOption[] => {
           if (res instanceof Error) {
-            logger.error(res, { msg: 'Failed to fetch detected fields' });
+            logger.error(res, { msg: 'DefaultColumnsFields::getKeys - Failed to fetch detected fields' });
             throw res;
           }
-          return res.map((key) => ({ value: key.label }));
+          return res.map((key) => ({ value: key.label, group: 'Fields' }));
         }),
       ]);
-      console.log('result', combinedRequests);
-      return combinedRequests.then((reqs) => flatten(reqs));
+      return combinedRequests.then((reqs): ComboboxOption[] => flatten(reqs));
     } catch (e) {
-      logger.error(e, { msg: 'DefaultColumnsFields::getLabelsKeys - failed to query Loki labels!' });
+      logger.error(e, { msg: 'DefaultColumnsFields::getKeys - Failed to fetch labels!' });
       return [];
     }
   }

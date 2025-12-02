@@ -8,6 +8,7 @@ import {
   ScopedVars,
   TimeRange,
 } from '@grafana/data';
+import { DataSourceGetTagValuesOptions } from '@grafana/data/dist/types/types/datasource';
 import { DataSourceWithBackend } from '@grafana/runtime';
 import { DataSourceRef } from '@grafana/schema';
 
@@ -37,10 +38,11 @@ export type LokiQueryType = 'instant' | 'range' | 'stream' | string;
 export type LokiDatasource = DataSourceWithBackend<LokiQuery, DataSourceJsonData> & {
   maxLines?: number;
 } & {
+  getTagKeys(options?: DataSourceGetTagKeysOptions<LokiQuery>): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
+  getTagValues(options: DataSourceGetTagValuesOptions<LokiQuery>): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
   getTimeRangeParams: (timeRange: TimeRange) => { end: number; start: number };
   // @todo delete after min supported grafana is upgraded to >=11.6
   interpolateString?: (string: string, scopedVars?: ScopedVars) => string;
-  getTagKeys(options?: DataSourceGetTagKeysOptions): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
 };
 
 export function getLabelTypeFromFrame(labelKey: string, frame: DataFrame, index = 0): null | LabelType {

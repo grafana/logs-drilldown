@@ -10,7 +10,6 @@ import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsLabelName } from './DefaultColumnsLabelName';
 import { DefaultColumnsLabelValue } from './DefaultColumnsLabelValue';
 import { DefaultColumnsRemoveLabel } from './DefaultColumnsRemoveLabel';
-import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from './types';
 
 interface Props {
   recordIndex: number;
@@ -30,31 +29,13 @@ export function DefaultColumnsLabels({ recordIndex }: Props) {
           <Icon className={styles.labelIcon} name="info-circle" />
         </Tooltip>
       </h5>
-      {record.labels?.map((label: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel, labelIndex: number) => {
-        const labelName = label.key;
-        const labelValue = label.value;
+      {record.labels?.map((_, labelIndex: number) => {
         return (
           <div key={labelIndex} className={styles.labelContainer__wrap}>
-            {/* Label/values */}
             <div className={styles.labelContainer}>
-              <DefaultColumnsLabelName currentLabel={labelName} recordIndex={recordIndex} labelIndex={labelIndex} />
-
-              {/* Check that labelName is truthy or the label values call will fail*/}
-              {labelName && (
-                <DefaultColumnsLabelValue
-                  labelValue={labelValue}
-                  labelName={labelName}
-                  recordIndex={recordIndex}
-                  labelIndex={labelIndex}
-                />
-              )}
-
-              <DefaultColumnsRemoveLabel
-                labelName={labelName}
-                labelValue={labelValue}
-                recordIndex={recordIndex}
-                labelIndex={labelIndex}
-              />
+              <DefaultColumnsLabelName recordIndex={recordIndex} labelIndex={labelIndex} />
+              <DefaultColumnsLabelValue recordIndex={recordIndex} labelIndex={labelIndex} />
+              <DefaultColumnsRemoveLabel recordIndex={recordIndex} labelIndex={labelIndex} />
             </div>
           </div>
         );
