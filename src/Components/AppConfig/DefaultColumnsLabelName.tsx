@@ -63,9 +63,9 @@ export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps)
         width={'auto'}
         minWidth={30}
         maxWidth={90}
-        isClearable={false}
+        createCustomValue={true}
         onChange={(fieldName) => onSelectFieldName(fieldName?.value)}
-        options={() => getLabels()}
+        options={(typeAhead) => getLabels().then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))}
       />
     </div>
   );

@@ -13,7 +13,7 @@ import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProvid
 import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
-import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
 
 interface Props {
   recordIndex: number;
@@ -80,11 +80,12 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
             placeholder={'Select column'}
             width={'auto'}
             minWidth={30}
-            maxWidth={90}
             isClearable={false}
             onChange={(column) => onSelectColumn(column?.value, colIdx)}
             createCustomValue={true}
-            options={() => getKeys(dsUID, record.labels)}
+            options={(typeAhead) =>
+              getKeys(dsUID, record, colIdx).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+            }
           />
           <IconButton
             variant={'destructive'}
@@ -114,17 +115,20 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
 
 const getKeys = async (
   dsUID: string,
-  columnsLabels: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels
+  record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
+  colIdx: number
 ): Promise<ComboboxOption[]> => {
   const datasource_ = await getDataSourceSrv().get(dsUID);
+
   if (!(datasource_ instanceof DataSourceWithBackend)) {
     logger.error(new Error('DefaultColumnsFields::getFieldValues - Invalid datasource!'));
     throw new Error('DefaultColumnsFields::getFieldValues - Invalid datasource!');
   }
   const datasource = datasource_ as LokiDatasource;
+
   if (datasource) {
     // Get labels query
-    const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels);
+    const labelFilters = mapColumnsLabelsToAdHocFilters(record.labels);
     const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
 
     // Get fields query
@@ -137,14 +141,24 @@ const getKeys = async (
       : Promise.resolve([]);
 
     try {
+      const removeAlreadySelected = (opt: ComboboxOption) => !record.columns.some((col) => col && col === opt.value);
+      const column = record.columns[colIdx];
       const combinedRequests: Promise<[ComboboxOption[], ComboboxOption[]]> = Promise.all([
-        getLabelsKeysPromise.then((res) => res.map((key) => ({ value: key.text, group: 'Labels' }))),
+        getLabelsKeysPromise.then((res) => {
+          return res
+            .map((key) => ({ value: key.text, group: 'Labels' }))
+            .filter((opt) => column === opt.value || removeAlreadySelected(opt))
+            .sort((l, r) => l.value.localeCompare(r.value));
+        }),
         getDetectedFieldsKeysPromise.then((res): ComboboxOption[] => {
           if (res instanceof Error) {
             logger.error(res, { msg: 'DefaultColumnsFields::getKeys - Failed to fetch detected fields' });
             throw res;
           }
-          return res.map((key) => ({ value: key.label, group: 'Fields' }));
+          return res
+            .map((key) => ({ value: key.label, group: 'Fields' /* dont wrap this line */ }))
+            .filter((opt) => column === opt.value || removeAlreadySelected(opt))
+            .sort((l, r) => l.value.localeCompare(r.value));
         }),
       ]);
       return combinedRequests.then((reqs): ComboboxOption[] => flatten(reqs));

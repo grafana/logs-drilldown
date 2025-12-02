@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { css } from '@emotion/css';
 import { isArray, memoize } from 'lodash';
