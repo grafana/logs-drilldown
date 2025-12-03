@@ -382,7 +382,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       generateLogShortlink(
         'panelState',
         {
-          logs: { displayedFields: parent.state.displayedFields, id: row.uid },
+          logs: {
+            displayedFields: parent.state.displayedFields,
+            id: row.uid,
+            sortOrder: this.state.sortOrder,
+          },
         },
         timeRange
       )
