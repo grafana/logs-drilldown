@@ -538,9 +538,25 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     return ` | ${filters.join(' or ')} `;
   };
 
+  getDefaultColumns(labelName: string, labelValue: string): string[] {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const records = indexScene.state.defaultColumnsRecords;
+    if (records) {
+      // The service selection logs query only has a single label, so any record with more than one label is too specific
+      const matchingRecord = records.find(
+        (r) => r.labels.length === 1 && r.labels.every((l) => l.key === labelName && l.value === labelValue)
+      );
+      return matchingRecord?.columns ?? [];
+    }
+
+    return [];
+  }
+
   // Creates a layout with logs panel
   buildServiceLogsLayout = (labelName: string, labelValue: string) => {
     const levelFilter = this.getLevelFilterForService(labelValue);
+
+    const defaultDisplayedFields = this.getDefaultColumns(labelName, labelValue);
     const cssGridItem = new SceneCSSGridItem({
       $behaviors: [new behaviors.CursorSync({ sync: DashboardCursorSync.Off })],
       body: PanelBuilders.logs()
@@ -563,8 +579,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
+
         // @todo unhardcode, any reason to use line_format instead?
-        .setOption('displayedFields', ['msg', 'detected_level', 'service_name'])
+        .setOption('displayedFields', defaultDisplayedFields)
         .build(),
     });
 

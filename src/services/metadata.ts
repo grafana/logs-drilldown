@@ -1,3 +1,5 @@
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients';
+
 import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
 import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
 
@@ -16,6 +18,7 @@ export function initializeMetadataService(force = false): void {
 export class MetadataService {
   private serviceSceneState: ServiceSceneCustomState | undefined = undefined;
   private lokiConfig: LokiConfigState;
+  private defaultColumns: Record<string, LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords> = {};
   public getServiceSceneState() {
     return this.serviceSceneState;
   }
@@ -70,6 +73,15 @@ export class MetadataService {
   // Don't call this except to init the IndexScene.lokiConfig state!
   public getLokiConfig() {
     return this.lokiConfig;
+  }
+
+  public setDefaultColumns(columns: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords, dsUID: string) {
+    this.defaultColumns[dsUID] = columns;
+  }
+
+  // Don't call this except to init the indexScene.defaultColumnsRecords state!
+  public getDefaultColumns(dsUID: string) {
+    return this.defaultColumns[dsUID];
   }
 }
 

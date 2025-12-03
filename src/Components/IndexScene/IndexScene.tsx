@@ -334,40 +334,34 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   }
 
   private async getDefaultColumnsFromAppPlatform() {
-    const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1alpha1');
-    const dataSourceVariable = getDataSourceVariable(this);
-    const dsUID = dataSourceVariable.state.value;
+    if (config.featureToggles.kubernetesLogsDrilldown && config.featureToggles.grafanaAPIServerWithExperimentalAPIs) {
+      const dataSourceVariable = getDataSourceVariable(this);
+      const dsUID = dataSourceVariable.state.value.toString();
+      const metadataService = getMetadataService();
+      const cachedRecords = metadataService.getDefaultColumns(dsUID);
 
-    // @todo check if API is supported
-    const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultcolumns/${dsUID}`);
-    const fetchResult = await fetch(request);
+      if (cachedRecords) {
+        this.setState({
+          defaultColumnsRecords: cachedRecords,
+        });
+      } else {
+        const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1alpha1');
 
-    if (fetchResult.ok) {
-      // @todo refactor once https://github.com/grafana/grafana-community-team/issues/633 is merged
-      const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
-      const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
-      console.log('records', records);
-      this.setState({
-        defaultColumnsRecords: records,
-      });
+        const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultcolumns/${dsUID}`);
+        const fetchResult = await fetch(request);
+
+        if (fetchResult.ok) {
+          // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
+          const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
+          const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
+          console.log('fetched records', records);
+          this.setState({
+            defaultColumnsRecords: records,
+          });
+          getMetadataService().setDefaultColumns(records, dsUID);
+        }
+      }
     }
-
-    // @todo This is for when we have a query (i.e. service scene)
-    // const labelsVariable = getLabelsVariable(this);
-    // const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
-    // const filtersMap = new Map<string, string>();
-    // inclusiveFilters.forEach((f) => filtersMap.set(f.key, f.value));
-    // const recordsScore = records.map((r, recordIndex) => {
-    //   const score = r.labels.reduce((accumulator, label) => {
-    //     const mapValue = filtersMap.get(label.key);
-    //     if (mapValue === label.value) {
-    //       return accumulator + 1;
-    //     }
-    //     return accumulator;
-    //   }, 0);
-    //   return { ...r, score };
-    // });
-    // console.log('recordsScore', recordsScore);
   }
 
   public currentFiltersMatchReference() {
