@@ -4,14 +4,6 @@ import { css } from '@emotion/css';
 import { debounce } from 'lodash';
 
 import {
-  useGetLogsDrilldownDefaultColumnsQuery,
-  generatedAPI,
-  GetLogsDrilldownDefaultColumnsApiArg,
-  getAPIBaseURL,
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
-} from '@grafana/api-clients';
-import { LogsDrilldownDefaultColumns } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
-import {
   AdHocVariableFilter,
   DashboardCursorSync,
   DataFrame,
@@ -51,7 +43,6 @@ import {
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
 import { pushUrlHandler } from '../../services/navigate';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
   clearServiceSelectionSearchVariable,
@@ -657,41 +648,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.subscribeToAggregatedMetricToggle();
 
     this.subscribeToAggregatedMetricVariable();
-
-    this.getDefaultColumnsFromAppPlatform();
-  }
-
-  private async getDefaultColumnsFromAppPlatform() {
-    const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1alpha1');
-    const dataSourceVariable = getDataSourceVariable(this);
-    const dsUID = dataSourceVariable.state.value;
-    const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultcolumns/${dsUID}`);
-    const fetchResult = await fetch(request);
-    // @todo check for support
-    // @todo narrow this
-    const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
-    const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
-    // @todo if 200
-    console.log('response', response);
-
-    //@todo need to prepare a map in the scene state and get the columns for each particular service
-
-    // @todo This is for when we have a query
-    // const labelsVariable = getLabelsVariable(this);
-    // const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
-    // const filtersMap = new Map<string, string>();
-    // inclusiveFilters.forEach((f) => filtersMap.set(f.key, f.value));
-    // const recordsScore = records.map((r, recordIndex) => {
-    //   const score = r.labels.reduce((accumulator, label) => {
-    //     const mapValue = filtersMap.get(label.key);
-    //     if (mapValue === label.value) {
-    //       return accumulator + 1;
-    //     }
-    //     return accumulator;
-    //   }, 0);
-    //   return { ...r, score };
-    // });
-    // console.log('recordsScore', recordsScore);
   }
 
   private runVolumeOnActivate() {

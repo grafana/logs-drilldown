@@ -31,7 +31,8 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
         r.labels.length &&
         r.labels.every(
           (l) => l.key !== '' //
-        )
+        ) &&
+        r.columns.every((c) => c)
       )
   );
 

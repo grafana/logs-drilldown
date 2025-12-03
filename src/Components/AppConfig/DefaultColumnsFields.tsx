@@ -20,10 +20,10 @@ interface Props {
 }
 
 export function DefaultColumnsFields({ recordIndex }: Props) {
-  const styles = useStyles2(getStyles);
   const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
   const record = localDefaultColumnsState?.[dsUID]?.records[recordIndex];
   const columns = record?.columns ?? [];
+  const styles = useStyles2(getStyles, !columns.length);
 
   if (!record) {
     const error = new Error('DefaultColumnsFields: missing record!');
@@ -177,7 +177,7 @@ const getKeys = async (
   return [];
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme2, invalid: boolean) => ({
   fieldsContainer: css({
     label: 'fieldsContainer',
   }),
@@ -192,6 +192,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   fieldsContainer__button: css({
     alignSelf: 'flex-start',
     marginTop: theme.spacing(1),
+    borderColor: invalid ? theme.colors.error.border : theme.colors.border.strong,
   }),
   fieldsContainer__inputContainer: css({
     marginTop: theme.spacing(1),

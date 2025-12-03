@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { getAPIBaseURL, LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients';
+import { LogsDrilldownDefaultColumns } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
@@ -323,10 +325,49 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(this.subscribeToLokiConfigAPI());
     this._subs.add(this.subscribeToDataSourceChange());
 
+    this.getDefaultColumnsFromAppPlatform();
+
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
     };
+  }
+
+  private async getDefaultColumnsFromAppPlatform() {
+    const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1alpha1');
+    const dataSourceVariable = getDataSourceVariable(this);
+    const dsUID = dataSourceVariable.state.value;
+
+    // @todo check if API is supported
+    const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultcolumns/${dsUID}`);
+    const fetchResult = await fetch(request);
+
+    if (fetchResult.ok) {
+      // @todo refactor once https://github.com/grafana/grafana-community-team/issues/633 is merged
+      const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
+      const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
+      console.log('records', records);
+      this.setState({
+        defaultColumnsRecords: records,
+      });
+    }
+
+    // @todo This is for when we have a query (i.e. service scene)
+    // const labelsVariable = getLabelsVariable(this);
+    // const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
+    // const filtersMap = new Map<string, string>();
+    // inclusiveFilters.forEach((f) => filtersMap.set(f.key, f.value));
+    // const recordsScore = records.map((r, recordIndex) => {
+    //   const score = r.labels.reduce((accumulator, label) => {
+    //     const mapValue = filtersMap.get(label.key);
+    //     if (mapValue === label.value) {
+    //       return accumulator + 1;
+    //     }
+    //     return accumulator;
+    //   }, 0);
+    //   return { ...r, score };
+    // });
+    // console.log('recordsScore', recordsScore);
   }
 
   public currentFiltersMatchReference() {
@@ -363,9 +404,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   }
 
   private subscribeToDataSourceChange() {
-    getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+    return getDataSourceVariable(this).subscribeToState((newState, prevState) => {
       if (newState.value !== prevState.value) {
         this.state.$lokiConfig.runQueries();
+        this.getDefaultColumnsFromAppPlatform();
       }
     });
   }
