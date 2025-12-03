@@ -579,8 +579,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
-
-        // @todo unhardcode, any reason to use line_format instead?
         .setOption('displayedFields', defaultDisplayedFields)
         .build(),
     });

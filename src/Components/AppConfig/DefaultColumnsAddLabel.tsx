@@ -23,7 +23,7 @@ export function DefaultColumnsAddLabel({ recordIndex }: Props) {
       const beforeThisRecord = records.slice(0, recordIndex);
       const thisRecord = records.splice(recordIndex, 1)[0];
       const afterThisRecord = records.slice(recordIndex, records.length);
-      const newrecords = [
+      const newRecords = [
         ...beforeThisRecord,
         { ...thisRecord, labels: [...(thisRecord?.labels ?? []), { key: '' }] },
         ...afterThisRecord,
@@ -32,7 +32,7 @@ export function DefaultColumnsAddLabel({ recordIndex }: Props) {
       // This is messing up the order
       setLocalDefaultColumnsDatasourceState({
         ...ds,
-        records: newrecords,
+        records: newRecords,
       });
     }
   };
