@@ -320,11 +320,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
         migratedDisplayedFields = ensureDefaultDisplayedFields(userFields, hasDetectedLevel);
 
         // Remove urlColumns from URL
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.delete('urlColumns');
+        const location = locationService.getLocation();
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.delete('urlColumns');
+
         locationService.replace({
-          pathname: currentUrl.pathname,
-          search: currentUrl.search,
+          pathname: location.pathname,
+          search: searchParams.toString(),
         });
       } catch (e) {
         logger.error(e, { msg: 'LogsListScene: Error migrating urlColumns to displayedFields' });
