@@ -4,12 +4,10 @@ import { css } from '@emotion/css';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '@grafana/api-clients';
 import { GrafanaTheme2 } from '@grafana/data';
-import { SceneContextProvider } from '@grafana/scenes-react';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsLogsView } from './DefaultColumnsLogsView';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';
 import { DefaultColumnsState } from './types';
 
