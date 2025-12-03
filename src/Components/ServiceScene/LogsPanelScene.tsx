@@ -39,7 +39,7 @@ import {
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_DISPLAYED_FIELDS, DETECTED_LEVEL } from '../Table/constants';
+import { DETECTED_LEVEL } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
