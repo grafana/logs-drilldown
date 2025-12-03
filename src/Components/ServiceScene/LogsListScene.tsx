@@ -42,6 +42,7 @@ import {
   LogsVisualizationType,
   setLogsVisualizationType,
 } from 'services/store';
+import { areArraysEqual } from '../../services/comparison';
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
@@ -163,6 +164,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     });
   }
 
+  showDefaultFields = () => {
+    this.setState({ displayedFields: [] });
+    if (this.logsPanelScene) {
+      this.logsPanelScene.showDefaultFields();
+    }
+  };
+
   clearDisplayedFields = () => {
     this.setState({ displayedFields: [] });
     if (this.logsPanelScene) {
@@ -189,8 +197,18 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       })
     );
 
-    // Subscribe to logs query runner for error handling (all visualization types)
+    this.setDefaultColumns();
+
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this._subs.add(
+      serviceScene.subscribeToState((newState, prevState) => {
+        if (!areArraysEqual(newState.defaultColumns, prevState.defaultColumns)) {
+          this.setDefaultColumns(newState.defaultColumns, prevState.defaultColumns);
+        }
+      })
+    );
+
+    // Subscribe to logs query runner for error handling (all visualization types)
     const logsQueryRunner = serviceScene.state.$data;
     if (logsQueryRunner) {
       this._subs.add(
@@ -204,6 +222,32 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           }
         })
       );
+    }
+  }
+
+  setDefaultColumns(newCols?: string[], prevCols?: string[]) {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    console.log('urlColumns', this.state.urlColumns);
+    console.log('defaultDisplayedFields', this.state.defaultDisplayedFields);
+    console.log('displayedFields', this.state.displayedFields);
+    console.log('defaultColumns', serviceScene.state.defaultColumns);
+
+    // if (!serviceScene.state.defaultColumns?.length) {
+    // @todo, do we want this to be default? Should show original log line show admin defaults? Should we have a new button to restore admin defaults?
+    this.setState({
+      defaultDisplayedFields: serviceScene.state.defaultColumns,
+    });
+
+    if (!this.state.displayedFields) {
+      this.setState({
+        displayedFields: serviceScene.state.defaultColumns,
+      });
+    }
+
+    if (!this.state.urlColumns?.length || (prevCols?.length && areArraysEqual(this.state.urlColumns, prevCols))) {
+      this.setState({
+        urlColumns: serviceScene.state.defaultColumns,
+      });
     }
   }
 

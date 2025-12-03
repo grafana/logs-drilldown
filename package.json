@@ -128,7 +128,7 @@
     "rxjs": "7.8.2",
     "tslib": "2.5.3",
     "uuid": "^10.0.0",
-    "@grafana/api-clients": "file:/Users/galen/projects/grafana/grafana/packages/grafana-api-clients/package.tgz",
+    "@grafana/api-clients": "file:./api-clients.tgz",
     "@reduxjs/toolkit": "^2.8.0"
   },
   "resolutions": {

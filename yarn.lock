@@ -1113,9 +1113,9 @@
   dependencies:
     tslib "^2.8.0"
 
-"@grafana/api-clients@file:../grafana/packages/grafana-api-clients/package.tgz":
+"@grafana/api-clients@file:./api-clients.tgz":
   version "12.4.0-pre"
-  resolved "file:../grafana/packages/grafana-api-clients/package.tgz#b1aa4c7563e0be03b1e2f2a01311721f8adfd834"
+  resolved "file:./api-clients.tgz#b1aa4c7563e0be03b1e2f2a01311721f8adfd834"
 
 "@grafana/assistant@0.1.4":
   version "0.1.4"

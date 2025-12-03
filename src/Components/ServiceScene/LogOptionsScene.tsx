@@ -63,6 +63,15 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
       USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
     );
   };
+
+  showDefaultFields = () => {
+    const parentScene = this.getLogsListScene();
+    parentScene.showDefaultFields();
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
+    );
+  };
 }
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
@@ -73,10 +82,21 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const wrapLines = wrapLogMessage ?? false;
 
   const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
+  const defaultFieldNames = useMemo(
+    () => defaultDisplayedFields.map(getNormalizedFieldName).join(', '),
+    [defaultDisplayedFields]
+  );
 
   return (
     <div className={styles.container}>
-      {displayedFields.length > 0 && shallowCompare(displayedFields, defaultDisplayedFields) === false && (
+      {!shallowCompare(displayedFields, defaultDisplayedFields) && (
+        <Tooltip content={`Show default fields: ${defaultFieldNames}`}>
+          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showDefaultFields}>
+            Show default fields
+          </Button>
+        </Tooltip>
+      )}
+      {displayedFields.length > 0 && (
         <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line
