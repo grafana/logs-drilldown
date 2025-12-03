@@ -226,7 +226,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const panelWrap = useRef<HTMLDivElement>(null);
 
     // Define callback function to update displayed fields in react
-    const setUrlColumns = (columns: string[]) => {
+    const setDisplayedFields = (columns: string[]) => {
       // sync table columns with log panel displayed fields
       model.updateDisplayedFields(columns);
     };
@@ -281,7 +281,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                     timeRange={timeRangeValue}
                     selectedLine={selectedLine}
                     displayedFields={displayedFields ?? []}
-                    setDisplayedFields={setUrlColumns}
+                    setDisplayedFields={setDisplayedFields}
                     dataFrame={dataFrame}
                     clearSelectedLine={clearSelectedLine}
                     setUrlTableBodyState={setUrlTableBodyState}

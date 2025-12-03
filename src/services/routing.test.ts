@@ -42,7 +42,7 @@ describe('buildBreakdownUrl', () => {
   it('preserves valid url keys', () => {
     Object.defineProperty(window, 'location', {
       value: new URL(
-        'http://localhost:3000/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?var-ds=DSID&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-filters=service_name%7C%3D%7Ctempo-distributor&urlColumns=%5B%22Time%22,%22Line%22%5D&visualizationType=%22table%22'
+        'http://localhost:3000/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?var-ds=DSID&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-filters=service_name%7C%3D%7Ctempo-distributor&visualizationType=%22table%22'
       ),
       writable: true,
     });
@@ -50,7 +50,7 @@ describe('buildBreakdownUrl', () => {
     Object.keys(PageSlugs).forEach((slug) => {
       const breakdownUrl = buildDrilldownPageUrl(slug);
       expect(breakdownUrl).toBe(
-        `${slug}?var-ds=DSID&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-filters=service_name%7C%3D%7Ctempo-distributor&urlColumns=%5B%22Time%22,%22Line%22%5D&visualizationType=%22table%22`
+        `${slug}?var-ds=DSID&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-filters=service_name%7C%3D%7Ctempo-distributor&visualizationType=%22table%22`
       );
     });
   });
@@ -58,7 +58,7 @@ describe('buildBreakdownUrl', () => {
   it('service page will remove keys from breakdown routes, but keep datasource and label filters', () => {
     Object.defineProperty(window, 'location', {
       value: new URL(
-        'http://localhost:3000/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?var-ds=DSID&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-filters=service_name%7C%3D%7Ctempo-distributor&urlColumns=%5B%22Time%22,%22Line%22%5D&visualizationType=%22table%22'
+        'http://localhost:3000/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?var-ds=DSID&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-filters=service_name%7C%3D%7Ctempo-distributor&visualizationType=%22table%22'
       ),
       writable: true,
     });
