@@ -3,13 +3,13 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { SceneContextProvider } from '@grafana/scenes-react';
 import { Button, Divider, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { DefaultColumnsDeleteRecord } from './DefaultColumnsDeleteRecord';
 import { DefaultColumnsFields } from './DefaultColumnsFields';
 import { DefaultColumnsLabels } from './DefaultColumnsLabels';
-import { DefaultColumnsLogsView } from './DefaultColumnsLogsView';
+import { DefaultColumnsLogsScene } from './DefaultColumnsLogsScene';
 
 interface RecordsProps {}
 
@@ -17,13 +17,29 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
   const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
 
-  if (!localDefaultColumnsState?.[dsUID]) {
+  const ds = localDefaultColumnsState?.[dsUID];
+
+  if (!ds) {
     throw new Error('Records::missing localDefaultColumnsState');
   }
 
+  // @todo perf
+  const invalidRecords = ds.records.filter(
+    (r) =>
+      !(
+        r.columns.length &&
+        r.labels.length &&
+        r.labels.every(
+          (l) => l.key !== '' //
+        )
+      )
+  );
+
+  const isInvalid = !!ds.records.length && !!invalidRecords.length;
+
   return (
     <div className={styles.recordsContainer}>
-      {localDefaultColumnsState[dsUID]?.records.map((_, recordIndex: number) => {
+      {ds?.records.map((_, recordIndex: number) => {
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>
@@ -36,12 +52,10 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
               <DefaultColumnsFields recordIndex={recordIndex} />
             </div>
 
-            <Divider />
-
             {/*@todo with scan direction the duration of logs queries is less relevant? */}
-            <SceneContextProvider timeRange={{ from: 'now-24h', to: 'now' }} withQueryController>
-              <DefaultColumnsLogsView recordIndex={recordIndex} />
-            </SceneContextProvider>
+            <DefaultColumnsLogsScene recordIndex={recordIndex} />
+
+            <DefaultColumnsDeleteRecord recordIndex={recordIndex} />
           </div>
         );
       })}
@@ -50,16 +64,11 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
         variant={'secondary'}
         fill={'outline'}
         icon={'plus'}
-        disabled={
-          // @todo perf
-          !!localDefaultColumnsState[dsUID]?.records.find(
-            (r) => !(r.columns.length && r.labels.length && r.labels.some((l) => l.key === ''))
-          )
-        }
+        disabled={isInvalid}
         onClick={() => {
           setLocalDefaultColumnsDatasourceState({
             // Add new record with empty label name
-            records: [...(localDefaultColumnsState[dsUID]?.records ?? []), { columns: [], labels: [{ key: '' }] }],
+            records: [...(ds?.records ?? []), { columns: [], labels: [{ key: '' }] }],
           });
         }}
       >
@@ -74,6 +83,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     border: `1px solid ${theme.colors.border.weak}`,
     paddingBottom: theme.spacing(2),
     marginBottom: theme.spacing(3),
+    position: 'relative',
   }),
   recordContainer__content: css({
     paddingLeft: theme.spacing(2),

@@ -12,17 +12,15 @@ import { LokiQuery, LokiQueryDirection } from '../../services/lokiQuery';
 import { getLogOption } from '../../services/store';
 import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 
 interface Props {
+  expr: string;
   recordIndex: number;
 }
-export function DefaultColumnsLogsView({ recordIndex }: Props) {
+export function DefaultColumnsLogsView({ recordIndex, expr }: Props) {
   const { dsUID, localDefaultColumnsState } = useDefaultColumnsContext();
-
   const record = localDefaultColumnsState?.[dsUID]?.records[recordIndex];
-  const labelFilters = mapColumnsLabelsToAdHocFilters(record?.labels ?? []);
-  const expr = getColumnsLabelsExpr(labelFilters);
+
   const query: LokiQuery = {
     refId: `gld-sample-${recordIndex}`,
     expr: `{${expr}} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`,
@@ -39,20 +37,18 @@ export function DefaultColumnsLogsView({ recordIndex }: Props) {
 
   const logsPanelOptions: Partial<Options> = {
     enableLogDetails: getLogOption('enableLogDetails', false),
-    prettifyLogMessage: getLogOption('prettifyLogMessage', false),
-    showCommonLabels: getLogOption('showCommonLabels', false),
     showLogContextToggle: getLogOption('showLogContextToggle', false),
     showTime: getLogOption('showTime', false),
-    wrapLogMessage: getLogOption('wrapLogMessage', false),
+    wrapLogMessage: getLogOption('wrapLogMessage', true),
     fontSize: getLogOption('fontSize', 'small'),
     enableInfiniteScrolling: getLogOption('enableInfiniteScrolling', true),
-    sortOrder: getLogOption('sortOrder', 'Descending'),
     noInteractions: true,
     showControls: getLogOption('showControls', true),
     displayedFields: record?.columns,
   };
 
   const viz = new VizConfigBuilder<Options, {}>('logs', '10.0.0', () => logsPanelOptions);
+
   return (
     <div className={styles.panelWrap}>
       <VizPanel hoverHeader={true} title={''} viz={viz.build()} dataProvider={dataProvider} />
@@ -62,7 +58,10 @@ export function DefaultColumnsLogsView({ recordIndex }: Props) {
 
 const getStyles = (theme: GrafanaTheme2) => ({
   panelWrap: css({
+    marginTop: theme.spacing(2),
     label: 'panelWrap',
     height: '320px',
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   }),
 });
