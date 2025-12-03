@@ -113,11 +113,8 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
   );
 }
 
-const getKeys = async (
-  dsUID: string,
-  record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
-  colIdx: number
-): Promise<ComboboxOption[]> => {
+// @todo move
+export const getDatasource = async (dsUID: string) => {
   const datasource_ = await getDataSourceSrv().get(dsUID);
 
   if (!(datasource_ instanceof DataSourceWithBackend)) {
@@ -125,6 +122,15 @@ const getKeys = async (
     throw new Error('DefaultColumnsFields::getFieldValues - Invalid datasource!');
   }
   const datasource = datasource_ as LokiDatasource;
+  return datasource;
+};
+
+const getKeys = async (
+  dsUID: string,
+  record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
+  colIdx: number
+): Promise<ComboboxOption[]> => {
+  const datasource = await getDatasource(dsUID);
 
   if (datasource) {
     // Get labels query

@@ -4,14 +4,18 @@ import { css } from '@emotion/css';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '@grafana/api-clients';
 import { GrafanaTheme2 } from '@grafana/data';
+import { SceneContextProvider } from '@grafana/scenes-react';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { DefaultColumnsLogsView } from './DefaultColumnsLogsView';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';
 import { DefaultColumnsState } from './types';
 
 interface Props {}
+
+//@todo make sure we don't save duplicate records
 
 export const DefaultColumns = ({}: Props) => {
   const styles = useStyles2(getStyles);

@@ -3,11 +3,13 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { SceneContextProvider } from '@grafana/scenes-react';
 import { Button, Divider, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsFields } from './DefaultColumnsFields';
 import { DefaultColumnsLabels } from './DefaultColumnsLabels';
+import { DefaultColumnsLogsView } from './DefaultColumnsLogsView';
 
 interface RecordsProps {}
 
@@ -33,6 +35,13 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
             <div className={styles.recordContainer__content}>
               <DefaultColumnsFields recordIndex={recordIndex} />
             </div>
+
+            <Divider />
+
+            {/*@todo with scan direction the duration of logs queries is less relevant? */}
+            <SceneContextProvider timeRange={{ from: 'now-24h', to: 'now' }} withQueryController>
+              <DefaultColumnsLogsView recordIndex={recordIndex} />
+            </SceneContextProvider>
           </div>
         );
       })}

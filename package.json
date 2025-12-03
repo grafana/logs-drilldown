@@ -111,6 +111,7 @@
     "@grafana/lezer-logql": "^0.2.9",
     "@grafana/runtime": "^12.3.0",
     "@grafana/scenes": "^6.39.0",
+    "@grafana/scenes-react": "^6.39.0",
     "@grafana/schema": "^12.2.0",
     "@grafana/ui": "^12.3.0",
     "@gtk-grafana/react-json-tree": "^0.0.12",
