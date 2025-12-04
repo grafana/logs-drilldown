@@ -443,7 +443,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (
-      (values && typeof values.drillDownLabel === 'string') ||
+      (values && typeof values.drillDownLabel === 'string' && values.drillDownLabel) ||
       (values.drillDownLabel === null && values.drillDownLabel !== this.state.drillDownLabel)
     ) {
       stateUpdate.drillDownLabel = values.drillDownLabel ?? undefined;
