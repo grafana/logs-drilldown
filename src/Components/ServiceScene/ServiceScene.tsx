@@ -485,11 +485,16 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       }
     }
 
+    const rawDrilldownLabel = values.drillDownLabel;
+    // normalize drilldown label to prevent infinite render bugs introduced when embedded, some embedding applications routing causes unused url params to get passed as an empty string instead of null/undefined
+    const normalizedDrillDownLabel =
+      values.drillDownLabel && typeof rawDrilldownLabel === 'string' ? rawDrilldownLabel : undefined;
+
     if (
-      (values && typeof values.drillDownLabel === 'string') ||
+      (values && typeof rawDrilldownLabel === 'string' && normalizedDrillDownLabel !== this.state.drillDownLabel) ||
       (values.drillDownLabel === null && values.drillDownLabel !== this.state.drillDownLabel)
     ) {
-      stateUpdate.drillDownLabel = values.drillDownLabel ?? undefined;
+      stateUpdate.drillDownLabel = normalizedDrillDownLabel;
     }
 
     if (Object.keys(stateUpdate).length) {
