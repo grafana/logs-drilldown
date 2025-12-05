@@ -81,15 +81,18 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
 
-  const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
+  const displayedFieldsNames = useMemo(
+    () => displayedFields?.map(getNormalizedFieldName).join(', '),
+    [displayedFields]
+  );
   const defaultFieldNames = useMemo(
-    () => defaultDisplayedFields.map(getNormalizedFieldName).join(', '),
+    () => defaultDisplayedFields?.map(getNormalizedFieldName).join(', '),
     [defaultDisplayedFields]
   );
 
   return (
     <div className={styles.container}>
-      {!shallowCompare(displayedFields, defaultDisplayedFields) && (
+      {!shallowCompare(displayedFields ?? [], defaultDisplayedFields ?? []) && (
         <Tooltip content={`Show default fields: ${defaultFieldNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showDefaultFields}>
             Show default fields
