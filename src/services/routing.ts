@@ -82,7 +82,6 @@ export const DRILLDOWN_URL_KEYS = [
   'from',
   'to',
   'mode',
-  'urlColumns',
   'visualizationType',
   'selectedLine',
   'displayedFields',

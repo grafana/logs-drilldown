@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2, LogsSortOrder, shallowCompare } from '@grafana/data';
+import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
@@ -10,6 +10,7 @@ import { Button, InlineField, RadioButtonGroup, Tooltip, useStyles2 } from '@gra
 
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
+import { DEFAULT_DISPLAYED_FIELDS } from '../Table/constants';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
@@ -68,15 +69,27 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const { onChangeVisualizationType, visualizationType } = model.useState();
   const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
-  const { displayedFields, defaultDisplayedFields } = model.getLogsListScene().useState();
+  const { displayedFields } = model.getLogsListScene().useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
 
-  const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
+  // Filter out default fields from displayedFields to show only user-added fields
+  const nonDefaultFields = useMemo(() => {
+    if (!displayedFields?.length || !DEFAULT_DISPLAYED_FIELDS?.length) {
+      return [];
+    }
+
+    return displayedFields.filter((field) => !DEFAULT_DISPLAYED_FIELDS.includes(field));
+  }, [displayedFields]);
+
+  const displayedFieldsNames = useMemo(
+    () => nonDefaultFields.map(getNormalizedFieldName).join(', '),
+    [nonDefaultFields]
+  );
 
   return (
     <div className={styles.container}>
-      {displayedFields.length > 0 && shallowCompare(displayedFields, defaultDisplayedFields) === false && (
+      {nonDefaultFields.length > 0 && (
         <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line
