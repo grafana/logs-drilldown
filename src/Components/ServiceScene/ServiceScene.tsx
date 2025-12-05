@@ -2,7 +2,6 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import {
   AdHocFiltersVariable,
@@ -26,6 +25,7 @@ import {
 import { LogsSortOrder, VariableHide } from '@grafana/schema';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';

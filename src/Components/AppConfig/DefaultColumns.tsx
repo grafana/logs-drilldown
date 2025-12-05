@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 import { css } from '@emotion/css';
 
-import { useGetLogsDrilldownDefaultColumnsQuery } from '@grafana/api-clients';
 import { GrafanaTheme2 } from '@grafana/data';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
+import { useGetLogsDrilldownDefaultColumnsQuery } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';

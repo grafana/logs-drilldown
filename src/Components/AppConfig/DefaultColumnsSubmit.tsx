@@ -1,14 +1,14 @@
 import React from 'react';
 
+import { Button } from '@grafana/ui';
+
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
   LogsDrilldownDefaultColumnsSpec,
   useCreateLogsDrilldownDefaultColumnsMutation,
   useReplaceLogsDrilldownDefaultColumnsMutation,
-} from '@grafana/api-clients';
-import { Button } from '@grafana/ui';
-
+} from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { isDefaultColumnsStateChanged } from './DefaultColumnsState';
 

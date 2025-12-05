@@ -2,8 +2,7 @@ import React, { createContext, ReactNode, useCallback, useContext, useState } fr
 
 import { cloneDeep } from 'lodash';
 
-import { ObjectMeta } from '@grafana/api-clients';
-
+import { ObjectMeta } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { DefaultColumnsState, LocalDefaultColumnsState, LocalLogsDrilldownDefaultColumnsSpec } from './types';
 
 type DefaultColumnsContextType = {

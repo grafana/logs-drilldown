@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { getAPIBaseURL, LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients';
-import { LogsDrilldownDefaultColumns } from '@grafana/api-clients/dist/types/clients/rtkq/logsdrilldown/v1alpha1/endpoints.gen';
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
 import { config, getAppEvents, locationService } from '@grafana/runtime';
@@ -28,6 +26,11 @@ import {
 import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import {
+  LogsDrilldownDefaultColumns,
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+} from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { getAPIBaseURL } from '../../lib/api-clients/utils/utils';
 import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';

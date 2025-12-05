@@ -1,6 +1,6 @@
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from '@grafana/api-clients';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
 import { LabelFilterOp } from '../../services/filterTypes';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';

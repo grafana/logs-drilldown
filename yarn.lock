@@ -1113,10 +1113,6 @@
   dependencies:
     tslib "^2.8.0"
 
-"@grafana/api-clients@file:./api-clients.tgz":
-  version "12.4.0-pre"
-  resolved "file:./api-clients.tgz#b1aa4c7563e0be03b1e2f2a01311721f8adfd834"
-
 "@grafana/assistant@0.1.4":
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/@grafana/assistant/-/assistant-0.1.4.tgz#cf4d9053f2e3045217617a8ec116955791a9cbf5"
