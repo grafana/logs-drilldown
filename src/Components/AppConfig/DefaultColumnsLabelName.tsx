@@ -3,15 +3,13 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { Combobox, useStyles2 } from '@grafana/ui';
 import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
 
-import { logger } from '../../services/logger';
-import { LokiDatasource } from '../../services/lokiQuery';
 import { getLabelsKeys } from '../../services/TagKeysProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
+import { getDatasource } from './DefaultColumnsState';
 
 interface ValueProps {
   labelIndex: number;
@@ -25,12 +23,7 @@ export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps)
   const styles = useStyles2(getStyles);
 
   const getLabels = async (): Promise<ComboboxOption[]> => {
-    const datasource_ = await getDataSourceSrv().get(dsUID);
-    if (!(datasource_ instanceof DataSourceWithBackend)) {
-      logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
-      throw new Error('Invalid datasource!');
-    }
-    const datasource = datasource_ as LokiDatasource;
+    const datasource = await getDatasource(dsUID);
     if (!datasource || !datasource.getResource) {
       throw new Error('Datasource not found');
     }

@@ -4,16 +4,14 @@ import { css } from '@emotion/css';
 import { isArray, memoize } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
 import { LabelFilterOp } from '../../services/filterTypes';
-import { logger } from '../../services/logger';
-import { LokiDatasource } from '../../services/lokiQuery';
 import { getLabelValues } from '../../services/TagValuesProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
+import { getDatasource } from './DefaultColumnsState';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from './types';
 
 interface Props {
@@ -40,12 +38,7 @@ export function DefaultColumnsLabelValue({ recordIndex, labelIndex }: Props) {
 
   const getColumnsLabelValues = memoize(
     async (label: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel): Promise<ComboboxOption[]> => {
-      const datasource_ = await getDataSourceSrv().get(dsUID);
-      if (!(datasource_ instanceof DataSourceWithBackend)) {
-        logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
-        throw new Error('Invalid datasource!');
-      }
-      const datasource = datasource_ as LokiDatasource;
+      const datasource = await getDatasource(dsUID);
       if (datasource) {
         const labelFilters = labels?.filter((f) => f.key !== label.key) ?? [];
         const filters = mapColumnsLabelsToAdHocFilters(labelFilters);

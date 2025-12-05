@@ -1,19 +1,13 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { flatten } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { Button, Combobox, ComboboxOption, Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
-import { LokiDatasource } from '../../services/lokiQuery';
-import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProviders';
-import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
+import { DefaultColumnsColumns } from './DefaultColumnsColumns';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
-import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
 
 interface Props {
   recordIndex: number;
@@ -30,28 +24,6 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
     logger.error(error, { msg: `DefaultColumnsFields: no record at ${recordIndex} for datasource ${dsUID}` });
     throw error;
   }
-
-  const onSelectColumn = (column: string, columnIndex: number) => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
-      const recordToUpdate = records[recordIndex];
-      recordToUpdate.columns[columnIndex] = column;
-
-      setLocalDefaultColumnsDatasourceState({ records });
-    }
-  };
-
-  const onRemoveColumn = (columnIndex: number) => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
-      const recordToUpdate = records[recordIndex];
-      recordToUpdate.columns.splice(columnIndex, 1);
-
-      setLocalDefaultColumnsDatasourceState({ records });
-    }
-  };
 
   const addDisplayField = () => {
     if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
@@ -72,31 +44,7 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
         </Tooltip>
       </h5>
 
-      {columns?.map((column, colIdx) => (
-        <div key={colIdx} className={styles.fieldsContainer__inputContainer}>
-          <Combobox<string>
-            invalid={!column}
-            value={column}
-            placeholder={'Select column'}
-            width={'auto'}
-            minWidth={30}
-            isClearable={false}
-            onChange={(column) => onSelectColumn(column?.value, colIdx)}
-            createCustomValue={true}
-            options={(typeAhead) =>
-              getKeys(dsUID, record, colIdx).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
-            }
-          />
-          <IconButton
-            variant={'destructive'}
-            tooltip={`Remove ${column}`}
-            name={'minus'}
-            size={'lg'}
-            className={styles.fieldsContainer__remove}
-            onClick={() => onRemoveColumn(colIdx)}
-          />
-        </div>
-      ))}
+      <DefaultColumnsColumns recordIndex={recordIndex} />
 
       <Button
         tooltip={'Add a default column to display in the logs'}
@@ -112,70 +60,6 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
     </div>
   );
 }
-
-// @todo move
-export const getDatasource = async (dsUID: string) => {
-  const datasource_ = await getDataSourceSrv().get(dsUID);
-
-  if (!(datasource_ instanceof DataSourceWithBackend)) {
-    logger.error(new Error('DefaultColumnsFields::getFieldValues - Invalid datasource!'));
-    throw new Error('DefaultColumnsFields::getFieldValues - Invalid datasource!');
-  }
-  const datasource = datasource_ as LokiDatasource;
-  return datasource;
-};
-
-const getKeys = async (
-  dsUID: string,
-  record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
-  colIdx: number
-): Promise<ComboboxOption[]> => {
-  const datasource = await getDatasource(dsUID);
-
-  if (datasource) {
-    // Get labels query
-    const labelFilters = mapColumnsLabelsToAdHocFilters(record.labels);
-    const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
-
-    // Get fields query
-    const getDetectedFieldsKeysFn = getDetectedFieldsFn(datasource);
-    const expr = getColumnsLabelsExpr(labelFilters);
-    const getDetectedFieldsKeysPromise = expr
-      ? getDetectedFieldsKeysFn({
-          expr: `{${expr}} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`,
-        })
-      : Promise.resolve([]);
-
-    try {
-      const removeAlreadySelected = (opt: ComboboxOption) => !record.columns.some((col) => col && col === opt.value);
-      const column = record.columns[colIdx];
-      const combinedRequests: Promise<[ComboboxOption[], ComboboxOption[]]> = Promise.all([
-        getLabelsKeysPromise.then((res) => {
-          return res
-            .map((key) => ({ value: key.text, group: 'Labels' }))
-            .filter((opt) => column === opt.value || removeAlreadySelected(opt))
-            .sort((l, r) => l.value.localeCompare(r.value));
-        }),
-        getDetectedFieldsKeysPromise.then((res): ComboboxOption[] => {
-          if (res instanceof Error) {
-            logger.error(res, { msg: 'DefaultColumnsFields::getKeys - Failed to fetch detected fields' });
-            throw res;
-          }
-          return res
-            .map((key) => ({ value: key.label, group: 'Fields' /* dont wrap this line */ }))
-            .filter((opt) => column === opt.value || removeAlreadySelected(opt))
-            .sort((l, r) => l.value.localeCompare(r.value));
-        }),
-      ]);
-      return combinedRequests.then((reqs): ComboboxOption[] => flatten(reqs));
-    } catch (e) {
-      logger.error(e, { msg: 'DefaultColumnsFields::getKeys - Failed to fetch labels!' });
-      return [];
-    }
-  }
-
-  return [];
-};
 
 const getStyles = (theme: GrafanaTheme2, invalid: boolean) => ({
   fieldsContainer: css({
@@ -193,12 +77,5 @@ const getStyles = (theme: GrafanaTheme2, invalid: boolean) => ({
     alignSelf: 'flex-start',
     marginTop: theme.spacing(1),
     borderColor: invalid ? theme.colors.error.border : theme.colors.border.strong,
-  }),
-  fieldsContainer__inputContainer: css({
-    marginTop: theme.spacing(1),
-    display: 'flex',
-  }),
-  fieldsContainer__remove: css({
-    marginLeft: theme.spacing(1),
   }),
 });
