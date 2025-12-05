@@ -8,13 +8,13 @@ configs:
 overrides:
   '1':
     allow_structured_metadata: true
-    #    pattern_persistence_enabled: true
+    pattern_persistence_enabled: true
     volume_enabled: true
     retention_period: 30d
     max_query_length: 0d
   '2':
     allow_structured_metadata: true
-    #    pattern_persistence_enabled: false
+    pattern_persistence_enabled: false
     volume_enabled: true
     retention_period: 30d
     max_query_length: 7d
