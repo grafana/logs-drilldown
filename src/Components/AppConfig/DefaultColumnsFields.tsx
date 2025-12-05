@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
-import { DefaultColumnsColumns } from './DefaultColumnsColumns';
+import { DefaultColumnsColumnsDragContext } from './DefaultColumnsColumnsDragContext';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 
 interface Props {
@@ -44,7 +44,7 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
         </Tooltip>
       </h5>
 
-      <DefaultColumnsColumns recordIndex={recordIndex} />
+      <DefaultColumnsColumnsDragContext recordIndex={recordIndex} />
 
       <Button
         tooltip={'Add a default column to display in the logs'}

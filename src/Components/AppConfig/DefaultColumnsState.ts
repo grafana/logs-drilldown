@@ -3,7 +3,7 @@ import { flatten } from 'lodash';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
-import { areArraysEqual } from '../../services/comparison';
+import { areArraysStrictlyEqual } from '../../services/comparison';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
 import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProviders';
@@ -32,7 +32,7 @@ export const isDefaultColumnsStateChanged = (
         localDefaultColumnsState?.[key]?.records;
       const rhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
         apiDefaultColumnsState?.[key]?.records;
-      return !(lhs && rhs && areArraysEqual(lhs, rhs));
+      return !(lhs && rhs && areArraysStrictlyEqual(lhs, rhs));
     })
   );
 };
