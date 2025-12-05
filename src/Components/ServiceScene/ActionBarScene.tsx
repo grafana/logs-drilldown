@@ -93,8 +93,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
         <TabsBar>
           {breakdownViewsDefinitions
             .filter(
-              (breakdownView) =>
-                !(breakdownView.value === PageSlugs.patterns && serviceScene.state.$patternsData === null)
+              (breakdownView) => !(breakdownView.value === PageSlugs.patterns && !serviceScene.state.$patternsData)
             )
             .map((tab, index) => {
               return (

@@ -524,11 +524,9 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private subscribeToPatternsProvider() {
     return this.subscribeToState((newState, prevState) => {
-      console.log('pattern provider change', { newState: newState.$patternsData, prevState: prevState.$patternsData });
       // Run initial query
       if (newState.$patternsData && prevState.$patternsData === undefined) {
         newState.$patternsData.addActivationHandler(() => {
-          console.log('[attern acivationationt', { newState: newState.$patternsData });
           newState.$patternsData?.runQueries();
         });
         newState.$patternsData.activate();
@@ -544,12 +542,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           newState.lokiConfig === LOKI_CONFIG_API_NOT_SUPPORTED ||
           newState.lokiConfig?.pattern_ingester_enabled !== false
         ) {
-          console.log('newState.lokiConfig', newState.lokiConfig);
           if (this.state.$patternsData === undefined) {
-            console.log('setting patterns', this.state.$patternsData);
             this.setState({
               $patternsData: getPatternsQueryRunner(),
             });
+            this._subs.add(this.subscribeToPatternsQuery());
           }
         } else {
           this.setState({
@@ -806,6 +803,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
       if (indexScene.state.lokiConfig) {
         stateUpdate.$patternsData = getPatternsQueryRunner(indexScene.state.lokiConfig);
+        this._subs.add(this.subscribeToPatternsQuery());
       }
     }
 
