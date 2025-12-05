@@ -8,7 +8,7 @@ import {
   TimeRange,
 } from '@grafana/data';
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
@@ -18,6 +18,19 @@ import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { getDataSource } from './scenes';
 import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
+
+export const getLabelsKeys = async (labelFilters: AdHocFilterWithLabels[], datasource: LokiDatasource) => {
+  const filtersTransformer = new ExpressionBuilder(labelFilters);
+  const filters = filtersTransformer.getJoinedLabelsFilters();
+
+  const options: DataSourceGetTagKeysOptions<LokiQuery> = {
+    filters,
+  };
+
+  const tagKeys = await datasource.getTagKeys(options);
+  const result: MetricFindValue[] = Array.isArray(tagKeys) ? tagKeys : [];
+  return result.filter((key) => !LABELS_TO_REMOVE.includes(key.text));
+};
 
 export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): Promise<{
   replace?: boolean;
@@ -30,17 +43,10 @@ export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): 
   }
   const datasource = datasource_ as LokiDatasource;
 
-  if (datasource && datasource.getTagKeys) {
-    const filtersTransformer = new ExpressionBuilder(variable.state.filters);
-    const filters = filtersTransformer.getJoinedLabelsFilters();
+  const labelFilters = variable.state.filters;
 
-    const options: DataSourceGetTagKeysOptions<LokiQuery> = {
-      filters,
-    };
-
-    const tagKeys = await datasource.getTagKeys(options);
-    const result: MetricFindValue[] = Array.isArray(tagKeys) ? tagKeys : [];
-    const filteredResult = result.filter((key) => !LABELS_TO_REMOVE.includes(key.text));
+  if (datasource) {
+    const filteredResult = await getLabelsKeys(labelFilters, datasource);
 
     return { replace: true, values: filteredResult };
   } else {
@@ -49,13 +55,30 @@ export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): 
   }
 }
 
+type FieldsKeysProviderOptions = DetectedFieldQueryOptions & {
+  sceneRef: SceneObject;
+  variableType: UIVariableFilterType;
+};
+
 type DetectedFieldQueryOptions = {
   expr: string;
   limit?: number;
-  sceneRef: SceneObject;
   scopedVars?: ScopedVars;
   timeRange?: TimeRange;
-  variableType: UIVariableFilterType;
+};
+
+export const getDetectedFieldsFn = (datasource: LokiDatasource) => {
+  // @todo delete after min supported grafana is upgraded to >=11.6
+  // see ced526b3e37baded9082ffc3c2378a21201801b6 before this all got messed up
+  const languageProvider = datasource.languageProvider as LokiLanguageProviderWithDetectedLabelValues;
+  return (
+    (datasource &&
+      typeof languageProvider.fetchDetectedFields === 'function' &&
+      languageProvider.fetchDetectedFields.bind(languageProvider)) ||
+    function (opts: DetectedFieldQueryOptions) {
+      return fetchDetectedFields(datasource, opts);
+    }
+  );
 };
 
 export async function getFieldsKeysProvider({
@@ -65,7 +88,7 @@ export async function getFieldsKeysProvider({
   scopedVars,
   timeRange,
   variableType,
-}: DetectedFieldQueryOptions): Promise<{
+}: FieldsKeysProviderOptions): Promise<{
   replace?: boolean;
   values: MetricFindValue[];
 }> {
@@ -75,26 +98,15 @@ export async function getFieldsKeysProvider({
     throw new Error('Invalid datasource!');
   }
   const datasource = datasource_ as LokiDatasource;
-  const languageProvider = datasource.languageProvider as LokiLanguageProviderWithDetectedLabelValues;
 
   const options: DetectedFieldQueryOptions = {
     expr,
     limit,
-    sceneRef,
     scopedVars,
     timeRange,
-    variableType,
   };
 
-  // @todo delete after min supported grafana is upgraded to >=11.6
-  // see ced526b3e37baded9082ffc3c2378a21201801b6 before this all got messed up
-  const fetchDetectedFieldsFn =
-    (datasource &&
-      typeof languageProvider.fetchDetectedFields === 'function' &&
-      languageProvider.fetchDetectedFields.bind(languageProvider)) ||
-    function (opts: DetectedFieldQueryOptions) {
-      return fetchDetectedFields(datasource, opts);
-    };
+  const fetchDetectedFieldsFn = getDetectedFieldsFn(datasource);
 
   // fetchDetectedFields did not make the 11.5 cutoff, so is only available in 11.6, to keep this PR from needing to wait for 2 months before release, we're going to copy over the implementation into Grafana Logs Drilldown
   if (fetchDetectedFieldsFn && typeof fetchDetectedFieldsFn === 'function') {

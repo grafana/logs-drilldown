@@ -18,6 +18,7 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { areArraysEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
@@ -169,6 +170,18 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       })
     );
 
+    this._subs.add(
+      this.getParentScene().subscribeToState((newState, prevState) => {
+        // Did the default fields change?
+        if (!areArraysEqual(newState.defaultDisplayedFields, prevState.defaultDisplayedFields)) {
+          // Only update the displayed fields if the current set is the same as the previous default
+          if (areArraysEqual(prevState.defaultDisplayedFields, this.getParentScene().state.displayedFields)) {
+            this.setDisplayedFields(newState.defaultDisplayedFields);
+          }
+        }
+      })
+    );
+
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.visualization_init,
@@ -243,6 +256,31 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.state.body.onOptionsChange(options);
   }
 
+  showDefaultFields = () => {
+    if (!this.state.body) {
+      return;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const defaultColumns = serviceScene.state.defaultColumns ?? [];
+    this.setLogsVizOption({
+      displayedFields: defaultColumns,
+    });
+    setDisplayedFields(this, defaultColumns);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    // Set displayed fields
+    parent.setState({ displayedFields: defaultColumns });
+    const urlColumns = defaultColumns ?? parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
+  };
+
   clearDisplayedFields = () => {
     if (!this.state.body) {
       return;
@@ -315,6 +353,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
         .setOption('setDisplayedFields', this.setDisplayedFields)
+        // .setOption('displayedFields', )
         .setOption('logLineMenuCustomItems', [
           {
             label: 'Copy link to log line',

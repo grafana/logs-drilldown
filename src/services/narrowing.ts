@@ -192,4 +192,38 @@ export function narrowJsonDerivedFieldLinkPayload(payload: unknown): JSONDerived
   return false;
 }
 
+export type NarrowedAPIError = {
+  data?: { message: string };
+  status?: number;
+  statusText?: string;
+  traceId?: string;
+};
+
+export function narrowRTKQError(apiError: unknown): NarrowedAPIError | undefined {
+  let narrowed: NarrowedAPIError | undefined = undefined;
+
+  if (isObj(apiError)) {
+    narrowed = {};
+    if (hasProp(apiError, 'status') && typeof apiError.status === 'number') {
+      narrowed.status = apiError.status;
+    }
+    if (hasProp(apiError, 'statusText') && typeof apiError.statusText === 'string') {
+      narrowed.statusText = apiError.statusText;
+    }
+    if (hasProp(apiError, 'traceId') && typeof apiError.traceId === 'string') {
+      narrowed.traceId = apiError.traceId;
+    }
+    if (
+      hasProp(apiError, 'data') &&
+      isObj(apiError.data) &&
+      hasProp(apiError.data, 'message') &&
+      typeof apiError.data.message === 'string'
+    ) {
+      narrowed.data = { message: apiError.data.message };
+    }
+  }
+
+  return narrowed;
+}
+
 export class NarrowingError extends Error {}

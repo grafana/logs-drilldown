@@ -177,6 +177,49 @@ export function tagValuesFilterAdHocFilters(
   return oldFiltersFiltered;
 }
 
+export const getLabelValues = async (
+  adHocFilters: AdHocFilterWithLabels[],
+  filter: AdHocFilterWithLabels,
+  datasource: LokiDatasource,
+  dsUID: string
+) => {
+  const filterTransformer = new ExpressionBuilder(adHocFilters);
+  const filters = filterTransformer.getJoinedLabelsFilters();
+  const filtersFiltered = tagValuesFilterAdHocFilters(filters, filter);
+
+  const options: DataSourceGetTagValuesOptions<LokiQuery> = {
+    filters: filtersFiltered,
+    key: filter.key,
+  };
+
+  let results = await datasource.getTagValues(options);
+
+  if (isArray(results)) {
+    results = results.filter((result) => {
+      // Filter out values that we already have added as filters
+      return !adHocFilters
+        .filter((f) => f.key === filter.key)
+        .some((f) => {
+          if (isOperatorRegex(f.operator)) {
+            const values = f.value.split('|');
+            return values.some((value) => value === result.text);
+          } else {
+            // If true, the results should be filtered out
+            return f.operator === FilterOp.Equal && f.value === result.text;
+          }
+        });
+    });
+    const favoriteValuesArray = getFavoriteLabelValuesFromStorage(dsUID, filter.key);
+    const favoriteValuesSet = new Set(favoriteValuesArray);
+    if (favoriteValuesArray.length) {
+      results.sort((a, b) => {
+        return (favoriteValuesSet.has(b.text) ? 1 : -1) - (favoriteValuesSet.has(a.text) ? 1 : -1);
+      });
+    }
+  }
+  return results;
+};
+
 export async function getLabelsTagValuesProvider(
   variable: AdHocFiltersVariable,
   filter: AdHocFilterWithLabels
@@ -190,46 +233,12 @@ export async function getLabelsTagValuesProvider(
     throw new Error('Invalid datasource!');
   }
   const datasource = datasource_ as LokiDatasource;
+  const dsUID = getDataSourceVariable(variable).getValue()?.toString();
+  const adHocFilters = variable.state.filters;
 
-  if (datasource && datasource.getTagValues) {
+  if (datasource) {
     // Filter out other values for this key so users can include other values for this label
-    const filterTransformer = new ExpressionBuilder(variable.state.filters);
-    const filters = filterTransformer.getJoinedLabelsFilters();
-    const filtersFiltered = tagValuesFilterAdHocFilters(filters, filter);
-
-    const options: DataSourceGetTagValuesOptions<LokiQuery> = {
-      filters: filtersFiltered,
-      key: filter.key,
-    };
-
-    let results = await datasource.getTagValues(options);
-
-    if (isArray(results)) {
-      results = results.filter((result) => {
-        // Filter out values that we already have added as filters
-        return !variable.state.filters
-          .filter((f) => f.key === filter.key)
-          .some((f) => {
-            if (isOperatorRegex(f.operator)) {
-              const values = f.value.split('|');
-              return values.some((value) => value === result.text);
-            } else {
-              // If true, the results should be filtered out
-              return f.operator === FilterOp.Equal && f.value === result.text;
-            }
-          });
-      });
-      const favoriteValuesArray = getFavoriteLabelValuesFromStorage(
-        getDataSourceVariable(variable).getValue()?.toString(),
-        filter.key
-      );
-      const favoriteValuesSet = new Set(favoriteValuesArray);
-      if (favoriteValuesArray.length) {
-        results.sort((a, b) => {
-          return (favoriteValuesSet.has(b.text) ? 1 : -1) - (favoriteValuesSet.has(a.text) ? 1 : -1);
-        });
-      }
-    }
+    let results = await getLabelValues(adHocFilters, filter, datasource, dsUID);
 
     return { replace: true, values: results };
   } else {

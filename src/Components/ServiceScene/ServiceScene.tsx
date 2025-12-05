@@ -25,6 +25,7 @@ import {
 import { LogsSortOrder, VariableHide } from '@grafana/schema';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
@@ -63,7 +64,7 @@ import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardEvent, AddToDashboardData } from 'Components/Panels/PanelMenu';
+import { AddToDashboardData, AddToDashboardEvent } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -131,6 +132,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
   body: SceneFlexLayout | undefined;
+  defaultColumns?: string[];
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
@@ -291,9 +293,50 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           this.state.$detectedLabelsData?.runQueries();
           this.state.$detectedFieldsData?.runQueries();
           this.state.$logsCount?.runQueries();
+          this.setDefaultColumns();
         }
       })
     );
+  }
+
+  private setDefaultColumns() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const records = indexScene.state.defaultColumnsRecords;
+    const labelsVariable = getLabelsVariable(this);
+    const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
+    // Remove records that are more specific than our current label set
+    const filteredRecords = records?.filter((f) => f.labels.length <= inclusiveFilters.length);
+
+    // init map
+    const filtersMap = new Map<string, string>();
+    inclusiveFilters.forEach((f) => filtersMap.set(f.key, f.value));
+
+    // Assign a score to each record
+    const recordsScore: Array<LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord & { score: number }> | undefined =
+      filteredRecords?.map((r) => {
+        const score = r.labels.reduce((accumulator, label) => {
+          const mapValue = filtersMap.get(label.key);
+          if (mapValue === label.value) {
+            return accumulator + 1;
+          }
+          return accumulator;
+        }, 0);
+        return { ...r, score };
+      });
+
+    let highScore = 0;
+    let highScoreIdx = -1;
+    recordsScore?.forEach((r, idx) => {
+      if (r.score > highScore) {
+        highScore = r.score;
+        highScoreIdx = idx;
+      }
+    });
+    const bestMatch = highScoreIdx ? recordsScore?.[highScoreIdx] : undefined;
+
+    this.setState({
+      defaultColumns: bestMatch?.columns,
+    });
   }
 
   /**
@@ -489,8 +532,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this.showVariables();
     this.getMetadata();
     this.resetBodyAndData();
-
     this.setBreakdownView();
+    this.setDefaultColumns();
 
     // Run queries on activate
     this.runQueries();
@@ -517,6 +560,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToDataSourceVariable());
     this._subs.add(this.subscribeToPatternsVariable());
     this._subs.add(this.subscribeToLineFiltersVariable());
+    this._subs.add(this.subscribeToIndexSceneState());
 
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
@@ -567,6 +611,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       if (newState.value !== prevState.value) {
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
+      }
+    });
+  }
+
+  private subscribeToIndexSceneState() {
+    return sceneGraph.getAncestor(this, IndexScene).subscribeToState((newState, prevState) => {
+      if (!areArraysEqual(newState.defaultColumnsRecords, prevState.defaultColumnsRecords)) {
+        this.setDefaultColumns();
       }
     });
   }

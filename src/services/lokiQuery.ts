@@ -1,5 +1,14 @@
 // Warning: This file (and any imports) are included in the main bundle with Grafana in order to provide link extension support in Grafana core, in an effort to keep Grafana loading quickly, please do not add any unnecessary imports to this file and run the bundle analyzer before committing any changes!
-import { DataFrame, DataSourceJsonData, ScopedVars, TimeRange } from '@grafana/data';
+import {
+  DataFrame,
+  DataSourceGetTagKeysOptions,
+  DataSourceJsonData,
+  GetTagResponse,
+  MetricFindValue,
+  ScopedVars,
+  TimeRange,
+} from '@grafana/data';
+import { DataSourceGetTagValuesOptions } from '@grafana/data/dist/types/types/datasource';
 import { DataSourceWithBackend } from '@grafana/runtime';
 import { DataSourceRef } from '@grafana/schema';
 
@@ -29,6 +38,8 @@ export type LokiQueryType = 'instant' | 'range' | 'stream' | string;
 export type LokiDatasource = DataSourceWithBackend<LokiQuery, DataSourceJsonData> & {
   maxLines?: number;
 } & {
+  getTagKeys(options?: DataSourceGetTagKeysOptions<LokiQuery>): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
+  getTagValues(options: DataSourceGetTagValuesOptions<LokiQuery>): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
   getTimeRangeParams: (timeRange: TimeRange) => { end: number; start: number };
   // @todo delete after min supported grafana is upgraded to >=11.6
   interpolateString?: (string: string, scopedVars?: ScopedVars) => string;
