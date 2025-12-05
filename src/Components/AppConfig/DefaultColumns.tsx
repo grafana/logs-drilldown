@@ -1,9 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { css } from '@emotion/css';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { LoadingPlaceholder } from '@grafana/ui';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { narrowRTKQError } from '../../services/narrowing';
@@ -16,8 +13,6 @@ interface Props {}
 //@todo make sure we don't save duplicate records
 
 export const DefaultColumns = ({}: Props) => {
-  const styles = useStyles2(getStyles);
-
   const { localDefaultColumnsState, setApiDefaultColumnsState, dsUID, apiDefaultColumnsState, setMetadata, metadata } =
     useDefaultColumnsContext();
 
@@ -89,13 +84,5 @@ export const DefaultColumns = ({}: Props) => {
     return <LoadingPlaceholder text={'Loading...'} />;
   }
 
-  return (
-    <div className={styles.container}>
-      <DefaultColumnsRecords />
-    </div>
-  );
+  return <DefaultColumnsRecords />;
 };
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({}),
-});

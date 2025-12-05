@@ -27,7 +27,13 @@ export function DefaultColumnsDeleteRecord({ recordIndex }: Props) {
 
   return (
     <div className={styles.close}>
-      <IconButton size={'xl'} name={'times'} aria-labelledby={'Delete record'} onClick={() => deleteRecord()} />
+      <IconButton
+        tooltip={'Delete record'}
+        size={'xl'}
+        name={'times'}
+        aria-labelledby={'Delete record'}
+        onClick={() => deleteRecord()}
+      />
     </div>
   );
 }

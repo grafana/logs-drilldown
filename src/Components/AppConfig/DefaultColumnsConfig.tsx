@@ -10,7 +10,7 @@ import { NoLokiSplash } from '../NoLokiSplash';
 import { DefaultColumns } from './DefaultColumns';
 import { DefaultColumnsContextProvider } from './DefaultColumnsContext';
 import { DefaultColumnsDataSource } from './DefaultColumnsDataSource';
-import { DefaultColumnsSubmit } from './DefaultColumnsSubmit';
+import { DefaultColumnsFooter } from './DefaultColumnsFooter';
 
 const DefaultColumnsConfig = () => {
   const dsUID = getDefaultDatasourceFromDatasourceSrv();
@@ -30,9 +30,7 @@ const DefaultColumnsConfig = () => {
         <section>
           <DefaultColumns />
         </section>
-        <footer>
-          <DefaultColumnsSubmit />
-        </footer>
+        <DefaultColumnsFooter />
       </DefaultColumnsContextProvider>
     </main>
   );

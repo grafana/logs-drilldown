@@ -3,78 +3,51 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Button, Divider, useStyles2 } from '@grafana/ui';
+import { ControlledCollapse, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsDeleteRecord } from './DefaultColumnsDeleteRecord';
 import { DefaultColumnsFields } from './DefaultColumnsFields';
 import { DefaultColumnsLabels } from './DefaultColumnsLabels';
 import { DefaultColumnsLogsScene } from './DefaultColumnsLogsScene';
+import { DefaultColumnsRecordsCollapsibleLabel } from './DefaultColumnsRecordsCollapsibleLabel';
 
 interface RecordsProps {}
 
 export const DefaultColumnsRecords = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
-  const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
-
+  const { localDefaultColumnsState, dsUID } = useDefaultColumnsContext();
   const ds = localDefaultColumnsState?.[dsUID];
 
   if (!ds) {
     throw new Error('Records::missing localDefaultColumnsState');
   }
 
-  // @todo perf
-  const invalidRecords = ds.records.filter(
-    (r) =>
-      !(
-        r.columns.length &&
-        r.labels.length &&
-        r.labels.every(
-          (l) => l.key !== '' //
-        ) &&
-        r.columns.every((c) => c)
-      )
-  );
-
-  const isInvalid = !!ds.records.length && !!invalidRecords.length;
-
   return (
     <div className={styles.recordsContainer}>
-      {ds?.records.map((_, recordIndex: number) => {
+      {ds?.records.map((record, recordIndex: number) => {
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>
               <DefaultColumnsLabels recordIndex={recordIndex} />
             </div>
 
-            <Divider />
+            <ControlledCollapse
+              className={styles.recordContainer__labelWrap}
+              label={<DefaultColumnsRecordsCollapsibleLabel record={record} />}
+              isOpen={false}
+            >
+              <div className={styles.recordContainer__content}>
+                <DefaultColumnsFields recordIndex={recordIndex} />
+              </div>
 
-            <div className={styles.recordContainer__content}>
-              <DefaultColumnsFields recordIndex={recordIndex} />
-            </div>
-
-            {/*@todo with scan direction the duration of logs queries is less relevant? */}
-            <DefaultColumnsLogsScene recordIndex={recordIndex} />
-
+              {/*@todo with scan direction the duration of logs queries is less relevant? */}
+              <DefaultColumnsLogsScene recordIndex={recordIndex} />
+            </ControlledCollapse>
             <DefaultColumnsDeleteRecord recordIndex={recordIndex} />
           </div>
         );
       })}
-
-      <Button
-        variant={'secondary'}
-        fill={'outline'}
-        icon={'plus'}
-        disabled={isInvalid}
-        onClick={() => {
-          setLocalDefaultColumnsDatasourceState({
-            // Add new record with empty label name
-            records: [...(ds?.records ?? []), { columns: [], labels: [{ key: '' }] }],
-          });
-        }}
-      >
-        Add record
-      </Button>
     </div>
   );
 };
@@ -88,6 +61,10 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
   recordContainer__content: css({
     paddingLeft: theme.spacing(2),
+  }),
+  recordContainer__labelWrap: css({
+    margin: theme.spacing(2),
+    width: 'auto',
   }),
   recordsContainer: css({
     paddingBottom: theme.spacing(2),

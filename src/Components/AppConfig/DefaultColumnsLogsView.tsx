@@ -43,7 +43,7 @@ export function DefaultColumnsLogsView({ recordIndex, expr }: Props) {
     fontSize: getLogOption('fontSize', 'small'),
     enableInfiniteScrolling: getLogOption('enableInfiniteScrolling', true),
     noInteractions: true,
-    showControls: getLogOption('showControls', true),
+    showControls: getLogOption('showControls', false),
     displayedFields: record?.columns,
   };
 

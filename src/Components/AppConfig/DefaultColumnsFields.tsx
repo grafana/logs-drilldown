@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Button, Icon, Tooltip, useStyles2 } from '@grafana/ui';
+import { Button, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import { DefaultColumnsColumnsDragContext } from './DefaultColumnsColumnsDragContext';
@@ -37,13 +37,6 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
 
   return (
     <div className={styles.fieldsContainer}>
-      <h5 className={styles.fieldsContainer__title}>
-        Display columns
-        <Tooltip content={'Default columns to display in logs visualizations'}>
-          <Icon className={styles.fieldsContainer__icon} name="info-circle" />
-        </Tooltip>
-      </h5>
-
       <DefaultColumnsColumnsDragContext recordIndex={recordIndex} />
 
       <Button
@@ -64,14 +57,6 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
 const getStyles = (theme: GrafanaTheme2, invalid: boolean) => ({
   fieldsContainer: css({
     label: 'fieldsContainer',
-  }),
-  fieldsContainer__icon: css({
-    marginLeft: theme.spacing(0.5),
-  }),
-  fieldsContainer__title: css({
-    marginTop: theme.spacing(1.5),
-    display: 'flex',
-    alignItems: 'center',
   }),
   fieldsContainer__button: css({
     alignSelf: 'flex-start',
