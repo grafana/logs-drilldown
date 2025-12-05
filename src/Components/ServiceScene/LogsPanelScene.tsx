@@ -18,6 +18,7 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { areArraysEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
@@ -51,7 +52,6 @@ import { runSceneQueries } from 'services/query';
 import { getPrettyQueryExpr } from 'services/scenes';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
 import { clearVariables } from 'services/variableHelpers';
-import { areArraysEqual } from '../../services/comparison';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
