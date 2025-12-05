@@ -252,3 +252,7 @@ export function runSceneQueries(sceneRef: SceneObject) {
     queryRunner.runQueries();
   }
 }
+
+export function isQueryAvg(expr: string) {
+  return expr.includes('avg_over_time');
+}

@@ -55,7 +55,10 @@ export const USER_EVENTS_ACTIONS = {
     add_to_filters_in_json_panel: 'add_to_filters_in_json_panel',
     // Setting a new root in the json panel
     change_line_format_in_json_panel: 'change_line_format_in_json_panel',
+    // Changing between histogram and time series queries (only supported for panels with avg_over_time queries)
     change_viz_type: 'change_viz_type',
+    // Changing between avg_over_time and count queries (only supported for int fields)
+    change_query_type: 'change_query_type',
     label_in_panel_summary_clicked: 'label_in_panel_summary_clicked',
     // Changing layout type (e.g. single/grid/rows). Used in multiple views. The view type is passed as a parameter. Props: layout, view
     layout_type_changed: 'layout_type_changed',
