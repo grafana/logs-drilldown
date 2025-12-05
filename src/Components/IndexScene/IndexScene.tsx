@@ -129,6 +129,7 @@ export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
+  hideTimePicker?: boolean;
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
@@ -192,9 +193,20 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         key: CONTROLS_JSON_FIELDS,
         layout: 'vertical',
       }),
-      new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER, quickRanges: filterInvalidTimeOptions(quickOptions) }),
-      new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
+      new SceneTimePicker({
+        hidePicker: state.hideTimePicker,
+        key: CONTROLS_VARS_TIMEPICKER,
+        quickRanges: filterInvalidTimeOptions(quickOptions),
+      }),
     ];
+
+    if (!state.hideTimePicker) {
+      controls.push(
+        new SceneRefreshPicker({
+          key: CONTROLS_VARS_REFRESH,
+        })
+      );
+    }
 
     if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
       controls.push(

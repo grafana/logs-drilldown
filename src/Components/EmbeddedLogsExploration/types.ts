@@ -23,6 +23,7 @@ export interface EmbeddedLogsOptions {
 
 interface EmbeddedLogsCommonProps {
   embedderName: string;
+  hideTimePicker?: boolean;
   namespace?: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   options?: EmbeddedLogsOptions;
