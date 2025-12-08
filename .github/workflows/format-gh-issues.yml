@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get GitHub App token
         id: app-token
-        uses: grafana/shared-workflows/actions/create-github-app-token@d2db509c45f0d0e75e26fe03c276225d6bbc3e0d # create-github-app-token/v0.2.0
+        uses: grafana/shared-workflows/actions/create-github-app-token@eb02241ed0a92aff205feab8ac3afcdf51c757c8 # create-github-app-token/v0.2.0
         with:
           github_app: DrilldownBot
 

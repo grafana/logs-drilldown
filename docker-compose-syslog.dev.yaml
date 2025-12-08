@@ -22,7 +22,7 @@ services:
       - 'host.docker.internal:host-gateway'
 
   loki:
-    image: grafana/loki:k276-c416352
+    image: grafana/loki:3.6
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'

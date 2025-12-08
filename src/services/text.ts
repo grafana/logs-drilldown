@@ -1,4 +1,4 @@
-import { dateTime, LogRowModel, TimeRange, urlUtil } from '@grafana/data';
+import { dateTime, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 
 import { logger } from './logger';
@@ -30,6 +30,7 @@ type PermalinkDataType =
       logs: {
         displayedFields: string[];
         id: string;
+        sortOrder: LogsSortOrder;
       };
     };
 
