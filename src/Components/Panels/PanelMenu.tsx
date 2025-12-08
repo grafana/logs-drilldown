@@ -317,7 +317,7 @@ function addToggleQueryType(items: PanelMenuItem[], sceneRef: PanelMenu) {
       }
       onSwitchQueryTypeTracking(newQueryType);
     },
-    text: isAvgQuery ? 'Plot series' : 'Plot values',
+    text: isAvgQuery ? 'Plot series' : 'Plot average',
   });
 }
 

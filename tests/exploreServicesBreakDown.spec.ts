@@ -1966,7 +1966,7 @@ test.describe('explore services breakdown page', () => {
     // Open menu
     await page.getByTestId('data-testid Panel menu values').click();
     // Convert panel to avg_over_time query
-    await page.getByTestId('data-testid Panel menu item Plot values').click();
+    await page.getByTestId('data-testid Panel menu item Plot average').click();
     // Assert the last request is avg_over_time
     await expect
       .poll(() => {

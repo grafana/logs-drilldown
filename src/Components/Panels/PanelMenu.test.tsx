@@ -419,7 +419,7 @@ describe('PanelMenu', () => {
       expect(timeseriesItem?.iconClassName).toBe('chart-line');
     });
 
-    it('should show plot values option for int fields', () => {
+    it('should show plot average option for int fields', () => {
       const menu = new PanelMenu({
         addInvestigationsLink: false,
         panelType: TimeSeriesPanelType.histogram,
@@ -435,7 +435,7 @@ describe('PanelMenu', () => {
       menu.activate();
 
       const items = menu.state.body?.state.items;
-      const timeseriesItem = items?.find((item: PanelMenuItem) => item.text === 'Plot values');
+      const timeseriesItem = items?.find((item: PanelMenuItem) => item.text === 'Plot average');
 
       expect(timeseriesItem?.iconClassName).toBe('heart-rate');
     });
