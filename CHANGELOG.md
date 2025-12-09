@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.0.32
+
+##### Chores
+
+* **ci/cd:**  pin workflow to verison 4.0.0 (#1671) (7f01482e)
+* **deps:**
+  *  update dependency @types/lodash to v4.17.21 (#1661) (a775a87f)
+  *  update dependency @lezer/lr to v1.4.4 (#1660) (e4a528c0)
+  *  update dependency @babel/core to v7.28.5 (#1659) (b5b5fd46)
+  *  update grafana/shared-workflows/ action to (#1655) (5ab50003)
+  *  update grafana/grafana-enterprise:latest docker digest to 96a793a (#1654) (64cc204c)
+  *  update golang:1.24 docker digest to 7b13449 (#1653) (fc3cfde9)
+  *  update actions/checkout digest to 34e1148 (#1652) (534a2df4)
+  *  pin dependencies (#1651) (b80907a9)
+* **renovate:**  remove minimunReleaseAge (#1656) (b8468687)
+* **ci:**  update grafana levitate dependencies (#1646) (00b552bb)
+
+##### New Features
+
+* **fields:**  support `avg_over_time` for `int` fields (#1637) (8a5be4e0)
+* **lokiConfig:**  disable patterns if pattern_ingester_enabled is false (#1669) (b364f56c)
+* **embedded:**  allow hiding time picker (#1666) (0eaab841)
+* **links:**  add sortOrder support (#1649) (85e57038)
+* **time-picker:**  add rolling time window options (#1625) (038e5dfa)
+
+
 ## 1.0.31
 
 ##### Chores
