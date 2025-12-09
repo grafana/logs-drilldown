@@ -369,7 +369,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
           // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
           const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
           const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
-          console.log('fetched records', records);
           this.setState({
             defaultColumnsRecords: records,
           });

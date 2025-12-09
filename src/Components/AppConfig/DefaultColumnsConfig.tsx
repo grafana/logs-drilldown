@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import { useStyles2 } from '@grafana/ui';
 
 import { getDefaultDatasourceFromDatasourceSrv } from '../../services/store';
@@ -11,12 +12,20 @@ import { DefaultColumns } from './DefaultColumns';
 import { DefaultColumnsContextProvider } from './DefaultColumnsContext';
 import { DefaultColumnsDataSource } from './DefaultColumnsDataSource';
 import { DefaultColumnsFooter } from './DefaultColumnsFooter';
+import { DefaultColumnsUnsupported } from './DefaultColumnsUnsupported';
 
 const DefaultColumnsConfig = () => {
   const dsUID = getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
     return <NoLokiSplash />;
+  }
+  if (
+    !config.featureToggles.kubernetesLogsDrilldown ||
+    !config.featureToggles.grafanaAPIServerWithExperimentalAPIs ||
+    config.buildInfo.version < '12.4'
+  ) {
+    return <DefaultColumnsUnsupported />;
   }
 
   return (
@@ -27,9 +36,12 @@ const DefaultColumnsConfig = () => {
         <header>
           <DefaultColumnsDataSource />
         </header>
-        <section>
-          <DefaultColumns />
-        </section>
+        <>
+          <section>
+            <DefaultColumns />
+          </section>
+        </>
+
         <DefaultColumnsFooter />
       </DefaultColumnsContextProvider>
     </main>

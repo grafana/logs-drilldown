@@ -79,6 +79,8 @@ export const DefaultColumns = ({}: Props) => {
     setApiDefaultColumnsState,
   ]);
 
+  // @todo if grafana 12.4-pre is run and it doesn't have the API changes isLoading is always true and we get stuck in a loading state
+  // Shouldn't be a problem as long as we make sure the API changes are deployed to cloud before releasing, unless OSS users are running pre-release versions.
   if (isLoading || !localDefaultColumnsState || !localDefaultColumnsState[dsUID]) {
     console.log('isLoading', { isLoading, localDefaultColumnsState, dsUID });
     return <LoadingPlaceholder text={'Loading...'} />;
