@@ -97,19 +97,11 @@ export const getDatasource = async (dsUID: string) => {
  * @param records
  */
 export const recordsHaveDuplicates = (records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => {
-  console.log('recordsHaveDuplicates', records);
   const set = new Set();
 
   records.forEach((record) => {
     const labels = record.labels.sort();
-    console.log('adding labels to set', labels);
     set.add(JSON.stringify(labels));
-  });
-
-  console.log('records have dups', set.size !== records.length, {
-    size: set.size,
-    records,
-    setValues: Array.from(set),
   });
 
   return set.size !== records.length;

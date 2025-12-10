@@ -40,13 +40,15 @@ export const DefaultColumns = ({}: Props) => {
 
     // Success
     if (defaultColumnsFromAPI) {
-      console.log('LogsDrilldown API Response:', defaultColumnsFromAPI);
-
       if (!defaultColumnsFromAPI.metadata.name) {
-        throw new Error('DefaultColumns::Unexpected result for defaultColumnsFromAPI - missing metadata name');
+        const error = new Error('DefaultColumns::Unexpected result for defaultColumnsFromAPI - missing metadata name');
+        logger.error(error);
+        throw error;
       }
       if (defaultColumnsFromAPI.metadata.name !== dsUID) {
-        throw new Error('DefaultColumns::Unexpected result for defaultColumnsFromAPI - invalid datasource uid');
+        const error = new Error('DefaultColumns::Unexpected result for defaultColumnsFromAPI - invalid datasource uid');
+        logger.error(error);
+        throw error;
       }
 
       dsUIDRecord[defaultColumnsFromAPI.metadata.name] = { records: defaultColumnsFromAPI.spec.records };
