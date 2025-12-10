@@ -4,9 +4,9 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
+import { Badge, useStyles2 } from '@grafana/ui';
 
-import { getDefaultDatasourceFromDatasourceSrv } from '../../services/store';
+import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 import { NoLokiSplash } from '../NoLokiSplash';
 import { DefaultColumns } from './DefaultColumns';
 import { DefaultColumnsContextProvider } from './DefaultColumnsContext';
@@ -15,7 +15,7 @@ import { DefaultColumnsFooter } from './DefaultColumnsFooter';
 import { DefaultColumnsUnsupported } from './DefaultColumnsUnsupported';
 
 const DefaultColumnsConfig = () => {
-  const dsUID = getDefaultDatasourceFromDatasourceSrv();
+  const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
     return <NoLokiSplash />;
@@ -30,7 +30,10 @@ const DefaultColumnsConfig = () => {
 
   return (
     <main className={styles.main}>
-      <p>Configure default fields to display instead of the full log line:</p>
+      <div className={styles.introText}>
+        <Badge color={'blue'} text={'Experimental'} />
+        <span>Configure default fields to display instead of the full log line:</span>
+      </div>
 
       <DefaultColumnsContextProvider initialDSUID={dsUID}>
         <header>
@@ -49,6 +52,12 @@ const DefaultColumnsConfig = () => {
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
+  introText: css({
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: theme.spacing(2),
+    gap: theme.spacing(1),
+  }),
   main: css({
     overflow: 'hidden',
     width: '100%',

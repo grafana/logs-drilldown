@@ -8,6 +8,7 @@ export const isRecordColumnsValid = (r: LocalLogsDrilldownDefaultColumnsLogsDefa
   return (
     r.columns.every((c) => c) &&
     // Adding a log line on its own is not valid as that is the default behavior
+    // @todo show a special error message for this case
     !(r.columns.length === 1 && r.columns[0] === LOG_LINE_BODY_FIELD_NAME)
   );
 };

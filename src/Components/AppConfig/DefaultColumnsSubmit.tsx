@@ -29,11 +29,17 @@ export function DefaultColumnsSubmit() {
 
   if (createError) {
     const error = narrowRTKQError(createError);
-    logger.error(createError, getRTKQErrorContext(error));
+    logger.error(
+      new Error('DefaultColumnsSubmit::createNewRecord'),
+      error ? getRTKQErrorContext(error) : { msg: 'DefaultColumnsSubmit:createNewRecord error' }
+    );
   }
   if (updateError) {
     const error = narrowRTKQError(updateError);
-    logger.error(updateError, getRTKQErrorContext(error));
+    logger.error(
+      new Error('DefaultColumnsSubmit::updateRecord'),
+      error ? getRTKQErrorContext(error) : { msg: 'DefaultColumnsSubmit:updateRecord error' }
+    );
   }
 
   return (
@@ -60,7 +66,9 @@ export function DefaultColumnsSubmit() {
             create({
               pretty: 'true',
               logsDrilldownDefaultColumns: {
-                metadata: {},
+                metadata: {
+                  name: dsUID,
+                },
                 apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
                 kind: 'LogsDrilldownDefaultColumns',
                 spec: updated,

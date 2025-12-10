@@ -12,7 +12,7 @@ import { APIColumnsState } from './types';
 interface Props {}
 
 export const DefaultColumns = ({}: Props) => {
-  const { setApiDefaultColumnsState, dsUID, setMetadata, metadata } = useDefaultColumnsContext();
+  const { setApiDefaultColumnsState, dsUID, setMetadata, metadata, apiRecords } = useDefaultColumnsContext();
 
   const {
     currentData: defaultColumnsFromAPI,
@@ -32,7 +32,11 @@ export const DefaultColumns = ({}: Props) => {
     }
 
     // If we've already set this version to local state, don't do it twice
-    if (defaultColumnsFromAPI?.metadata.resourceVersion === metadata?.resourceVersion) {
+    if (
+      metadata?.resourceVersion &&
+      defaultColumnsFromAPI &&
+      defaultColumnsFromAPI?.metadata.resourceVersion === metadata?.resourceVersion
+    ) {
       return;
     }
 
@@ -58,7 +62,9 @@ export const DefaultColumns = ({}: Props) => {
     } else if (defaultColumnsAPIError) {
       // Expected error
       if (defaultColumnsAPIError.status === 404) {
-        setApiDefaultColumnsState({ [dsUID]: { records: [] } });
+        if (apiRecords === null) {
+          setApiDefaultColumnsState({ [dsUID]: { records: [] } });
+        }
       } else {
         const error = new Error('DefaultColumns::Unexpected result for default columns - api error');
         logger.error(error, getRTKQErrorContext(defaultColumnsAPIError));
@@ -66,6 +72,7 @@ export const DefaultColumns = ({}: Props) => {
       }
     }
   }, [
+    apiRecords,
     metadata?.resourceVersion,
     setMetadata,
     defaultColumnsFromAPI,

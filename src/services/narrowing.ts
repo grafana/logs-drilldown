@@ -200,8 +200,8 @@ export type NarrowedAPIError = {
   traceId?: string;
 };
 
-export function narrowRTKQError(apiError: unknown): NarrowedAPIError {
-  let narrowed: NarrowedAPIError = {};
+export function narrowRTKQError(apiError: unknown): NarrowedAPIError | undefined {
+  let narrowed: NarrowedAPIError | undefined = undefined;
 
   if (isObj(apiError)) {
     narrowed = {};

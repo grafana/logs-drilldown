@@ -6,6 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
 import { useStyles2 } from '@grafana/ui';
 
+import { addLastUsedDataSourceToStorage } from '../../services/store';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 
 interface Props {}
@@ -19,7 +20,10 @@ export const DefaultColumnsDataSource = (props: Props) => {
         width={60}
         filter={(ds) => ds.type === 'loki'}
         current={dsUID !== '' ? dsUID : null}
-        onChange={(ds) => setDsUID(ds.uid)}
+        onChange={(ds) => {
+          addLastUsedDataSourceToStorage(ds.uid);
+          setDsUID(ds.uid);
+        }}
       />
     </div>
   );
