@@ -60,13 +60,14 @@ export const DefaultColumns = ({}: Props) => {
       if (defaultColumnsAPIError.status === 404) {
         setApiDefaultColumnsState({ [dsUID]: { records: [] } });
       } else {
-        logger.error('LogsDrilldown API Error:', {
+        const error = new Error('DefaultColumns::Unexpected result for default columns - api error');
+        logger.error(error, {
           statusText: defaultColumnsAPIError.statusText ?? '',
           trace: defaultColumnsAPIError.traceId ?? '',
           status: defaultColumnsAPIError.status?.toString() ?? '',
           msg: defaultColumnsAPIError.data?.message ?? '',
         });
-        throw new Error('DefaultColumns::Unexpected result for default columns - api error');
+        throw error;
       }
     }
   }, [
