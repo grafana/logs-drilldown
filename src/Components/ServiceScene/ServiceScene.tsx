@@ -29,6 +29,7 @@ import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '../../lib/a
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
+import { LOKI_CONFIG_API_NOT_SUPPORTED, LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
 import { clearJSONParserFields } from '../../services/fields';
@@ -127,7 +128,8 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedFieldsData: SceneQueryRunner | undefined;
   $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
-  $patternsData?: SceneQueryRunner | undefined;
+  // null implies it is not supported, undefined is not set yet
+  $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
   body: SceneFlexLayout | undefined;
   defaultColumns?: string[];
@@ -189,7 +191,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       $detectedFieldsData: getDetectedFieldsQueryRunner(),
       $detectedLabelsData: getDetectedLabelsQueryRunner(),
       $logsCount: getLogCountQueryRunner(),
-      $patternsData: getPatternsQueryRunner(),
       body: state.body ?? buildGraphScene(),
       loading: true,
       loadingStates: {
@@ -512,14 +513,19 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
+    let stateUpdate: Partial<ServiceSceneState> = {};
+
     if (!this.state.body) {
-      this.setState({ body: this.buildGraphScene() });
+      stateUpdate.body = this.buildGraphScene();
     }
     if (!this.state.$data) {
-      this.setState({
-        $data: getLogsQueryQueryRunner(this),
-      });
+      stateUpdate.$data = getLogsQueryQueryRunner(this);
     }
+
+    if (Object.keys(stateUpdate).length) {
+      this.setState(stateUpdate);
+    }
+
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: true });
@@ -531,6 +537,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     // Run queries on activate
     this.runQueries();
+
+    // API subscriptions
+    this._subs.add(this.subscribeToLokiConfig());
+    this._subs.add(this.subscribeToPatternsProvider());
 
     // Query Subscriptions
     this._subs.add(this.subscribeToPatternsQuery());
@@ -559,6 +569,41 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     // Migrations
     migrateLineFilterV1(this);
+  }
+
+  private subscribeToPatternsProvider() {
+    return this.subscribeToState((newState, prevState) => {
+      // Run initial query
+      if (newState.$patternsData && prevState.$patternsData === undefined) {
+        newState.$patternsData.addActivationHandler(() => {
+          newState.$patternsData?.runQueries();
+        });
+        newState.$patternsData.activate();
+      }
+    });
+  }
+
+  private subscribeToLokiConfig() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    return indexScene.subscribeToState((newState, prevState) => {
+      if (newState.lokiConfig && newState.lokiConfig !== prevState.lokiConfig) {
+        if (
+          newState.lokiConfig === LOKI_CONFIG_API_NOT_SUPPORTED ||
+          newState.lokiConfig?.pattern_ingester_enabled !== false
+        ) {
+          if (this.state.$patternsData === undefined) {
+            this.setState({
+              $patternsData: getPatternsQueryRunner(),
+            });
+            this._subs.add(this.subscribeToPatternsQuery());
+          }
+        } else {
+          this.setState({
+            $patternsData: null,
+          });
+        }
+      }
+    });
   }
 
   private subscribeToPatternsVariable() {
@@ -811,7 +856,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (!this.state.$patternsData) {
-      stateUpdate.$patternsData = getPatternsQueryRunner();
+      const indexScene = sceneGraph.getAncestor(this, IndexScene);
+
+      if (indexScene.state.lokiConfig) {
+        stateUpdate.$patternsData = getPatternsQueryRunner(indexScene.state.lokiConfig);
+        this._subs.add(this.subscribeToPatternsQuery());
+      }
     }
 
     if (!this.state.$detectedLabelsData) {
@@ -940,10 +990,13 @@ function buildGraphScene() {
   });
 }
 
-function getPatternsQueryRunner() {
+function getPatternsQueryRunner(lokiConfig?: LokiConfig | LokiConfigNotSupported) {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-  if (jsonData?.patternsDisabled) {
-    return undefined;
+  if (
+    jsonData?.patternsDisabled ||
+    (lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED && lokiConfig?.pattern_ingester_enabled === false)
+  ) {
+    return null;
   }
 
   return getResourceQueryRunner(

@@ -2,6 +2,8 @@
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
+import { TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
+
 export interface FieldValue {
   parser: ParserType;
   value: string;
@@ -27,6 +29,7 @@ export type LogsQueryOptions = {
   jsonParserPropToAdd?: string;
   labelExpressionToAdd?: string;
   parser?: ParserType;
+  queryType?: TimeSeriesQueryType;
   structuredMetadataToAdd?: string;
 };
 

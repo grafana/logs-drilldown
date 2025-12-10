@@ -2,6 +2,9 @@ configs:
   '1':
     log_push_request: false
     log_push_request_streams: false
+  '2':
+    log_push_request: false
+    log_push_request_streams: false
 overrides:
   '1':
     allow_structured_metadata: true
@@ -9,3 +12,10 @@ overrides:
     volume_enabled: true
     retention_period: 30d
     max_query_length: 0d
+  '2':
+    allow_structured_metadata: true
+    pattern_persistence_enabled: false
+    volume_enabled: true
+    retention_period: 30d
+    max_query_length: 7d
+    max_query_bytes_read: 200MB
