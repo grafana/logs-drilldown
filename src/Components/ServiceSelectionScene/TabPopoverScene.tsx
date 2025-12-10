@@ -31,6 +31,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
         <div className={popoverStyles.card.body}>
           <Select<string, { options: TabOption[] }>
             menuShouldPortal={false}
+            menuPosition={'absolute'}
             width={50}
             onBlur={() => {
               serviceSelectionTabsScene.toggleShowPopover();
