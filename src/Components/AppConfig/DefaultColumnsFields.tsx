@@ -8,6 +8,7 @@ import { Button, useStyles2 } from '@grafana/ui';
 import { logger } from '../../services/logger';
 import { DefaultColumnsColumnsDragContext } from './DefaultColumnsColumnsDragContext';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { isRecordColumnsValid } from './DefaultColumnsValidation';
 
 interface Props {
   recordIndex: number;
@@ -38,10 +39,10 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
       <DefaultColumnsColumnsDragContext recordIndex={recordIndex} />
 
       <Button
+        disabled={!isRecordColumnsValid(record)}
         tooltip={'Add a default column to display in the logs'}
         variant={'secondary'}
         fill={'outline'}
-        aria-label={`Add label`}
         icon={'plus'}
         onClick={() => addDisplayField()}
         className={styles.fieldsContainer__button}

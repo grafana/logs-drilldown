@@ -15,7 +15,8 @@ export function DefaultColumnsRemoveLabel({ recordIndex, labelIndex }: Props) {
   const styles = useStyles2(getStyles);
 
   const { records, setRecords } = useDefaultColumnsContext();
-  const label = records?.[recordIndex].labels[labelIndex];
+  const labels = records?.[recordIndex].labels;
+  const label = labels?.[labelIndex];
 
   const onRemoveLabelValue = () => {
     if (records) {

@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { Button } from '@grafana/ui';
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, useStyles2 } from '@grafana/ui';
 
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
@@ -9,32 +12,36 @@ import {
   useCreateLogsDrilldownDefaultColumnsMutation,
   useReplaceLogsDrilldownDefaultColumnsMutation,
 } from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { logger } from '../../services/logger';
+import { getRTKQErrorContext, narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { isDefaultColumnsStateChanged } from './DefaultColumnsState';
+import { DefaultColumnsValidationState } from './types';
 
 export function DefaultColumnsSubmit() {
-  const { dsUID, metadata, records, apiRecords } = useDefaultColumnsContext();
+  const { dsUID, metadata, records, validation } = useDefaultColumnsContext();
   const [create, { error: createError }] = useCreateLogsDrilldownDefaultColumnsMutation();
   const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultColumnsMutation();
+  const styles = useStyles2(getStyles, validation.isInvalid);
   const createNewRecord = metadata === null;
   if (!records || !dsUID) {
     return null;
   }
-  const hasPendingChanges = isDefaultColumnsStateChanged(records, apiRecords);
 
-  // @todo logger
   if (createError) {
-    console.error('createError', createError);
+    const error = narrowRTKQError(createError);
+    logger.error(createError, getRTKQErrorContext(error));
   }
   if (updateError) {
-    console.error('updateError', updateError);
+    const error = narrowRTKQError(updateError);
+    logger.error(updateError, getRTKQErrorContext(error));
   }
 
   return (
     <Button
       variant={'primary'}
-      tooltip={!hasPendingChanges ? 'No changes detected' : undefined}
-      disabled={!hasPendingChanges}
+      tooltip={getTooltip(validation)}
+      disabled={!validation.hasPendingChanges || validation.isInvalid}
+      className={styles.button}
       onClick={() => {
         if (dsUID && records) {
           const updated: LogsDrilldownDefaultColumnsSpec = {
@@ -53,9 +60,7 @@ export function DefaultColumnsSubmit() {
             create({
               pretty: 'true',
               logsDrilldownDefaultColumns: {
-                metadata: {
-                  // name: dsUID,
-                },
+                metadata: {},
                 apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
                 kind: 'LogsDrilldownDefaultColumns',
                 spec: updated,
@@ -83,3 +88,23 @@ export function DefaultColumnsSubmit() {
     </Button>
   );
 }
+
+const getStyles = (theme: GrafanaTheme2, isInvalid: boolean) => ({
+  button: css({
+    borderColor: isInvalid ? theme.colors.error.border : theme.colors.border.strong,
+  }),
+});
+
+const getTooltip = (validation: DefaultColumnsValidationState): string | undefined => {
+  if (!validation.hasPendingChanges) {
+    return 'No changes detected';
+  }
+  if (validation.hasDuplicates) {
+    return 'Duplicates detected';
+  }
+  if (validation.hasInvalidRecords) {
+    return 'Invalid records detected';
+  }
+
+  return undefined;
+};

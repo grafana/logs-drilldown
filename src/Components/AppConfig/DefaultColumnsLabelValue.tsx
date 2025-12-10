@@ -18,8 +18,9 @@ interface Props {
   labelIndex: number;
   recordIndex: number;
 }
+
 export function DefaultColumnsLabelValue({ recordIndex, labelIndex }: Props) {
-  const { dsUID, records, setRecords } = useDefaultColumnsContext();
+  const { dsUID, records, setRecords, setExpandedRecords, expandedRecords } = useDefaultColumnsContext();
   const labels = records?.[recordIndex].labels;
   const label = labels?.[labelIndex];
   const styles = useStyles2(getStyles);
@@ -31,6 +32,11 @@ export function DefaultColumnsLabelValue({ recordIndex, labelIndex }: Props) {
       labelToUpdate.value = option.value;
 
       setRecords(records);
+
+      // Expand the columns section
+      if (recordToUpdate.columns.length === 1) {
+        setExpandedRecords([...expandedRecords, recordIndex]);
+      }
     }
   };
 

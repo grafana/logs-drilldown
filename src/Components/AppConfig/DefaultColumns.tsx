@@ -4,7 +4,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { logger } from '../../services/logger';
-import { narrowRTKQError } from '../../services/narrowing';
+import { getRTKQErrorContext, narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';
 import { APIColumnsState } from './types';
@@ -61,12 +61,7 @@ export const DefaultColumns = ({}: Props) => {
         setApiDefaultColumnsState({ [dsUID]: { records: [] } });
       } else {
         const error = new Error('DefaultColumns::Unexpected result for default columns - api error');
-        logger.error(error, {
-          statusText: defaultColumnsAPIError.statusText ?? '',
-          trace: defaultColumnsAPIError.traceId ?? '',
-          status: defaultColumnsAPIError.status?.toString() ?? '',
-          msg: defaultColumnsAPIError.data?.message ?? '',
-        });
+        logger.error(error, getRTKQErrorContext(defaultColumnsAPIError));
         throw error;
       }
     }

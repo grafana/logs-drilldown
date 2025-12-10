@@ -35,7 +35,9 @@ export function DefaultColumnsLabels({ recordIndex }: Props) {
             <div className={styles.labelContainer}>
               <DefaultColumnsLabelName recordIndex={recordIndex} labelIndex={labelIndex} />
               <DefaultColumnsLabelValue recordIndex={recordIndex} labelIndex={labelIndex} />
-              <DefaultColumnsRemoveLabel recordIndex={recordIndex} labelIndex={labelIndex} />
+              {record.labels.length > 1 && (
+                <DefaultColumnsRemoveLabel recordIndex={recordIndex} labelIndex={labelIndex} />
+              )}
             </div>
           </div>
         );

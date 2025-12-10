@@ -21,3 +21,10 @@ export type LocalLogsDrilldownDefaultColumnsSpec = {
   records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords;
 };
 export type LocalDefaultColumnsState = Record<dsUID, LocalLogsDrilldownDefaultColumnsSpec | undefined>;
+
+export interface DefaultColumnsValidationState {
+  hasDuplicates: boolean;
+  hasInvalidRecords: boolean;
+  hasPendingChanges: boolean;
+  isInvalid: boolean;
+}

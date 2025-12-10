@@ -6,10 +6,12 @@ import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
   ObjectMeta,
 } from '../../lib/api-clients/logsdrilldown/v1alpha1';
-import { recordsHaveDuplicates } from './DefaultColumnsState';
+import { isDefaultColumnsStateChanged, recordsHaveDuplicates } from './DefaultColumnsState';
+import { isRecordInvalid } from './DefaultColumnsValidation';
 import {
   APIColumnsState,
   DefaultColumnsState,
+  DefaultColumnsValidationState,
   LocalDefaultColumnsState,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
   LocalLogsDrilldownDefaultColumnsSpec,
@@ -19,33 +21,34 @@ type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;
   apiRecords: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | null;
   dsUID: string;
+  expandedRecords: number[];
   metadata: ObjectMeta | null;
   records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | null;
   setApiDefaultColumnsState: (defaultColumnsState: APIColumnsState) => void;
   setDsUID: (dsUID: string) => void;
+  setExpandedRecords: (idxs: number[]) => void;
   setMetadata: (m: ObjectMeta | null) => void;
   setRecords: (records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => void;
-  validation: {
-    hasDuplicates: boolean;
-    hasInvalidRecords: boolean;
-    isInvalid: boolean;
-  };
+  validation: DefaultColumnsValidationState;
 };
 
 const DefaultColumnsContext = createContext<DefaultColumnsContextType>({
   apiDefaultColumnsState: undefined,
   apiRecords: null,
   dsUID: '',
+  expandedRecords: [],
   metadata: {},
   records: null,
   setApiDefaultColumnsState: () => undefined,
   setDsUID: () => undefined,
+  setExpandedRecords: () => undefined,
   setMetadata: () => undefined,
   setRecords: () => undefined,
   validation: {
     isInvalid: false,
     hasDuplicates: false,
     hasInvalidRecords: false,
+    hasPendingChanges: false,
   },
 });
 
@@ -53,18 +56,26 @@ interface Props {
   children: ReactNode;
   initialDSUID: string;
 }
+
 export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props) => {
   const [localDefaultColumnsState, setLocalDefaultColumnsState] = useState<LocalDefaultColumnsState | null>(null);
   const [apiDefaultColumnsState, setApiDefaultColumnsState] = useState<APIColumnsState | null>(null);
   const [metadata, setMetadata] = useState<ObjectMeta | null>(null);
   const [dsUID, setDsUID] = useState(initialDSUID);
+  const [expandedRecords, setExpandedRecords] = useState<number[]>([]);
   const records = localDefaultColumnsState?.[dsUID]?.records ?? null;
   const apiRecords = apiDefaultColumnsState?.[dsUID].records ?? null;
 
+  /**
+   * Sets the API response metadata
+   */
   const handleSetMetadata = useCallback((metadata: ObjectMeta | null) => {
     setMetadata(metadata);
   }, []);
 
+  /**
+   * Sets the datasource UID and clears the existing state
+   */
   const handleSetDsUID = useCallback((dsUID: string) => {
     setDsUID(dsUID);
     setApiDefaultColumnsState(null);
@@ -107,37 +118,37 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
   );
 
   /**
+   * Sets the indices of records that are currently expanded
+   */
+  const handleSetExpandedRecords = useCallback((recordsIdxs: number[]) => {
+    setExpandedRecords(recordsIdxs);
+  }, []);
+
+  /**
    * Sets the local records state
    */
   const handleSetRecords = useCallback(
-    (records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => {
-      handleSetLocalDefaultColumnsDatasourceState({ records });
+    (newRecords: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => {
+      handleSetLocalDefaultColumnsDatasourceState({ records: newRecords });
     },
     [handleSetLocalDefaultColumnsDatasourceState]
   );
 
-  const { isInvalid, hasDuplicates, hasInvalidRecords } = useMemo(() => {
+  /**
+   * Validates the current form state
+   */
+  const { isInvalid, hasDuplicates, hasInvalidRecords, hasPendingChanges } = useMemo(() => {
     // Use a local reference to records to force useMemo to re-run when the localDefaultColumnsState reference changes
     const records = localDefaultColumnsState?.[dsUID]?.records ?? null;
-    const invalidRecords = records?.filter(
-      (r) =>
-        !(
-          r.columns.length &&
-          r.labels.length &&
-          r.labels.every(
-            (l) => l.key !== '' // this line is intentionally left blank for formatting purposes
-          ) &&
-          r.columns.every((c) => c)
-        )
-    );
-
+    const invalidRecords = records?.filter((r) => isRecordInvalid(r));
     const hasDuplicates = records ? recordsHaveDuplicates(records) : false;
     const hasInvalidRecords = (invalidRecords && invalidRecords?.length > 0) ?? false;
-    const isInvalid = hasInvalidRecords && hasDuplicates;
+    const isInvalid = hasInvalidRecords || hasDuplicates;
+    const hasPendingChanges = isDefaultColumnsStateChanged(records, apiRecords) ?? false;
 
-    return { hasDuplicates, hasInvalidRecords, isInvalid };
+    return { hasDuplicates, hasInvalidRecords, isInvalid, hasPendingChanges };
     // ¡if you just pass in records to this dep array we won't run validation on changes to record labels/columns!
-  }, [dsUID, localDefaultColumnsState]);
+  }, [dsUID, localDefaultColumnsState, apiRecords]);
 
   return (
     <DefaultColumnsContext.Provider
@@ -148,6 +159,7 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
           hasDuplicates,
           isInvalid,
           hasInvalidRecords,
+          hasPendingChanges,
         },
         metadata,
         setMetadata: handleSetMetadata,
@@ -156,6 +168,8 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
         apiDefaultColumnsState,
         setApiDefaultColumnsState: handleSetApiDefaultColumnsState,
         setRecords: handleSetRecords,
+        expandedRecords,
+        setExpandedRecords: handleSetExpandedRecords,
       }}
     >
       {children}

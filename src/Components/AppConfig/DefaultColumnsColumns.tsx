@@ -7,6 +7,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
+import { getNormalizedFieldName } from '../ServiceScene/LogOptionsScene';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { getKeys } from './DefaultColumnsState';
 
@@ -14,6 +15,7 @@ interface Props {
   containerDragging: boolean;
   recordIndex: number;
 }
+
 export function DefaultColumnsColumns({ recordIndex, containerDragging }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
   const record = records?.[recordIndex];
@@ -44,48 +46,56 @@ export function DefaultColumnsColumns({ recordIndex, containerDragging }: Props)
 
   return (
     <div className={styles.columns}>
-      {columns?.map((column, colIdx) => (
-        <Draggable draggableId={column} key={column} index={colIdx}>
-          {(provided: DraggableProvided, snapshot) => (
-            <div
-              key={colIdx}
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              className={cx(styles.column, snapshot.isDropAnimating ? styles['column--drop-animating'] : undefined)}
-            >
-              <Icon
-                aria-label="Drag and drop icon"
-                title="Drag and drop to reorder"
-                name="draggabledots"
-                size="lg"
-                className={styles.column__dragIcon}
-              />
-              <Combobox<string>
-                invalid={!column}
-                value={column}
-                placeholder={'Select column'}
-                width={'auto'}
-                minWidth={30}
-                isClearable={false}
-                onChange={(column) => onSelectColumn(column?.value, colIdx)}
-                createCustomValue={true}
-                options={(typeAhead) =>
-                  getKeys(dsUID, record, colIdx).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
-                }
-              />
-              <IconButton
-                variant={'destructive'}
-                tooltip={`Remove ${column}`}
-                name={'minus'}
-                size={'lg'}
-                className={styles.column__removeIcon}
-                onClick={() => onRemoveColumn(colIdx)}
-              />
-            </div>
-          )}
-        </Draggable>
-      ))}
+      {columns?.map((column, colIdx) => {
+        const draggableIdx = column ? column : '__pendingIdx__';
+        return (
+          <Draggable draggableId={draggableIdx} key={draggableIdx} index={colIdx}>
+            {(provided: DraggableProvided, snapshot) => (
+              <div
+                key={colIdx}
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className={cx(styles.column, snapshot.isDropAnimating ? styles['column--drop-animating'] : undefined)}
+              >
+                <Icon
+                  aria-label="Drag and drop icon"
+                  title="Drag and drop to reorder"
+                  name="draggabledots"
+                  size="lg"
+                  className={styles.column__dragIcon}
+                />
+                <Combobox<string>
+                  invalid={!column}
+                  value={{
+                    value: column,
+                    label: getNormalizedFieldName(column),
+                  }}
+                  placeholder={'Select column'}
+                  width={'auto'}
+                  minWidth={30}
+                  isClearable={false}
+                  onChange={(column) => onSelectColumn(column?.value, colIdx)}
+                  createCustomValue={true}
+                  options={(typeAhead) =>
+                    getKeys(dsUID, record, colIdx).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+                  }
+                />
+                {columns.length > 1 && (
+                  <IconButton
+                    variant={'destructive'}
+                    tooltip={`Remove ${column}`}
+                    name={'minus'}
+                    size={'lg'}
+                    className={styles.column__removeIcon}
+                    onClick={() => onRemoveColumn(colIdx)}
+                  />
+                )}
+              </div>
+            )}
+          </Draggable>
+        );
+      })}
     </div>
   );
 }

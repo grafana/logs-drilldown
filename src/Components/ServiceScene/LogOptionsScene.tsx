@@ -189,12 +189,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
 
 export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME = '___OTEL_LOG_ATTRIBUTES___';
 export const LOG_LINE_BODY_FIELD_NAME = '___LOG_LINE_BODY___';
+export const LOG_LINE_BODY_FIELD_DISPLAY_NAME = 'Log line';
+export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_DISPLAY_NAME = 'Log attributes';
 
 export function getNormalizedFieldName(field: string) {
   if (field === LOG_LINE_BODY_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-line-field', 'Log line');
+    return t('logs.logs-drilldown.fields.log-line-field', LOG_LINE_BODY_FIELD_DISPLAY_NAME);
   } else if (field === OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-attributes-field', 'Log attributes');
+    return t('logs.logs-drilldown.fields.log-attributes-field', OTEL_LOG_LINE_ATTRIBUTES_FIELD_DISPLAY_NAME);
   }
   return field;
 }

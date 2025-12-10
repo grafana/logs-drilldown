@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
+import { getNormalizedFieldName } from '../ServiceScene/LogOptionsScene';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
 
 interface Props {
@@ -22,11 +23,13 @@ export function DefaultColumnsRecordsCollapsibleLabel({ record }: Props) {
         </Tooltip>
       </h5>
       <span className={styles.label__pills}>
-        {record.columns.map((column) => (
-          <span className={styles.label__pill} key={column}>
-            {column}
-          </span>
-        ))}
+        {record.columns
+          .filter((c) => c)
+          .map((column) => (
+            <span className={styles.label__pill} key={column}>
+              {getNormalizedFieldName(column)}
+            </span>
+          ))}
       </span>
     </div>
   );

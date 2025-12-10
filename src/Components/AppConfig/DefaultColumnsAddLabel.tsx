@@ -6,14 +6,16 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { isRecordLabelsValid } from './DefaultColumnsValidation';
 
 interface Props {
   recordIndex: number;
 }
 export function DefaultColumnsAddLabel({ recordIndex }: Props) {
-  const styles = useStyles2(getStyles);
-
   const { setRecords, records } = useDefaultColumnsContext();
+  const record = records?.[recordIndex] ?? null;
+  const isInvalid = !!record && !isRecordLabelsValid(record);
+  const styles = useStyles2(getStyles);
 
   // @todo don't allow more then one empty record or the react keys get messed up and things get weird!
   const onAddLabelValue = () => {
@@ -35,10 +37,10 @@ export function DefaultColumnsAddLabel({ recordIndex }: Props) {
   return (
     <div className={styles.labelContainer}>
       <Button
+        disabled={isInvalid}
         tooltip={'Add new label to match against user query'}
         variant={'secondary'}
         fill={'outline'}
-        aria-label={`Add label`}
         icon={'plus'}
         onClick={() => onAddLabelValue()}
         className={styles.labelContainer__add}
@@ -56,6 +58,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flexDirection: 'row',
     alignItems: 'center',
   }),
-  labelContainer__name: css({}),
-  labelContainer__add: css({}),
+  labelContainer__add: css({
+    // borderColor: invalid ? theme.colors.error.border : theme.colors.border.strong,
+  }),
 });

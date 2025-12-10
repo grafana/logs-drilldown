@@ -3,42 +3,37 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { ControlledCollapse, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
+import { DefaultColumnsCollapsibleFields } from './DefaultColumnsCollapsibleFields';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsDeleteRecord } from './DefaultColumnsDeleteRecord';
-import { DefaultColumnsFields } from './DefaultColumnsFields';
 import { DefaultColumnsLabels } from './DefaultColumnsLabels';
-import { DefaultColumnsLogsScene } from './DefaultColumnsLogsScene';
-import { DefaultColumnsRecordsCollapsibleLabel } from './DefaultColumnsRecordsCollapsibleLabel';
 
 interface RecordsProps {}
 
 export const DefaultColumnsRecords = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
-  const { records } = useDefaultColumnsContext();
+  const { records, expandedRecords } = useDefaultColumnsContext();
 
   return (
     <div className={styles.recordsContainer}>
       {records?.map((record, recordIndex: number) => {
+        const isOpen = expandedRecords.includes(recordIndex);
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>
               <DefaultColumnsLabels recordIndex={recordIndex} />
             </div>
 
-            <ControlledCollapse
-              className={styles.recordContainer__labelWrap}
-              label={<DefaultColumnsRecordsCollapsibleLabel record={record} />}
-              isOpen={false}
-            >
-              <div className={styles.recordContainer__content}>
-                <DefaultColumnsFields recordIndex={recordIndex} />
-              </div>
+            <DefaultColumnsCollapsibleFields
+              // Force re-render when isOpen changes as the `ControlledCollapse` component is not actually controlled?
+              key={recordIndex + isOpen.toString()}
+              record={record}
+              isOpen={isOpen}
+              recordIndex={recordIndex}
+            />
 
-              {/*@todo with scan direction the duration of logs queries is less relevant? */}
-              <DefaultColumnsLogsScene recordIndex={recordIndex} />
-            </ControlledCollapse>
             <DefaultColumnsDeleteRecord recordIndex={recordIndex} />
           </div>
         );
@@ -56,10 +51,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
   recordContainer__content: css({
     paddingLeft: theme.spacing(2),
-  }),
-  recordContainer__labelWrap: css({
-    margin: theme.spacing(2),
-    width: 'auto',
   }),
   recordsContainer: css({
     paddingBottom: theme.spacing(2),

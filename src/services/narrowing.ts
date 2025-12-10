@@ -45,6 +45,7 @@ export function narrowSelectedTableRow(o: unknown): SelectedTableRow | false {
 export function narrowLogsVisualizationType(o: unknown): LogsVisualizationType | false {
   return typeof o === 'string' && (o === 'logs' || o === 'table' || o === 'json') && o;
 }
+
 export function narrowLogsSortOrder(o: unknown): LogsSortOrder | false {
   if (typeof o === 'string' && o === LogsSortOrder.Ascending.toString()) {
     return LogsSortOrder.Ascending;
@@ -199,8 +200,8 @@ export type NarrowedAPIError = {
   traceId?: string;
 };
 
-export function narrowRTKQError(apiError: unknown): NarrowedAPIError | undefined {
-  let narrowed: NarrowedAPIError | undefined = undefined;
+export function narrowRTKQError(apiError: unknown): NarrowedAPIError {
+  let narrowed: NarrowedAPIError = {};
 
   if (isObj(apiError)) {
     narrowed = {};
@@ -225,5 +226,14 @@ export function narrowRTKQError(apiError: unknown): NarrowedAPIError | undefined
 
   return narrowed;
 }
+
+export const getRTKQErrorContext = (defaultColumnsAPIError: NarrowedAPIError) => {
+  return {
+    statusText: defaultColumnsAPIError.statusText ?? '',
+    trace: defaultColumnsAPIError.traceId ?? '',
+    status: defaultColumnsAPIError.status?.toString() ?? '',
+    msg: defaultColumnsAPIError.data?.message ?? '',
+  };
+};
 
 export class NarrowingError extends Error {}
