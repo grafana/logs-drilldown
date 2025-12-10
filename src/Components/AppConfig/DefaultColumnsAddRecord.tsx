@@ -4,9 +4,7 @@ import { Button } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 
-interface Props {}
-
-export function DefaultColumnsAddRecord({}: Props) {
+export function DefaultColumnsAddRecord() {
   const { setLocalDefaultColumnsDatasourceState, dsUID, localDefaultColumnsState } = useDefaultColumnsContext();
   const ds = localDefaultColumnsState?.[dsUID];
 

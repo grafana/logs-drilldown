@@ -353,7 +353,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
         .setOption('setDisplayedFields', this.setDisplayedFields)
-        // .setOption('displayedFields', )
         .setOption('logLineMenuCustomItems', [
           {
             label: 'Copy link to log line',

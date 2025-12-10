@@ -331,7 +331,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         highScoreIdx = idx;
       }
     });
-    const bestMatch = highScoreIdx ? recordsScore?.[highScoreIdx] : undefined;
+    const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
 
     this.setState({
       defaultColumns: bestMatch?.columns,

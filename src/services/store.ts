@@ -169,7 +169,7 @@ export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
     type: 'loki',
   });
   const ds = dsList.find((ds) => ds.isDefault);
-  return ds?.uid ?? dsList?.[0].uid;
+  return ds?.uid ?? dsList?.[0]?.uid;
 }
 
 export function addLastUsedDataSourceToStorage(dsKey: string) {
