@@ -5,7 +5,7 @@ import { config } from '@grafana/runtime';
 export function DefaultColumnsUnsupported() {
   return (
     <section>
-      <h2>Default columns is not supported on this instance of Grafana</h2>
+      <h2>Default columns</h2>
       {(!config.featureToggles.kubernetesLogsDrilldown ||
         !config.featureToggles.grafanaAPIServerWithExperimentalAPIs) && (
         <p>
