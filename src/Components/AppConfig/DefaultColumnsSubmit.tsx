@@ -13,9 +13,14 @@ import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { isDefaultColumnsStateChanged } from './DefaultColumnsState';
 
 export function DefaultColumnsSubmit() {
-  const { localDefaultColumnsState, apiDefaultColumnsState, dsUID, metadata } = useDefaultColumnsContext();
+  const { dsUID, metadata, records, apiRecords } = useDefaultColumnsContext();
   const [create, { error: createError }] = useCreateLogsDrilldownDefaultColumnsMutation();
   const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultColumnsMutation();
+  const createNewRecord = metadata === null;
+  if (!records || !dsUID) {
+    return null;
+  }
+  const hasPendingChanges = isDefaultColumnsStateChanged(records, apiRecords);
 
   // @todo logger
   if (createError) {
@@ -28,15 +33,12 @@ export function DefaultColumnsSubmit() {
   return (
     <Button
       variant={'primary'}
-      disabled={
-        !localDefaultColumnsState ||
-        !isDefaultColumnsStateChanged(localDefaultColumnsState, apiDefaultColumnsState) ||
-        !dsUID
-      }
+      tooltip={!hasPendingChanges ? 'No changes detected' : undefined}
+      disabled={!hasPendingChanges}
       onClick={() => {
-        if (dsUID && localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
+        if (dsUID && records) {
           const updated: LogsDrilldownDefaultColumnsSpec = {
-            records: localDefaultColumnsState[dsUID].records.map((r) => {
+            records: records.map((r) => {
               const labels: LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels = r.labels.filter(
                 (label): label is LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel => !!label.value && !!label.key
               );
@@ -47,12 +49,12 @@ export function DefaultColumnsSubmit() {
             }),
           };
 
-          if (metadata === null) {
+          if (createNewRecord) {
             create({
               pretty: 'true',
               logsDrilldownDefaultColumns: {
                 metadata: {
-                  name: dsUID,
+                  // name: dsUID,
                 },
                 apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
                 kind: 'LogsDrilldownDefaultColumns',
@@ -77,7 +79,7 @@ export function DefaultColumnsSubmit() {
         }
       }}
     >
-      Save changes
+      {createNewRecord ? 'Create default columns' : 'Update default columns'}
     </Button>
   );
 }

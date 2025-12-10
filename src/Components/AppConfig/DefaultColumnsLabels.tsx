@@ -15,12 +15,12 @@ interface Props {
   recordIndex: number;
 }
 export function DefaultColumnsLabels({ recordIndex }: Props) {
-  const { localDefaultColumnsState, dsUID } = useDefaultColumnsContext();
+  const { records } = useDefaultColumnsContext();
   const styles = useStyles2(getStyles);
-  if (!localDefaultColumnsState?.[dsUID]) {
+  if (!records) {
     throw new Error('Records::missing localDefaultColumnsState');
   }
-  const record = localDefaultColumnsState[dsUID].records[recordIndex];
+  const record = records[recordIndex];
   return (
     <>
       <h5 className={styles.labelTitle}>

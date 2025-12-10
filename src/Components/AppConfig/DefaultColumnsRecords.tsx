@@ -16,16 +16,11 @@ interface RecordsProps {}
 
 export const DefaultColumnsRecords = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
-  const { localDefaultColumnsState, dsUID } = useDefaultColumnsContext();
-  const ds = localDefaultColumnsState?.[dsUID];
-
-  if (!ds) {
-    throw new Error('Records::missing localDefaultColumnsState');
-  }
+  const { records } = useDefaultColumnsContext();
 
   return (
     <div className={styles.recordsContainer}>
-      {ds?.records.map((record, recordIndex: number) => {
+      {records?.map((record, recordIndex: number) => {
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>

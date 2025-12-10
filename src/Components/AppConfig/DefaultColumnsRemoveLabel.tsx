@@ -14,16 +14,14 @@ interface Props {
 export function DefaultColumnsRemoveLabel({ recordIndex, labelIndex }: Props) {
   const styles = useStyles2(getStyles);
 
-  const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
-  const label = localDefaultColumnsState?.[dsUID]?.records[recordIndex].labels[labelIndex];
+  const { records, setRecords } = useDefaultColumnsContext();
+  const label = records?.[recordIndex].labels[labelIndex];
 
   const onRemoveLabelValue = () => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
+    if (records) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.labels.splice(labelIndex, 1);
-      setLocalDefaultColumnsDatasourceState({ ...ds, records });
+      setRecords(records);
     }
   };
 

@@ -18,8 +18,8 @@ interface Props {
   recordIndex: number;
 }
 export function DefaultColumnsLogsView({ recordIndex, expr }: Props) {
-  const { dsUID, localDefaultColumnsState } = useDefaultColumnsContext();
-  const record = localDefaultColumnsState?.[dsUID]?.records[recordIndex];
+  const { dsUID, records } = useDefaultColumnsContext();
+  const record = records?.[recordIndex];
 
   const query: LokiQuery = {
     refId: `gld-sample-${recordIndex}`,

@@ -10,9 +10,8 @@ interface Props {
   recordIndex: number;
 }
 export function DefaultColumnsLogsScene({ recordIndex }: Props) {
-  const { dsUID, localDefaultColumnsState } = useDefaultColumnsContext();
-  const ds = localDefaultColumnsState?.[dsUID];
-  const record = ds?.records[recordIndex];
+  const { records } = useDefaultColumnsContext();
+  const record = records?.[recordIndex];
   const labelFilters = mapColumnsLabelsToAdHocFilters(record?.labels ?? []);
   const expr = getColumnsLabelsExpr(labelFilters);
 

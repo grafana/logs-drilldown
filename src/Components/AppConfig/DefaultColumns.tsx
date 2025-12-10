@@ -3,18 +3,16 @@ import React, { useEffect } from 'react';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { logger } from '../../services/logger';
 import { narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';
-import { DefaultColumnsState } from './types';
+import { APIColumnsState } from './types';
 
 interface Props {}
 
-//@todo make sure we don't save duplicate records
-
 export const DefaultColumns = ({}: Props) => {
-  const { localDefaultColumnsState, setApiDefaultColumnsState, dsUID, apiDefaultColumnsState, setMetadata, metadata } =
-    useDefaultColumnsContext();
+  const { setApiDefaultColumnsState, dsUID, setMetadata, metadata } = useDefaultColumnsContext();
 
   const {
     currentData: defaultColumnsFromAPI,
@@ -27,18 +25,14 @@ export const DefaultColumns = ({}: Props) => {
   const defaultColumnsAPIError = narrowRTKQError(unknownAPIError);
 
   useEffect(() => {
-    const dsUIDRecord: DefaultColumnsState = {};
+    const dsUIDRecord: APIColumnsState = {};
 
     if (isLoading) {
       return;
     }
 
     // If we've already set this version to local state, don't do it twice
-    if (
-      apiDefaultColumnsState &&
-      apiDefaultColumnsState[dsUID] &&
-      defaultColumnsFromAPI?.metadata.resourceVersion === metadata?.resourceVersion
-    ) {
+    if (defaultColumnsFromAPI?.metadata.resourceVersion === metadata?.resourceVersion) {
       return;
     }
 
@@ -64,7 +58,12 @@ export const DefaultColumns = ({}: Props) => {
       if (defaultColumnsAPIError.status === 404) {
         setApiDefaultColumnsState({ [dsUID]: { records: [] } });
       } else {
-        console.error('LogsDrilldown API Error:', defaultColumnsAPIError);
+        logger.error('LogsDrilldown API Error:', {
+          statusText: defaultColumnsAPIError.statusText ?? '',
+          trace: defaultColumnsAPIError.traceId ?? '',
+          status: defaultColumnsAPIError.status?.toString() ?? '',
+          msg: defaultColumnsAPIError.data?.message ?? '',
+        });
         throw new Error('DefaultColumns::Unexpected result for default columns - api error');
       }
     }
@@ -74,15 +73,13 @@ export const DefaultColumns = ({}: Props) => {
     defaultColumnsFromAPI,
     defaultColumnsAPIError,
     isLoading,
-    apiDefaultColumnsState,
     dsUID,
     setApiDefaultColumnsState,
   ]);
 
   // @todo if grafana 12.4-pre is run and it doesn't have the API changes isLoading is always true and we get stuck in a loading state
   // Shouldn't be a problem as long as we make sure the API changes are deployed to cloud before releasing, unless OSS users are running pre-release versions.
-  if (isLoading || !localDefaultColumnsState || !localDefaultColumnsState[dsUID]) {
-    console.log('isLoading', { isLoading, localDefaultColumnsState, dsUID });
+  if (isLoading) {
     return <LoadingPlaceholder text={'Loading...'} />;
   }
 

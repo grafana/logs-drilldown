@@ -4,26 +4,25 @@ import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import { DefaultColumnsColumns } from './DefaultColumnsColumns';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { LocalDefaultColumnsState, LocalLogsDrilldownDefaultColumnsSpec } from './types';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
 
 interface Props {
   recordIndex: number;
 }
 
 export function DefaultColumnsColumnsDragContext({ recordIndex }: Props) {
-  const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
-  const record = localDefaultColumnsState?.[dsUID]?.records[recordIndex];
+  const { setRecords, records } = useDefaultColumnsContext();
+  const record = records?.[recordIndex];
   const columns = record?.columns ?? [];
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination || !localDefaultColumnsState) {
+    if (!result.destination || !records) {
       return;
     }
     reorderColumn({
       columns,
-      dsUID,
-      localDefaultColumnsState,
+      records,
       recordIndex,
-      setLocalDefaultColumnsDatasourceState,
+      setRecords,
       sourceIndex: result.source.index,
       destinationIndex: result.destination.index,
     });
@@ -45,31 +44,27 @@ export function DefaultColumnsColumnsDragContext({ recordIndex }: Props) {
 interface ReorderColumnsProps {
   columns: string[];
   destinationIndex: number;
-  dsUID: string;
-  localDefaultColumnsState: LocalDefaultColumnsState;
   recordIndex: number;
-  setLocalDefaultColumnsDatasourceState: (localDefaultColumnsState?: LocalLogsDrilldownDefaultColumnsSpec) => void;
+  records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords;
+  setRecords: (records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => void;
   sourceIndex: number;
 }
 
 function reorderColumn({
+  records,
   columns,
-  localDefaultColumnsState,
-  dsUID,
-  setLocalDefaultColumnsDatasourceState,
   recordIndex,
   sourceIndex,
   destinationIndex,
+  setRecords,
 }: ReorderColumnsProps) {
   const [source] = columns.splice(sourceIndex, 1);
   columns.splice(destinationIndex, 0, source);
 
-  if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-    const ds = localDefaultColumnsState[dsUID];
-    const records = ds.records;
+  if (records) {
     const recordToUpdate = records[recordIndex];
     recordToUpdate.columns = columns;
 
-    setLocalDefaultColumnsDatasourceState({ records });
+    setRecords(records);
   }
 }

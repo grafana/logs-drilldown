@@ -12,17 +12,15 @@ interface Props {
 }
 export function DefaultColumnsDeleteRecord({ recordIndex }: Props) {
   const styles = useStyles2(getStyles);
-  const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
-  const ds = localDefaultColumnsState?.[dsUID];
-  const records = ds?.records;
+  const { records, setRecords } = useDefaultColumnsContext();
 
-  if (!records || !records.length || !ds) {
+  if (!records) {
     return null;
   }
 
   const deleteRecord = () => {
     records.splice(recordIndex, 1);
-    setLocalDefaultColumnsDatasourceState({ ...ds, records });
+    setRecords(records);
   };
 
   return (

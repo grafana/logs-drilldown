@@ -3,6 +3,7 @@ import { flatten } from 'lodash';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { logger } from '../../services/logger';
 import { LokiDatasource } from '../../services/lokiQuery';
@@ -10,31 +11,22 @@ import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProvid
 import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import {
-  DefaultColumnsState,
-  LocalDefaultColumnsState,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
 
 /**
  * Does the local stage have changes that aren't saved in the latest API response?
- * @param localDefaultColumnsState
- * @param apiDefaultColumnsState
+ * @param records
+ * @param apiRecords
  */
 export const isDefaultColumnsStateChanged = (
-  localDefaultColumnsState: LocalDefaultColumnsState,
-  apiDefaultColumnsState: DefaultColumnsState | null | undefined
+  records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | null,
+  apiRecords: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | null
 ) => {
-  return (
-    localDefaultColumnsState &&
-    Object.keys(localDefaultColumnsState).some((key) => {
-      const lhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
-        localDefaultColumnsState?.[key]?.records;
-      const rhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | undefined =
-        apiDefaultColumnsState?.[key]?.records;
-      return !(lhs && rhs && areArraysStrictlyEqual(lhs, rhs));
-    })
-  );
+  const lhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | null = records;
+  const rhs: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords | null = apiRecords;
+  return records && !(lhs && rhs && areArraysStrictlyEqual(lhs, rhs));
 };
 
 export const getKeys = async (
@@ -98,4 +90,27 @@ export const getDatasource = async (dsUID: string) => {
     throw err;
   }
   return ds as LokiDatasource;
+};
+
+/**
+ * Determine if any records have the same set of labels
+ * @param records
+ */
+export const recordsHaveDuplicates = (records: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords) => {
+  console.log('recordsHaveDuplicates', records);
+  const set = new Set();
+
+  records.forEach((record) => {
+    const labels = record.labels.sort();
+    console.log('adding labels to set', labels);
+    set.add(JSON.stringify(labels));
+  });
+
+  console.log('records have dups', set.size !== records.length, {
+    size: set.size,
+    records,
+    setValues: Array.from(set),
+  });
+
+  return set.size !== records.length;
 };

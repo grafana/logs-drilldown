@@ -13,13 +13,11 @@ interface Props {
 export function DefaultColumnsAddLabel({ recordIndex }: Props) {
   const styles = useStyles2(getStyles);
 
-  const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
+  const { setRecords, records } = useDefaultColumnsContext();
 
   // @todo don't allow more then one empty record or the react keys get messed up and things get weird!
   const onAddLabelValue = () => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = [...ds.records];
+    if (records) {
       const beforeThisRecord = records.slice(0, recordIndex);
       const thisRecord = records.splice(recordIndex, 1)[0];
       const afterThisRecord = records.slice(recordIndex, records.length);
@@ -30,10 +28,7 @@ export function DefaultColumnsAddLabel({ recordIndex }: Props) {
       ];
 
       // This is messing up the order
-      setLocalDefaultColumnsDatasourceState({
-        ...ds,
-        records: newRecords,
-      });
+      setRecords(newRecords);
     }
   };
 

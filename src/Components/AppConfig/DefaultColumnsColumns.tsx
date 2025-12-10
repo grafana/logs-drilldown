@@ -15,8 +15,8 @@ interface Props {
   recordIndex: number;
 }
 export function DefaultColumnsColumns({ recordIndex, containerDragging }: Props) {
-  const { localDefaultColumnsState, dsUID, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
-  const record = localDefaultColumnsState?.[dsUID]?.records[recordIndex];
+  const { dsUID, records, setRecords } = useDefaultColumnsContext();
+  const record = records?.[recordIndex];
   const columns = record?.columns ?? [];
   const styles = useStyles2(getStyles, containerDragging);
 
@@ -27,24 +27,18 @@ export function DefaultColumnsColumns({ recordIndex, containerDragging }: Props)
   }
 
   const onSelectColumn = (column: string, columnIndex: number) => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
+    if (records) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.columns[columnIndex] = column;
-
-      setLocalDefaultColumnsDatasourceState({ records });
+      setRecords(records);
     }
   };
 
   const onRemoveColumn = (columnIndex: number) => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
+    if (records) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.columns.splice(columnIndex, 1);
-
-      setLocalDefaultColumnsDatasourceState({ records });
+      setRecords(records);
     }
   };
 

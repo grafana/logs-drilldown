@@ -19,20 +19,18 @@ interface Props {
   recordIndex: number;
 }
 export function DefaultColumnsLabelValue({ recordIndex, labelIndex }: Props) {
-  const { dsUID, localDefaultColumnsState, setLocalDefaultColumnsDatasourceState } = useDefaultColumnsContext();
-  const labels = localDefaultColumnsState?.[dsUID]?.records[recordIndex].labels;
+  const { dsUID, records, setRecords } = useDefaultColumnsContext();
+  const labels = records?.[recordIndex].labels;
   const label = labels?.[labelIndex];
   const styles = useStyles2(getStyles);
 
   const onSelectLabelValue = (option: ComboboxOption) => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
+    if (records) {
       const recordToUpdate = records[recordIndex];
       const labelToUpdate = recordToUpdate.labels[labelIndex];
       labelToUpdate.value = option.value;
 
-      setLocalDefaultColumnsDatasourceState({ ...ds, records });
+      setRecords(records);
     }
   };
 

@@ -6,6 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, useStyles2 } from '@grafana/ui';
 import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
 
+import { logger } from '../../services/logger';
 import { getLabelsKeys } from '../../services/TagKeysProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
@@ -17,15 +18,17 @@ interface ValueProps {
 }
 
 export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps) => {
-  const { dsUID, setLocalDefaultColumnsDatasourceState, localDefaultColumnsState } = useDefaultColumnsContext();
-  const columnsLabels = localDefaultColumnsState?.[dsUID]?.records[recordIndex].labels;
+  const { dsUID, records, setRecords } = useDefaultColumnsContext();
+  const columnsLabels = records?.[recordIndex].labels;
   const labelName = columnsLabels?.[labelIndex].key;
   const styles = useStyles2(getStyles);
 
   const getLabels = async (): Promise<ComboboxOption[]> => {
     const datasource = await getDatasource(dsUID);
     if (!datasource || !datasource.getResource) {
-      throw new Error('Datasource not found');
+      const error = new Error(`Data source ${dsUID} not found`);
+      logger.error(error, { msg: 'DefaultColumnsLabelName::getLabels - Data source not found!' });
+      throw error;
     }
 
     const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels ?? []);
@@ -35,15 +38,13 @@ export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps)
   };
 
   const onSelectFieldName = (labelName: string) => {
-    if (localDefaultColumnsState && localDefaultColumnsState[dsUID]) {
-      const ds = localDefaultColumnsState[dsUID];
-      const records = ds.records;
+    if (records) {
       const recordToUpdate = records[recordIndex];
-      const labelToUpdate = recordToUpdate.labels[labelIndex];
+      const labelToUpdate = recordToUpdate?.labels[labelIndex];
       labelToUpdate.key = labelName;
       labelToUpdate.value = undefined;
 
-      setLocalDefaultColumnsDatasourceState({ ...ds, records });
+      setRecords(records);
     }
   };
 
