@@ -556,7 +556,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   buildServiceLogsLayout = (labelName: string, labelValue: string) => {
     const levelFilter = this.getLevelFilterForService(labelValue);
 
-    const defaultDisplayedFields = this.getDefaultColumns(labelName, labelValue);
+    const backendDisplayedFields = this.getDefaultColumns(labelName, labelValue);
     const cssGridItem = new SceneCSSGridItem({
       $behaviors: [new behaviors.CursorSync({ sync: DashboardCursorSync.Off })],
       body: PanelBuilders.logs()
@@ -579,7 +579,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
-        .setOption('displayedFields', defaultDisplayedFields)
+        .setOption('displayedFields', backendDisplayedFields)
         .build(),
     });
 

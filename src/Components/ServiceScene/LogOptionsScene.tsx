@@ -13,6 +13,7 @@ import { narrowLogsSortOrder } from '../../services/narrowing';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
+import { ServiceScene } from './ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType, setLogOption } from 'services/store';
@@ -63,26 +64,50 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
       USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
     );
   };
+
+  showDefaultFields = () => {
+    const parentScene = this.getLogsListScene();
+    parentScene.showDefaultFields();
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
+    );
+  };
 }
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const { onChangeVisualizationType, visualizationType } = model.useState();
   const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
-  const { displayedFields, defaultDisplayedFields } = model.getLogsListScene().useState();
+  const { displayedFields, otelDisplayedFields } = model.getLogsListScene().useState();
+  const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
+  const { backendDisplayedFields } = serviceScene.useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
 
   const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
+  const backendFieldsNames = useMemo(
+    () => backendDisplayedFields?.map(getNormalizedFieldName).join(', '),
+    [backendDisplayedFields]
+  );
 
   return (
     <div className={styles.container}>
-      {displayedFields.length > 0 && shallowCompare(displayedFields, defaultDisplayedFields) === false && (
+      {displayedFields.length > 0 && !shallowCompare(displayedFields, otelDisplayedFields) && (
         <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line
           </Button>
         </Tooltip>
       )}
+      {backendDisplayedFields &&
+        backendDisplayedFields?.length > 0 &&
+        !shallowCompare(displayedFields, backendDisplayedFields) && (
+          <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
+            <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showDefaultFields}>
+              Show default fields
+            </Button>
+          </Tooltip>
+        )}
       {!logsControlsSupported && (
         <>
           <InlineField className={styles.buttonGroupWrapper} transparent>

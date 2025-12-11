@@ -28,7 +28,7 @@ import {
   getLogOption,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
-  setDisplayedFields,
+  setDisplayedFieldsInStorage,
 } from '../../services/store';
 import {
   getAdHocFiltersVariable,
@@ -99,6 +99,31 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       wrapLogMessage: JSON.stringify(this.state.wrapLogMessage),
     };
   }
+
+  showDefaultFields = () => {
+    if (!this.state.body) {
+      return;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const backendDisplayedFields = serviceScene.state.backendDisplayedFields ?? [];
+    this.setLogsVizOption({
+      displayedFields: backendDisplayedFields,
+    });
+    setDisplayedFieldsInStorage(this, backendDisplayedFields);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    // Set displayed fields
+    parent.setState({ displayedFields: backendDisplayedFields });
+    const urlColumns = backendDisplayedFields ?? parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
+  };
 
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<LogsPanelSceneState> = {};
@@ -184,8 +209,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       displayedFields: fields,
     });
     const parent = this.getParentScene();
-    if (!fields.length || shallowCompare(fields, parent.state.defaultDisplayedFields) === false) {
-      setDisplayedFields(this, fields);
+    if (!fields.length || shallowCompare(fields, parent.state.otelDisplayedFields) === false) {
+      setDisplayedFieldsInStorage(this, fields);
     }
     parent.setState({ displayedFields: fields });
   };
@@ -200,7 +225,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         displayedFields,
       });
       parent.setState({ displayedFields });
-      setDisplayedFields(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -219,7 +244,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         displayedFields,
       });
       parent.setState({ displayedFields });
-      setDisplayedFields(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields);
 
       // Remove displayed fields from url columns
       parent.setState({
@@ -250,7 +275,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: [],
     });
-    setDisplayedFields(this, []);
+    setDisplayedFieldsInStorage(this, []);
 
     // Sync with urlColumns
     const parent = this.getParentScene();
@@ -278,6 +303,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const parentModel = this.getParentScene();
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    console.log('LogsPanelScene::getLogsPanel displayedFields', parentModel.state.displayedFields);
     const panel = PanelBuilders.logs()
       .setTitle(this.getTitle(serviceScene.state.logsCount))
       .setOption('onClickFilterLabel', this.handleLabelFilterClick)
@@ -347,7 +373,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({ dedupStrategy: value });
     } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
       const parent = this.getParentScene();
-      parent.setState({ defaultDisplayedFields: value });
+      parent.setState({ otelDisplayedFields: value });
     }
   };
 

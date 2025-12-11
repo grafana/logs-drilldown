@@ -131,8 +131,8 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   // null implies it is not supported, undefined is not set yet
   $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
+  backendDisplayedFields?: string[];
   body: SceneFlexLayout | undefined;
-  defaultColumns?: string[];
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
@@ -335,7 +335,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
 
     this.setState({
-      defaultColumns: bestMatch?.columns,
+      backendDisplayedFields: bestMatch?.columns,
     });
   }
 

@@ -18,6 +18,7 @@ import {
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { areArraysEqual } from '../../services/comparison';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
@@ -45,15 +46,16 @@ import {
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
+  // backendDisplayedFields: string[];
   canClearFilters?: boolean;
   controlsExpanded: boolean;
-  defaultDisplayedFields: string[];
   displayedFields: string[];
   error?: string;
   errorType?: ErrorType;
   lineFilter?: string;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
+  otelDisplayedFields: string[];
   panel?: SceneFlexLayout;
   selectedLine?: SelectedTableRow;
   tableLogLineState?: LogLineState;
@@ -72,7 +74,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: [],
-      defaultDisplayedFields: [],
+      otelDisplayedFields: [],
+      // backendDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
       // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
       controlsExpanded: getBooleanLogOption('controlsExpanded', false),
@@ -170,6 +173,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
   };
 
+  showDefaultFields = () => {
+    this.setState({ displayedFields: [] });
+    if (this.logsPanelScene) {
+      this.logsPanelScene.showDefaultFields();
+    }
+  };
+
   public onActivate() {
     const searchParams = new URLSearchParams(locationService.getLocation().search);
     this.setStateFromUrl(searchParams);
@@ -189,8 +199,18 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       })
     );
 
-    // Subscribe to logs query runner for error handling (all visualization types)
+    this.setBackendDisplayedFields();
+
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this._subs.add(
+      serviceScene.subscribeToState((newState, prevState) => {
+        if (!areArraysEqual(newState.backendDisplayedFields, prevState.backendDisplayedFields)) {
+          this.setBackendDisplayedFields();
+        }
+      })
+    );
+
+    // Subscribe to logs query runner for error handling (all visualization types)
     const logsQueryRunner = serviceScene.state.$data;
     if (logsQueryRunner) {
       this._subs.add(
@@ -204,6 +224,22 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           }
         })
       );
+    }
+  }
+
+  setBackendDisplayedFields(newCols?: string[], prevCols?: string[]) {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+
+    // If the user has configured default columns for this query
+    if (serviceScene.state.backendDisplayedFields && serviceScene.state.backendDisplayedFields.length > 0) {
+      // @todo do we really need to set the state?
+      // this.setState({ backendDisplayedFields: serviceScene.state.backendDisplayedFields });
+      // Set default columns as default displayed fields
+      console.log('backend fields changed', serviceScene.state.backendDisplayedFields);
+      if (!this.state.displayedFields.length) {
+        console.log('setting displayed fields');
+        this.setState({ displayedFields: serviceScene.state.backendDisplayedFields });
+      }
     }
   }
 
@@ -324,10 +360,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
     // Clean up default displayed fields
     if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
-      if (shallowCompare(this.state.displayedFields, this.state.defaultDisplayedFields)) {
+      if (shallowCompare(this.state.displayedFields, this.state.otelDisplayedFields)) {
         extraStateChanges = {
           displayedFields: [],
-          defaultDisplayedFields: [],
+          otelDisplayedFields: [],
         };
       }
     }
