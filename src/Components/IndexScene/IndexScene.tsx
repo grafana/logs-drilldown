@@ -374,6 +374,20 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
           });
           getMetadataService().setDefaultColumns(records, dsUID);
         }
+
+        // If the API call returns after the logs panel is already rendered we don't update the displayed fields!
+        // setTimeout(async () => {
+        //   const fetchResult = await fetch(request);
+        //   if (fetchResult.ok) {
+        //     // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
+        //     const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
+        //     const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
+        //     this.setState({
+        //       defaultColumnsRecords: records,
+        //     });
+        //     getMetadataService().setDefaultColumns(records, dsUID);
+        //   }
+        // }, 2000);
       }
     }
   }

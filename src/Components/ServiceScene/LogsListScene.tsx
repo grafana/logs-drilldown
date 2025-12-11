@@ -199,13 +199,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       })
     );
 
-    this.setBackendDisplayedFields();
+    this.setDisplayedFieldsFromBackend();
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(
       serviceScene.subscribeToState((newState, prevState) => {
         if (!areArraysEqual(newState.backendDisplayedFields, prevState.backendDisplayedFields)) {
-          this.setBackendDisplayedFields();
+          this.setDisplayedFieldsFromBackend(newState.backendDisplayedFields, prevState.backendDisplayedFields);
         }
       })
     );
@@ -227,18 +227,20 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
   }
 
-  setBackendDisplayedFields(newCols?: string[], prevCols?: string[]) {
+  setDisplayedFieldsFromBackend(newCols?: string[], prevCols?: string[]) {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    console.log('setDisplayedFieldsFromBackend', { newCols, prevCols });
 
     // If the user has configured default columns for this query
     if (serviceScene.state.backendDisplayedFields && serviceScene.state.backendDisplayedFields.length > 0) {
-      // @todo do we really need to set the state?
-      // this.setState({ backendDisplayedFields: serviceScene.state.backendDisplayedFields });
       // Set default columns as default displayed fields
       console.log('backend fields changed', serviceScene.state.backendDisplayedFields);
+      // @todo how do we differentiate user added displayed fields against backend defaults from a previous service?
       if (!this.state.displayedFields.length) {
-        console.log('setting displayed fields');
+        console.log('setDisplayedFieldsFromBackend::no displayed fields', serviceScene.state.backendDisplayedFields);
         this.setState({ displayedFields: serviceScene.state.backendDisplayedFields });
+      } else {
+        console.log('setDisplayedFieldsFromBackend::backend changed but not setting');
       }
     }
   }

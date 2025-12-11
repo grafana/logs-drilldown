@@ -334,6 +334,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
     const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
 
+    console.log('set backendDisplayedFields', bestMatch?.columns);
+
     this.setState({
       backendDisplayedFields: bestMatch?.columns,
     });
