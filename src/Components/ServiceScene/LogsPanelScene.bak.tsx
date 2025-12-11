@@ -28,7 +28,7 @@ import {
   getLogOption,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
-  setDisplayedFields,
+  setDisplayedFieldsInStorage,
 } from '../../services/store';
 import {
   getAdHocFiltersVariable,
@@ -82,15 +82,27 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  private setStateFromUrl() {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
+  public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
+    const { body, canClearFilters, error, errorType } = model.useState();
+    const styles = useStyles2(getPanelWrapperStyles);
 
-    this.updateFromUrl({
-      prettifyLogMessage: searchParams.get('prettifyLogMessage'),
-      sortOrder: searchParams.get('sortOrder'),
-      wrapLogMessage: searchParams.get('wrapLogMessage'),
-    });
-  }
+    if (body) {
+      return (
+        <span className={styles.panelWrapper}>
+          {!error && <body.Component model={body} />}
+          {error && (
+            <LogsPanelError
+              error={error}
+              errorType={errorType}
+              clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
+              sceneRef={model}
+            />
+          )}
+        </span>
+      );
+    }
+    return <LoadingPlaceholder text={'Loading...'} />;
+  };
 
   getUrlState() {
     return {
@@ -169,6 +181,18 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       })
     );
 
+    // this._subs.add(
+    //   this.getParentScene().subscribeToState((newState, prevState) => {
+    //     // Did the default fields change?
+    //     if (!areArraysEqual(newState.defaultDisplayedFields, prevState.defaultDisplayedFields)) {
+    //       // Only update the displayed fields if the current set is the same as the previous default
+    //       if (areArraysEqual(prevState.defaultDisplayedFields, this.getParentScene().state.displayedFields)) {
+    //         this.setDisplayedFields(newState.defaultDisplayedFields);
+    //       }
+    //     }
+    //   })
+    // );
+
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.visualization_init,
@@ -185,8 +209,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     });
     const parent = this.getParentScene();
     if (!fields.length || shallowCompare(fields, parent.state.defaultDisplayedFields) === false) {
-      setDisplayedFields(this, fields);
+      setDisplayedFieldsInStorage(this, fields);
     }
+    console.log('LogsPanelScene: setDisplayedFields', fields);
     parent.setState({ displayedFields: fields });
   };
 
@@ -199,8 +224,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({
         displayedFields,
       });
+      console.log('LogsPanelScene::onClickShowField', displayedFields);
       parent.setState({ displayedFields });
-      setDisplayedFields(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -218,8 +244,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({
         displayedFields,
       });
+      console.log('LogsPanelScene::onClickHideField', displayedFields);
       parent.setState({ displayedFields });
-      setDisplayedFields(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields);
 
       // Remove displayed fields from url columns
       parent.setState({
@@ -243,6 +270,32 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.state.body.onOptionsChange(options);
   }
 
+  showDefaultFields = () => {
+    if (!this.state.body) {
+      return;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const defaultColumns = serviceScene.state.defaultColumns ?? [];
+    this.setLogsVizOption({
+      displayedFields: defaultColumns,
+    });
+    setDisplayedFieldsInStorage(this, defaultColumns);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    // Set displayed fields
+    console.log('LogsPanelScene::showDefaultFields', defaultColumns);
+    parent.setState({ displayedFields: defaultColumns });
+    const urlColumns = defaultColumns ?? parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
+  };
+
   clearDisplayedFields = () => {
     if (!this.state.body) {
       return;
@@ -250,7 +303,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: [],
     });
-    setDisplayedFields(this, []);
+    setDisplayedFieldsInStorage(this, []);
 
     // Sync with urlColumns
     const parent = this.getParentScene();
@@ -264,6 +317,16 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     });
   };
 
+  private setStateFromUrl() {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+
+    this.updateFromUrl({
+      prettifyLogMessage: searchParams.get('prettifyLogMessage'),
+      sortOrder: searchParams.get('sortOrder'),
+      wrapLogMessage: searchParams.get('wrapLogMessage'),
+    });
+  }
+
   private getParentScene() {
     return sceneGraph.getAncestor(this, LogsListScene);
   }
@@ -276,6 +339,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
   private getLogsPanel = () => {
     const parentModel = this.getParentScene();
+    console.log('LogsPanelScene::getLogsPanel', {
+      displayedFields: parentModel.state.displayedFields,
+      defaultDisplayedFields: parentModel.state.defaultDisplayedFields,
+    });
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const panel = PanelBuilders.logs()
@@ -288,6 +355,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onClickShowField', this.onClickShowField)
       .setOption('onClickHideField', this.onClickHideField)
       .setOption('displayedFields', parentModel.state.displayedFields)
+      //@ts-expect-error
+      .setOption('defaultDisplayedFields', parentModel.state.defaultDisplayedFields)
       .setMenu(
         new PanelMenu({
           investigationOptions: { getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}`, type: 'logs' },
@@ -347,6 +416,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({ dedupStrategy: value });
     } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
       const parent = this.getParentScene();
+      console.log('LogsPanelScene::handleLogOptionsChange set defaultDisplayedFields', value);
       parent.setState({ defaultDisplayedFields: value });
     }
   };
@@ -499,26 +569,4 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       }
     );
   }
-
-  public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
-    const { body, canClearFilters, error, errorType } = model.useState();
-    const styles = useStyles2(getPanelWrapperStyles);
-
-    if (body) {
-      return (
-        <span className={styles.panelWrapper}>
-          {!error && <body.Component model={body} />}
-          {error && (
-            <LogsPanelError
-              error={error}
-              errorType={errorType}
-              clearFilters={canClearFilters ? () => clearVariables(body) : undefined}
-              sceneRef={model}
-            />
-          )}
-        </span>
-      );
-    }
-    return <LoadingPlaceholder text={'Loading...'} />;
-  };
 }

@@ -63,6 +63,15 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
       USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
     );
   };
+
+  showDefaultFields = () => {
+    const parentScene = this.getLogsListScene();
+    parentScene.showDefaultFields();
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
+    );
+  };
 }
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
@@ -72,11 +81,28 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
 
-  const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
+  const displayedFieldsNames = useMemo(
+    () => displayedFields?.map(getNormalizedFieldName).join(', '),
+    [displayedFields]
+  );
+  const defaultFieldNames = useMemo(
+    () => defaultDisplayedFields?.map(getNormalizedFieldName).join(', '),
+    [defaultDisplayedFields]
+  );
+
+  console.log('defaultDisplayedFields', defaultDisplayedFields);
+  console.log('displayedFields', displayedFields);
 
   return (
     <div className={styles.container}>
-      {displayedFields.length > 0 && shallowCompare(displayedFields, defaultDisplayedFields) === false && (
+      {defaultDisplayedFields.length > 0 && !shallowCompare(displayedFields, defaultDisplayedFields) && (
+        <Tooltip content={`Show default fields: ${defaultFieldNames}`}>
+          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showDefaultFields}>
+            Show default fields
+          </Button>
+        </Tooltip>
+      )}
+      {displayedFields.length > 0 && !shallowCompare(displayedFields, defaultDisplayedFields) && (
         <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line
@@ -166,12 +192,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
 
 export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME = '___OTEL_LOG_ATTRIBUTES___';
 export const LOG_LINE_BODY_FIELD_NAME = '___LOG_LINE_BODY___';
+export const LOG_LINE_BODY_FIELD_DISPLAY_NAME = 'Log line';
+export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_DISPLAY_NAME = 'Log attributes';
 
 export function getNormalizedFieldName(field: string) {
   if (field === LOG_LINE_BODY_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-line-field', 'Log line');
+    return t('logs.logs-drilldown.fields.log-line-field', LOG_LINE_BODY_FIELD_DISPLAY_NAME);
   } else if (field === OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-attributes-field', 'Log attributes');
+    return t('logs.logs-drilldown.fields.log-attributes-field', OTEL_LOG_LINE_ATTRIBUTES_FIELD_DISPLAY_NAME);
   }
   return field;
 }

@@ -18,6 +18,7 @@ import {
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { areArraysEqual } from '../../services/comparison';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
@@ -100,6 +101,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const selectedLine = this.state.selectedLine;
     const visualizationType = this.state.visualizationType;
     const displayedFields = this.state.displayedFields ?? getDisplayedFields(this) ?? [];
+
+    console.log('getUrlState', { displayedFields, urlColumns });
     return {
       displayedFields: JSON.stringify(displayedFields),
       selectedLine: JSON.stringify(selectedLine),
@@ -153,6 +156,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
 
     if (Object.keys(stateUpdate).length) {
+      console.log('updateFromUrl', { ...stateUpdate });
       this.setState(stateUpdate);
     }
   }
@@ -163,7 +167,16 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     });
   }
 
+  showDefaultFields = () => {
+    console.log('showDefaultFields');
+    this.setState({ displayedFields: [] });
+    if (this.logsPanelScene) {
+      this.logsPanelScene.showDefaultFields();
+    }
+  };
+
   clearDisplayedFields = () => {
+    console.log('clearDisplayedFields');
     this.setState({ displayedFields: [] });
     if (this.logsPanelScene) {
       this.logsPanelScene.clearDisplayedFields();
@@ -189,8 +202,18 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       })
     );
 
-    // Subscribe to logs query runner for error handling (all visualization types)
+    this.setDefaultColumns();
+
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this._subs.add(
+      serviceScene.subscribeToState((newState, prevState) => {
+        if (!areArraysEqual(newState.defaultColumns, prevState.defaultColumns)) {
+          this.setDefaultColumns(newState.defaultColumns, prevState.defaultColumns);
+        }
+      })
+    );
+
+    // Subscribe to logs query runner for error handling (all visualization types)
     const logsQueryRunner = serviceScene.state.$data;
     if (logsQueryRunner) {
       this._subs.add(
@@ -204,6 +227,50 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           }
         })
       );
+    }
+  }
+
+  setDefaultColumns(newCols?: string[], prevCols?: string[]) {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+
+    console.log('setDefaultColumns', {
+      defaultColumns: serviceScene.state.defaultColumns,
+      newCols,
+      prevCols,
+      displayedFields: this.state.displayedFields,
+      defaultDisplayedFields: this.state.defaultDisplayedFields,
+      urlCols: this.state.urlColumns,
+    });
+
+    // If the user has configured default columns for this query
+    if (serviceScene.state.defaultColumns && serviceScene.state.defaultColumns.length > 0) {
+      // Set default columns as default displayed fields
+      console.log('set defaultDisplayedFields', serviceScene.state.defaultColumns);
+      this.setState({
+        defaultDisplayedFields: serviceScene.state.defaultColumns,
+      });
+
+      // If there aren't any displayed fields already set
+      // if (!this.state.displayedFields.length) {
+      //   //  set the default columns as the displayed fields
+      //   console.log('set displayedFields', serviceScene.state.defaultColumns);
+      //   this.setState({
+      //     displayedFields: serviceScene.state.defaultColumns,
+      //   });
+      // }
+
+      // @todo, do we want this to be default? Should show original log line show admin defaults? Should we have a new button to restore admin defaults?
+      // If we don't have anything stored in the url, or the previous columns match the url columns
+      if (
+        this.state.urlColumns === undefined
+        // || (prevCols?.length && areArraysEqual(this.state.urlColumns, prevCols))
+      ) {
+        // set the default columns as the url columns
+        console.log('set urlColumns', serviceScene.state.defaultColumns);
+        this.setState({
+          urlColumns: serviceScene.state.defaultColumns,
+        });
+      }
     }
   }
 
@@ -275,22 +342,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.updateLogsPanel();
   }
 
-  private setStateFromUrl(searchParams: URLSearchParams) {
-    const selectedLineUrl = searchParams.get('selectedLine');
-    const urlColumnsUrl = searchParams.get('urlColumns');
-    const vizTypeUrl = searchParams.get('visualizationType');
-    const displayedFieldsUrl = searchParams.get('displayedFields') ?? JSON.stringify(getDisplayedFields(this));
-    const tableLogLineState = searchParams.get('tableLogLineState');
-
-    this.updateFromUrl({
-      displayedFields: displayedFieldsUrl,
-      selectedLine: selectedLineUrl,
-      tableLogLineState,
-      urlColumns: urlColumnsUrl,
-      visualizationType: vizTypeUrl,
-    });
-  }
-
   public setLogsVizOption = (options: Partial<Options> = {}) => {
     if (this.logsPanelScene) {
       this.logsPanelScene.setLogsVizOption(options);
@@ -325,6 +376,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     // Clean up default displayed fields
     if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
       if (shallowCompare(this.state.displayedFields, this.state.defaultDisplayedFields)) {
+        console.log('clear displayed fields');
         extraStateChanges = {
           displayedFields: [],
           defaultDisplayedFields: [],
@@ -346,6 +398,22 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     );
     setLogsVisualizationType(type);
   };
+
+  private setStateFromUrl(searchParams: URLSearchParams) {
+    const selectedLineUrl = searchParams.get('selectedLine');
+    const urlColumnsUrl = searchParams.get('urlColumns');
+    const vizTypeUrl = searchParams.get('visualizationType');
+    const displayedFieldsUrl = searchParams.get('displayedFields') ?? JSON.stringify(getDisplayedFields(this));
+    const tableLogLineState = searchParams.get('tableLogLineState');
+
+    this.updateFromUrl({
+      displayedFields: displayedFieldsUrl,
+      selectedLine: selectedLineUrl,
+      tableLogLineState,
+      urlColumns: urlColumnsUrl,
+      visualizationType: vizTypeUrl,
+    });
+  }
 
   private getVizPanel() {
     const { error, errorType, canClearFilters } = this.state;
