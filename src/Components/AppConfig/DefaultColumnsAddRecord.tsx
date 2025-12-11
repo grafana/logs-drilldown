@@ -18,7 +18,7 @@ export function DefaultColumnsAddRecord() {
       icon={'plus'}
       disabled={validation.isInvalid}
       onClick={() => {
-        setRecords([...(records ?? []), { columns: [''], labels: [{ key: '' }] }]);
+        setRecords([...(records ?? []), { columns: [], labels: [{ key: '' }] }]);
       }}
     >
       Add

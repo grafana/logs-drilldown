@@ -34,7 +34,7 @@ export function DefaultColumnsLabelValue({ recordIndex, labelIndex }: Props) {
       setRecords(records);
 
       // Expand the columns section
-      if (recordToUpdate.columns.length === 1) {
+      if (recordToUpdate.columns.length === 0) {
         setExpandedRecords([...expandedRecords, recordIndex]);
       }
     }

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
+import { memoize } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, useStyles2 } from '@grafana/ui';
@@ -11,6 +12,7 @@ import { getLabelsKeys } from '../../services/TagKeysProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import { getDatasource } from './DefaultColumnsState';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
 
 interface ValueProps {
   labelIndex: number;
@@ -22,20 +24,6 @@ export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps)
   const columnsLabels = records?.[recordIndex].labels;
   const labelName = columnsLabels?.[labelIndex].key;
   const styles = useStyles2(getStyles);
-
-  const getLabels = async (): Promise<ComboboxOption[]> => {
-    const datasource = await getDatasource(dsUID);
-    if (!datasource || !datasource.getResource) {
-      const error = new Error(`Data source ${dsUID} not found`);
-      logger.error(error, { msg: 'DefaultColumnsLabelName::getLabels - Data source not found!' });
-      throw error;
-    }
-
-    const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels ?? []);
-    const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
-    const results = await getLabelsKeysPromise;
-    return results.map((label) => ({ value: label.text }));
-  };
 
   const onSelectFieldName = (labelName: string) => {
     if (records) {
@@ -59,11 +47,32 @@ export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps)
         maxWidth={90}
         createCustomValue={true}
         onChange={(fieldName) => onSelectFieldName(fieldName?.value)}
-        options={(typeAhead) => getLabels().then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))}
+        options={(typeAhead) =>
+          getLabels(columnsLabels ?? [], dsUID).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+        }
       />
     </div>
   );
 };
+
+const getLabels = memoize(
+  async (
+    columnsLabels: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
+    dsUID: string
+  ): Promise<ComboboxOption[]> => {
+    const datasource = await getDatasource(dsUID);
+    if (!datasource || !datasource.getResource) {
+      const error = new Error(`Data source ${dsUID} not found`);
+      logger.error(error, { msg: 'DefaultColumnsLabelName::getLabels - Data source not found!' });
+      throw error;
+    }
+
+    const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels ?? []);
+    const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
+    const results = await getLabelsKeysPromise;
+    return results.map((label) => ({ value: label.text }));
+  }
+);
 
 const getStyles = (theme: GrafanaTheme2) => ({
   valuesContainer: css({
