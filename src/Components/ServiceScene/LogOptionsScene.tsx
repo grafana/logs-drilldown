@@ -90,16 +90,19 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
     [defaultDisplayedFields]
   );
 
+  console.log('defaultDisplayedFields', defaultDisplayedFields);
+  console.log('displayedFields', displayedFields);
+
   return (
     <div className={styles.container}>
-      {!shallowCompare(displayedFields ?? [], defaultDisplayedFields ?? []) && (
+      {defaultDisplayedFields.length > 0 && !shallowCompare(displayedFields, defaultDisplayedFields) && (
         <Tooltip content={`Show default fields: ${defaultFieldNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showDefaultFields}>
             Show default fields
           </Button>
         </Tooltip>
       )}
-      {displayedFields.length > 0 && (
+      {displayedFields.length > 0 && !shallowCompare(displayedFields, defaultDisplayedFields) && (
         <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line

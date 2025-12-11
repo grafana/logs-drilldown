@@ -19,7 +19,13 @@ import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import { getLogOption, setDisplayedFields, setLogOption, setTableLogLine, getTableLogLine } from '../../services/store';
+import {
+  getLogOption,
+  getTableLogLine,
+  setDisplayedFieldsInStorage,
+  setLogOption,
+  setTableLogLine,
+} from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
@@ -49,6 +55,7 @@ interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
 }
+
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'urlColumns'],
@@ -63,194 +70,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
-
-  private setStateFromUrl() {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
-
-    this.updateFromUrl({
-      sortOrder: searchParams.get('sortOrder'),
-    });
-  }
-
-  getUrlState() {
-    return {
-      sortOrder: JSON.stringify(this.state.sortOrder),
-    };
-  }
-
-  updateFromUrl(values: SceneObjectUrlValues) {
-    try {
-      if (typeof values.sortOrder === 'string' && values.sortOrder) {
-        const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
-        if (decodedSortOrder) {
-          this.setState({ sortOrder: decodedSortOrder });
-        }
-      }
-    } catch (e) {
-      // URL Params can be manually changed and it will make JSON.parse() fail.
-      logger.error(e, { msg: 'LogsTableScene: updateFromUrl unexpected error' });
-    }
-  }
-
-  public onActivate() {
-    this.setState({
-      emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
-      menu: new PanelMenu({ addInvestigationsLink: false }),
-    });
-    setControlsExpandedStateFromLocalStorage(this.getParentScene());
-    this.setStateFromUrl();
-
-    // Subscribe to location changes to detect URL parameter changes
-    this._subs.add(
-      locationService.getHistory().listen(() => {
-        this.subscribeFromUrl();
-      })
-    );
-
-    this.onLoadSyncDisplayedFieldsWithUrlColumns();
-
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.visualization_init,
-      {
-        viz: 'table',
-      },
-      true
-    );
-  }
-
-  private getParentScene() {
-    return sceneGraph.getAncestor(this, LogsListScene);
-  }
-
-  subscribeFromUrl = () => {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
-    // Check URL columns for body parameter and update isDisabledLineState accordingly
-    let urlColumns: string[] | null = [];
-    try {
-      urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
-
-      // If body or line is in the url columns, show the line state controls
-      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
-        this.setState({ isDisabledLineState: true });
-      } else {
-        this.setState({ isDisabledLineState: false });
-      }
-    } catch (e) {
-      console.error('Error parsing urlColumns:', e);
-    }
-  };
-
-  onLoadSyncDisplayedFieldsWithUrlColumns = () => {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
-    let urlColumns: string[] | null = [];
-    try {
-      urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
-      // If body or line is in the url columns, show the line state controls
-      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
-        this.setState({ isDisabledLineState: true });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    const parentModel = this.getParentScene();
-
-    const displayedFields = parentModel.state.displayedFields.filter(
-      (field) => field !== OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME
-    );
-
-    // Add displayed fields to url columns
-    if (urlColumns.length > 0 && parentModel.state.displayedFields.length > 0) {
-      parentModel.setState({
-        urlColumns: Array.from(new Set([...urlColumns, ...displayedFields])),
-      });
-    }
-  };
-
-  // Update displayed fields in the parent scene
-  updateDisplayedFields = (urlColumns: string[]) => {
-    const parentModel = this.getParentScene();
-    // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
-    const defaultUrlColumns = this.findDefaultUrlColumns(urlColumns);
-    // If body or line is in the url columns, show the line state controls
-    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
-      this.setState({ isDisabledLineState: true });
-    } else {
-      this.setState({ isDisabledLineState: false });
-    }
-
-    // Remove any default urlColumn for displayedFields
-    const levelFieldName = this.hasDetectedLevel();
-    const allDefaultColumns = [...defaultUrlColumns];
-    if (levelFieldName) {
-      allDefaultColumns.push(levelFieldName);
-    }
-    const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
-      (field) => !allDefaultColumns.includes(field)
-    );
-    // sync state displayedFields for LogsPanelScene
-    parentModel.setState({
-      displayedFields: newDisplayedFields,
-    });
-    // sync LocalStorage displayedFields for Go to explore
-    setDisplayedFields(this, parentModel.state.displayedFields);
-  };
-
-  // find defaultUrlColumns and match order
-  findDefaultUrlColumns = (urlColumns: string[]) => {
-    let defaultUrlColumns = DEFAULT_URL_COLUMNS;
-    defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
-      // return the column in the same index position as urlColumns
-      if (urlColumns.includes(col)) {
-        const urlIndex = urlColumns.indexOf(col);
-        acc[urlIndex] = col;
-      }
-      return acc;
-    }, []);
-
-    return defaultUrlColumns;
-  };
-
-  // check if the data has a detected_level or level field
-  hasDetectedLevel = () => {
-    const dataProvider = sceneGraph.getData(this);
-    const data = dataProvider.state.data;
-    if (!data?.series?.length) {
-      return null;
-    }
-
-    // Get all available labels from the series
-    const allLabels = getAllLabelsFromDataFrame(data.series);
-
-    // Check if detected_level or level exists in the labels
-    if (allLabels.includes(DETECTED_LEVEL)) {
-      return DETECTED_LEVEL;
-    }
-    if (allLabels.includes(LEVEL)) {
-      return LEVEL;
-    }
-
-    return null;
-  };
-
-  handleSortChange = (newOrder: LogsSortOrder) => {
-    if (newOrder === this.state.sortOrder) {
-      return;
-    }
-    setLogOption('sortOrder', newOrder);
-    runSceneQueries(this);
-    this.setState({ sortOrder: newOrder });
-  };
-
-  onLineStateClick = () => {
-    const parentModel = sceneGraph.getAncestor(this, LogsListScene);
-    const { tableLogLineState } = parentModel.state;
-    parentModel.setState({
-      tableLogLineState: tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text,
-    });
-    // Set table log line state in local storage
-    setTableLogLine(tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text);
-  };
 
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
     const styles = useStyles2(getStyles);
@@ -362,6 +181,196 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       </div>
     );
   };
+
+  getUrlState() {
+    return {
+      sortOrder: JSON.stringify(this.state.sortOrder),
+    };
+  }
+
+  updateFromUrl(values: SceneObjectUrlValues) {
+    try {
+      if (typeof values.sortOrder === 'string' && values.sortOrder) {
+        const decodedSortOrder = narrowLogsSortOrder(JSON.parse(values.sortOrder));
+        if (decodedSortOrder) {
+          this.setState({ sortOrder: decodedSortOrder });
+        }
+      }
+    } catch (e) {
+      // URL Params can be manually changed and it will make JSON.parse() fail.
+      logger.error(e, { msg: 'LogsTableScene: updateFromUrl unexpected error' });
+    }
+  }
+
+  public onActivate() {
+    this.setState({
+      emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
+      menu: new PanelMenu({ addInvestigationsLink: false }),
+    });
+    setControlsExpandedStateFromLocalStorage(this.getParentScene());
+    this.setStateFromUrl();
+
+    // Subscribe to location changes to detect URL parameter changes
+    this._subs.add(
+      locationService.getHistory().listen(() => {
+        this.subscribeFromUrl();
+      })
+    );
+
+    this.onLoadSyncDisplayedFieldsWithUrlColumns();
+
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.visualization_init,
+      {
+        viz: 'table',
+      },
+      true
+    );
+  }
+
+  subscribeFromUrl = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    // Check URL columns for body parameter and update isDisabledLineState accordingly
+    let urlColumns: string[] | null = [];
+    try {
+      urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
+      } else {
+        this.setState({ isDisabledLineState: false });
+      }
+    } catch (e) {
+      console.error('Error parsing urlColumns:', e);
+    }
+  };
+
+  onLoadSyncDisplayedFieldsWithUrlColumns = () => {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+    let urlColumns: string[] | null = [];
+    try {
+      urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
+      // If body or line is in the url columns, show the line state controls
+      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
+        this.setState({ isDisabledLineState: true });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    const parentModel = this.getParentScene();
+
+    const displayedFields = parentModel.state.displayedFields.filter(
+      (field) => field !== OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME
+    );
+
+    // Add displayed fields to url columns
+    if (urlColumns.length > 0 && parentModel.state.displayedFields.length > 0) {
+      parentModel.setState({
+        urlColumns: Array.from(new Set([...urlColumns, ...displayedFields])),
+      });
+    }
+  };
+
+  // Update displayed fields in the parent scene
+  updateDisplayedFields = (urlColumns: string[]) => {
+    const parentModel = this.getParentScene();
+    // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
+    const defaultUrlColumns = this.findDefaultUrlColumns(urlColumns);
+    // If body or line is in the url columns, show the line state controls
+    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
+      this.setState({ isDisabledLineState: true });
+    } else {
+      this.setState({ isDisabledLineState: false });
+    }
+
+    // Remove any default urlColumn for displayedFields
+    const levelFieldName = this.hasDetectedLevel();
+    const allDefaultColumns = [...defaultUrlColumns];
+    if (levelFieldName) {
+      allDefaultColumns.push(levelFieldName);
+    }
+    const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
+      (field) => !allDefaultColumns.includes(field)
+    );
+
+    console.log('LogsTableScene: updateDisplayedFields', newDisplayedFields);
+    // sync state displayedFields for LogsPanelScene
+    parentModel.setState({
+      displayedFields: newDisplayedFields,
+    });
+    // sync LocalStorage displayedFields for Go to explore
+    setDisplayedFieldsInStorage(this, parentModel.state.displayedFields);
+  };
+
+  // find defaultUrlColumns and match order
+  findDefaultUrlColumns = (urlColumns: string[]) => {
+    let defaultUrlColumns = DEFAULT_URL_COLUMNS;
+    defaultUrlColumns = defaultUrlColumns.reduce<string[]>((acc, col) => {
+      // return the column in the same index position as urlColumns
+      if (urlColumns.includes(col)) {
+        const urlIndex = urlColumns.indexOf(col);
+        acc[urlIndex] = col;
+      }
+      return acc;
+    }, []);
+
+    return defaultUrlColumns;
+  };
+
+  // check if the data has a detected_level or level field
+  hasDetectedLevel = () => {
+    const dataProvider = sceneGraph.getData(this);
+    const data = dataProvider.state.data;
+    if (!data?.series?.length) {
+      return null;
+    }
+
+    // Get all available labels from the series
+    const allLabels = getAllLabelsFromDataFrame(data.series);
+
+    // Check if detected_level or level exists in the labels
+    if (allLabels.includes(DETECTED_LEVEL)) {
+      return DETECTED_LEVEL;
+    }
+    if (allLabels.includes(LEVEL)) {
+      return LEVEL;
+    }
+
+    return null;
+  };
+
+  handleSortChange = (newOrder: LogsSortOrder) => {
+    if (newOrder === this.state.sortOrder) {
+      return;
+    }
+    setLogOption('sortOrder', newOrder);
+    runSceneQueries(this);
+    this.setState({ sortOrder: newOrder });
+  };
+
+  onLineStateClick = () => {
+    const parentModel = sceneGraph.getAncestor(this, LogsListScene);
+    const { tableLogLineState } = parentModel.state;
+    parentModel.setState({
+      tableLogLineState: tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text,
+    });
+    // Set table log line state in local storage
+    setTableLogLine(tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text);
+  };
+
+  private setStateFromUrl() {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
+
+    this.updateFromUrl({
+      sortOrder: searchParams.get('sortOrder'),
+    });
+  }
+
+  private getParentScene() {
+    return sceneGraph.getAncestor(this, LogsListScene);
+  }
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({

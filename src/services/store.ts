@@ -3,7 +3,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
@@ -164,6 +164,7 @@ function createTabsLocalStorageKey(ds: string) {
 export function getLastUsedDataSourceFromStorage(): string | undefined {
   return localStorage.getItem(DS_LOCALSTORAGE_KEY) ?? undefined;
 }
+
 export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
   const dsList = getDataSourceSrv().getList({
     type: 'loki',
@@ -177,6 +178,7 @@ export function addLastUsedDataSourceToStorage(dsKey: string) {
 }
 
 const SORT_BY_LOCALSTORAGE_KEY = `${pluginJson.id}.values.sort`;
+
 export function getSortByPreference(
   target: string,
   defaultSortBy: SortBy,
@@ -211,8 +213,10 @@ function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string,
   }
   return `${ds}.${label}.${replaceSlash(value)}`;
 }
+
 // https://github.com/grafana/grafana/blob/3d009ff7edf6095f79e95bc60b728acf04149665/public/app/plugins/datasource/loki/datasource.ts#L102
 const DEFAULT_MAX_LINES = 1000;
+
 export function getMaxLines(sceneRef: SceneObject): number {
   const PREFIX = getExplorationPrefix(sceneRef);
   const maxLines = parseInt(localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`) ?? '0', 10);
@@ -233,12 +237,13 @@ export function getDisplayedFields(sceneRef: SceneObject): string[] {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
   if (storedFields) {
-    return unknownToStrings(JSON.parse(storedFields)) ?? [];
+    const storedFieldsParsed = unknownToStrings(JSON.parse(storedFields)) ?? [];
+    console.log('storedFieldsParsed', storedFieldsParsed);
   }
   return [];
 }
 
-export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
+export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[]) {
   const PREFIX = getExplorationPrefix(sceneRef);
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
 }
@@ -260,6 +265,7 @@ export function setDedupStrategy(sceneRef: SceneObject, strategy: LogsDedupStrat
 // Log panel options
 export const LOG_OPTIONS_LOCALSTORAGE_KEY = `grafana.explore.logs`;
 export const LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY = `grafana.explore.logs.patterns`;
+
 export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   // TODO: narrow stored value
@@ -284,6 +290,7 @@ export function setLogOption(
 
 // Logs volume options
 const LOGS_VOLUME_LOCALSTORAGE_KEY = 'grafana.explore.logs.logsVolume';
+
 export function setLogsVolumeOption(option: 'collapsed', value: string | undefined) {
   const key = `${LOGS_VOLUME_LOCALSTORAGE_KEY}.${option}`;
   if (value === undefined) {
@@ -301,6 +308,7 @@ export function getLogsVolumeOption(option: 'collapsed') {
 export type LogsVisualizationType = 'json' | 'logs' | 'table';
 
 const VISUALIZATION_TYPE_LOCALSTORAGE_KEY = 'grafana.explore.logs.visualisationType';
+
 export function getLogsVisualizationType(): LogsVisualizationType {
   const storedType = localStorage.getItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY) ?? '';
   switch (storedType) {
@@ -319,6 +327,7 @@ export function setLogsVisualizationType(type: string) {
 }
 
 const SHOW_ERROR_PANELS_KEY = `${pluginJson.id}.panelOptions.showErrors`;
+
 export function getShowErrorPanels(): boolean {
   return !!localStorage.getItem(SHOW_ERROR_PANELS_KEY);
 }
@@ -329,6 +338,7 @@ export function setShowErrorPanels(showErrorPanels: boolean) {
 
 // JSON filter debug mode
 const JSON_PARSER_PROPS_DEBUG_KEY = `${pluginJson.id}.jsonParser.visible`;
+
 export function getJsonParserVariableVisibility(): boolean {
   // localStorage.setItem('grafana-lokiexplore-app.jsonParser.visible', true)
   return !!localStorage.getItem(JSON_PARSER_PROPS_DEBUG_KEY);
@@ -336,6 +346,7 @@ export function getJsonParserVariableVisibility(): boolean {
 
 // JSON viz metadata node visibility
 const JSON_VIZ_METADATA_VISIBLE_KEY = `${pluginJson.id}.jsonViz.metadata`;
+
 export function getJSONMetadataState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_METADATA_VISIBLE_KEY);
 }
@@ -346,6 +357,7 @@ export function setJSONMetadataVisibility(state: boolean) {
 
 // JSON viz metadata node visibility
 const JSON_VIZ_HIGHLIGHT_VISIBLE_KEY = `${pluginJson.id}.jsonViz.highlight`;
+
 export function getJSONHighlightState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
 }
@@ -356,6 +368,7 @@ export function setJSONHighlightVisibility(state: boolean) {
 
 // JSON viz labels node visibility
 const JSON_VIZ_LABELS_VISIBLE_KEY = `${pluginJson.id}.jsonViz.labels`;
+
 export function getJSONLabelsState(): boolean {
   return !!localStorage.getItem(JSON_VIZ_LABELS_VISIBLE_KEY);
 }
@@ -366,6 +379,7 @@ export function setJSONLabelsVisibility(state: boolean) {
 
 // Line filter options
 const LINE_FILTER_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.linefilter.option`;
+
 export function setLineFilterCase(caseSensitive: boolean) {
   let storedValue = caseSensitive.toString();
   if (!caseSensitive) {
@@ -410,10 +424,12 @@ export function getLineFilterExclusive(defaultValue: boolean): boolean {
 
 // Panel options
 const PANEL_OPTIONS_LOCALSTORAGE_KEY = `${pluginJson.id}.panel.option`;
+
 export interface PanelOptions {
   collapsed: CollapsablePanelText;
   panelType: TimeSeriesPanelType;
 }
+
 export function getPanelOption<K extends keyof PanelOptions, V extends PanelOptions[K]>(
   option: K,
   values: V[]
@@ -431,6 +447,7 @@ export function setPanelOption<K extends keyof PanelOptions, V extends PanelOpti
 }
 
 const EXPRESSION_BUILDER_DEBUG_LOCALSTORAGE_KEY = `${pluginJson.id}.expressionBuilder.debug`;
+
 export function getExpressionBuilderDebug() {
   const value = localStorage.getItem(EXPRESSION_BUILDER_DEBUG_LOCALSTORAGE_KEY);
   return !!value;
@@ -442,6 +459,7 @@ export function getServiceSelectionPageCount(): number | undefined {
   const value = localStorage.getItem(SERVICE_SELECTION_PAGE_COUNT_KEY);
   return value ? parseInt(value, 10) : undefined;
 }
+
 export function setServiceSelectionPageCount(pageCount: number) {
   localStorage.setItem(SERVICE_SELECTION_PAGE_COUNT_KEY, pageCount.toString(10));
 }
@@ -450,11 +468,13 @@ export function getSceneLayout(): string | null {
   const value = localStorage.getItem(SCENE_LAYOUT_LOCALSTORAGE_KEY);
   return value;
 }
+
 export function setSceneLayout(layout: string) {
   localStorage.setItem(SCENE_LAYOUT_LOCALSTORAGE_KEY, layout);
 }
 
 const FIELDS_PANEL_TYPES = `${pluginJson.id}.fieldsBreakdown.fieldsPanelType`;
+
 export function getFieldsPanelTypes(): FieldsPanelsType | null {
   const stored = localStorage.getItem(FIELDS_PANEL_TYPES);
   if (stored === 'text' || stored === 'timeseries') {
@@ -469,6 +489,7 @@ export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
 
 // Collapsible filters
 const COLLAPSIBLE_FILTERS_KEY = `${pluginJson.id}.filters.collapsed`;
+
 export function getCollapsibleFiltersState(): boolean {
   return !!localStorage.getItem(COLLAPSIBLE_FILTERS_KEY);
 }
@@ -479,9 +500,11 @@ export function setCollapsibleFiltersState(state: boolean) {
 
 // Table settings
 const TABLE_LOG_LINE_LOCALSTORAGE_KEY = `${pluginJson.id}.table.logLine`;
+
 export function getTableLogLine(): LogLineState {
   return localStorage.getItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY) as LogLineState;
 }
+
 export function setTableLogLine(value: LogLineState) {
   localStorage.setItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY, value);
 }

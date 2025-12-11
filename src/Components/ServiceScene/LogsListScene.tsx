@@ -101,6 +101,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const selectedLine = this.state.selectedLine;
     const visualizationType = this.state.visualizationType;
     const displayedFields = this.state.displayedFields ?? getDisplayedFields(this) ?? [];
+
+    console.log('getUrlState', { displayedFields, urlColumns });
     return {
       displayedFields: JSON.stringify(displayedFields),
       selectedLine: JSON.stringify(selectedLine),
@@ -154,6 +156,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
 
     if (Object.keys(stateUpdate).length) {
+      console.log('updateFromUrl', { ...stateUpdate });
       this.setState(stateUpdate);
     }
   }
@@ -165,6 +168,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 
   showDefaultFields = () => {
+    console.log('showDefaultFields');
     this.setState({ displayedFields: [] });
     if (this.logsPanelScene) {
       this.logsPanelScene.showDefaultFields();
@@ -172,6 +176,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   clearDisplayedFields = () => {
+    console.log('clearDisplayedFields');
     this.setState({ displayedFields: [] });
     if (this.logsPanelScene) {
       this.logsPanelScene.clearDisplayedFields();
@@ -227,27 +232,45 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   setDefaultColumns(newCols?: string[], prevCols?: string[]) {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    console.log('urlColumns', this.state.urlColumns);
-    console.log('defaultDisplayedFields', this.state.defaultDisplayedFields);
-    console.log('displayedFields', this.state.displayedFields);
-    console.log('defaultColumns', serviceScene.state.defaultColumns);
 
-    // if (!serviceScene.state.defaultColumns?.length) {
-    // @todo, do we want this to be default? Should show original log line show admin defaults? Should we have a new button to restore admin defaults?
-    this.setState({
-      defaultDisplayedFields: serviceScene.state.defaultColumns,
+    console.log('setDefaultColumns', {
+      defaultColumns: serviceScene.state.defaultColumns,
+      newCols,
+      prevCols,
+      displayedFields: this.state.displayedFields,
+      defaultDisplayedFields: this.state.defaultDisplayedFields,
+      urlCols: this.state.urlColumns,
     });
 
-    if (!this.state.displayedFields) {
+    // If the user has configured default columns for this query
+    if (serviceScene.state.defaultColumns && serviceScene.state.defaultColumns.length > 0) {
+      // Set default columns as default displayed fields
+      console.log('set defaultDisplayedFields', serviceScene.state.defaultColumns);
       this.setState({
-        displayedFields: serviceScene.state.defaultColumns,
+        defaultDisplayedFields: serviceScene.state.defaultColumns,
       });
-    }
 
-    if (!this.state.urlColumns?.length || (prevCols?.length && areArraysEqual(this.state.urlColumns, prevCols))) {
-      this.setState({
-        urlColumns: serviceScene.state.defaultColumns,
-      });
+      // If there aren't any displayed fields already set
+      // if (!this.state.displayedFields.length) {
+      //   //  set the default columns as the displayed fields
+      //   console.log('set displayedFields', serviceScene.state.defaultColumns);
+      //   this.setState({
+      //     displayedFields: serviceScene.state.defaultColumns,
+      //   });
+      // }
+
+      // @todo, do we want this to be default? Should show original log line show admin defaults? Should we have a new button to restore admin defaults?
+      // If we don't have anything stored in the url, or the previous columns match the url columns
+      if (
+        this.state.urlColumns === undefined
+        // || (prevCols?.length && areArraysEqual(this.state.urlColumns, prevCols))
+      ) {
+        // set the default columns as the url columns
+        console.log('set urlColumns', serviceScene.state.defaultColumns);
+        this.setState({
+          urlColumns: serviceScene.state.defaultColumns,
+        });
+      }
     }
   }
 
@@ -319,22 +342,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.updateLogsPanel();
   }
 
-  private setStateFromUrl(searchParams: URLSearchParams) {
-    const selectedLineUrl = searchParams.get('selectedLine');
-    const urlColumnsUrl = searchParams.get('urlColumns');
-    const vizTypeUrl = searchParams.get('visualizationType');
-    const displayedFieldsUrl = searchParams.get('displayedFields') ?? JSON.stringify(getDisplayedFields(this));
-    const tableLogLineState = searchParams.get('tableLogLineState');
-
-    this.updateFromUrl({
-      displayedFields: displayedFieldsUrl,
-      selectedLine: selectedLineUrl,
-      tableLogLineState,
-      urlColumns: urlColumnsUrl,
-      visualizationType: vizTypeUrl,
-    });
-  }
-
   public setLogsVizOption = (options: Partial<Options> = {}) => {
     if (this.logsPanelScene) {
       this.logsPanelScene.setLogsVizOption(options);
@@ -369,6 +376,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     // Clean up default displayed fields
     if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
       if (shallowCompare(this.state.displayedFields, this.state.defaultDisplayedFields)) {
+        console.log('clear displayed fields');
         extraStateChanges = {
           displayedFields: [],
           defaultDisplayedFields: [],
@@ -390,6 +398,22 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     );
     setLogsVisualizationType(type);
   };
+
+  private setStateFromUrl(searchParams: URLSearchParams) {
+    const selectedLineUrl = searchParams.get('selectedLine');
+    const urlColumnsUrl = searchParams.get('urlColumns');
+    const vizTypeUrl = searchParams.get('visualizationType');
+    const displayedFieldsUrl = searchParams.get('displayedFields') ?? JSON.stringify(getDisplayedFields(this));
+    const tableLogLineState = searchParams.get('tableLogLineState');
+
+    this.updateFromUrl({
+      displayedFields: displayedFieldsUrl,
+      selectedLine: selectedLineUrl,
+      tableLogLineState,
+      urlColumns: urlColumnsUrl,
+      visualizationType: vizTypeUrl,
+    });
+  }
 
   private getVizPanel() {
     const { error, errorType, canClearFilters } = this.state;
