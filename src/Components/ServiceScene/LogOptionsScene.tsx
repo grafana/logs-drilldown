@@ -92,7 +92,8 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
 
   const hasDisplayedFields = displayedFields.length > 0;
   const hasBackendDisplayedFields = backendDisplayedFields && backendDisplayedFields?.length > 0;
-  const displayedFieldsIsOnlyLogLine = displayedFields.length === 1 && displayedFields[0] === LOG_LINE_BODY_FIELD_NAME;
+  const displayedFieldsIsOnlyLogLine =
+    !hasDisplayedFields || (displayedFields.length === 1 && displayedFields[0] === LOG_LINE_BODY_FIELD_NAME);
 
   return (
     <div className={styles.container}>

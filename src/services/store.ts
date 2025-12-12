@@ -243,16 +243,19 @@ export function getDisplayedFieldsInStorage(
   sceneRef: SceneObject,
   userAdded = false,
   options?: { prefix?: string }
-): string[] {
+): string[] | null {
   const key = getDisplayedFieldsKey(sceneRef, userAdded, options?.prefix);
   const storedFields = localStorage.getItem(key);
+  if (storedFields === 'null' || !storedFields) {
+    return null;
+  }
   if (storedFields) {
-    return unknownToStrings(JSON.parse(storedFields)) ?? [];
+    return unknownToStrings(JSON.parse(storedFields));
   }
   return [];
 }
 
-export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[], userAdded = false) {
+export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[] | null, userAdded = false) {
   const key = getDisplayedFieldsKey(sceneRef, userAdded);
   localStorage.setItem(key, JSON.stringify(fields));
 }

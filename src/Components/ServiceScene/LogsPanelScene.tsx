@@ -40,7 +40,7 @@ import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
-import { LOG_LINE_BODY_FIELD_NAME, LogOptionsScene } from './LogOptionsScene';
+import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
@@ -100,7 +100,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     };
   }
 
-  showDefaultFields = () => {
+  showBackendFields = () => {
     if (!this.state.body) {
       return;
     }
@@ -112,7 +112,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
 
     setDisplayedFieldsInStorage(this, backendDisplayedFields);
     // Clear user added state
-    setDisplayedFieldsInStorage(this, [], true);
+    setDisplayedFieldsInStorage(this, null, true);
 
     // Sync with urlColumns
     const parent = this.getParentScene();
@@ -282,8 +282,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: [],
     });
-    setDisplayedFieldsInStorage(this, [LOG_LINE_BODY_FIELD_NAME]);
-    setDisplayedFieldsInStorage(this, [LOG_LINE_BODY_FIELD_NAME], true);
+    setDisplayedFieldsInStorage(this, []);
+    setDisplayedFieldsInStorage(this, [], true);
 
     // Sync with urlColumns
     const parent = this.getParentScene();

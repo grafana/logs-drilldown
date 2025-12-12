@@ -19,7 +19,7 @@ import {
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysEqual } from '../../services/comparison';
+import { areArraysEqual, areArraysStrictlyEqual } from '../../services/comparison';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { getRouteParams } from '../../services/routing';
@@ -32,7 +32,6 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
-import { LOG_LINE_BODY_FIELD_NAME } from './LogOptionsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
@@ -122,7 +121,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const previousDisplayedFields = getDisplayedFieldsInStorage(this);
     const displayedFields =
       this.state.displayedFields ?? previousUserAddedDisplayedFields ?? previousDisplayedFields ?? [];
-    const userDisplayedFields = this.state.userDisplayedFields ?? previousUserAddedDisplayedFields ?? [];
+    const userDisplayedFields = this.state.userDisplayedFields;
     return {
       userDisplayedFields: JSON.stringify(userDisplayedFields),
       displayedFields: JSON.stringify(displayedFields),
@@ -193,7 +192,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   clearDisplayedFields = () => {
     // Clearing the defaults is a user action
-    this.setState({ displayedFields: [LOG_LINE_BODY_FIELD_NAME], userDisplayedFields: true });
+    this.setState({ displayedFields: [], userDisplayedFields: true });
     if (this.logsPanelScene) {
       this.logsPanelScene.clearDisplayedFields();
     }
@@ -203,7 +202,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     // This is technically a user action, but I think it makes sense to continue to get served the backend fields
     this.setState({ displayedFields: [], userDisplayedFields: false });
     if (this.logsPanelScene) {
-      this.logsPanelScene.showDefaultFields();
+      this.logsPanelScene.showBackendFields();
     }
   };
 
@@ -273,7 +272,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           prefix: getExplorationPrefixForLabelValue(this, labelName, labelValue),
         });
         // Overwrite the current url state if we're switching to another label that the user already configured fields for
-        if (newLabelHasUserDisplayFields.length) {
+        if (newLabelHasUserDisplayFields) {
           this.setState({
             displayedFields: newLabelHasUserDisplayFields,
             urlColumns: newLabelHasUserDisplayFields,
@@ -290,9 +289,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     // If the user has configured default columns for this query
     if (serviceScene.state.backendDisplayedFields && serviceScene.state.backendDisplayedFields.length > 0) {
       // No user displayed fields
-      if (!this.state.userDisplayedFields) {
+      if (
+        !this.state.userDisplayedFields &&
+        !areArraysStrictlyEqual(serviceScene.state.backendDisplayedFields, this.state.displayedFields)
+      ) {
         // Set default columns as displayed fields
         this.setState({ displayedFields: serviceScene.state.backendDisplayedFields });
+        this.updateLogsPanel();
       }
     }
   }
@@ -378,20 +381,22 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     /**
      * Ordering
      * 1. If the user has ever made an action for this
+     * 2. Results from the backend
+     * 3. URL state
      */
     const userDisplayFieldsFromStorage = getDisplayedFieldsInStorage(this, true);
-    const userDisplayFieldsFromStorageString =
-      userDisplayFieldsFromStorage.length > 0 ? JSON.stringify(userDisplayFieldsFromStorage) : null;
+    const userDisplayFieldsFromStorageString = userDisplayFieldsFromStorage
+      ? JSON.stringify(userDisplayFieldsFromStorage)
+      : null;
     const displayFieldsFromStorage = getDisplayedFieldsInStorage(this);
-    const displayFieldsFromStorageString =
-      displayFieldsFromStorage.length > 0 ? JSON.stringify(displayFieldsFromStorage) : null;
+    const displayFieldsFromStorageString = displayFieldsFromStorage ? JSON.stringify(displayFieldsFromStorage) : null;
 
     // @todo need to clear displayedFields when changing primary label slug so we grab defaults from local storage
     const displayedFieldsUrl =
       searchParams.get('displayedFields') ?? userDisplayFieldsFromStorageString ?? displayFieldsFromStorageString;
 
     const userDisplayedFieldsUrl =
-      searchParams.get('userDisplayedFields') ?? (userDisplayFieldsFromStorage.length > 0 ? 'true' : 'false');
+      searchParams.get('userDisplayedFields') ?? (userDisplayFieldsFromStorage ? 'true' : 'false');
 
     const tableLogLineState = searchParams.get('tableLogLineState');
 
