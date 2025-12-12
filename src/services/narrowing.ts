@@ -45,6 +45,7 @@ export function narrowSelectedTableRow(o: unknown): SelectedTableRow | false {
 export function narrowLogsVisualizationType(o: unknown): LogsVisualizationType | false {
   return typeof o === 'string' && (o === 'logs' || o === 'table' || o === 'json') && o;
 }
+
 export function narrowLogsSortOrder(o: unknown): LogsSortOrder | false {
   if (typeof o === 'string' && o === LogsSortOrder.Ascending.toString()) {
     return LogsSortOrder.Ascending;
@@ -191,5 +192,48 @@ export function narrowJsonDerivedFieldLinkPayload(payload: unknown): JSONDerived
   }
   return false;
 }
+
+export type NarrowedAPIError = {
+  data?: { message: string };
+  status?: number;
+  statusText?: string;
+  traceId?: string;
+};
+
+export function narrowRTKQError(apiError: unknown): NarrowedAPIError | undefined {
+  let narrowed: NarrowedAPIError | undefined = undefined;
+
+  if (isObj(apiError)) {
+    narrowed = {};
+    if (hasProp(apiError, 'status') && typeof apiError.status === 'number') {
+      narrowed.status = apiError.status;
+    }
+    if (hasProp(apiError, 'statusText') && typeof apiError.statusText === 'string') {
+      narrowed.statusText = apiError.statusText;
+    }
+    if (hasProp(apiError, 'traceId') && typeof apiError.traceId === 'string') {
+      narrowed.traceId = apiError.traceId;
+    }
+    if (
+      hasProp(apiError, 'data') &&
+      isObj(apiError.data) &&
+      hasProp(apiError.data, 'message') &&
+      typeof apiError.data.message === 'string'
+    ) {
+      narrowed.data = { message: apiError.data.message };
+    }
+  }
+
+  return narrowed;
+}
+
+export const getRTKQErrorContext = (defaultColumnsAPIError: NarrowedAPIError) => {
+  return {
+    statusText: defaultColumnsAPIError.statusText ?? '',
+    trace: defaultColumnsAPIError.traceId ?? '',
+    status: defaultColumnsAPIError.status?.toString() ?? '',
+    msg: defaultColumnsAPIError.data?.message ?? '',
+  };
+};
 
 export class NarrowingError extends Error {}

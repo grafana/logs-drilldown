@@ -537,3 +537,10 @@ radical
 rerooted
 nodetype
 lookback
+RTKQ
+logsdrilldown
+logsdrilldowndefaultcolumns
+reqs
+mutatable
+DSUID
+newrecords
