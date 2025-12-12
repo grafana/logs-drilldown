@@ -244,6 +244,28 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
 }
 
+/**
+ * Ensures displayedFields includes default fields in the correct order
+ * @param fields - User-selected fields
+ * @param hasDetectedLevel - Whether detected_level is available (falls back to level)
+ * @returns Array with defaults + user fields, maintaining order
+ */
+export function ensureDefaultDisplayedFields(fields: string[], hasDetectedLevel?: boolean): string[] {
+  // Default fields in order: Time, detected_level/level, ___LOG_LINE_BODY___, ___OTEL_LOG_ATTRIBUTES___
+  const defaults = [
+    'Time',
+    hasDetectedLevel ? 'detected_level' : 'level',
+    '___LOG_LINE_BODY___',
+    '___OTEL_LOG_ATTRIBUTES___',
+  ];
+
+  // Filter out defaults from user fields to avoid duplicates
+  const userFields = fields.filter((field) => !defaults.includes(field));
+
+  // Return defaults first, then user fields
+  return [...defaults, ...userFields];
+}
+
 export function getDedupStrategy(sceneRef: SceneObject): LogsDedupStrategy {
   const PREFIX = getExplorationPrefix(sceneRef);
   const storedStrategy = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.dedupStrategy`);
