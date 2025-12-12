@@ -206,7 +206,7 @@ function getExplorationPrefix(sceneRef: SceneObject) {
   return getExplorationPrefixForLabelValue(sceneRef, labelName, labelValue);
 }
 
-function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
+export function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
   if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
     return `${ds}.${replaceSlash(value)}`;
@@ -233,19 +233,28 @@ export function setMaxLines(sceneRef: SceneObject, maxLines: number) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`, maxLines.toString());
 }
 
-export function getDisplayedFields(sceneRef: SceneObject): string[] {
-  const PREFIX = getExplorationPrefix(sceneRef);
-  const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
+const getDisplayedFieldsKey = (sceneRef: SceneObject, userAdded: boolean, prefix?: string) => {
+  const PREFIX = prefix ?? getExplorationPrefix(sceneRef);
+  const POSTFIX = userAdded ? 'logs.user.fields' : 'logs.fields';
+  return `${pluginJson.id}.${PREFIX}.${POSTFIX}`;
+};
+
+export function getDisplayedFieldsInStorage(
+  sceneRef: SceneObject,
+  userAdded = false,
+  options?: { prefix?: string }
+): string[] {
+  const key = getDisplayedFieldsKey(sceneRef, userAdded, options?.prefix);
+  const storedFields = localStorage.getItem(key);
   if (storedFields) {
-    const storedFieldsParsed = unknownToStrings(JSON.parse(storedFields)) ?? [];
-    console.log('storedFieldsParsed', storedFieldsParsed);
+    return unknownToStrings(JSON.parse(storedFields)) ?? [];
   }
   return [];
 }
 
-export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[]) {
-  const PREFIX = getExplorationPrefix(sceneRef);
-  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
+export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[], userAdded = false) {
+  const key = getDisplayedFieldsKey(sceneRef, userAdded);
+  localStorage.setItem(key, JSON.stringify(fields));
 }
 
 export function getDedupStrategy(sceneRef: SceneObject): LogsDedupStrategy {

@@ -65,9 +65,9 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
     );
   };
 
-  showDefaultFields = () => {
+  showBackendFields = () => {
     const parentScene = this.getLogsListScene();
-    parentScene.showDefaultFields();
+    parentScene.showBackendFields();
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
@@ -90,24 +90,26 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
     [backendDisplayedFields]
   );
 
+  const hasDisplayedFields = displayedFields.length > 0;
+  const hasBackendDisplayedFields = backendDisplayedFields && backendDisplayedFields?.length > 0;
+  const displayedFieldsIsOnlyLogLine = displayedFields.length === 1 && displayedFields[0] === LOG_LINE_BODY_FIELD_NAME;
+
   return (
     <div className={styles.container}>
-      {displayedFields.length > 0 && !shallowCompare(displayedFields, otelDisplayedFields) && (
+      {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
         <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
             Show original log line
           </Button>
         </Tooltip>
       )}
-      {backendDisplayedFields &&
-        backendDisplayedFields?.length > 0 &&
-        !shallowCompare(displayedFields, backendDisplayedFields) && (
-          <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
-            <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showDefaultFields}>
-              Show default fields
-            </Button>
-          </Tooltip>
-        )}
+      {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
+        <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
+          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
+            Show default fields
+          </Button>
+        </Tooltip>
+      )}
       {!logsControlsSupported && (
         <>
           <InlineField className={styles.buttonGroupWrapper} transparent>

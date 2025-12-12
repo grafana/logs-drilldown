@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 import {
+  AdHocFiltersVariable,
   SceneComponentProps,
   SceneFlexItem,
   SceneFlexLayout,
@@ -21,6 +22,8 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { areArraysEqual } from '../../services/comparison';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
+import { getRouteParams } from '../../services/routing';
+import { getLabelsVariable } from '../../services/variableGetters';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
@@ -29,6 +32,7 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
+import { LOG_LINE_BODY_FIELD_NAME } from './LogOptionsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
@@ -37,7 +41,8 @@ import { ServiceScene } from './ServiceScene';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getBooleanLogOption,
-  getDisplayedFields,
+  getDisplayedFieldsInStorage,
+  getExplorationPrefixForLabelValue,
   getLogsVisualizationType,
   getLogsVolumeOption,
   LogsVisualizationType,
@@ -46,26 +51,36 @@ import {
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;
-  // backendDisplayedFields: string[];
   canClearFilters?: boolean;
   controlsExpanded: boolean;
+  // The currently displayed fields currently in the logs panel
   displayedFields: string[];
   error?: string;
   errorType?: ErrorType;
   lineFilter?: string;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
+  // Displayed fields set by the otelLogsFormatting feature
   otelDisplayedFields: string[];
   panel?: SceneFlexLayout;
   selectedLine?: SelectedTableRow;
   tableLogLineState?: LogLineState;
   urlColumns?: string[];
+  // Are the displayed fields set by the user
+  userDisplayedFields: boolean;
   visualizationType: LogsVisualizationType;
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: ['urlColumns', 'selectedLine', 'visualizationType', 'displayedFields', 'tableLogLineState'],
+    keys: [
+      'urlColumns',
+      'selectedLine',
+      'visualizationType',
+      'displayedFields',
+      'tableLogLineState',
+      'userDisplayedFields',
+    ],
   });
 
   private logsPanelScene?: LogsPanelScene = undefined;
@@ -74,8 +89,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: [],
+      userDisplayedFields: false,
       otelDisplayedFields: [],
-      // backendDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
       // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
       controlsExpanded: getBooleanLogOption('controlsExpanded', false),
@@ -102,8 +117,14 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const urlColumns = this.state.urlColumns ?? [];
     const selectedLine = this.state.selectedLine;
     const visualizationType = this.state.visualizationType;
-    const displayedFields = this.state.displayedFields ?? getDisplayedFields(this) ?? [];
+
+    const previousUserAddedDisplayedFields = getDisplayedFieldsInStorage(this, true);
+    const previousDisplayedFields = getDisplayedFieldsInStorage(this);
+    const displayedFields =
+      this.state.displayedFields ?? previousUserAddedDisplayedFields ?? previousDisplayedFields ?? [];
+    const userDisplayedFields = this.state.userDisplayedFields ?? previousUserAddedDisplayedFields ?? [];
     return {
+      userDisplayedFields: JSON.stringify(userDisplayedFields),
       displayedFields: JSON.stringify(displayedFields),
       selectedLine: JSON.stringify(selectedLine),
       tableLogLineState: JSON.stringify(this.state.tableLogLineState),
@@ -150,6 +171,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           stateUpdate.tableLogLineState = tableLogLineState;
         }
       }
+
+      if (typeof values.userDisplayedFields === 'string') {
+        stateUpdate.userDisplayedFields = values.userDisplayedFields === 'true';
+      }
     } catch (e) {
       // URL Params can be manually changed and it will make JSON.parse() fail.
       logger.error(e, { msg: 'LogsListScene: updateFromUrl unexpected error' });
@@ -167,14 +192,16 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 
   clearDisplayedFields = () => {
-    this.setState({ displayedFields: [] });
+    // Clearing the defaults is a user action
+    this.setState({ displayedFields: [LOG_LINE_BODY_FIELD_NAME], userDisplayedFields: true });
     if (this.logsPanelScene) {
       this.logsPanelScene.clearDisplayedFields();
     }
   };
 
-  showDefaultFields = () => {
-    this.setState({ displayedFields: [] });
+  showBackendFields = () => {
+    // This is technically a user action, but I think it makes sense to continue to get served the backend fields
+    this.setState({ displayedFields: [], userDisplayedFields: false });
     if (this.logsPanelScene) {
       this.logsPanelScene.showDefaultFields();
     }
@@ -199,13 +226,15 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       })
     );
 
+    this._subs.add(this.subscribeToLabelsVar(getLabelsVariable(this)));
+
     this.setDisplayedFieldsFromBackend();
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(
       serviceScene.subscribeToState((newState, prevState) => {
         if (!areArraysEqual(newState.backendDisplayedFields, prevState.backendDisplayedFields)) {
-          this.setDisplayedFieldsFromBackend(newState.backendDisplayedFields, prevState.backendDisplayedFields);
+          this.setDisplayedFieldsFromBackend();
         }
       })
     );
@@ -227,20 +256,43 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
   }
 
-  setDisplayedFieldsFromBackend(newCols?: string[], prevCols?: string[]) {
+  /**
+   * On primary route change, we want to set displayed fields from local storage if the user has displayed fields configured for the new key/value
+   * We cannot subscribe to the actual route parameters as if the route is cached the prevState is wrong and just shows a duplicate of the newState,
+   * so we must subscribe to the variable that triggers the route change
+   * @param labelsVar
+   */
+  private subscribeToLabelsVar = (labelsVar: AdHocFiltersVariable) => {
+    return labelsVar.subscribeToState((newState, prevState) => {
+      if (
+        newState.filters?.[0]?.value !== prevState.filters?.[0]?.value ||
+        newState.filters?.[0]?.keyLabel !== prevState.filters?.[0]?.keyLabel
+      ) {
+        const { labelName, labelValue } = getRouteParams(this);
+        const newLabelHasUserDisplayFields = getDisplayedFieldsInStorage(this, true, {
+          prefix: getExplorationPrefixForLabelValue(this, labelName, labelValue),
+        });
+        // Overwrite the current url state if we're switching to another label that the user already configured fields for
+        if (newLabelHasUserDisplayFields.length) {
+          this.setState({
+            displayedFields: newLabelHasUserDisplayFields,
+            urlColumns: newLabelHasUserDisplayFields,
+            userDisplayedFields: true,
+          });
+        }
+      }
+    });
+  };
+
+  setDisplayedFieldsFromBackend() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    console.log('setDisplayedFieldsFromBackend', { newCols, prevCols });
 
     // If the user has configured default columns for this query
     if (serviceScene.state.backendDisplayedFields && serviceScene.state.backendDisplayedFields.length > 0) {
-      // Set default columns as default displayed fields
-      console.log('backend fields changed', serviceScene.state.backendDisplayedFields);
-      // @todo how do we differentiate user added displayed fields against backend defaults from a previous service?
-      if (!this.state.displayedFields.length) {
-        console.log('setDisplayedFieldsFromBackend::no displayed fields', serviceScene.state.backendDisplayedFields);
+      // No user displayed fields
+      if (!this.state.userDisplayedFields) {
+        // Set default columns as displayed fields
         this.setState({ displayedFields: serviceScene.state.backendDisplayedFields });
-      } else {
-        console.log('setDisplayedFieldsFromBackend::backend changed but not setting');
       }
     }
   }
@@ -313,15 +365,54 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.updateLogsPanel();
   }
 
+  /**
+   * Sets the initial state from url params
+   * @param searchParams
+   * @private
+   */
   private setStateFromUrl(searchParams: URLSearchParams) {
     const selectedLineUrl = searchParams.get('selectedLine');
     const urlColumnsUrl = searchParams.get('urlColumns');
     const vizTypeUrl = searchParams.get('visualizationType');
-    const displayedFieldsUrl = searchParams.get('displayedFields') ?? JSON.stringify(getDisplayedFields(this));
+
+    /**
+     * Ordering
+     * 1. If the user has ever made an action for this
+     */
+    const userDisplayFieldsFromStorage = getDisplayedFieldsInStorage(this, true);
+    const userDisplayFieldsFromStorageString =
+      userDisplayFieldsFromStorage.length > 0 ? JSON.stringify(userDisplayFieldsFromStorage) : null;
+    const displayFieldsFromStorage = getDisplayedFieldsInStorage(this);
+    const displayFieldsFromStorageString =
+      displayFieldsFromStorage.length > 0 ? JSON.stringify(displayFieldsFromStorage) : null;
+
+    // @todo need to clear displayedFields when changing primary label slug so we grab defaults from local storage
+    const displayedFieldsUrl =
+      searchParams.get('displayedFields') ?? userDisplayFieldsFromStorageString ?? displayFieldsFromStorageString;
+
+    const userDisplayedFieldsUrl =
+      searchParams.get('userDisplayedFields') ?? (userDisplayFieldsFromStorage.length > 0 ? 'true' : 'false');
+
     const tableLogLineState = searchParams.get('tableLogLineState');
+
+    console.log('LogsListScene::setStateFromUrl', {
+      urls: {
+        user: searchParams.get('userDisplayedFields'),
+        display: searchParams.get('displayedFields'),
+      },
+      output: {
+        user: userDisplayedFieldsUrl,
+        display: displayedFieldsUrl,
+      },
+      storage: {
+        user: userDisplayFieldsFromStorage,
+        display: displayFieldsFromStorage,
+      },
+    });
 
     this.updateFromUrl({
       displayedFields: displayedFieldsUrl,
+      userDisplayedFields: userDisplayedFieldsUrl,
       selectedLine: selectedLineUrl,
       tableLogLineState,
       urlColumns: urlColumnsUrl,

@@ -40,7 +40,7 @@ import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
-import { LogOptionsScene } from './LogOptionsScene';
+import { LOG_LINE_BODY_FIELD_NAME, LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
@@ -109,7 +109,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: backendDisplayedFields,
     });
+
     setDisplayedFieldsInStorage(this, backendDisplayedFields);
+    // Clear user added state
+    setDisplayedFieldsInStorage(this, [], true);
 
     // Sync with urlColumns
     const parent = this.getParentScene();
@@ -209,10 +212,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       displayedFields: fields,
     });
     const parent = this.getParentScene();
-    if (!fields.length || shallowCompare(fields, parent.state.otelDisplayedFields) === false) {
+    if (!fields.length || !shallowCompare(fields, parent.state.otelDisplayedFields)) {
       setDisplayedFieldsInStorage(this, fields);
+      setDisplayedFieldsInStorage(this, fields, true);
     }
-    parent.setState({ displayedFields: fields });
+    parent.setState({ displayedFields: fields, userDisplayedFields: true });
   };
 
   onClickShowField = (field: string) => {
@@ -224,8 +228,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({
         displayedFields,
       });
-      parent.setState({ displayedFields });
+
+      parent.setState({ displayedFields, userDisplayedFields: true });
       setDisplayedFieldsInStorage(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields, true);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -243,8 +249,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({
         displayedFields,
       });
-      parent.setState({ displayedFields });
+      parent.setState({ displayedFields, userDisplayedFields: true });
       setDisplayedFieldsInStorage(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields, true);
 
       // Remove displayed fields from url columns
       parent.setState({
@@ -275,7 +282,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: [],
     });
-    setDisplayedFieldsInStorage(this, []);
+    setDisplayedFieldsInStorage(this, [LOG_LINE_BODY_FIELD_NAME]);
+    setDisplayedFieldsInStorage(this, [LOG_LINE_BODY_FIELD_NAME], true);
 
     // Sync with urlColumns
     const parent = this.getParentScene();
@@ -303,7 +311,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const parentModel = this.getParentScene();
     const visualizationType = parentModel.state.visualizationType;
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    console.log('LogsPanelScene::getLogsPanel displayedFields', parentModel.state.displayedFields);
     const panel = PanelBuilders.logs()
       .setTitle(this.getTitle(serviceScene.state.logsCount))
       .setOption('onClickFilterLabel', this.handleLabelFilterClick)
@@ -372,6 +379,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
     } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
+      // @todo is this a user action?
       const parent = this.getParentScene();
       parent.setState({ otelDisplayedFields: value });
     }

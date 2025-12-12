@@ -294,8 +294,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const newDisplayedFields = Array.from(new Set([...(urlColumns || [])])).filter(
       (field) => !allDefaultColumns.includes(field)
     );
-
-    console.log('LogsTableScene: updateDisplayedFields', newDisplayedFields);
     // sync state displayedFields for LogsPanelScene
     parentModel.setState({
       displayedFields: newDisplayedFields,
