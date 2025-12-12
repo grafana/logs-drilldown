@@ -31,6 +31,8 @@ The `detected_labels` visualizations are helpful for:
 You can click the **Select** button on a Label or Field graph to access a breakdown of its values, seeing the log volumes visualized along the way.
 This can be useful for understanding the traits of your system, and for spotting spikes or other changes.
 
+Click individual log lines to view the **Log Details** panel which displays fields and labels with filtering options. For more information about Log Details, refer to [View logs](../view-logs/).
+
 ## Labels tab user interface overview
 
 Let's take a closer look at what you can do on the Labels tab.

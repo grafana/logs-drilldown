@@ -85,10 +85,13 @@ Patterns tab user interface:
 - **Patterns** graph: The graph shows you the patterns alongside their log volumes.
 - **Include** and **Exclude** buttons: Lets you include or exclude the log pattern from the log view.
 
-In addition, in the expanded view, each log line has a menu that is displayed when you hover over the log line:
+When you expand a pattern row to view log lines with that pattern, each row has a menu with the following options:
 
-- **Show context**: Lets you view the log line in the context of the logs that occurred before and after that specific log.
-- **Copy to clipboard**: Copies the log line to the clipboard.
+- **Show/Hide log details**: Select from the menu for the individual log line to view the log line, index labels, parsed fields, and structured metadata.  For more information, refer to [View logs](../view-logs/).
+- **Show context**: Select from the menu to view the log line in the context of the logs that occurred before and after that specific log.
+- **Copy log line**: Select from the menu to copy individual log lines to the clipboard.
+
+The patterns roll includes infinite scroll. Scroll to the bottom of the log list to load more results.
 
 ## Guided tour of log patterns
 

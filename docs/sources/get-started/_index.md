@@ -43,6 +43,11 @@ To take a tour of Grafana Logs Drilldown, follow these steps:
 1. Services are shown based on the volume of logs, or you can use the **Search Services** field to search for the service by name.
 1. If you want to view services by label instead of by service name, click **(+) Add label** and either select a label from the menu or search for a label.
 1. To explore logs for a service, click the **Show logs** button on the service graph. Grafana displays the **Logs** tab of the service details page.
+1. On the Logs tab, you can:
+   - Use the log controls (which can be expanded using the expand/collapse button on the right) to adjust sort order, filter by string or level, change display options, and more. For details, refer to [View logs](../view-logs/).
+   - Click individual log lines to view detailed information including fields and links in the Log Details panel.
+   - Scroll to the bottom to load more log entries with infinite scroll.
+   - Use line wrapping controls to adapt the display logs for easier reading, choosing between inline, wrapped, and wrapped with JSON formatting..
 1. On the service details page, click the **Labels** tab to see visualizations of the log volume for each label. ([No labels?](../troubleshooting/#there-are-no-labels))
 1. On the **Labels** tab, to select a label to see the log volume for each value of that label, click the **Select** button.
    Grafana Logs Drilldown shows you the volume of logs with specific labels and fields. Learn more about [Labels and Fields](../labels-and-fields/).
