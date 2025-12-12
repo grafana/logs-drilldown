@@ -106,6 +106,10 @@ export const operatorFunction = function (variable: AdHocFiltersVariable) {
     const meta: Record<string, string> = wip.meta;
     const type = meta.type;
 
+    if (type === 'int') {
+      return [...operators, ...numericOperators];
+    }
+
     if (type === 'float' || type === 'bytes' || type === 'duration') {
       return numericOperators;
     }
