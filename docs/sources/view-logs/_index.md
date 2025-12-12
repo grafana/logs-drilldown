@@ -65,11 +65,13 @@ Grafana provides data links or correlations, allowing you to convert any part of
 
 ### Log details modes
 
-Depending on the viewport size, the default mode can be inline (small viewports) or sidebar (larger viewports). Independent of this default mode, you can change the mode by clicking the mode control.
+There are two modes available to view log details: 
 
-**Inline log details** display the log details below the log line within the log list.
+- **Inline log details** display the log details below the log line within the log list.
 
-**Sidebar log details** display the log details in a panel to the side of the log list.
+- **Sidebar log details** display the log details in a panel to the side of the log list.
+
+No matter which display mode you are currently viewing, you can change it by clicking the mode control icon.
 
 ## Highlighting
 
