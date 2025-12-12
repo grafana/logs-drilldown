@@ -15,7 +15,7 @@ common:
   replication_factor: 1
   ring:
     kvstore:
-      store: inmemory
+      store: memberlist
 frontend:
   max_outstanding_per_tenant: 2048
   encoding: protobuf
@@ -34,6 +34,8 @@ query_range:
       embedded_cache:
         enabled: true
         max_size_mb: 100
+querier:
+  per_request_limits_enabled: true
 
 schema_config:
   configs:
