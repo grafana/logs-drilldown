@@ -76,7 +76,8 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
 function getEmbeddedScene() {
   const initialStart = 'now-15m';
   const initialEnd = 'now';
-  const query = '{service_name="tempo-distributor"} |~ "(?i)Error"';
+  const query =
+    '{service_name=~"tempo-distributor|tempo-ingester"} |~ "(?i)Error" | json | logfmt | drop __error__, __error_details__ | cluster="eu-west-1"';
 
   const from = dateTimeParse(initialStart);
   const to = dateTimeParse(initialEnd);

@@ -148,7 +148,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       datasourceUid,
       state?.initialLabels,
       state.embedded,
-      state.defaultLineFilters
+      state.defaultLineFilters,
+      state.initialFields
     );
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -750,7 +751,8 @@ function getVariableSet(
   initialDatasourceUid: string,
   initialLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  defaultLineFilters?: LineFilterType[]
+  defaultLineFilters?: LineFilterType[],
+  initialFieldFilters?: AdHocFiltersWithLabelsAndMeta[]
 ) {
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
@@ -777,6 +779,7 @@ function getVariableSet(
     label: 'Detected fields',
     layout: 'combobox',
     name: VAR_FIELDS,
+    filters: initialFieldFilters ?? [],
   });
 
   fieldsVariable._getOperators = () => {

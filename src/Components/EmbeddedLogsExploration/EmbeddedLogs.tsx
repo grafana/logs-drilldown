@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { AdHocFiltersWithLabelsAndMeta } from '../../services/variables';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
@@ -36,7 +37,7 @@ export function buildLogsExplorationFromState({
 
   initRuntimeDs();
 
-  const { labelFilters, lineFilters } = getMatcherFromQuery(query);
+  const { labelFilters, lineFilters, fields } = getMatcherFromQuery(query);
   const referenceFilters = getMatcherFromQuery(referenceQuery ?? '');
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
@@ -51,6 +52,17 @@ export function buildLogsExplorationFromState({
     value: filter.value,
   }));
 
+  const initialFields: AdHocFiltersWithLabelsAndMeta[] | undefined = fields?.map((f) => {
+    return {
+      key: f.key,
+      operator: f.operator,
+      value: f.value,
+      meta: {
+        parser: f.parser,
+      },
+    };
+  });
+
   // Report valid init
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_init);
 
@@ -60,6 +72,7 @@ export function buildLogsExplorationFromState({
     defaultLineFilters: lineFilters,
     embedded: true,
     embeddedOptions: options,
+    initialFields,
     initialLabels,
     referenceLabels,
     hideTimePicker,
