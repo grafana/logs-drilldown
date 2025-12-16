@@ -45,7 +45,7 @@ describe('getMatcherFromQuery', () => {
         {
           key: 'label',
           operator: '=',
-          parser: undefined,
+          parser: 'structuredMetadata',
           type: 'S',
           value: 'value',
         },
