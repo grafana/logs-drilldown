@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { ExpressionBuilder } from '../../services/ExpressionBuilder';
+import { isOperatorRegex } from '../../services/operatorHelpers';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import initRuntimeDs from 'services/datasource';
-import { FilterOp } from 'services/filterTypes';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
 import { addAdHocFilterUserInputPrefix } from 'services/variables';
@@ -38,26 +39,23 @@ export function buildLogsExplorationFromState({
 
   initRuntimeDs();
 
-  const { labelFilters, lineFilters } = getMatcherFromQuery(query);
+  const { labelFilters: rawLabelFilters, lineFilters } = getMatcherFromQuery(query);
+
+  const filtersTransformer = new ExpressionBuilder(rawLabelFilters);
+  const labelFilters = filtersTransformer.getSplitLabelsFilters();
   const referenceFilters = getMatcherFromQuery(referenceQuery ?? '');
 
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
     key: filter.key,
     operator: filter.operator,
-    value:
-      filter.operator === FilterOp.RegexEqual || filter.operator === FilterOp.RegexNotEqual
-        ? addAdHocFilterUserInputPrefix(filter.value)
-        : filter.value,
+    value: isOperatorRegex(filter.operator) ? addAdHocFilterUserInputPrefix(filter.value) : filter.value,
     valueLabels: [filter.value],
   }));
 
   const referenceLabels: AdHocFilterWithLabels[] = referenceFilters.labelFilters.map((filter) => ({
     key: filter.key,
     operator: filter.operator,
-    value:
-      filter.operator === FilterOp.RegexEqual || filter.operator === FilterOp.RegexNotEqual
-        ? addAdHocFilterUserInputPrefix(filter.value)
-        : filter.value,
+    value: isOperatorRegex(filter.operator) ? addAdHocFilterUserInputPrefix(filter.value) : filter.value,
     valueLabels: [filter.value],
   }));
 

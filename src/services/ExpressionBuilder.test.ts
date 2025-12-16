@@ -707,6 +707,202 @@ describe('getJoinedLabelsFilters', () => {
   });
 });
 
+describe('getSplitLabelsFilters', () => {
+  function splitTagFilters(adHoc: AdHocFiltersVariable) {
+    const filterTransformer = new ExpressionBuilder(adHoc.state.filters, {
+      decodeFilters: false,
+      filterType: 'indexed',
+      joinMatchFilters: true,
+    });
+    return filterTransformer.getSplitLabelsFilters();
+  }
+
+  it('escapes special chars', () => {
+    const adHoc = new AdHocFiltersVariable({
+      filters: [
+        {
+          key: 'file',
+          operator: '=',
+          value: 'C:\\Grafana\\Logs\\log.txt',
+        },
+      ],
+    });
+
+    const result = splitTagFilters(adHoc);
+    expect(result).toEqual([
+      {
+        key: 'file',
+        operator: '=',
+        value: 'C:\\\\Grafana\\\\Logs\\\\log.txt',
+      },
+    ]);
+  });
+  it('escapes special chars with regex selector', () => {
+    const adHoc = new AdHocFiltersVariable({
+      filters: [
+        {
+          key: 'file',
+          operator: '=~',
+          value: 'C:\\Grafana\\Logs\\log.txt',
+        },
+      ],
+    });
+
+    const result = splitTagFilters(adHoc);
+    expect(result).toEqual([
+      {
+        key: 'file',
+        operator: '=~',
+        value: 'C:\\\\\\\\Grafana\\\\\\\\Logs\\\\\\\\log\\\\.txt',
+      },
+    ]);
+  });
+  it('splits regex include', () => {
+    const adHoc = new AdHocFiltersVariable({
+      filters: [
+        {
+          key: 'filename',
+          operator: '=~',
+          value: 'C:\\Grafana\\logs\\logs.txt|C:\\Grafana\\logs\\logs2.txt',
+        },
+        {
+          key: 'filename2',
+          operator: '=~',
+          value: 'C:\\Grafana\\logs\\logs.txt',
+        },
+      ],
+    });
+
+    const result = splitTagFilters(adHoc);
+    expect(result).toEqual([
+      {
+        key: 'filename',
+        operator: '=~',
+        value: 'C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs\\\\.txt',
+      },
+      {
+        key: 'filename',
+        operator: '=~',
+        value: 'C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs2\\\\.txt',
+      },
+      {
+        key: 'filename2',
+        operator: '=~',
+        value: 'C:\\\\\\\\Grafana\\\\\\\\logs\\\\\\\\logs\\\\.txt',
+      },
+    ]);
+  });
+  it('splits multiple exclude', () => {
+    const filters = [
+      {
+        key: 'not_service_name',
+        operator: '=',
+        value: 'not_service_name_value',
+      },
+      {
+        key: 'service_name',
+        operator: '!~',
+        value: 'service_value|service_value_2',
+      },
+    ];
+
+    const adHoc = new AdHocFiltersVariable({
+      filters,
+    });
+
+    const result = splitTagFilters(adHoc);
+    expect(result).toEqual([
+      {
+        key: 'not_service_name',
+        operator: '=',
+        value: 'not_service_name_value',
+      },
+      {
+        key: 'service_name',
+        operator: '!~',
+        value: 'service_value',
+      },
+      {
+        key: 'service_name',
+        operator: '!~',
+        value: 'service_value_2',
+      },
+    ]);
+  });
+  it('splits multiple include with user-input regex', () => {
+    const adHoc = new AdHocFiltersVariable({
+      filters: [
+        {
+          key: 'not_service_name',
+          operator: '=',
+          value: 'C:\\\\Grafana Logs\\\\logfile.txt',
+        },
+        {
+          key: 'service_name',
+          operator: '=~',
+          value: addAdHocFilterUserInputPrefix(`service_value.+\\|service_value_2$`),
+        },
+      ],
+    });
+
+    const result = splitTagFilters(adHoc);
+    expect(result).toEqual([
+      {
+        key: 'not_service_name',
+        operator: '=',
+        value: 'C:\\\\\\\\Grafana Logs\\\\\\\\logfile.txt',
+      },
+      {
+        key: 'service_name',
+        operator: '=~',
+        value: `service_value.+`,
+      },
+      {
+        key: 'service_name',
+        operator: '=~',
+        value: `service_value_2$`,
+      },
+    ]);
+  });
+  it('joins multiple exclude with regex', () => {
+    const filters = [
+      {
+        key: 'not_service_name',
+        operator: '!~',
+        value: 'not_service_name_value',
+      },
+      {
+        key: 'service_name',
+        operator: '!~',
+        value: 'service_value|service_value_2',
+      },
+    ];
+
+    const adHoc = new AdHocFiltersVariable({
+      filters,
+    });
+
+    const result = splitTagFilters(adHoc);
+    expect(result).toEqual([
+      {
+        key: 'not_service_name',
+        operator: '!~',
+        value: 'not_service_name_value',
+      },
+      {
+        key: 'service_name',
+        operator: '!~',
+        value: 'service_value',
+      },
+      {
+        key: 'service_name',
+        operator: '!~',
+        value: 'service_value_2',
+      },
+    ]);
+  });
+});
+
 describe('renderLogQLMetadataFilters', () => {
   test('Renders positive filters', () => {
     const filters: AdHocVariableFilter[] = [

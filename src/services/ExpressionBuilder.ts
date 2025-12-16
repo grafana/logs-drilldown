@@ -1,4 +1,4 @@
-import { Dictionary, groupBy, trim } from 'lodash';
+import { Dictionary, forEach, groupBy, trim } from 'lodash';
 
 import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFilterWithLabels, sceneUtils } from '@grafana/scenes';
@@ -67,6 +67,41 @@ export class ExpressionBuilder {
     if (!this.options.debug) {
       this.options.debug = getExpressionBuilderDebug();
     }
+  }
+
+  /**
+   * Splits filters containing escaped joined values
+   * e.g.  {level=~"warn|info"} => {level="info"}, {level="warn"}
+   */
+  public getSplitLabelsFilters(): AdHocFilterWithLabels[] {
+    let { equalsFilters, notEqualsFilters, regexEqualFilters, regexNotEqualFilters } = this.getCombinedLabelFilters();
+    const adHocFilters: AdHocFilterWithLabels[] = [];
+    const filters = [equalsFilters, notEqualsFilters, regexEqualFilters, regexNotEqualFilters].filter(
+      (filter) => filter
+    );
+
+    filters.forEach((operatorFilters) => {
+      for (const key in operatorFilters) {
+        operatorFilters[key].values.forEach((value) => {
+          if (isOperatorRegex(operatorFilters[key].operator)) {
+            console.log('value', value);
+            const operator = '\\\\|';
+            const splitValues = this.splitValues(value, operator);
+            forEach(splitValues, (value) => {
+              const filter = operatorFilters[key];
+              const operator = filter.operator;
+              adHocFilters.push({ key, operator, value: value });
+            });
+          } else {
+            const filter = operatorFilters[key];
+            const operator = filter.operator;
+            adHocFilters.push({ key, operator, value: value });
+          }
+        });
+      }
+    });
+
+    return adHocFilters;
   }
 
   /**
@@ -493,6 +528,10 @@ export class ExpressionBuilder {
    */
   private combineValues(values: string[], separator: string) {
     return values.join(`${separator}`);
+  }
+
+  private splitValues(value: string, separator: string) {
+    return value.split(`${separator}`);
   }
 
   /**
