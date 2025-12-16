@@ -754,6 +754,9 @@ function getVariableSet(
   defaultLineFilters?: LineFilterType[],
   initialFieldFilters?: AdHocFiltersWithLabelsAndMeta[]
 ) {
+  const initialMetadataFilters = initialFieldFilters?.filter((f) => f.meta?.parser === 'structuredMetadata');
+  const initialParsedFieldFilters = initialFieldFilters?.filter((f) => f.meta?.parser !== 'structuredMetadata');
+
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
@@ -779,7 +782,7 @@ function getVariableSet(
     label: 'Detected fields',
     layout: 'combobox',
     name: VAR_FIELDS,
-    filters: initialFieldFilters ?? [],
+    filters: initialParsedFieldFilters ?? [],
   });
 
   fieldsVariable._getOperators = () => {
@@ -794,6 +797,7 @@ function getVariableSet(
     label: 'Metadata',
     layout: 'combobox',
     name: VAR_METADATA,
+    filters: initialMetadataFilters ?? [],
   });
 
   metadataVariable._getOperators = () => {
