@@ -8,8 +8,10 @@ import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSce
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import initRuntimeDs from 'services/datasource';
+import { FilterOp } from 'services/filterTypes';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
+import { addAdHocFilterUserInputPrefix } from 'services/variables';
 
 export function buildLogsExplorationFromState({
   onTimeRangeChange,
@@ -43,13 +45,21 @@ export function buildLogsExplorationFromState({
   const initialLabels: AdHocFilterWithLabels[] = labelFilters.map((filter) => ({
     key: filter.key,
     operator: filter.operator,
-    value: filter.value,
+    value:
+      filter.operator === FilterOp.RegexEqual || filter.operator === FilterOp.RegexNotEqual
+        ? addAdHocFilterUserInputPrefix(filter.value)
+        : filter.value,
+    valueLabels: [filter.value],
   }));
 
   const referenceLabels: AdHocFilterWithLabels[] = referenceFilters.labelFilters.map((filter) => ({
     key: filter.key,
     operator: filter.operator,
-    value: filter.value,
+    value:
+      filter.operator === FilterOp.RegexEqual || filter.operator === FilterOp.RegexNotEqual
+        ? addAdHocFilterUserInputPrefix(filter.value)
+        : filter.value,
+    valueLabels: [filter.value],
   }));
 
   const initialFields: AdHocFiltersWithLabelsAndMeta[] | undefined = fields?.map((f) => {
