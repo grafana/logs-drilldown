@@ -84,7 +84,6 @@ export class ExpressionBuilder {
       for (const key in operatorFilters) {
         operatorFilters[key].values.forEach((value) => {
           if (isOperatorRegex(operatorFilters[key].operator)) {
-            console.log('value', value);
             const operator = '\\\\|';
             const splitValues = this.splitValues(value, operator);
             forEach(splitValues, (value) => {
