@@ -63,7 +63,7 @@ import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardEvent, AddToDashboardData } from 'Components/Panels/PanelMenu';
+import { AddToDashboardData, AddToDashboardEvent } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -894,7 +894,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const { filters } = getLabelsVariable(model).useState();
     const status = model.getLabelFiltersStatus(filters);
 
-    if (!status.isValid) {
+    if (!status.isValid && !status.newPrimaryLabel) {
       return (
         <Alert
           title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
