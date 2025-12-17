@@ -1,6 +1,6 @@
 import { flatten, memoize } from 'lodash';
 
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../../lib/api-clients/logsdrilldown/v1alpha1';
@@ -87,7 +87,6 @@ const LOG_LINE_COMBOBOX_OPTION = {
   label: getNormalizedFieldName(LOG_LINE_BODY_FIELD_NAME),
 };
 
-//@todo matyax do we always want to present this option?
 const LOG_ATTRS_COMBOBOX_OPTION = {
   value: OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
   label: getNormalizedFieldName(OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME),
@@ -104,7 +103,12 @@ export const getKeys = async (
     res.filter((opt) => removeAlreadySelected(opt) || column === opt.value)
   );
 
-  return [LOG_LINE_COMBOBOX_OPTION, LOG_ATTRS_COMBOBOX_OPTION, ...options];
+  const keysArray: ComboboxOption[] = [LOG_LINE_COMBOBOX_OPTION];
+  if (config.featureToggles.otelLogsFormatting) {
+    keysArray.push(LOG_ATTRS_COMBOBOX_OPTION);
+  }
+  keysArray.push(...options);
+  return keysArray;
 };
 
 export const getDatasource = async (dsUID: string) => {

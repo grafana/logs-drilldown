@@ -9,6 +9,7 @@ import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types
 
 import { logger } from '../../services/logger';
 import { getLabelsKeys } from '../../services/TagKeysProviders';
+import { SERVICE_NAME } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import { getDatasource } from './DefaultColumnsState';
@@ -70,7 +71,13 @@ const getLabels = memoize(
     const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels ?? []);
     const getLabelsKeysPromise = getLabelsKeys(labelFilters, datasource);
     const results = await getLabelsKeysPromise;
-    return results.map((label) => ({ value: label.text }));
+    const options = results.map((label) => ({ value: label.text }));
+    const serviceNameIdx = options.findIndex((label) => label.value === SERVICE_NAME);
+    if (serviceNameIdx !== -1) {
+      const service = options.splice(serviceNameIdx, 1);
+      options.unshift(service[0]);
+    }
+    return options;
   }
 );
 

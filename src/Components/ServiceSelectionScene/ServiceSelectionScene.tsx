@@ -1022,7 +1022,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private getLogExpression(labelName: string, labelValue: string, levelFilter: string) {
-    // Has default columns feature enabled?
     if (config.featureToggles.kubernetesLogsDrilldown) {
       if (this.hasDefaultColumnsSet()) {
         const matchingCols = this.getDefaultColumns(labelName, labelValue);
