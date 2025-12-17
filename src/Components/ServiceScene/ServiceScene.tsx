@@ -308,15 +308,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const filteredRecords = records?.filter((f) => f.labels.length <= inclusiveFilters.length);
 
     // init map
-    const filtersMap = new Map<string, string>();
-    inclusiveFilters.forEach((f) => filtersMap.set(f.key, f.value));
+    const filtersMap = new Set<string>();
+    inclusiveFilters.forEach((f) => filtersMap.add(f.key + f.value));
 
     // Assign a score to each record
     const recordsScore: Array<LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord & { score: number }> | undefined =
       filteredRecords?.map((r) => {
         const score = r.labels.reduce((accumulator, label) => {
-          const mapValue = filtersMap.get(label.key);
-          if (mapValue === label.value) {
+          const usedInQuery = filtersMap.has(label.key + label.value);
+          if (usedInQuery) {
             return accumulator + 1;
           }
           return accumulator;
@@ -332,6 +332,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         highScoreIdx = idx;
       }
     });
+
     const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
 
     this.setState({
