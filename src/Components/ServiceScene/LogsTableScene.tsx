@@ -55,7 +55,6 @@ interface LogsTableSceneState extends SceneObjectState {
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
 }
-
 export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: ['sortOrder', 'urlColumns'],
@@ -71,116 +70,13 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
-    const styles = useStyles2(getStyles);
-    // Get state from parent model
-    const parentModel = sceneGraph.getAncestor(model, LogsListScene);
-    const { error, errorType, canClearFilters } = model.useState();
-    const { data } = sceneGraph.getData(model).useState();
-    const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
-    const { emptyScene, menu, sortOrder } = model.useState();
+  private setStateFromUrl() {
+    const searchParams = new URLSearchParams(locationService.getLocation().search);
 
-    // Get time range
-    const timeRange = sceneGraph.getTimeRange(model);
-    const { value: timeRangeValue } = timeRange.useState();
-
-    const dataFrame = getLogsPanelFrame(data);
-
-    // Define callback function to update filters in react
-    const addFilter = (filter: AdHocVariableFilter) => {
-      const variableType = getVariableForLabel(dataFrame, filter.key, model);
-      addAdHocFilter(filter, parentModel, variableType);
-    };
-
-    // Get reference to panel wrapper so table knows how much space it can use to render
-    const panelWrap = useRef<HTMLDivElement>(null);
-
-    // Define callback function to update url columns in react
-    const setUrlColumns = (urlColumns: string[]) => {
-      if (!areArraysStrictlyEqual(urlColumns, parentModel.state.urlColumns)) {
-        parentModel.setState({ urlColumns });
-        // sync table urlColumns with log panel displayed fields
-        model.updateDisplayedFields(urlColumns);
-      }
-    };
-
-    const setUrlTableBodyState = (logLineState: LogLineState) => {
-      parentModel.setState({ tableLogLineState: logLineState });
-    };
-
-    const clearSelectedLine = () => {
-      if (parentModel.state.selectedLine) {
-        parentModel.clearSelectedLine();
-      }
-    };
-
-    const controlsExpanded = parentModel.state.controlsExpanded;
-
-    return (
-      <div className={styles.panelWrapper} ref={panelWrap}>
-        {!error && (
-          <>
-            {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
-            <PanelChrome
-              loadingState={data?.state}
-              title={'Logs'}
-              menu={menu ? <menu.Component model={menu} /> : undefined}
-              showMenuAlways={true}
-              actions={
-                <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
-              }
-            >
-              <div className={styles.container}>
-                {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
-                  <LogListControls
-                    controlsExpanded={controlsExpanded}
-                    onExpandControlsClick={() => {
-                      parentModel.setState({ controlsExpanded: !controlsExpanded });
-                      setLogOption('controlsExpanded', !controlsExpanded);
-                    }}
-                    sortOrder={sortOrder}
-                    onSortOrderChange={model.handleSortChange}
-                    onLineStateClick={model.onLineStateClick}
-                    // "Auto" defaults to display "show text"
-                    lineState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
-                    disabledLineState={!model.state.isDisabledLineState}
-                  />
-                )}
-                {dataFrame && (
-                  <TableProvider
-                    controlsExpanded={controlsExpanded}
-                    panelWrap={panelWrap}
-                    addFilter={addFilter}
-                    timeRange={timeRangeValue}
-                    selectedLine={selectedLine}
-                    urlColumns={urlColumns ?? []}
-                    displayFields={parentModel.state.displayedFields}
-                    setUrlColumns={setUrlColumns}
-                    dataFrame={dataFrame}
-                    clearSelectedLine={clearSelectedLine}
-                    setUrlTableBodyState={setUrlTableBodyState}
-                    urlTableBodyState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
-                    logsSortOrder={sortOrder}
-                  />
-                )}
-                {emptyScene && dataFrame && dataFrame.length === 0 && (
-                  <NoMatchingLabelsScene.Component model={emptyScene} />
-                )}
-              </div>
-            </PanelChrome>
-          </>
-        )}
-        {error && (
-          <LogsPanelError
-            error={error}
-            errorType={errorType}
-            clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
-            sceneRef={model}
-          />
-        )}
-      </div>
-    );
-  };
+    this.updateFromUrl({
+      sortOrder: searchParams.get('sortOrder'),
+    });
+  }
 
   getUrlState() {
     return {
@@ -227,6 +123,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       },
       true
     );
+  }
+
+  private getParentScene() {
+    return sceneGraph.getAncestor(this, LogsListScene);
   }
 
   subscribeFromUrl = () => {
@@ -358,17 +258,116 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     setTableLogLine(tableLogLineState === LogLineState.text ? LogLineState.labels : LogLineState.text);
   };
 
-  private setStateFromUrl() {
-    const searchParams = new URLSearchParams(locationService.getLocation().search);
+  public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
+    const styles = useStyles2(getStyles);
+    // Get state from parent model
+    const parentModel = sceneGraph.getAncestor(model, LogsListScene);
+    const { error, errorType, canClearFilters } = model.useState();
+    const { data } = sceneGraph.getData(model).useState();
+    const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
+    const { emptyScene, menu, sortOrder } = model.useState();
 
-    this.updateFromUrl({
-      sortOrder: searchParams.get('sortOrder'),
-    });
-  }
+    // Get time range
+    const timeRange = sceneGraph.getTimeRange(model);
+    const { value: timeRangeValue } = timeRange.useState();
 
-  private getParentScene() {
-    return sceneGraph.getAncestor(this, LogsListScene);
-  }
+    const dataFrame = getLogsPanelFrame(data);
+
+    // Define callback function to update filters in react
+    const addFilter = (filter: AdHocVariableFilter) => {
+      const variableType = getVariableForLabel(dataFrame, filter.key, model);
+      addAdHocFilter(filter, parentModel, variableType);
+    };
+
+    // Get reference to panel wrapper so table knows how much space it can use to render
+    const panelWrap = useRef<HTMLDivElement>(null);
+
+    // Define callback function to update url columns in react
+    const setUrlColumns = (urlColumns: string[]) => {
+      if (!areArraysStrictlyEqual(urlColumns, parentModel.state.urlColumns)) {
+        parentModel.setState({ urlColumns });
+        // sync table urlColumns with log panel displayed fields
+        model.updateDisplayedFields(urlColumns);
+      }
+    };
+
+    const setUrlTableBodyState = (logLineState: LogLineState) => {
+      parentModel.setState({ tableLogLineState: logLineState });
+    };
+
+    const clearSelectedLine = () => {
+      if (parentModel.state.selectedLine) {
+        parentModel.clearSelectedLine();
+      }
+    };
+
+    const controlsExpanded = parentModel.state.controlsExpanded;
+
+    return (
+      <div className={styles.panelWrapper} ref={panelWrap}>
+        {!error && (
+          <>
+            {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
+            <PanelChrome
+              loadingState={data?.state}
+              title={'Logs'}
+              menu={menu ? <menu.Component model={menu} /> : undefined}
+              showMenuAlways={true}
+              actions={
+                <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+              }
+            >
+              <div className={styles.container}>
+                {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
+                  <LogListControls
+                    controlsExpanded={controlsExpanded}
+                    onExpandControlsClick={() => {
+                      parentModel.setState({ controlsExpanded: !controlsExpanded });
+                      setLogOption('controlsExpanded', !controlsExpanded);
+                    }}
+                    sortOrder={sortOrder}
+                    onSortOrderChange={model.handleSortChange}
+                    onLineStateClick={model.onLineStateClick}
+                    // "Auto" defaults to display "show text"
+                    lineState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
+                    disabledLineState={!model.state.isDisabledLineState}
+                  />
+                )}
+                {dataFrame && (
+                  <TableProvider
+                    controlsExpanded={controlsExpanded}
+                    panelWrap={panelWrap}
+                    addFilter={addFilter}
+                    timeRange={timeRangeValue}
+                    selectedLine={selectedLine}
+                    urlColumns={urlColumns ?? []}
+                    displayFields={parentModel.state.displayedFields}
+                    setUrlColumns={setUrlColumns}
+                    dataFrame={dataFrame}
+                    clearSelectedLine={clearSelectedLine}
+                    setUrlTableBodyState={setUrlTableBodyState}
+                    urlTableBodyState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
+                    logsSortOrder={sortOrder}
+                  />
+                )}
+                {emptyScene && dataFrame && dataFrame.length === 0 && (
+                  <NoMatchingLabelsScene.Component model={emptyScene} />
+                )}
+              </div>
+            </PanelChrome>
+          </>
+        )}
+        {error && (
+          <LogsPanelError
+            error={error}
+            errorType={errorType}
+            clearFilters={canClearFilters ? () => clearVariables(model) : undefined}
+            sceneRef={model}
+          />
+        )}
+      </div>
+    );
+  };
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
