@@ -323,25 +323,33 @@ function parseFields(query: string, context?: PluginExtensionPanelContext, lokiQ
       continue;
     }
 
-    // Label type
     let labelType: LabelType | undefined;
+    let parser: ParserType | undefined;
+
     if (dataFrame) {
       // @todo if the field label is not in the first line, we'll always add this filter as a field filter
       // Also negative filters that exclude all values of a field will always fail to get a label type for that exclusion filter?
       labelType = getLabelTypeFromFrame(fieldName, dataFrame) ?? undefined;
+
+      // If we have a label type from the dataframe, set the parser for metadata fields
+      if (labelType === LabelType.StructuredMetadata) {
+        parser = 'structuredMetadata';
+      }
     }
 
     if (operator) {
-      let parser: ParserType | undefined;
-      if (logFmtParser.length && jsonParser.length) {
-        parser = 'mixed';
-      } else if (logFmtParser.length) {
-        parser = 'logfmt';
-      } else if (jsonParser.length) {
-        parser = 'json';
-      } else {
-        // If there is no parser in the query, the field would have to be metadata or an invalid query?
-        labelType = LabelType.StructuredMetadata;
+      if (!parser) {
+        if (logFmtParser.length && jsonParser.length) {
+          parser = 'mixed';
+        } else if (logFmtParser.length) {
+          parser = 'logfmt';
+        } else if (jsonParser.length) {
+          parser = 'json';
+        } else {
+          // If there is no parser in the query so far, the field would have to be metadata or an invalid query?
+          labelType = labelType ?? LabelType.StructuredMetadata;
+          parser = 'structuredMetadata';
+        }
       }
 
       fields.push({
