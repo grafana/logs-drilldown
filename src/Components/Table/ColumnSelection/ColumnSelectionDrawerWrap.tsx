@@ -134,18 +134,32 @@ export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps)
     const pendingLabelState = { ...columns };
     let index = 0;
 
-    // First pass: handle all default fields except DETECTED_LEVEL
+    // Reset all fields to inactive first
     Object.keys(pendingLabelState).forEach((key) => {
-      const isDefaultField =
-        pendingLabelState[key].type === 'BODY_FIELD' || pendingLabelState[key].type === 'TIME_FIELD';
-
-      pendingLabelState[key].active = isDefaultField;
-      pendingLabelState[key].index = isDefaultField ? index++ : undefined;
+      pendingLabelState[key].active = false;
+      pendingLabelState[key].index = undefined;
     });
 
-    // Handle DETECTED_LEVEL last, or LEVEL if DETECTED_LEVEL doesn't exist to keep the default order
+    // Set defaults in the correct order: Time, detected_level, Line
+    // 1. Time (TIME_FIELD) - index 0
+    Object.keys(pendingLabelState).forEach((key) => {
+      if (pendingLabelState[key].type === 'TIME_FIELD') {
+        pendingLabelState[key].active = true;
+        pendingLabelState[key].index = index++;
+      }
+    });
+
+    // 2. detected_level (DETECTED_LEVEL) - index 1
     Object.keys(pendingLabelState).forEach((key) => {
       if (key === DETECTED_LEVEL || (key === LEVEL && !Object.keys(pendingLabelState).includes(DETECTED_LEVEL))) {
+        pendingLabelState[key].active = true;
+        pendingLabelState[key].index = index++;
+      }
+    });
+
+    // 3. Line (BODY_FIELD) - index 2
+    Object.keys(pendingLabelState).forEach((key) => {
+      if (pendingLabelState[key].type === 'BODY_FIELD') {
         pendingLabelState[key].active = true;
         pendingLabelState[key].index = index++;
       }
