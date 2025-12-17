@@ -54,8 +54,8 @@ export const plugin = new AppPlugin<{}>()
   .addConfigPage({
     body: DefaultColumnsConfig,
     icon: 'columns',
-    id: 'admin-default-columns',
-    title: 'Default columns',
+    id: 'admin-default-fields',
+    title: 'Default fields',
   });
 
 for (const linkConfig of linkConfigs) {
