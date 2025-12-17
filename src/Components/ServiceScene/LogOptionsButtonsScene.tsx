@@ -52,9 +52,6 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
   const displayedFieldsIsOnlyLogLine =
     !hasDisplayedFields || (displayedFields.length === 1 && displayedFields[0] === LOG_LINE_BODY_FIELD_NAME);
 
-  if (!hasBackendDisplayedFields) {
-    return null;
-  }
   return (
     <>
       {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
@@ -64,7 +61,7 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
           </Button>
         </Tooltip>
       )}
-      {!shallowCompare(displayedFields, backendDisplayedFields) && (
+      {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
         <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
             Show default fields
