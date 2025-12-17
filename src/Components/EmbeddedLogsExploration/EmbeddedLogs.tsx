@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { AdHocFiltersWithLabelsAndMeta } from '../../services/variables';
+import { AdHocFiltersWithLabelsAndMeta, FieldValue } from '../../services/variables';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
@@ -63,10 +63,15 @@ export function buildLogsExplorationFromState({
   }));
 
   const initialFields: AdHocFiltersWithLabelsAndMeta[] | undefined = fields?.map((f) => {
+    const fieldValue: FieldValue = {
+      parser: f.parser ?? 'mixed',
+      value: f.value,
+    };
     return {
       key: f.key,
       operator: f.operator,
-      value: f.value,
+      valueLabels: [f.value],
+      value: f.parser === 'structuredMetadata' ? f.value : JSON.stringify(fieldValue),
       meta: {
         parser: f.parser,
       },

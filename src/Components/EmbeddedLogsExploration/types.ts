@@ -27,7 +27,7 @@ interface EmbeddedLogsCommonProps {
   namespace?: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   options?: EmbeddedLogsOptions;
-  // Only labels are currently supported
+  // Labels, line filters, and fields are currently supported
   query: string;
   referenceQuery?: string;
   timeRangeState: SceneTimeRangeStateStub;
