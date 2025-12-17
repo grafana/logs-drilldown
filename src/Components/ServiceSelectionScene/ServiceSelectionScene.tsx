@@ -538,6 +538,11 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     return ` | ${filters.join(' or ')} `;
   };
 
+  hasDefaultColumnsSet() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    return indexScene.state.defaultColumnsRecords !== undefined;
+  }
+
   getDefaultColumns(labelName: string, labelValue: string): string[] {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const records = indexScene.state.defaultColumnsRecords;
@@ -1017,8 +1022,22 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private getLogExpression(labelName: string, labelValue: string, levelFilter: string) {
-    // @todo if config for this labelName/labelValue add parsers
-    return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+    // Has default columns feature enabled?
+    if (config.featureToggles.kubernetesLogsDrilldown) {
+      if (this.hasDefaultColumnsSet()) {
+        const matchingCols = this.getDefaultColumns(labelName, labelValue);
+        if (matchingCols.length > 0) {
+          return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+        } else {
+          return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+        }
+      } else {
+        // We could still be waiting for API response, so we have to assume that
+        return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+      }
+    } else {
+      return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+    }
   }
 
   private getMetricExpression(
