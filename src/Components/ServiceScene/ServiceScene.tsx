@@ -946,7 +946,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const { filters } = getLabelsVariable(model).useState();
     const status = model.getLabelFiltersStatus(filters);
 
-    if (!status.isValid) {
+    if (!status.isValid && !status.newPrimaryLabel) {
       return (
         <Alert
           title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
