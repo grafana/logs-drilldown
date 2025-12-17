@@ -8,10 +8,10 @@ import { useQueryRunner, VizPanel } from '@grafana/scenes-react';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 import { useStyles2 } from '@grafana/ui';
 
-import { LokiQuery, LokiQueryDirection } from '../../services/lokiQuery';
-import { getLogOption } from '../../services/store';
-import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { LokiQuery, LokiQueryDirection } from 'services/lokiQuery';
+import { getLogOption } from 'services/store';
+import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from 'services/variables';
 
 interface Props {
   expr: string;

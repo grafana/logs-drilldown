@@ -6,11 +6,11 @@ import { Draggable, DraggableProvided } from '@hello-pangea/dnd';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
-import { logger } from '../../services/logger';
-import { getNormalizedFieldName } from '../ServiceScene/LogOptionsScene';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { getKeys } from './DefaultColumnsState';
 import { recordColumnsAreNotLogLine } from './DefaultColumnsValidation';
+import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
+import { logger } from 'services/logger';
 
 interface Props {
   containerDragging: boolean;

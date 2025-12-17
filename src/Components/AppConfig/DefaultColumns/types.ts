@@ -1,4 +1,4 @@
-import { LogsDrilldownDefaultColumnsSpec } from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { LogsDrilldownDefaultColumnsSpec } from 'lib/api-clients/logsdrilldown/v1alpha1';
 
 type dsUID = string;
 export type DefaultColumnsState = Record<dsUID, LocalLogsDrilldownDefaultColumnsSpec>;

@@ -5,8 +5,8 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
-import { getNormalizedFieldName } from '../ServiceScene/LogOptionsScene';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
+import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
 
 interface Props {
   record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord;

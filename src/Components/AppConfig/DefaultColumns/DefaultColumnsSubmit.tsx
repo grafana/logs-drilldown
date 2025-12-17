@@ -5,17 +5,17 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
+import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { DefaultColumnsValidationState } from './types';
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
   LogsDrilldownDefaultColumnsSpec,
   useCreateLogsDrilldownDefaultColumnsMutation,
   useReplaceLogsDrilldownDefaultColumnsMutation,
-} from '../../lib/api-clients/logsdrilldown/v1alpha1';
-import { logger } from '../../services/logger';
-import { getRTKQErrorContext, narrowRTKQError } from '../../services/narrowing';
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsValidationState } from './types';
+} from 'lib/api-clients/logsdrilldown/v1alpha1';
+import { logger } from 'services/logger';
+import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
 export function DefaultColumnsSubmit() {
   const { dsUID, metadata, records, validation } = useDefaultColumnsContext();

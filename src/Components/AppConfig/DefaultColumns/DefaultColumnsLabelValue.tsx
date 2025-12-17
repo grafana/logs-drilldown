@@ -7,12 +7,12 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
-import { LabelFilterOp } from '../../services/filterTypes';
-import { getLabelValues } from '../../services/TagValuesProviders';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import { getDatasource } from './DefaultColumnsState';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from './types';
+import { LabelFilterOp } from 'services/filterTypes';
+import { getLabelValues } from 'services/TagValuesProviders';
 
 interface Props {
   labelIndex: number;

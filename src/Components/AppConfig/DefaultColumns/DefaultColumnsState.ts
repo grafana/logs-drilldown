@@ -3,23 +3,23 @@ import { flatten, memoize } from 'lodash';
 import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../../lib/api-clients/logsdrilldown/v1alpha1';
-import { areArraysStrictlyEqual } from '../../services/comparison';
-import { logger } from '../../services/logger';
-import { LokiDatasource } from '../../services/lokiQuery';
-import { getDetectedFieldsFn, getLabelsKeys } from '../../services/TagKeysProviders';
-import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from '../../services/variables';
-import {
-  getNormalizedFieldName,
-  LOG_LINE_BODY_FIELD_NAME,
-  OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
-} from '../ServiceScene/LogOptionsScene';
 import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
+import {
+  getNormalizedFieldName,
+  LOG_LINE_BODY_FIELD_NAME,
+  OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
+} from 'Components/ServiceScene/LogOptionsScene';
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from 'lib/api-clients/logsdrilldown/v1alpha1';
+import { areArraysStrictlyEqual } from 'services/comparison';
+import { logger } from 'services/logger';
+import { LokiDatasource } from 'services/lokiQuery';
+import { getDetectedFieldsFn, getLabelsKeys } from 'services/TagKeysProviders';
+import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from 'services/variables';
 
 /**
  * Does the local stage have changes that aren't saved in the latest API response?

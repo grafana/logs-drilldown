@@ -6,8 +6,8 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
 import { useStyles2 } from '@grafana/ui';
 
-import { addLastUsedDataSourceToStorage } from '../../services/store';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { addLastUsedDataSourceToStorage } from 'services/store';
 
 interface Props {}
 

@@ -6,13 +6,13 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { Badge, useStyles2 } from '@grafana/ui';
 
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
-import { NoLokiSplash } from '../NoLokiSplash';
 import { DefaultColumns } from './DefaultColumns';
 import { DefaultColumnsContextProvider } from './DefaultColumnsContext';
 import { DefaultColumnsDataSource } from './DefaultColumnsDataSource';
 import { DefaultColumnsFooter } from './DefaultColumnsFooter';
 import { DefaultColumnsUnsupported } from './DefaultColumnsUnsupported';
+import { NoLokiSplash } from 'Components/NoLokiSplash';
+import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 const DefaultColumnsConfig = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();

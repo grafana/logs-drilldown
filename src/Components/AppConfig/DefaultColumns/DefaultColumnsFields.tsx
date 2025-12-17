@@ -5,10 +5,10 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { logger } from '../../services/logger';
 import { DefaultColumnsColumnsDragContext } from './DefaultColumnsColumnsDragContext';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { recordColumnsAreNotLogLine, recordColumnsHaveValues } from './DefaultColumnsValidation';
+import { logger } from 'services/logger';
 
 interface Props {
   recordIndex: number;

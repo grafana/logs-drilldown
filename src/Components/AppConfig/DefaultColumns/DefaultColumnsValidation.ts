@@ -1,5 +1,5 @@
-import { LOG_LINE_BODY_FIELD_NAME } from '../ServiceScene/LogOptionsScene';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
+import { LOG_LINE_BODY_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 
 export const isRecordLabelsValid = (r: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord) => {
   return r.labels.every((l) => l.key !== '' && l.value !== undefined);

@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 
 import { LoadingPlaceholder } from '@grafana/ui';
 
-import { useGetLogsDrilldownDefaultColumnsQuery } from '../../lib/api-clients/logsdrilldown/v1alpha1';
-import { logger } from '../../services/logger';
-import { getRTKQErrorContext, narrowRTKQError } from '../../services/narrowing';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { DefaultColumnsRecords } from './DefaultColumnsRecords';
 import { APIColumnsState } from './types';
+import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1alpha1';
+import { logger } from 'services/logger';
+import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
 interface Props {}
 

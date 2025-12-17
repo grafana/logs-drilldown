@@ -2,10 +2,6 @@ import React, { createContext, ReactNode, useCallback, useContext, useMemo, useS
 
 import { cloneDeep } from 'lodash';
 
-import {
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
-  ObjectMeta,
-} from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { isDefaultColumnsStateChanged, recordsHaveDuplicates } from './DefaultColumnsState';
 import { isRecordInvalid } from './DefaultColumnsValidation';
 import {
@@ -16,6 +12,10 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
   LocalLogsDrilldownDefaultColumnsSpec,
 } from './types';
+import {
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+  ObjectMeta,
+} from 'lib/api-clients/logsdrilldown/v1alpha1';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;

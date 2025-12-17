@@ -7,13 +7,13 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, useStyles2 } from '@grafana/ui';
 import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
 
-import { logger } from '../../services/logger';
-import { getLabelsKeys } from '../../services/TagKeysProviders';
-import { SERVICE_NAME } from '../../services/variables';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
 import { getDatasource } from './DefaultColumnsState';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
+import { logger } from 'services/logger';
+import { getLabelsKeys } from 'services/TagKeysProviders';
+import { SERVICE_NAME } from 'services/variables';
 
 interface ValueProps {
   labelIndex: number;

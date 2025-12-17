@@ -8,7 +8,7 @@ import {
   SuspendedEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
-import { linkConfigs, functionConfigs } from 'services/extensions/links';
+import { functionConfigs, linkConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -40,7 +40,7 @@ const AppConfig = lazy(async () => {
 
 const DefaultColumnsConfig = lazy(async () => {
   await initPluginTranslations(pluginJson.id);
-  return await import('./Components/AppConfig/DefaultColumnsConfig');
+  return await import('./Components/AppConfig/DefaultColumns/DefaultColumnsConfig');
 });
 
 export const plugin = new AppPlugin<{}>()
