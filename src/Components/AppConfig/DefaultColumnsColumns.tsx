@@ -10,6 +10,7 @@ import { logger } from '../../services/logger';
 import { getNormalizedFieldName } from '../ServiceScene/LogOptionsScene';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
 import { getKeys } from './DefaultColumnsState';
+import { recordColumnsAreNotLogLine } from './DefaultColumnsValidation';
 
 interface Props {
   containerDragging: boolean;
@@ -66,7 +67,7 @@ export function DefaultColumnsColumns({ recordIndex, containerDragging }: Props)
                   className={styles.column__dragIcon}
                 />
                 <Combobox<string>
-                  invalid={!column}
+                  invalid={!column || !recordColumnsAreNotLogLine(record)}
                   value={{
                     value: column,
                     label: getNormalizedFieldName(column),

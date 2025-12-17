@@ -8,7 +8,7 @@ import { Button, useStyles2 } from '@grafana/ui';
 import { logger } from '../../services/logger';
 import { DefaultColumnsColumnsDragContext } from './DefaultColumnsColumnsDragContext';
 import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { isRecordColumnsValid } from './DefaultColumnsValidation';
+import { recordColumnsAreNotLogLine, recordColumnsHaveValues } from './DefaultColumnsValidation';
 
 interface Props {
   recordIndex: number;
@@ -17,8 +17,10 @@ interface Props {
 export function DefaultColumnsFields({ recordIndex }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
   const record = records?.[recordIndex];
-  const columns = record?.columns ?? [];
-  const styles = useStyles2(getStyles, !columns.length);
+  const notOnlyLogLine = !record || recordColumnsAreNotLogLine(record);
+  const recordHasValues = !record || recordColumnsHaveValues(record);
+
+  const styles = useStyles2(getStyles, !recordHasValues);
 
   if (!record) {
     const error = new Error('DefaultColumnsFields: missing record!');
@@ -39,8 +41,14 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
       <DefaultColumnsColumnsDragContext recordIndex={recordIndex} />
 
       <Button
-        disabled={!isRecordColumnsValid(record)}
-        tooltip={'Add a default column to display in the logs'}
+        disabled={!recordHasValues}
+        tooltip={
+          !notOnlyLogLine
+            ? 'Include at least one column that is not Log line'
+            : !recordHasValues
+            ? 'Invalid columns'
+            : 'Add a default column to display in the logs'
+        }
         variant={'secondary'}
         fill={'outline'}
         icon={'plus'}
