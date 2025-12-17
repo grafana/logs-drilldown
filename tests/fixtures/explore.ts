@@ -283,8 +283,8 @@ export class ExplorePage {
     );
   }
 
-  async gotoEmbedUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
-    await this.page.goto(`/a/${pluginJson.id}/embed?var-filters=service_name|=|${serviceName}&from=${from}&to=now`);
+  async gotoEmbedUrl() {
+    await this.page.goto(`/a/${pluginJson.id}/embed`);
   }
 
   async gotoServicesOldUrlLineFilters(
