@@ -11,14 +11,14 @@ import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
-import { ShowDefaultFieldsButtonScene } from './ShowDefaultFieldsButtonScene';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType, setLogOption } from 'services/store';
 
 interface LogOptionsState extends SceneObjectState {
-  buttonRendererScene?: ShowDefaultFieldsButtonScene;
+  buttonRendererScene?: LogOptionsButtonsScene;
   onChangeVisualizationType: (type: LogsVisualizationType) => void;
   visualizationType: LogsVisualizationType;
 }
@@ -39,7 +39,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
 
   onActivate() {
     this.setState({
-      buttonRendererScene: new ShowDefaultFieldsButtonScene({}),
+      buttonRendererScene: new LogOptionsButtonsScene({}),
     });
   }
 

@@ -10,7 +10,7 @@ import { LogsListScene } from './LogsListScene';
 import { ServiceScene } from './ServiceScene';
 
 interface ShowDefaultFieldsButtonSceneState extends SceneObjectState {}
-export class ShowDefaultFieldsButtonScene extends SceneObjectBase<ShowDefaultFieldsButtonSceneState> {
+export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsButtonSceneState> {
   static Component = ShowDefaultFieldsButtonRenderer;
 
   getLogsListScene = () => {
@@ -36,7 +36,7 @@ export class ShowDefaultFieldsButtonScene extends SceneObjectBase<ShowDefaultFie
   };
 }
 
-function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<ShowDefaultFieldsButtonScene>) {
+function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptionsButtonsScene>) {
   const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
   const { backendDisplayedFields } = serviceScene.useState();
   const { displayedFields, otelDisplayedFields } = model.getLogsListScene().useState();
