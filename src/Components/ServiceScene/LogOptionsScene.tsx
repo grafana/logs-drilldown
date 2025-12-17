@@ -1,24 +1,24 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2, LogsSortOrder, shallowCompare } from '@grafana/data';
+import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Button, InlineField, RadioButtonGroup, Tooltip, useStyles2 } from '@grafana/ui';
+import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
-import { ServiceScene } from './ServiceScene';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { ShowDefaultFieldsButtonScene } from './ShowDefaultFieldsButtonScene';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType, setLogOption } from 'services/store';
 
 interface LogOptionsState extends SceneObjectState {
+  buttonRendererScene?: ShowDefaultFieldsButtonScene;
   onChangeVisualizationType: (type: LogsVisualizationType) => void;
   visualizationType: LogsVisualizationType;
 }
@@ -32,6 +32,14 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   constructor(state: LogOptionsState) {
     super({
       ...state,
+    });
+
+    this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  onActivate() {
+    this.setState({
+      buttonRendererScene: new ShowDefaultFieldsButtonScene({}),
     });
   }
 
@@ -55,62 +63,17 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   getLogsPanelScene = () => {
     return sceneGraph.getAncestor(this, LogsPanelScene);
   };
-
-  clearDisplayedFields = () => {
-    const parentScene = this.getLogsListScene();
-    parentScene.clearDisplayedFields();
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
-    );
-  };
-
-  showBackendFields = () => {
-    const parentScene = this.getLogsListScene();
-    parentScene.showBackendFields();
-    reportAppInteraction(
-      USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.logs_show_backend_fields
-    );
-  };
 }
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
-  const { onChangeVisualizationType, visualizationType } = model.useState();
+  const { onChangeVisualizationType, visualizationType, buttonRendererScene } = model.useState();
   const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
-  const { displayedFields, otelDisplayedFields } = model.getLogsListScene().useState();
-  const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
-  const { backendDisplayedFields } = serviceScene.useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
 
-  const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
-  const backendFieldsNames = useMemo(
-    () => backendDisplayedFields?.map(getNormalizedFieldName).join(', '),
-    [backendDisplayedFields]
-  );
-
-  const hasDisplayedFields = displayedFields.length > 0;
-  const hasBackendDisplayedFields = backendDisplayedFields && backendDisplayedFields?.length > 0;
-  const displayedFieldsIsOnlyLogLine =
-    !hasDisplayedFields || (displayedFields.length === 1 && displayedFields[0] === LOG_LINE_BODY_FIELD_NAME);
-
   return (
     <div className={styles.container}>
-      {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
-        <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
-          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
-            Show original log line
-          </Button>
-        </Tooltip>
-      )}
-      {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
-        <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
-          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
-            Show default fields
-          </Button>
-        </Tooltip>
-      )}
+      {buttonRendererScene && <buttonRendererScene.Component model={buttonRendererScene} />}
       {!logsControlsSupported && (
         <>
           <InlineField className={styles.buttonGroupWrapper} transparent>

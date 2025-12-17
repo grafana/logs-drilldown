@@ -314,7 +314,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               menu={menu ? <menu.Component model={menu} /> : undefined}
               showMenuAlways={true}
               actions={
-                <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+                <>
+                  {/*// @todo add scene*/}
+                  <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+                </>
               }
             >
               <div className={styles.container}>
