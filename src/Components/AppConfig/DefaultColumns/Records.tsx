@@ -5,14 +5,14 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsCollapsibleFields } from './DefaultColumnsCollapsibleFields';
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsDeleteRecord } from './DefaultColumnsDeleteRecord';
-import { DefaultColumnsLabels } from './DefaultColumnsLabels';
+import { CollapsibleFields } from './CollapsibleFields';
+import { useDefaultColumnsContext } from './Context';
+import { DeleteRecord } from './DeleteRecord';
+import { Labels } from './Labels';
 
 interface RecordsProps {}
 
-export const DefaultColumnsRecords = ({}: RecordsProps) => {
+export const Records = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
   const { records, expandedRecords } = useDefaultColumnsContext();
 
@@ -23,10 +23,10 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>
-              <DefaultColumnsLabels recordIndex={recordIndex} />
+              <Labels recordIndex={recordIndex} />
             </div>
 
-            <DefaultColumnsCollapsibleFields
+            <CollapsibleFields
               // Force re-render when isOpen changes as the `ControlledCollapse` component is not actually controlled?
               key={recordIndex + isOpen.toString()}
               record={record}
@@ -34,7 +34,7 @@ export const DefaultColumnsRecords = ({}: RecordsProps) => {
               recordIndex={recordIndex}
             />
 
-            <DefaultColumnsDeleteRecord recordIndex={recordIndex} />
+            <DeleteRecord recordIndex={recordIndex} />
           </div>
         );
       })}

@@ -40,7 +40,7 @@ const AppConfig = lazy(async () => {
 
 const DefaultColumnsConfig = lazy(async () => {
   await initPluginTranslations(pluginJson.id);
-  return await import('./Components/AppConfig/DefaultColumns/DefaultColumnsConfig');
+  return await import('./Components/AppConfig/DefaultColumns/Config');
 });
 
 export const plugin = new AppPlugin<{}>()

@@ -5,13 +5,13 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { useDefaultColumnsContext } from './Context';
 
 interface Props {
   labelIndex: number;
   recordIndex: number;
 }
-export function DefaultColumnsRemoveLabel({ recordIndex, labelIndex }: Props) {
+export function RemoveLabel({ recordIndex, labelIndex }: Props) {
   const styles = useStyles2(getStyles);
 
   const { records, setRecords } = useDefaultColumnsContext();

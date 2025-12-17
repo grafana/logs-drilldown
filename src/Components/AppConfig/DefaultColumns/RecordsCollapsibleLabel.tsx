@@ -12,7 +12,7 @@ interface Props {
   record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord;
 }
 
-export function DefaultColumnsRecordsCollapsibleLabel({ record }: Props) {
+export function RecordsCollapsibleLabel({ record }: Props) {
   const styles = useStyles2(getStyles);
   return (
     <div className={styles.label}>

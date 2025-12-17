@@ -5,10 +5,10 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { ControlledCollapse, useStyles2 } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsFields } from './DefaultColumnsFields';
-import { DefaultColumnsLogsScene } from './DefaultColumnsLogsScene';
-import { DefaultColumnsRecordsCollapsibleLabel } from './DefaultColumnsRecordsCollapsibleLabel';
+import { useDefaultColumnsContext } from './Context';
+import { Fields } from './Fields';
+import { LogsScene } from './LogsScene';
+import { RecordsCollapsibleLabel } from './RecordsCollapsibleLabel';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
 
 interface Props {
@@ -17,13 +17,13 @@ interface Props {
   recordIndex: number;
 }
 
-export function DefaultColumnsCollapsibleFields({ record, isOpen, recordIndex }: Props) {
+export function CollapsibleFields({ record, isOpen, recordIndex }: Props) {
   const styles = useStyles2(getStyles);
   const { setExpandedRecords, expandedRecords } = useDefaultColumnsContext();
   return (
     <ControlledCollapse
       className={styles.collapse}
-      label={<DefaultColumnsRecordsCollapsibleLabel record={record} />}
+      label={<RecordsCollapsibleLabel record={record} />}
       isOpen={isOpen}
       onToggle={() => {
         if (isOpen) {
@@ -35,10 +35,10 @@ export function DefaultColumnsCollapsibleFields({ record, isOpen, recordIndex }:
       }}
     >
       <div className={styles.content}>
-        <DefaultColumnsFields recordIndex={recordIndex} />
+        <Fields recordIndex={recordIndex} />
       </div>
 
-      <DefaultColumnsLogsScene recordIndex={recordIndex} />
+      <LogsScene recordIndex={recordIndex} />
     </ControlledCollapse>
   );
 }

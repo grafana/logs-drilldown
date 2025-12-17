@@ -2,7 +2,7 @@ import React from 'react';
 
 import { config } from '@grafana/runtime';
 
-export function DefaultColumnsUnsupported() {
+export function Unsupported() {
   return (
     <section>
       <h2>Default columns</h2>

@@ -2,8 +2,7 @@ import React, { createContext, ReactNode, useCallback, useContext, useMemo, useS
 
 import { cloneDeep } from 'lodash';
 
-import { isDefaultColumnsStateChanged, recordsHaveDuplicates } from './DefaultColumnsState';
-import { isRecordInvalid } from './DefaultColumnsValidation';
+import { isDefaultColumnsStateChanged, recordsHaveDuplicates } from './State';
 import {
   APIColumnsState,
   DefaultColumnsState,
@@ -12,6 +11,7 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
   LocalLogsDrilldownDefaultColumnsSpec,
 } from './types';
+import { isRecordInvalid } from './Validation';
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
   ObjectMeta,
@@ -32,7 +32,7 @@ type DefaultColumnsContextType = {
   validation: DefaultColumnsValidationState;
 };
 
-const DefaultColumnsContext = createContext<DefaultColumnsContextType>({
+const Context = createContext<DefaultColumnsContextType>({
   apiDefaultColumnsState: undefined,
   apiRecords: null,
   dsUID: '',
@@ -151,7 +151,7 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
   }, [dsUID, localDefaultColumnsState, apiRecords]);
 
   return (
-    <DefaultColumnsContext.Provider
+    <Context.Provider
       value={{
         apiRecords,
         records,
@@ -173,10 +173,10 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
       }}
     >
       {children}
-    </DefaultColumnsContext.Provider>
+    </Context.Provider>
   );
 };
 
 export const useDefaultColumnsContext = () => {
-  return useContext(DefaultColumnsContext);
+  return useContext(Context);
 };

@@ -5,13 +5,13 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { isRecordLabelsValid } from './DefaultColumnsValidation';
+import { useDefaultColumnsContext } from './Context';
+import { isRecordLabelsValid } from './Validation';
 
 interface Props {
   recordIndex: number;
 }
-export function DefaultColumnsAddLabel({ recordIndex }: Props) {
+export function AddLabel({ recordIndex }: Props) {
   const { setRecords, records } = useDefaultColumnsContext();
   const record = records?.[recordIndex] ?? null;
   const isInvalid = !!record && !isRecordLabelsValid(record);

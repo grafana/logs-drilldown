@@ -6,9 +6,9 @@ import { Draggable, DraggableProvided } from '@hello-pangea/dnd';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { getKeys } from './DefaultColumnsState';
-import { recordColumnsAreNotLogLine } from './DefaultColumnsValidation';
+import { useDefaultColumnsContext } from './Context';
+import { getKeys } from './State';
+import { recordColumnsAreNotLogLine } from './Validation';
 import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
 import { logger } from 'services/logger';
 
@@ -17,7 +17,7 @@ interface Props {
   recordIndex: number;
 }
 
-export function DefaultColumnsColumns({ recordIndex, containerDragging }: Props) {
+export function Columns({ recordIndex, containerDragging }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
   const record = records?.[recordIndex];
   const columns = record?.columns ?? [];

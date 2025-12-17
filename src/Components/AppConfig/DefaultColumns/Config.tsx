@@ -6,15 +6,15 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { Badge, useStyles2 } from '@grafana/ui';
 
+import { DefaultColumnsContextProvider } from './Context';
+import { DataSource } from './DataSource';
 import { DefaultColumns } from './DefaultColumns';
-import { DefaultColumnsContextProvider } from './DefaultColumnsContext';
-import { DefaultColumnsDataSource } from './DefaultColumnsDataSource';
-import { DefaultColumnsFooter } from './DefaultColumnsFooter';
-import { DefaultColumnsUnsupported } from './DefaultColumnsUnsupported';
+import { Footer } from './Footer';
+import { Unsupported } from './Unsupported';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
-const DefaultColumnsConfig = () => {
+const Config = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
@@ -25,7 +25,7 @@ const DefaultColumnsConfig = () => {
     !config.featureToggles.grafanaAPIServerWithExperimentalAPIs ||
     config.buildInfo.version < '12.4'
   ) {
-    return <DefaultColumnsUnsupported />;
+    return <Unsupported />;
   }
 
   return (
@@ -37,7 +37,7 @@ const DefaultColumnsConfig = () => {
 
       <DefaultColumnsContextProvider initialDSUID={dsUID}>
         <header>
-          <DefaultColumnsDataSource />
+          <DataSource />
         </header>
         <>
           <section>
@@ -45,7 +45,7 @@ const DefaultColumnsConfig = () => {
           </section>
         </>
 
-        <DefaultColumnsFooter />
+        <Footer />
       </DefaultColumnsContextProvider>
     </main>
   );
@@ -64,4 +64,4 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-export default DefaultColumnsConfig;
+export default Config;

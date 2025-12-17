@@ -4,9 +4,9 @@ import { cloneDeep } from 'lodash';
 
 import { Button } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { useDefaultColumnsContext } from './Context';
 
-export function DefaultColumnsUndo() {
+export function Undo() {
   const { validation, setRecords, apiRecords } = useDefaultColumnsContext();
   return (
     <Button

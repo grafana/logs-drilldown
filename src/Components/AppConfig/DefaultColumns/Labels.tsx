@@ -5,16 +5,16 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsAddLabel } from './DefaultColumnsAddLabel';
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsLabelName } from './DefaultColumnsLabelName';
-import { DefaultColumnsLabelValue } from './DefaultColumnsLabelValue';
-import { DefaultColumnsRemoveLabel } from './DefaultColumnsRemoveLabel';
+import { AddLabel } from './AddLabel';
+import { useDefaultColumnsContext } from './Context';
+import { LabelName } from './LabelName';
+import { LabelValue } from './LabelValue';
+import { RemoveLabel } from './RemoveLabel';
 
 interface Props {
   recordIndex: number;
 }
-export function DefaultColumnsLabels({ recordIndex }: Props) {
+export function Labels({ recordIndex }: Props) {
   const { records } = useDefaultColumnsContext();
   const styles = useStyles2(getStyles);
   if (!records) {
@@ -33,17 +33,15 @@ export function DefaultColumnsLabels({ recordIndex }: Props) {
         return (
           <div key={labelIndex} className={styles.labelContainer__wrap}>
             <div className={styles.labelContainer}>
-              <DefaultColumnsLabelName recordIndex={recordIndex} labelIndex={labelIndex} />
-              <DefaultColumnsLabelValue recordIndex={recordIndex} labelIndex={labelIndex} />
-              {record.labels.length > 1 && (
-                <DefaultColumnsRemoveLabel recordIndex={recordIndex} labelIndex={labelIndex} />
-              )}
+              <LabelName recordIndex={recordIndex} labelIndex={labelIndex} />
+              <LabelValue recordIndex={recordIndex} labelIndex={labelIndex} />
+              {record.labels.length > 1 && <RemoveLabel recordIndex={recordIndex} labelIndex={labelIndex} />}
             </div>
           </div>
         );
       })}
 
-      <DefaultColumnsAddLabel recordIndex={recordIndex} />
+      <AddLabel recordIndex={recordIndex} />
     </>
   );
 }

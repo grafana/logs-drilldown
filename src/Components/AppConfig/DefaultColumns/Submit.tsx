@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { useDefaultColumnsContext } from './Context';
 import { DefaultColumnsValidationState } from './types';
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
@@ -17,7 +17,7 @@ import {
 import { logger } from 'services/logger';
 import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
-export function DefaultColumnsSubmit() {
+export function Submit() {
   const { dsUID, metadata, records, validation } = useDefaultColumnsContext();
   const [create, { error: createError }] = useCreateLogsDrilldownDefaultColumnsMutation();
   const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultColumnsMutation();

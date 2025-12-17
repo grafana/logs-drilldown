@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Button } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { useDefaultColumnsContext } from './Context';
 
-export function DefaultColumnsAddRecord() {
+export function AddRecord() {
   const { validation, records, setRecords } = useDefaultColumnsContext();
 
   if (!records) {

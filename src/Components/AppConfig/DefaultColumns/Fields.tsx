@@ -5,16 +5,16 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsColumnsDragContext } from './DefaultColumnsColumnsDragContext';
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { recordColumnsAreNotLogLine, recordColumnsHaveValues } from './DefaultColumnsValidation';
+import { ColumnsDragContext } from './ColumnsDragContext';
+import { useDefaultColumnsContext } from './Context';
+import { recordColumnsAreNotLogLine, recordColumnsHaveValues } from './Validation';
 import { logger } from 'services/logger';
 
 interface Props {
   recordIndex: number;
 }
 
-export function DefaultColumnsFields({ recordIndex }: Props) {
+export function Fields({ recordIndex }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
   const record = records?.[recordIndex];
   const notOnlyLogLine = !record || recordColumnsAreNotLogLine(record);
@@ -38,7 +38,7 @@ export function DefaultColumnsFields({ recordIndex }: Props) {
 
   return (
     <div className={styles.fieldsContainer}>
-      <DefaultColumnsColumnsDragContext recordIndex={recordIndex} />
+      <ColumnsDragContext recordIndex={recordIndex} />
 
       <Button
         disabled={!recordHasValues}

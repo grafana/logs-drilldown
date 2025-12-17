@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 
 import { LoadingPlaceholder } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { DefaultColumnsRecords } from './DefaultColumnsRecords';
+import { useDefaultColumnsContext } from './Context';
+import { Records } from './Records';
 import { APIColumnsState } from './types';
 import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1alpha1';
 import { logger } from 'services/logger';
@@ -88,5 +88,5 @@ export const DefaultColumns = ({}: Props) => {
     return <LoadingPlaceholder text={'Loading...'} />;
   }
 
-  return <DefaultColumnsRecords />;
+  return <Records />;
 };

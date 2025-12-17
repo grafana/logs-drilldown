@@ -6,12 +6,12 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
 import { useStyles2 } from '@grafana/ui';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { useDefaultColumnsContext } from './Context';
 import { addLastUsedDataSourceToStorage } from 'services/store';
 
 interface Props {}
 
-export const DefaultColumnsDataSource = (props: Props) => {
+export const DataSource = (props: Props) => {
   const styles = useStyles2(getStyles);
   const { dsUID, setDsUID } = useDefaultColumnsContext();
   return (

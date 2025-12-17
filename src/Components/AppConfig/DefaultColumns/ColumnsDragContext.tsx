@@ -2,15 +2,15 @@ import React from 'react';
 
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 
-import { DefaultColumnsColumns } from './DefaultColumnsColumns';
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
+import { Columns } from './Columns';
+import { useDefaultColumnsContext } from './Context';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
 
 interface Props {
   recordIndex: number;
 }
 
-export function DefaultColumnsColumnsDragContext({ recordIndex }: Props) {
+export function ColumnsDragContext({ recordIndex }: Props) {
   const { setRecords, records } = useDefaultColumnsContext();
   const record = records?.[recordIndex];
   const columns = record?.columns ?? [];
@@ -33,7 +33,7 @@ export function DefaultColumnsColumnsDragContext({ recordIndex }: Props) {
       <Droppable droppableId="order-fields" direction="vertical">
         {(provided, snapshot) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            <DefaultColumnsColumns containerDragging={snapshot.isDraggingOver} recordIndex={recordIndex} />
+            <Columns containerDragging={snapshot.isDraggingOver} recordIndex={recordIndex} />
           </div>
         )}
       </Droppable>

@@ -5,20 +5,20 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsAddRecord } from './DefaultColumnsAddRecord';
-import { DefaultColumnsSubmit } from './DefaultColumnsSubmit';
-import { DefaultColumnsUndo } from './DefaultColumnsUndo';
+import { AddRecord } from './AddRecord';
+import { Submit } from './Submit';
+import { Undo } from './Undo';
 
-export function DefaultColumnsFooter() {
+export function Footer() {
   const styles = useStyles2(getStyles);
 
   return (
     <footer className={styles.wrap}>
-      <DefaultColumnsAddRecord />
+      <AddRecord />
 
       <div className={styles.submitWrap}>
-        <DefaultColumnsUndo />
-        <DefaultColumnsSubmit />
+        <Undo />
+        <Submit />
       </div>
     </footer>
   );

@@ -3,7 +3,7 @@ import { flatten, memoize } from 'lodash';
 import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
-import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
+import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
 import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,

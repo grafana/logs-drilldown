@@ -7,9 +7,9 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, useStyles2 } from '@grafana/ui';
 import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
 
-import { useDefaultColumnsContext } from './DefaultColumnsContext';
-import { mapColumnsLabelsToAdHocFilters } from './DefaultColumnsLabelsQueries';
-import { getDatasource } from './DefaultColumnsState';
+import { useDefaultColumnsContext } from './Context';
+import { mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
+import { getDatasource } from './State';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
 import { logger } from 'services/logger';
 import { getLabelsKeys } from 'services/TagKeysProviders';
@@ -20,7 +20,7 @@ interface ValueProps {
   recordIndex: number;
 }
 
-export const DefaultColumnsLabelName = ({ recordIndex, labelIndex }: ValueProps) => {
+export const LabelName = ({ recordIndex, labelIndex }: ValueProps) => {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
   const columnsLabels = records?.[recordIndex].labels;
   const labelName = columnsLabels?.[labelIndex].key;
