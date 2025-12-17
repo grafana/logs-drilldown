@@ -9,7 +9,11 @@ import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from './LogOptionsSc
 import { LogsListScene } from './LogsListScene';
 import { ServiceScene } from './ServiceScene';
 
-interface ShowDefaultFieldsButtonSceneState extends SceneObjectState {}
+interface ShowDefaultFieldsButtonSceneState extends SceneObjectState {
+  clearDisplayedFields: () => void;
+  mode: 'logs' | 'table';
+  showBackendFields: () => void;
+}
 export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsButtonSceneState> {
   static Component = ShowDefaultFieldsButtonRenderer;
 
@@ -18,8 +22,7 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
   };
 
   showBackendFields = () => {
-    const parentScene = this.getLogsListScene();
-    parentScene.showBackendFields();
+    this.state.showBackendFields();
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.logs_show_backend_fields
@@ -27,8 +30,7 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
   };
 
   clearDisplayedFields = () => {
-    const parentScene = this.getLogsListScene();
-    parentScene.clearDisplayedFields();
+    this.state.clearDisplayedFields();
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
@@ -39,7 +41,8 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
 function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptionsButtonsScene>) {
   const serviceScene = sceneGraph.getAncestor(model, ServiceScene);
   const { backendDisplayedFields } = serviceScene.useState();
-  const { displayedFields, otelDisplayedFields } = model.getLogsListScene().useState();
+  const { displayedFields, otelDisplayedFields, urlColumns } = model.getLogsListScene().useState();
+  const { mode } = model.useState();
 
   const displayedFieldsNames = useMemo(() => displayedFields.map(getNormalizedFieldName).join(', '), [displayedFields]);
   const backendFieldsNames = useMemo(
@@ -52,16 +55,20 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
   const displayedFieldsIsOnlyLogLine =
     !hasDisplayedFields || (displayedFields.length === 1 && displayedFields[0] === LOG_LINE_BODY_FIELD_NAME);
 
+  const currentDisplayedFields = mode === 'table' ? urlColumns ?? [] : displayedFields;
+
   return (
     <>
-      {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
-        <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
-          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
-            Show original log line
-          </Button>
-        </Tooltip>
-      )}
-      {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
+      {!displayedFieldsIsOnlyLogLine &&
+        hasDisplayedFields &&
+        !shallowCompare(currentDisplayedFields, otelDisplayedFields) && (
+          <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
+            <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
+              Show original log line
+            </Button>
+          </Tooltip>
+        )}
+      {hasBackendDisplayedFields && !shallowCompare(currentDisplayedFields, backendDisplayedFields) && (
         <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
             Show default fields

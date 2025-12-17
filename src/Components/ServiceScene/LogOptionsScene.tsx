@@ -38,8 +38,13 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   }
 
   onActivate() {
+    const parentScene = this.getLogsListScene();
     this.setState({
-      buttonRendererScene: new LogOptionsButtonsScene({}),
+      buttonRendererScene: new LogOptionsButtonsScene({
+        mode: 'logs',
+        showBackendFields: parentScene.showBackendFields,
+        clearDisplayedFields: parentScene.clearDisplayedFields,
+      }),
     });
   }
 

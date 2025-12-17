@@ -28,18 +28,19 @@ import {
 } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
+import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
+import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
-import { getLogsPanelFrame } from './ServiceScene';
+import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { logger } from 'services/logger';
-import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
+import { DATAPLANE_BODY_NAME, DATAPLANE_LINE_NAME_LEGACY } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
@@ -52,6 +53,7 @@ interface LogsTableSceneState extends SceneObjectState {
   error?: string;
   errorType?: ErrorType;
   isDisabledLineState: boolean;
+  logOptionsButtonsScene?: LogOptionsButtonsScene;
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
 }
@@ -102,6 +104,33 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     this.setState({
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
       menu: new PanelMenu({ addInvestigationsLink: false }),
+      logOptionsButtonsScene: new LogOptionsButtonsScene({
+        mode: 'table',
+        clearDisplayedFields: () => {
+          setDisplayedFieldsInStorage(this, []);
+          setDisplayedFieldsInStorage(this, [], true);
+
+          // Sync with urlColumns
+          const parent = this.getParentScene();
+          parent.setState({
+            urlColumns: [...DEFAULT_URL_COLUMNS, ...DEFAULT_URL_COLUMNS_LEVELS],
+            displayedFields: [],
+          });
+        },
+        showBackendFields: () => {
+          const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+          const backendDisplayedFields = serviceScene.state.backendDisplayedFields ?? [];
+
+          setDisplayedFieldsInStorage(this, backendDisplayedFields);
+          // Clear user added state
+          setDisplayedFieldsInStorage(this, null, true);
+
+          // Sync with urlColumns
+          const parent = this.getParentScene();
+          // Set displayed fields
+          parent.setState({ displayedFields: backendDisplayedFields, urlColumns: backendDisplayedFields });
+        },
+      }),
     });
     setControlsExpandedStateFromLocalStorage(this.getParentScene());
     this.setStateFromUrl();
@@ -137,7 +166,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
 
       // If body or line is in the url columns, show the line state controls
-      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
+      if (urlColumns.includes(DATAPLANE_BODY_NAME) || urlColumns.includes(DATAPLANE_LINE_NAME_LEGACY)) {
         this.setState({ isDisabledLineState: true });
       } else {
         this.setState({ isDisabledLineState: false });
@@ -153,7 +182,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     try {
       urlColumns = unknownToStrings(JSON.parse(decodeURIComponent(searchParams.get('urlColumns') ?? '')));
       // If body or line is in the url columns, show the line state controls
-      if (urlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || urlColumns.includes(DATAPLANE_LINE_NAME)) {
+      if (urlColumns.includes(DATAPLANE_BODY_NAME) || urlColumns.includes(DATAPLANE_LINE_NAME_LEGACY)) {
         this.setState({ isDisabledLineState: true });
       }
     } catch (e) {
@@ -179,7 +208,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     // Remove any default columns that are no longer in urlColumns, if the user has un-selected the default columns
     const defaultUrlColumns = this.findDefaultUrlColumns(urlColumns);
     // If body or line is in the url columns, show the line state controls
-    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME_LEGACY) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME)) {
+    if (defaultUrlColumns.includes(DATAPLANE_BODY_NAME) || defaultUrlColumns.includes(DATAPLANE_LINE_NAME_LEGACY)) {
       this.setState({ isDisabledLineState: true });
     } else {
       this.setState({ isDisabledLineState: false });
@@ -262,7 +291,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const styles = useStyles2(getStyles);
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
-    const { error, errorType, canClearFilters } = model.useState();
+    const { error, errorType, canClearFilters, logOptionsButtonsScene } = model.useState();
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
     const { emptyScene, menu, sortOrder } = model.useState();
@@ -315,7 +344,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               showMenuAlways={true}
               actions={
                 <>
-                  {/*// @todo add scene*/}
+                  {logOptionsButtonsScene && <logOptionsButtonsScene.Component model={logOptionsButtonsScene} />}
                   <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
                 </>
               }
