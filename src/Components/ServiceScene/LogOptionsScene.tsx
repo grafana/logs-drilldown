@@ -70,7 +70,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
     parentScene.showBackendFields();
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
-      USER_EVENTS_ACTIONS.service_details.logs_clear_displayed_fields
+      USER_EVENTS_ACTIONS.service_details.logs_show_backend_fields
     );
   };
 }

@@ -25,14 +25,10 @@ export interface IndexSceneState extends SceneObjectState {
   embedderName?: string;
   initialLabels?: AdHocVariableFilter[];
 
-  // tmp
-  labelName?: string;
-  labelValue?: string;
-
   // A LokiConfigNotSupported response indicates the Loki instance does not support the new config endpoint, and is probably < 3.6
   lokiConfig?: LokiConfig | LokiConfigNotSupported;
   patterns?: AppliedPattern[];
 
   referenceLabels?: AdHocVariableFilter[];
-  routeMatch?: OptionalRouteMatch; //tmp
+  routeMatch?: OptionalRouteMatch;
 }
