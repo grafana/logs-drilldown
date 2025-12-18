@@ -1,15 +1,21 @@
 import { LogsDedupStrategy } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { config, getDataSourceSrv } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import {
+  LOG_LINE_BODY_FIELD_NAME,
+  OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
+} from '../Components/ServiceScene/LogOptionsScene';
+import { DETECTED_LEVEL } from '../Components/Table/constants';
 import pluginJson from '../plugin.json';
 import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
+import { DATAPLANE_TIME_NAME_LEGACY } from './logsFrame';
 import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
 import { getDataSourceName } from './variableGetters';
@@ -246,24 +252,19 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
 
 /**
  * Ensures displayedFields includes default fields in the correct order
- * @param fields - User-selected fields
- * @param hasDetectedLevel - Whether detected_level is available (falls back to level)
+ * @param userFields - User-selected fields
  * @returns Array with defaults + user fields, maintaining order
  */
-export function ensureDefaultDisplayedFields(fields: string[], hasDetectedLevel?: boolean): string[] {
+export function getDefaultDisplayedFields(userFields?: string[]): string[] {
   // Default fields in order: Time, detected_level/level, ___LOG_LINE_BODY___, ___OTEL_LOG_ATTRIBUTES___
-  const defaults = [
-    'Time',
-    hasDetectedLevel ? 'detected_level' : 'level',
-    '___LOG_LINE_BODY___',
-    '___OTEL_LOG_ATTRIBUTES___',
-  ];
-
-  // Filter out defaults from user fields to avoid duplicates
-  const userFields = fields.filter((field) => !defaults.includes(field));
+  const defaults = [DATAPLANE_TIME_NAME_LEGACY, DETECTED_LEVEL, LOG_LINE_BODY_FIELD_NAME];
+  if (config.featureToggles.otelLogsFormatting) {
+    defaults.push(OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME);
+  }
 
   // Return defaults first, then user fields
-  return [...defaults, ...userFields];
+  defaults.push(...(userFields ?? []));
+  return defaults;
 }
 
 export function getDedupStrategy(sceneRef: SceneObject): LogsDedupStrategy {

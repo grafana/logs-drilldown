@@ -1,11 +1,22 @@
+import {
+  DATAPLANE_BODY_NAME,
+  DATAPLANE_LINE_NAME_LEGACY,
+  DATAPLANE_TIME_NAME_LEGACY,
+  DATAPLANE_TIMESTAMP_NAME,
+} from '../../services/logsFrame';
+
 export const DETECTED_LEVEL = 'detected_level';
 export const LEVEL = 'level';
-export const DEFAULT_URL_COLUMNS = ['timestamp', 'body', 'Time', 'Line'];
-export const DEFAULT_URL_COLUMNS_LEVELS = ['detected_level', 'level'];
-export const LOG_LINE_BODY_FIELD_NAME = '___LOG_LINE_BODY___';
+// export const LEVEL = 'level';
+export const DEFAULT_URL_COLUMNS = [
+  DATAPLANE_TIMESTAMP_NAME,
+  DATAPLANE_BODY_NAME,
+  DATAPLANE_TIME_NAME_LEGACY,
+  DATAPLANE_LINE_NAME_LEGACY,
+];
 export const DEFAULT_DISPLAYED_FIELDS = [
-  'Time',
-  'detected_level',
-  LOG_LINE_BODY_FIELD_NAME,
-  '___OTEL_LOG_ATTRIBUTES___',
+  DATAPLANE_TIME_NAME_LEGACY,
+  DETECTED_LEVEL,
+  // only if ff is set
+  // OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
 ];

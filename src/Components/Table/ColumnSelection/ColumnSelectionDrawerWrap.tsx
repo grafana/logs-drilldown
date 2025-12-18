@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { reportInteraction } from '@grafana/runtime';
 
 import { logger } from '../../../services/logger';
-import { FieldNameMetaStore } from '../TableTypes';
+import { BODY_FIELD, FieldNameMetaStore, TIME_FIELD } from '../TableTypes';
 import { LogsColumnSearch } from 'Components/Table/ColumnSelection/LogsColumnSearch';
 import { LogsTableMultiSelect } from 'Components/Table/ColumnSelection/LogsTableMultiSelect';
-import { LEVEL, DETECTED_LEVEL } from 'Components/Table/constants';
+import { DETECTED_LEVEL } from 'Components/Table/constants';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 
 export function getReorderColumn(setColumns: (cols: FieldNameMetaStore) => void) {
@@ -133,7 +133,6 @@ export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps)
   const clearSelection = () => {
     const pendingLabelState = { ...columns };
     let index = 0;
-
     // Reset all fields to inactive first
     Object.keys(pendingLabelState).forEach((key) => {
       pendingLabelState[key].active = false;
@@ -143,23 +142,15 @@ export function ColumnSelectionDrawerWrap(props: ColumnSelectionDrawerWrapProps)
     // Set defaults in the correct order: Time, detected_level, Line
     // 1. Time (TIME_FIELD) - index 0
     Object.keys(pendingLabelState).forEach((key) => {
-      if (pendingLabelState[key].type === 'TIME_FIELD') {
+      if (pendingLabelState[key].type === TIME_FIELD) {
         pendingLabelState[key].active = true;
         pendingLabelState[key].index = index++;
       }
-    });
-
-    // 2. detected_level (DETECTED_LEVEL) - index 1
-    Object.keys(pendingLabelState).forEach((key) => {
-      if (key === DETECTED_LEVEL || (key === LEVEL && !Object.keys(pendingLabelState).includes(DETECTED_LEVEL))) {
+      if (pendingLabelState[key].type === BODY_FIELD) {
         pendingLabelState[key].active = true;
         pendingLabelState[key].index = index++;
       }
-    });
-
-    // 3. Line (BODY_FIELD) - index 2
-    Object.keys(pendingLabelState).forEach((key) => {
-      if (pendingLabelState[key].type === 'BODY_FIELD') {
+      if (key === DETECTED_LEVEL) {
         pendingLabelState[key].active = true;
         pendingLabelState[key].index = index++;
       }

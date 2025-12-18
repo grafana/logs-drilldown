@@ -41,8 +41,9 @@ function getField(cache: FieldCache, name: string, fieldType: FieldType): FieldW
 }
 
 export const DATAPLANE_TIMESTAMP_NAME = 'timestamp';
-export const DATAPLANE_BODY_NAME_LEGACY = 'body';
-export const DATAPLANE_LINE_NAME = 'Line';
+export const DATAPLANE_BODY_NAME = 'body';
+export const DATAPLANE_TIME_NAME_LEGACY = 'Time';
+export const DATAPLANE_LINE_NAME_LEGACY = 'Line';
 export const DATAPLANE_SEVERITY_NAME = 'severity';
 export const DATAPLANE_ID_NAME = 'id';
 export const DATAPLANE_LABELS_NAME = 'labels';
@@ -70,7 +71,7 @@ export function parseDataplaneLogsFrame(frame: DataFrame): LogsFrame | null {
   const cache = new FieldCache(frame);
 
   const timestampField = getField(cache, DATAPLANE_TIMESTAMP_NAME, FieldType.time);
-  const bodyField = getField(cache, DATAPLANE_BODY_NAME_LEGACY, FieldType.string);
+  const bodyField = getField(cache, DATAPLANE_BODY_NAME, FieldType.string);
 
   // these two are mandatory
   if (timestampField === undefined || bodyField === undefined) {
@@ -188,7 +189,7 @@ export function getTimeName(logsFrame?: LogsFrame) {
 }
 
 export function getBodyName(logsFrame?: LogsFrame | null): string {
-  return logsFrame?.bodyField.name ?? DATAPLANE_BODY_NAME_LEGACY;
+  return logsFrame?.bodyField.name ?? DATAPLANE_BODY_NAME;
 }
 
 export function getIdName(logsFrame?: LogsFrame): string {

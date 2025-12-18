@@ -18,23 +18,18 @@ import {
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
-import {
-  DEFAULT_DISPLAYED_FIELDS,
-  DEFAULT_URL_COLUMNS,
-  DEFAULT_URL_COLUMNS_LEVELS,
-  DETECTED_LEVEL,
-} from '../Table/constants';
+import { DEFAULT_DISPLAYED_FIELDS, DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
+import { LOG_LINE_BODY_FIELD_NAME, OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from './LogOptionsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
@@ -42,8 +37,8 @@ import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePane
 import { ServiceScene } from './ServiceScene';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import {
-  ensureDefaultDisplayedFields,
   getBooleanLogOption,
+  getDefaultDisplayedFields,
   getDisplayedFields,
   getLogsVisualizationType,
   getLogsVolumeOption,
@@ -138,14 +133,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
         const displayedFields = unknownToStrings(JSON.parse(values.displayedFields));
         if (displayedFields && displayedFields.length) {
           // Ensure defaults are included
-          const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-          const logsQueryRunner = serviceScene.state.$data;
-          let hasDetectedLevel = true;
-          if (logsQueryRunner?.state.data?.series?.length) {
-            const allLabels = getAllLabelsFromDataFrame(logsQueryRunner.state.data.series);
-            hasDetectedLevel = allLabels.includes(DETECTED_LEVEL);
-          }
-          stateUpdate.displayedFields = ensureDefaultDisplayedFields(displayedFields, hasDetectedLevel);
+          stateUpdate.displayedFields = displayedFields.length
+            ? displayedFields
+            : getDefaultDisplayedFields(displayedFields);
         }
       }
       if (typeof values.tableLogLineState === 'string') {
@@ -299,25 +289,14 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       try {
         const urlColumns: string[] = unknownToStrings(JSON.parse(decodeURIComponent(urlColumnsUrl)));
         // Filter out default columns to get only user-selected fields
-        const defaultColumns = [
-          ...DEFAULT_URL_COLUMNS,
-          ...DEFAULT_URL_COLUMNS_LEVELS,
-          '___LOG_LINE_BODY___',
-          '___OTEL_LOG_ATTRIBUTES___',
-        ];
+        const defaultColumns = [...DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LOG_LINE_BODY_FIELD_NAME];
+        if (config.featureToggles.otelLogsFormatting) {
+          defaultColumns.push(OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME);
+        }
         const userFields = urlColumns.filter((col) => !defaultColumns.includes(col));
 
-        // Check if detected_level or level is available in the data
-        const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-        const logsQueryRunner = serviceScene.state.$data;
-        let hasDetectedLevel = true;
-        if (logsQueryRunner?.state.data?.series?.length) {
-          const allLabels = getAllLabelsFromDataFrame(logsQueryRunner.state.data.series);
-          hasDetectedLevel = allLabels.includes(DETECTED_LEVEL);
-        }
-
         // Ensure defaults are included
-        migratedDisplayedFields = ensureDefaultDisplayedFields(userFields, hasDetectedLevel);
+        migratedDisplayedFields = getDefaultDisplayedFields(userFields);
 
         // Remove urlColumns from URL
         const location = locationService.getLocation();

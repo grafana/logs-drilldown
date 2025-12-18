@@ -10,12 +10,16 @@ export type ActiveFieldMeta = {
   index: number; // if undefined the column is not selected
 };
 
+export const BODY_FIELD = 'BODY_FIELD';
+export const LINK_FIELD = 'LINK_FIELD';
+export const TIME_FIELD = 'TIME_FIELD';
+
 export type GenericMeta = {
   cardinality: number;
   fieldType?: FieldType;
   maxLength?: number;
   percentOfLinesWithLabel: number;
-  type?: 'BODY_FIELD' | 'LINK_FIELD' | 'TIME_FIELD';
+  type?: typeof BODY_FIELD | typeof LINK_FIELD | typeof TIME_FIELD;
 };
 
 export type FieldNameMeta = (ActiveFieldMeta | InactiveFieldMeta) & GenericMeta;

@@ -16,22 +16,21 @@ import { PanelChrome, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getVariableForLabel } from '../../services/fields';
-import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import { getLogOption, setDisplayedFields, setLogOption, setTableLogLine, getTableLogLine } from '../../services/store';
+import { getLogOption, getTableLogLine, setDisplayedFields, setLogOption, setTableLogLine } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { DETECTED_LEVEL, LEVEL, LOG_LINE_BODY_FIELD_NAME } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
+import { LOG_LINE_BODY_FIELD_NAME } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';
 import { logger } from 'services/logger';
-import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
+import { DATAPLANE_BODY_NAME, DATAPLANE_LINE_NAME_LEGACY } from 'services/logsFrame';
 import { narrowLogsSortOrder } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
@@ -124,7 +123,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const displayedFields = parentModel.state.displayedFields ?? [];
 
     // If body or line is in the displayed fields, show the line state controls
-    if (displayedFields.includes(DATAPLANE_BODY_NAME_LEGACY) || displayedFields.includes(DATAPLANE_LINE_NAME)) {
+    if (displayedFields.includes(DATAPLANE_BODY_NAME) || displayedFields.includes(DATAPLANE_LINE_NAME_LEGACY)) {
       this.setState({ isDisabledLineState: true });
     } else {
       this.setState({ isDisabledLineState: false });
@@ -137,11 +136,8 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   updateDisplayedFields = (columns: string[]) => {
     const parentModel = this.getParentScene();
 
-    // Check if body/line fields are present (using both canonical and actual field names)
-    const hasBodyField =
-      columns.includes(DATAPLANE_BODY_NAME_LEGACY) ||
-      columns.includes(DATAPLANE_LINE_NAME) ||
-      columns.includes(LOG_LINE_BODY_FIELD_NAME);
+    // Check if body field is present
+    const hasBodyField = columns.includes(LOG_LINE_BODY_FIELD_NAME);
     if (hasBodyField) {
       this.setState({ isDisabledLineState: true });
     } else {
@@ -160,27 +156,28 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     setDisplayedFields(this, newDisplayedFields);
   };
 
-  // check if the data has a detected_level or level field
-  hasDetectedLevel = () => {
-    const dataProvider = sceneGraph.getData(this);
-    const data = dataProvider.state.data;
-    if (!data?.series?.length) {
-      return null;
-    }
-
-    // Get all available labels from the series
-    const allLabels = getAllLabelsFromDataFrame(data.series);
-
-    // Check if detected_level or level exists in the labels
-    if (allLabels.includes(DETECTED_LEVEL)) {
-      return DETECTED_LEVEL;
-    }
-    if (allLabels.includes(LEVEL)) {
-      return LEVEL;
-    }
-
-    return null;
-  };
+  // @todo delete
+  // // check if the data has a detected_level or level field
+  // hasDetectedLevel = () => {
+  //   const dataProvider = sceneGraph.getData(this);
+  //   const data = dataProvider.state.data;
+  //   if (!data?.series?.length) {
+  //     return null;
+  //   }
+  //
+  //   // Get all available labels from the series
+  //   const allLabels = getAllLabelsFromDataFrame(data.series);
+  //
+  //   // Check if detected_level or level exists in the labels
+  //   if (allLabels.includes(DETECTED_LEVEL)) {
+  //     return DETECTED_LEVEL;
+  //   }
+  //   if (allLabels.includes(LEVEL)) {
+  //     return LEVEL;
+  //   }
+  //
+  //   return null;
+  // };
 
   handleSortChange = (newOrder: LogsSortOrder) => {
     if (newOrder === this.state.sortOrder) {
