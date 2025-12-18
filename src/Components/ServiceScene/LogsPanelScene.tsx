@@ -25,7 +25,6 @@ import { narrowLogsSortOrder } from '../../services/narrowing';
 import {
   getBooleanLogOption,
   getDedupStrategy,
-  getDefaultDisplayedFields,
   getLogOption,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
@@ -239,24 +238,13 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   clearDisplayedFields = () => {
-    console.log('clearDisplayedFields logsPanelScene');
     if (!this.state.body) {
       return;
     }
-    const parent = this.getParentScene();
-    // Reset to defaultDisplayedFields if available, otherwise use ensureDefaultDisplayedFields
-    // to get the correct defaults (detected_level vs level)
-    const defaultFields = parent.state.defaultDisplayedFields?.length
-      ? parent.state.defaultDisplayedFields
-      : getDefaultDisplayedFields([]);
-    console.log('defaultFields :>> ', defaultFields);
     this.setLogsVizOption({
-      displayedFields: defaultFields,
+      displayedFields: [],
     });
-    setDisplayedFields(this, defaultFields);
-    parent.setState({
-      displayedFields: defaultFields,
-    });
+    setDisplayedFields(this, []);
   };
 
   private getParentScene() {

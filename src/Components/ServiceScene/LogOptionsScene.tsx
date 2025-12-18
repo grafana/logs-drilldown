@@ -43,6 +43,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   };
 
   onChangeLogsSortOrder = (sortOrder: LogsSortOrder) => {
+    console.log('onChangeLogsSortOrder', sortOrder);
     this.getLogsPanelScene().setState({ sortOrder: sortOrder });
     setLogOption('sortOrder', sortOrder);
     this.getLogsListScene().setLogsVizOption({ sortOrder: sortOrder });
@@ -57,6 +58,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   };
 
   clearDisplayedFields = () => {
+    console.log('clearDisplayedFields logsPanelScene');
     const parentScene = this.getLogsListScene();
     parentScene.clearDisplayedFields();
     reportAppInteraction(
@@ -75,7 +77,7 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
 
   // Filter out default fields from displayedFields to show only user-added fields
   const nonDefaultFields = useMemo(() => {
-    if (!displayedFields?.length || !DEFAULT_DISPLAYED_FIELDS?.length) {
+    if (!displayedFields?.length) {
       return [];
     }
 
@@ -86,6 +88,12 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
     () => nonDefaultFields.map(getNormalizedFieldName).join(', '),
     [nonDefaultFields]
   );
+
+  console.log('log options renderer', {
+    nonDefaultFields,
+    displayedFieldsNames,
+    displayedFields,
+  });
 
   return (
     <div className={styles.container}>

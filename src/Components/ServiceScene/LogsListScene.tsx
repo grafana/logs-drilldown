@@ -22,7 +22,7 @@ import { logger } from '../../services/logger';
 import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
-import { DEFAULT_DISPLAYED_FIELDS, DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../Table/constants';
+import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
@@ -161,11 +161,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 
   clearDisplayedFields = () => {
-    // Reset to defaultDisplayedFields if available, otherwise use DEFAULT_DISPLAYED_FIELDS
-    const defaultFields = this.state.defaultDisplayedFields?.length
-      ? this.state.defaultDisplayedFields
-      : DEFAULT_DISPLAYED_FIELDS;
-    this.setState({ displayedFields: defaultFields });
+    this.setState({ displayedFields: [] });
     if (this.logsPanelScene) {
       this.logsPanelScene.clearDisplayedFields();
     }
