@@ -3,34 +3,40 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { ControlledCollapse, useStyles2 } from '@grafana/ui';
+import { Collapse, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { Fields } from './Fields';
 import { LogsScene } from './LogsScene';
 import { RecordsCollapsibleLabel } from './RecordsCollapsibleLabel';
-import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
 
 interface Props {
-  isOpen: boolean;
-  record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord;
   recordIndex: number;
 }
 
-export function CollapsibleFields({ record, isOpen, recordIndex }: Props) {
+export function CollapsibleFields({ recordIndex }: Props) {
   const styles = useStyles2(getStyles);
-  const { setExpandedRecords, expandedRecords } = useDefaultColumnsContext();
+  const { setExpandedRecords, expandedRecords, records } = useDefaultColumnsContext();
+  if (!records) {
+    return null;
+  }
+
+  const record = records[recordIndex];
+  const expandedRecordIdx = expandedRecords?.findIndex((i) => i === recordIndex);
+  const expandedRecord = expandedRecordIdx !== -1 ? expandedRecords[expandedRecordIdx] : undefined;
+  const isOpen = expandedRecord === recordIndex;
   return (
-    <ControlledCollapse
+    <Collapse
       className={styles.collapse}
-      label={<RecordsCollapsibleLabel record={record} />}
       isOpen={isOpen}
+      label={<RecordsCollapsibleLabel record={record} />}
       onToggle={() => {
         if (isOpen) {
-          expandedRecords.splice(recordIndex, 1);
-          setExpandedRecords(expandedRecords);
+          const expandedRecordsCopy = [...expandedRecords];
+          expandedRecordsCopy?.splice(expandedRecordIdx, 1);
+          setExpandedRecords(expandedRecordsCopy);
         } else {
-          setExpandedRecords([...expandedRecords, recordIndex]);
+          setExpandedRecords([...(expandedRecords ?? []), recordIndex]);
         }
       }}
     >
@@ -39,7 +45,7 @@ export function CollapsibleFields({ record, isOpen, recordIndex }: Props) {
       </div>
 
       <LogsScene recordIndex={recordIndex} />
-    </ControlledCollapse>
+    </Collapse>
   );
 }
 

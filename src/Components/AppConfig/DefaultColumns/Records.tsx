@@ -14,12 +14,11 @@ interface RecordsProps {}
 
 export const Records = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
-  const { records, expandedRecords } = useDefaultColumnsContext();
+  const { records } = useDefaultColumnsContext();
 
   return (
     <div className={styles.recordsContainer}>
-      {records?.map((record, recordIndex: number) => {
-        const isOpen = expandedRecords.includes(recordIndex);
+      {records?.map((_, recordIndex: number) => {
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>
@@ -28,9 +27,7 @@ export const Records = ({}: RecordsProps) => {
 
             <CollapsibleFields
               // Force re-render when isOpen changes as the `ControlledCollapse` component is not actually controlled?
-              key={recordIndex + isOpen.toString()}
-              record={record}
-              isOpen={isOpen}
+              // key={recordIndex + isOpen.toString()}
               recordIndex={recordIndex}
             />
 
