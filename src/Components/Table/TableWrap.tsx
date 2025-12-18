@@ -14,7 +14,7 @@ import {
 } from '@grafana/data';
 
 import { CONTROLS_WIDTH, CONTROLS_WIDTH_EXPANDED } from '../ServiceScene/LogListControls';
-import { LOG_LINE_BODY_FIELD_NAME } from '../ServiceScene/LogOptionsScene';
+import { LOG_LINE_BODY_FIELD_NAME, LOG_LINE_TIME_FIELD_NAME } from '../ServiceScene/LogPanels';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
@@ -78,12 +78,17 @@ export const TableWrap = (props: TableWrapProps) => {
       const previouslySelected = props.displayedFields;
       if (previouslySelected?.length) {
         const bodyFieldName = getBodyName(logsFrame);
-        const timeFieldName = logsFrame ? getTimeName(logsFrame) : 'Time';
+        const timeFieldName = getTimeName(logsFrame);
 
         previouslySelected.forEach((key, index) => {
-          // Map ___LOG_LINE_BODY___ to the actual body field name (e.g., 'Line' or 'body')
-          // Map 'Time' to the actual time field name
-          const mappedKey = key === LOG_LINE_BODY_FIELD_NAME ? bodyFieldName : key === 'Time' ? timeFieldName : key;
+          let mappedKey = key;
+          // @todo Can we just use these as column names instead of mapping?
+          if (key === LOG_LINE_BODY_FIELD_NAME) {
+            mappedKey = bodyFieldName;
+          }
+          if (key === LOG_LINE_TIME_FIELD_NAME) {
+            mappedKey = timeFieldName;
+          }
           if (fieldNames[mappedKey]) {
             fieldNames[mappedKey].active = true;
             fieldNames[mappedKey].index = index;

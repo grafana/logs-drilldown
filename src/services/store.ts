@@ -8,14 +8,14 @@ import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAg
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import {
   LOG_LINE_BODY_FIELD_NAME,
+  LOG_LINE_TIME_FIELD_NAME,
   OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
-} from '../Components/ServiceScene/LogOptionsScene';
+} from '../Components/ServiceScene/LogPanels';
 import { DETECTED_LEVEL } from '../Components/Table/constants';
 import pluginJson from '../plugin.json';
 import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
-import { DATAPLANE_TIME_NAME_LEGACY } from './logsFrame';
 import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
 import { getDataSourceName } from './variableGetters';
@@ -257,7 +257,7 @@ export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
  */
 export function getDefaultDisplayedFields(userFields?: string[]): string[] {
   // Default fields in order: Time, detected_level/level, ___LOG_LINE_BODY___, ___OTEL_LOG_ATTRIBUTES___
-  const defaults = [DATAPLANE_TIME_NAME_LEGACY, DETECTED_LEVEL, LOG_LINE_BODY_FIELD_NAME];
+  const defaults = [LOG_LINE_TIME_FIELD_NAME, DETECTED_LEVEL, LOG_LINE_BODY_FIELD_NAME];
   if (config.featureToggles.otelLogsFormatting) {
     defaults.push(OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME);
   }

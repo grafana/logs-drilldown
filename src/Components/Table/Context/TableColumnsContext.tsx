@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { LOG_LINE_BODY_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
+import { LOG_LINE_BODY_FIELD_NAME, LOG_LINE_TIME_FIELD_NAME } from '../../ServiceScene/LogPanels';
 import { ActiveFieldMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 import { areArraysStrictlyEqual } from 'services/comparison';
 import { logger } from 'services/logger';
@@ -155,7 +155,7 @@ export const TableColumnContextProvider = ({
             return LOG_LINE_BODY_FIELD_NAME;
           }
           if (col === timeFieldName) {
-            return 'Time';
+            return LOG_LINE_TIME_FIELD_NAME;
           }
           return col;
         });

@@ -5,10 +5,10 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from '../../ServiceScene/LogPanels';
 import { FieldNameMeta } from '../TableTypes';
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
-import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 

@@ -3,7 +3,6 @@ import React, { useMemo } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
-import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, InlineField, RadioButtonGroup, Tooltip, useStyles2 } from '@grafana/ui';
@@ -12,6 +11,7 @@ import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { DEFAULT_DISPLAYED_FIELDS } from '../Table/constants';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { getNormalizedFieldName } from './LogPanels';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
@@ -176,15 +176,3 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(1),
   }),
 });
-
-export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME = '___OTEL_LOG_ATTRIBUTES___';
-export const LOG_LINE_BODY_FIELD_NAME = '___LOG_LINE_BODY___';
-
-export function getNormalizedFieldName(field: string) {
-  if (field === LOG_LINE_BODY_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-line-field', 'Log line');
-  } else if (field === OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-attributes-field', 'Log attributes');
-  }
-  return field;
-}

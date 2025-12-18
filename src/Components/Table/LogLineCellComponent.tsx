@@ -7,8 +7,8 @@ import { FieldType, formattedValueToString, GrafanaTheme2, Labels } from '@grafa
 import { CustomCellRendererProps, useTheme2 } from '@grafana/ui';
 
 import { getBodyName } from '../../services/logsFrame';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from '../ServiceScene/LogPanels';
 import { DETECTED_LEVEL } from './constants';
-import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { DefaultCellWrapComponent } from 'Components/Table/DefaultCellWrapComponent';

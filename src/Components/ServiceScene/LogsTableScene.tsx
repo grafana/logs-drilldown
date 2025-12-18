@@ -25,7 +25,7 @@ import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
-import { LOG_LINE_BODY_FIELD_NAME } from './LogOptionsScene';
+import { LOG_LINE_BODY_FIELD_NAME } from './LogPanels';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';
@@ -121,6 +121,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   subscribeFromUrl = () => {
     const parentModel = this.getParentScene();
     const displayedFields = parentModel.state.displayedFields ?? [];
+    console.log('displayedFields', displayedFields);
 
     // If body or line is in the displayed fields, show the line state controls
     if (displayedFields.includes(DATAPLANE_BODY_NAME) || displayedFields.includes(DATAPLANE_LINE_NAME_LEGACY)) {
@@ -155,29 +156,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     // sync LocalStorage displayedFields for Go to explore
     setDisplayedFields(this, newDisplayedFields);
   };
-
-  // @todo delete
-  // // check if the data has a detected_level or level field
-  // hasDetectedLevel = () => {
-  //   const dataProvider = sceneGraph.getData(this);
-  //   const data = dataProvider.state.data;
-  //   if (!data?.series?.length) {
-  //     return null;
-  //   }
-  //
-  //   // Get all available labels from the series
-  //   const allLabels = getAllLabelsFromDataFrame(data.series);
-  //
-  //   // Check if detected_level or level exists in the labels
-  //   if (allLabels.includes(DETECTED_LEVEL)) {
-  //     return DETECTED_LEVEL;
-  //   }
-  //   if (allLabels.includes(LEVEL)) {
-  //     return LEVEL;
-  //   }
-  //
-  //   return null;
-  // };
 
   handleSortChange = (newOrder: LogsSortOrder) => {
     if (newOrder === this.state.sortOrder) {

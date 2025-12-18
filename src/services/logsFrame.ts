@@ -40,6 +40,7 @@ function getField(cache: FieldCache, name: string, fieldType: FieldType): FieldW
   return field.type === fieldType ? field : undefined;
 }
 
+// @todo refactor into dataplane constants file
 export const DATAPLANE_TIMESTAMP_NAME = 'timestamp';
 export const DATAPLANE_BODY_NAME = 'body';
 export const DATAPLANE_TIME_NAME_LEGACY = 'Time';
@@ -184,7 +185,7 @@ function makeLabelsArray(lineField: Field, length: number): Labels[] | null {
   }
 }
 
-export function getTimeName(logsFrame?: LogsFrame) {
+export function getTimeName(logsFrame?: LogsFrame | null) {
   return logsFrame?.timeField.name ?? DATAPLANE_TIMESTAMP_NAME;
 }
 
