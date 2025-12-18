@@ -2,23 +2,25 @@ import React from 'react';
 
 import { cloneDeep } from 'lodash';
 
-import { Button } from '@grafana/ui';
+import { ConfirmButton } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 
 export function Undo() {
   const { validation, setRecords, apiRecords } = useDefaultColumnsContext();
   return (
-    <Button
-      onClick={() => {
+    <ConfirmButton
+      onConfirm={() => {
         if (apiRecords !== null) {
           setRecords(cloneDeep(apiRecords));
         }
       }}
-      variant={'destructive'}
+      closeOnConfirm={true}
+      confirmText={'Reset'}
+      confirmVariant={'destructive'}
       disabled={!validation.hasPendingChanges}
     >
       Reset
-    </Button>
+    </ConfirmButton>
   );
 }
