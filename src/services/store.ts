@@ -3,7 +3,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { TimeSeriesPanelType, CollapsablePanelText } from '../Components/Panels/PanelMenu';
+import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
@@ -164,13 +164,13 @@ function createTabsLocalStorageKey(ds: string) {
 export function getLastUsedDataSourceFromStorage(): string | undefined {
   return localStorage.getItem(DS_LOCALSTORAGE_KEY) ?? undefined;
 }
+
 export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
-  const ds = getDataSourceSrv()
-    .getList({
-      type: 'loki',
-    })
-    .find((ds) => ds.isDefault);
-  return ds?.uid;
+  const dsList = getDataSourceSrv().getList({
+    type: 'loki',
+  });
+  const ds = dsList.find((ds) => ds.isDefault);
+  return ds?.uid ?? dsList?.[0]?.uid;
 }
 
 export function addLastUsedDataSourceToStorage(dsKey: string) {
@@ -205,7 +205,7 @@ function getExplorationPrefix(sceneRef: SceneObject) {
   return getExplorationPrefixForLabelValue(sceneRef, labelName, labelValue);
 }
 
-function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
+export function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
   if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
     return `${ds}.${replaceSlash(value)}`;
@@ -230,18 +230,31 @@ export function setMaxLines(sceneRef: SceneObject, maxLines: number) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`, maxLines.toString());
 }
 
-export function getDisplayedFields(sceneRef: SceneObject): string[] {
-  const PREFIX = getExplorationPrefix(sceneRef);
-  const storedFields = localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.fields`);
+const getDisplayedFieldsKey = (sceneRef: SceneObject, userAdded: boolean, prefix?: string) => {
+  const PREFIX = prefix ?? getExplorationPrefix(sceneRef);
+  const POSTFIX = userAdded ? 'logs.user.fields' : 'logs.fields';
+  return `${pluginJson.id}.${PREFIX}.${POSTFIX}`;
+};
+
+export function getDisplayedFieldsInStorage(
+  sceneRef: SceneObject,
+  userAdded = false,
+  options?: { prefix?: string }
+): string[] | null {
+  const key = getDisplayedFieldsKey(sceneRef, userAdded, options?.prefix);
+  const storedFields = localStorage.getItem(key);
+  if (storedFields === 'null' || !storedFields) {
+    return null;
+  }
   if (storedFields) {
-    return unknownToStrings(JSON.parse(storedFields)) ?? [];
+    return unknownToStrings(JSON.parse(storedFields));
   }
   return [];
 }
 
-export function setDisplayedFields(sceneRef: SceneObject, fields: string[]) {
-  const PREFIX = getExplorationPrefix(sceneRef);
-  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.fields`, JSON.stringify(fields));
+export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[] | null, userAdded = false) {
+  const key = getDisplayedFieldsKey(sceneRef, userAdded);
+  localStorage.setItem(key, JSON.stringify(fields));
 }
 
 export function getDedupStrategy(sceneRef: SceneObject): LogsDedupStrategy {

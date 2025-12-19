@@ -8,7 +8,7 @@ import {
   SuspendedEmbeddedLogsExploration,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
-import { linkConfigs, functionConfigs } from 'services/extensions/links';
+import { functionConfigs, linkConfigs } from 'services/extensions/links';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -38,12 +38,25 @@ const AppConfig = lazy(async () => {
   return await import('./Components/AppConfig/AppConfig');
 });
 
-export const plugin = new AppPlugin<{}>().setRootPage(App).addConfigPage({
-  body: AppConfig,
-  icon: 'cog',
-  id: 'configuration',
-  title: 'Configuration',
+const DefaultColumnsConfig = lazy(async () => {
+  await initPluginTranslations(pluginJson.id);
+  return await import('./Components/AppConfig/DefaultColumns/Config');
 });
+
+export const plugin = new AppPlugin<{}>()
+  .setRootPage(App)
+  .addConfigPage({
+    body: AppConfig,
+    icon: 'cog',
+    id: 'configuration',
+    title: 'Configuration',
+  })
+  .addConfigPage({
+    body: DefaultColumnsConfig,
+    icon: 'columns',
+    id: 'admin-default-fields',
+    title: 'Default fields',
+  });
 
 for (const linkConfig of linkConfigs) {
   plugin.addLink(linkConfig);
