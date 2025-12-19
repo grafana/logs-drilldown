@@ -3,7 +3,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { testIds } from '../src/services/testIds';
 import { ExplorePage } from './fixtures/explore';
 
-test.describe('Default fields', () => {
+test.describe.only('Default fields', () => {
   let explorePage: ExplorePage;
   test.beforeEach(async ({ page }, testInfo) => {
     explorePage = new ExplorePage(page, testInfo);
@@ -13,14 +13,12 @@ test.describe('Default fields', () => {
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery', /gld-sample-\d+/, /^logs-.+/],
     });
-    await page.goto('/grafana/plugins/grafana-lokiexplore-app');
-    await page.getByText('Default fields').click();
+    await page.goto('/grafana/plugins/grafana-lokiexplore-app?page=admin-default-fields&from=now-1m&to=now');
     await expect(page.getByText('Configure default fields to')).toBeVisible();
     await expect(page.getByText('Experimental')).toBeVisible();
     explorePage.captureConsoleLogs();
   });
 
-  // @todo remove when 12.4 is released
   test.describe.skip('< 12.4', () => {
     test('should show unsupported UI', async ({ page }) => {
       // We are running an old version of Grafana so we should see a message telling us to upgrade
