@@ -532,6 +532,7 @@ export class ExplorePage {
     // Delete all existing records that may have persisted from other test executions
     for (let i = 0; i < deleteButtonsCount; i++) {
       await deleteButtons.nth(0).click();
+      await expect(deleteButtons).toHaveCount(deleteButtonsCount - (i + 1));
     }
 
     const submitButton = this.page.getByRole('button', { name: /(Update|Create) default columns/ });

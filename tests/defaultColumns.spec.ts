@@ -10,6 +10,9 @@ test.describe('Default fields', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
+    explorePage.blockAllQueriesExcept({
+      refIds: ['logsPanelQuery', /gld-sample-\d+/, /^logs-.+/],
+    });
     await page.goto('/grafana/plugins/grafana-lokiexplore-app');
     await page.getByText('Default fields').click();
     await expect(page.getByText('Configure default fields to')).toBeVisible();
@@ -58,11 +61,12 @@ test.describe('Default fields', () => {
       const fullApachePodRegex = new RegExp(
         dateRegex.source + '\\s' + levelRegex.source + '\\s' + apachePodRegex.source
       );
-      test('0. Before all - delete existing records', async ({ page }) => {
-        await explorePage.defaultColumnsDeleteAllRecords();
-      });
+
       test('1. can add new config', async ({ page }) => {
+        await explorePage.defaultColumnsDeleteAllRecords();
+
         const submitButton = page.getByRole('button', { name: /(Update|Create) default columns/ });
+        await expect(submitButton).toBeVisible();
         // Create a new empty record for service_name = apache
         await explorePage.defaultColumnsAdminAddNewRecord();
         await explorePage.defaultColumnsAdminAddLabelName('service_name');
@@ -110,6 +114,7 @@ test.describe('Default fields', () => {
         await explorePage.servicesSearch.click();
         await page.keyboard.type('apache|^nginx$');
         await page.keyboard.press('Escape');
+        await expect(page.getByTestId(testIds.index.selectServiceButton)).toHaveCount(2);
         await expect(page.getByText(apacheServiceLogLineIdentifier)).not.toBeVisible();
         await expect(page.getByText(nginxServiceLogLineIdentifier)).not.toBeVisible();
         await expect(page.getByText(fullNginxRegex).first()).toBeVisible();
@@ -151,10 +156,18 @@ test.describe('Default fields', () => {
         await expect(showDefaultFieldsButton).toBeVisible();
       });
       test('4. can see default columns in service view - nginx + apache', async ({ page }) => {
+        const showOriginalLogLineButton = page.getByText('Show original log line');
         await explorePage.gotoServices();
         await explorePage.servicesSearch.click();
         await page.keyboard.type('apache|^nginx$');
-        await page.pause();
+        await page.keyboard.press('Escape');
+        await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(2);
+        await page.getByTestId(testIds.index.showLogsButton).first().click();
+        await page.getByTestId(testIds.index.showLogsButton).last().click();
+        await page.getByText('Show logs').click();
+        await expect(showOriginalLogLineButton).toBeVisible();
+        await expect(page.getByRole('checkbox', { name: 'file', exact: true })).toBeChecked();
+        await expect(page.getByText('C:\\Grafana\\logs\\gateway.txt').first()).toBeVisible();
       });
     });
   });
