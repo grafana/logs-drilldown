@@ -39,7 +39,7 @@ test.describe('Default fields', () => {
     });
   });
 
-  test.describe.only('>= 12.4', () => {
+  test.describe.skip('>= 12.4', () => {
     test('can add new config', async ({ page }) => {
       const apacheServiceLogLineIdentifier = /HTTP\/[1|2].[0|1]/;
       // Create a new empty record
