@@ -42,6 +42,7 @@ export const Records = ({}: RecordsProps) => {
 const getStyles = (theme: GrafanaTheme2) => ({
   recordContainer: css({
     border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.sm,
     paddingBottom: theme.spacing(2),
     marginBottom: theme.spacing(3),
     position: 'relative',
