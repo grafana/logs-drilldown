@@ -19,7 +19,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           new LogOptionsScene({
             onChangeVisualizationType: () => {},
             visualizationType: 'logs',
-            buttonRendererScene: new LogOptionsButtonsScene({}),
+            buttonRendererScene: new LogOptionsButtonsScene({
+              mode: 'logs',
+              clearDisplayedFields: () => {},
+              showBackendFields: () => {},
+            }),
           }),
         ],
       }),

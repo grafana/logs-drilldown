@@ -203,6 +203,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.setState({ displayedFields: [], userDisplayedFields: false });
     if (this.logsPanelScene) {
       this.logsPanelScene.showBackendFields();
+    } else {
+      console.warn('showBackendFields::DOING NOTHING, GOING NOWHERE');
     }
   };
 

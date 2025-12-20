@@ -1,4 +1,16 @@
+import {
+  DATAPLANE_BODY_NAME,
+  DATAPLANE_LINE_NAME_LEGACY,
+  DATAPLANE_TIME_NAME_LEGACY,
+  DATAPLANE_TIMESTAMP_NAME,
+} from '../../services/logsFrame';
+
 export const DETECTED_LEVEL = 'detected_level';
 export const LEVEL = 'level';
-export const DEFAULT_URL_COLUMNS = ['timestamp', 'body', 'Time', 'Line'];
-export const DEFAULT_URL_COLUMNS_LEVELS = ['detected_level', 'level'];
+export const DEFAULT_URL_COLUMNS = [
+  DATAPLANE_TIMESTAMP_NAME,
+  DATAPLANE_BODY_NAME,
+  DATAPLANE_TIME_NAME_LEGACY,
+  DATAPLANE_LINE_NAME_LEGACY,
+];
+export const DEFAULT_URL_COLUMNS_LEVELS = [DETECTED_LEVEL];
