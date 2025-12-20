@@ -7,6 +7,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
+import { testIds } from '../../../services/testIds';
 import { useDefaultColumnsContext } from './Context';
 import { mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
 import { getDatasource } from './State';
@@ -77,6 +78,7 @@ export function LabelValue({ recordIndex, labelIndex }: Props) {
   return (
     <span className={styles.defaultColumnsLabelValue}>
       <Combobox<string>
+        data-testid={testIds.appConfig.defaultColumns.labels.value}
         invalid={!label?.value}
         placeholder={'Select label value'}
         width={'auto'}

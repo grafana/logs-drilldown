@@ -4,6 +4,12 @@ export const testIds = {
     apiUrl: 'data-testid ac-api-url',
     container: 'data-testid ac-container',
     submit: 'data-testid ac-submit-form',
+    defaultColumns: {
+      labels: {
+        key: 'data-testid ac-dc-label-name-input',
+        value: 'ac-dc-labels-value-input',
+      },
+    },
   },
   breakdowns: {
     common: {
