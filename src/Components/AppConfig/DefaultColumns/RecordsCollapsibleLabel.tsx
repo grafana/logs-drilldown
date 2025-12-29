@@ -46,11 +46,13 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flexWrap: 'wrap',
     gap: theme.spacing(1),
     marginLeft: theme.spacing(1),
+    padding: theme.spacing(0.5, 0),
   }),
   label__pill: css({
-    mr: theme.spacing(1),
     border: `1px solid ${theme.colors.border.weak}`,
-    padding: theme.spacing(0.25, 1, 0.25, 1),
+    borderRadius: theme.shape.radius.pill,
+    padding: theme.spacing(0.25, 1.25, 0.25, 1.25),
+    boxShadow: theme.shadows.z1,
   }),
   label__icon: css({
     marginLeft: theme.spacing(0.5),
