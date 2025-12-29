@@ -137,7 +137,6 @@ test.describe('Default fields', () => {
         await expect(page.getByRole('checkbox', { name: 'cluster', exact: true })).toBeChecked();
         await expect(page.getByText(fullApacheRegex).first()).toBeVisible();
         await showOriginalLogLineButton.click();
-        await page.pause();
         await expect(page.getByText(fullApacheRegex)).toHaveCount(0);
         await page.getByText('pod').click();
         await expect.poll(() => page.getByText(fullApachePodRegex).count()).toBeGreaterThanOrEqual(1);
