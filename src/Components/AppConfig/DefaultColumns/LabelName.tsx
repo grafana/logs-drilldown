@@ -28,6 +28,7 @@ export const LabelName = ({ recordIndex, labelIndex }: ValueProps) => {
   const styles = useStyles2(getStyles);
 
   const onSelectFieldName = (labelName: string) => {
+    console.error('onSelectFieldName', labelName);
     if (records) {
       const recordToUpdate = records[recordIndex];
       const labelToUpdate = recordToUpdate?.labels[labelIndex];
@@ -67,7 +68,7 @@ const getLabels = memoize(
     if (!datasource || !datasource.getResource) {
       const error = new Error(`Data source ${dsUID} not found`);
       logger.error(error, { msg: 'DefaultColumnsLabelName::getLabels - Data source not found!' });
-      throw error;
+      return [];
     }
 
     const labelFilters = mapColumnsLabelsToAdHocFilters(columnsLabels ?? []);
