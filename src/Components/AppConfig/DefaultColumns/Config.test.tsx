@@ -206,7 +206,37 @@ describe('Config', () => {
       // Combobox doesn't set attributes for invalid/aria-invalid, so screen readers (and tests) don't have any way to know when an input is invalid
       // expect(getLastAddLabeNameButton()).toBeInvalid();
       expect(getLastAddLabelValueButton()).toBeDisabled();
+
       // typing into the combobox input via userEvents doesn't trigger onChange handlers, so there doesn't seem to be any way to test any interaction with the combobox and we'll have to write our tests by setting the initial state.
+      // @todo the combobox doesn't seem to support any interactive testing, we should avoid using it in components that need testing
+      //
+      // const mockGetBoundingClientRect = jest.fn(() => ({
+      //   width: 120,
+      //   height: 120,
+      //   top: 0,
+      //   left: 0,
+      //   bottom: 0,
+      //   right: 0,
+      // }));
+      //
+      // Object.defineProperty(Element.prototype, 'getBoundingClientRect', {
+      //   value: mockGetBoundingClientRect,
+      // });
+      // // throws a warning if not set, breaks tetss if set
+      // // jest.useFakeTimers();
+      //
+      // await act(async () => {
+      //   await userEvent.type(getLastAddLabeNameButton(), 'fir');
+      // });
+      //
+      // await act(async () => {
+      //   jest.advanceTimersByTime(500); // Custom value while typing
+      // });
+      //
+      // const customItem = screen.getByRole('option');
+      //
+      // expect(customItem).toHaveTextContent('fir');
+      // expect(customItem).toHaveTextContent('Use custom value');
     });
   });
 
@@ -231,10 +261,10 @@ function getResetButton() {
 function getAddLabelButton() {
   return screen.getByRole<HTMLButtonElement>('button', { name: ADD_LABEL_BUTTON_TEXT });
 }
-// function getLastAddLabeNameButton() {
-//   const inputs = screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_NAME_PLACEHOLDER_TEXT);
-//   return inputs[inputs.length - 1];
-// }
+function getLastAddLabeNameButton() {
+  const inputs = screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_NAME_PLACEHOLDER_TEXT);
+  return inputs[inputs.length - 1];
+}
 function getLastAddLabelValueButton() {
   const inputs = screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_VALUE_PLACEHOLDER_TEXT);
   return inputs[inputs.length - 1];
