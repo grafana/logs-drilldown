@@ -1,16 +1,18 @@
 import React from 'react';
 
 import { act, render, RenderResult, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
 // jest-canvas-mock prevents the combobox from breaking tests
 import 'jest-canvas-mock';
 
 import { DataSourceInstanceSettings } from '@grafana/data/dist/types/types/datasource';
-import { getDataSourceSrv, locationService, LocationServiceProvider } from '@grafana/runtime';
+import { DataSourceWithBackend, getDataSourceSrv, locationService, LocationServiceProvider } from '@grafana/runtime';
 
 import Config from './Config';
 import { DefaultColumnsContextProvider } from './Context';
+import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
 import {
   useCreateLogsDrilldownDefaultColumnsMutation,
   useGetLogsDrilldownDefaultColumnsQuery,
@@ -18,11 +20,13 @@ import {
 } from 'lib/api-clients/logsdrilldown/v1alpha1';
 
 // Constants
-const DEBUG = true;
+const DEBUG = false;
 const MOCK_DS_UID = 'test-datasource-uid';
 const COLUMN_1_DEFAULT_VALUE = 'column 1';
 const COLUMN_2_DEFAULT_VALUE = 'column 2';
 const ADD_COLUMN_BUTTON_TEXT = 'Add column';
+const REMOVE_COLUMN_BUTTON_TEXT_MATCH = /^Remove/;
+const SELECT_COLUMNS_INPUT_PLACEHOLDER = 'Select column';
 const LOGS_SCENE_MOCK_TEXT = 'LogsSceneMock';
 const DS_SELECTOR_MOCK_TEXT = 'DSMock';
 const DELETE_RECORD_BUTTON_TEXT = 'Delete record';
@@ -82,13 +86,21 @@ jest.mock('./DataSource', () => ({
   },
 }));
 
+jest.mock('services/TagKeysProviders', () => ({
+  getLabelsKeys: () => Promise.resolve([{ text: 'labelName1' }, { text: 'labelName2' }]),
+}));
+
+jest.mock('services/TagValuesProviders', () => ({
+  getLabelValues: () => Promise.resolve([{ text: 'labelValue1' }, { text: 'labelValue2' }]),
+}));
+
 describe('Config', () => {
   let result: RenderResult;
   beforeEach(() => {
     jest.clearAllMocks();
     jest.mocked(getDataSourceSrv).mockReturnValue({
       getList: jest.fn().mockReturnValue(MOCK_DATA_SOURCES),
-      get: jest.fn().mockReturnValue(MOCK_DATA_SOURCES[0]),
+      get: jest.fn().mockReturnValue(new DataSourceWithBackend(MOCK_DATA_SOURCES[0] as DataSourceInstanceSettings)),
     } as any);
     jest.mocked(useGetLogsDrilldownDefaultColumnsQuery).mockReturnValue({
       isLoading: true,
@@ -108,32 +120,13 @@ describe('Config', () => {
   });
 
   describe('No records', () => {
-    beforeEach(() => {
-      result = setup();
-    });
-
     test('Shows loading UI', async () => {
+      result = setup([], true);
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
   });
-  describe('Exising record', () => {
+  describe('Existing record', () => {
     beforeEach(() => {
-      jest.mocked(useGetLogsDrilldownDefaultColumnsQuery).mockReturnValue({
-        isLoading: false,
-        error: undefined,
-        currentData: {
-          spec: {
-            records: [
-              { columns: [COLUMN_1_DEFAULT_VALUE, COLUMN_2_DEFAULT_VALUE], labels: [{ key: 'key1', value: 'value1' }] },
-            ],
-          },
-          metadata: {
-            name: MOCK_DS_UID,
-            resourceVersion: '1.0',
-          },
-        },
-        refetch: jest.fn(),
-      });
       result = setup();
     });
 
@@ -142,12 +135,16 @@ describe('Config', () => {
       expect(screen.getByRole('heading', { name: /labels match/i })).toBeInTheDocument();
 
       // Label input
-      expect(screen.getByPlaceholderText(SELECT_LABEL_NAME_PLACEHOLDER_TEXT)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText<HTMLInputElement>(SELECT_LABEL_NAME_PLACEHOLDER_TEXT).value).toBe('key1');
+      expect(screen.getAllByPlaceholderText(SELECT_LABEL_NAME_PLACEHOLDER_TEXT)[0]).toBeInTheDocument();
+      expect(screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_NAME_PLACEHOLDER_TEXT)[0].value).toBe(
+        'key1'
+      );
 
       // Value input
-      expect(screen.getByPlaceholderText(SELECT_LABEL_VALUE_PLACEHOLDER_TEXT)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText<HTMLInputElement>(SELECT_LABEL_VALUE_PLACEHOLDER_TEXT).value).toBe('value1');
+      expect(screen.getAllByPlaceholderText(SELECT_LABEL_VALUE_PLACEHOLDER_TEXT)[0]).toBeInTheDocument();
+      expect(screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_VALUE_PLACEHOLDER_TEXT)[0].value).toBe(
+        'value1'
+      );
 
       // Add label button
       expect(getAddLabelButton()).toBeInTheDocument();
@@ -191,7 +188,6 @@ describe('Config', () => {
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'false');
       expect(getResetButton()).not.toBeDisabled();
     });
-
     test('Labels are disabled', async () => {
       // No changes have been made, so we can't submit
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
@@ -205,45 +201,120 @@ describe('Config', () => {
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
       // Combobox doesn't set attributes for invalid/aria-invalid, so screen readers (and tests) don't have any way to know when an input is invalid
       // expect(getLastAddLabeNameButton()).toBeInvalid();
-      expect(getLastAddLabelValueButton()).toBeDisabled();
+      expect(getLastAddLabelValueInput()).toBeDisabled();
 
-      // typing into the combobox input via userEvents doesn't trigger onChange handlers, so there doesn't seem to be any way to test any interaction with the combobox and we'll have to write our tests by setting the initial state.
-      // @todo the combobox doesn't seem to support any interactive testing, we should avoid using it in components that need testing
-      //
-      // const mockGetBoundingClientRect = jest.fn(() => ({
-      //   width: 120,
-      //   height: 120,
-      //   top: 0,
-      //   left: 0,
-      //   bottom: 0,
-      //   right: 0,
-      // }));
-      //
-      // Object.defineProperty(Element.prototype, 'getBoundingClientRect', {
-      //   value: mockGetBoundingClientRect,
-      // });
-      // // throws a warning if not set, breaks tetss if set
-      // // jest.useFakeTimers();
-      //
-      // await act(async () => {
-      //   await userEvent.type(getLastAddLabeNameButton(), 'fir');
-      // });
-      //
-      // await act(async () => {
-      //   jest.advanceTimersByTime(500); // Custom value while typing
-      // });
-      //
-      // const customItem = screen.getByRole('option');
-      //
-      // expect(customItem).toHaveTextContent('fir');
-      // expect(customItem).toHaveTextContent('Use custom value');
+      expect(getLastAddLabelNameInput()).toHaveValue('');
+      expect(getLastAddLabelValueInput()).toHaveValue('');
+    });
+    test('Deletes label', () => {
+      // Remove button shows for each label
+      expect(screen.getAllByRole('button', { name: /remove/i })).toHaveLength(2);
+      act(() => {
+        screen.getByRole('button', { name: /remove key2 = value2/i }).click();
+      });
+      // Cannot delete the last label
+      expect(screen.queryAllByRole('button', { name: /remove/i })).toHaveLength(0);
+    });
+    test('Adds new column', () => {
+      // Columns show up in the expanded section header
+      expect(screen.getByText(COLUMN_1_DEFAULT_VALUE)).toBeInTheDocument();
+      expect(screen.getByText(COLUMN_2_DEFAULT_VALUE)).toBeInTheDocument();
+
+      // Expand the columns
+      act(() => {
+        getDisplayColumns()?.click();
+      });
+
+      expect(screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT })).toBeInTheDocument();
+      expect(getColumnInputs()).toHaveLength(2);
+      expect(getResetButton()).toBeDisabled();
+
+      act(() => {
+        screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT }).click();
+      });
+
+      // We should have 3 columns now after adding one
+      expect(getColumnInputs()).toHaveLength(3);
+      // Submit button should be disabled as our record is not valid
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+      expect(getResetButton()).not.toBeDisabled();
+    });
+    test('Deletes new column', () => {
+      // Should be 2 remove buttons for labels
+      expect(getRemoveButtons()).toHaveLength(2);
+      // Open columns drawer
+      act(() => {
+        getDisplayColumns()?.click();
+      });
+      // Now we can see 2 more remove buttons
+      expect(getRemoveButtons()).toHaveLength(4);
+      // Remove an existing column
+      act(() => {
+        getRemoveButtons()[getRemoveButtons().length - 1].click();
+      });
+      // Since you can't remove the last item, now we have 2
+      expect(getRemoveButtons()).toHaveLength(2);
     });
   });
+  describe('Validation', () => {
+    it('Cannot save empty state', () => {
+      result = setup([]);
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+      expect(getResetButton()).toBeDisabled();
+    });
+    it('Can revert pending label changes', async () => {
+      result = setup();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+      expect(getResetButton()).toBeDisabled();
+      act(() => {
+        getAddLabelButton()?.click();
+      });
+      expect(getResetButton()).not.toBeDisabled();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
 
-  test.todo('Deletes label');
-  test.todo('Adds new column');
-  test.todo('Deletes new column');
-  test.todo('validation');
+      await addCustomValueToCombobox(getLastAddLabelNameInput(), 'foo');
+      expect(screen.getByDisplayValue(/foo/i)).toBeInTheDocument();
+
+      expect(getResetButton()).not.toBeDisabled();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+
+      await addCustomValueToCombobox(getLastAddLabelValueInput(), 'bar');
+      expect(screen.getByDisplayValue(/bar/i)).toBeInTheDocument();
+
+      expect(getResetButton()).not.toBeDisabled();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'false');
+      expect(screen.getByDisplayValue(/bar/i)).toBeInTheDocument();
+
+      act(() => {
+        getResetButton().click();
+        getResetButton().click();
+        getResetButtons()[1].click();
+      });
+
+      expect(screen.queryByDisplayValue(/foo/i)).not.toBeInTheDocument();
+      expect(screen.queryByDisplayValue(/bar/i)).not.toBeInTheDocument();
+
+      expect(getResetButton()).toBeDisabled();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+    });
+    it('Can revert pending column changes', async () => {
+      result = setup();
+      act(() => {
+        getDisplayColumns()?.click();
+      });
+      expect(getColumnInputs()).toHaveLength(2);
+      expect(getResetButton()).toBeDisabled();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+      act(() => {
+        screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT }).click();
+      });
+      expect(getColumnInputs()).toHaveLength(3);
+      expect(getResetButton()).not.toBeDisabled();
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
+      await addCustomValueToCombobox(getColumnInputs()[getColumnInputs().length - 1], 'foo');
+      expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'false');
+    });
+  });
 });
 
 function getDisplayColumns() {
@@ -258,18 +329,61 @@ function getSubmitButton() {
 function getResetButton() {
   return screen.queryAllByRole<HTMLButtonElement>('button', { name: RESET_BUTTON_TEXT })[0];
 }
+function getResetButtons() {
+  return screen.getAllByText('Reset');
+}
 function getAddLabelButton() {
   return screen.getByRole<HTMLButtonElement>('button', { name: ADD_LABEL_BUTTON_TEXT });
 }
-function getLastAddLabeNameButton() {
+function getLastAddLabelNameInput() {
   const inputs = screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_NAME_PLACEHOLDER_TEXT);
   return inputs[inputs.length - 1];
 }
-function getLastAddLabelValueButton() {
+function getLastAddLabelValueInput() {
   const inputs = screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_LABEL_VALUE_PLACEHOLDER_TEXT);
   return inputs[inputs.length - 1];
 }
-function setup(dsUID = MOCK_DS_UID) {
+function getRemoveButtons() {
+  return screen.queryAllByRole<HTMLButtonElement>('button', { name: REMOVE_COLUMN_BUTTON_TEXT_MATCH });
+}
+function getColumnInputs() {
+  return screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_COLUMNS_INPUT_PLACEHOLDER);
+}
+async function addCustomValueToCombobox(comboBox: HTMLInputElement, value = 'foo') {
+  act(() => {
+    comboBox.click();
+  });
+  await act(async () => {
+    await userEvent.type(comboBox, value);
+  });
+  await act(async () => {
+    await userEvent.keyboard('{Enter}');
+  });
+}
+function setup(records?: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords, isLoading = false) {
+  const dsUID = 'dsID';
+  jest.mocked(useGetLogsDrilldownDefaultColumnsQuery).mockReturnValue({
+    isLoading,
+    error: undefined,
+    currentData: {
+      spec: {
+        records: records ?? [
+          {
+            columns: [COLUMN_1_DEFAULT_VALUE, COLUMN_2_DEFAULT_VALUE],
+            labels: [
+              { key: 'key1', value: 'value1' },
+              { key: 'key2', value: 'value2' },
+            ],
+          },
+        ],
+      },
+      metadata: {
+        name: MOCK_DS_UID,
+        resourceVersion: '1.0',
+      },
+    },
+    refetch: jest.fn(),
+  });
   return render(
     <LocationServiceProvider service={locationService}>
       <MemoryRouter initialEntries={[{ pathname: '/' }]}>
