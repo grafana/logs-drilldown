@@ -52,7 +52,7 @@
     "@total-typescript/ts-reset": "0.6.1",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.21",
-    "@types/node": "20.19.8",
+    "@types/node": "20.19.27",
     "@types/react-scroll-sync": "0.9.0",
     "@types/testing-library__jest-dom": "5.14.9",
     "@types/uuid": "10.0.0",
