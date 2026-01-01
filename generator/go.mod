@@ -8,7 +8,7 @@ require (
 	github.com/grafana/loki-client-go v0.0.0-20251015150631-c42bbddc310a
 	github.com/grafana/loki/pkg/push v0.0.0-20240912152814-63e84b476a9a
 	github.com/prometheus/common v0.34.0
-	github.com/spf13/pflag v1.0.5
+	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/contrib/bridges/otelslog v0.9.0
 	go.opentelemetry.io/otel v1.34.0
