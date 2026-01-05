@@ -400,21 +400,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
     const tableLogLineState = searchParams.get('tableLogLineState');
 
-    console.log('LogsListScene::setStateFromUrl', {
-      urls: {
-        user: searchParams.get('userDisplayedFields'),
-        display: searchParams.get('displayedFields'),
-      },
-      output: {
-        user: userDisplayedFieldsUrl,
-        display: displayedFieldsUrl,
-      },
-      storage: {
-        user: userDisplayFieldsFromStorage,
-        display: displayFieldsFromStorage,
-      },
-    });
-
     this.updateFromUrl({
       displayedFields: displayedFieldsUrl,
       userDisplayedFields: userDisplayedFieldsUrl,

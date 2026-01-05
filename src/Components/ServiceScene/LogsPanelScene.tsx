@@ -123,7 +123,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     parent.setState({
       urlColumns:
         urlColumns?.filter(
-          (column) => DEFAULT_URL_COLUMNS.includes(column) && DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+          (column) => DEFAULT_URL_COLUMNS.includes(column) || DEFAULT_URL_COLUMNS_LEVELS.includes(column)
         ) || [],
     });
   };
