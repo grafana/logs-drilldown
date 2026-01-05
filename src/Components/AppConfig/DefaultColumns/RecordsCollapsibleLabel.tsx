@@ -9,10 +9,11 @@ import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './type
 import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
 
 interface Props {
+  isOpen: boolean;
   record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord;
 }
 
-export function RecordsCollapsibleLabel({ record }: Props) {
+export function RecordsCollapsibleLabel({ record, isOpen }: Props) {
   const styles = useStyles2(getStyles);
   return (
     <div className={styles.label}>
@@ -22,15 +23,17 @@ export function RecordsCollapsibleLabel({ record }: Props) {
           <Icon className={styles.label__icon} name="info-circle" />
         </Tooltip>
       </h5>
-      <span className={styles.label__pills}>
-        {record.columns
-          .filter((c) => c)
-          .map((column) => (
-            <span className={styles.label__pill} key={column}>
-              {getNormalizedFieldName(column)}
-            </span>
-          ))}
-      </span>
+      {!isOpen && (
+        <span className={styles.label__pills}>
+          {record.columns
+            .filter((c) => c)
+            .map((column) => (
+              <span className={styles.label__pill} key={column}>
+                {getNormalizedFieldName(column)}
+              </span>
+            ))}
+        </span>
+      )}
     </div>
   );
 }
@@ -40,13 +43,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'flex',
     alignItems: 'center',
     overflow: 'hidden',
+    padding: theme.spacing(0.5, 0),
+    height: '32px',
   }),
   label__pills: css({
     display: 'flex',
     flexWrap: 'wrap',
     gap: theme.spacing(1),
     marginLeft: theme.spacing(1),
-    padding: theme.spacing(0.5, 0),
   }),
   label__pill: css({
     border: `1px solid ${theme.colors.border.weak}`,

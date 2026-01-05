@@ -15,21 +15,23 @@ interface Props {
 }
 
 export function CollapsibleFields({ recordIndex }: Props) {
-  const styles = useStyles2(getStyles);
   const { setExpandedRecords, expandedRecords, records } = useDefaultColumnsContext();
-  if (!records) {
-    return null;
-  }
 
-  const record = records[recordIndex];
+  const record = records?.[recordIndex];
   const expandedRecordIdx = expandedRecords?.findIndex((i) => i === recordIndex);
   const expandedRecord = expandedRecordIdx !== -1 ? expandedRecords[expandedRecordIdx] : undefined;
   const isOpen = expandedRecord === recordIndex;
+
+  const styles = useStyles2(getStyles, isOpen);
+  if (!record) {
+    return null;
+  }
+
   return (
     <Collapse
       className={styles.collapse}
       isOpen={isOpen}
-      label={<RecordsCollapsibleLabel record={record} />}
+      label={<RecordsCollapsibleLabel record={record} isOpen={isOpen} />}
       onToggle={() => {
         if (isOpen) {
           const expandedRecordsCopy = [...expandedRecords];
@@ -49,12 +51,16 @@ export function CollapsibleFields({ recordIndex }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme2, isOpen: boolean) => ({
   content: css({
     paddingLeft: theme.spacing(2),
   }),
   collapse: css({
     margin: theme.spacing(2),
     width: 'auto',
+    '> div': {
+      borderBottom: isOpen ? `1px solid ${theme.colors.border.weak}` : 'none',
+      boxShadow: isOpen ? theme.shadows.z1 : 'none',
+    },
   }),
 });
