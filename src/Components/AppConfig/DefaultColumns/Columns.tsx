@@ -24,8 +24,8 @@ export function Columns({ recordIndex, containerDragging }: Props) {
   const styles = useStyles2(getStyles, containerDragging);
 
   if (!record) {
-    const error = new Error('DefaultColumnsColumns: missing record!');
-    logger.error(error, { msg: `DefaultColumnsColumns: no record at ${recordIndex} for datasource ${dsUID}` });
+    const error = new Error('Columns: missing record!');
+    logger.error(error, { msg: `Columns: no record at ${recordIndex} for datasource ${dsUID}` });
     throw error;
   }
 
