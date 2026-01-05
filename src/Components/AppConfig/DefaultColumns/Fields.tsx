@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Alert, Button, useStyles2 } from '@grafana/ui';
 
 import { ColumnsDragContext } from './ColumnsDragContext';
 import { useDefaultColumnsContext } from './Context';
@@ -13,6 +13,8 @@ import { logger } from 'services/logger';
 interface Props {
   recordIndex: number;
 }
+
+const INVALID_COLUMNS_LOG_LINE_ONLY_TEXT = 'Include at least one column that is not Log line';
 
 export function Fields({ recordIndex }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
@@ -38,13 +40,15 @@ export function Fields({ recordIndex }: Props) {
 
   return (
     <div className={styles.fieldsContainer}>
+      {!notOnlyLogLine && <Alert title={INVALID_COLUMNS_LOG_LINE_ONLY_TEXT}></Alert>}
+
       <ColumnsDragContext recordIndex={recordIndex} />
 
       <Button
         disabled={!recordHasValues}
         tooltip={
           !notOnlyLogLine
-            ? 'Include at least one column that is not Log line'
+            ? INVALID_COLUMNS_LOG_LINE_ONLY_TEXT
             : !recordHasValues
             ? 'Invalid columns'
             : 'Add a default column to display in the logs'

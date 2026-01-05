@@ -147,7 +147,7 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
     const hasPendingChanges = isDefaultColumnsStateChanged(records, apiRecords) ?? false;
 
     return { hasDuplicates, hasInvalidRecords, isInvalid, hasPendingChanges };
-    // ¡if you just pass in records to this dep array we won't run validation on changes to record labels/columns!
+    // if you just pass in records to this dep array we won't run validation on changes to record labels/columns!
   }, [dsUID, localDefaultColumnsState, apiRecords]);
 
   return (
