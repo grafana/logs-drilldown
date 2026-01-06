@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.0.33
+
+##### Chores
+
+*  show logs when primary is regex (#1680) (e2001ada)
+*  add menuPosition=absolute (#1673) (1462866a)
+* **deps:**
+  *  update otel/opentelemetry-collector-contrib:latest docker digest to b14234c (#1658) (1b8f06a4)
+  *  update grafana/alloy:latest docker digest to 85e4a70 (#1657) (aeaa4516)
+
+##### Documentation Changes
+
+*  Updating for new visualization (#1674) (628efe82)
+
+##### New Features
+
+*  auto-tab on service selection when pop first label key (#1691) (8d129529)
+*  allow numeric operators on int fields (#1677) (89ba07a8)
+* **embedded:**  field filters support (#1683) (ef4445db)
+
+##### Bug Fixes
+
+* **js-yaml:**  update js-yaml to 4.1.1 (#1688) (612fb4ee)
+* **qs:**  update qs to 6.14.1 (#1687) (ab7b59d0)
+* **EmbeddedLogs:**  use custom value prefix for regular expressions (#1678) (fdf6c289)
+*  non-portaled select options (#1676) (07e1be7c)
+
+
 ## 1.0.32
 
 ##### Chores
