@@ -4,9 +4,6 @@ services:
       file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
-    environment:
-      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     build:
       context: ./.config
       args:
