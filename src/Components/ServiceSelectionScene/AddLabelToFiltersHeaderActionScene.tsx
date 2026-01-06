@@ -67,7 +67,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
       <span className={styles.wrapper}>
         <Button
           tooltip={included === true ? `Remove ${value} from filters` : `Add ${value} to filters`}
-          variant={'secondary'}
+          variant={included ? 'destructive' : 'secondary'}
           fill={'outline'}
           size="sm"
           aria-selected={included === true}
