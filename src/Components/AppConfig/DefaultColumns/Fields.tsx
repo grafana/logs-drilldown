@@ -22,13 +22,6 @@ export function Fields({ recordIndex }: Props) {
   const notOnlyLogLine = !record || recordColumnsAreNotLogLine(record);
   const recordHasValues = !record || recordColumnsHaveValues(record);
   const recordIsValid = !recordHasValues || !!record?.columns.length;
-
-  console.log('record', record);
-  console.log('recordColumnsHaveValues(record)', recordColumnsHaveValues(record));
-  console.log('record.columns.length ', record.columns.length);
-  console.log('recordHasValues ', recordHasValues);
-  console.log('recordIsValid ', recordIsValid);
-
   const styles = useStyles2(getStyles, !recordIsValid);
 
   if (!record) {
