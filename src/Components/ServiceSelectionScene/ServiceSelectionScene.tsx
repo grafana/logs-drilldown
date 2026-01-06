@@ -429,7 +429,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.setSelectedTab(SERVICE_NAME);
   }
 
-  setSelectedTab(labelName: string) {
+  setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
     addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
 
     // clear active search
@@ -441,6 +441,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     // Report interaction
     reportAppInteraction(USER_EVENTS_PAGES.service_selection, USER_EVENTS_ACTIONS.service_selection.add_new_tab, {
       newTab: labelName,
+      type,
     });
   }
 
@@ -734,7 +735,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       labelsVarPrimary.subscribeToState((newState, prevState) => {
         // If the user has added a label name
         if (newState._wip?.key && newState._wip?.key !== prevState._wip?.key && newState.filters.length === 0) {
-          this.setSelectedTab(newState._wip.key);
+          this.setSelectedTab(newState._wip.key, 'auto');
         }
 
         if (!areArraysEqual(newState.filters, prevState.filters)) {
