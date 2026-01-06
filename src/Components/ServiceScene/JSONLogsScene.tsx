@@ -18,7 +18,7 @@ import {
 } from '../../services/fields';
 import { preProcessJSONDataFrame } from '../../services/JSONDataFrame';
 import { narrowLogsSortOrder } from '../../services/narrowing';
-import { getPrettyQueryExpr, setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
+import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
@@ -131,9 +131,7 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
 
     this.setState({
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
-      menu: new PanelMenu({
-        investigationOptions: { getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}`, type: 'logs' },
-      }),
+      menu: new PanelMenu({}),
     });
 
     setControlsExpandedStateFromLocalStorage(sceneGraph.getAncestor(this, LogsListScene));
