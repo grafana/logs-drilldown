@@ -21,8 +21,8 @@ export function Fields({ recordIndex }: Props) {
   const record = records?.[recordIndex];
   const notOnlyLogLine = !record || recordColumnsAreNotLogLine(record);
   const recordHasValues = !record || recordColumnsHaveValues(record);
-
-  const styles = useStyles2(getStyles, !recordHasValues);
+  const recordIsValid = !recordHasValues || !!record?.columns.length;
+  const styles = useStyles2(getStyles, !recordIsValid);
 
   if (!record) {
     const error = new Error('DefaultColumnsFields: missing record!');

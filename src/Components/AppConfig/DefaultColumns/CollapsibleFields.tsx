@@ -57,8 +57,9 @@ const getStyles = (theme: GrafanaTheme2, isOpen: boolean) => ({
   }),
   collapse: css({
     margin: theme.spacing(2),
+    boxShadow: theme.shadows.z1,
     width: 'auto',
-    '> div': {
+    '> div:first-of-type': {
       borderBottom: isOpen ? `1px solid ${theme.colors.border.weak}` : 'none',
       boxShadow: isOpen ? theme.shadows.z1 : 'none',
     },

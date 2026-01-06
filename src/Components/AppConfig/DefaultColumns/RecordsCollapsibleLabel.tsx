@@ -44,7 +44,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     alignItems: 'center',
     overflow: 'hidden',
     padding: theme.spacing(0.5, 0),
-    height: '32px',
+    minHeight: '32px',
   }),
   label__pills: css({
     display: 'flex',
