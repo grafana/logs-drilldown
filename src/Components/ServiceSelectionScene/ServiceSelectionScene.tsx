@@ -437,6 +437,11 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
     // Update the primary label variable
     setServiceSelectionPrimaryLabelKey(labelName, this);
+
+    // Report interaction
+    reportAppInteraction(USER_EVENTS_PAGES.service_selection, USER_EVENTS_ACTIONS.service_selection.add_new_tab, {
+      newTab: labelName,
+    });
   }
 
   // Creates a layout with timeseries panel
