@@ -3,12 +3,10 @@ version: '3.0'
 services:
   grafana:
     extends:
-      file: .config/docker-compose-base.yaml
+      file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
     environment:
-      - GF_LOG_FRONTEND_ENABLED=true
-      - GF_LOG_FRONTEND_CUSTOM_ENDPOINT=http://localhost:12347/collect
       - GF_TRACING_OPENTELEMETRY_JAEGER_ADDRESS=http://host.docker.internal:14268/api/traces
       - GF_TRACING_OPENTELEMETRY_JAEGER_PROPAGATION=jaeger,w3c
     build:

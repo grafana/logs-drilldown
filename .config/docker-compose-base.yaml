@@ -23,11 +23,3 @@ services:
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-lokiexplore-app
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-      GF_AUTH_ANONYMOUS_ENABLED: true
-      GF_AUTH_BASIC_ENABLED: false
-      GF_SERVER_SERVE_FROM_SUB_PATH: true
-      GF_SERVER_ROOT_URL: http://localhost:3001/grafana
-      GF_PLUGINS_PREINSTALL_DISABLED: true
-      GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown grafanaAPIServerWithExperimentalAPIs
-      GRAFANA_CLOUD_LOGS_KEY: ${GRAFANA_CLOUD_LOGS_KEY}
