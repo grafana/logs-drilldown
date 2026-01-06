@@ -42,6 +42,7 @@ import {
 
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
+import { escapeLabelValueInExactSelector } from '../../services/extensions/scenesMethods';
 import { pushUrlHandler } from '../../services/navigate';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
@@ -726,6 +727,11 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const labelsVarPrimary = getLabelsVariable(this);
     this._subs.add(
       labelsVarPrimary.subscribeToState((newState, prevState) => {
+        // If the user has added a label name
+        if (newState._wip?.key && newState._wip?.key !== prevState._wip?.key && newState.filters.length === 0) {
+          this.setSelectedTab(newState._wip.key);
+        }
+
         if (!areArraysEqual(newState.filters, prevState.filters)) {
           this.syncVariables();
         }
@@ -1016,7 +1022,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         return `sum by (${LEVEL_VARIABLE_VALUE}) (sum_over_time({${AGGREGATED_SERVICE_NAME}=~\`.+\` } | logfmt | ${filter.key}=\`${labelValue}\` | unwrap count [$__auto]))`;
       }
     }
-    return `sum by (${LEVEL_VARIABLE_VALUE}) (count_over_time({ ${filter.key}=\`${labelValue}\`, ${VAR_LABELS_REPLICA_EXPR} } [$__auto]))`;
+
+    return `sum by (${LEVEL_VARIABLE_VALUE}) (count_over_time({ ${filter.key}=\"${escapeLabelValueInExactSelector(
+      labelValue
+    )}\", ${VAR_LABELS_REPLICA_EXPR} } [$__auto]))`;
   }
 
   private extendTimeSeriesLegendBus = (
