@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { FormEvent, useCallback, useRef, useState } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -12,7 +12,10 @@ interface Props {
 }
 
 export function SaveSearchModal({ onClose, query }: Props) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const handleSubmit = useCallback(() => {}, []);
+  const titleRef = useRef<HTMLInputElement | null>(null);
   const styles = useStyles2(getStyles);
 
   return (
@@ -24,7 +27,13 @@ export function SaveSearchModal({ onClose, query }: Props) {
         <Stack gap={1} direction="column" minWidth={0} flex={1}>
           <Box flex={1} marginBottom={2}>
             <Field label={t('logs.logs-drilldown.save-search.title', 'Title')} noMargin htmlFor="save-search-title">
-              <Input id="save-search-title" />
+              <Input
+                id="save-search-title"
+                required
+                ref={titleRef}
+                value={title}
+                onChange={(e: FormEvent<HTMLInputElement>) => setTitle(e.currentTarget.value)}
+              />
             </Field>
           </Box>
           <Box flex={1} marginBottom={2}>
@@ -33,15 +42,21 @@ export function SaveSearchModal({ onClose, query }: Props) {
               noMargin
               htmlFor="save-search-description"
             >
-              <Input id="save-search-description" />
+              <Input
+                id="save-search-description"
+                value={description}
+                onChange={(e: FormEvent<HTMLInputElement>) => setTitle(e.currentTarget.value)}
+              />
             </Field>
           </Box>
         </Stack>
         <Modal.ButtonRow>
-          <Button variant="secondary" fill="outline">
+          <Button variant="secondary" fill="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit" disabled={!title}>
+            Save
+          </Button>
         </Modal.ButtonRow>
       </form>
     </Modal>
