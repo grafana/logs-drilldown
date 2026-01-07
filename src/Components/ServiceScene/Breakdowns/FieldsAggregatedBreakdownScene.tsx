@@ -488,7 +488,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         .setData(dataTransformer)
         .setMenu(
           new PanelMenu({
-            investigationOptions: { labelName: labelName },
             fieldType,
             panelType: fieldType === 'int' ? panelType : undefined,
           })
@@ -517,7 +516,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         .setTitle(labelName)
         .setData(dataTransformer)
         .setUnit('short')
-        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType, fieldType }));
+        .setMenu(new PanelMenu({ panelType, fieldType }));
       headerActions.push(
         new SelectLabelActionScene({
           fieldType: ValueSlugs.field,

@@ -266,7 +266,7 @@ export function getFilterBreakdownValueScene(
         })
       )
       .setOverrides(setLevelColorOverrides)
-      .setMenu(new PanelMenu({ investigationOptions: { fieldName: getTitle(frame), frame, labelName: labelKey } }))
+      .setMenu(new PanelMenu({}))
       .setHeaderActions([
         new AddToFiltersButton({ frame, hideExclude: labelKey === LEVEL_VARIABLE_VALUE, variableName }),
       ]);

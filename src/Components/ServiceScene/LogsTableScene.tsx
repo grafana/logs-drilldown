@@ -95,7 +95,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   public onActivate() {
     this.setState({
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
-      menu: new PanelMenu({ addInvestigationsLink: false }),
+      menu: new PanelMenu({}),
     });
     setControlsExpandedStateFromLocalStorage(this.getParentScene());
     this.setStateFromUrl();

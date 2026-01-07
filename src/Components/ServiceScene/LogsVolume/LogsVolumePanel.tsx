@@ -155,7 +155,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setCustomFieldConfig('pointSize', 0)
       .setCustomFieldConfig('axisSoftMin', 0)
       .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
-      .setMenu(new PanelMenu({ investigationOptions: { labelName: 'level' } }))
+      .setMenu(new PanelMenu({}))
       .setCollapsible(true)
       .setCollapsed(isCollapsed)
       .setHeaderActions(new LogsVolumeActions({}))
