@@ -124,7 +124,7 @@ export const TableWrap = (props: TableWrapProps) => {
   }
 
   const logControlOptionsWidth = props.controlsExpanded ? CONTROLS_WIDTH_EXPANDED : CONTROLS_WIDTH;
-  const tableWidth = panelWrapSize.width - 25 + (logsControlsSupported ? logControlOptionsWidth * -1 : 0);
+  const tableWidth = panelWrapSize.width + (logsControlsSupported ? logControlOptionsWidth * -1 : 0);
 
   return (
     <section className={styles.section}>
@@ -141,7 +141,7 @@ export const TableWrap = (props: TableWrapProps) => {
         <Table
           logsFrame={logsFrame}
           timeZone={timeZone}
-          height={panelWrapSize.height - 50}
+          height={panelWrapSize.height}
           width={tableWidth}
           labels={labels}
           logsSortOrder={props.logsSortOrder}

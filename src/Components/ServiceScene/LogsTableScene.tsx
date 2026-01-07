@@ -298,7 +298,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const controlsExpanded = parentModel.state.controlsExpanded;
 
     return (
-      <div className={styles.panelWrapper} ref={panelWrap}>
+      <div className={styles.panelWrapper}>
         {!error && (
           <>
             {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
@@ -311,7 +311,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
               }
             >
-              <div className={styles.container}>
+              <div className={styles.container} ref={panelWrap}>
                 {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
                   <LogListControls
                     controlsExpanded={controlsExpanded}
@@ -369,6 +369,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'flex',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+    height: '100%',
+    flex: 1,
   }),
   panelWrapper: css({
     height: '100%',
