@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useRef, useState } from 'react';
+import React, { FormEvent, useCallback, useState } from 'react';
 
 import { css } from '@emotion/css';
 
