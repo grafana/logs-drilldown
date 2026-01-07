@@ -88,7 +88,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
             {model.state.shareButtonScene && (
               <model.state.shareButtonScene.Component model={model.state.shareButtonScene} />
             )}
-            <SaveSearchButton />
+            <SaveSearchButton sceneRef={model} />
           </Stack>
         </div>
 

@@ -1,17 +1,25 @@
 import React, { useCallback } from 'react';
 
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Modal, Button, Box, Field, Input, Stack } from '@grafana/ui';
+import { Modal, Button, Box, Field, Input, Stack, useStyles2 } from '@grafana/ui';
 
 interface Props {
   onClose(): void;
+  query: string;
 }
 
-export function SaveSearchModal({ onClose }: Props) {
+export function SaveSearchModal({ onClose, query }: Props) {
   const handleSubmit = useCallback(() => {}, []);
+  const styles = useStyles2(getStyles);
 
   return (
     <Modal title="Save current search" isOpen={true} onDismiss={onClose}>
+      <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
+        <div className={styles.query}>{query}</div>
+      </Box>
       <form onSubmit={handleSubmit}>
         <Stack gap={1} direction="column" minWidth={0} flex={1}>
           <Box flex={1} marginBottom={2}>
@@ -39,3 +47,10 @@ export function SaveSearchModal({ onClose }: Props) {
     </Modal>
   );
 }
+
+const getStyles = (theme: GrafanaTheme2) => ({
+  query: css({
+    fontFamily: theme.typography.fontFamilyMonospace,
+    fontSize: theme.typography.bodySmall.fontSize,
+  }),
+});
