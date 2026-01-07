@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useTransition } from 'react';
 
 import { css } from '@emotion/css';
 import { useResizeObserver } from '@react-aria/utils';
@@ -49,6 +49,7 @@ export const TableWrap = (props: TableWrapProps) => {
   const { logsFrame } = useQueryContext();
 
   const [panelWrapSize, setPanelWrapSize] = useState({ height: 0, width: 0 });
+  const [, startTransition] = useTransition();
 
   // Table needs to be positioned absolutely, passing in reference wrapping panelChrome from parent
   useResizeObserver({
@@ -59,16 +60,21 @@ export const TableWrap = (props: TableWrapProps) => {
       }
       // Probable inchworm resize, temporarily reset to 0
       if (panelWrapSize.width - element.clientWidth === 1) {
-        setPanelWrapSize({
-          height: element.clientHeight,
-          width: 0,
+        startTransition(() => {
+          setPanelWrapSize({
+            height: element.clientHeight,
+            width: 0,
+          });
         });
+
         return;
       }
       if (panelWrapSize.width !== element.clientWidth || panelWrapSize.height !== element.clientHeight) {
-        setPanelWrapSize({
-          height: element.clientHeight,
-          width: element.clientWidth,
+        startTransition(() => {
+          setPanelWrapSize({
+            height: element.clientHeight,
+            width: element.clientWidth,
+          });
         });
       }
     },
