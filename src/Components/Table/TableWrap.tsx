@@ -13,12 +13,10 @@ import {
   LogsSortOrder,
 } from '@grafana/data';
 
-import { CONTROLS_WIDTH, CONTROLS_WIDTH_EXPANDED } from '../ServiceScene/LogListControls';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
 import { FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { logsControlsSupported } from 'services/panel';
 
 export type SpecialFieldsType = {
   body: FieldWithIndex;
@@ -56,13 +54,22 @@ export const TableWrap = (props: TableWrapProps) => {
   useResizeObserver({
     onResize: () => {
       const element = props.panelWrap.current;
-      if (element) {
-        if (panelWrapSize.width !== element.clientWidth || panelWrapSize.height !== element.clientHeight) {
-          setPanelWrapSize({
-            height: element.clientHeight,
-            width: element.clientWidth,
-          });
-        }
+      if (!element) {
+        return;
+      }
+      // Probable inchworm resize, temporarily reset to 0
+      if (panelWrapSize.width - element.clientWidth === 1) {
+        setPanelWrapSize({
+          height: element.clientHeight,
+          width: 0,
+        });
+        return;
+      }
+      if (panelWrapSize.width !== element.clientWidth || panelWrapSize.height !== element.clientHeight) {
+        setPanelWrapSize({
+          height: element.clientHeight,
+          width: element.clientWidth,
+        });
       }
     },
     ref: props.panelWrap,
@@ -123,9 +130,6 @@ export const TableWrap = (props: TableWrapProps) => {
     setSpecialFieldMeta(active, specialFields, pendingLabelState);
   }
 
-  const logControlOptionsWidth = props.controlsExpanded ? CONTROLS_WIDTH_EXPANDED : CONTROLS_WIDTH;
-  const tableWidth = panelWrapSize.width + (logsControlsSupported ? logControlOptionsWidth * -1 : 0);
-
   return (
     <section className={styles.section}>
       <TableColumnContextProvider
@@ -142,7 +146,7 @@ export const TableWrap = (props: TableWrapProps) => {
           logsFrame={logsFrame}
           timeZone={timeZone}
           height={panelWrapSize.height}
-          width={tableWidth}
+          width={panelWrapSize.width - 1}
           labels={labels}
           logsSortOrder={props.logsSortOrder}
         />

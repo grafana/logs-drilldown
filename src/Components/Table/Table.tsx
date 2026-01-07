@@ -125,6 +125,9 @@ function TableAndContext(props: {
   sortBy?: { desc: boolean; fieldName: string };
   width: number;
 }) {
+  if (props.width <= 0) {
+    return null;
+  }
   return (
     <GrafanaTable
       onColumnResize={props.onResize}

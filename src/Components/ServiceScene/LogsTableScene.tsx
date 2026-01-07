@@ -311,7 +311,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                 <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
               }
             >
-              <div className={styles.container} ref={panelWrap}>
+              <div className={styles.container}>
                 {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
                   <LogListControls
                     controlsExpanded={controlsExpanded}
@@ -327,23 +327,25 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
                     disabledLineState={!model.state.isDisabledLineState}
                   />
                 )}
-                {dataFrame && (
-                  <TableProvider
-                    controlsExpanded={controlsExpanded}
-                    panelWrap={panelWrap}
-                    addFilter={addFilter}
-                    timeRange={timeRangeValue}
-                    selectedLine={selectedLine}
-                    urlColumns={urlColumns ?? []}
-                    displayFields={parentModel.state.displayedFields}
-                    setUrlColumns={setUrlColumns}
-                    dataFrame={dataFrame}
-                    clearSelectedLine={clearSelectedLine}
-                    setUrlTableBodyState={setUrlTableBodyState}
-                    urlTableBodyState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
-                    logsSortOrder={sortOrder}
-                  />
-                )}
+                <div className={styles.tableContainer} ref={panelWrap}>
+                  {dataFrame && (
+                    <TableProvider
+                      controlsExpanded={controlsExpanded}
+                      panelWrap={panelWrap}
+                      addFilter={addFilter}
+                      timeRange={timeRangeValue}
+                      selectedLine={selectedLine}
+                      urlColumns={urlColumns ?? []}
+                      displayFields={parentModel.state.displayedFields}
+                      setUrlColumns={setUrlColumns}
+                      dataFrame={dataFrame}
+                      clearSelectedLine={clearSelectedLine}
+                      setUrlTableBodyState={setUrlTableBodyState}
+                      urlTableBodyState={tableLogLineState ?? getTableLogLine() ?? LogLineState.text}
+                      logsSortOrder={sortOrder}
+                    />
+                  )}
+                </div>
                 {emptyScene && dataFrame && dataFrame.length === 0 && (
                   <NoMatchingLabelsScene.Component model={emptyScene} />
                 )}
@@ -371,6 +373,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
     justifyContent: 'space-between',
     height: '100%',
     flex: 1,
+  }),
+  tableContainer: css({
+    overflow: 'hidden',
+    flex: '1 1 auto',
+    minWidth: 0,
   }),
   panelWrapper: css({
     height: '100%',
