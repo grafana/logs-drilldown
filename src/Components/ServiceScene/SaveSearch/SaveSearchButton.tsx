@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { t } from '@grafana/i18n';
 import { ToolbarButton } from '@grafana/ui';
 
+import { SaveSearchModal } from './SaveSearchModal';
+
 export function SaveSearchButton() {
   const [saving, setSaving] = useState(false);
 
@@ -11,9 +13,10 @@ export function SaveSearchButton() {
       <ToolbarButton
         variant="canvas"
         icon="save"
-        onClick={() => {}}
-        tooltip={t('logs.logs-drilldown-header.expand', 'Save search')}
+        onClick={() => setSaving(true)}
+        tooltip={t('logs.logs-drilldown.save-search.button', 'Save search')}
       />
+      {saving && <SaveSearchModal onClose={() => setSaving(false)} />}
     </>
   );
 }

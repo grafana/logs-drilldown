@@ -14,7 +14,7 @@ import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
-import { SaveSearchButton } from './SaveSearchButton';
+import { SaveSearchButton } from './SaveSearch/SaveSearchButton';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
 import { getMaxLines } from 'services/store';
 
