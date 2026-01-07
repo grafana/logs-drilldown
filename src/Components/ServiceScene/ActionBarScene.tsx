@@ -14,6 +14,7 @@ import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
+import { SaveSearchButton } from './SaveSearchButton';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
 import { getMaxLines } from 'services/store';
 
@@ -87,6 +88,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
             {model.state.shareButtonScene && (
               <model.state.shareButtonScene.Component model={model.state.shareButtonScene} />
             )}
+            <SaveSearchButton />
           </Stack>
         </div>
 
