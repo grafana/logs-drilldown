@@ -13,8 +13,8 @@ import { getDrillDownTabLink } from '../../services/navigate';
 import { LINE_LIMIT } from '../../services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
 import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
+import { SaveSearchButton } from '../SavedSearches/SaveSearchButton';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
-import { SaveSearchButton } from './SaveSearch/SaveSearchButton';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
 import { getMaxLines } from 'services/store';
 

@@ -26,7 +26,7 @@ export function SaveSearchButton({ sceneRef }: Props) {
         variant="canvas"
         icon="save"
         onClick={() => setSaving(true)}
-        tooltip={t('logs.logs-drilldown.save-search.button', 'Save search')}
+        tooltip={t('logs.logs-drilldown.save-search.button-tooltip', 'Save search')}
       />
       {saving && <SaveSearchModal query={query} onClose={() => setSaving(false)} />}
     </>

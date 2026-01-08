@@ -86,6 +86,7 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -214,13 +215,16 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
-      controls.push(
-        new ToolbarScene({
-          isOpen: false,
-          key: CONTROLS_VARS_TOOLBAR,
-        })
-      );
+    if (getDrilldownSlug() === 'explore') {
+      controls.push(new LoadSearchScene());
+      if (config.featureToggles.exploreLogsAggregatedMetrics) {
+        controls.push(
+          new ToolbarScene({
+            isOpen: false,
+            key: CONTROLS_VARS_TOOLBAR,
+          })
+        );
+      }
     }
 
     super({
