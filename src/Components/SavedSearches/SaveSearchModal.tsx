@@ -9,11 +9,12 @@ import { Modal, Button, Box, Field, Input, Stack, useStyles2 } from '@grafana/ui
 import { saveSearch } from 'services/saveSearch';
 
 interface Props {
+  dsUid: string;
   onClose(): void;
   query: string;
 }
 
-export function SaveSearchModal({ onClose, query }: Props) {
+export function SaveSearchModal({ dsUid, onClose, query }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [state, setState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
@@ -22,13 +23,13 @@ export function SaveSearchModal({ onClose, query }: Props) {
   const handleSubmit = useCallback(async () => {
     try {
       setState('saving');
-      await saveSearch(query, title, description);
+      await saveSearch(query, title, description, dsUid);
       setState('saved');
     } catch (e) {
       console.error(e);
       setState('error');
     }
-  }, [description, query, title]);
+  }, [description, dsUid, query, title]);
 
   return (
     <Modal title="Save current search" isOpen={true} onDismiss={onClose}>

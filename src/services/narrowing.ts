@@ -243,12 +243,13 @@ export function narrowSavedSearch(search: unknown): SavedSearch | null {
   if (typeof search !== 'object' || search === null) {
     return null;
   }
-  return 'title' in search && 'description' in search && 'query' in search && 'timestamp' in search
+  return 'title' in search && 'description' in search && 'query' in search && 'timestamp' in search && 'dsUid' in search
     ? {
+        description: isString(search.description),
+        dsUid: isString(search.dsUid),
         query: isString(search.query),
         timestamp: Number(search.timestamp),
         title: isString(search.title),
-        description: isString(search.description),
       }
     : null;
 }

@@ -7,6 +7,7 @@ import { ToolbarButton } from '@grafana/ui';
 import { SaveSearchModal } from './SaveSearchModal';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { getQueryExpr } from 'services/scenes';
+import { getDataSourceVariable } from 'services/variableGetters';
 
 interface Props {
   sceneRef: SceneObject;
@@ -20,6 +21,11 @@ export function SaveSearchButton({ sceneRef }: Props) {
     return getQueryExpr(indexScene);
   }, [sceneRef]);
 
+  const dsUid = useMemo(() => {
+    const ds = getDataSourceVariable(sceneRef);
+    return ds.getValue().toString();
+  }, [sceneRef]);
+
   return (
     <>
       <ToolbarButton
@@ -28,7 +34,7 @@ export function SaveSearchButton({ sceneRef }: Props) {
         onClick={() => setSaving(true)}
         tooltip={t('logs.logs-drilldown.save-search.button-tooltip', 'Save search')}
       />
-      {saving && <SaveSearchModal query={query} onClose={() => setSaving(false)} />}
+      {saving && <SaveSearchModal dsUid={dsUid} query={query} onClose={() => setSaving(false)} />}
     </>
   );
 }
