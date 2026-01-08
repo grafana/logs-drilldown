@@ -13,7 +13,6 @@ interface Props {}
 
 export const DefaultColumns = ({}: Props) => {
   const { setApiDefaultColumnsState, dsUID, setMetadata, metadata, apiRecords } = useDefaultColumnsContext();
-
   const {
     currentData: defaultColumnsFromAPI,
     error: unknownAPIError,
@@ -22,7 +21,15 @@ export const DefaultColumns = ({}: Props) => {
     name: dsUID,
   });
 
+  console.log('resp', {
+    defaultColumnsFromAPI,
+    unknownAPIError,
+    isLoading,
+  });
+
   const defaultColumnsAPIError = narrowRTKQError(unknownAPIError);
+
+  console.log('defaultColumnsAPIError', defaultColumnsAPIError);
 
   useEffect(() => {
     const dsUIDRecord: APIColumnsState = {};
