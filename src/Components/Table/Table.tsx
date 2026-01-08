@@ -107,10 +107,15 @@ const getStyles = (theme: GrafanaTheme2, height: number, sideBarWidth: number) =
       // Hacky but without inspect turned on the table will change the width of the row on hover, but we don't want the default icons to show
       display: 'none !important',
     },
+    flex: 1,
+    minWidth: 0, // Allows flex child to shrink below content width, preventing overflow
+    overflow: 'hidden',
   }),
   wrapper: css({
     display: 'flex',
+    overflow: 'hidden',
     position: 'relative',
+    flexWrap: 'wrap', // Stop inch worm effect in browsers outside of chrome
   }),
 });
 
