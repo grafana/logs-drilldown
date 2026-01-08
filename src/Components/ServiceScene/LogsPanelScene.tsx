@@ -48,7 +48,6 @@ import { ServiceScene } from './ServiceScene';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
-import { getPrettyQueryExpr } from 'services/scenes';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
 import { clearVariables } from 'services/variableHelpers';
 
@@ -321,11 +320,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onClickShowField', this.onClickShowField)
       .setOption('onClickHideField', this.onClickHideField)
       .setOption('displayedFields', parentModel.state.displayedFields)
-      .setMenu(
-        new PanelMenu({
-          investigationOptions: { getLabelName: () => `Logs: ${getPrettyQueryExpr(serviceScene)}`, type: 'logs' },
-        })
-      )
+      .setMenu(new PanelMenu({}))
       .setOption('showLogContextToggle', true)
       .setShowMenuAlways(true)
       .setOption('enableInfiniteScrolling', true)

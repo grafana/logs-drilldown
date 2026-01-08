@@ -40,10 +40,6 @@ const title = `Open in ${PRODUCT_NAME}`;
 const description = `Open current query in the ${PRODUCT_NAME} view`;
 const icon = 'gf-logs';
 
-export const ExtensionPoints = {
-  MetricInvestigation: 'grafana-lokiexplore-app/investigation/v1',
-} as const;
-
 export type LinkConfigs = Array<PluginExtensionAddedLinkConfig<PluginExtensionPanelContext>>;
 
 export const linkConfigs: LinkConfigs = [
