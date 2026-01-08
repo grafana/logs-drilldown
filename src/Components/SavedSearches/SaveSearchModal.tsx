@@ -99,6 +99,7 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
 
 const getStyles = (theme: GrafanaTheme2) => ({
   query: css({
+    backgroundColor: theme.colors.background.elevated,
     fontFamily: theme.typography.fontFamilyMonospace,
     fontSize: theme.typography.bodySmall.fontSize,
     padding: theme.spacing(1),

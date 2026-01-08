@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneObject } from '@grafana/scenes';
-import { Modal, Button, Box, useStyles2, LoadingPlaceholder } from '@grafana/ui';
+import { Modal, Button, Box, useStyles2, LoadingPlaceholder, Stack, Text, Divider, ScrollContainer } from '@grafana/ui';
 
 import { logger } from 'services/logger';
 import { getSavedSearches, SavedSearch } from 'services/saveSearch';
@@ -18,12 +18,18 @@ interface Props {
 
 export function LoadSearchModal({ onClose, sceneRef }: Props) {
   const [searches, setSearches] = useState<SavedSearch[] | undefined>(undefined);
+  const [selectedSearch, setSelectedSearch] = useState<SavedSearch | null>(null);
   const styles = useStyles2(getStyles);
 
   useEffect(() => {
     const dsUid = getDataSourceVariable(sceneRef).getValue().toString();
     getSavedSearches(dsUid)
-      .then(setSearches)
+      .then((searches) => {
+        setSearches(searches);
+        if (searches.length) {
+          setSelectedSearch(searches[0]);
+        }
+      })
       .catch((e) => {
         logger.error(e);
         setSearches([]);
@@ -43,23 +49,136 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
             {!searches.length && <p>No saved searches to display.</p>}
           </Box>
         ))}
-      {searches?.map((search, i) => (
-        <Box key={i} backgroundColor="secondary" padding={1.5} marginBottom={2}>
-          {search.query}
-        </Box>
-      ))}
-      <Modal.ButtonRow>
-        <Button variant="secondary" fill="outline" onClick={onClose}>
-          Close
-        </Button>
-      </Modal.ButtonRow>
+      {searches && (
+        <Stack flex={1} gap={0} minHeight={25}>
+          <Box display="flex" flex={1} minWidth={25}>
+            <ScrollContainer>
+              <Stack direction="column" gap={0} flex={1} minWidth={0} role="radiogroup">
+                {searches.map((search, i) => (
+                  <SavedSearchItem
+                    key={i}
+                    search={search}
+                    selected={search === selectedSearch}
+                    onSelect={setSelectedSearch}
+                  />
+                ))}
+              </Stack>
+            </ScrollContainer>
+          </Box>
+          <Divider direction="vertical" spacing={0} />
+          <Box display="flex" flex={2} minWidth={25}>
+            <ScrollContainer>
+              {selectedSearch && (
+                <Box
+                  direction="column"
+                  display="flex"
+                  gap={1.5}
+                  flex={1}
+                  paddingBottom={0}
+                  paddingLeft={2}
+                  paddingRight={1}
+                >
+                  <Text variant="h5" truncate>
+                    {selectedSearch.title}
+                  </Text>
+                  {selectedSearch.description && (
+                    <Text variant="body" truncate>
+                      {selectedSearch.description}
+                    </Text>
+                  )}
+                  <code className={styles.query}>{selectedSearch.query}</code>
+
+                  <div>
+                    <Button variant="primary">{t('logs.logs-drilldown.load-search.select', 'Select')}</Button>
+                  </div>
+                </Box>
+              )}
+            </ScrollContainer>
+          </Box>
+        </Stack>
+      )}
     </Modal>
+  );
+}
+
+interface SavedSearchItemProps {
+  onSelect(search: SavedSearch): void;
+  search: SavedSearch;
+  selected?: boolean;
+}
+
+function SavedSearchItem({ onSelect, search, selected }: SavedSearchItemProps) {
+  const styles = useStyles2(getStyles);
+
+  const id = useId();
+  return (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label className={styles.label} htmlFor={id}>
+      <input
+        // only the selected item should be tabbable
+        // arrow keys should navigate between items
+        tabIndex={selected ? 0 : -1}
+        type="radio"
+        id={id}
+        name="saved-searches"
+        className={styles.input}
+        onChange={() => onSelect(search)}
+        checked={selected}
+      />
+      <Stack alignItems="center" justifyContent="space-between">
+        <Stack minWidth={0}>
+          <Text truncate>{search.title ?? ''}</Text>
+        </Stack>
+      </Stack>
+    </label>
   );
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
   query: css({
+    backgroundColor: theme.colors.background.elevated,
     fontFamily: theme.typography.fontFamilyMonospace,
     fontSize: theme.typography.bodySmall.fontSize,
+    padding: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    display: 'block',
+    whiteSpace: 'wrap',
+  }),
+  input: css({
+    cursor: 'pointer',
+    inset: 0,
+    opacity: 0,
+    position: 'absolute',
+  }),
+  label: css({
+    width: '100%',
+    padding: theme.spacing(2, 2, 2, 1),
+    position: 'relative',
+
+    // Add transitions for smooth highlighting fade-out
+    [theme.transitions.handleMotion('no-preference')]: {
+      transition: theme.transitions.create(['background-color', 'border-color'], {
+        duration: theme.transitions.duration.standard,
+      }),
+    },
+
+    ':has(:checked)': {
+      backgroundColor: theme.colors.action.selected,
+    },
+
+    ':has(:focus-visible)': css({
+      backgroundColor: theme.colors.action.hover,
+      outline: `2px solid ${theme.colors.primary.main}`,
+      outlineOffset: '-2px',
+    }),
+
+    '.favoriteButton': {
+      display: 'none',
+    },
+    ':has(:hover)': {
+      '.favoriteButton': {
+        display: 'inline-flex',
+      },
+    },
   }),
 });
