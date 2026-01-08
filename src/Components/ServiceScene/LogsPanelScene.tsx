@@ -28,7 +28,7 @@ import {
   getLogOption,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
-  setDisplayedFields,
+  setDisplayedFieldsInStorage,
 } from '../../services/store';
 import {
   getAdHocFiltersVariable,
@@ -37,7 +37,7 @@ import {
 } from '../../services/variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_URL_COLUMNS_LEVELS, DEFAULT_URL_COLUMNS } from '../Table/constants';
+import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LogOptionsScene } from './LogOptionsScene';
@@ -98,6 +98,34 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       wrapLogMessage: JSON.stringify(this.state.wrapLogMessage),
     };
   }
+
+  showBackendFields = () => {
+    if (!this.state.body) {
+      return;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const backendDisplayedFields = serviceScene.state.backendDisplayedFields ?? [];
+    this.setLogsVizOption({
+      displayedFields: backendDisplayedFields,
+    });
+
+    setDisplayedFieldsInStorage(this, backendDisplayedFields);
+    // Clear user added state
+    setDisplayedFieldsInStorage(this, null, true);
+
+    // Sync with urlColumns
+    const parent = this.getParentScene();
+    // Set displayed fields
+    parent.setState({ displayedFields: backendDisplayedFields });
+    const urlColumns = backendDisplayedFields ?? parent.state.urlColumns;
+    // Remove any default columns that are no longer in urlColumns
+    parent.setState({
+      urlColumns:
+        urlColumns?.filter(
+          (column) => DEFAULT_URL_COLUMNS.includes(column) || DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+        ) || [],
+    });
+  };
 
   updateFromUrl(values: SceneObjectUrlValues) {
     const stateUpdate: Partial<LogsPanelSceneState> = {};
@@ -183,10 +211,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       displayedFields: fields,
     });
     const parent = this.getParentScene();
-    if (!fields.length || shallowCompare(fields, parent.state.defaultDisplayedFields) === false) {
-      setDisplayedFields(this, fields);
+    if (!fields.length || !shallowCompare(fields, parent.state.otelDisplayedFields)) {
+      setDisplayedFieldsInStorage(this, fields);
+      setDisplayedFieldsInStorage(this, fields, true);
     }
-    parent.setState({ displayedFields: fields });
+    parent.setState({ displayedFields: fields, userDisplayedFields: true });
   };
 
   onClickShowField = (field: string) => {
@@ -198,8 +227,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({
         displayedFields,
       });
-      parent.setState({ displayedFields });
-      setDisplayedFields(this, displayedFields);
+
+      parent.setState({ displayedFields, userDisplayedFields: true });
+      setDisplayedFieldsInStorage(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields, true);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -217,8 +248,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setLogsVizOption({
         displayedFields,
       });
-      parent.setState({ displayedFields });
-      setDisplayedFields(this, displayedFields);
+      parent.setState({ displayedFields, userDisplayedFields: true });
+      setDisplayedFieldsInStorage(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields, true);
 
       // Remove displayed fields from url columns
       parent.setState({
@@ -249,7 +281,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     this.setLogsVizOption({
       displayedFields: [],
     });
-    setDisplayedFields(this, []);
+    setDisplayedFieldsInStorage(this, []);
+    setDisplayedFieldsInStorage(this, [], true);
 
     // Sync with urlColumns
     const parent = this.getParentScene();
@@ -341,8 +374,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
     } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
+      // @todo is this a user action?
       const parent = this.getParentScene();
-      parent.setState({ defaultDisplayedFields: value });
+      parent.setState({ otelDisplayedFields: value });
     }
   };
 

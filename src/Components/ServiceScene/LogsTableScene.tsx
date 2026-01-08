@@ -19,7 +19,13 @@ import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import { getLogOption, setDisplayedFields, setLogOption, setTableLogLine, getTableLogLine } from '../../services/store';
+import {
+  getLogOption,
+  getTableLogLine,
+  setDisplayedFieldsInStorage,
+  setLogOption,
+  setTableLogLine,
+} from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
@@ -193,7 +199,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       displayedFields: newDisplayedFields,
     });
     // sync LocalStorage displayedFields for Go to explore
-    setDisplayedFields(this, parentModel.state.displayedFields);
+    setDisplayedFieldsInStorage(this, parentModel.state.displayedFields);
   };
 
   // find defaultUrlColumns and match order
@@ -308,7 +314,10 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               menu={menu ? <menu.Component model={menu} /> : undefined}
               showMenuAlways={true}
               actions={
-                <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+                <>
+                  {/*// @todo add scene*/}
+                  <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+                </>
               }
             >
               <div className={styles.container}>

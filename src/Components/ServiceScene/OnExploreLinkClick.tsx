@@ -6,7 +6,7 @@ import { DATAPLANE_LABELS_NAME } from '../../services/logsFrame';
 import { unknownToStrings } from '../../services/narrowing';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { getDataSource, getQueryExpr } from 'services/scenes';
-import { getDisplayedFields, getLogOption, getLogsVisualizationType } from 'services/store';
+import { getDisplayedFieldsInStorage, getLogOption, getLogsVisualizationType } from 'services/store';
 
 export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open = false) => {
   if (!expr) {
@@ -17,7 +17,7 @@ export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open =
 
   const datasource = getDataSource(indexScene);
   const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
-  const displayedFields = getDisplayedFields(indexScene);
+  const displayedFields = getDisplayedFieldsInStorage(indexScene);
   const visualisationType = getLogsVisualizationType();
   const columns = getUrlColumns();
   /* eslint-disable sort/object-properties */
