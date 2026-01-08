@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, render, RenderResult, screen } from '@testing-library/react';
+import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -151,7 +151,7 @@ describe('Config', () => {
       expect(getAddLabelButton().disabled).toBe(false);
 
       // Displayed columns
-      expect(getDisplayColumns()).toBeInTheDocument();
+      expect(queryDisplayColumns()).toBeInTheDocument();
       expect(screen.getByText(COLUMN_1_DEFAULT_VALUE)).toBeInTheDocument();
       expect(screen.getByText(COLUMN_2_DEFAULT_VALUE)).toBeInTheDocument();
 
@@ -159,31 +159,27 @@ describe('Config', () => {
       expect(getDeleteRecordButton()).toBeInTheDocument();
     });
     test('Expands columns section', async () => {
-      expect(getDisplayColumns()).toBeInTheDocument();
+      expect(queryDisplayColumns()).toBeInTheDocument();
 
       expect(screen.queryByDisplayValue(COLUMN_1_DEFAULT_VALUE)).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: `Remove ${COLUMN_1_DEFAULT_VALUE}` })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: ADD_COLUMN_BUTTON_TEXT })).not.toBeInTheDocument();
       expect(screen.queryByText(LOGS_SCENE_MOCK_TEXT)).not.toBeInTheDocument();
-      act(() => {
-        getDisplayColumns()?.click();
-      });
+      fireEvent.click(getDisplayColumns());
       expect(screen.getByDisplayValue(COLUMN_1_DEFAULT_VALUE)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: `Remove ${COLUMN_1_DEFAULT_VALUE}` })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT })).toBeInTheDocument();
       expect(screen.getByText(LOGS_SCENE_MOCK_TEXT)).toBeInTheDocument();
     });
     test('Can delete record', async () => {
-      expect(getDisplayColumns()).toBeInTheDocument();
+      expect(queryDisplayColumns()).toBeInTheDocument();
       expect(getDeleteRecordButton()).toBeInTheDocument();
       // No changes have been made, so we can't submit (note, the classic button doesn't set the disabled attribute, but it does set the aria-disabled, the ConfirmButton has the opposite behavior
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
       expect(getResetButton()).toBeDisabled();
-      act(() => {
-        getDeleteRecordButton()?.click();
-      });
-      expect(getDeleteRecordButton()).not.toBeInTheDocument();
-      expect(getDisplayColumns()).not.toBeInTheDocument();
+      fireEvent.click(getDeleteRecordButton());
+      expect(queryDeleteRecordButton()).not.toBeInTheDocument();
+      expect(queryDisplayColumns()).not.toBeInTheDocument();
       // Now we have pending changes, so the submit button should be enabled
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'false');
       expect(getResetButton()).not.toBeDisabled();
@@ -192,9 +188,7 @@ describe('Config', () => {
       // No changes have been made, so we can't submit
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
       expect(getResetButton()).toBeDisabled();
-      act(() => {
-        getAddLabelButton()?.click();
-      });
+      fireEvent.click(getAddLabelButton());
       // We made changes, so we can revert
       expect(getResetButton()).not.toBeDisabled();
       // But until the options are filled in we can't submit the changes
@@ -209,9 +203,7 @@ describe('Config', () => {
     test('Deletes label', () => {
       // Remove button shows for each label
       expect(screen.getAllByRole('button', { name: /remove/i })).toHaveLength(2);
-      act(() => {
-        screen.getByRole('button', { name: /remove key2 = value2/i }).click();
-      });
+      fireEvent.click(screen.getByRole('button', { name: /remove key2 = value2/i }));
       // Cannot delete the last label
       expect(screen.queryAllByRole('button', { name: /remove/i })).toHaveLength(0);
     });
@@ -221,17 +213,14 @@ describe('Config', () => {
       expect(screen.getByText(COLUMN_2_DEFAULT_VALUE)).toBeInTheDocument();
 
       // Expand the columns
-      act(() => {
-        getDisplayColumns()?.click();
-      });
+      fireEvent.click(getDisplayColumns());
 
       expect(screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT })).toBeInTheDocument();
       expect(getColumnInputs()).toHaveLength(2);
       expect(getResetButton()).toBeDisabled();
 
-      act(() => {
-        screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT }).click();
-      });
+      // Add a new column
+      fireEvent.click(screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT }));
 
       // We should have 3 columns now after adding one
       expect(getColumnInputs()).toHaveLength(3);
@@ -243,15 +232,11 @@ describe('Config', () => {
       // Should be 2 remove buttons for labels
       expect(getRemoveButtons()).toHaveLength(2);
       // Open columns drawer
-      act(() => {
-        getDisplayColumns()?.click();
-      });
+      fireEvent.click(getDisplayColumns());
       // Now we can see 2 more remove buttons
       expect(getRemoveButtons()).toHaveLength(4);
       // Remove an existing column
-      act(() => {
-        getRemoveButtons()[getRemoveButtons().length - 1].click();
-      });
+      fireEvent.click(getRemoveButtons()[getRemoveButtons().length - 1]);
       // Since you can't remove the last item, now we have 2
       expect(getRemoveButtons()).toHaveLength(2);
     });
@@ -266,9 +251,7 @@ describe('Config', () => {
       result = setup();
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
       expect(getResetButton()).toBeDisabled();
-      act(() => {
-        getAddLabelButton()?.click();
-      });
+      fireEvent.click(getAddLabelButton());
       expect(getResetButton()).not.toBeDisabled();
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
 
@@ -285,11 +268,9 @@ describe('Config', () => {
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'false');
       expect(screen.getByDisplayValue(/bar/i)).toBeInTheDocument();
 
-      act(() => {
-        getResetButton().click();
-        getResetButton().click();
-        getResetButtons()[1].click();
-      });
+      fireEvent.click(getResetButton());
+      fireEvent.click(getResetButton());
+      fireEvent.click(getResetButtons()[1]);
 
       expect(screen.queryByDisplayValue(/foo/i)).not.toBeInTheDocument();
       expect(screen.queryByDisplayValue(/bar/i)).not.toBeInTheDocument();
@@ -299,15 +280,11 @@ describe('Config', () => {
     });
     it('Can revert pending column changes', async () => {
       result = setup();
-      act(() => {
-        getDisplayColumns()?.click();
-      });
+      fireEvent.click(getDisplayColumns());
       expect(getColumnInputs()).toHaveLength(2);
       expect(getResetButton()).toBeDisabled();
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
-      act(() => {
-        screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT }).click();
-      });
+      fireEvent.click(screen.getByRole('button', { name: ADD_COLUMN_BUTTON_TEXT }));
       expect(getColumnInputs()).toHaveLength(3);
       expect(getResetButton()).not.toBeDisabled();
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
@@ -317,10 +294,17 @@ describe('Config', () => {
   });
 });
 
-function getDisplayColumns() {
+function queryDisplayColumns() {
   return screen.queryByRole('heading', { name: /display columns/i });
 }
+function getDisplayColumns() {
+  return screen.getByRole('heading', { name: /display columns/i });
+}
+
 function getDeleteRecordButton() {
+  return screen.getByRole<HTMLButtonElement>('button', { name: DELETE_RECORD_BUTTON_TEXT });
+}
+function queryDeleteRecordButton() {
   return screen.queryByRole<HTMLButtonElement>('button', { name: DELETE_RECORD_BUTTON_TEXT });
 }
 function getSubmitButton() {
@@ -350,15 +334,9 @@ function getColumnInputs() {
   return screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_COLUMNS_INPUT_PLACEHOLDER);
 }
 async function addCustomValueToCombobox(comboBox: HTMLInputElement, value = 'foo') {
-  act(() => {
-    comboBox.click();
-  });
-  await act(async () => {
-    await userEvent.type(comboBox, value);
-  });
-  await act(async () => {
-    await userEvent.keyboard('{Enter}');
-  });
+  fireEvent.click(comboBox);
+  await userEvent.type(comboBox, value);
+  await userEvent.keyboard('{Enter}');
 }
 function setup(records?: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords, isLoading = false) {
   const dsUID = 'dsID';
