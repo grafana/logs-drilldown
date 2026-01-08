@@ -21,15 +21,7 @@ export const DefaultColumns = ({}: Props) => {
     name: dsUID,
   });
 
-  console.log('resp', {
-    defaultColumnsFromAPI,
-    unknownAPIError,
-    isLoading,
-  });
-
   const defaultColumnsAPIError = narrowRTKQError(unknownAPIError);
-
-  console.log('defaultColumnsAPIError', defaultColumnsAPIError);
 
   useEffect(() => {
     const dsUIDRecord: APIColumnsState = {};
