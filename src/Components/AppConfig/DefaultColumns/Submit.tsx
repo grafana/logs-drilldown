@@ -13,7 +13,7 @@ import {
   LogsDrilldownDefaultColumnsSpec,
   useCreateLogsDrilldownDefaultColumnsMutation,
   useReplaceLogsDrilldownDefaultColumnsMutation,
-} from 'lib/api-clients/logsdrilldown/v1alpha1';
+} from 'lib/api-clients/logsdrilldown/v1beta1';
 import { logger } from 'services/logger';
 import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
@@ -69,7 +69,7 @@ export function Submit() {
                 metadata: {
                   name: dsUID,
                 },
-                apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
+                apiVersion: 'logsdrilldown.grafana.app/v1beta1',
                 kind: 'LogsDrilldownDefaultColumns',
                 spec: updated,
               },
@@ -83,7 +83,7 @@ export function Submit() {
                   name: dsUID,
                   resourceVersion: metadata.resourceVersion,
                 },
-                apiVersion: 'logsdrilldown.grafana.app/v1alpha1',
+                apiVersion: 'logsdrilldown.grafana.app/v1beta1',
                 kind: 'LogsDrilldownDefaultColumns',
                 spec: updated,
               },

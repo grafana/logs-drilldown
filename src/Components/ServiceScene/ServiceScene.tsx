@@ -25,7 +25,7 @@ import {
 import { LogsSortOrder, VariableHide } from '@grafana/schema';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '../../lib/api-clients/logsdrilldown/v1beta1';
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';

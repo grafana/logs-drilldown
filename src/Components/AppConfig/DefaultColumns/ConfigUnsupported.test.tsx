@@ -61,7 +61,6 @@ describe('Config', () => {
       result = render(<Config />);
       expect(screen.getByText(/default columns requires and feature flags to be enabled\./i)).toBeInTheDocument();
       expect(screen.getByText('kubernetesLogsDrilldown')).toBeInTheDocument();
-      expect(screen.getByText('grafanaAPIServerWithExperimentalAPIs')).toBeInTheDocument();
     });
   });
 });

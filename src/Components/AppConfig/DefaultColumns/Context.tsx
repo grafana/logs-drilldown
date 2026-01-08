@@ -15,7 +15,7 @@ import { isRecordInvalid } from './Validation';
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
   ObjectMeta,
-} from 'lib/api-clients/logsdrilldown/v1alpha1';
+} from 'lib/api-clients/logsdrilldown/v1beta1';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;

@@ -1,5 +1,5 @@
 import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../lib/api-clients/logsdrilldown/v1alpha1';
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../lib/api-clients/logsdrilldown/v1beta1';
 import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
 
 let metadataService: MetadataService;
