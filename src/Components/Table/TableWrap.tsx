@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useTransition } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { useResizeObserver } from '@react-aria/utils';
 
@@ -42,22 +42,18 @@ export const TableWrap = (props: TableWrapProps) => {
   const { logsFrame } = useQueryContext();
 
   const [panelWrapSize, setPanelWrapSize] = useState({ height: 0, width: 0 });
-  const [, startTransition] = useTransition();
 
   // Table needs to be positioned absolutely, passing in reference wrapping panelChrome from parent
   useResizeObserver({
     onResize: () => {
       const element = props.panelWrap.current;
-      if (!element) {
-        return;
-      }
-      if (panelWrapSize.width !== element.clientWidth || panelWrapSize.height !== element.clientHeight) {
-        startTransition(() => {
+      if (element) {
+        if (panelWrapSize.width !== element.clientWidth || panelWrapSize.height !== element.clientHeight) {
           setPanelWrapSize({
             height: element.clientHeight,
             width: element.clientWidth,
           });
-        });
+        }
       }
     },
     ref: props.panelWrap,
