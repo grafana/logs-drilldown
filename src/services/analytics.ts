@@ -68,8 +68,9 @@ export const USER_EVENTS_ACTIONS = {
     layout_type_changed: 'layout_type_changed',
     // Clicking on one of the levels in the Logs Volume panel
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
-    // Clear all displayed fields
+    // Clear all displayed fields (show original log line)
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
+    // Show default (backend) columns
     logs_show_backend_fields: 'logs_show_backend_fields',
     // Fires when logs panel query returns successfully
     logs_on_query_complete: 'logs_on_query_complete',
@@ -123,8 +124,6 @@ export const USER_EVENTS_ACTIONS = {
     embedded_error: 'embedded_error',
     // link button on click
     link_button_click: 'link_button_click',
-    show_original_log_line: 'show_original_log_line',
-    show_default_fields: 'show_default_fields',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
