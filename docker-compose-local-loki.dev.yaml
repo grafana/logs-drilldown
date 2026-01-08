@@ -3,12 +3,9 @@ version: '3.0'
 services:
   grafana:
     extends:
-      file: .config/docker-compose-base.yaml
+      file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
-    environment:
-      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
-      - GF_PLUGINS_PREINSTALL_DISABLED=true
     build:
       context: ./.config
       args:

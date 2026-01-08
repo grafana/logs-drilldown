@@ -41,18 +41,6 @@ grafana-cli --pluginUrl=https://storage.googleapis.com/integration-artifacts/gra
 
 If you want to [install the app in a docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), Logs Drilldown and other Drilldown plugins will be installed by default in Grafana 11.3+, so no additional configuration is required.
 
-## Test Out with Docker Compose
-
-Test out the app using the following command to spin up Grafana, Loki, and the Logs Explore App:
-
-```sh
-curl -L https://github.com/grafana/explore-logs/raw/main/scripts/run.sh | sh
-```
-
-This will download the https://github.com/grafana/explore-logs/blob/main/scripts/run.sh file and execute it. That shell file will download some configuration files into your `/tmp/explore-logs` directory and start the docker containers via `docker compose` from there.
-
-Once the docker container started, navigate to http://localhost:3000/a/grafana-lokiexplore-app/explore in order to use Grafana Logs Drilldown.
-
 ## Getting Started
 
 1. In the main navigation bar click on Drilldown > Logs

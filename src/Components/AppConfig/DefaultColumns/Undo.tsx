@@ -18,6 +18,7 @@ export function Undo() {
       closeOnConfirm={true}
       confirmText={'Reset'}
       confirmVariant={'destructive'}
+      aria-disabled={!validation.hasPendingChanges}
       disabled={!validation.hasPendingChanges}
     >
       Reset
