@@ -6,6 +6,7 @@ import { ToolbarButton } from '@grafana/ui';
 
 import { LoadSearchModal } from './LoadSearchModal';
 import { hasSavedSearches } from 'services/saveSearch';
+import { getDataSourceVariable } from 'services/variableGetters';
 
 export interface LoadSearchSceneState extends SceneObjectState {
   hasSavedSearches: boolean;
@@ -23,7 +24,8 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
   }
 
   onActivate = () => {
-    hasSavedSearches().then((hasSavedSearches) => {
+    const dsUid = getDataSourceVariable(this).getValue().toString();
+    hasSavedSearches(dsUid).then((hasSavedSearches) => {
       this.setState({ ...this.state, hasSavedSearches });
     });
   };
@@ -56,7 +58,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
               : t('logs.logs-drilldown.load-search.button-no-search-tooltip', 'No saved searches to load')
           }
         />
-        {isOpen && <LoadSearchModal onClose={model.toggleClosed} />}
+        {isOpen && <LoadSearchModal sceneRef={model} onClose={model.toggleClosed} />}
       </>
     );
   };

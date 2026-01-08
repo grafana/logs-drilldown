@@ -6,18 +6,18 @@ export async function saveSearch(query: string, title: string, description: stri
   await saveInLocalStorage(query, title, description, dsUid);
 }
 
-export async function hasSavedSearches() {
-  return (await getSavedSearches()).length > 0;
+export async function hasSavedSearches(dsUid: string) {
+  return (await getSavedSearches(dsUid)).length > 0;
 }
 
-export async function getSavedSearches() {
+export async function getSavedSearches(dsUid: string) {
   let stored: SavedSearch[] = [];
   try {
     stored = narrowSavedSearches(JSON.parse(localStorage.getItem(SAVED_SEARCHES_KEY) ?? '[]'));
   } catch (e) {
     logger.error(e);
   }
-  return stored;
+  return stored.filter((search) => search.dsUid === dsUid);
 }
 
 export const SAVED_SEARCHES_KEY = `${pluginJson.id}.savedSearches`;
@@ -31,7 +31,7 @@ export interface SavedSearch {
 }
 
 async function saveInLocalStorage(query: string, title: string, description: string, dsUid: string) {
-  const stored = await getSavedSearches();
+  const stored = await getSavedSearches(dsUid);
 
   stored.push({
     dsUid,
