@@ -10,7 +10,7 @@ export const recordColumnsAreNotLogLine = (r: LocalLogsDrilldownDefaultColumnsLo
   !(r.columns.length === 1 && r.columns[0] === LOG_LINE_BODY_FIELD_NAME);
 
 export const isRecordColumnsValid = (r: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord) => {
-  return recordColumnsHaveValues(r) && recordColumnsAreNotLogLine(r);
+  return recordColumnsHaveValues(r);
 };
 export const isRecordInvalid = (r: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord) => {
   return !(r.columns.length && r.labels.length && isRecordLabelsValid(r) && isRecordColumnsValid(r));
