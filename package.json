@@ -129,7 +129,8 @@
     "react-table": "^7.8.0",
     "rxjs": "7.8.2",
     "tslib": "2.5.3",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "@reduxjs/toolkit": "^2.8.0"
   },
   "resolutions": {
     "react-router-dom": "^6.22.0",
