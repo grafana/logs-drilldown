@@ -527,6 +527,7 @@ export class ExplorePage {
 
   async defaultColumnsDeleteAllRecords() {
     const deleteButtons = this.page.getByRole('button', { name: 'Delete record' });
+    await this.assertNotLoading();
     const deleteButtonsCount = await deleteButtons.count();
 
     // Delete all existing records that may have persisted from other test executions
@@ -540,6 +541,7 @@ export class ExplorePage {
     if (!isDisabled) {
       await submitButton.click();
     }
+    await expect(deleteButtons).toHaveCount(0);
   }
 }
 

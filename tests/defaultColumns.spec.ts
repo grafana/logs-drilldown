@@ -19,15 +19,6 @@ test.describe('Default fields', () => {
     explorePage.captureConsoleLogs();
   });
 
-  test.describe.skip('< 12.4', () => {
-    test('should show unsupported UI', async ({ page }) => {
-      // We are running an old version of Grafana so we should see a message telling us to upgrade
-      await expect(page.getByText('Default columns requires Grafana 12.4 or greater.')).toBeVisible();
-      // But we have the right feature flags set, so we shouldn't see these
-      await expect(page.getByText('kubernetesLogsDrilldown')).not.toBeVisible();
-    });
-  });
-
   test.describe('>= 12.4', () => {
     test.describe.configure({ mode: 'serial' });
 
