@@ -45,6 +45,8 @@ export const USER_EVENTS_ACTIONS = {
     search_services_changed: 'search_services_changed',
     // Selecting service. Props: service
     service_selected: 'service_selected',
+    // Adding new tab
+    add_new_tab: 'add_new_tab',
   },
   [USER_EVENTS_PAGES.service_details]: {
     // Selecting action view tab (logs/labels/fields/patterns). Props: newActionView, previousActionView
