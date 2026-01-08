@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
 
 interface Props {
@@ -18,11 +19,15 @@ export function RemoveLabel({ recordIndex, labelIndex }: Props) {
   const labels = records?.[recordIndex].labels;
   const label = labels?.[labelIndex];
 
-  const onRemoveLabelValue = () => {
+  const onRemoveLabel = () => {
     if (records) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.labels.splice(labelIndex, 1);
       setRecords(records);
+      reportAppInteraction(
+        USER_EVENTS_PAGES.default_columns_config,
+        USER_EVENTS_ACTIONS.default_columns_config.remove_label
+      );
     }
   };
 
@@ -34,7 +39,7 @@ export function RemoveLabel({ recordIndex, labelIndex }: Props) {
         name={'minus'}
         size={'lg'}
         className={styles.valueContainer__remove}
-        onClick={() => onRemoveLabelValue()}
+        onClick={() => onRemoveLabel()}
       />
     </div>
   );

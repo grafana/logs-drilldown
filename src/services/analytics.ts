@@ -28,12 +28,14 @@ export const USER_EVENTS_PAGES = {
   all: 'all',
   service_details: 'service_details',
   service_selection: 'service_selection',
+  default_columns_config: 'default_columns_config',
 } as const;
 
 type UserEventPagesType = keyof typeof USER_EVENTS_PAGES;
 type UserEventActionType =
   | keyof (typeof USER_EVENTS_ACTIONS)['service_selection']
   | keyof (typeof USER_EVENTS_ACTIONS)['service_details']
+  | keyof (typeof USER_EVENTS_ACTIONS)['default_columns_config']
   | keyof (typeof USER_EVENTS_ACTIONS)['all'];
 
 export const USER_EVENTS_ACTIONS = {
@@ -121,9 +123,23 @@ export const USER_EVENTS_ACTIONS = {
     embedded_error: 'embedded_error',
     // link button on click
     link_button_click: 'link_button_click',
+    show_original_log_line: 'show_original_log_line',
+    show_default_fields: 'show_default_fields',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
     open_in_explore_menu_clicked: 'open_in_explore_menu_clicked',
+  },
+  [USER_EVENTS_PAGES.default_columns_config]: {
+    add_record: 'add_record',
+    add_column: 'add_column',
+    add_label: 'add_label',
+
+    remove_label: 'remove_label',
+    remove_column: 'remove_column',
+    delete_record: 'delete_record',
+
+    undo: 'undo',
+    save: 'save',
   },
 } as const;

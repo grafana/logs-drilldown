@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
 import { DefaultColumnsValidationState } from './types';
 import {
@@ -89,6 +90,11 @@ export function Submit() {
               },
             });
           }
+
+          reportAppInteraction(
+            USER_EVENTS_PAGES.default_columns_config,
+            USER_EVENTS_ACTIONS.default_columns_config.save
+          );
         }
       }}
     >

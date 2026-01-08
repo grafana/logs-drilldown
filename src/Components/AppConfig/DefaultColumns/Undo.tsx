@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash';
 
 import { ConfirmButton } from '@grafana/ui';
 
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
 
 export function Undo() {
@@ -13,6 +14,10 @@ export function Undo() {
       onConfirm={() => {
         if (apiRecords !== null) {
           setRecords(cloneDeep(apiRecords));
+          reportAppInteraction(
+            USER_EVENTS_PAGES.default_columns_config,
+            USER_EVENTS_ACTIONS.default_columns_config.undo
+          );
         }
       }}
       closeOnConfirm={true}
