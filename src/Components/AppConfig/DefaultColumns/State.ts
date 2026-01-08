@@ -94,7 +94,10 @@ export const getKeys = async (
     res.filter((opt) => removeAlreadySelected(opt) || column === opt.value)
   );
 
-  const keysArray: ComboboxOption[] = [LOG_LINE_COMBOBOX_OPTION];
+  const keysArray: ComboboxOption[] = [];
+  if (!record.columns.includes(LOG_LINE_BODY_FIELD_NAME)) {
+    keysArray.push(LOG_LINE_COMBOBOX_OPTION);
+  }
   keysArray.push(...options);
   return keysArray;
 };

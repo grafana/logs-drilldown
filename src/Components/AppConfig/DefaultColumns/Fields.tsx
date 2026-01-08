@@ -14,7 +14,7 @@ interface Props {
   recordIndex: number;
 }
 
-const INVALID_COLUMNS_LOG_LINE_ONLY_TEXT = 'Include at least one column that is not Log line';
+const INVALID_COLUMNS_LOG_LINE_ONLY_TEXT = 'Only selecting the log line is probably redundant!';
 
 export function Fields({ recordIndex }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
@@ -40,7 +40,7 @@ export function Fields({ recordIndex }: Props) {
 
   return (
     <div className={styles.fieldsContainer}>
-      {!notOnlyLogLine && <Alert title={INVALID_COLUMNS_LOG_LINE_ONLY_TEXT}></Alert>}
+      {!notOnlyLogLine && <Alert severity={'warning'} title={INVALID_COLUMNS_LOG_LINE_ONLY_TEXT}></Alert>}
 
       <ColumnsDragContext recordIndex={recordIndex} />
 

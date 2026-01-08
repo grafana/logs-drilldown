@@ -8,7 +8,6 @@ import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { getKeys } from './State';
-import { recordColumnsAreNotLogLine } from './Validation';
 import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
 import { logger } from 'services/logger';
 
@@ -67,7 +66,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                   className={styles.column__dragIcon}
                 />
                 <Combobox<string>
-                  invalid={!column || !recordColumnsAreNotLogLine(record)}
+                  invalid={!column}
                   value={{
                     value: column,
                     label: getNormalizedFieldName(column),
@@ -85,7 +84,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                 {columns.length > 1 && (
                   <IconButton
                     variant={'destructive'}
-                    tooltip={`Remove ${column}`}
+                    tooltip={`Remove ${getNormalizedFieldName(column)}`}
                     name={'minus'}
                     size={'lg'}
                     className={styles.column__removeIcon}
