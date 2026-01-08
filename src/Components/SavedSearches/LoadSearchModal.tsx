@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, useStyles2, LoadingPlaceholder } from '@grafana/ui';
 
@@ -30,7 +31,11 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
   }, [sceneRef]);
 
   return (
-    <Modal title="Load a previously saved search" isOpen={true} onDismiss={onClose}>
+    <Modal
+      title={t('logs.logs-drilldown.load-search.modal-title', 'Load a previously saved search')}
+      isOpen={true}
+      onDismiss={onClose}
+    >
       {!searches ||
         (searches.length === 0 && (
           <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>

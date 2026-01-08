@@ -32,9 +32,13 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
   }, [description, dsUid, query, title]);
 
   return (
-    <Modal title="Save current search" isOpen={true} onDismiss={onClose}>
-      <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
-        <div className={styles.query}>{query}</div>
+    <Modal
+      title={t('logs.logs-drilldown.save-search.modal-title', 'Save current search')}
+      isOpen={true}
+      onDismiss={onClose}
+    >
+      <Box marginBottom={2}>
+        <code className={styles.query}>{query}</code>
       </Box>
       {state !== 'saved' ? (
         <form onSubmit={handleSubmit}>
@@ -97,5 +101,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   query: css({
     fontFamily: theme.typography.fontFamilyMonospace,
     fontSize: theme.typography.bodySmall.fontSize,
+    padding: theme.spacing(1),
+    display: 'block',
   }),
 });
