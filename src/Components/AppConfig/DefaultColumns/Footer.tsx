@@ -33,7 +33,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     position: 'sticky',
     bottom: 0,
     left: 0,
-    background: theme.colors.background.primary,
+    background: theme.colors.background.secondary,
     zIndex: theme.zIndex.navbarFixed,
     padding: theme.spacing(1, 2),
     border: `1px solid ${theme.colors.border.weak}`,
