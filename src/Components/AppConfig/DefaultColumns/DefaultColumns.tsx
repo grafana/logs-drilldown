@@ -5,7 +5,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import { useDefaultColumnsContext } from './Context';
 import { Records } from './Records';
 import { APIColumnsState } from './types';
-import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1alpha1';
+import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { logger } from 'services/logger';
 import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
@@ -13,7 +13,6 @@ interface Props {}
 
 export const DefaultColumns = ({}: Props) => {
   const { setApiDefaultColumnsState, dsUID, setMetadata, metadata, apiRecords } = useDefaultColumnsContext();
-
   const {
     currentData: defaultColumnsFromAPI,
     error: unknownAPIError,
