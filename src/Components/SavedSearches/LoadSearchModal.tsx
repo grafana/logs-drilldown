@@ -41,7 +41,9 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
   useEffect(() => {
     const selected = searches.find((search) => search === selectedSearch);
     if (!selected && searches.length) {
-      setSelectedSearch(searches[0]);
+      setSelectedSearch(
+        selectedSearch ? searches.find((search) => search.uid === selectedSearch.uid) ?? searches[0] : searches[0]
+      );
     }
   }, [selectedSearch, searches]);
 
