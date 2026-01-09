@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert } from '@grafana/ui';
+import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
 
 import { useSaveSearch } from 'services/saveSearch';
 
@@ -17,25 +17,26 @@ interface Props {
 export function SaveSearchModal({ dsUid, onClose, query }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [isVisible, setIsVisible] = useState<boolean | undefined>(undefined);
   const [state, setState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
   const styles = useStyles2(getStyles);
 
-  const saveSearch = useSaveSearch();
+  const { saveSearch, backend: saveSearchBackend } = useSaveSearch();
 
   const handleSubmit = useCallback(
-    async (e) => {
+    async (e: FormEvent) => {
       e.preventDefault();
 
       try {
         setState('saving');
-        await saveSearch({ query, title, description, dsUid });
+        await saveSearch({ description, dsUid, isVisible, query, title });
         setState('saved');
       } catch (e) {
         console.error(e);
         setState('error');
       }
     },
-    [description, dsUid, query, saveSearch, title]
+    [description, dsUid, isVisible, query, saveSearch, title]
   );
 
   return (
@@ -75,6 +76,17 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
                 />
               </Field>
             </Box>
+            {saveSearchBackend === 'remote' && (
+              <Box flex={1} marginBottom={2}>
+                <Field>
+                  <Checkbox
+                    label={t('logs.logs-drilldown.save-search.share-with-users', 'Share with all users')}
+                    checked={isVisible}
+                    onChange={(e: FormEvent<HTMLInputElement>) => setIsVisible(e.currentTarget.checked)}
+                  />
+                </Field>
+              </Box>
+            )}
           </Stack>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose} disabled={state === 'saving'}>

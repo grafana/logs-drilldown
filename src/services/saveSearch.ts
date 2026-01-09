@@ -17,7 +17,6 @@ export function useSaveSearch() {
 
   const saveSearch = useCallback(
     async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
-      console.log(backend);
       if (backend === undefined) {
         logger.error('[Save search]: Uninitialized');
         return;
@@ -32,7 +31,7 @@ export function useSaveSearch() {
     [addQuery]
   );
 
-  return saveSearch;
+  return { saveSearch, backend };
 }
 
 export function useHasSavedSearches(dsUid: string) {

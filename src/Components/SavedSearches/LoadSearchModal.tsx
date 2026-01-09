@@ -15,6 +15,7 @@ import {
   Divider,
   ScrollContainer,
   LinkButton,
+  IconButton,
 } from '@grafana/ui';
 
 import { contextToLink } from 'services/extensions/links';
@@ -123,11 +124,18 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                   )}
 
                   <code className={styles.query}>{selectedSearch.query}</code>
-                  <div>
-                    <LinkButton onClick={onClose} href={href} variant="primary">
-                      {t('logs.logs-drilldown.load-search.select', 'Select')}
-                    </LinkButton>
-                  </div>
+                  <Box display="flex" flex={1} justifyContent="flex-end" direction="column">
+                    <Stack justifyContent="space-between">
+                      <IconButton
+                        size="lg"
+                        name="trash-alt"
+                        tooltip={t('logs.logs-drilldown.load-search.remove', 'Remove')}
+                      />
+                      <LinkButton onClick={onClose} href={href} variant="primary">
+                        {t('logs.logs-drilldown.load-search.select', 'Select')}
+                      </LinkButton>
+                    </Stack>
+                  </Box>
                 </Box>
               )}
             </ScrollContainer>
