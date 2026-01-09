@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2 } from '@grafana/ui';
 
-import { saveSearch } from 'services/saveSearch';
+import { useSaveSearch } from 'services/saveSearch';
 
 interface Props {
   dsUid: string;
@@ -20,16 +20,23 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
   const [state, setState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
   const styles = useStyles2(getStyles);
 
-  const handleSubmit = useCallback(async () => {
-    try {
-      setState('saving');
-      await saveSearch(query, title, description, dsUid);
-      setState('saved');
-    } catch (e) {
-      console.error(e);
-      setState('error');
-    }
-  }, [description, dsUid, query, title]);
+  const saveSearch = useSaveSearch();
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      try {
+        setState('saving');
+        await saveSearch({ query, title, description, dsUid });
+        setState('saved');
+      } catch (e) {
+        console.error(e);
+        setState('error');
+      }
+    },
+    [description, dsUid, query, saveSearch, title]
+  );
 
   return (
     <Modal

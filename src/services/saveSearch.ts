@@ -1,14 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
 import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
-import { ListQueryApiResponse, useListQueryQuery } from 'lib/api-clients/v1beta1';
+import { ListQueryApiResponse, useCreateQueryMutation, useListQueryQuery } from 'lib/api-clients/v1beta1';
 
-export async function saveSearch(query: string, title: string, description: string, dsUid: string) {
-  await saveInLocalStorage(query, title, description, dsUid);
+let backend: 'local' | 'remote' | undefined = undefined;
+export function useInitSavedSearch(dsUid: string) {
+  useHasSavedSearches(dsUid);
+}
+
+export function useSaveSearch() {
+  const [addQuery] = useCreateQueryMutation();
+
+  const saveSearch = useCallback(
+    async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
+      console.log(backend);
+      if (backend === undefined) {
+        logger.error('[Save search]: Uninitialized');
+        return;
+      } else if (backend === 'local') {
+        saveInLocalStorage(search);
+      } else {
+        await addQuery({
+          query: convertAddQueryTemplateCommandToDataQuerySpec(search),
+        });
+      }
+    },
+    [addQuery]
+  );
+
+  return saveSearch;
 }
 
 export function useHasSavedSearches(dsUid: string) {
@@ -23,8 +47,10 @@ export function useSavedSearches(dsUid: string) {
   useEffect(() => {
     if (error) {
       setSearches(getLocallySavedSearches(dsUid));
+      backend = 'local';
     } else if (!isLoading && data) {
       setSearches(convertDataQueryResponseToSavedSearchDTO(data).filter((search) => search.dsUid === dsUid));
+      backend = 'remote';
     }
   }, [data, dsUid, error, isLoading]);
 
@@ -47,20 +73,20 @@ export const SAVED_SEARCHES_KEY = `${pluginJson.id}.savedSearches`;
 export interface SavedSearch {
   description: string;
   dsUid: string;
-  isLocked: boolean;
+  isLocked?: boolean;
+  isVisible?: boolean;
   query: string;
   timestamp: number;
   title: string;
   uid: string;
 }
 
-function saveInLocalStorage(query: string, title: string, description: string, dsUid: string) {
+function saveInLocalStorage({ query, title, description, dsUid }: Omit<SavedSearch, 'timestamp' | 'uid'>) {
   const stored = getLocallySavedSearches(dsUid);
 
   stored.push({
     dsUid,
     description,
-    isLocked: false,
     query,
     timestamp: new Date().getTime(),
     title,
@@ -88,4 +114,39 @@ export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiRes
       };
     })
     .sort((a, b) => b.timestamp - a.timestamp);
+};
+
+export const convertAddQueryTemplateCommandToDataQuerySpec = (
+  addQueryTemplateCommand: Omit<SavedSearch, 'timestamp' | 'uid'>
+) => {
+  const { dsUid, title, query, description, isVisible } = addQueryTemplateCommand;
+  return {
+    metadata: {
+      /**
+       * Server will append to whatever is passed here, but just to be safe we generate a uuid
+       * More info https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
+       */
+      generateName: uuidv4(),
+    },
+    spec: {
+      title,
+      description,
+      isVisible,
+      vars: [], // TODO: Detect variables in #86838
+      tags: [],
+      targets: [
+        {
+          variables: {},
+          properties: {
+            datasource: {
+              uid: dsUid,
+              type: 'loki',
+            },
+            expr: query,
+          },
+        },
+      ],
+      isLocked: true,
+    },
+  };
 };

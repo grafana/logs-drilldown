@@ -248,12 +248,12 @@ export function narrowSavedSearch(search: unknown): SavedSearch | null {
     'query' in search &&
     'timestamp' in search &&
     'dsUid' in search &&
-    'uid' in search &&
-    'isLocked' in search
+    'uid' in search
     ? {
         description: isString(search.description),
         dsUid: isString(search.dsUid),
-        isLocked: Boolean(search.isLocked),
+        isLocked: false,
+        isVisible: true,
         query: isString(search.query),
         timestamp: Number(search.timestamp),
         title: isString(search.title),

@@ -6,6 +6,7 @@ import { ToolbarButton } from '@grafana/ui';
 
 import { SaveSearchModal } from './SaveSearchModal';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { useInitSavedSearch } from 'services/saveSearch';
 import { getQueryExpr } from 'services/scenes';
 import { getDataSourceVariable } from 'services/variableGetters';
 
@@ -16,14 +17,16 @@ interface Props {
 export function SaveSearchButton({ sceneRef }: Props) {
   const [saving, setSaving] = useState(false);
 
-  const query = useMemo(() => {
-    const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
-    return getQueryExpr(indexScene);
-  }, [sceneRef]);
-
   const dsUid = useMemo(() => {
     const ds = getDataSourceVariable(sceneRef);
     return ds.getValue().toString();
+  }, [sceneRef]);
+
+  useInitSavedSearch(dsUid);
+
+  const query = useMemo(() => {
+    const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+    return getQueryExpr(indexScene);
   }, [sceneRef]);
 
   return (
