@@ -2169,8 +2169,9 @@ test.describe('explore services breakdown page', () => {
         `/explore?schemaVersion=1&panes={"dx6":{"datasource":"gdev-loki","queries":[{"refId":"logsPanelQuery","expr":"${queryInUrl}","datasource":{"type":"loki","uid":"gdev-loki"}}],"range":{"from":"now-30m","to":"now"},"panelsState":{"logs":{"visualisationType":"logs"}}}}&orgId=1`
       );
 
+      // 12.4 const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-line-body').first();
       // Assert there are results
-      const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-line-body').first();
+      const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-syntax-highlight').first();
       await expect(firstExplorePanelRow).toHaveCount(1);
       await expect(firstExplorePanelRow).toBeVisible();
       const queryFieldText = await page.getByTestId('data-testid Query field').textContent();
