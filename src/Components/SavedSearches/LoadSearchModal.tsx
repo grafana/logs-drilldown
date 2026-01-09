@@ -15,12 +15,10 @@ import {
   Divider,
   ScrollContainer,
   LinkButton,
-  Field,
 } from '@grafana/ui';
 
 import { contextToLink } from 'services/extensions/links';
-import { logger } from 'services/logger';
-import { getSavedSearches, SavedSearch } from 'services/saveSearch';
+import { useSavedSearches, SavedSearch } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 interface Props {
@@ -29,26 +27,19 @@ interface Props {
 }
 
 export function LoadSearchModal({ onClose, sceneRef }: Props) {
-  const [searches, setSearches] = useState<SavedSearch[] | undefined>(undefined);
   const [selectedSearch, setSelectedSearch] = useState<SavedSearch | null>(null);
   const styles = useStyles2(getStyles);
 
   const dsUid = useMemo(() => getDataSourceVariable(sceneRef).getValue().toString(), [sceneRef]);
   const sceneTimeRange = useMemo(() => sceneGraph.getTimeRange(sceneRef).state.value, [sceneRef]);
 
+  const searches = useSavedSearches(dsUid);
+
   useEffect(() => {
-    getSavedSearches(dsUid)
-      .then((searches) => {
-        setSearches(searches);
-        if (searches.length) {
-          setSelectedSearch(searches[0]);
-        }
-      })
-      .catch((e) => {
-        logger.error(e);
-        setSearches([]);
-      });
-  }, [dsUid, sceneRef]);
+    if (!selectedSearch && searches.length) {
+      setSelectedSearch(searches[0]);
+    }
+  }, [selectedSearch, searches]);
 
   const href = useMemo(() => {
     if (!selectedSearch) {
