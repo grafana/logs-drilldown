@@ -255,8 +255,7 @@ test.describe('explore services breakdown page', () => {
 
     // Check that detected_level column is present (if data contains detected_level info)
     const detectedLevelHeader = table.getByRole('columnheader').filter({ hasText: 'detected_level' });
-    const hasDetectedLevel = (await detectedLevelHeader.count()) > 0;
-    await expect(hasDetectedLevel).toBeTruthy();
+    await expect.poll(async () => (await detectedLevelHeader.count()) > 0).toBeTruthy();
   });
 
   test('table should support table column sorting with URL persistence', async ({ page }) => {
