@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Modal, Button, Box, Field, Input, Stack, useStyles2 } from '@grafana/ui';
+import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert } from '@grafana/ui';
 
 import { useSaveSearch } from 'services/saveSearch';
 
@@ -87,12 +87,12 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
         </form>
       ) : (
         <>
-          <Box marginBottom={2}>
+          <Alert title="Succcess" severity="success">
             {t(
               'logs.logs-drilldown.save-search.success',
               'Search successfully saved. You can load it again from the landing page of Logs Drilldown.'
             )}
-          </Box>
+          </Alert>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose}>
               Close
@@ -111,5 +111,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.bodySmall.fontSize,
     padding: theme.spacing(1),
     display: 'block',
+    whiteSpace: 'wrap',
   }),
 });
