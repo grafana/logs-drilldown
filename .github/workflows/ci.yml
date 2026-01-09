@@ -118,7 +118,7 @@ jobs:
 
       - name: Run Playwright tests
         id: run-tests
-        run: yarn playwright test --retries=1
+        run: yarn e2e:ci
         env:
           GRAFANA_URL: http://localhost:3001/grafana
 
