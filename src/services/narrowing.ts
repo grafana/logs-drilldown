@@ -252,7 +252,7 @@ export function narrowSavedSearch(search: unknown): SavedSearch | null {
     ? {
         description: isString(search.description),
         dsUid: isString(search.dsUid),
-        isLocked: false,
+        isLocked: undefined,
         isVisible: true,
         query: isString(search.query),
         timestamp: Number(search.timestamp),

@@ -100,10 +100,12 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
         (searches.length === 0 && (
           <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
             {!searches && <LoadingPlaceholder text="Loading your searches..." />}
-            {!searches.length && <p>No saved searches to display.</p>}
+            {!searches.length && (
+              <Text variant="body">{t('logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}</Text>
+            )}
           </Box>
         ))}
-      {searches && (
+      {searches.length > 0 && (
         <Stack flex={1} gap={0} minHeight={25}>
           <Box display="flex" flex={1} minWidth={0}>
             <ScrollContainer>
