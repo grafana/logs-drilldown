@@ -228,6 +228,8 @@ test.describe('explore services breakdown page', () => {
     // Wait for URL to be updated after switching to table view
     await page.waitForTimeout(100);
 
+    await explorePage.assertNotLoading();
+
     // Extract the current URL
     const currentUrl = page.url();
 
