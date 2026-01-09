@@ -3,23 +3,17 @@ version: '3.0'
 services:
   grafana:
     extends:
-      file: .config/docker-compose-base.yaml
+      file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
     environment:
-      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
-      - GF_LOG_FRONTEND_ENABLED=true
-      - GF_LOG_FRONTEND_CUSTOM_ENDPOINT=http://localhost:12347/collect
       - GF_TRACING_OPENTELEMETRY_JAEGER_ADDRESS=http://host.docker.internal:14268/api/traces
       - GF_TRACING_OPENTELEMETRY_JAEGER_PROPAGATION=jaeger,w3c
-      - GF_PLUGINS_PREINSTALL_DISABLED=true
-      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GRAFANA_CLOUD_LOGS_KEY=${GRAFANA_CLOUD_LOGS_KEY}
     build:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
+        grafana_version: main
     ports: !override
       - 3001:3000/tcp
     volumes:
