@@ -14,26 +14,17 @@ interface RecordsProps {}
 
 export const Records = ({}: RecordsProps) => {
   const styles = useStyles2(getStyles);
-  const { records, expandedRecords } = useDefaultColumnsContext();
+  const { records } = useDefaultColumnsContext();
 
   return (
     <div className={styles.recordsContainer}>
-      {records?.map((record, recordIndex: number) => {
-        const isOpen = expandedRecords.includes(recordIndex);
+      {records?.map((_, recordIndex: number) => {
         return (
           <div className={styles.recordContainer} key={recordIndex}>
             <div className={styles.recordContainer__content}>
               <Labels recordIndex={recordIndex} />
             </div>
-
-            <CollapsibleFields
-              // Force re-render when isOpen changes as the `ControlledCollapse` component is not actually controlled?
-              key={recordIndex + isOpen.toString()}
-              record={record}
-              isOpen={isOpen}
-              recordIndex={recordIndex}
-            />
-
+            <CollapsibleFields recordIndex={recordIndex} />
             <DeleteRecord recordIndex={recordIndex} />
           </div>
         );
@@ -45,9 +36,11 @@ export const Records = ({}: RecordsProps) => {
 const getStyles = (theme: GrafanaTheme2) => ({
   recordContainer: css({
     border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.sm,
     paddingBottom: theme.spacing(2),
     marginBottom: theme.spacing(3),
     position: 'relative',
+    boxShadow: theme.shadows.z2,
   }),
   recordContainer__content: css({
     paddingLeft: theme.spacing(2),

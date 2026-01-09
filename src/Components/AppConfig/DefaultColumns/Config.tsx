@@ -59,7 +59,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(1),
   }),
   main: css({
-    overflow: 'hidden',
     width: '100%',
   }),
 });

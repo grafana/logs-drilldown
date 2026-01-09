@@ -153,7 +153,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       datasourceUid,
       state?.initialLabels,
       state.embedded,
-      state.defaultLineFilters
+      state.defaultLineFilters,
+      state.initialFields
     );
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -788,8 +789,12 @@ function getVariableSet(
   initialDatasourceUid: string,
   initialLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  defaultLineFilters?: LineFilterType[]
+  defaultLineFilters?: LineFilterType[],
+  initialFieldFilters?: AdHocFiltersWithLabelsAndMeta[]
 ) {
+  const initialMetadataFilters = initialFieldFilters?.filter((f) => f.meta?.parser === 'structuredMetadata');
+  const initialParsedFieldFilters = initialFieldFilters?.filter((f) => f.meta?.parser !== 'structuredMetadata');
+
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
@@ -816,6 +821,7 @@ function getVariableSet(
     layout: 'combobox',
 
     name: VAR_FIELDS,
+    filters: initialParsedFieldFilters ?? [],
   });
 
   fieldsVariable._getOperators = () => {
@@ -830,6 +836,7 @@ function getVariableSet(
     label: 'Metadata',
     layout: 'combobox',
     name: VAR_METADATA,
+    filters: initialMetadataFilters ?? [],
   });
 
   metadataVariable._getOperators = () => {

@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 
-import { css } from '@emotion/css';
 import { useResizeObserver } from '@react-aria/utils';
 
 import {
@@ -13,12 +12,10 @@ import {
   LogsSortOrder,
 } from '@grafana/data';
 
-import { CONTROLS_WIDTH, CONTROLS_WIDTH_EXPANDED } from '../ServiceScene/LogListControls';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, TableColumnContextProvider } from 'Components/Table/Context/TableColumnsContext';
 import { Table } from 'Components/Table/Table';
 import { FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
-import { logsControlsSupported } from 'services/panel';
 
 export type SpecialFieldsType = {
   body: FieldWithIndex;
@@ -41,12 +38,6 @@ interface TableWrapProps {
   urlTableBodyState?: LogLineState;
 }
 
-const getStyles = () => ({
-  section: css({
-    position: 'relative',
-  }),
-});
-
 export const TableWrap = (props: TableWrapProps) => {
   const { logsFrame } = useQueryContext();
 
@@ -68,7 +59,6 @@ export const TableWrap = (props: TableWrapProps) => {
     ref: props.panelWrap,
   });
 
-  const styles = getStyles();
   const timeZone = getTimeZone();
 
   // This function is called when we want to grab the column names that are currently stored in the URL.
@@ -123,31 +113,26 @@ export const TableWrap = (props: TableWrapProps) => {
     setSpecialFieldMeta(active, specialFields, pendingLabelState);
   }
 
-  const logControlOptionsWidth = props.controlsExpanded ? CONTROLS_WIDTH_EXPANDED : CONTROLS_WIDTH;
-  const tableWidth = panelWrapSize.width - 25 + (logsControlsSupported ? logControlOptionsWidth * -1 : 0);
-
   return (
-    <section className={styles.section}>
-      <TableColumnContextProvider
-        setUrlTableBodyState={props.setUrlTableBodyState}
+    <TableColumnContextProvider
+      setUrlTableBodyState={props.setUrlTableBodyState}
+      logsFrame={logsFrame}
+      initialColumns={pendingLabelState}
+      setUrlColumns={props.setUrlColumns}
+      urlColumns={props.urlColumns}
+      displayFields={props.displayFields}
+      clearSelectedLine={props.clearSelectedLine}
+      urlTableBodyState={props.urlTableBodyState}
+    >
+      <Table
         logsFrame={logsFrame}
-        initialColumns={pendingLabelState}
-        setUrlColumns={props.setUrlColumns}
-        urlColumns={props.urlColumns}
-        displayFields={props.displayFields}
-        clearSelectedLine={props.clearSelectedLine}
-        urlTableBodyState={props.urlTableBodyState}
-      >
-        <Table
-          logsFrame={logsFrame}
-          timeZone={timeZone}
-          height={panelWrapSize.height - 50}
-          width={tableWidth}
-          labels={labels}
-          logsSortOrder={props.logsSortOrder}
-        />
-      </TableColumnContextProvider>
-    </section>
+        timeZone={timeZone}
+        height={panelWrapSize.height}
+        width={panelWrapSize.width}
+        labels={labels}
+        logsSortOrder={props.logsSortOrder}
+      />
+    </TableColumnContextProvider>
   );
 };
 

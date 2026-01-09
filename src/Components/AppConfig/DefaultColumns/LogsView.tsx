@@ -61,7 +61,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     marginTop: theme.spacing(2),
     label: 'panelWrap',
     height: '320px',
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
   }),
 });

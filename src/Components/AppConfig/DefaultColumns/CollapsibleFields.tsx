@@ -3,34 +3,42 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { ControlledCollapse, useStyles2 } from '@grafana/ui';
+import { Collapse, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { Fields } from './Fields';
 import { LogsScene } from './LogsScene';
 import { RecordsCollapsibleLabel } from './RecordsCollapsibleLabel';
-import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
 
 interface Props {
-  isOpen: boolean;
-  record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord;
   recordIndex: number;
 }
 
-export function CollapsibleFields({ record, isOpen, recordIndex }: Props) {
-  const styles = useStyles2(getStyles);
-  const { setExpandedRecords, expandedRecords } = useDefaultColumnsContext();
+export function CollapsibleFields({ recordIndex }: Props) {
+  const { setExpandedRecords, expandedRecords, records } = useDefaultColumnsContext();
+
+  const record = records?.[recordIndex];
+  const expandedRecordIdx = expandedRecords?.findIndex((i) => i === recordIndex);
+  const expandedRecord = expandedRecordIdx !== -1 ? expandedRecords[expandedRecordIdx] : undefined;
+  const isOpen = expandedRecord === recordIndex;
+
+  const styles = useStyles2(getStyles, isOpen);
+  if (!record) {
+    return null;
+  }
+
   return (
-    <ControlledCollapse
+    <Collapse
       className={styles.collapse}
-      label={<RecordsCollapsibleLabel record={record} />}
       isOpen={isOpen}
+      label={<RecordsCollapsibleLabel record={record} isOpen={isOpen} />}
       onToggle={() => {
         if (isOpen) {
-          expandedRecords.splice(recordIndex, 1);
-          setExpandedRecords(expandedRecords);
+          const expandedRecordsCopy = [...expandedRecords];
+          expandedRecordsCopy?.splice(expandedRecordIdx, 1);
+          setExpandedRecords(expandedRecordsCopy);
         } else {
-          setExpandedRecords([...expandedRecords, recordIndex]);
+          setExpandedRecords([...(expandedRecords ?? []), recordIndex]);
         }
       }}
     >
@@ -39,16 +47,21 @@ export function CollapsibleFields({ record, isOpen, recordIndex }: Props) {
       </div>
 
       <LogsScene recordIndex={recordIndex} />
-    </ControlledCollapse>
+    </Collapse>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme2, isOpen: boolean) => ({
   content: css({
     paddingLeft: theme.spacing(2),
   }),
   collapse: css({
     margin: theme.spacing(2),
+    boxShadow: theme.shadows.z1,
     width: 'auto',
+    '> div:first-of-type': {
+      borderBottom: isOpen ? `1px solid ${theme.colors.border.weak}` : 'none',
+      boxShadow: isOpen ? theme.shadows.z1 : 'none',
+    },
   }),
 });

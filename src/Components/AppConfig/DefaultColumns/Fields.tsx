@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
+import { Alert, Button, useStyles2 } from '@grafana/ui';
 
 import { ColumnsDragContext } from './ColumnsDragContext';
 import { useDefaultColumnsContext } from './Context';
@@ -14,13 +14,15 @@ interface Props {
   recordIndex: number;
 }
 
+const INVALID_COLUMNS_LOG_LINE_ONLY_TEXT = 'Only selecting the log line is probably redundant!';
+
 export function Fields({ recordIndex }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
   const record = records?.[recordIndex];
   const notOnlyLogLine = !record || recordColumnsAreNotLogLine(record);
   const recordHasValues = !record || recordColumnsHaveValues(record);
-
-  const styles = useStyles2(getStyles, !recordHasValues);
+  const recordIsValid = !recordHasValues || !!record?.columns.length;
+  const styles = useStyles2(getStyles, !recordIsValid);
 
   if (!record) {
     const error = new Error('DefaultColumnsFields: missing record!');
@@ -38,13 +40,15 @@ export function Fields({ recordIndex }: Props) {
 
   return (
     <div className={styles.fieldsContainer}>
+      {!notOnlyLogLine && <Alert severity={'warning'} title={INVALID_COLUMNS_LOG_LINE_ONLY_TEXT}></Alert>}
+
       <ColumnsDragContext recordIndex={recordIndex} />
 
       <Button
         disabled={!recordHasValues}
         tooltip={
           !notOnlyLogLine
-            ? 'Include at least one column that is not Log line'
+            ? INVALID_COLUMNS_LOG_LINE_ONLY_TEXT
             : !recordHasValues
             ? 'Invalid columns'
             : 'Add a default column to display in the logs'

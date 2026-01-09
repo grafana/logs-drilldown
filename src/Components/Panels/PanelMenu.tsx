@@ -1,19 +1,10 @@
 import React, { useEffect } from 'react';
 
 import { css } from '@emotion/css';
-import { firstValueFrom } from 'rxjs';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { BusEventBase, DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink, TimeRange } from '@grafana/data';
-// Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
-// We need both imports to support Grafana v11 and v12.
-import {
-  getDataSourceSrv,
-  getObservablePluginLinks,
-  // @ts-expect-error
-  getPluginLinkExtensions,
-  usePluginComponent,
-} from '@grafana/runtime';
+import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
+import { getDataSourceSrv, usePluginComponent } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneCSSGridItem,
@@ -28,23 +19,17 @@ import {
 import { Panel } from '@grafana/schema';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { ExtensionPoints } from '../../services/extensions/links';
 import { logger } from '../../services/logger';
 import { getQueryExpression } from '../../services/queryRunner';
 import { findObjectOfType, getDataSource } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
 import { DetectedFieldType } from '../../services/variables';
 import { IndexScene } from '../IndexScene/IndexScene';
-import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
 import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 import { isLogsQuery } from 'services/logql';
-
-const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
-const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
-const ADD_TO_INVESTIGATION_MENU_GROUP_TEXT = 'Investigations';
 
 export enum TimeSeriesPanelType {
   'timeseries' = 'timeseries',
@@ -61,20 +46,9 @@ export enum CollapsablePanelText {
   expanded = 'Expand',
 }
 
-interface InvestigationOptions {
-  fieldName?: string;
-  frame?: DataFrame;
-  getLabelName?: () => string;
-  labelName?: string;
-  type?: 'logs' | 'timeseries';
-}
-
 interface PanelMenuState extends SceneObjectState {
-  addInvestigationsLink?: boolean;
   body?: VizPanelMenu;
   fieldType?: DetectedFieldType;
-  investigationOptions?: InvestigationOptions;
-  investigationsButton?: AddToInvestigationButton;
   panelType?: TimeSeriesPanelType;
 }
 
@@ -83,7 +57,7 @@ interface PanelMenuState extends SceneObjectState {
  */
 export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPanelMenu, SceneObject {
   constructor(state: Partial<PanelMenuState>) {
-    super({ ...state, addInvestigationsLink: state.addInvestigationsLink ?? true });
+    super(state);
     this.addActivationHandler(() => {
       // Navigation options (all panels)
       const items: PanelMenuItem[] = [
@@ -111,23 +85,6 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           }),
         });
         return;
-      }
-
-      this.setState({
-        investigationsButton: new AddToInvestigationButton({
-          fieldName: this.state.investigationOptions?.fieldName,
-          frame: this.state.investigationOptions?.frame,
-          labelName: this.state.investigationOptions?.getLabelName
-            ? this.state.investigationOptions?.getLabelName()
-            : this.state.investigationOptions?.labelName,
-          type: this.state.investigationOptions?.type,
-        }),
-      });
-
-      if (this.state.addInvestigationsLink) {
-        // @todo rewrite the AddToExplorationButton
-        // Manually activate scene
-        this.state.investigationsButton?.activate();
       }
 
       const vizPanelWrapper = findObjectOfType(this, (o) => o instanceof FieldsVizPanelWrapper, FieldsVizPanelWrapper);
@@ -192,12 +149,6 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
               },
             });
           }
-        })
-      );
-
-      this._subs.add(
-        this.state.investigationsButton?.subscribeToState(async () => {
-          await subscribeToAddToInvestigation(this);
         })
       );
     });
@@ -376,11 +327,8 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
   const datasource = getDataSource(indexScene);
   const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
 
-  const type = model.state.investigationOptions?.type ?? (isLogsQuery(expr) ? 'logs' : 'timeseries');
-  const labelName = model.state.investigationOptions?.getLabelName
-    ? model.state.investigationOptions?.getLabelName()
-    : model.state.investigationOptions?.labelName;
-  const title = labelName ?? (isLogsQuery(expr) ? 'Logs' : 'Metric query');
+  const type = isLogsQuery(expr) ? 'logs' : 'timeseries';
+  const title = isLogsQuery(expr) ? 'Logs' : 'Metric query';
 
   const request = sourcePanel?.state.$data?.state.data?.request;
   const target = request?.targets?.[0];
@@ -419,77 +367,6 @@ const onSwitchQueryTypeTracking = (newQueryType: TimeSeriesQueryType) => {
     newQueryType: newQueryType,
   });
 };
-
-const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton) => {
-  const extensionPointId = ExtensionPoints.MetricInvestigation;
-  const context = addToInvestigation.state.context;
-
-  // `getPluginLinkExtensions` is removed in Grafana v12
-  if (getPluginLinkExtensions !== undefined) {
-    const links = getPluginLinkExtensions({
-      context,
-      extensionPointId,
-    });
-
-    return links.extensions[0];
-  }
-
-  // `getObservablePluginLinks` is introduced in Grafana v12
-  if (getObservablePluginLinks !== undefined) {
-    const links: PluginExtensionLink[] = await firstValueFrom(
-      getObservablePluginLinks({
-        context,
-        extensionPointId,
-      })
-    );
-
-    return links[0];
-  }
-
-  return undefined;
-};
-
-async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu) {
-  const addToInvestigationButton = exploreLogsVizPanelMenu.state.investigationsButton;
-  if (addToInvestigationButton) {
-    const link = await getInvestigationLink(addToInvestigationButton);
-
-    const existingMenuItems = exploreLogsVizPanelMenu.state.body?.state.items ?? [];
-
-    const existingAddToExplorationLink = existingMenuItems.find((item) => item.text === ADD_TO_INVESTIGATION_MENU_TEXT);
-
-    if (link) {
-      if (!existingAddToExplorationLink) {
-        exploreLogsVizPanelMenu.state.body?.addItem({
-          text: ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT,
-          type: 'divider',
-        });
-        exploreLogsVizPanelMenu.state.body?.addItem({
-          text: ADD_TO_INVESTIGATION_MENU_GROUP_TEXT,
-          type: 'group',
-        });
-        exploreLogsVizPanelMenu.state.body?.addItem({
-          iconClassName: 'plus-square',
-          onClick: (e) => link.onClick && link.onClick(e),
-          text: ADD_TO_INVESTIGATION_MENU_TEXT,
-        });
-      } else {
-        if (existingAddToExplorationLink) {
-          exploreLogsVizPanelMenu.state.body?.setItems(
-            existingMenuItems.filter(
-              (item) =>
-                [
-                  ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT,
-                  ADD_TO_INVESTIGATION_MENU_GROUP_TEXT,
-                  ADD_TO_INVESTIGATION_MENU_TEXT,
-                ].includes(item.text) === false
-            )
-          );
-        }
-      }
-    }
-  }
-}
 
 function addItemToGroup(model: PanelMenu, item: PanelMenuItem, group: string) {
   if (!model.state.body || !model.state.body.state.items) {

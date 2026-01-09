@@ -1,6 +1,6 @@
 import { flatten, memoize } from 'lodash';
 
-import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
 import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
@@ -9,11 +9,7 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
-import {
-  getNormalizedFieldName,
-  LOG_LINE_BODY_FIELD_NAME,
-  OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
-} from 'Components/ServiceScene/LogOptionsScene';
+import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from 'lib/api-clients/logsdrilldown/v1alpha1';
 import { areArraysStrictlyEqual } from 'services/comparison';
 import { logger } from 'services/logger';
@@ -87,11 +83,6 @@ const LOG_LINE_COMBOBOX_OPTION = {
   label: getNormalizedFieldName(LOG_LINE_BODY_FIELD_NAME),
 };
 
-const LOG_ATTRS_COMBOBOX_OPTION = {
-  value: OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
-  label: getNormalizedFieldName(OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME),
-};
-
 export const getKeys = async (
   dsUID: string,
   record: LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
@@ -103,9 +94,9 @@ export const getKeys = async (
     res.filter((opt) => removeAlreadySelected(opt) || column === opt.value)
   );
 
-  const keysArray: ComboboxOption[] = [LOG_LINE_COMBOBOX_OPTION];
-  if (config.featureToggles.otelLogsFormatting) {
-    keysArray.push(LOG_ATTRS_COMBOBOX_OPTION);
+  const keysArray: ComboboxOption[] = [];
+  if (!record.columns.includes(LOG_LINE_BODY_FIELD_NAME)) {
+    keysArray.push(LOG_LINE_COMBOBOX_OPTION);
   }
   keysArray.push(...options);
   return keysArray;
