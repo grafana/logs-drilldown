@@ -106,7 +106,7 @@ jobs:
       - name: Start Grafana
         run: |
           docker compose -f docker-compose.dev.yaml pull
-          ANONYMOUS_AUTH_ENABLED=true DEVELOPMENT=false GRAFANA_VERSION=main GRAFANA_IMAGE=grafana docker compose -f docker-compose.dev.yaml up -d
+          ANONYMOUS_AUTH_ENABLED=true DEVELOPMENT=false GRAFANA_VERSION=12.4.0-20862064120 GRAFANA_IMAGE=grafana-dev docker compose -f docker-compose.dev.yaml up -d
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@wait-for-grafana/v1.0.2
