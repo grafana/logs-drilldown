@@ -5,7 +5,13 @@ import { v4 as uuidv4 } from 'uuid';
 import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
-import { ListQueryApiResponse, useCreateQueryMutation, useListQueryQuery } from 'lib/api-clients/v1beta1';
+import {
+  ListQueryApiResponse,
+  useCreateQueryMutation,
+  useDeleteQueryMutation,
+  useListQueryQuery,
+  useUpdateQueryMutation,
+} from 'lib/api-clients/v1beta1';
 
 let backend: 'local' | 'remote' | undefined = undefined;
 export function useInitSavedSearch(dsUid: string) {
@@ -34,6 +40,55 @@ export function useSaveSearch() {
   return { saveSearch, backend };
 }
 
+export function useEditSearch() {
+  const [editQueryTemplate] = useUpdateQueryMutation();
+
+  const editSearch = useCallback(
+    async (uid: string, search: Partial<SavedSearch>) => {
+      if (backend === undefined) {
+        logger.error('[Save search]: Uninitialized');
+        return;
+      } else if (backend === 'local') {
+        logger.error('[Save search]: Editing is not supported in local storage');
+      } else {
+        await editQueryTemplate({
+          name: uid || '',
+          patch: {
+            spec: {
+              ...search,
+            },
+          },
+        }).unwrap();
+      }
+    },
+    [editQueryTemplate]
+  );
+
+  return { editSearch, backend };
+}
+
+export function useDeleteSearch() {
+  const [deleteQueryTemplate] = useDeleteQueryMutation();
+
+  const deleteSearch = useCallback(
+    async (uid: string) => {
+      if (backend === undefined) {
+        logger.error('[Save search]: Uninitialized');
+        return;
+      } else if (backend === 'local') {
+        removeFromLocalStorage(uid);
+      } else {
+        await deleteQueryTemplate({
+          name: uid,
+        }).unwrap();
+      }
+    },
+    [deleteQueryTemplate]
+  );
+
+  return { deleteSearch, backend };
+}
+
 export function useHasSavedSearches(dsUid: string) {
   const searches = useSavedSearches(dsUid);
   return searches.length > 0;
@@ -56,7 +111,7 @@ export function useSavedSearches(dsUid: string) {
   return searches;
 }
 
-export function getLocallySavedSearches(dsUid: string) {
+export function getLocallySavedSearches(dsUid?: string) {
   let stored: SavedSearch[] = [];
   try {
     stored = narrowSavedSearches(JSON.parse(localStorage.getItem(SAVED_SEARCHES_KEY) ?? '[]'));
@@ -64,7 +119,7 @@ export function getLocallySavedSearches(dsUid: string) {
     logger.error(e);
   }
   stored.sort((a, b) => b.timestamp - a.timestamp);
-  return stored.filter((search) => search.dsUid === dsUid);
+  return stored.filter((search) => (dsUid ? search.dsUid === dsUid : true));
 }
 
 export const SAVED_SEARCHES_KEY = `${pluginJson.id}.savedSearches`;
@@ -93,6 +148,11 @@ function saveInLocalStorage({ query, title, description, dsUid }: Omit<SavedSear
   });
 
   localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(stored));
+}
+
+function removeFromLocalStorage(uid: string) {
+  const stored = getLocallySavedSearches();
+  localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(stored.filter((stored) => stored.uid !== uid)));
 }
 
 export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiResponse): SavedSearch[] => {

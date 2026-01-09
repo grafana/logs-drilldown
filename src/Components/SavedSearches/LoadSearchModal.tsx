@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -19,7 +19,7 @@ import {
 } from '@grafana/ui';
 
 import { contextToLink } from 'services/extensions/links';
-import { useSavedSearches, SavedSearch } from 'services/saveSearch';
+import { useSavedSearches, SavedSearch, useDeleteSearch, useEditSearch } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 interface Props {
@@ -35,9 +35,12 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
   const sceneTimeRange = useMemo(() => sceneGraph.getTimeRange(sceneRef).state.value, [sceneRef]);
 
   const searches = useSavedSearches(dsUid);
+  const { deleteSearch } = useDeleteSearch();
+  const { editSearch } = useEditSearch();
 
   useEffect(() => {
-    if (!selectedSearch && searches.length) {
+    const selected = searches.find((search) => search === selectedSearch);
+    if (!selected && searches.length) {
       setSelectedSearch(searches[0]);
     }
   }, [selectedSearch, searches]);
@@ -68,6 +71,22 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     () => (selectedSearch ? dateTime(selectedSearch.timestamp).format('ddd MMM DD YYYY HH:mm [GMT]ZZ') : ''),
     [selectedSearch]
   );
+
+  const onDelete = useCallback(() => {
+    if (!selectedSearch) {
+      return;
+    }
+    deleteSearch(selectedSearch.uid);
+  }, [deleteSearch, selectedSearch]);
+
+  const onLockToggle = useCallback(async () => {
+    if (!selectedSearch) {
+      return;
+    }
+    editSearch(selectedSearch.uid, {
+      isLocked: !selectedSearch.isLocked,
+    });
+  }, [editSearch, selectedSearch]);
 
   return (
     <Modal
@@ -126,11 +145,31 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                   <code className={styles.query}>{selectedSearch.query}</code>
                   <Box display="flex" flex={1} justifyContent="flex-end" direction="column">
                     <Stack justifyContent="space-between">
-                      <IconButton
-                        size="lg"
-                        name="trash-alt"
-                        tooltip={t('logs.logs-drilldown.load-search.remove', 'Remove')}
-                      />
+                      <Box display="flex" gap={1}>
+                        {selectedSearch.isLocked !== undefined && (
+                          <IconButton
+                            tooltip={
+                              selectedSearch.isLocked
+                                ? t('query-library.actions.unlock-query-button', 'Unlock query')
+                                : t('query-library.actions.lock-query-button', 'Lock query')
+                            }
+                            name={selectedSearch.isLocked ? 'unlock' : 'lock'}
+                            onClick={onLockToggle}
+                            size="xl"
+                          />
+                        )}
+                        <IconButton
+                          size="xl"
+                          name="trash-alt"
+                          disabled={selectedSearch.isLocked}
+                          onClick={onDelete}
+                          tooltip={
+                            selectedSearch.isLocked
+                              ? t('logs.logs-drilldown.load-search.remove-locked', 'Unlock to remove')
+                              : t('logs.logs-drilldown.load-search.remove', 'Remove')
+                          }
+                        />
+                      </Box>
                       <LinkButton onClick={onClose} href={href} variant="primary">
                         {t('logs.logs-drilldown.load-search.select', 'Select')}
                       </LinkButton>
