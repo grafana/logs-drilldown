@@ -1370,7 +1370,7 @@ test.describe('explore services breakdown page', () => {
     await expect.poll(() => numberOfQueries).toBeGreaterThan(0);
   });
 
-  test.only('should exclude all logs that contain bytes field', async ({ page }) => {
+  test('should exclude all logs that contain bytes field', async ({ page }) => {
     await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
@@ -1412,13 +1412,13 @@ test.describe('explore services breakdown page', () => {
       .poll(
         async () => {
           await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
-          return await bytesIncludeButton.getByText('Exclude', { exact: true }).count();
+          return await page.getByRole('menuitemradio', { name: /Exclude/ }).count();
         },
         { message: 'attempt to open panel filter dropdown', timeout: 0 }
       )
       .toBe(1);
 
-    await bytesIncludeButton.getByText('Exclude', { exact: true }).click();
+    await page.getByRole('menuitemradio', { name: /Exclude/ }).click();
 
     // Assert that the panel is no longer rendered
     await expect(bytesIncludeButton).not.toBeInViewport();
@@ -1440,8 +1440,9 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText(/Rendering \d+ rows.../)).toHaveCount(0);
 
     await page.locator('.unwrapped-log-line').nth(1).hover();
-    const showContextMenu = page.getByLabel('Show context');
-    await showContextMenu.click();
+    const logMenu = page.getByLabel('Log menu').first();
+    await logMenu.click();
+    await page.getByText('Show context').click();
     const dialog = page.locator('[role="dialog"]');
     await expect(dialog.getByText('Log context')).toHaveCount(1);
     await expect(dialog.getByText('Log context')).toBeVisible();
@@ -1450,7 +1451,7 @@ test.describe('explore services breakdown page', () => {
     await expect(dialog.getByTestId('entry-row')).toBeVisible();
 
     // Select the second so we don't pick the only row
-    const secondClosestRow = dialog.locator('.unwrapped-log-line').nth(2);
+    const secondClosestRow = dialog.getByTitle('See log details').nth(2);
     await expect(secondClosestRow).toHaveCount(1);
     await expect(secondClosestRow).toBeVisible();
     await expect(dialog.getByLabel('Fields')).toHaveCount(0);
@@ -2041,9 +2042,9 @@ test.describe('explore services breakdown page', () => {
       const lastLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).last();
       const firstLineFilterLoc = page.getByTestId(testIds.exploreServiceDetails.searchLogs).first();
       const logsPanelContent = explorePage.getLogsPanelLocator().getByTestId('data-testid panel content');
-      const rows = logsPanelContent.getByRole('row');
+      const rows = logsPanelContent.locator('.unwrapped-log-line');
       const firstRow = rows.nth(0);
-      const highlightedMatchesInFirstRow = firstRow.locator('mark');
+      const highlightedMatchesInFirstRow = firstRow.locator('.token.log-search-match');
 
       await explorePage.goToLogsTab();
       await expect(lastLineFilterLoc).toHaveCount(1);
@@ -2058,7 +2059,7 @@ test.describe('explore services breakdown page', () => {
       await lastLineFilterLoc.click();
       await page.keyboard.type('Debug');
       await page.getByRole('button', { name: 'Include' }).click();
-      await expect(highlightedMatchesInFirstRow).toHaveCount(1);
+      await expect.poll(() => highlightedMatchesInFirstRow.count()).toBeGreaterThanOrEqual(1);
 
       // Now 2 queries should have fired
       expect(logsCountQueryCount).toEqual(2);
@@ -2170,7 +2171,6 @@ test.describe('explore services breakdown page', () => {
 
       // Assert there are results
       const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-line-body').first();
-      await page.pause();
       await expect(firstExplorePanelRow).toHaveCount(1);
       await expect(firstExplorePanelRow).toBeVisible();
       const queryFieldText = await page.getByTestId('data-testid Query field').textContent();
