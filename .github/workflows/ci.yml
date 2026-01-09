@@ -111,7 +111,7 @@ jobs:
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@wait-for-grafana/v1.0.2
         with:
-          url: http://localhost:3001/grafana/login
+          url: http://localhost:3001/grafana
 
       - name: Install Playwright Browsers
         run: yarn playwright install chromium --with-deps
