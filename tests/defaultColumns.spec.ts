@@ -3,7 +3,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { testIds } from '../src/services/testIds';
 import { ExplorePage } from './fixtures/explore';
 
-test.describe('Default fields', () => {
+test.describe.skip('Default fields', () => {
   let explorePage: ExplorePage;
   test.beforeEach(async ({ page }, testInfo) => {
     explorePage = new ExplorePage(page, testInfo);

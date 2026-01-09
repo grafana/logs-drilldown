@@ -1,7 +1,7 @@
 import { AdHocVariableFilter } from '@grafana/data';
 import { SceneObject, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../../lib/api-clients/logsdrilldown/v1beta1';
 import { LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { LineFilterType } from '../../services/filterTypes';
 import { LokiDatasource } from '../../services/lokiQuery';

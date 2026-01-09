@@ -195,8 +195,10 @@ export class ExplorePage {
   }
 
   async assertNotLoading() {
-    const locator = this.page.getByText('loading');
+    const locator = this.page.getByText(/loading/i);
     await expect(locator).toHaveCount(0);
+    const grafanaLoading = this.page.getByLabel(/loading/i);
+    await expect(grafanaLoading).toHaveCount(0);
   }
 
   async assertPanelsNotLoading() {
@@ -408,7 +410,9 @@ export class ExplorePage {
     exact = false
   ) {
     // Open combobox
-    const comboboxLocator = this.page.getByPlaceholder('Filter by label values').nth(comboBox);
+    const comboboxes = this.page.getByRole('combobox', { name: 'Filter by label values' });
+    await expect(comboboxes).toHaveCount(2);
+    const comboboxLocator = this.page.getByRole('combobox', { name: 'Filter by label values' }).nth(comboBox);
     await comboboxLocator.click();
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);

@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import semver = require('semver/preload');
 
 import type { PluginOptions } from '@grafana/plugin-e2e';
 
@@ -15,11 +16,13 @@ const getTestDir = () => {
     return './tests';
   }
 
-  // Find matching version configuration
-  const versionConfig = GRAFANA_LATEST_SUPPORTED_VERSION.find((config) => config.version === grafanaVersion);
+  const latestSupported = GRAFANA_LATEST_SUPPORTED_VERSION;
+  // Run full tests if grafanaVersion >= latestSupported, otherwise matrix tests
+  if (latestSupported && semver.gte(grafanaVersion, latestSupported)) {
+    return './tests';
+  }
 
-  // Return all tests for the latest supported Grafana version otherwise run matrix tests
-  return versionConfig?.testDir || './tests/matrix-tests';
+  return './tests/matrix-tests';
 };
 
 const testDir = getTestDir();

@@ -9,6 +9,7 @@ import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 import { useDefaultColumnsContext } from './Context';
 import { getKeys } from './State';
 import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 
 interface Props {
@@ -41,6 +42,11 @@ export function Columns({ recordIndex, containerDragging }: Props) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.columns.splice(columnIndex, 1);
       setRecords(records);
+
+      reportAppInteraction(
+        USER_EVENTS_PAGES.default_columns_config,
+        USER_EVENTS_ACTIONS.default_columns_config.remove_column
+      );
     }
   };
 

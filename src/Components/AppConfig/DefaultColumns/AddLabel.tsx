@@ -7,6 +7,7 @@ import { Button, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { isRecordLabelsValid } from './Validation';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 interface Props {
   recordIndex: number;
@@ -18,7 +19,7 @@ export function AddLabel({ recordIndex }: Props) {
   const styles = useStyles2(getStyles);
 
   // @todo don't allow more then one empty record or the react keys get messed up and things get weird!
-  const onAddLabelValue = () => {
+  const onAddLabel = () => {
     if (records) {
       const beforeThisRecord = records.slice(0, recordIndex);
       const thisRecord = records.splice(recordIndex, 1)[0];
@@ -31,6 +32,11 @@ export function AddLabel({ recordIndex }: Props) {
 
       // This is messing up the order
       setRecords(newRecords);
+
+      reportAppInteraction(
+        USER_EVENTS_PAGES.default_columns_config,
+        USER_EVENTS_ACTIONS.default_columns_config.add_label
+      );
     }
   };
 
@@ -42,7 +48,7 @@ export function AddLabel({ recordIndex }: Props) {
         variant={'secondary'}
         fill={'outline'}
         icon={'plus'}
-        onClick={() => onAddLabelValue()}
+        onClick={() => onAddLabel()}
         className={styles.labelContainer__add}
       >
         Add label
