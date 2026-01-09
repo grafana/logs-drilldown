@@ -28,12 +28,14 @@ export const USER_EVENTS_PAGES = {
   all: 'all',
   service_details: 'service_details',
   service_selection: 'service_selection',
+  default_columns_config: 'default_columns_config',
 } as const;
 
 type UserEventPagesType = keyof typeof USER_EVENTS_PAGES;
 type UserEventActionType =
   | keyof (typeof USER_EVENTS_ACTIONS)['service_selection']
   | keyof (typeof USER_EVENTS_ACTIONS)['service_details']
+  | keyof (typeof USER_EVENTS_ACTIONS)['default_columns_config']
   | keyof (typeof USER_EVENTS_ACTIONS)['all'];
 
 export const USER_EVENTS_ACTIONS = {
@@ -66,8 +68,9 @@ export const USER_EVENTS_ACTIONS = {
     layout_type_changed: 'layout_type_changed',
     // Clicking on one of the levels in the Logs Volume panel
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
-    // Clear all displayed fields
+    // Clear all displayed fields (show original log line)
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
+    // Show default (backend) columns
     logs_show_backend_fields: 'logs_show_backend_fields',
     // Fires when logs panel query returns successfully
     logs_on_query_complete: 'logs_on_query_complete',
@@ -125,5 +128,17 @@ export const USER_EVENTS_ACTIONS = {
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
     open_in_explore_menu_clicked: 'open_in_explore_menu_clicked',
+  },
+  [USER_EVENTS_PAGES.default_columns_config]: {
+    add_record: 'add_record',
+    add_column: 'add_column',
+    add_label: 'add_label',
+
+    remove_label: 'remove_label',
+    remove_column: 'remove_column',
+    delete_record: 'delete_record',
+
+    undo: 'undo',
+    save: 'save',
   },
 } as const;

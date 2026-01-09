@@ -255,8 +255,7 @@ test.describe('explore services breakdown page', () => {
 
     // Check that detected_level column is present (if data contains detected_level info)
     const detectedLevelHeader = table.getByRole('columnheader').filter({ hasText: 'detected_level' });
-    const hasDetectedLevel = (await detectedLevelHeader.count()) > 0;
-    await expect(hasDetectedLevel).toBeTruthy();
+    await expect.poll(async () => (await detectedLevelHeader.count()) > 0).toBeTruthy();
   });
 
   test('table should support table column sorting with URL persistence', async ({ page }) => {
@@ -2169,6 +2168,9 @@ test.describe('explore services breakdown page', () => {
         `/explore?schemaVersion=1&panes={"dx6":{"datasource":"gdev-loki","queries":[{"refId":"logsPanelQuery","expr":"${queryInUrl}","datasource":{"type":"loki","uid":"gdev-loki"}}],"range":{"from":"now-30m","to":"now"},"panelsState":{"logs":{"visualisationType":"logs"}}}}&orgId=1`
       );
 
+      // <12.3 const firstExplorePanelRow = page.getByTestId('logRows').locator('tr').first();
+      // 12.3 const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-syntax-highlight').first();
+      // 12.4 const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-line-body').first();
       // Assert there are results
       const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-line-body').first();
       await expect(firstExplorePanelRow).toHaveCount(1);
