@@ -5,10 +5,10 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Alert, Button, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { ColumnsDragContext } from './ColumnsDragContext';
 import { useDefaultColumnsContext } from './Context';
 import { recordColumnsAreNotLogLine, recordColumnsHaveValues } from './Validation';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 
 interface Props {

@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Button } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 export function AddRecord() {
   const { validation, records, setRecords } = useDefaultColumnsContext();

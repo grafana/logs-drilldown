@@ -4,8 +4,8 @@ import { cloneDeep } from 'lodash';
 
 import { ConfirmButton } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 export function Undo() {
   const { validation, setRecords, apiRecords } = useDefaultColumnsContext();

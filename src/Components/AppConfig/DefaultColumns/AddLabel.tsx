@@ -5,9 +5,9 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
 import { isRecordLabelsValid } from './Validation';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 interface Props {
   recordIndex: number;

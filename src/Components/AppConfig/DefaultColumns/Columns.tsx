@@ -6,10 +6,10 @@ import { Draggable, DraggableProvided } from '@hello-pangea/dnd';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { useDefaultColumnsContext } from './Context';
 import { getKeys } from './State';
 import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 
 interface Props {
