@@ -20,11 +20,7 @@ const Config = () => {
   if (!dsUID) {
     return <NoLokiSplash />;
   }
-  if (
-    !config.featureToggles.kubernetesLogsDrilldown ||
-    !config.featureToggles.grafanaAPIServerWithExperimentalAPIs ||
-    config.buildInfo.version < '12.4'
-  ) {
+  if (!config.featureToggles.kubernetesLogsDrilldown || config.buildInfo.version < '12.4') {
     return <Unsupported />;
   }
 

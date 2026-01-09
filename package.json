@@ -120,7 +120,6 @@
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
-    "@reduxjs/toolkit": "^2.8.0",
     "@types/react-table": "^7.7.20",
     "re-resizable": "^6.11.2",
     "re2js": "^1.1.0",
@@ -131,7 +130,7 @@
     "rxjs": "7.8.2",
     "tslib": "2.5.3",
     "uuid": "^10.0.0",
-    "@reduxjs/toolkit": "^2.8.0"
+    "@reduxjs/toolkit": "2.10.1"
   },
   "resolutions": {
     "react-router-dom": "^6.22.0",

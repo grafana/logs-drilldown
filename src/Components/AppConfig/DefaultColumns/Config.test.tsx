@@ -17,7 +17,7 @@ import {
   useCreateLogsDrilldownDefaultColumnsMutation,
   useGetLogsDrilldownDefaultColumnsQuery,
   useReplaceLogsDrilldownDefaultColumnsMutation,
-} from 'lib/api-clients/logsdrilldown/v1alpha1';
+} from 'lib/api-clients/logsdrilldown/v1beta1';
 
 // Constants
 const DEBUG = false;
@@ -58,7 +58,6 @@ jest.mock('@grafana/runtime', () => ({
     ...jest.requireActual('@grafana/runtime').config,
     featureToggles: {
       kubernetesLogsDrilldown: true,
-      grafanaAPIServerWithExperimentalAPIs: true,
     },
     buildInfo: {
       ...jest.requireActual('@grafana/runtime').config.buildInfo,
@@ -67,8 +66,8 @@ jest.mock('@grafana/runtime', () => ({
   },
 }));
 
-jest.mock('lib/api-clients/logsdrilldown/v1alpha1', () => ({
-  ...jest.requireActual('lib/api-clients/logsdrilldown/v1alpha1'),
+jest.mock('lib/api-clients/logsdrilldown/v1beta1', () => ({
+  ...jest.requireActual('lib/api-clients/logsdrilldown/v1beta1'),
   useGetLogsDrilldownDefaultColumnsQuery: jest.fn(),
   useCreateLogsDrilldownDefaultColumnsMutation: jest.fn(),
   useReplaceLogsDrilldownDefaultColumnsMutation: jest.fn(),
