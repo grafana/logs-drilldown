@@ -65,7 +65,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
       - name: Check types
         run: yarn typecheck
       - name: Lint
@@ -74,15 +73,6 @@ jobs:
         run: yarn test:ci
       - name: Build frontend
         run: yarn build
-
-      - name: Check for backend
-        id: check-for-backend
-        run: |
-          if [ -f "Magefile.go" ]
-          then
-            echo "has-backend=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Check for E2E
         id: check-for-e2e
         run: |
@@ -97,11 +87,7 @@ jobs:
       contents: read
       id-token: write
       pull-requests: write
-    strategy:
-      fail-fast: false
-      matrix:
-        GRAFANA_IMAGE: main
-    name: e2e test ${{ matrix.GRAFANA_IMAGE.name }}@${{ matrix.GRAFANA_IMAGE.VERSION }}
+    name: e2e test main
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
