@@ -132,8 +132,8 @@ export function getPrimaryLabelFromEmbeddedScene(scene: ServiceScene, variable =
   }
   return {
     breakdownLabel: scene.state.drillDownLabel,
-    labelName: variable.state.filters[0].key,
-    labelValue: variable.state.filters[0].value,
+    labelName: variable.state.filters[0]?.key,
+    labelValue: variable.state.filters[0]?.value,
   };
 }
 
