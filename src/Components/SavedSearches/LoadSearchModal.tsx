@@ -2,7 +2,7 @@ import React, { useEffect, useId, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { dateTime, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import {
@@ -15,6 +15,7 @@ import {
   Divider,
   ScrollContainer,
   LinkButton,
+  Field,
 } from '@grafana/ui';
 
 import { contextToLink } from 'services/extensions/links';
@@ -71,6 +72,11 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     );
   }, [sceneTimeRange, selectedSearch]);
 
+  const formattedTime = useMemo(
+    () => (selectedSearch ? dateTime(selectedSearch.timestamp).format('ddd MMM DD YYYY HH:mm [GMT]ZZ') : ''),
+    [selectedSearch]
+  );
+
   return (
     <Modal
       title={t('logs.logs-drilldown.load-search.modal-title', 'Load a previously saved search')}
@@ -85,8 +91,8 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
           </Box>
         ))}
       {searches && (
-        <Stack flex={1} gap={0} minHeight={25}>
-          <Box display="flex" flex={1} minWidth={25}>
+        <Stack flex={1} gap={0} minHeight={0}>
+          <Box display="flex" flex={1} minWidth={0}>
             <ScrollContainer>
               <Stack direction="column" gap={0} flex={1} minWidth={0} role="radiogroup">
                 {searches.map((search, i) => (
@@ -101,13 +107,13 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
             </ScrollContainer>
           </Box>
           <Divider direction="vertical" spacing={0} />
-          <Box display="flex" flex={2} minWidth={25}>
+          <Box display="flex" flex={2} minWidth={0}>
             <ScrollContainer>
               {selectedSearch && (
                 <Box
                   direction="column"
                   display="flex"
-                  gap={1.5}
+                  gap={1}
                   flex={1}
                   paddingBottom={0}
                   paddingLeft={2}
@@ -116,11 +122,15 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                   <Text variant="h5" truncate>
                     {selectedSearch.title}
                   </Text>
+                  <Text variant="bodySmall" truncate>
+                    {formattedTime}
+                  </Text>
                   {selectedSearch.description && (
                     <Text variant="body" truncate>
                       {selectedSearch.description}
                     </Text>
                   )}
+
                   <code className={styles.query}>{selectedSearch.query}</code>
                   <div>
                     <LinkButton onClick={onClose} href={href} variant="primary">
