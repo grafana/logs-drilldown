@@ -17,6 +17,7 @@ export async function getSavedSearches(dsUid: string) {
   } catch (e) {
     logger.error(e);
   }
+  stored.sort((a, b) => b.timestamp - a.timestamp);
   return stored.filter((search) => search.dsUid === dsUid);
 }
 
