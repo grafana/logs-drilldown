@@ -1,12 +1,23 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { SceneObject } from '@grafana/scenes';
-import { Modal, Button, Box, useStyles2, LoadingPlaceholder, Stack, Text, Divider, ScrollContainer } from '@grafana/ui';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
+import {
+  Modal,
+  Box,
+  useStyles2,
+  LoadingPlaceholder,
+  Stack,
+  Text,
+  Divider,
+  ScrollContainer,
+  LinkButton,
+} from '@grafana/ui';
 
+import { contextToLink } from 'services/extensions/links';
 import { logger } from 'services/logger';
 import { getSavedSearches, SavedSearch } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
@@ -21,8 +32,10 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
   const [selectedSearch, setSelectedSearch] = useState<SavedSearch | null>(null);
   const styles = useStyles2(getStyles);
 
+  const dsUid = useMemo(() => getDataSourceVariable(sceneRef).getValue().toString(), [sceneRef]);
+  const sceneTimeRange = useMemo(() => sceneGraph.getTimeRange(sceneRef).state.value, [sceneRef]);
+
   useEffect(() => {
-    const dsUid = getDataSourceVariable(sceneRef).getValue().toString();
     getSavedSearches(dsUid)
       .then((searches) => {
         setSearches(searches);
@@ -34,7 +47,29 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
         logger.error(e);
         setSearches([]);
       });
-  }, [sceneRef]);
+  }, [dsUid, sceneRef]);
+
+  const href = useMemo(() => {
+    if (!selectedSearch) {
+      return '';
+    }
+    return (
+      contextToLink({
+        targets: [
+          {
+            refId: 'A',
+            datasource: {
+              uid: selectedSearch?.dsUid,
+              type: 'loki',
+            },
+            // @ts-expect-error
+            expr: selectedSearch.query,
+          },
+        ],
+        timeRange: sceneTimeRange,
+      })?.path ?? ''
+    );
+  }, [sceneTimeRange, selectedSearch]);
 
   return (
     <Modal
@@ -87,9 +122,10 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                     </Text>
                   )}
                   <code className={styles.query}>{selectedSearch.query}</code>
-
                   <div>
-                    <Button variant="primary">{t('logs.logs-drilldown.load-search.select', 'Select')}</Button>
+                    <LinkButton onClick={onClose} href={href} variant="primary">
+                      {t('logs.logs-drilldown.load-search.select', 'Select')}
+                    </LinkButton>
                   </div>
                 </Box>
               )}
