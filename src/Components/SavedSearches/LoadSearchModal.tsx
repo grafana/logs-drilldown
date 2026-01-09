@@ -91,7 +91,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
           </Box>
         ))}
       {searches && (
-        <Stack flex={1} gap={0} minHeight={0}>
+        <Stack flex={1} gap={0} minHeight={25}>
           <Box display="flex" flex={1} minWidth={0}>
             <ScrollContainer>
               <Stack direction="column" gap={0} flex={1} minWidth={0} role="radiogroup">
@@ -105,8 +105,8 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                 ))}
               </Stack>
             </ScrollContainer>
+            <Divider direction="vertical" spacing={0} />
           </Box>
-          <Divider direction="vertical" spacing={0} />
           <Box display="flex" flex={2} minWidth={0}>
             <ScrollContainer>
               {selectedSearch && (
