@@ -18,6 +18,9 @@ const getTestDir = () => {
   // Find matching version configuration
   const versionConfig = GRAFANA_LATEST_SUPPORTED_VERSION.find((config) => config.version === grafanaVersion);
 
+  console.log('HELLO versionConfig', versionConfig);
+  console.log('HELLO GRAFANA_VERSION', process.env.GRAFANA_VERSION);
+
   // Return all tests for the latest supported Grafana version otherwise run matrix tests
   return versionConfig?.testDir || './tests/matrix-tests';
 };

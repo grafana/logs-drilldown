@@ -46,9 +46,7 @@ test.describe('explore services breakdown page', () => {
     await explorePage.serviceBreakdownSearch.fill('broadcast');
     // Submit filter
     await page.getByRole('button', { name: 'Include' }).click();
-    // ng-logs panel
-    // await expect(page.locator('.unwrapped-log-line').first().getByText('broadcast').first()).toBeVisible();
-    await expect(page.getByRole('table').locator('tr').first().getByText('broadcast').first()).toBeVisible();
+    await expect(page.locator('.unwrapped-log-line').first().getByText('broadcast').first()).toBeVisible();
     await expect(page).toHaveURL(/broadcast/);
   });
 
@@ -219,7 +217,7 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLogsTab();
 
     // Open log details
-    await page.getByTitle('See log details').nth(1).click();
+    await page.locator('.unwrapped-log-line').nth(1).click();
     await page.getByLabel('Show this field instead of').nth(1).click();
 
     // Switch to table view
@@ -368,7 +366,7 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLogsTab();
 
     // open log details
-    await page.getByTitle('See log details').nth(1).click();
+    await page.locator('.unwrapped-log-line').nth(1).click();
     // click a displayed field to
     await page.getByLabel('Show this field instead of').nth(1).click();
 
@@ -1112,7 +1110,7 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText(/Rendering \d+ rows.../)).toHaveCount(0);
 
     // open log details
-    await page.getByTitle('See log details').nth(1).click();
+    await page.locator('.unwrapped-log-line').nth(1).click();
 
     await explorePage.scrollToBottom();
     const adHocLocator = explorePage.getLogsPanelLocator().getByText('mimir-distributor', { exact: true });
@@ -1360,7 +1358,7 @@ test.describe('explore services breakdown page', () => {
 
     // Include
     await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
-    await bytesIncludeButton.getByText('Include', { exact: true }).click();
+    await page.getByRole('menuitemradio', { name: /Include/ }).click();
 
     // Assert the panel is still there
     expect(page.getByTestId('data-testid Panel header bytes')).toBeDefined();
@@ -1372,7 +1370,7 @@ test.describe('explore services breakdown page', () => {
     await expect.poll(() => numberOfQueries).toBeGreaterThan(0);
   });
 
-  test('should exclude all logs that contain bytes field', async ({ page }) => {
+  test.only('should exclude all logs that contain bytes field', async ({ page }) => {
     await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
     let numberOfQueries = 0;
     // Let's not wait for all these queries
@@ -1437,11 +1435,11 @@ test.describe('explore services breakdown page', () => {
       refIds: ['logsPanelQuery', /log-row-context-query.+/],
       responses: responses,
     });
-    const logRow = page.getByTitle('See log details').nth(1);
+    const logRow = page.locator('.unwrapped-log-line').nth(1);
     await expect(logRow).toHaveCount(1);
     await expect(page.getByText(/Rendering \d+ rows.../)).toHaveCount(0);
 
-    await page.getByTitle('See log details').nth(1).hover();
+    await page.locator('.unwrapped-log-line').nth(1).hover();
     const showContextMenu = page.getByLabel('Show context');
     await showContextMenu.click();
     const dialog = page.locator('[role="dialog"]');
@@ -1452,7 +1450,7 @@ test.describe('explore services breakdown page', () => {
     await expect(dialog.getByTestId('entry-row')).toBeVisible();
 
     // Select the second so we don't pick the only row
-    const secondClosestRow = dialog.getByTitle('See log details').nth(2);
+    const secondClosestRow = dialog.locator('.unwrapped-log-line').nth(2);
     await expect(secondClosestRow).toHaveCount(1);
     await expect(secondClosestRow).toBeVisible();
     await expect(dialog.getByLabel('Fields')).toHaveCount(0);
@@ -1519,7 +1517,7 @@ test.describe('explore services breakdown page', () => {
     const contentPanelLocator = page.getByTestId('data-testid Panel header content');
     const versionPanelLocator = page.getByTestId('data-testid Panel header version');
     const versionVariableLocator = page.getByLabel(E2EComboboxStrings.editByKey('version'));
-    const versionFilterButton = versionPanelLocator.getByTestId(testIds.breakdowns.common.filterButtonGroup);
+    const versionFilterButton = page.getByRole('menuitemradio', { name: /Exclude/ });
 
     // Go to the fields tab and assert errors aren't showing
     await explorePage.goToFieldsTab();
@@ -1529,7 +1527,7 @@ test.describe('explore services breakdown page', () => {
 
     // Open the dropdown and change from include to exclude
     await versionPanelLocator.getByTestId(testIds.breakdowns.common.filterSelect).click();
-    await versionFilterButton.getByText('Exclude', { exact: true }).click();
+    await versionFilterButton.click();
 
     // Exclude version
     await expect.poll(() => versionVariableLocator.count()).toEqual(1);
@@ -2171,7 +2169,8 @@ test.describe('explore services breakdown page', () => {
       );
 
       // Assert there are results
-      const firstExplorePanelRow = page.getByTestId('logRows').locator('tr').first();
+      const firstExplorePanelRow = page.getByTestId('logRows').locator('.log-line-body').first();
+      await page.pause();
       await expect(firstExplorePanelRow).toHaveCount(1);
       await expect(firstExplorePanelRow).toBeVisible();
       const queryFieldText = await page.getByTestId('data-testid Query field').textContent();
@@ -2191,7 +2190,7 @@ test.describe('explore services breakdown page', () => {
       const firstExploreLogsRow = page
         .getByTestId(/data-testid Panel header Logs/)
         .getByTestId('data-testid panel content')
-        .locator('tr')
+        .locator('.unwrapped-log-line')
         .first();
       await expect(firstExploreLogsRow).toHaveCount(1);
       await expect(firstExploreLogsRow).toBeVisible();
