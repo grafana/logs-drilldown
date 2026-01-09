@@ -1,21 +1,11 @@
 import React, { useEffect } from 'react';
 
 import { css } from '@emotion/css';
-import { firstValueFrom } from 'rxjs';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { BusEventBase, DataFrame, GrafanaTheme2, PanelMenuItem, PluginExtensionLink, TimeRange } from '@grafana/data';
-// Certain imports are not available in the dependant package, but can be if the plugin is running in a different Grafana version.
-// We need both imports to support Grafana v11 and v12.
+import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
+import { getDataSourceSrv, usePluginComponent } from '@grafana/runtime';
 import {
-  getDataSourceSrv,
-  getObservablePluginLinks,
-  // @ts-expect-error
-  getPluginLinkExtensions,
-  usePluginComponent,
-} from '@grafana/runtime';
-import {
-  PanelBuilders,
   SceneComponentProps,
   SceneCSSGridItem,
   SceneFlexLayout,
@@ -23,35 +13,32 @@ import {
   SceneObject,
   SceneObjectBase,
   SceneObjectState,
-  SceneQueryRunner,
   VizPanel,
   VizPanelMenu,
 } from '@grafana/scenes';
 import { Panel } from '@grafana/schema';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { ExtensionPoints } from '../../services/extensions/links';
 import { logger } from '../../services/logger';
-import { setLevelColorOverrides } from '../../services/panel';
-import { interpolateExpression } from '../../services/query';
-import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
+import { getQueryExpression } from '../../services/queryRunner';
+import { findObjectOfType, getDataSource } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
+import { DetectedFieldType } from '../../services/variables';
 import { IndexScene } from '../IndexScene/IndexScene';
-import { AddToInvestigationButton } from '../ServiceScene/Breakdowns/AddToInvestigationButton';
 import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { FieldValuesBreakdownScene } from '../ServiceScene/Breakdowns/FieldValuesBreakdownScene';
-import { LabelValuesBreakdownScene } from '../ServiceScene/Breakdowns/LabelValuesBreakdownScene';
+import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 import { isLogsQuery } from 'services/logql';
 
-const ADD_TO_INVESTIGATION_MENU_TEXT = 'Add to investigation';
-const ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT = 'investigations_divider'; // Text won't be visible
-const ADD_TO_INVESTIGATION_MENU_GROUP_TEXT = 'Investigations';
-
 export enum TimeSeriesPanelType {
   'timeseries' = 'timeseries',
   'histogram' = 'histogram',
+}
+
+export enum TimeSeriesQueryType {
+  'avg' = 'avg',
+  'count' = 'count',
 }
 
 export enum CollapsablePanelText {
@@ -59,19 +46,9 @@ export enum CollapsablePanelText {
   expanded = 'Expand',
 }
 
-interface InvestigationOptions {
-  fieldName?: string;
-  frame?: DataFrame;
-  getLabelName?: () => string;
-  labelName?: string;
-  type?: 'logs' | 'timeseries';
-}
-
 interface PanelMenuState extends SceneObjectState {
-  addInvestigationsLink?: boolean;
   body?: VizPanelMenu;
-  investigationOptions?: InvestigationOptions;
-  investigationsButton?: AddToInvestigationButton;
+  fieldType?: DetectedFieldType;
   panelType?: TimeSeriesPanelType;
 }
 
@@ -80,7 +57,7 @@ interface PanelMenuState extends SceneObjectState {
  */
 export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPanelMenu, SceneObject {
   constructor(state: Partial<PanelMenuState>) {
-    super({ ...state, addInvestigationsLink: state.addInvestigationsLink ?? true });
+    super(state);
     this.addActivationHandler(() => {
       // Navigation options (all panels)
       const items: PanelMenuItem[] = [
@@ -110,34 +87,25 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         return;
       }
 
-      this.setState({
-        investigationsButton: new AddToInvestigationButton({
-          fieldName: this.state.investigationOptions?.fieldName,
-          frame: this.state.investigationOptions?.frame,
-          labelName: this.state.investigationOptions?.getLabelName
-            ? this.state.investigationOptions?.getLabelName()
-            : this.state.investigationOptions?.labelName,
-          type: this.state.investigationOptions?.type,
-        }),
-      });
-
-      if (this.state.addInvestigationsLink) {
-        // @todo rewrite the AddToExplorationButton
-        // Manually activate scene
-        this.state.investigationsButton?.activate();
-      }
+      const vizPanelWrapper = findObjectOfType(this, (o) => o instanceof FieldsVizPanelWrapper, FieldsVizPanelWrapper);
+      const histogramSupported = this.state.panelType && vizPanelWrapper?.state.queryType === TimeSeriesQueryType.avg;
+      const queryTypeToggleSupported = vizPanelWrapper?.state.supportsHistogram && this.state.fieldType === 'int';
 
       // Visualization options
-      if (this.state.panelType || viz?.state.collapsible) {
-        addVisualizationHeader(items, this);
+      if (histogramSupported || queryTypeToggleSupported || viz?.state.collapsible) {
+        addVisualizationHeader(items);
       }
 
       if (viz?.state.collapsible) {
         addCollapsableItem(items, this);
       }
 
-      if (this.state.panelType) {
+      if (histogramSupported) {
         addHistogramItem(items, this);
+      }
+
+      if (queryTypeToggleSupported) {
+        addToggleQueryType(items, this);
       }
 
       this.setState({
@@ -181,12 +149,6 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
               },
             });
           }
-        })
-      );
-
-      this._subs.add(
-        this.state.investigationsButton?.subscribeToState(async () => {
-          await subscribeToAddToInvestigation(this);
         })
       );
     });
@@ -242,7 +204,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
   };
 }
 
-function addVisualizationHeader(items: PanelMenuItem[], sceneRef: PanelMenu) {
+function addVisualizationHeader(items: PanelMenuItem[]) {
   items.push({
     text: 'visualization_divider',
     type: 'divider',
@@ -274,35 +236,62 @@ function addCollapsableItem(items: PanelMenuItem[], menu: PanelMenu) {
   });
 }
 
+/**
+ * "int" fields are ambiguous if they should be count_over_time or avg queries, so we allow the user to toggle individual panels between avg and count queries
+ * @todo persist selection
+ * @param items
+ * @param sceneRef
+ */
+function addToggleQueryType(items: PanelMenuItem[], sceneRef: PanelMenu) {
+  const vizPanelWrapper = sceneGraph.getAncestor(sceneRef, FieldsVizPanelWrapper);
+  const isAvgQuery = vizPanelWrapper.state.queryType === TimeSeriesQueryType.avg;
+
+  items.push({
+    iconClassName: 'heart-rate',
+    onClick: () => {
+      const newQueryType =
+        vizPanelWrapper.state.queryType === TimeSeriesQueryType.avg
+          ? TimeSeriesQueryType.count
+          : TimeSeriesQueryType.avg;
+
+      vizPanelWrapper.setState({
+        queryType: newQueryType,
+      });
+
+      const fieldsAggregatedBreakdownScene = findObjectOfType(
+        sceneRef,
+        (o) => o instanceof FieldsAggregatedBreakdownScene,
+        FieldsAggregatedBreakdownScene
+      );
+      if (fieldsAggregatedBreakdownScene) {
+        fieldsAggregatedBreakdownScene.rebuildChangedPanels('queryType');
+      }
+      onSwitchQueryTypeTracking(newQueryType);
+    },
+    text: isAvgQuery ? 'Plot series' : 'Plot average',
+  });
+}
+
 function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
   items.push({
     iconClassName: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'graph-bar' : 'chart-line',
     onClick: () => {
       const gridItem = sceneGraph.getAncestor(sceneRef, SceneCSSGridItem);
-      const viz = sceneGraph.getAncestor(sceneRef, VizPanel).clone();
-      const $data = sceneGraph.getData(sceneRef).clone();
-      const menu = sceneRef.clone();
-      const headerActions = Array.isArray(viz.state.headerActions)
-        ? viz.state.headerActions.map((o) => o.clone())
-        : viz.state.headerActions;
-      let body;
-
-      if (sceneRef.state.panelType !== TimeSeriesPanelType.histogram) {
-        body = PanelBuilders.timeseries().setOverrides(setLevelColorOverrides);
-      } else {
-        body = PanelBuilders.histogram();
-      }
-
-      gridItem.setState({
-        body: body.setMenu(menu).setTitle(viz.state.title).setHeaderActions(headerActions).setData($data).build(),
-      });
-
+      const vizWrap = sceneGraph.getAncestor(sceneRef, FieldsVizPanelWrapper);
+      const viz = vizWrap.state.viz.clone();
       const newPanelType =
         sceneRef.state.panelType !== TimeSeriesPanelType.timeseries
           ? TimeSeriesPanelType.timeseries
           : TimeSeriesPanelType.histogram;
       setPanelOption('panelType', newPanelType);
-      menu.setState({ panelType: newPanelType });
+
+      gridItem.setState({
+        body: new FieldsVizPanelWrapper({
+          viz: viz,
+          queryType: vizWrap.state.queryType,
+          supportsHistogram: true,
+        }),
+      });
 
       const fieldsAggregatedBreakdownScene = findObjectOfType(
         gridItem,
@@ -310,7 +299,7 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
         FieldsAggregatedBreakdownScene
       );
       if (fieldsAggregatedBreakdownScene) {
-        fieldsAggregatedBreakdownScene.rebuildAvgFields();
+        fieldsAggregatedBreakdownScene.rebuildChangedPanels('panelType');
       }
 
       onSwitchVizTypeTracking(newPanelType);
@@ -319,34 +308,6 @@ function addHistogramItem(items: PanelMenuItem[], sceneRef: PanelMenu) {
     text: sceneRef.state.panelType !== TimeSeriesPanelType.histogram ? 'Histogram' : 'Time series',
   });
 }
-
-const getQueryExpression = (sceneRef: SceneObject) => {
-  const $data = sceneGraph.getData(sceneRef);
-  let queryRunner = $data instanceof SceneQueryRunner ? $data : getQueryRunnerFromChildren($data)[0];
-
-  // If we don't have a query runner, then our panel is within a SceneCSSGridItem, we need to get the query runner from there
-  if (!queryRunner) {
-    const breakdownScene = sceneGraph.findObject(
-      sceneRef,
-      (o) => o instanceof FieldValuesBreakdownScene || o instanceof LabelValuesBreakdownScene
-    );
-    if (breakdownScene) {
-      const queryProvider = sceneGraph.getData(breakdownScene);
-
-      if (queryProvider instanceof SceneQueryRunner) {
-        queryRunner = queryProvider;
-      } else {
-        queryRunner = getQueryRunnerFromChildren(queryProvider)[0];
-      }
-    } else {
-      logger.error(new Error('Unable to locate query runner!'), {
-        msg: 'PanelMenu - getExploreLink: Unable to locate query runner!',
-      });
-    }
-  }
-  const uninterpolatedExpr: string | undefined = queryRunner.state.queries[0].expr;
-  return interpolateExpression(sceneRef, uninterpolatedExpr);
-};
 
 export const getExploreLink = (sceneRef: SceneObject) => {
   const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
@@ -366,11 +327,8 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
   const datasource = getDataSource(indexScene);
   const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
 
-  const type = model.state.investigationOptions?.type ?? (isLogsQuery(expr) ? 'logs' : 'timeseries');
-  const labelName = model.state.investigationOptions?.getLabelName
-    ? model.state.investigationOptions?.getLabelName()
-    : model.state.investigationOptions?.labelName;
-  const title = labelName ?? (isLogsQuery(expr) ? 'Logs' : 'Metric query');
+  const type = isLogsQuery(expr) ? 'logs' : 'timeseries';
+  const title = isLogsQuery(expr) ? 'Logs' : 'Metric query';
 
   const request = sourcePanel?.state.$data?.state.data?.request;
   const target = request?.targets?.[0];
@@ -404,76 +362,11 @@ const onSwitchVizTypeTracking = (newVizType: TimeSeriesPanelType) => {
   });
 };
 
-const getInvestigationLink = async (addToInvestigation: AddToInvestigationButton) => {
-  const extensionPointId = ExtensionPoints.MetricInvestigation;
-  const context = addToInvestigation.state.context;
-
-  // `getPluginLinkExtensions` is removed in Grafana v12
-  if (getPluginLinkExtensions !== undefined) {
-    const links = getPluginLinkExtensions({
-      context,
-      extensionPointId,
-    });
-
-    return links.extensions[0];
-  }
-
-  // `getObservablePluginLinks` is introduced in Grafana v12
-  if (getObservablePluginLinks !== undefined) {
-    const links: PluginExtensionLink[] = await firstValueFrom(
-      getObservablePluginLinks({
-        context,
-        extensionPointId,
-      })
-    );
-
-    return links[0];
-  }
-
-  return undefined;
+const onSwitchQueryTypeTracking = (newQueryType: TimeSeriesQueryType) => {
+  reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.change_query_type, {
+    newQueryType: newQueryType,
+  });
 };
-
-async function subscribeToAddToInvestigation(exploreLogsVizPanelMenu: PanelMenu) {
-  const addToInvestigationButton = exploreLogsVizPanelMenu.state.investigationsButton;
-  if (addToInvestigationButton) {
-    const link = await getInvestigationLink(addToInvestigationButton);
-
-    const existingMenuItems = exploreLogsVizPanelMenu.state.body?.state.items ?? [];
-
-    const existingAddToExplorationLink = existingMenuItems.find((item) => item.text === ADD_TO_INVESTIGATION_MENU_TEXT);
-
-    if (link) {
-      if (!existingAddToExplorationLink) {
-        exploreLogsVizPanelMenu.state.body?.addItem({
-          text: ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT,
-          type: 'divider',
-        });
-        exploreLogsVizPanelMenu.state.body?.addItem({
-          text: ADD_TO_INVESTIGATION_MENU_GROUP_TEXT,
-          type: 'group',
-        });
-        exploreLogsVizPanelMenu.state.body?.addItem({
-          iconClassName: 'plus-square',
-          onClick: (e) => link.onClick && link.onClick(e),
-          text: ADD_TO_INVESTIGATION_MENU_TEXT,
-        });
-      } else {
-        if (existingAddToExplorationLink) {
-          exploreLogsVizPanelMenu.state.body?.setItems(
-            existingMenuItems.filter(
-              (item) =>
-                [
-                  ADD_TO_INVESTIGATION_MENU_DIVIDER_TEXT,
-                  ADD_TO_INVESTIGATION_MENU_GROUP_TEXT,
-                  ADD_TO_INVESTIGATION_MENU_TEXT,
-                ].includes(item.text) === false
-            )
-          );
-        }
-      }
-    }
-  }
-}
 
 function addItemToGroup(model: PanelMenu, item: PanelMenuItem, group: string) {
   if (!model.state.body || !model.state.body.state.items) {

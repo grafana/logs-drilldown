@@ -25,9 +25,11 @@ import {
 import { LogsSortOrder, VariableHide } from '@grafana/schema';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '../../lib/api-clients/logsdrilldown/v1alpha1';
 import { plugin } from '../../module';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
+import { LOKI_CONFIG_API_NOT_SUPPORTED, LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
 import { replaceSlash } from '../../services/extensions/links';
 import { clearJSONParserFields } from '../../services/fields';
@@ -62,7 +64,7 @@ import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardEvent, AddToDashboardData } from 'Components/Panels/PanelMenu';
+import { AddToDashboardData, AddToDashboardEvent } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
@@ -126,8 +128,10 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   $detectedFieldsData: SceneQueryRunner | undefined;
   $detectedLabelsData: SceneQueryRunner | undefined;
   $logsCount: SceneQueryRunner | undefined;
-  $patternsData?: SceneQueryRunner | undefined;
+  // null implies it is not supported, undefined is not set yet
+  $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
+  backendDisplayedFields?: string[];
   body: SceneFlexLayout | undefined;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
@@ -187,7 +191,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       $detectedFieldsData: getDetectedFieldsQueryRunner(),
       $detectedLabelsData: getDetectedLabelsQueryRunner(),
       $logsCount: getLogCountQueryRunner(),
-      $patternsData: getPatternsQueryRunner(),
       body: state.body ?? buildGraphScene(),
       loading: true,
       loadingStates: {
@@ -290,9 +293,51 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           this.state.$detectedLabelsData?.runQueries();
           this.state.$detectedFieldsData?.runQueries();
           this.state.$logsCount?.runQueries();
+          this.setDefaultColumns();
         }
       })
     );
+  }
+
+  private setDefaultColumns() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const records = indexScene.state.defaultColumnsRecords;
+    const labelsVariable = getLabelsVariable(this);
+    const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
+    // Remove records that are more specific than our current label set
+    const filteredRecords = records?.filter((f) => f.labels.length <= inclusiveFilters.length);
+
+    // init map
+    const filtersMap = new Set<string>();
+    inclusiveFilters.forEach((f) => filtersMap.add(f.key + f.value));
+
+    // Assign a score to each record
+    const recordsScore: Array<LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord & { score: number }> | undefined =
+      filteredRecords?.map((r) => {
+        const score = r.labels.reduce((accumulator, label) => {
+          const usedInQuery = filtersMap.has(label.key + label.value);
+          if (usedInQuery) {
+            return accumulator + 1;
+          }
+          return accumulator;
+        }, 0);
+        return { ...r, score };
+      });
+
+    let highScore = 0;
+    let highScoreIdx = -1;
+    recordsScore?.forEach((r, idx) => {
+      if (r.score > highScore) {
+        highScore = r.score;
+        highScoreIdx = idx;
+      }
+    });
+
+    const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
+
+    this.setState({
+      backendDisplayedFields: bestMatch?.columns,
+    });
   }
 
   /**
@@ -442,11 +487,16 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       }
     }
 
+    const rawDrilldownLabel = values.drillDownLabel;
+    // normalize drilldown label to prevent infinite render bugs introduced when embedded, some embedding applications routing causes unused url params to get passed as an empty string instead of null/undefined
+    const normalizedDrillDownLabel =
+      values.drillDownLabel && typeof rawDrilldownLabel === 'string' ? rawDrilldownLabel : undefined;
+
     if (
-      (values && typeof values.drillDownLabel === 'string') ||
+      (values && typeof rawDrilldownLabel === 'string' && normalizedDrillDownLabel !== this.state.drillDownLabel) ||
       (values.drillDownLabel === null && values.drillDownLabel !== this.state.drillDownLabel)
     ) {
-      stateUpdate.drillDownLabel = values.drillDownLabel ?? undefined;
+      stateUpdate.drillDownLabel = normalizedDrillDownLabel;
     }
 
     if (Object.keys(stateUpdate).length) {
@@ -464,25 +514,34 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private onActivate() {
+    let stateUpdate: Partial<ServiceSceneState> = {};
+
     if (!this.state.body) {
-      this.setState({ body: this.buildGraphScene() });
+      stateUpdate.body = this.buildGraphScene();
     }
     if (!this.state.$data) {
-      this.setState({
-        $data: getLogsQueryQueryRunner(this),
-      });
+      stateUpdate.$data = getLogsQueryQueryRunner(this);
     }
+
+    if (Object.keys(stateUpdate).length) {
+      this.setState(stateUpdate);
+    }
+
     // Hide show logs button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: true });
     this.showVariables();
     this.getMetadata();
     this.resetBodyAndData();
-
     this.setBreakdownView();
+    this.setDefaultColumns();
 
     // Run queries on activate
     this.runQueries();
+
+    // API subscriptions
+    this._subs.add(this.subscribeToLokiConfig());
+    this._subs.add(this.subscribeToPatternsProvider());
 
     // Query Subscriptions
     this._subs.add(this.subscribeToPatternsQuery());
@@ -502,6 +561,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToDataSourceVariable());
     this._subs.add(this.subscribeToPatternsVariable());
     this._subs.add(this.subscribeToLineFiltersVariable());
+    this._subs.add(this.subscribeToIndexSceneState());
 
     // Update query runner on manual time range change
     this._subs.add(this.subscribeToTimeRange());
@@ -512,11 +572,54 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     migrateLineFilterV1(this);
   }
 
+  private subscribeToPatternsProvider() {
+    return this.subscribeToState((newState, prevState) => {
+      // Run initial query
+      if (newState.$patternsData && prevState.$patternsData === undefined) {
+        newState.$patternsData.addActivationHandler(() => {
+          newState.$patternsData?.runQueries();
+        });
+        newState.$patternsData.activate();
+      }
+    });
+  }
+
+  private subscribeToLokiConfig() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    return indexScene.subscribeToState((newState, prevState) => {
+      if (newState.lokiConfig && newState.lokiConfig !== prevState.lokiConfig) {
+        if (
+          newState.lokiConfig === LOKI_CONFIG_API_NOT_SUPPORTED ||
+          newState.lokiConfig?.pattern_ingester_enabled !== false
+        ) {
+          if (this.state.$patternsData === undefined) {
+            this.setState({
+              $patternsData: getPatternsQueryRunner(),
+            });
+            this._subs.add(this.subscribeToPatternsQuery());
+          }
+        } else {
+          this.setState({
+            $patternsData: null,
+          });
+        }
+      }
+    });
+  }
+
   private subscribeToPatternsVariable() {
     return getPatternsVariable(this).subscribeToState((newState, prevState) => {
       if (newState.value !== prevState.value) {
         this.state.$detectedFieldsData?.runQueries();
         this.state.$logsCount?.runQueries();
+      }
+    });
+  }
+
+  private subscribeToIndexSceneState() {
+    return sceneGraph.getAncestor(this, IndexScene).subscribeToState((newState, prevState) => {
+      if (!areArraysEqual(newState.defaultColumnsRecords, prevState.defaultColumnsRecords)) {
+        this.setDefaultColumns();
       }
     });
   }
@@ -754,7 +857,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (!this.state.$patternsData) {
-      stateUpdate.$patternsData = getPatternsQueryRunner();
+      const indexScene = sceneGraph.getAncestor(this, IndexScene);
+
+      if (indexScene.state.lokiConfig) {
+        stateUpdate.$patternsData = getPatternsQueryRunner(indexScene.state.lokiConfig);
+        this._subs.add(this.subscribeToPatternsQuery());
+      }
     }
 
     if (!this.state.$detectedLabelsData) {
@@ -839,7 +947,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const { filters } = getLabelsVariable(model).useState();
     const status = model.getLabelFiltersStatus(filters);
 
-    if (!status.isValid) {
+    if (!status.isValid && !status.newPrimaryLabel) {
       return (
         <Alert
           title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
@@ -883,10 +991,13 @@ function buildGraphScene() {
   });
 }
 
-function getPatternsQueryRunner() {
+function getPatternsQueryRunner(lokiConfig?: LokiConfig | LokiConfigNotSupported) {
   const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-  if (jsonData?.patternsDisabled) {
-    return undefined;
+  if (
+    jsonData?.patternsDisabled ||
+    (lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED && lokiConfig?.pattern_ingester_enabled === false)
+  ) {
+    return null;
   }
 
   return getResourceQueryRunner(

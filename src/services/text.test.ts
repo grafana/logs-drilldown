@@ -1,4 +1,4 @@
-import { dateTime, TimeRange } from '@grafana/data';
+import { dateTime, LogsSortOrder, TimeRange } from '@grafana/data';
 
 import { PLUGIN_ID } from './plugin';
 import { generateLogShortlink } from './text';
@@ -40,7 +40,7 @@ describe('generateLogShortlink', () => {
       to: dateTime(10),
     };
     const panelState = {
-      logs: { displayedFields: ['field1', 'field2'], id: 'abc-123' },
+      logs: { displayedFields: ['field1', 'field2'], id: 'abc-123', sortOrder: LogsSortOrder.Ascending },
     };
 
     expect(generateLogShortlink('panelState', panelState, timeRange)).toEqual(

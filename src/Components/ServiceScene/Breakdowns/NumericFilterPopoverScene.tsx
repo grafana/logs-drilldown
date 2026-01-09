@@ -258,6 +258,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   <Select<string>
                     className={popoverStyles.card.inclusiveInput}
                     menuShouldPortal={false}
+                    menuPosition={'absolute'}
                     value={gte !== undefined ? gte.toString() : 'false'}
                     options={[
                       { label: 'Greater than', value: 'false' },
@@ -300,6 +301,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                           });
                         }}
                         menuShouldPortal={false}
+                        menuPosition={'absolute'}
                         options={getUnitOptions(fieldType)}
                         className={popoverStyles.card.selectInput}
                         value={gtu}
@@ -319,6 +321,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   <Select<string>
                     className={popoverStyles.card.inclusiveInput}
                     menuShouldPortal={false}
+                    menuPosition={'absolute'}
                     value={lte !== undefined ? lte.toString() : 'false'}
                     options={[
                       { label: 'Less than', value: 'false' },
@@ -357,6 +360,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                           });
                         }}
                         menuShouldPortal={false}
+                        menuPosition={'absolute'}
                         options={getUnitOptions(fieldType)}
                         className={popoverStyles.card.selectInput}
                         value={ltu}

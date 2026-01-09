@@ -26,6 +26,11 @@ import {
 import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import {
+  LogsDrilldownDefaultColumns,
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+} from '../../lib/api-clients/logsdrilldown/v1alpha1';
+import { getAPIBaseURL } from '../../lib/api-clients/utils/utils';
 import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
@@ -129,6 +134,7 @@ export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
+  hideTimePicker?: boolean;
 }
 
 export class IndexScene extends SceneObjectBase<IndexSceneState> {
@@ -147,7 +153,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       datasourceUid,
       state?.initialLabels,
       state.embedded,
-      state.defaultLineFilters
+      state.defaultLineFilters,
+      state.initialFields
     );
     const controls: SceneObject[] = [
       new SceneFlexLayout({
@@ -192,9 +199,20 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         key: CONTROLS_JSON_FIELDS,
         layout: 'vertical',
       }),
-      new SceneTimePicker({ key: CONTROLS_VARS_TIMEPICKER, quickRanges: filterInvalidTimeOptions(quickOptions) }),
-      new SceneRefreshPicker({ key: CONTROLS_VARS_REFRESH }),
+      new SceneTimePicker({
+        hidePicker: state.hideTimePicker,
+        key: CONTROLS_VARS_TIMEPICKER,
+        quickRanges: filterInvalidTimeOptions(quickOptions),
+      }),
     ];
+
+    if (!state.hideTimePicker) {
+      controls.push(
+        new SceneRefreshPicker({
+          key: CONTROLS_VARS_REFRESH,
+        })
+      );
+    }
 
     if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
       controls.push(
@@ -323,10 +341,42 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(this.subscribeToLokiConfigAPI());
     this._subs.add(this.subscribeToDataSourceChange());
 
+    this.getDefaultColumnsFromAppPlatform();
+
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
     };
+  }
+
+  private async getDefaultColumnsFromAppPlatform() {
+    if (config.featureToggles.kubernetesLogsDrilldown && config.featureToggles.grafanaAPIServerWithExperimentalAPIs) {
+      const dataSourceVariable = getDataSourceVariable(this);
+      const dsUID = dataSourceVariable.state.value.toString();
+      const metadataService = getMetadataService();
+      const cachedRecords = metadataService.getDefaultColumns(dsUID);
+
+      if (cachedRecords) {
+        this.setState({
+          defaultColumnsRecords: cachedRecords,
+        });
+      } else {
+        const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1alpha1');
+
+        const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultcolumns/${dsUID}`);
+        const fetchResult = await fetch(request);
+
+        if (fetchResult.ok) {
+          // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
+          const response = (await fetchResult.json()) as LogsDrilldownDefaultColumns;
+          const records: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords = response.spec.records;
+          this.setState({
+            defaultColumnsRecords: records,
+          });
+          getMetadataService().setDefaultColumns(records, dsUID);
+        }
+      }
+    }
   }
 
   public currentFiltersMatchReference() {
@@ -363,9 +413,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   }
 
   private subscribeToDataSourceChange() {
-    getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+    return getDataSourceVariable(this).subscribeToState((newState, prevState) => {
       if (newState.value !== prevState.value) {
         this.state.$lokiConfig.runQueries();
+        this.getDefaultColumnsFromAppPlatform();
       }
     });
   }
@@ -738,8 +789,12 @@ function getVariableSet(
   initialDatasourceUid: string,
   initialLabelFilters?: AdHocVariableFilter[],
   embedded?: boolean,
-  defaultLineFilters?: LineFilterType[]
+  defaultLineFilters?: LineFilterType[],
+  initialFieldFilters?: AdHocFiltersWithLabelsAndMeta[]
 ) {
+  const initialMetadataFilters = initialFieldFilters?.filter((f) => f.meta?.parser === 'structuredMetadata');
+  const initialParsedFieldFilters = initialFieldFilters?.filter((f) => f.meta?.parser !== 'structuredMetadata');
+
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
@@ -764,7 +819,9 @@ function getVariableSet(
     hide: VariableHide.hideVariable,
     label: 'Detected fields',
     layout: 'combobox',
+
     name: VAR_FIELDS,
+    filters: initialParsedFieldFilters ?? [],
   });
 
   fieldsVariable._getOperators = () => {
@@ -779,6 +836,7 @@ function getVariableSet(
     label: 'Metadata',
     layout: 'combobox',
     name: VAR_METADATA,
+    filters: initialMetadataFilters ?? [],
   });
 
   metadataVariable._getOperators = () => {

@@ -1,11 +1,26 @@
 import { ConsoleMessage, Locator, Page, TestInfo } from '@playwright/test';
 
+import { DataFrameJSON } from '@grafana/data';
 import { expect } from '@grafana/plugin-e2e';
 
 import pluginJson from '../../src/plugin.json';
 import { FilterOp, FilterOpType } from '../../src/services/filterTypes';
 import { LokiQuery } from '../../src/services/lokiQuery';
 import { testIds } from '../../src/services/testIds';
+
+export type CapturedResponses = CapturedResponse[];
+
+export type CapturedResponse = {
+  [refId: string]: {
+    results: {
+      [refId: string]: {
+        frames: DataFrameJSON[];
+        status: number;
+      };
+    };
+    status: number;
+  };
+};
 
 export interface PlaywrightRequest {
   post: any;
@@ -268,8 +283,8 @@ export class ExplorePage {
     );
   }
 
-  async gotoEmbedUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
-    await this.page.goto(`/a/${pluginJson.id}/embed?var-filters=service_name|=|${serviceName}&from=${from}&to=now`);
+  async gotoEmbedUrl() {
+    await this.page.goto(`/a/${pluginJson.id}/embed`);
   }
 
   async gotoServicesOldUrlLineFilters(
@@ -302,7 +317,7 @@ export class ExplorePage {
     legendFormats?: string[];
     refIds?: Array<string | RegExp>;
     requests?: PlaywrightRequest[];
-    responses?: Array<{ [refIDOrLegendFormat: string]: any }>;
+    responses?: CapturedResponses;
   }) {
     // Let's not wait for all these queries
     this.page.route('**/ds/query**', async (route) => {
@@ -479,6 +494,54 @@ export class ExplorePage {
     await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(1).click();
     await expect(panelMenuExploreItem).not.toBeVisible();
+  }
+
+  async defaultColumnsAdminAddNewRecord() {
+    await this.page.getByRole('button', { name: 'Add', exact: true }).click();
+  }
+
+  async defaultColumnsAddNewLabel() {
+    await this.page.getByRole('button', { name: 'Add label' }).last().click();
+  }
+
+  async defaultColumnsAdminAddLabelName(labelName: string) {
+    await this.page.getByTestId(testIds.appConfig.defaultColumns.labels.key).last().click();
+    await this.page.keyboard.type(labelName);
+    await this.page.getByRole('option', { name: labelName }).click();
+  }
+
+  async defaultColumnsAdminAddLabelValue(labelValue: string) {
+    await this.page.getByTestId(testIds.appConfig.defaultColumns.labels.value).last().click();
+    await this.page.keyboard.type(labelValue);
+    await this.page.getByRole('option', { name: labelValue, exact: true }).click();
+  }
+
+  async defaultColumnsAdminAddColumn(columnName: string, columnText?: string | RegExp) {
+    await this.page.getByRole('button', { name: 'Add column' }).last().click();
+    await this.page.getByRole('combobox', { name: 'Select column' }).last().click();
+    await this.page.getByRole('option', { name: columnName }).click();
+    if (columnText) {
+      await expect(this.page.getByText(columnText).first()).toBeVisible();
+    }
+  }
+
+  async defaultColumnsDeleteAllRecords() {
+    const deleteButtons = this.page.getByRole('button', { name: 'Delete record' });
+    await this.assertNotLoading();
+    const deleteButtonsCount = await deleteButtons.count();
+
+    // Delete all existing records that may have persisted from other test executions
+    for (let i = 0; i < deleteButtonsCount; i++) {
+      await deleteButtons.nth(0).click();
+      await expect(deleteButtons).toHaveCount(deleteButtonsCount - (i + 1));
+    }
+
+    const submitButton = this.page.getByRole('button', { name: /(Update|Create) default columns/ });
+    const isDisabled = await submitButton.isDisabled();
+    if (!isDisabled) {
+      await submitButton.click();
+    }
+    await expect(deleteButtons).toHaveCount(0);
   }
 }
 

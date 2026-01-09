@@ -20,7 +20,20 @@ By default the graphs are sorted by most relevant, where we prioritise graphs wi
 
 Some pages in Grafana Logs Drilldown can display a large number of graphs. You may want to sort the graphs differently, depending on what you're looking for.
 
-On the **Label** tab, you can use the **Newest first** and **Oldest first** buttons to change the direction of the sort in the Logs view.
+## Sorting log lines
+
+When viewing log lines, you can use the **Sort direction** control in the log controls panel to change the order logs are displayed:
+
+- **Newest logs first** (descending): Shows the most recent log lines at the top.
+- **Oldest logs first** (ascending): Shows the oldest log lines at the top.
+
+The log controls can be accessed by clicking the expand/collapse button on the right side of the logs panel. For more information about log controls, refer to [View logs](../view-logs/).
+
+When using infinite scroll to load more results, the sort direction determines which logs are loaded next:
+- **Newest logs first**: Scrolling to the bottom loads older logs.
+- **Oldest logs first**: Scrolling to the bottom loads newer logs.
+
+## Sorting visualizations
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
 

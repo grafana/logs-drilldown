@@ -42,6 +42,7 @@ import {
 
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
+import { escapeLabelValueInExactSelector } from '../../services/extensions/scenesMethods';
 import { pushUrlHandler } from '../../services/navigate';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
@@ -78,6 +79,7 @@ import {
 } from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
 import {
+  DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,
   LEVEL_VARIABLE_VALUE,
   SERVICE_NAME,
@@ -428,7 +430,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.setSelectedTab(SERVICE_NAME);
   }
 
-  setSelectedTab(labelName: string) {
+  setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
     addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
 
     // clear active search
@@ -436,6 +438,12 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
     // Update the primary label variable
     setServiceSelectionPrimaryLabelKey(labelName, this);
+
+    // Report interaction
+    reportAppInteraction(USER_EVENTS_PAGES.service_selection, USER_EVENTS_ACTIONS.service_selection.add_new_tab, {
+      newTab: labelName,
+      type,
+    });
   }
 
   // Creates a layout with timeseries panel
@@ -537,9 +545,30 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     return ` | ${filters.join(' or ')} `;
   };
 
+  hasDefaultColumnsSet() {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    return indexScene.state.defaultColumnsRecords !== undefined;
+  }
+
+  getDefaultColumns(labelName: string, labelValue: string): string[] {
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const records = indexScene.state.defaultColumnsRecords;
+    if (records) {
+      // The service selection logs query only has a single label, so any record with more than one label is too specific
+      const matchingRecord = records.find(
+        (r) => r.labels.length === 1 && r.labels.every((l) => l.key === labelName && l.value === labelValue)
+      );
+      return matchingRecord?.columns ?? [];
+    }
+
+    return [];
+  }
+
   // Creates a layout with logs panel
   buildServiceLogsLayout = (labelName: string, labelValue: string) => {
     const levelFilter = this.getLevelFilterForService(labelValue);
+
+    const backendDisplayedFields = this.getDefaultColumns(labelName, labelValue);
     const cssGridItem = new SceneCSSGridItem({
       $behaviors: [new behaviors.CursorSync({ sync: DashboardCursorSync.Off })],
       body: PanelBuilders.logs()
@@ -562,7 +591,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('showTime', true)
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
-        .setOption('noInteractions', true)
+        .setOption('displayedFields', backendDisplayedFields)
         .build(),
     });
 
@@ -726,6 +755,11 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const labelsVarPrimary = getLabelsVariable(this);
     this._subs.add(
       labelsVarPrimary.subscribeToState((newState, prevState) => {
+        // If the user has added a label name
+        if (newState._wip?.key && newState._wip?.key !== prevState._wip?.key && newState.filters.length === 0) {
+          this.setSelectedTab(newState._wip.key, 'auto');
+        }
+
         if (!areArraysEqual(newState.filters, prevState.filters)) {
           this.syncVariables();
         }
@@ -1000,7 +1034,21 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private getLogExpression(labelName: string, labelValue: string, levelFilter: string) {
-    return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+    if (config.featureToggles.kubernetesLogsDrilldown) {
+      if (this.hasDefaultColumnsSet()) {
+        const matchingCols = this.getDefaultColumns(labelName, labelValue);
+        if (matchingCols.length > 0) {
+          return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+        } else {
+          return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+        }
+      } else {
+        // We could still be waiting for API response, so we have to assume that
+        return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+      }
+    } else {
+      return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+    }
   }
 
   private getMetricExpression(
@@ -1016,7 +1064,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         return `sum by (${LEVEL_VARIABLE_VALUE}) (sum_over_time({${AGGREGATED_SERVICE_NAME}=~\`.+\` } | logfmt | ${filter.key}=\`${labelValue}\` | unwrap count [$__auto]))`;
       }
     }
-    return `sum by (${LEVEL_VARIABLE_VALUE}) (count_over_time({ ${filter.key}=\`${labelValue}\`, ${VAR_LABELS_REPLICA_EXPR} } [$__auto]))`;
+
+    return `sum by (${LEVEL_VARIABLE_VALUE}) (count_over_time({ ${filter.key}=\"${escapeLabelValueInExactSelector(
+      labelValue
+    )}\", ${VAR_LABELS_REPLICA_EXPR} } [$__auto]))`;
   }
 
   private extendTimeSeriesLegendBus = (

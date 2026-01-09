@@ -7,20 +7,22 @@ import { isAssistantAvailable } from '@grafana/assistant';
 import { PanelMenuItem } from '@grafana/data';
 import { getDataSourceSrv, usePluginComponent } from '@grafana/runtime';
 import {
-  sceneGraph,
   SceneCSSGridItem,
   SceneFlexLayout,
+  sceneGraph,
+  SceneObject,
   SceneQueryRunner,
   VizPanel,
   VizPanelMenu,
-  SceneObject,
 } from '@grafana/scenes';
 
 import { reportAppInteraction } from '../../services/analytics';
+import { isLogsQuery } from '../../services/logql';
 import { interpolateExpression } from '../../services/query';
-import { getDataSource, getQueryRunnerFromChildren, findObjectOfType } from '../../services/scenes';
+import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
 import { setPanelOption } from '../../services/store';
 import { IndexScene } from '../IndexScene/IndexScene';
+import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 import {
@@ -29,6 +31,7 @@ import {
   getExploreLink,
   PanelMenu,
   TimeSeriesPanelType,
+  TimeSeriesQueryType,
 } from './PanelMenu';
 
 // Mock external dependencies
@@ -44,6 +47,9 @@ jest.mock('../../services/scenes', () => ({
 jest.mock('../../services/store');
 jest.mock('../ServiceScene/Breakdowns/Panels/ValueSummary');
 jest.mock('../ServiceScene/OnExploreLinkClick');
+jest.mock('services/logql', () => ({
+  isLogsQuery: jest.fn(),
+}));
 
 // Type the mocked functions
 const mockSceneGraph = {
@@ -89,6 +95,13 @@ const mockGridItem = {
   setState: jest.fn(),
 };
 
+const mockFieldsVizPanelWrapper = {
+  setState: jest.fn(),
+  state: {
+    viz: mockVizPanel,
+  },
+};
+
 const mockFlexLayout = {
   state: {},
 };
@@ -113,6 +126,9 @@ beforeEach(() => {
     if (type === SceneCSSGridItem) {
       return mockGridItem;
     }
+    if (type === FieldsVizPanelWrapper) {
+      return mockFieldsVizPanelWrapper;
+    }
     return null;
   });
 
@@ -133,6 +149,7 @@ beforeEach(() => {
   jest.mocked(onExploreLinkClick).mockReturnValue('test-explore-link');
   jest.mocked(isAssistantAvailable).mockReturnValue(of(false));
   jest.mocked(usePluginComponent).mockReturnValue({ component: null, isLoading: false });
+  jest.mocked(isLogsQuery).mockReturnValue(false);
 });
 
 describe('PanelMenu', () => {
@@ -140,25 +157,22 @@ describe('PanelMenu', () => {
     it('should initialize with default state', () => {
       const menu = new PanelMenu({});
 
-      expect(menu.state.addInvestigationsLink).toBe(true);
       expect(menu.state.body).toBeUndefined();
       expect(menu.state.panelType).toBeUndefined();
     });
 
     it('should initialize with custom state', () => {
       const menu = new PanelMenu({
-        addInvestigationsLink: false,
         panelType: TimeSeriesPanelType.histogram,
       });
 
-      expect(menu.state.addInvestigationsLink).toBe(false);
       expect(menu.state.panelType).toBe(TimeSeriesPanelType.histogram);
     });
   });
 
   describe('Menu Activation', () => {
     it('should create basic navigation menu on activation', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       expect(menu.state.body).toBeInstanceOf(VizPanelMenu);
@@ -179,7 +193,7 @@ describe('PanelMenu', () => {
     });
 
     it('should add visualization options when the viz panel has collapsible state', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -199,9 +213,14 @@ describe('PanelMenu', () => {
 
     it('should add histogram toggle when panel type is set', () => {
       const menu = new PanelMenu({
-        addInvestigationsLink: false,
         panelType: TimeSeriesPanelType.timeseries,
       });
+      const vizPanelWrapper = new FieldsVizPanelWrapper({
+        viz: new VizPanel({ menu }),
+        queryType: TimeSeriesQueryType.avg,
+        supportsHistogram: true,
+      });
+      jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -221,7 +240,7 @@ describe('PanelMenu', () => {
         return null;
       });
 
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
 
       expect(() => menu.activate()).not.toThrow();
       expect(menu.state.body).toBeInstanceOf(VizPanelMenu);
@@ -230,7 +249,7 @@ describe('PanelMenu', () => {
 
   describe('Event Handlers', () => {
     it('should track analytics when explore link is clicked', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -243,7 +262,7 @@ describe('PanelMenu', () => {
     });
 
     it('should handle collapse/expand toggle correctly', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -259,13 +278,20 @@ describe('PanelMenu', () => {
 
     it('should handle visualization type switching', () => {
       const menu = new PanelMenu({
-        addInvestigationsLink: false,
         panelType: TimeSeriesPanelType.timeseries,
       });
+      const vizPanelWrapper = new FieldsVizPanelWrapper({
+        viz: new VizPanel({ menu }),
+        queryType: TimeSeriesQueryType.avg,
+        supportsHistogram: true,
+      });
+      jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
       menu.activate();
 
       const items = menu.state.body?.state.items;
       const histogramItem = items?.find((item: PanelMenuItem) => item.text === 'Histogram');
+      //@ts-expect-error
+      jest.mocked(findObjectOfType).mockReturnValue({ rebuildChangedPanels: jest.fn() });
 
       // @ts-expect-error
       histogramItem?.onClick?.();
@@ -277,7 +303,7 @@ describe('PanelMenu', () => {
 
   describe('VizPanelMenu', () => {
     it('should add items to the VizPanelMenu', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const mockAddItem = menu.state.body
@@ -291,7 +317,7 @@ describe('PanelMenu', () => {
     });
 
     it('should set items on VizPanelMenu', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const mockSetItems = menu.state.body
@@ -307,7 +333,7 @@ describe('PanelMenu', () => {
 
   describe('Utility Functions', () => {
     it('should generate explore link correctly', () => {
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       const link = getExploreLink(menu);
 
       expect(link).toBe('test-explore-link');
@@ -315,20 +341,14 @@ describe('PanelMenu', () => {
     });
 
     it('should generate add to dashboard payload correctly', () => {
-      const menu = new PanelMenu({
-        addInvestigationsLink: false,
-        investigationOptions: {
-          type: 'logs',
-          labelName: 'test-label',
-        },
-      });
+      const menu = new PanelMenu({});
 
       const payload = getAddToDashboardPayload(menu);
 
       expect(payload).toEqual({
         panel: expect.objectContaining({
-          type: 'logs',
-          title: 'test-label',
+          type: 'timeseries',
+          title: 'Metric query',
           datasource: {
             type: 'loki',
             uid: 'test-datasource',
@@ -344,7 +364,7 @@ describe('PanelMenu', () => {
       mockSceneGraph.findObject.mockReturnValue(null);
       jest.mocked(getQueryRunnerFromChildren).mockReturnValue([]);
 
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
 
       expect(() => getExploreLink(menu)).toThrow();
     });
@@ -353,9 +373,16 @@ describe('PanelMenu', () => {
   describe('Panel Type Behavior', () => {
     it('should show correct icon for timeseries panel', () => {
       const menu = new PanelMenu({
-        addInvestigationsLink: false,
         panelType: TimeSeriesPanelType.timeseries,
+        fieldType: 'float',
       });
+      const vizPanelWrapper = new FieldsVizPanelWrapper({
+        viz: new VizPanel({ menu }),
+        queryType: TimeSeriesQueryType.avg,
+        supportsHistogram: true,
+      });
+
+      jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -366,9 +393,16 @@ describe('PanelMenu', () => {
 
     it('should show correct icon for histogram panel', () => {
       const menu = new PanelMenu({
-        addInvestigationsLink: false,
         panelType: TimeSeriesPanelType.histogram,
+        fieldType: 'float',
       });
+      const vizPanelWrapper = new FieldsVizPanelWrapper({
+        viz: new VizPanel({ menu }),
+        queryType: TimeSeriesQueryType.avg,
+        supportsHistogram: true,
+      });
+
+      jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -376,13 +410,33 @@ describe('PanelMenu', () => {
 
       expect(timeseriesItem?.iconClassName).toBe('chart-line');
     });
+
+    it('should show plot average option for int fields', () => {
+      const menu = new PanelMenu({
+        panelType: TimeSeriesPanelType.histogram,
+        fieldType: 'int',
+      });
+      const vizPanelWrapper = new FieldsVizPanelWrapper({
+        viz: new VizPanel({ menu }),
+        queryType: TimeSeriesQueryType.avg,
+        supportsHistogram: true,
+      });
+
+      jest.mocked(findObjectOfType).mockReturnValue(vizPanelWrapper);
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      const timeseriesItem = items?.find((item: PanelMenuItem) => item.text === 'Plot average');
+
+      expect(timeseriesItem?.iconClassName).toBe('heart-rate');
+    });
   });
 
   describe('Collapsible Panel State', () => {
     it('should show expand icon when panel is collapsed', () => {
       mockVizPanel.state.collapsed = true;
 
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -394,7 +448,7 @@ describe('PanelMenu', () => {
     it('should show collapse icon when panel is expanded', () => {
       mockVizPanel.state.collapsed = false;
 
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       const items = menu.state.body?.state.items;
@@ -408,7 +462,7 @@ describe('PanelMenu', () => {
     it('should not show the option if the exposed component does not exist', () => {
       jest.mocked(usePluginComponent).mockReturnValue({ component: null, isLoading: false });
 
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       render(<PanelMenu.Component model={menu} />);
@@ -425,7 +479,7 @@ describe('PanelMenu', () => {
     it('should show the option if the exposed component exists', () => {
       jest.mocked(usePluginComponent).mockReturnValue({ component: () => null, isLoading: false });
 
-      const menu = new PanelMenu({ addInvestigationsLink: false });
+      const menu = new PanelMenu({});
       menu.activate();
 
       render(<PanelMenu.Component model={menu} />);

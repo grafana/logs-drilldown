@@ -1,14 +1,9 @@
 services:
   grafana:
     extends:
-      file: .config/docker-compose-base.yaml
+      file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
-    environment:
-      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
-      - GF_PLUGINS_PREINSTALL_DISABLED=true
-      - GF_SERVER_ROOT_URL=http://localhost:3001/grafana
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     build:
       context: ./.config
       args:
@@ -24,7 +19,7 @@ services:
       # Using "host-gateway" would be more portable across different Docker setups but fails in our CI build
       - 'host.docker.internal:172.17.0.1'
   loki:
-    image: grafana/loki:k276-c416352
+    image: grafana/loki:3.6
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'

@@ -45,6 +45,8 @@ export const USER_EVENTS_ACTIONS = {
     search_services_changed: 'search_services_changed',
     // Selecting service. Props: service
     service_selected: 'service_selected',
+    // Adding new tab
+    add_new_tab: 'add_new_tab',
   },
   [USER_EVENTS_PAGES.service_details]: {
     // Selecting action view tab (logs/labels/fields/patterns). Props: newActionView, previousActionView
@@ -55,7 +57,10 @@ export const USER_EVENTS_ACTIONS = {
     add_to_filters_in_json_panel: 'add_to_filters_in_json_panel',
     // Setting a new root in the json panel
     change_line_format_in_json_panel: 'change_line_format_in_json_panel',
+    // Changing between histogram and time series queries (only supported for panels with avg_over_time queries)
     change_viz_type: 'change_viz_type',
+    // Changing between avg_over_time and count queries (only supported for int fields)
+    change_query_type: 'change_query_type',
     label_in_panel_summary_clicked: 'label_in_panel_summary_clicked',
     // Changing layout type (e.g. single/grid/rows). Used in multiple views. The view type is passed as a parameter. Props: layout, view
     layout_type_changed: 'layout_type_changed',
@@ -63,6 +68,7 @@ export const USER_EVENTS_ACTIONS = {
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
     // Clear all displayed fields
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
+    logs_show_backend_fields: 'logs_show_backend_fields',
     // Fires when logs panel query returns successfully
     logs_on_query_complete: 'logs_on_query_complete',
     // Fires when logs panel query returns an error

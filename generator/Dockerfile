@@ -1,8 +1,8 @@
 # Start with the OTEL collector stage
-FROM otel/opentelemetry-collector-contrib:latest@sha256:4a951ff0a9772f4fa8e9c7a326434370301b98b2b813933468dcb54aa6a6b5e5 AS collector
+FROM otel/opentelemetry-collector-contrib:latest@sha256:b14234c4bc1b7364629af272e564913bb57bdc9736d45b8b6db5ab3417dc75f9 AS collector
 
 # Final stage
-FROM golang:1.24@sha256:5034fa44b36163a4109b71ed75c67dbdcb52c3cd9750953befe00054315d9fd2
+FROM golang:1.24@sha256:7b13449f08287fdb53114d65bdf20eb3965e4e54997903b5cb9477df0ea37c12
 
 # Copy the collector binary from the collector stage
 COPY --from=collector /otelcol-contrib /otelcol-contrib

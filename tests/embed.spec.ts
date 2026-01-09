@@ -267,4 +267,24 @@ test.describe('embed', () => {
     );
     await assertFiltersAreReadOnly();
   });
+
+  test('initial filters are populated', async ({ page }) => {
+    explorePage.blockAllQueriesExcept({
+      refIds: ['logsPanelQuery'],
+    });
+    // Refresh so we get our logs panel query
+    await page.getByTestId('data-testid RefreshPicker run button').click();
+    await expect(page.getByText('service_name =~ tempo-distributor|tempo-ingester')).toBeVisible();
+    await expect(page.getByText('user != 03428')).toBeVisible();
+    await expect(page.getByText('msg != Failed to get keys from redis')).toBeVisible();
+    // go to explore
+    await page.getByTestId(/data-testid Panel menu Logs/).click();
+    await page.getByTestId('data-testid Panel menu item Explore').click();
+    // Assert the query is showing
+    await expect(
+      page.getByText(
+        `{service_name=~"tempo-distributor|tempo-ingester"} | user!="03428" |~ "(?i)Error" | json | logfmt | drop __error__, __error_details__ | msg!="Failed to get keys from redis"`
+      )
+    ).toBeVisible();
+  });
 });

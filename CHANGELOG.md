@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.0.33
+
+##### Chores
+
+*  show logs when primary is regex (#1680) (e2001ada)
+*  add menuPosition=absolute (#1673) (1462866a)
+* **deps:**
+  *  update otel/opentelemetry-collector-contrib:latest docker digest to b14234c (#1658) (1b8f06a4)
+  *  update grafana/alloy:latest docker digest to 85e4a70 (#1657) (aeaa4516)
+
+##### Documentation Changes
+
+*  Updating for new visualization (#1674) (628efe82)
+
+##### New Features
+
+*  auto-tab on service selection when pop first label key (#1691) (8d129529)
+*  allow numeric operators on int fields (#1677) (89ba07a8)
+* **embedded:**  field filters support (#1683) (ef4445db)
+
+##### Bug Fixes
+
+* **js-yaml:**  update js-yaml to 4.1.1 (#1688) (612fb4ee)
+* **qs:**  update qs to 6.14.1 (#1687) (ab7b59d0)
+* **EmbeddedLogs:**  use custom value prefix for regular expressions (#1678) (fdf6c289)
+*  non-portaled select options (#1676) (07e1be7c)
+
+
+## 1.0.32
+
+##### Chores
+
+* **ci/cd:**  pin workflow to verison 4.0.0 (#1671) (7f01482e)
+* **deps:**
+  *  update dependency @types/lodash to v4.17.21 (#1661) (a775a87f)
+  *  update dependency @lezer/lr to v1.4.4 (#1660) (e4a528c0)
+  *  update dependency @babel/core to v7.28.5 (#1659) (b5b5fd46)
+  *  update grafana/shared-workflows/ action to (#1655) (5ab50003)
+  *  update grafana/grafana-enterprise:latest docker digest to 96a793a (#1654) (64cc204c)
+  *  update golang:1.24 docker digest to 7b13449 (#1653) (fc3cfde9)
+  *  update actions/checkout digest to 34e1148 (#1652) (534a2df4)
+  *  pin dependencies (#1651) (b80907a9)
+* **renovate:**  remove minimunReleaseAge (#1656) (b8468687)
+* **ci:**  update grafana levitate dependencies (#1646) (00b552bb)
+
+##### New Features
+
+* **fields:**  support `avg_over_time` for `int` fields (#1637) (8a5be4e0)
+* **lokiConfig:**  disable patterns if pattern_ingester_enabled is false (#1669) (b364f56c)
+* **embedded:**  allow hiding time picker (#1666) (0eaab841)
+* **links:**  add sortOrder support (#1649) (85e57038)
+* **time-picker:**  add rolling time window options (#1625) (038e5dfa)
+
+
 ## 1.0.31
 
 ##### Chores

@@ -13,7 +13,6 @@ import {
   SceneObjectBase,
   SceneObjectState,
   SceneQueryRunner,
-  VizPanel,
   VizPanelBuilder,
 } from '@grafana/scenes';
 import { Options as TextOptions } from '@grafana/schema/dist/esm/raw/composable/text/panelcfg/x/TextPanelCfg_types.gen';
@@ -33,7 +32,8 @@ import {
 } from '../../../services/fields';
 import { logger } from '../../../services/logger';
 import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
-import { buildDataQuery } from '../../../services/query';
+import { buildDataQuery, isQueryAvg } from '../../../services/query';
+import { getQueryExpression } from '../../../services/queryRunner';
 import { getFieldsPanelTypes, getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
 import {
   getFieldGroupByVariable,
@@ -42,7 +42,7 @@ import {
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
-import { getPanelWrapperStyles, PanelMenu, TimeSeriesPanelType } from '../../Panels/PanelMenu';
+import { getPanelWrapperStyles, PanelMenu, TimeSeriesPanelType, TimeSeriesQueryType } from '../../Panels/PanelMenu';
 import {
   getDetectedFieldsFrame,
   getDetectedFieldsFrameFromQueryRunnerState,
@@ -51,6 +51,7 @@ import {
   ServiceScene,
 } from '../ServiceScene';
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
+import { FieldsVizPanelWrapper } from './FieldsVizPanelWrapper';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
 import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
@@ -101,26 +102,25 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         for (let i = 0; i < updatedChildren.length; i++) {
           const gridItem = layout.state.children[i];
           if (gridItem instanceof SceneCSSGridItem) {
-            const panel = gridItem.state.body;
-            if (panel instanceof VizPanel) {
+            const panelWrap = gridItem.state.body;
+            if (panelWrap instanceof FieldsVizPanelWrapper) {
+              const panel = panelWrap.state.viz;
               if (newParser) {
                 const index = newNamesField?.values.indexOf(panel.state.title);
                 const existingParser = index && index !== -1 ? newParsersField?.values[index] : undefined;
 
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
                 if (this.state.fieldsPanelsType === 'timeseries' && existingParser !== newParser) {
-                  const fieldType = getDetectedFieldType(panel.state.title, detectedFieldsFrame);
                   const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(
                     panel.state.title,
                     detectedFieldsFrame,
-                    fieldType
+                    panelWrap.state.queryType
                   );
                   panel.setState({
                     $data: dataTransformer,
                   });
                 }
               }
-
               if (newFieldsSet.has(panel.state.title)) {
                 // If the new response has this field, delete it from the set, but leave it in the layout
                 newFieldsSet.delete(panel.state.title);
@@ -131,7 +131,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
                 i--;
               }
             } else {
-              logger.warn('panel is not VizPanel!');
+              logger.warn('panel wrap is not FieldsVizPanelWrapper');
             }
           } else {
             logger.warn('gridItem is not SceneCSSGridItem');
@@ -159,10 +159,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   private sortChildren(cardinalityMap: Map<string, number>) {
     return (a: SceneCSSGridItem, b: SceneCSSGridItem) => {
-      const aPanel = a.state.body as VizPanel;
-      const bPanel = b.state.body as VizPanel;
-      const aCardinality = cardinalityMap.get(aPanel.state.title) ?? 0;
-      const bCardinality = cardinalityMap.get(bPanel.state.title) ?? 0;
+      const aPanel = a.state.body as FieldsVizPanelWrapper;
+      const bPanel = b.state.body as FieldsVizPanelWrapper;
+      const aCardinality = cardinalityMap.get(aPanel.state.viz.state.title) ?? 0;
+      const bCardinality = cardinalityMap.get(bPanel.state.viz.state.title) ?? 0;
       return bCardinality - aCardinality;
     };
   }
@@ -267,34 +267,39 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   private subscribeToPanel(child: SceneCSSGridItem) {
-    const panel = child.state.body;
-    if (panel && panel instanceof VizPanel) {
-      this._subs.add(
-        panel?.state.$data?.getResultsStream().subscribe((result) => {
-          if (result.data.errors && result.data.errors.length > 0) {
-            if (!this.state.showErrorPanels) {
-              child.setState({ isHidden: true });
-            } else {
-              child.setState({ isHidden: false });
-            }
+    const panelWrap = child.state.body as FieldsVizPanelWrapper | undefined;
+    if (panelWrap instanceof FieldsVizPanelWrapper) {
+      const panel = panelWrap?.state.viz;
+      if (panel) {
+        this._subs.add(
+          panel?.state.$data?.getResultsStream().subscribe((result) => {
+            if (result.data.errors && result.data.errors.length > 0) {
+              if (!this.state.showErrorPanels) {
+                child.setState({ isHidden: true });
+              } else {
+                child.setState({ isHidden: false });
+              }
 
-            if (!this.state.showErrorPanelToggle) {
-              this.setState({ showErrorPanelToggle: true });
+              if (!this.state.showErrorPanelToggle) {
+                this.setState({ showErrorPanelToggle: true });
+              }
+              this.updateFieldCount();
+            } else {
+              setPanelNotices(result, panel);
             }
-            this.updateFieldCount();
-          } else {
-            setPanelNotices(result, panel);
-          }
-        })
-      );
+          })
+        );
+      }
+    } else {
+      logger.warn('panel wrap is not FieldsVizPanelWrapper');
     }
   }
 
-  public rebuildAvgFields() {
+  public rebuildChangedPanels(changed: 'panelType' | 'queryType') {
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
     const activeLayout = this.getActiveGridLayouts();
     const children: SceneCSSGridItem[] = [];
-    const panelType =
+    const panelTypeFromLocalStorage =
       getPanelOption('panelType', [TimeSeriesPanelType.histogram, TimeSeriesPanelType.timeseries]) ??
       TimeSeriesPanelType.timeseries;
 
@@ -303,19 +308,16 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         (child instanceof SceneCSSGridItem && this.state.showErrorPanels) ||
         (child instanceof SceneCSSGridItem && !child.state.isHidden)
       ) {
-        const panels = sceneGraph.findDescendents(child, VizPanel);
-        if (panels.length) {
-          // Will only be one panel as a child of CSSGridItem
-          const panel = panels[0];
-          const labelName = panel.state.title;
-          const fieldType = getDetectedFieldType(labelName, detectedFieldsFrame);
-          if (isAvgField(fieldType)) {
-            const newChild = this.buildChild(labelName, detectedFieldsFrame, panelType);
-            if (newChild) {
-              children.push(newChild);
-            }
+        const panelWrappers = sceneGraph.findDescendents(child, FieldsVizPanelWrapper);
+        if (panelWrappers.length) {
+          if (changed === 'panelType') {
+            children.push(
+              this.rebuildPanelOnPanelTypeChange(panelWrappers, panelTypeFromLocalStorage, detectedFieldsFrame, child)
+            );
           } else {
-            children.push(child);
+            children.push(
+              this.rebuildPanelOnQueryTypeChange(panelWrappers, detectedFieldsFrame, panelTypeFromLocalStorage, child)
+            );
           }
         }
       }
@@ -328,6 +330,69 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     }
   }
 
+  private rebuildPanelOnPanelTypeChange = (
+    panelWrappers: FieldsVizPanelWrapper[],
+    panelTypeFromLocalStorage: TimeSeriesPanelType,
+    detectedFieldsFrame: DataFrame | undefined,
+    child: SceneCSSGridItem
+  ) => {
+    // Will only be one panel as a child of CSSGridItem
+    const panelWrap = panelWrappers[0];
+    const panel = panelWrap.state.viz;
+    const labelName = panel.state.title;
+
+    const panelTypeChanged =
+      panelWrap.state.supportsHistogram &&
+      panelTypeFromLocalStorage !== panel.state.pluginId &&
+      // Don't rebuild count_over_time queries
+      panelWrap.state.queryType === TimeSeriesQueryType.avg;
+
+    if (panelTypeChanged) {
+      const newChild = this.buildChild(
+        labelName,
+        detectedFieldsFrame,
+        panelTypeFromLocalStorage,
+        panelWrap.state.queryType
+      );
+      if (newChild) {
+        return newChild;
+      }
+    }
+
+    return child;
+  };
+
+  private rebuildPanelOnQueryTypeChange = (
+    panelWrappers: FieldsVizPanelWrapper[],
+    detectedFieldsFrame: DataFrame | undefined,
+    panelTypeFromLocalStorage: TimeSeriesPanelType,
+    child: SceneCSSGridItem
+  ) => {
+    // Will only be one panel as a child of CSSGridItem
+    const panelWrap = panelWrappers[0];
+    const panel = panelWrap.state.viz;
+    const labelName = panel.state.title;
+    const panelExpr = getQueryExpression(panel);
+    const expressionQueryType = isQueryAvg(panelExpr) ? TimeSeriesQueryType.avg : TimeSeriesQueryType.count;
+
+    const queryTypeChanged = panelWrap.state.queryType !== expressionQueryType;
+
+    if (queryTypeChanged) {
+      const newChild = this.buildChild(
+        labelName,
+        detectedFieldsFrame,
+        panel.state.pluginId === 'timeseries' ? panelTypeFromLocalStorage : TimeSeriesPanelType.timeseries,
+        panelWrap.state.queryType
+      );
+
+      if (newChild) {
+        return newChild;
+      }
+    }
+
+    return child;
+  };
+
   private buildChildren(options: string[]): SceneCSSGridItem[] {
     const children: SceneCSSGridItem[] = [];
     const detectedFieldsFrame = getDetectedFieldsFrame(this);
@@ -339,7 +404,13 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         continue;
       }
 
-      const child = this.buildChild(option, detectedFieldsFrame, panelType);
+      const fieldType = getDetectedFieldType(option, detectedFieldsFrame);
+      const child = this.buildChild(
+        option,
+        detectedFieldsFrame,
+        panelType,
+        isAvgField(fieldType) ? TimeSeriesQueryType.avg : TimeSeriesQueryType.count
+      );
       if (child) {
         children.push(child);
       }
@@ -347,7 +418,12 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     return children;
   }
 
-  private buildChild(labelName: string, detectedFieldsFrame: DataFrame | undefined, panelType?: TimeSeriesPanelType) {
+  private buildChild(
+    labelName: string,
+    detectedFieldsFrame: DataFrame | undefined,
+    panelType: TimeSeriesPanelType,
+    queryType: TimeSeriesQueryType
+  ) {
     if (labelName === ALL_VARIABLE_VALUE || !labelName) {
       return;
     }
@@ -359,8 +435,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       const dataTransformer = this.getEstimatedCardinalityQueryRunnerForPanel(labelName);
       body = this.buildText(labelName, fieldType, dataTransformer);
     } else {
-      const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, fieldType);
-      body = this.buildTimeSeries(fieldType, labelName, dataTransformer, panelType);
+      const dataTransformer = this.getTimeSeriesQueryRunnerForPanel(labelName, detectedFieldsFrame, queryType);
+      body = this.buildTimeSeries(fieldType, labelName, dataTransformer, panelType, queryType);
     }
 
     body.setShowMenuAlways(true);
@@ -368,7 +444,11 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const viz = body.build();
 
     return new SceneCSSGridItem({
-      body: viz,
+      body: new FieldsVizPanelWrapper({
+        viz: viz,
+        queryType,
+        supportsHistogram: isAvgField(fieldType) || fieldType === 'int',
+      }),
     });
   }
 
@@ -383,7 +463,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       .setHeaderActions(
         new SelectLabelActionScene({
           fieldType: ValueSlugs.field,
-          hasNumericFilters: fieldType === 'int',
+          hasNumericFilters:
+            fieldType === 'int' || fieldType === 'float' || fieldType === 'bytes' || fieldType === 'duration',
           labelName: String(labelName),
         })
       );
@@ -396,15 +477,21 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     fieldType: 'boolean' | 'bytes' | 'duration' | 'float' | 'int' | 'string' | undefined,
     labelName: string,
     dataTransformer: SceneDataTransformer | SceneQueryRunner,
-    panelType: TimeSeriesPanelType | undefined
+    panelType: TimeSeriesPanelType,
+    queryType: TimeSeriesQueryType
   ): VizPanelBuilder<TimeSeriesOptions, TimeSeriesFieldConfig> => {
     let body;
     let headerActions = [];
-    if (!isAvgField(fieldType)) {
+    if (queryType === TimeSeriesQueryType.count) {
       body = PanelBuilders.timeseries()
         .setTitle(labelName)
         .setData(dataTransformer)
-        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName } }))
+        .setMenu(
+          new PanelMenu({
+            fieldType,
+            panelType: fieldType === 'int' ? panelType : undefined,
+          })
+        )
         .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
         .setCustomFieldConfig('fillOpacity', 100)
         .setCustomFieldConfig('lineWidth', 0)
@@ -420,7 +507,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         })
       );
     } else {
-      if (panelType === 'histogram') {
+      if (panelType === TimeSeriesPanelType.histogram) {
         body = PanelBuilders.histogram();
       } else {
         body = PanelBuilders.timeseries();
@@ -428,7 +515,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       body
         .setTitle(labelName)
         .setData(dataTransformer)
-        .setMenu(new PanelMenu({ investigationOptions: { labelName: labelName }, panelType }));
+        .setUnit('short')
+        .setMenu(new PanelMenu({ panelType, fieldType }));
       headerActions.push(
         new SelectLabelActionScene({
           fieldType: ValueSlugs.field,
@@ -445,13 +533,20 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   private getTimeSeriesQueryRunnerForPanel(
     optionValue: string,
     detectedFieldsFrame: DataFrame | undefined,
-    fieldType?: DetectedFieldType
+    queryType: TimeSeriesQueryType
   ) {
     const fieldsVariable = getFieldsVariable(this);
     const jsonVariable = getJSONFieldsVariable(this);
-    const queryString = buildFieldsQueryString(optionValue, fieldsVariable, detectedFieldsFrame, jsonVariable);
+    // pass in current panel state
+    const queryString = buildFieldsQueryString(
+      optionValue,
+      fieldsVariable,
+      detectedFieldsFrame,
+      jsonVariable,
+      queryType
+    );
     const query = buildDataQuery(queryString, {
-      legendFormat: isAvgField(fieldType) ? optionValue : `{{${optionValue}}}`,
+      legendFormat: queryType === TimeSeriesQueryType.avg ? optionValue : `{{${optionValue}}}`,
       refId: optionValue,
     });
 
