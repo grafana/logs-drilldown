@@ -40,8 +40,34 @@ export function useSaveSearch() {
   return { saveSearch, backend };
 }
 
-export function useEditSearch() {
+export function useHasSavedSearches(dsUid: string) {
+  const { searches } = useSavedSearches(dsUid);
+  return searches.length > 0;
+}
+
+function useListQueryQueryWrapper() {
+  try {
+    return useListQueryQuery({}, { refetchOnMountOrArgChange: true });
+  } catch (e) {
+    return { data: undefined, isLoading: false, error: true };
+  }
+}
+
+export function useSavedSearches(dsUid: string) {
+  const [searches, setSearches] = useState<SavedSearch[]>([]);
+  const { data, isLoading, error } = useListQueryQueryWrapper();
   const [editQueryTemplate] = useUpdateQueryMutation();
+  const [deleteQueryTemplate] = useDeleteQueryMutation();
+
+  useEffect(() => {
+    if (error) {
+      setSearches(getLocallySavedSearches(dsUid));
+      backend = 'local';
+    } else if (!isLoading && data) {
+      setSearches(convertDataQueryResponseToSavedSearchDTO(data).filter((search) => search.dsUid === dsUid));
+      backend = 'remote';
+    }
+  }, [data, dsUid, error, isLoading]);
 
   const editSearch = useCallback(
     async (uid: string, search: Partial<SavedSearch>) => {
@@ -64,12 +90,6 @@ export function useEditSearch() {
     [editQueryTemplate]
   );
 
-  return { editSearch, backend };
-}
-
-export function useDeleteSearch() {
-  const [deleteQueryTemplate] = useDeleteQueryMutation();
-
   const deleteSearch = useCallback(
     async (uid: string) => {
       if (backend === undefined) {
@@ -77,38 +97,22 @@ export function useDeleteSearch() {
         return;
       } else if (backend === 'local') {
         removeFromLocalStorage(uid);
+        setSearches(getLocallySavedSearches(dsUid));
       } else {
         await deleteQueryTemplate({
           name: uid,
         }).unwrap();
       }
     },
-    [deleteQueryTemplate]
+    [deleteQueryTemplate, dsUid]
   );
 
-  return { deleteSearch, backend };
-}
-
-export function useHasSavedSearches(dsUid: string) {
-  const searches = useSavedSearches(dsUid);
-  return searches.length > 0;
-}
-
-export function useSavedSearches(dsUid: string) {
-  const [searches, setSearches] = useState<SavedSearch[]>([]);
-  const { data, isLoading, error } = useListQueryQuery({}, { refetchOnMountOrArgChange: true });
-
-  useEffect(() => {
-    if (error) {
-      setSearches(getLocallySavedSearches(dsUid));
-      backend = 'local';
-    } else if (!isLoading && data) {
-      setSearches(convertDataQueryResponseToSavedSearchDTO(data).filter((search) => search.dsUid === dsUid));
-      backend = 'remote';
-    }
-  }, [data, dsUid, error, isLoading]);
-
-  return searches;
+  return {
+    isLoading,
+    searches,
+    deleteSearch,
+    editSearch,
+  };
 }
 
 export function getLocallySavedSearches(dsUid?: string) {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
@@ -9,15 +9,33 @@ import { useHasSavedSearches } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 export interface LoadSearchSceneState extends SceneObjectState {
+  dsUid: string;
   isOpen: boolean;
 }
 export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
   constructor(state: Partial<LoadSearchSceneState> = {}) {
     super({
+      dsUid: '',
       isOpen: false,
       ...state,
     });
+
+    this.addActivationHandler(this.onActivate);
   }
+
+  onActivate = () => {
+    this.setState({
+      dsUid: getDataSourceVariable(this).getValue().toString(),
+    });
+
+    this._subs.add(
+      getDataSourceVariable(this).subscribeToState((newState) => {
+        this.setState({
+          dsUid: newState.value.toString(),
+        });
+      })
+    );
+  };
 
   toggleOpen = () => {
     this.setState({
@@ -32,8 +50,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
   };
 
   static Component = ({ model }: SceneComponentProps<LoadSearchScene>) => {
-    const { isOpen } = model.useState();
-    const dsUid = useMemo(() => getDataSourceVariable(model).getValue().toString(), [model]);
+    const { dsUid, isOpen } = model.useState();
     const hasSavedSearches = useHasSavedSearches(dsUid);
 
     return (

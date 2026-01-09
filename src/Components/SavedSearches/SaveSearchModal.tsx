@@ -1,20 +1,23 @@
-import React, { FormEvent, useCallback, useState } from 'react';
+import React, { FormEvent, useCallback, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
 
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { useSaveSearch } from 'services/saveSearch';
+import { getQueryExpr } from 'services/scenes';
 
 interface Props {
   dsUid: string;
   onClose(): void;
-  query: string;
+  sceneRef: SceneObject;
 }
 
-export function SaveSearchModal({ dsUid, onClose, query }: Props) {
+export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isVisible, setIsVisible] = useState<boolean | undefined>(undefined);
@@ -22,6 +25,9 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
   const styles = useStyles2(getStyles);
 
   const { saveSearch, backend: saveSearchBackend } = useSaveSearch();
+
+  const indexScene = useMemo(() => sceneGraph.getAncestor(sceneRef, IndexScene), [sceneRef]);
+  const query = useMemo(() => getQueryExpr(indexScene), [indexScene]);
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
@@ -77,15 +83,13 @@ export function SaveSearchModal({ dsUid, onClose, query }: Props) {
               </Field>
             </Box>
             {saveSearchBackend === 'remote' && (
-              <Box flex={1} marginBottom={2}>
-                <Field>
-                  <Checkbox
-                    label={t('logs.logs-drilldown.save-search.share-with-users', 'Share with all users')}
-                    checked={isVisible}
-                    onChange={(e: FormEvent<HTMLInputElement>) => setIsVisible(e.currentTarget.checked)}
-                  />
-                </Field>
-              </Box>
+              <Field>
+                <Checkbox
+                  label={t('logs.logs-drilldown.save-search.share-with-users', 'Share with all users')}
+                  checked={isVisible}
+                  onChange={(e: FormEvent<HTMLInputElement>) => setIsVisible(e.currentTarget.checked)}
+                />
+              </Field>
             )}
           </Stack>
           <Modal.ButtonRow>

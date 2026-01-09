@@ -1,13 +1,11 @@
 import React, { useMemo, useState } from 'react';
 
 import { t } from '@grafana/i18n';
-import { sceneGraph, SceneObject } from '@grafana/scenes';
+import { SceneObject } from '@grafana/scenes';
 import { ToolbarButton } from '@grafana/ui';
 
 import { SaveSearchModal } from './SaveSearchModal';
-import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { useInitSavedSearch } from 'services/saveSearch';
-import { getQueryExpr } from 'services/scenes';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 interface Props {
@@ -24,11 +22,6 @@ export function SaveSearchButton({ sceneRef }: Props) {
 
   useInitSavedSearch(dsUid);
 
-  const query = useMemo(() => {
-    const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
-    return getQueryExpr(indexScene);
-  }, [sceneRef]);
-
   return (
     <>
       <ToolbarButton
@@ -37,7 +30,7 @@ export function SaveSearchButton({ sceneRef }: Props) {
         onClick={() => setSaving(true)}
         tooltip={t('logs.logs-drilldown.save-search.button-tooltip', 'Save search')}
       />
-      {saving && <SaveSearchModal dsUid={dsUid} query={query} onClose={() => setSaving(false)} />}
+      {saving && <SaveSearchModal dsUid={dsUid} sceneRef={sceneRef} onClose={() => setSaving(false)} />}
     </>
   );
 }

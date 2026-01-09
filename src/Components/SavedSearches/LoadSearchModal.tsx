@@ -19,7 +19,7 @@ import {
 } from '@grafana/ui';
 
 import { contextToLink } from 'services/extensions/links';
-import { useSavedSearches, SavedSearch, useDeleteSearch, useEditSearch } from 'services/saveSearch';
+import { useSavedSearches, SavedSearch } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 interface Props {
@@ -34,9 +34,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
   const dsUid = useMemo(() => getDataSourceVariable(sceneRef).getValue().toString(), [sceneRef]);
   const sceneTimeRange = useMemo(() => sceneGraph.getTimeRange(sceneRef).state.value, [sceneRef]);
 
-  const searches = useSavedSearches(dsUid);
-  const { deleteSearch } = useDeleteSearch();
-  const { editSearch } = useEditSearch();
+  const { deleteSearch, editSearch, searches, isLoading } = useSavedSearches(dsUid);
 
   useEffect(() => {
     const selected = searches.find((search) => search === selectedSearch);
@@ -96,15 +94,14 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
       isOpen={true}
       onDismiss={onClose}
     >
-      {!searches ||
-        (searches.length === 0 && (
-          <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
-            {!searches && <LoadingPlaceholder text="Loading your searches..." />}
-            {!searches.length && (
-              <Text variant="body">{t('logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}</Text>
-            )}
-          </Box>
-        ))}
+      {!isLoading && searches.length === 0 && (
+        <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
+          {!searches && <LoadingPlaceholder text="Loading your searches..." />}
+          {!searches.length && (
+            <Text variant="body">{t('logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}</Text>
+          )}
+        </Box>
+      )}
       {searches.length > 0 && (
         <Stack flex={1} gap={0} minHeight={25}>
           <Box display="flex" flex={1} minWidth={0}>
