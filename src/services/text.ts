@@ -4,7 +4,7 @@ import { config, locationService } from '@grafana/runtime';
 import { logger } from './logger';
 
 /**
- * Copies text synchronously. If not executed in the same callstack as the user event this will fail in Safari!
+ * Copies text synchronously. If not executed in the same call stack as the user event this will fail in Safari!
  * @param string
  */
 export const copyText = (string: string) => {
