@@ -214,7 +214,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
+    if (getDrilldownSlug() === 'explore') {
       controls.push(
         new ToolbarScene({
           isOpen: false,

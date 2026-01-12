@@ -22,6 +22,7 @@ import {
   CONTROLS_JSON_FIELDS,
   CONTROLS_VARS_DATASOURCE,
   CONTROLS_VARS_FIELDS_COMBINED,
+  CONTROLS_VARS_TOOLBAR,
   LayoutScene,
 } from './LayoutScene';
 import { PatternControls } from './PatternControls';
@@ -118,6 +119,12 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       }
                     />
                   )}
+                  {slug === PageSlugs.explore &&
+                    controls.map((control) => {
+                      return control.state.key === CONTROLS_VARS_TOOLBAR ? (
+                        <control.Component key={control.state.key} model={control} />
+                      ) : null;
+                    })}
 
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
@@ -130,7 +137,8 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                   <div className={styles.timeRange}>
                     {controls.map((control) => {
                       return !(control instanceof CustomVariableValueSelectors) &&
-                        !(control instanceof SceneFlexLayout) ? (
+                        !(control instanceof SceneFlexLayout) &&
+                        !(control.state.key === CONTROLS_VARS_TOOLBAR) ? (
                         <control.Component key={control.state.key} model={control} />
                       ) : null;
                     })}

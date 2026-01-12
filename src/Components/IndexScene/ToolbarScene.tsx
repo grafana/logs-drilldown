@@ -3,14 +3,16 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { config } from '@grafana/runtime';
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Dropdown, Switch, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from '../../services/datasourceTypes';
 import { testIds } from '../../services/testIds';
 import { AGGREGATED_METRIC_START_DATE } from '../ServiceSelectionScene/ServiceSelectionScene';
+import { IndexScene } from './IndexScene';
+
 const AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY = `${pluginJson.id}.serviceSelection.aggregatedMetrics`;
 
 export interface ToolbarSceneState extends SceneObjectState {
@@ -26,7 +28,7 @@ export interface ToolbarSceneState extends SceneObjectState {
 export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
   constructor(state: Partial<ToolbarSceneState>) {
     const userOverride = localStorage.getItem(AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY);
-    const active = config.featureToggles.exploreLogsAggregatedMetrics && userOverride !== 'false';
+    const active = userOverride !== 'false';
 
     super({
       isOpen: false,
@@ -39,7 +41,11 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
       },
       ...state,
     });
+
+    this.addActivationHandler(this.onActivate.bind(this));
   }
+
+  public onActivate() {}
 
   public toggleAggregatedMetricsOverride = () => {
     const active = !this.state.options.aggregatedMetrics.active;
@@ -71,6 +77,8 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
 
   static Component = ({ model }: SceneComponentProps<ToolbarScene>) => {
     const { isOpen, options } = model.useState();
+    const indexScene = sceneGraph.getAncestor(model, IndexScene);
+    const { lokiConfig } = indexScene.useState();
     const styles = useStyles2(getStyles);
 
     const renderPopover = () => {
@@ -113,7 +121,11 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
       );
     };
 
-    if (options.aggregatedMetrics) {
+    if (
+      options.aggregatedMetrics &&
+      lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED &&
+      lokiConfig?.limits.metric_aggregation_enabled
+    ) {
       return (
         <Dropdown overlay={renderPopover} placement="bottom" onVisibleChange={model.onToggleOpen}>
           <ToolbarButton

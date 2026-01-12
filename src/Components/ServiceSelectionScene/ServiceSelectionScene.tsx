@@ -92,7 +92,7 @@ import {
   VAR_PRIMARY_LABEL_SEARCH,
 } from 'services/variables';
 
-const aggregatedMetricsEnabled: boolean | undefined = config.featureToggles.exploreLogsAggregatedMetrics;
+const aggregatedMetricsEnabled: boolean | undefined = false;
 // Don't export AGGREGATED_SERVICE_NAME, we want to rename things so the rest of the application is agnostic to how we got the services
 const AGGREGATED_SERVICE_NAME = '__aggregated_metric__';
 
