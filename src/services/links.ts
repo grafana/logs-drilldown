@@ -5,6 +5,7 @@ import { AppEvents, toUtc, urlUtil } from '@grafana/data';
 import { config, getAppEvents, getBackendSrv, locationService } from '@grafana/runtime';
 import { SceneTimeRangeLike } from '@grafana/scenes';
 
+import { logger } from './logger';
 import { copyText } from './text';
 
 function buildHostUrl() {
@@ -25,7 +26,7 @@ export const createShortLink = memoize(async function (path: string) {
     });
     return shortLink.url;
   } catch (err) {
-    console.error('Error when creating shortened link: ', err);
+    logger.error(err, { msg: 'Error when creating shortened link' });
 
     appEvents.publish({
       payload: ['Error generating shortened link'],
@@ -58,8 +59,7 @@ export const createAndCopyShortLink = async (path: string) => {
       type: AppEvents.alertSuccess.name,
     });
   } catch (error) {
-    // createShortLink already handles error notifications, just log
-    console.error('Error in createAndCopyShortLink:', error);
+    logger.error(error, { msg: 'Error in createAndCopyShortLink:' });
     appEvents.publish({
       payload: ['Error generating shortened link'],
       type: AppEvents.alertError.name,
