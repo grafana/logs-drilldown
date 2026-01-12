@@ -16,9 +16,11 @@ import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
 import { SaveSearchButton } from '../SavedSearches/SaveSearchButton';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
+import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { getMaxLines } from 'services/store';
 
 export interface ActionBarSceneState extends SceneObjectState {
+  loadSearchScene?: LoadSearchScene;
   maxLines?: number;
   shareButtonScene?: ShareButtonScene;
 }
@@ -38,6 +40,12 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     if (!this.state.shareButtonScene) {
       this.setState({
         shareButtonScene: new ShareButtonScene({}),
+      });
+    }
+
+    if (!this.state.loadSearchScene) {
+      this.setState({
+        loadSearchScene: new LoadSearchScene(),
       });
     }
   }
@@ -89,6 +97,9 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
               <model.state.shareButtonScene.Component model={model.state.shareButtonScene} />
             )}
             <SaveSearchButton sceneRef={model} />
+            {model.state.loadSearchScene && (
+              <model.state.loadSearchScene.Component model={model.state.loadSearchScene} />
+            )}
           </Stack>
         </div>
 
