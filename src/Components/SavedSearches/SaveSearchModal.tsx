@@ -2,8 +2,9 @@ import React, { FormEvent, useCallback, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { AppEvents, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { getAppEvents } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
 
@@ -32,17 +33,30 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
+      const appEvents = getAppEvents();
 
       try {
         setState('saving');
         await saveSearch({ description, dsUid, isVisible, query, title });
         setState('saved');
+
+        appEvents.publish({
+          payload: [t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')],
+          type: AppEvents.alertSuccess.name,
+        });
+
+        onClose();
       } catch (e) {
         console.error(e);
         setState('error');
+
+        appEvents.publish({
+          payload: [t('logs.logs-drilldown.save-search.error', 'Unexpected error saving this search.')],
+          type: AppEvents.alertError.name,
+        });
       }
     },
-    [description, dsUid, isVisible, query, saveSearch, title]
+    [description, dsUid, isVisible, onClose, query, saveSearch, title]
   );
 
   return (
@@ -104,10 +118,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
       ) : (
         <>
           <Alert title="Succcess" severity="success">
-            {t(
-              'logs.logs-drilldown.save-search.success',
-              'Search successfully saved. You can load it again from the landing page of Logs Drilldown.'
-            )}
+            {t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')}
           </Alert>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose}>
