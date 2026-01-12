@@ -117,7 +117,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         </form>
       ) : (
         <>
-          <Alert title="Succcess" severity="success">
+          <Alert title="Success" severity="success">
             {t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')}
           </Alert>
           <Modal.ButtonRow>
