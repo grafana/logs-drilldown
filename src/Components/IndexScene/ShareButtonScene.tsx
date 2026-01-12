@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { AppEvents, toUtc, urlUtil } from '@grafana/data';
-import { config, getAppEvents, getBackendSrv, locationService, reportInteraction } from '@grafana/runtime';
+import { config, reportInteraction } from '@grafana/runtime';
 import {
   SceneComponentProps,
   sceneGraph,
@@ -11,6 +10,7 @@ import {
 } from '@grafana/scenes';
 import { ButtonGroup, Dropdown, IconName, Menu, MenuGroup, ToolbarButton } from '@grafana/ui';
 
+import { constructAbsoluteUrl, createAndCopyShortLink } from '../../services/links';
 import { copyText } from '../../services/text';
 
 interface ShortLinkMenuItemData {
@@ -192,62 +192,4 @@ const defaultMode: ShortLinkMenuItemData = {
   key: 'copy-link',
   label: 'Copy shortened URL',
   shorten: true,
-};
-
-// Adapted from grafana/grafana/public/app/core/utils/shortLinks.ts shortLinks.ts
-function buildHostUrl() {
-  return `${window.location.protocol}//${window.location.host}${config.appSubUrl}`;
-}
-
-function getRelativeURLPath(url: string) {
-  let path = url.replace(buildHostUrl(), '');
-  return path.startsWith('/') ? path.substring(1, path.length) : path;
-}
-
-export const createShortLink = async function (path: string) {
-  const appEvents = getAppEvents();
-  try {
-    const shortLink = await getBackendSrv().post(`/api/short-urls`, {
-      path: getRelativeURLPath(path),
-    });
-    return shortLink.url;
-  } catch (err) {
-    console.error('Error when creating shortened link: ', err);
-
-    appEvents.publish({
-      payload: ['Error generating shortened link'],
-      type: AppEvents.alertError.name,
-    });
-  }
-};
-
-export const createAndCopyShortLink = async (path: string) => {
-  const appEvents = getAppEvents();
-  const shortLink = await createShortLink(path);
-  if (shortLink) {
-    copyText(shortLink);
-    appEvents.publish({
-      payload: ['Shortened link copied to clipboard'],
-      type: AppEvents.alertSuccess.name,
-    });
-  } else {
-    appEvents.publish({
-      payload: ['Error generating shortened link'],
-      type: AppEvents.alertError.name,
-    });
-  }
-};
-
-/**
- * Adapted from /grafana/grafana/public/app/features/explore/utils/links.ts
- * Returns the current URL with absolute time range
- */
-const constructAbsoluteUrl = (timeRange: SceneTimeRangeLike): string => {
-  const from = toUtc(timeRange.state.value.from);
-  const to = toUtc(timeRange.state.value.to);
-  const location = locationService.getLocation();
-  const searchParams = urlUtil.getUrlSearchParams();
-  searchParams['from'] = from.toISOString();
-  searchParams['to'] = to.toISOString();
-  return urlUtil.renderUrl(location.pathname, searchParams);
 };
