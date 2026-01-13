@@ -10,6 +10,7 @@ import {
   DataSourceVariable,
   SceneComponentProps,
   SceneFlexItem,
+  SceneFlexItemLike,
   SceneFlexLayout,
   sceneGraph,
   SceneObject,
@@ -157,9 +158,16 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       state.defaultLineFilters,
       state.initialFields
     );
+
+    let extraControls: SceneFlexItemLike[] = [];
+    if (getDrilldownSlug() === 'explore') {
+      extraControls.push(new LoadSearchScene());
+    }
+
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
+          ...extraControls,
           new SceneFlexItem({
             body: new CustomVariableValueSelectors({
               include: [VAR_LABELS],
@@ -216,7 +224,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
 
     if (getDrilldownSlug() === 'explore') {
-      controls.push(new LoadSearchScene());
       if (config.featureToggles.exploreLogsAggregatedMetrics) {
         controls.push(
           new ToolbarScene({

@@ -1,8 +1,11 @@
 import React from 'react';
 
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { ToolbarButton } from '@grafana/ui';
+import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { LoadSearchModal } from './LoadSearchModal';
 import { useHasSavedSearches } from 'services/saveSearch';
@@ -51,6 +54,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
   static Component = ({ model }: SceneComponentProps<LoadSearchScene>) => {
     const { dsUid, isOpen } = model.useState();
+    const styles = useStyles2(getStyles);
     const hasSavedSearches = useHasSavedSearches(dsUid);
 
     return (
@@ -60,6 +64,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
           variant="canvas"
           disabled={!hasSavedSearches}
           onClick={model.toggleOpen}
+          className={styles.button}
           tooltip={
             hasSavedSearches
               ? t('logs.logs-drilldown.load-search.button-tooltip', 'Load saved search')
@@ -71,3 +76,12 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
     );
   };
 }
+
+const getStyles = (theme: GrafanaTheme2) => ({
+  button: css({
+    [theme.breakpoints.down('lg')]: {
+      alignSelf: 'flex-start',
+    },
+    alignSelf: 'flex-end',
+  }),
+});
