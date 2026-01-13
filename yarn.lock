@@ -2017,6 +2017,11 @@
   resolved "https://registry.yarnpkg.com/@openfeature/ofrep-core/-/ofrep-core-1.2.0.tgz#75cd16522a5805e51163a515795880d9b827220c"
   integrity sha512-45PlWr1x+iL++5EIwyHXylCNNDWZCnpGdKFCLukys16AnVIqFFg1kRBSGLVJT/4VgiSamw617PsrZr4KPArnww==
 
+"@openfeature/ofrep-core@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@openfeature/ofrep-core/-/ofrep-core-2.0.0.tgz#e4d2931e2e4e96d4bd8f43144bb77087bc1b3492"
+  integrity sha512-7adN+3lvx7aAM/4BG8CHBGoRoePPtTa6EVygnNFMECcJvXiXFRcUTUq5lezvYdVG0LGSaw7zkd+hkc8Uwu3HNg==
+
 "@openfeature/ofrep-web-provider@^0.3.3":
   version "0.3.4"
   resolved "https://registry.yarnpkg.com/@openfeature/ofrep-web-provider/-/ofrep-web-provider-0.3.4.tgz#416541fcd99dc372e1e1a903494ebbee403e1dc0"
@@ -2024,10 +2029,22 @@
   dependencies:
     "@openfeature/ofrep-core" "^1.0.0"
 
+"@openfeature/ofrep-web-provider@^0.3.5":
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/@openfeature/ofrep-web-provider/-/ofrep-web-provider-0.3.5.tgz#02c884862cf7f8f7b2e8e798fee1726aab43a5bf"
+  integrity sha512-BhFaEANBhd9GO8sIq/NBcdpQUP7R1QtFE8HjPdXWv6m3DabZ2LiGlCdpAUfVZEkq4cCuxaR0SehyVdheOKP/0w==
+  dependencies:
+    "@openfeature/ofrep-core" "^2.0.0"
+
 "@openfeature/web-sdk@^1.6.1":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@openfeature/web-sdk/-/web-sdk-1.7.1.tgz#fd6240605424934c645285803bbc322f49831bbb"
   integrity sha512-cdN9J+ML8bthNCsdfCfPTQRrEVwoywaUzSuJRLbUeYidO3PmNnxtp0ccXJ2wikqq6vWqJvKhyyAyw2zKk7N/Ww==
+
+"@openfeature/web-sdk@^1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@openfeature/web-sdk/-/web-sdk-1.7.2.tgz#a0169df47f4cac057176be0576f9b908119d441e"
+  integrity sha512-8QwhoxVNN2bFFkpWjbCyHCdkVjt/UTVn0o+OwcUUQoZnvPn46Oo1BxJQxUTibl/D/dAM/YQhxmg7ep7gYRxX4g==
 
 "@opentelemetry/api-logs@0.202.0":
   version "0.202.0"

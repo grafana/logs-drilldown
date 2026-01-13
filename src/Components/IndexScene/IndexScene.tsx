@@ -87,6 +87,7 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { evaluateFeatureFlag } from 'featureFlags/openFeature';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -130,7 +131,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 interface EmbeddedIndexSceneConstructor {
@@ -216,15 +216,20 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore') {
-      if (config.featureToggles.exploreLogsAggregatedMetrics) {
-        controls.push(
-          new ToolbarScene({
-            isOpen: false,
-            key: CONTROLS_VARS_TOOLBAR,
-          })
-        );
+    evaluateFeatureFlag('drilldown.logs.aggregated_metrics').then((value) => {
+      console.log('aggregated metrics value', value);
+      if (value === 'treatment') {
+        console.log('aggregated metrics is treatment');
       }
+    });
+
+    if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
+      controls.push(
+        new ToolbarScene({
+          isOpen: false,
+          key: CONTROLS_VARS_TOOLBAR,
+        })
+      );
     }
 
     super({
