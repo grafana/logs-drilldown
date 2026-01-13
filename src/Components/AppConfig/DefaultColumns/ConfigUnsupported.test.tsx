@@ -34,6 +34,11 @@ const dataSources: Array<Partial<DataSourceInstanceSettings>> = [
   },
 ];
 
+jest.mock('semver/preload', () => ({
+  ...jest.requireActual('semver/preload'),
+  ltr: () => true,
+}));
+
 describe('Config', () => {
   let result: RenderResult;
   beforeEach(() => {
