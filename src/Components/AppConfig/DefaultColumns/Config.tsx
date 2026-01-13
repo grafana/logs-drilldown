@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
+import semver from 'semver/preload';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { config } from '@grafana/runtime';
@@ -20,7 +21,7 @@ const Config = () => {
   if (!dsUID) {
     return <NoLokiSplash />;
   }
-  if (!config.featureToggles.kubernetesLogsDrilldown || config.buildInfo.version < '12.4') {
+  if (!config.featureToggles.kubernetesLogsDrilldown || semver.ltr(config.buildInfo.version, '12.4.0-20854440429')) {
     return <Unsupported />;
   }
 
