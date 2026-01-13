@@ -255,14 +255,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
       outline: `2px solid ${theme.colors.primary.main}`,
       outlineOffset: '-2px',
     }),
-
-    '.favoriteButton': {
-      display: 'none',
-    },
-    ':has(:hover)': {
-      '.favoriteButton': {
-        display: 'inline-flex',
-      },
-    },
   }),
 });
