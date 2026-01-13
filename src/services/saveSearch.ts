@@ -11,7 +11,7 @@ import {
   useDeleteQueryMutation,
   useListQueryQuery,
   useUpdateQueryMutation,
-} from 'lib/api-clients/v1beta1';
+} from 'lib/api-clients/queries/v1beta1';
 
 let backend: 'local' | 'remote' | undefined = undefined;
 export function useInitSavedSearch(dsUid: string) {

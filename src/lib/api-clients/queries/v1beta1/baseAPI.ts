@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { createBaseQuery } from '../utils/createBaseQuery';
-import { getAPIBaseURL } from '../utils/utils';
+import { createBaseQuery } from '../../utils/createBaseQuery';
+import { getAPIBaseURL } from '../../utils/utils';
 
 // Currently, we are loading all query templates
 // Organizations can have maximum of 1000 query templates
