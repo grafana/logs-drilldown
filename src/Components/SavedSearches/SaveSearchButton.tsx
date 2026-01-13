@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 
 import { t } from '@grafana/i18n';
-import { SceneObject } from '@grafana/scenes';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { ToolbarButton } from '@grafana/ui';
 
 import { SaveSearchModal } from './SaveSearchModal';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { useInitSavedSearch } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
@@ -21,6 +22,11 @@ export function SaveSearchButton({ sceneRef }: Props) {
   }, [sceneRef]);
 
   useInitSavedSearch(dsUid);
+
+  const embedded = useMemo(() => sceneGraph.getAncestor(sceneRef, IndexScene).state.embedded, [sceneRef]);
+  if (embedded) {
+    return null;
+  }
 
   return (
     <>
