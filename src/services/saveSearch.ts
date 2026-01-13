@@ -47,7 +47,7 @@ export function useHasSavedSearches(dsUid: string) {
 
 function useListQueryQueryWrapper() {
   try {
-    return useListQueryQuery({}, { refetchOnMountOrArgChange: true });
+    return useListQueryQuery({}, { refetchOnMountOrArgChange: 300 });
   } catch (e) {
     return { data: undefined, isLoading: false, error: true };
   }
