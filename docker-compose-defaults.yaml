@@ -10,5 +10,5 @@ services:
       GF_SERVER_SERVE_FROM_SUB_PATH: true
       GF_SERVER_ROOT_URL: http://localhost:3001/grafana
       GF_PLUGINS_PREINSTALL_DISABLED: true
-      GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown
+      GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown ${GF_FEATURE_TOGGLES_ENABLE}
       GRAFANA_CLOUD_LOGS_KEY: ${GRAFANA_CLOUD_LOGS_KEY}
