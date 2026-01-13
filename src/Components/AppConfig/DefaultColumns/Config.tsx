@@ -9,7 +9,7 @@ import { DefaultColumnsContextProvider } from './Context';
 import { DataSource } from './DataSource';
 import { DefaultColumns } from './DefaultColumns';
 import { Footer } from './Footer';
-import { isDefaultColumnsSupported } from './MinVersion';
+import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';

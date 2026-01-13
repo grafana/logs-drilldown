@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { isDefaultColumnsFlagsSupported, isDefaultColumnsVersionSupported } from './MinVersion';
+import { isDefaultColumnsFlagsSupported, isDefaultColumnsVersionSupported } from './isSupported';
 
 export function Unsupported() {
   return (
