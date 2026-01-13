@@ -13,7 +13,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-        grafana_version: main
+        grafana_version: ${GRAFANA_VERSION:-main}
     ports: !override
       - 3001:3000/tcp
     volumes:
