@@ -65,6 +65,7 @@ import {
 } from '../../services/variableGetters';
 import { areLabelFiltersEqual, operatorFunction } from '../../services/variableHelpers';
 import { JsonData } from '../AppConfig/AppConfig';
+import { isDefaultColumnsSupported } from '../AppConfig/DefaultColumns/isSupported';
 import { NoLokiSplash } from '../NoLokiSplash';
 import { DEFAULT_TIME_RANGE } from '../Pages';
 import { ServiceScene } from '../ServiceScene/ServiceScene';
