@@ -40,6 +40,12 @@ export function useSaveSearch() {
   return { saveSearch, backend };
 }
 
+export function useCheckForExistingSearch(dsUid: string, query: string) {
+  const { searches } = useSavedSearches(dsUid);
+
+  return searches.find((search) => search.query === query);
+}
+
 export function useHasSavedSearches(dsUid: string) {
   const { searches } = useSavedSearches(dsUid);
   return searches.length > 0;

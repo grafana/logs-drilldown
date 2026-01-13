@@ -9,7 +9,7 @@ import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
 
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useSaveSearch } from 'services/saveSearch';
+import { useCheckForExistingSearch, useSaveSearch } from 'services/saveSearch';
 import { getQueryExpr } from 'services/scenes';
 
 interface Props {
@@ -25,10 +25,11 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const [state, setState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
   const styles = useStyles2(getStyles);
 
-  const { saveSearch, backend: saveSearchBackend } = useSaveSearch();
-
   const indexScene = useMemo(() => sceneGraph.getAncestor(sceneRef, IndexScene), [sceneRef]);
   const query = useMemo(() => getQueryExpr(indexScene), [indexScene]);
+
+  const { saveSearch, backend: saveSearchBackend } = useSaveSearch();
+  const existingSearch = useCheckForExistingSearch(dsUid, query);
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
@@ -72,6 +73,17 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         <form onSubmit={handleSubmit}>
           <Stack gap={1} direction="column" minWidth={0} flex={1}>
             <Box flex={1} marginBottom={2}>
+              {existingSearch && (
+                <Alert title="" severity="warning">
+                  {t(
+                    'logs.logs-drilldown.save-search.already-exists.alert',
+                    'There is a previously saved search with the same query: {{title}}',
+                    {
+                      title: existingSearch.title,
+                    }
+                  )}
+                </Alert>
+              )}
               <Field label={t('logs.logs-drilldown.save-search.title', 'Title')} noMargin htmlFor="save-search-title">
                 <Input
                   id="save-search-title"
