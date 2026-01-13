@@ -3,6 +3,10 @@ import { config, locationService } from '@grafana/runtime';
 
 import { logger } from './logger';
 
+/**
+ * Copies text synchronously. If not executed in the same call stack as the user event this will fail in Safari!
+ * @param string
+ */
 export const copyText = (string: string) => {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(string);
