@@ -197,8 +197,7 @@ function SavedSearchItem({ onSelect, search, selected }: SavedSearchItemProps) {
 
   const id = useId();
   return (
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control
-    <label className={styles.label} htmlFor={id}>
+    <label className={styles.label} htmlFor={id} aria-label={search.title}>
       <input
         // only the selected item should be tabbable
         // arrow keys should navigate between items
