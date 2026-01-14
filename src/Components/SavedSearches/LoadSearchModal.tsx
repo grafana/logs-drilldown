@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { dateTime, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import {
   Modal,
@@ -45,6 +46,10 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     }
   }, [selectedSearch, searches]);
 
+  useEffect(() => {
+    reportInteraction('grafana_logs_app_load_search_visited');
+  }, []);
+
   const href = useMemo(() => {
     if (!selectedSearch) {
       return '';
@@ -72,11 +77,17 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     [selectedSearch]
   );
 
+  const onSelect = useCallback((search: SavedSearch) => {
+    setSelectedSearch(search);
+    reportInteraction('grafana_logs_app_load_search_search_toggled');
+  }, []);
+
   const onDelete = useCallback(() => {
     if (!selectedSearch) {
       return;
     }
     deleteSearch(selectedSearch.uid);
+    reportInteraction('grafana_logs_app_load_search_search_deleted');
   }, [deleteSearch, selectedSearch]);
 
   const onLockToggle = useCallback(async () => {
@@ -87,6 +98,11 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
       isLocked: !selectedSearch.isLocked,
     });
   }, [editSearch, selectedSearch]);
+
+  const onLinkClick = useCallback(() => {
+    reportInteraction('grafana_logs_app_load_search_search_loaded');
+    onClose();
+  }, [onClose]);
 
   return (
     <Modal
@@ -108,12 +124,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
             <ScrollContainer>
               <Stack direction="column" gap={0} flex={1} minWidth={0} role="radiogroup">
                 {searches.map((search, i) => (
-                  <SavedSearchItem
-                    key={i}
-                    search={search}
-                    selected={search === selectedSearch}
-                    onSelect={setSelectedSearch}
-                  />
+                  <SavedSearchItem key={i} search={search} selected={search === selectedSearch} onSelect={onSelect} />
                 ))}
               </Stack>
             </ScrollContainer>
@@ -171,7 +182,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                           }
                         />
                       </Box>
-                      <LinkButton onClick={onClose} href={href} variant="primary">
+                      <LinkButton onClick={onLinkClick} href={href} variant="primary">
                         {t('logs.logs-drilldown.load-search.select', 'Select')}
                       </LinkButton>
                     </Stack>

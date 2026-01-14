@@ -1,10 +1,10 @@
-import React, { FormEvent, useCallback, useMemo, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 
 import { AppEvents, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getAppEvents } from '@grafana/runtime';
+import { getAppEvents, reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
 
@@ -31,6 +31,10 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const { saveSearch, backend: saveSearchBackend } = useSaveSearch();
   const existingSearch = useCheckForExistingSearch(dsUid, query);
 
+  useEffect(() => {
+    reportInteraction('grafana_logs_app_save_search_visited');
+  }, []);
+
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
@@ -45,6 +49,8 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
           payload: [t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')],
           type: AppEvents.alertSuccess.name,
         });
+
+        reportInteraction('grafana_logs_app_save_search_search_saved');
 
         onClose();
       } catch (e) {
