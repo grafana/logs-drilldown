@@ -21,7 +21,7 @@ interface Props {
 export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [isVisible, setIsVisible] = useState<boolean | undefined>(undefined);
+  const [isVisible, setIsVisible] = useState(false);
   const [state, setState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
   const styles = useStyles2(getStyles);
 
