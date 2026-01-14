@@ -3,13 +3,13 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { config } from '@grafana/runtime';
 import { Badge, useStyles2 } from '@grafana/ui';
 
 import { DefaultColumnsContextProvider } from './Context';
 import { DataSource } from './DataSource';
 import { DefaultColumns } from './DefaultColumns';
 import { Footer } from './Footer';
+import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
@@ -20,7 +20,7 @@ const Config = () => {
   if (!dsUID) {
     return <NoLokiSplash />;
   }
-  if (!config.featureToggles.kubernetesLogsDrilldown || config.buildInfo.version < '12.4') {
+  if (!isDefaultColumnsSupported) {
     return <Unsupported />;
   }
 

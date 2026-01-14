@@ -21,3 +21,8 @@ const mockIntersectionObserver = jest.fn().mockImplementation((callback) => ({
   unobserve: jest.fn(),
 }));
 global.IntersectionObserver = mockIntersectionObserver;
+
+jest.mock('semver/preload', () => ({
+  ...jest.requireActual('semver/preload'),
+  ltr: () => false,
+}));
