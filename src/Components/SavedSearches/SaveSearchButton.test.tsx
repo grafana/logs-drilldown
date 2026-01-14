@@ -6,17 +6,15 @@ import { DataSourceVariable, sceneGraph } from '@grafana/scenes';
 
 import { SaveSearchButton } from './SaveSearchButton';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useInitSavedSearch } from 'services/saveSearch';
+import { useInitSavedSearch, useSaveSearch } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
 jest.mock('services/variableGetters');
-jest.mock('./SaveSearchModal', () => ({
-  SaveSearchModal: () => <div data-testid="save-search-modal">Save Search Modal</div>,
-}));
 
-const mockGetDataSourceVariable = getDataSourceVariable as jest.MockedFunction<typeof getDataSourceVariable>;
-const mockUseInitSavedSearch = useInitSavedSearch as jest.MockedFunction<typeof useInitSavedSearch>;
+const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
+const mockUseInitSavedSearch = jest.mocked(useInitSavedSearch);
+const mockUseSaveSearch = jest.mocked(useSaveSearch);
 
 describe('SaveSearchButton', () => {
   const mockSceneRef = {} as any;
@@ -30,26 +28,21 @@ describe('SaveSearchButton', () => {
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
       state: { embedded: false },
     } as IndexScene);
+    mockUseSaveSearch.mockReturnValue({ backend: 'remote', saveSearch: jest.fn() });
   });
 
   test('Opens the modal when the button is clicked', () => {
     render(<SaveSearchButton sceneRef={mockSceneRef} />);
 
-    expect(screen.queryByTestId('save-search-modal')).not.toBeInTheDocument();
+    expect(screen.queryByText('Save current search')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Save/i }));
 
-    expect(screen.getByTestId('save-search-modal')).toBeInTheDocument();
-  });
+    expect(screen.getByText('Save current search')).toBeInTheDocument();
 
-  test('Closes the modal when onClose is called', () => {
-    const { rerender } = render(<SaveSearchButton sceneRef={mockSceneRef} />);
+    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
 
-    fireEvent.click(screen.getByRole('button', { name: /save/i }));
-    expect(screen.getByTestId('save-search-modal')).toBeInTheDocument();
-
-    // Simulate modal close by re-rendering with closed state
-    rerender(<SaveSearchButton sceneRef={mockSceneRef} />);
+    expect(screen.queryByText('Save current search')).not.toBeInTheDocument();
   });
 
   test('Returns null when the scene is embedded', () => {
