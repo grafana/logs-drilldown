@@ -183,7 +183,7 @@ export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiRes
         isEditable:
           config.bootData.user.isGrafanaAdmin ||
           config.bootData.user.orgRole === 'Admin' ||
-          spec.metadata?.annotations?.[AnnoKeyCreatedBy].replace('user:', '') === config.bootData.user.uid,
+          spec.metadata?.annotations?.[AnnoKeyCreatedBy]?.replace('user:', '') === config.bootData.user.uid,
         isLocked: spec.spec?.isLocked ?? false,
         query: spec.spec?.targets[0]?.properties.expr ?? '',
         title: spec.spec?.title ?? '',
