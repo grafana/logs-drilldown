@@ -4,6 +4,7 @@ import { isNumber } from 'lodash';
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { testIds } from '../src/services/testIds';
+import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
 import {
   E2EComboboxStrings,
   ExplorePage,
@@ -16,7 +17,8 @@ test.describe('explore services page', () => {
   let explorePage: ExplorePage;
 
   test.describe('parallel', () => {
-    test.beforeEach(async ({ page }, testInfo) => {
+    test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+      test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
       explorePage = new ExplorePage(page, testInfo);
 
       // Header sizes may change, bringing up the third row in queries, which will break tests in this suite
@@ -26,8 +28,8 @@ test.describe('explore services page', () => {
     });
 
     test.afterEach(async ({ page }) => {
-      await explorePage.unroute();
-      explorePage.echoConsoleLogsOnRetry();
+      await explorePage?.unroute();
+      explorePage?.echoConsoleLogsOnRetry();
     });
 
     test('should add labels to favorites', async ({ page }) => {
@@ -312,8 +314,8 @@ test.describe('explore services page', () => {
       });
 
       test.afterEach(async ({ page }) => {
-        await explorePage.unroute();
-        explorePage.echoConsoleLogsOnRetry();
+        await explorePage?.unroute();
+        explorePage?.echoConsoleLogsOnRetry();
       });
 
       test('refreshing time range should request panel data once', async ({ page }) => {
@@ -593,8 +595,8 @@ test.describe('explore services page', () => {
       });
 
       test.afterAll(async ({}) => {
-        await explorePage.unroute();
-        explorePage.echoConsoleLogsOnRetry();
+        await explorePage?.unroute();
+        explorePage?.echoConsoleLogsOnRetry();
       });
 
       test('Part 1: user can add namespace label as a new tab and navigate to breakdown', async ({}) => {

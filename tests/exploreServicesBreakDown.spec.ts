@@ -5,6 +5,7 @@ import { FilterOp } from '../src/services/filterTypes';
 import { LokiQuery, LokiQueryDirection } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
 import { SERVICE_NAME } from '../src/services/variables';
+import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
 import {
   CapturedResponse,
   CapturedResponses,
@@ -23,7 +24,8 @@ const labelName = 'cluster';
 test.describe('explore services breakdown page', () => {
   let explorePage: ExplorePage;
 
-  test.beforeEach(async ({ page }, testInfo) => {
+  test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+    test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
     explorePage = new ExplorePage(page, testInfo);
 
     await explorePage.setExtraTallViewportSize();
@@ -37,8 +39,8 @@ test.describe('explore services breakdown page', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await explorePage.unroute();
-    explorePage.echoConsoleLogsOnRetry();
+    await explorePage?.unroute();
+    explorePage?.echoConsoleLogsOnRetry();
   });
 
   test('should filter logs panel on search for broadcast field', async ({ page }) => {

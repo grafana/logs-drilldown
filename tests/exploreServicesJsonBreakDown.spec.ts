@@ -2,6 +2,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 import { LokiQuery } from '../src/services/lokiQuery';
 import { testIds } from '../src/services/testIds';
+import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const selectedButtonColor = 'rgb(110, 159, 255)';
@@ -10,7 +11,8 @@ const fieldName = 'method';
 test.describe('explore nginx-json breakdown pages ', () => {
   let explorePage: ExplorePage;
 
-  test.beforeEach(async ({ page }, testInfo) => {
+  test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+    test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
@@ -22,8 +24,8 @@ test.describe('explore nginx-json breakdown pages ', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await explorePage.unroute();
-    explorePage.echoConsoleLogsOnRetry();
+    await explorePage?.unroute();
+    explorePage?.echoConsoleLogsOnRetry();
   });
 
   test.describe('Fields tab', () => {
