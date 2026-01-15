@@ -1,6 +1,5 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-import pluginJson from '../src/plugin.json';
 import { testIds } from '../src/services/testIds';
 import { E2EComboboxStrings, ExplorePage, serviceSelectionPaginationTextMatch } from './fixtures/explore';
 
