@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { config } from '@grafana/runtime';
+
 import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
@@ -135,8 +137,10 @@ export function getLocallySavedSearches(dsUid?: string) {
 export const SAVED_SEARCHES_KEY = `${pluginJson.id}.savedSearches`;
 
 export interface SavedSearch {
+  canModify?: boolean;
   description: string;
   dsUid: string;
+  isEditable?: boolean;
   isLocked?: boolean;
   isVisible?: boolean;
   query: string;
@@ -165,6 +169,7 @@ function removeFromLocalStorage(uid: string) {
   localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(stored.filter((stored) => stored.uid !== uid)));
 }
 
+const AnnoKeyCreatedBy = 'grafana.app/createdBy';
 export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiResponse): SavedSearch[] => {
   if (!result.items) {
     return [];
@@ -175,6 +180,9 @@ export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiRes
       return {
         dsUid: spec.spec?.targets[0]?.properties.datasource?.uid ?? '',
         description: spec.spec?.description ?? '',
+        isEditable:
+          config.bootData.user.isGrafanaAdmin ||
+          spec.metadata?.annotations?.[AnnoKeyCreatedBy].replace('user:', '') === config.bootData.user.uid,
         isLocked: spec.spec?.isLocked ?? false,
         query: spec.spec?.targets[0]?.properties.expr ?? '',
         title: spec.spec?.title ?? '',

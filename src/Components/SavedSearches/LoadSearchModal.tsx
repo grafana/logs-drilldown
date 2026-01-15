@@ -157,31 +157,33 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                   <code className={styles.query}>{selectedSearch.query}</code>
                   <Box display="flex" flex={1} justifyContent="flex-end" direction="column">
                     <Stack justifyContent="space-between">
-                      <Box display="flex" gap={1}>
-                        {selectedSearch.isLocked !== undefined && (
+                      {selectedSearch.isEditable !== false && (
+                        <Box display="flex" gap={1}>
+                          {selectedSearch.isLocked !== undefined && (
+                            <IconButton
+                              tooltip={
+                                selectedSearch.isLocked
+                                  ? t('query-library.actions.unlock-query-button', 'Unlock query')
+                                  : t('query-library.actions.lock-query-button', 'Lock query')
+                              }
+                              name={selectedSearch.isLocked ? 'unlock' : 'lock'}
+                              onClick={onLockToggle}
+                              size="xl"
+                            />
+                          )}
                           <IconButton
+                            size="xl"
+                            name="trash-alt"
+                            disabled={selectedSearch.isLocked}
+                            onClick={onDelete}
                             tooltip={
                               selectedSearch.isLocked
-                                ? t('query-library.actions.unlock-query-button', 'Unlock query')
-                                : t('query-library.actions.lock-query-button', 'Lock query')
+                                ? t('logs.logs-drilldown.load-search.remove-locked', 'Unlock to remove')
+                                : t('logs.logs-drilldown.load-search.remove', 'Remove')
                             }
-                            name={selectedSearch.isLocked ? 'unlock' : 'lock'}
-                            onClick={onLockToggle}
-                            size="xl"
                           />
-                        )}
-                        <IconButton
-                          size="xl"
-                          name="trash-alt"
-                          disabled={selectedSearch.isLocked}
-                          onClick={onDelete}
-                          tooltip={
-                            selectedSearch.isLocked
-                              ? t('logs.logs-drilldown.load-search.remove-locked', 'Unlock to remove')
-                              : t('logs.logs-drilldown.load-search.remove', 'Remove')
-                          }
-                        />
-                      </Box>
+                        </Box>
+                      )}
                       <LinkButton onClick={onLinkClick} href={href} variant="primary">
                         {t('logs.logs-drilldown.load-search.select', 'Select')}
                       </LinkButton>
