@@ -1,4 +1,31 @@
-import { convertAddQueryTemplateCommandToDataQuerySpec, convertDataQueryResponseToSavedSearchDTO } from './saveSearch';
+// eslint-disable-next-line sort/imports
+import * as grafanaRuntime from '@grafana/runtime';
+
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  config: {
+    bootData: {
+      user: {
+        get isGrafanaAdmin() {
+          return false;
+        },
+        get orgRole() {
+          return OrgRole.None;
+        },
+        get uid() {
+          return 'test';
+        },
+      },
+    },
+  },
+}));
+
+import {
+  AnnoKeyCreatedBy,
+  convertAddQueryTemplateCommandToDataQuerySpec,
+  convertDataQueryResponseToSavedSearchDTO,
+} from './saveSearch';
+import { OrgRole } from '@grafana/data';
 
 describe('convertDataQueryResponseToSavedSearchDTO', () => {
   test('Should return an empty array when items are undefined', () => {
@@ -35,8 +62,8 @@ describe('convertDataQueryResponseToSavedSearchDTO', () => {
     expect(result[0].title).toBe('Visible Search');
   });
 
-  test('Should convert API response to SavedSearch DTOs', () => {
-    const response = {
+  describe('Saved search DTOs', () => {
+    const apiResponse = {
       items: [
         {
           spec: {
@@ -52,18 +79,91 @@ describe('convertDataQueryResponseToSavedSearchDTO', () => {
       ],
     };
 
-    const result = convertDataQueryResponseToSavedSearchDTO(response);
-    expect(result).toEqual([
+    const expectedResponse = [
       {
         dsUid: 'loki-uid',
         description: 'A test',
+        isEditable: true,
         isLocked: true,
         query: '{job="test"}',
         title: 'Test Search',
         uid: 'search-uid',
         timestamp: new Date('2024-01-15T12:00:00Z').getTime(),
       },
-    ]);
+    ];
+
+    test('Should convert API response to SavedSearch DTOs', () => {
+      const result = convertDataQueryResponseToSavedSearchDTO(apiResponse);
+      expect(result).toEqual([
+        {
+          ...expectedResponse[0],
+          isEditable: false,
+        },
+      ]);
+    });
+
+    test('Should convert let the UI know when a search is not editable', () => {
+      const result = convertDataQueryResponseToSavedSearchDTO({
+        items: [
+          {
+            ...apiResponse.items[0],
+            metadata: {
+              ...apiResponse.items[0].metadata,
+              annotations: {
+                [AnnoKeyCreatedBy]: 'User: not me',
+              },
+            },
+          },
+        ],
+      });
+      expect(result).toEqual([
+        {
+          ...expectedResponse[0],
+          isEditable: false,
+        },
+      ]);
+    });
+
+    test.only('Should convert let the UI know when a search is editable', () => {
+      jest.spyOn(grafanaRuntime.config.bootData.user, 'uid', 'get').mockReturnValueOnce('me');
+      const result = convertDataQueryResponseToSavedSearchDTO({
+        items: [
+          {
+            ...apiResponse.items[0],
+            metadata: {
+              ...apiResponse.items[0].metadata,
+              annotations: {
+                [AnnoKeyCreatedBy]: 'user:me',
+              },
+            },
+          },
+        ],
+      });
+      expect(result).toEqual([
+        {
+          ...expectedResponse[0],
+          isEditable: true,
+        },
+      ]);
+    });
+
+    test.only('Should convert let the admins bypass permissions', () => {
+      jest.spyOn(grafanaRuntime.config.bootData.user, 'isGrafanaAdmin', 'get').mockReturnValueOnce(true);
+      expect(convertDataQueryResponseToSavedSearchDTO(apiResponse)).toEqual([
+        {
+          ...expectedResponse[0],
+          isEditable: true,
+        },
+      ]);
+
+      jest.spyOn(grafanaRuntime.config.bootData.user, 'orgRole', 'get').mockReturnValueOnce(OrgRole.Admin);
+      expect(convertDataQueryResponseToSavedSearchDTO(apiResponse)).toEqual([
+        {
+          ...expectedResponse[0],
+          isEditable: true,
+        },
+      ]);
+    });
   });
 
   test('Should sort results by timestamp in descending order', () => {

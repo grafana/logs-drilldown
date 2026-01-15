@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { OrgRole } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import pluginJson from '../plugin.json';
@@ -169,11 +170,12 @@ function removeFromLocalStorage(uid: string) {
   localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(stored.filter((stored) => stored.uid !== uid)));
 }
 
-const AnnoKeyCreatedBy = 'grafana.app/createdBy';
+export const AnnoKeyCreatedBy = 'grafana.app/createdBy';
 export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiResponse): SavedSearch[] => {
   if (!result.items) {
     return [];
   }
+
   return result.items
     .filter((spec) => spec.spec?.isVisible !== false)
     .map((spec) => {
@@ -182,7 +184,7 @@ export const convertDataQueryResponseToSavedSearchDTO = (result: ListQueryApiRes
         description: spec.spec?.description ?? '',
         isEditable:
           config.bootData.user.isGrafanaAdmin ||
-          config.bootData.user.orgRole === 'Admin' ||
+          config.bootData.user.orgRole === OrgRole.Admin ||
           spec.metadata?.annotations?.[AnnoKeyCreatedBy]?.replace('user:', '') === config.bootData.user.uid,
         isLocked: spec.spec?.isLocked ?? false,
         query: spec.spec?.targets[0]?.properties.expr ?? '',
