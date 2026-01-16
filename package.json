@@ -8,7 +8,7 @@
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --cache --ignore-path ./.eslintignore",
+    "lint": "eslint . --cache",
     "lint:fix": "yarn run lint --fix && prettier --write --list-different . --ignore-path ./.prettierignore",
     "e2e:smoke": "playwright test -c playwright.smoke.config.ts -x --trace on",
     "e2e:matrix": "playwright test -c playwright.matrix.config.ts -x --trace on",
