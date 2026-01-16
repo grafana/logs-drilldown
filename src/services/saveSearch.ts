@@ -36,7 +36,7 @@ export function useHasSavedSearches(dsUid: string) {
   return searches.length > 0;
 }
 
-function useRemoteSavedSearches(dsUid: string) {
+export function useRemoteSavedSearches(dsUid: string) {
   const [searches, setSearches] = useState<SavedSearch[]>([]);
   const { data, isLoading } = useListQueryQuery({}, { refetchOnMountOrArgChange: 300 });
   const [addQuery] = useCreateQueryMutation();
@@ -91,7 +91,7 @@ function useRemoteSavedSearches(dsUid: string) {
   };
 }
 
-function useLocalSavedSearches(dsUid: string) {
+export function useLocalSavedSearches(dsUid: string) {
   const [searches, setSearches] = useState<SavedSearch[]>(getLocallySavedSearches(dsUid));
 
   const editSearch = useCallback(async (uid: string, search: Partial<SavedSearch>) => {
