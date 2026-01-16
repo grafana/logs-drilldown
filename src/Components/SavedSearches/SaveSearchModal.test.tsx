@@ -6,7 +6,7 @@ import { sceneGraph } from '@grafana/scenes';
 
 import { SaveSearchModal } from './SaveSearchModal';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useCheckForExistingSearch, useSaveSearch } from 'services/saveSearch';
+import { useCheckForExistingSearch, useSavedSearches } from 'services/saveSearch';
 import { getQueryExpr } from 'services/scenes';
 
 jest.mock('services/saveSearch');
@@ -19,11 +19,9 @@ jest.mock('@grafana/runtime', () => ({
   reportInteraction: jest.fn(),
 }));
 
-const mockUseSaveSearch = useSaveSearch as jest.MockedFunction<typeof useSaveSearch>;
-const mockUseCheckForExistingSearch = useCheckForExistingSearch as jest.MockedFunction<
-  typeof useCheckForExistingSearch
->;
-const mockGetQueryExpr = getQueryExpr as jest.MockedFunction<typeof getQueryExpr>;
+const mockUseSaveSearches = jest.mocked(useSavedSearches);
+const mockUseCheckForExistingSearch = jest.mocked(useCheckForExistingSearch);
+const mockGetQueryExpr = jest.mocked(getQueryExpr);
 
 type BackendType = 'local' | 'remote';
 const backends: BackendType[] = ['local', 'remote'];
@@ -42,9 +40,13 @@ describe('SaveSearchModal', () => {
 
   describe.each(backends)('For a %s storage', (backend: BackendType) => {
     beforeEach(() => {
-      mockUseSaveSearch.mockReturnValue({
+      mockUseSaveSearches.mockReturnValue({
         saveSearch: mockSaveSearch,
         backend,
+        isLoading: false,
+        searches: [],
+        deleteSearch: jest.fn(),
+        editSearch: jest.fn(),
       });
     });
 

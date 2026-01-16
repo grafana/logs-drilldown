@@ -6,7 +6,7 @@ import { DataSourceVariable, sceneGraph } from '@grafana/scenes';
 
 import { SaveSearchButton } from './SaveSearchButton';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useInitSavedSearch, useSaveSearch } from 'services/saveSearch';
+import { useInitSavedSearch, useSavedSearches } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
@@ -14,7 +14,7 @@ jest.mock('services/variableGetters');
 
 const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
 const mockUseInitSavedSearch = jest.mocked(useInitSavedSearch);
-const mockUseSaveSearch = jest.mocked(useSaveSearch);
+const mockUseSaveSearches = jest.mocked(useSavedSearches);
 
 describe('SaveSearchButton', () => {
   const mockSceneRef = {} as any;
@@ -28,7 +28,14 @@ describe('SaveSearchButton', () => {
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
       state: { embedded: false },
     } as IndexScene);
-    mockUseSaveSearch.mockReturnValue({ backend: 'remote', saveSearch: jest.fn() });
+    mockUseSaveSearches.mockReturnValue({
+      backend: 'remote',
+      saveSearch: jest.fn(),
+      isLoading: false,
+      searches: [],
+      deleteSearch: jest.fn(),
+      editSearch: jest.fn(),
+    });
   });
 
   test('Opens the modal when the button is clicked', () => {

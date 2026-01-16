@@ -17,6 +17,12 @@ jest.mock('@grafana/runtime', () => ({
         },
       },
     },
+    buildInfo: {
+      version: '12.4.0',
+    },
+    featureToggles: {
+      queryLibrary: true,
+    },
   },
 }));
 
@@ -147,7 +153,7 @@ describe('convertDataQueryResponseToSavedSearchDTO', () => {
       ]);
     });
 
-    test.only('Should convert let the admins bypass permissions', () => {
+    test('Should convert let the admins bypass permissions', () => {
       jest.spyOn(grafanaRuntime.config.bootData.user, 'isGrafanaAdmin', 'get').mockReturnValueOnce(true);
       expect(convertDataQueryResponseToSavedSearchDTO(apiResponse)).toEqual([
         {

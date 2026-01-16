@@ -23,8 +23,10 @@ describe('LoadSearchScene', () => {
       subscribeToState: jest.fn(),
     } as unknown as DataSourceVariable);
     mockUseSavedSearches.mockReturnValue({
+      backend: 'remote',
       deleteSearch: jest.fn(),
       editSearch: jest.fn(),
+      saveSearch: jest.fn(),
       searches: [],
       isLoading: false,
     });

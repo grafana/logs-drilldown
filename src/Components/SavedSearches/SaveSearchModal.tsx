@@ -9,7 +9,7 @@ import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
 
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useCheckForExistingSearch, useSaveSearch } from 'services/saveSearch';
+import { useCheckForExistingSearch, useSavedSearches } from 'services/saveSearch';
 import { getQueryExpr } from 'services/scenes';
 
 interface Props {
@@ -28,7 +28,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const indexScene = useMemo(() => sceneGraph.getAncestor(sceneRef, IndexScene), [sceneRef]);
   const query = useMemo(() => getQueryExpr(indexScene), [indexScene]);
 
-  const { saveSearch, backend: saveSearchBackend } = useSaveSearch();
+  const { saveSearch, backend: saveSearchBackend } = useSavedSearches(dsUid);
   const existingSearch = useCheckForExistingSearch(dsUid, query);
 
   useEffect(() => {

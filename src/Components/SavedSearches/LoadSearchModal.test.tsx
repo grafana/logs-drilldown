@@ -56,6 +56,8 @@ describe('LoadSearchModal', () => {
 
   test('renders the modal with saved searches', () => {
     mockUseSavedSearches.mockReturnValue({
+      backend: 'remote',
+      saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
@@ -70,6 +72,8 @@ describe('LoadSearchModal', () => {
 
   test('Renders empty state when no searches', () => {
     mockUseSavedSearches.mockReturnValue({
+      backend: 'remote',
+      saveSearch: jest.fn(),
       searches: [],
       isLoading: false,
       deleteSearch: mockDeleteSearch,
@@ -83,6 +87,8 @@ describe('LoadSearchModal', () => {
 
   test('Selects a search when clicked', () => {
     mockUseSavedSearches.mockReturnValue({
+      backend: 'remote',
+      saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
@@ -98,6 +104,8 @@ describe('LoadSearchModal', () => {
 
   test('Calls deleteSearch when delete button is clicked', () => {
     mockUseSavedSearches.mockReturnValue({
+      backend: 'remote',
+      saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
@@ -114,6 +122,8 @@ describe('LoadSearchModal', () => {
 
   test('Disables delete button for locked searches', () => {
     mockUseSavedSearches.mockReturnValue({
+      backend: 'remote',
+      saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,

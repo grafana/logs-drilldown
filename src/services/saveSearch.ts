@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import semver from 'semver/preload';
 import { v4 as uuidv4 } from 'uuid';
 
 import { OrgRole } from '@grafana/data';
@@ -16,31 +17,12 @@ import {
   useUpdateQueryMutation,
 } from 'lib/api-clients/queries/v1beta1';
 
-let backend: 'local' | 'remote' | undefined = undefined;
+const MIN_VERSION = '12.4.0';
+const isQueryLibrarySupported =
+  !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
+
 export function useInitSavedSearch(dsUid: string) {
   useHasSavedSearches(dsUid);
-}
-
-export function useSaveSearch() {
-  const [addQuery] = useCreateQueryMutation();
-
-  const saveSearch = useCallback(
-    async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
-      if (backend === undefined) {
-        logger.error('[Save search]: Uninitialized');
-        return;
-      } else if (backend === 'local') {
-        saveInLocalStorage(search);
-      } else {
-        await addQuery({
-          query: convertAddQueryTemplateCommandToDataQuerySpec(search),
-        });
-      }
-    },
-    [addQuery]
-  );
-
-  return { saveSearch, backend };
 }
 
 export function useCheckForExistingSearch(dsUid: string, query: string) {
@@ -54,77 +36,93 @@ export function useHasSavedSearches(dsUid: string) {
   return searches.length > 0;
 }
 
-function useListQueryQueryWrapper() {
-  try {
-    return useListQueryQuery({}, { refetchOnMountOrArgChange: 300 });
-  } catch (e) {
-    return { data: undefined, isLoading: false, error: true };
-  }
-}
-
-export function useSavedSearches(dsUid: string) {
+function useRemoteSavedSearches(dsUid: string) {
   const [searches, setSearches] = useState<SavedSearch[]>([]);
-  const { data, isLoading, error } = useListQueryQueryWrapper();
+  const { data, isLoading } = useListQueryQuery({}, { refetchOnMountOrArgChange: 300 });
+  const [addQuery] = useCreateQueryMutation();
   const [editQueryTemplate] = useUpdateQueryMutation();
   const [deleteQueryTemplate] = useDeleteQueryMutation();
 
   useEffect(() => {
-    if (error) {
-      setSearches(getLocallySavedSearches(dsUid));
-      backend = 'local';
-    } else if (!isLoading && data) {
+    if (!isLoading && data) {
       setSearches(convertDataQueryResponseToSavedSearchDTO(data).filter((search) => search.dsUid === dsUid));
-      backend = 'remote';
     }
-  }, [data, dsUid, error, isLoading]);
+  }, [data, dsUid, isLoading]);
 
   const editSearch = useCallback(
     async (uid: string, search: Partial<SavedSearch>) => {
-      if (backend === undefined) {
-        logger.error('[Save search]: Uninitialized');
-        return;
-      } else if (backend === 'local') {
-        logger.error('[Save search]: Editing is not supported in local storage');
-      } else {
-        await editQueryTemplate({
-          name: uid || '',
-          patch: {
-            spec: {
-              ...search,
-            },
+      await editQueryTemplate({
+        name: uid || '',
+        patch: {
+          spec: {
+            ...search,
           },
-        }).unwrap();
-      }
+        },
+      }).unwrap();
     },
     [editQueryTemplate]
   );
 
   const deleteSearch = useCallback(
     async (uid: string) => {
-      if (backend === undefined) {
-        logger.error('[Save search]: Uninitialized');
-        return;
-      } else if (backend === 'local') {
-        removeFromLocalStorage(uid);
-        setSearches(getLocallySavedSearches(dsUid));
-      } else {
-        await deleteQueryTemplate({
-          name: uid,
-        }).unwrap();
-      }
+      await deleteQueryTemplate({
+        name: uid,
+      }).unwrap();
     },
-    [deleteQueryTemplate, dsUid]
+    [deleteQueryTemplate]
+  );
+
+  const saveSearch = useCallback(
+    async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
+      await addQuery({
+        query: convertAddQueryTemplateCommandToDataQuerySpec(search),
+      });
+    },
+    [addQuery]
   );
 
   return {
+    backend: 'remote',
     isLoading,
+    saveSearch,
     searches,
     deleteSearch,
     editSearch,
   };
 }
 
-export function getLocallySavedSearches(dsUid?: string) {
+function useLocalSavedSearches(dsUid: string) {
+  const [searches, setSearches] = useState<SavedSearch[]>(getLocallySavedSearches(dsUid));
+
+  const editSearch = useCallback(async (uid: string, search: Partial<SavedSearch>) => {
+    logger.error('[Save search]: Editing is not supported in local storage');
+  }, []);
+
+  const deleteSearch = useCallback(
+    async (uid: string) => {
+      removeFromLocalStorage(uid);
+      setSearches(getLocallySavedSearches(dsUid));
+    },
+    [dsUid]
+  );
+
+  const saveSearch = useCallback(async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
+    saveInLocalStorage(search);
+  }, []);
+
+  return {
+    backend: 'local',
+    isLoading: false,
+    saveSearch,
+    searches,
+    deleteSearch,
+    editSearch,
+  };
+}
+
+export const useSavedSearches = isQueryLibrarySupported ? useRemoteSavedSearches : useLocalSavedSearches;
+
+function getLocallySavedSearches(dsUid?: string) {
   let stored: SavedSearch[] = [];
   try {
     stored = narrowSavedSearches(JSON.parse(localStorage.getItem(SAVED_SEARCHES_KEY) ?? '[]'));
