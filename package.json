@@ -40,7 +40,7 @@
     "@commitlint/config-conventional": "19.8.1",
     "@grafana/eslint-config": "^8.2.0",
     "@grafana/plugin-e2e": "2.2.2",
-    "@grafana/plugin-types-bundler": "0.4.4",
+    "@grafana/plugin-types-bundler": "0.5.0",
     "@grafana/tsconfig": "^2.0.0",
     "@playwright/test": "1.55.1",
     "@stylistic/eslint-plugin-ts": "2.13.0",
@@ -127,14 +127,14 @@
     "re2js": "^1.1.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "react-router-dom": "^6.22.0",
+    "react-router-dom": "^7.12.0",
     "react-table": "^7.8.0",
     "rxjs": "7.8.2",
     "tslib": "2.5.3",
     "uuid": "^10.0.0"
   },
   "resolutions": {
-    "react-router-dom": "^6.22.0",
+    "react-router-dom": "^7.12.0",
     "uuid": "^10.0.0",
     "qs": "6.14.1",
     "**/js-yaml": "4.1.1"
