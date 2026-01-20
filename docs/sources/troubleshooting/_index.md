@@ -18,4 +18,4 @@ weight: 900
 [//]: # 'Shared content for error messages and troubleshooting'
 [//]: # 'This content is located in /logs-drilldown/docs/sources/shared/troubleshoot-logs-drilldown.md'
 
-{{< docs/shared lookup="troubleshoot-logs-drilldown.md" source="logs-drilldown" version="<LOGS-DRILLDOWN_VERSION>" >}}
+{{< docs/shared lookup="troubleshoot-logs-drilldown.md" source="explore-logs" version="next" >}}
