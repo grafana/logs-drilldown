@@ -295,6 +295,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsVolumePanel>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { panel } = model.useState();
     if (!panel) {
       return;

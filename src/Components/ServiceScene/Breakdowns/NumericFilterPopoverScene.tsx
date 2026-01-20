@@ -231,6 +231,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
   };
 
   public static Component = ({ model }: SceneComponentProps<NumericFilterPopoverScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const popoverStyles = useStyles2(getPopoverStyles);
     const { fieldType, gt, gte, gtu, hasExistingFilter, labelName, lt, lte, ltu } = model.useState();
     const subTitle =

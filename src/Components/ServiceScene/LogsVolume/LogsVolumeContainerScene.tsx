@@ -43,6 +43,7 @@ export class LogsVolumeContainerScene extends SceneObjectBase<LogsVolumeContaine
     });
   }
   public static Component = ({ model }: SceneComponentProps<LogsVolumeContainerScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body } = model.useState();
     const styles = useStyles2(getStyles);
 

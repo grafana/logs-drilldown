@@ -60,6 +60,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
   };
 
   public static Component = ({ model }: SceneComponentProps<AddLabelToFiltersHeaderActionScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { included, value } = model.useState();
 
     const styles = useStyles2(getStyles);

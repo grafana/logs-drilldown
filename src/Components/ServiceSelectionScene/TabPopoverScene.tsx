@@ -13,6 +13,7 @@ export interface TabPopoverSceneState extends SceneObjectState {}
 
 export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
   public static Component = ({ model }: SceneComponentProps<TabPopoverScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const serviceSelectionTabsScene = sceneGraph.getAncestor(model, ServiceSelectionTabsScene);
     const { showPopover, tabOptions } = serviceSelectionTabsScene.useState();

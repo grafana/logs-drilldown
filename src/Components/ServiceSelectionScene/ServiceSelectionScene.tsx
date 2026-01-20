@@ -217,6 +217,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const styles = useStyles2(getStyles);
     const { $data, body, paginationScene, tabs } = model.useState();
     const { data } = $data.useState();

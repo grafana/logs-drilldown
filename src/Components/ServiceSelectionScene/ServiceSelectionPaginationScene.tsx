@@ -16,6 +16,7 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
     model,
     totalCount,
   }: SceneComponentProps<ServiceSelectionPaginationScene> & { totalCount: number }) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const styles = useStyles2(getPageCountStyles);
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const { countPerPage } = serviceSelectionScene.useState();
@@ -58,6 +59,7 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
     model,
     totalCount,
   }: SceneComponentProps<ServiceSelectionPaginationScene> & { totalCount: number }) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const { countPerPage, currentPage } = serviceSelectionScene.useState();
     const getStyles = (theme: GrafanaTheme2) => ({

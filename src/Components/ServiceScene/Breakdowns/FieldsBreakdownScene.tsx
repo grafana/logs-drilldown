@@ -291,6 +291,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     hideSearch,
     model,
   }: SceneComponentProps<FieldsBreakdownScene> & { hideSearch?: boolean }) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body, loading, search } = model.useState();
     const styles = useStyles2(getStyles);
     const variable = getFieldGroupByVariable(model);
@@ -320,6 +321,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     );
   };
   public static ValuesMenu = ({ model }: SceneComponentProps<FieldsBreakdownScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { loading, sort } = model.useState();
     const styles = useStyles2(getStyles);
     const variable = getFieldGroupByVariable(model);
@@ -336,6 +338,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
   };
 
   public static Component = ({ model }: SceneComponentProps<FieldsBreakdownScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { blockingMessage, body, loading } = model.useState();
     const styles = useStyles2(getStyles);
 

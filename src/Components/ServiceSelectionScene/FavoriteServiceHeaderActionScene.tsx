@@ -18,6 +18,7 @@ export interface FavoriteServiceHeaderActionSceneState extends SceneObjectState 
 
 export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteServiceHeaderActionSceneState> {
   public static Component = ({ model }: SceneComponentProps<FavoriteServiceHeaderActionScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { ds, hover, labelName, labelValue } = model.useState();
     const isFavorite = getFavoriteLabelValuesFromStorage(ds, labelName).includes(labelValue);
     const styles = useStyles2((theme) => getStyles(theme, isFavorite, hover));

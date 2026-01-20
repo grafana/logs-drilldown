@@ -167,6 +167,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
   }
 
   public static Component = ({ model }: SceneComponentProps<PanelMenu>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body } = model.useState();
     const { component: AddToDashboardComponent, isLoading: isLoadingAddToDashboard } = usePluginComponent(
       'grafana/add-to-dashboard-form/v1'

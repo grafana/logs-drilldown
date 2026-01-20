@@ -530,6 +530,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<LogsPanelScene>) => {
+    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body, canClearFilters, error, errorType } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
 
