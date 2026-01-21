@@ -35,7 +35,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
   const dsUid = useMemo(() => getDataSourceVariable(sceneRef).getValue().toString(), [sceneRef]);
   const sceneTimeRange = useMemo(() => sceneGraph.getTimeRange(sceneRef).state.value, [sceneRef]);
 
-  const { deleteSearch, editSearch, searches, isLoading } = useSavedSearches(dsUid);
+  const { deleteSearch, searches, isLoading } = useSavedSearches(dsUid);
 
   useEffect(() => {
     const selected = searches.find((search) => search === selectedSearch);
@@ -89,15 +89,6 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     deleteSearch(selectedSearch.uid);
     reportInteraction('grafana_logs_app_load_search_search_deleted');
   }, [deleteSearch, selectedSearch]);
-
-  const onLockToggle = useCallback(async () => {
-    if (!selectedSearch) {
-      return;
-    }
-    editSearch(selectedSearch.uid, {
-      isLocked: !selectedSearch.isLocked,
-    });
-  }, [editSearch, selectedSearch]);
 
   const onLinkClick = useCallback(() => {
     reportInteraction('grafana_logs_app_load_search_search_loaded');
@@ -156,34 +147,13 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
 
                   <code className={styles.query}>{selectedSearch.query}</code>
                   <Box display="flex" flex={1} justifyContent="flex-end" direction="column">
-                    <Stack justifyContent="space-between">
-                      {selectedSearch.isEditable !== false && (
-                        <Box display="flex" gap={1}>
-                          {selectedSearch.isLocked !== undefined && (
-                            <IconButton
-                              tooltip={
-                                selectedSearch.isLocked
-                                  ? t('query-library.actions.unlock-query-button', 'Unlock query')
-                                  : t('query-library.actions.lock-query-button', 'Lock query')
-                              }
-                              name={selectedSearch.isLocked ? 'unlock' : 'lock'}
-                              onClick={onLockToggle}
-                              size="xl"
-                            />
-                          )}
-                          <IconButton
-                            size="xl"
-                            name="trash-alt"
-                            disabled={selectedSearch.isLocked}
-                            onClick={onDelete}
-                            tooltip={
-                              selectedSearch.isLocked
-                                ? t('logs.logs-drilldown.load-search.remove-locked', 'Unlock to remove')
-                                : t('logs.logs-drilldown.load-search.remove', 'Remove')
-                            }
-                          />
-                        </Box>
-                      )}
+                    <Stack justifyContent="flex-start">
+                      <IconButton
+                        size="xl"
+                        name="trash-alt"
+                        onClick={onDelete}
+                        tooltip={t('logs.logs-drilldown.load-search.remove', 'Remove')}
+                      />
                       <LinkButton onClick={onLinkClick} href={href} variant="primary">
                         {t('logs.logs-drilldown.load-search.select', 'Select')}
                       </LinkButton>

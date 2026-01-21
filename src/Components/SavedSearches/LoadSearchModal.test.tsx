@@ -24,7 +24,6 @@ const mockSearches: SavedSearch[] = [
     query: '{job="test1"}',
     dsUid: 'test-ds',
     timestamp: Date.now(),
-    isLocked: false,
   },
   {
     uid: '2',
@@ -33,14 +32,12 @@ const mockSearches: SavedSearch[] = [
     query: '{job="test2"}',
     dsUid: 'test-ds',
     timestamp: Date.now() - 1,
-    isLocked: true,
   },
 ];
 
 describe('LoadSearchModal', () => {
   const mockOnClose = jest.fn();
   const mockDeleteSearch = jest.fn();
-  const mockEditSearch = jest.fn();
   const mockSceneRef = {} as any;
 
   beforeEach(() => {
@@ -56,12 +53,10 @@ describe('LoadSearchModal', () => {
 
   test('renders the modal with saved searches', () => {
     mockUseSavedSearches.mockReturnValue({
-      backend: 'remote',
       saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
-      editSearch: mockEditSearch,
     });
 
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
@@ -72,12 +67,10 @@ describe('LoadSearchModal', () => {
 
   test('Renders empty state when no searches', () => {
     mockUseSavedSearches.mockReturnValue({
-      backend: 'remote',
       saveSearch: jest.fn(),
       searches: [],
       isLoading: false,
       deleteSearch: mockDeleteSearch,
-      editSearch: mockEditSearch,
     });
 
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
@@ -87,12 +80,10 @@ describe('LoadSearchModal', () => {
 
   test('Selects a search when clicked', () => {
     mockUseSavedSearches.mockReturnValue({
-      backend: 'remote',
       saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
-      editSearch: mockEditSearch,
     });
 
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
@@ -104,12 +95,10 @@ describe('LoadSearchModal', () => {
 
   test('Calls deleteSearch when delete button is clicked', () => {
     mockUseSavedSearches.mockReturnValue({
-      backend: 'remote',
       saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
-      editSearch: mockEditSearch,
     });
 
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
@@ -118,23 +107,5 @@ describe('LoadSearchModal', () => {
     fireEvent.click(deleteButton);
 
     expect(mockDeleteSearch).toHaveBeenCalledWith('1');
-  });
-
-  test('Disables delete button for locked searches', () => {
-    mockUseSavedSearches.mockReturnValue({
-      backend: 'remote',
-      saveSearch: jest.fn(),
-      searches: mockSearches,
-      isLoading: false,
-      deleteSearch: mockDeleteSearch,
-      editSearch: mockEditSearch,
-    });
-
-    render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
-
-    fireEvent.click(screen.getAllByLabelText('Test Search 2')[0]);
-
-    const deleteButton = screen.getByRole('button', { name: /unlock to remove/i });
-    expect(deleteButton).toBeDisabled();
   });
 });

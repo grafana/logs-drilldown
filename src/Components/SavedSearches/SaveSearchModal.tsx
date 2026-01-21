@@ -6,7 +6,7 @@ import { AppEvents, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getAppEvents, reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
-import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert, Checkbox } from '@grafana/ui';
+import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert } from '@grafana/ui';
 
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { useCheckForExistingSearch, useSavedSearches } from 'services/saveSearch';
@@ -21,14 +21,13 @@ interface Props {
 export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [isVisible, setIsVisible] = useState(false);
   const [state, setState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
   const styles = useStyles2(getStyles);
 
   const indexScene = useMemo(() => sceneGraph.getAncestor(sceneRef, IndexScene), [sceneRef]);
   const query = useMemo(() => getQueryExpr(indexScene), [indexScene]);
 
-  const { saveSearch, backend: saveSearchBackend } = useSavedSearches(dsUid);
+  const { saveSearch } = useSavedSearches(dsUid);
   const existingSearch = useCheckForExistingSearch(dsUid, query);
 
   useEffect(() => {
@@ -42,7 +41,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
 
       try {
         setState('saving');
-        await saveSearch({ description, dsUid, isVisible, query, title });
+        await saveSearch({ description, dsUid, query, title });
         setState('saved');
 
         appEvents.publish({
@@ -63,7 +62,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         });
       }
     },
-    [description, dsUid, isVisible, onClose, query, saveSearch, title]
+    [description, dsUid, onClose, query, saveSearch, title]
   );
 
   return (
@@ -114,15 +113,6 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
                 />
               </Field>
             </Box>
-            {saveSearchBackend === 'remote' && (
-              <Field>
-                <Checkbox
-                  label={t('logs.logs-drilldown.save-search.share-with-users', 'Share with all users')}
-                  checked={isVisible}
-                  onChange={(e: FormEvent<HTMLInputElement>) => setIsVisible(e.currentTarget.checked)}
-                />
-              </Field>
-            )}
           </Stack>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose} disabled={state === 'saving'}>

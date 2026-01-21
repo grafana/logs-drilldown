@@ -23,9 +23,6 @@ const mockUseSaveSearches = jest.mocked(useSavedSearches);
 const mockUseCheckForExistingSearch = jest.mocked(useCheckForExistingSearch);
 const mockGetQueryExpr = jest.mocked(getQueryExpr);
 
-type BackendType = 'local' | 'remote';
-const backends: BackendType[] = ['local', 'remote'];
-
 describe('SaveSearchModal', () => {
   const mockOnClose = jest.fn();
   const mockSaveSearch = jest.fn();
@@ -36,78 +33,58 @@ describe('SaveSearchModal', () => {
     mockUseCheckForExistingSearch.mockReturnValue(undefined);
     mockGetQueryExpr.mockReturnValue('{job="test"}');
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({} as IndexScene);
+
+    mockUseSaveSearches.mockReturnValue({
+      saveSearch: mockSaveSearch,
+      isLoading: false,
+      searches: [],
+      deleteSearch: jest.fn(),
+    });
   });
 
-  describe.each(backends)('For a %s storage', (backend: BackendType) => {
-    beforeEach(() => {
-      mockUseSaveSearches.mockReturnValue({
-        saveSearch: mockSaveSearch,
-        backend,
-        isLoading: false,
-        searches: [],
-        deleteSearch: jest.fn(),
-        editSearch: jest.fn(),
+  test('renders the modal with query', () => {
+    render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
+
+    expect(screen.getByText('Save current search')).toBeInTheDocument();
+    expect(screen.getByText('{job="test"}')).toBeInTheDocument();
+  });
+
+  test('submits the form with title and description', async () => {
+    mockSaveSearch.mockResolvedValue(undefined);
+
+    render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
+
+    fireEvent.change(screen.getByLabelText(/title/i), { target: { value: 'My Search' } });
+    fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Test description' } });
+    fireEvent.click(screen.getByRole('button', { name: /^save$/i }));
+
+    await waitFor(() => {
+      expect(mockSaveSearch).toHaveBeenCalledWith({
+        description: 'Test description',
+        dsUid: 'test-ds',
+        query: '{job="test"}',
+        title: 'My Search',
       });
     });
 
-    test('renders the modal with query', () => {
-      render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
+    expect(mockOnClose).toHaveBeenCalled();
+  });
 
-      expect(screen.getByText('Save current search')).toBeInTheDocument();
-      expect(screen.getByText('{job="test"}')).toBeInTheDocument();
-    });
+  test('shows alert when search already exists', () => {
+    mockUseCheckForExistingSearch.mockReturnValue({
+      title: 'Existing Search',
+    } as any);
 
-    test('submits the form with title and description', async () => {
-      mockSaveSearch.mockResolvedValue(undefined);
+    render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
-      render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
+    expect(screen.getByText(/previously saved search/i)).toBeInTheDocument();
+    expect(screen.getByText(/existing search/i)).toBeInTheDocument();
+  });
 
-      fireEvent.change(screen.getByLabelText(/title/i), { target: { value: 'My Search' } });
-      fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Test description' } });
-      if (backend === 'remote') {
-        fireEvent.click(screen.getByLabelText('Share with all users'));
-      }
-      fireEvent.click(screen.getByRole('button', { name: /^save$/i }));
+  test('disables submit button when title is empty', () => {
+    render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
-      await waitFor(() => {
-        expect(mockSaveSearch).toHaveBeenCalledWith({
-          description: 'Test description',
-          dsUid: 'test-ds',
-          isVisible: backend === 'remote' ? true : false,
-          query: '{job="test"}',
-          title: 'My Search',
-        });
-      });
-
-      expect(mockOnClose).toHaveBeenCalled();
-    });
-
-    test('shows alert when search already exists', () => {
-      mockUseCheckForExistingSearch.mockReturnValue({
-        title: 'Existing Search',
-      } as any);
-
-      render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
-
-      expect(screen.getByText(/previously saved search/i)).toBeInTheDocument();
-      expect(screen.getByText(/existing search/i)).toBeInTheDocument();
-    });
-
-    test('correctly displays the isVisible checkbox', () => {
-      render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
-
-      if (backend === 'remote') {
-        expect(screen.getByLabelText('Share with all users')).toBeInTheDocument();
-      } else {
-        expect(screen.queryByLabelText('Share with all users')).not.toBeInTheDocument();
-      }
-    });
-
-    test('disables submit button when title is empty', () => {
-      render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
-
-      const submitButton = screen.getByRole('button', { name: /^save$/i });
-      expect(submitButton).toBeDisabled();
-    });
+    const submitButton = screen.getByRole('button', { name: /^save$/i });
+    expect(submitButton).toBeDisabled();
   });
 });
