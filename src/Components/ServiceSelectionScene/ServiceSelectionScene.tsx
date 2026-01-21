@@ -68,6 +68,7 @@ import { goToLabelDrillDownLink, SelectServiceButton } from './SelectServiceButt
 import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationScene';
 import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
@@ -93,7 +94,7 @@ import {
   VAR_PRIMARY_LABEL_SEARCH,
 } from 'services/variables';
 
-const aggregatedMetricsEnabled: boolean | undefined = config.featureToggles.exploreLogsAggregatedMetrics;
+const aggregatedMetricsEnabled: boolean = getFeatureFlag('exploreLogsAggregatedMetrics');
 // Don't export AGGREGATED_SERVICE_NAME, we want to rename things so the rest of the application is agnostic to how we got the services
 const AGGREGATED_SERVICE_NAME = '__aggregated_metric__';
 
