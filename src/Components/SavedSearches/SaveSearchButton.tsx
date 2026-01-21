@@ -26,6 +26,11 @@ export function SaveSearchButton({ sceneRef }: Props) {
     return ds.getValue().toString();
   }, [sceneRef]);
 
+  const dsName = useMemo(() => {
+    const ds = getDataSourceVariable(sceneRef);
+    return ds.state.text.toString();
+  }, [sceneRef]);
+
   const indexScene = useMemo(() => sceneGraph.getAncestor(sceneRef, IndexScene), [sceneRef]);
 
   const fallbackComponent = useMemo(
@@ -67,6 +72,7 @@ export function SaveSearchButton({ sceneRef }: Props) {
 
   return (
     <OpenQueryLibraryComponent
+      datasourceFilters={[dsName]}
       query={query}
       tooltip={t('logs.logs-drilldown.save-search.button-tooltip-saved-queries', 'Save in Saved Queries')}
     />

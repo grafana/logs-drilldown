@@ -2,9 +2,9 @@ import React, { useCallback, useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { AppEvents, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { locationService, usePluginComponent } from '@grafana/runtime';
+import { getAppEvents, locationService, usePluginComponent } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
@@ -16,6 +16,7 @@ import { isQueryLibrarySupported, OpenQueryLibraryComponentProps, useHasSavedSea
 import { getDataSourceVariable } from 'services/variableGetters';
 
 export interface LoadSearchSceneState extends SceneObjectState {
+  dsName: string;
   dsUid: string;
   isOpen: boolean;
 }
@@ -23,6 +24,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
   constructor(state: Partial<LoadSearchSceneState> = {}) {
     super({
       dsUid: '',
+      dsName: '',
       isOpen: false,
       ...state,
     });
@@ -33,12 +35,14 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
   onActivate = () => {
     this.setState({
       dsUid: getDataSourceVariable(this).getValue().toString(),
+      dsName: getDataSourceVariable(this).state.text.toString(),
     });
 
     this._subs.add(
       getDataSourceVariable(this).subscribeToState((newState) => {
         this.setState({
           dsUid: newState.value.toString(),
+          dsName: getDataSourceVariable(this).state.text.toString(),
         });
       })
     );
@@ -57,7 +61,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
   };
 
   static Component = ({ model }: SceneComponentProps<LoadSearchScene>) => {
-    const { dsUid, isOpen } = model.useState();
+    const { dsName, dsUid, isOpen } = model.useState();
     const styles = useStyles2(getStyles);
     const hasSavedSearches = useHasSavedSearches(dsUid);
 
@@ -90,6 +94,16 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
     const onSelectQuery = useCallback(
       (query: LokiQuery) => {
+        const appEvents = getAppEvents();
+
+        if (query.datasource?.type !== 'loki') {
+          appEvents.publish({
+            payload: [t('logs.logs-drilldown.save-search.load-type-error', 'Please select a Loki query.')],
+            type: AppEvents.alertError.name,
+          });
+          return;
+        }
+
         const link =
           contextToLink({
             targets: [
@@ -108,6 +122,11 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
         if (link) {
           locationService.push(link);
+        } else {
+          appEvents.publish({
+            payload: [t('logs.logs-drilldown.save-search.load-error', 'Could not generate a link.')],
+            type: AppEvents.alertError.name,
+          });
         }
       },
       [sceneTimeRange]
@@ -123,6 +142,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
     return (
       <OpenQueryLibraryComponent
+        datasourceFilters={[dsName]}
         icon="folder-open"
         onSelectQuery={onSelectQuery}
         tooltip={t('logs.logs-drilldown.load-search.saved-query-button-tooltip', 'Load saved query')}

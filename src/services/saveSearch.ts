@@ -230,9 +230,10 @@ export const convertAddQueryTemplateCommandToDataQuerySpec = (
 };
 
 export interface OpenQueryLibraryComponentProps {
+  datasourceFilters?: string[];
   fallbackComponent?: ReactNode;
   icon?: string;
-  onSelectQuery(query: DataQuery): void;
+  onSelectQuery?(query: DataQuery): void;
   query?: DataQuery;
   tooltip?: string;
 }
