@@ -133,11 +133,13 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
       [sceneTimeRange]
     );
 
-    if (!isQueryLibrarySupported()) {
-      return fallbackComponent;
+    if (indexScene.state.embedded) {
+      return null;
     }
 
-    if (isLoadingExposedComponent || indexScene.state.embedded || !OpenQueryLibraryComponent) {
+    if (!isQueryLibrarySupported()) {
+      return fallbackComponent;
+    } else if (isLoadingExposedComponent || !OpenQueryLibraryComponent) {
       return null;
     }
 

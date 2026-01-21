@@ -36,7 +36,11 @@ describe('LoadSearchScene', () => {
       searches: [],
       isLoading: false,
     });
-    jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({} as IndexScene);
+    jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
+      state: {
+        embedded: false,
+      },
+    } as IndexScene);
     jest.spyOn(sceneGraph, 'getTimeRange').mockReturnValue({
       state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
     } as unknown as SceneTimeRange);

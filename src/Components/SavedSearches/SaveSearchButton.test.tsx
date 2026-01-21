@@ -55,7 +55,7 @@ describe('SaveSearchButton', () => {
     expect(screen.queryByText('Save current search')).not.toBeInTheDocument();
   });
 
-  test.only('Returns null when the scene is embedded', () => {
+  test('Returns null when the scene is embedded', () => {
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
       state: { embedded: true },
     } as IndexScene);

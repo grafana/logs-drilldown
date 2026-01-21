@@ -14,7 +14,7 @@ const MIN_VERSION = '12.4.0-pre';
 const queryLibrarySupported = !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
 
 export function isQueryLibrarySupported() {
-  return queryLibrarySupported;
+  return Boolean(queryLibrarySupported);
 }
 
 export function useCheckForExistingSearch(dsUid: string, query: string) {
