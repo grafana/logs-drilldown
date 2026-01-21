@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 
 import semver from 'semver/preload';
 import { v4 as uuidv4 } from 'uuid';
 
 import { OrgRole } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { DataQuery } from '@grafana/schema';
 
 import pluginJson from '../plugin.json';
 import { logger } from './logger';
@@ -17,12 +18,11 @@ import {
   useUpdateQueryMutation,
 } from 'lib/api-clients/queries/v1beta1';
 
-const MIN_VERSION = '12.4.0';
-const isQueryLibrarySupported =
-  !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
+const MIN_VERSION = '12.4.0-pre';
+const queryLibrarySupported = !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
 
-export function useInitSavedSearch(dsUid: string) {
-  useHasSavedSearches(dsUid);
+export function isQueryLibrarySupported() {
+  return queryLibrarySupported;
 }
 
 export function useCheckForExistingSearch(dsUid: string, query: string) {
@@ -120,7 +120,7 @@ export function useLocalSavedSearches(dsUid: string) {
   };
 }
 
-export const useSavedSearches = isQueryLibrarySupported ? useRemoteSavedSearches : useLocalSavedSearches;
+export const useSavedSearches = queryLibrarySupported ? useRemoteSavedSearches : useLocalSavedSearches;
 
 function getLocallySavedSearches(dsUid?: string) {
   let stored: SavedSearch[] = [];
@@ -228,3 +228,11 @@ export const convertAddQueryTemplateCommandToDataQuerySpec = (
     },
   };
 };
+
+export interface OpenQueryLibraryComponentProps {
+  fallbackComponent?: ReactNode;
+  icon?: string;
+  onSelectQuery(query: DataQuery): void;
+  query?: DataQuery;
+  tooltip?: string;
+}

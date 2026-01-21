@@ -10,7 +10,7 @@ import {
 } from '@grafana/data';
 import { DataSourceGetTagValuesOptions } from '@grafana/data/dist/types/types/datasource';
 import { DataSourceWithBackend } from '@grafana/runtime';
-import { DataSourceRef } from '@grafana/schema';
+import { DataQuery, DataSourceRef } from '@grafana/schema';
 
 import { LabelType } from './fieldsTypes';
 
@@ -20,7 +20,7 @@ export enum LokiQueryDirection {
   Scan = 'scan',
 }
 
-export type LokiQuery = {
+export interface LokiQuery extends DataQuery {
   datasource?: DataSourceRef;
   direction?: LokiQueryDirection;
   editorMode?: string;
@@ -31,7 +31,7 @@ export type LokiQuery = {
   refId: string;
   step?: string;
   supportingQueryType?: string;
-};
+}
 
 export type LokiQueryType = 'instant' | 'range' | 'stream' | string;
 
