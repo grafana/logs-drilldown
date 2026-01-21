@@ -78,7 +78,7 @@ export interface SavedSearch {
 }
 
 function saveInLocalStorage({ query, title, description, dsUid }: Omit<SavedSearch, 'timestamp' | 'uid'>) {
-  const stored = getLocallySavedSearches(dsUid);
+  const stored = getLocallySavedSearches();
 
   stored.push({
     dsUid,
