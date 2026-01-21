@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { AppEvents, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getAppEvents, locationService, usePluginComponent } from '@grafana/runtime';
+import { getAppEvents, locationService, reportInteraction, usePluginComponent } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
@@ -122,6 +122,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
         if (link) {
           locationService.push(link);
+          reportInteraction('grafana_logs_app_load_search_saved_query_loaded');
         } else {
           appEvents.publish({
             payload: [t('logs.logs-drilldown.save-search.load-error', 'Could not generate a link.')],
