@@ -6,18 +6,7 @@ import { dateTime, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
-import {
-  Modal,
-  Box,
-  useStyles2,
-  LoadingPlaceholder,
-  Stack,
-  Text,
-  Divider,
-  ScrollContainer,
-  LinkButton,
-  IconButton,
-} from '@grafana/ui';
+import { Modal, Box, useStyles2, Stack, Text, Divider, ScrollContainer, LinkButton, IconButton } from '@grafana/ui';
 
 import { contextToLink } from 'services/extensions/links';
 import { useSavedSearches, SavedSearch } from 'services/saveSearch';
@@ -103,7 +92,6 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     >
       {!isLoading && searches.length === 0 && (
         <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
-          {!searches && <LoadingPlaceholder text="Loading your searches..." />}
           {!searches.length && (
             <Text variant="body">{t('logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}</Text>
           )}
