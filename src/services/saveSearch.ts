@@ -39,9 +39,13 @@ export function useSavedSearches(dsUid: string) {
     [dsUid]
   );
 
-  const saveSearch = useCallback(async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
-    saveInLocalStorage(search);
-  }, []);
+  const saveSearch = useCallback(
+    async (search: Omit<SavedSearch, 'timestamp' | 'uid'>) => {
+      saveInLocalStorage(search);
+      setSearches(getLocallySavedSearches(dsUid));
+    },
+    [dsUid]
+  );
 
   return {
     isLoading: false,
