@@ -21,18 +21,18 @@ jest.mock('./tracking', () => ({
 }));
 
 describe('evaluateFeatureFlag', () => {
-  const getStringValue = jest.fn();
+  const getBooleanValue = jest.fn();
   const addHandler = jest.fn();
   const addHooks = jest.fn();
   let clientMock: any;
 
   beforeEach(() => {
-    getStringValue.mockReset();
+    getBooleanValue.mockReset();
     addHandler.mockReset();
     addHooks.mockReset();
 
     clientMock = {
-      getStringValue,
+      getBooleanValue,
       addHandler,
       addHooks,
       providerStatus: ClientProviderStatus.READY,
@@ -41,24 +41,24 @@ describe('evaluateFeatureFlag', () => {
     (OpenFeature.getClient as jest.Mock).mockReturnValue(clientMock);
   });
 
-  it('correctly evaluates a string flag using the OpenFeature client', async () => {
+  it('correctly evaluates a boolean flag using the OpenFeature client', async () => {
     // This test verifies that evaluateFeatureFlag correctly delegates to the OpenFeature client
     // and returns the value provided by the client.
-    getStringValue.mockReturnValue('treatment');
+    getBooleanValue.mockReturnValue(true);
 
-    // We use a known valid flag for the type check, but the test logic is generic for string flags
-    const result = await evaluateFeatureFlag('drilldown.logs.aggregated_metrics');
+    // We use a known valid flag for the type check, but the test logic is generic for boolean flags
+    const result = await evaluateFeatureFlag('exploreLogsAggregatedMetrics');
 
     expect(OpenFeature.getClient).toHaveBeenCalledWith(OPEN_FEATURE_DOMAIN);
     expect(addHooks).toHaveBeenCalled(); // Verify hooks are added
-    expect(getStringValue).toHaveBeenCalledWith('drilldown.logs.aggregated_metrics', 'excluded'); // 'excluded' is the default in definition
-    expect(result).toBe('treatment');
+    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsAggregatedMetrics', false); // false is the default in definition
+    expect(result).toBe(true);
   });
 
   it('waits for the OpenFeature client to be ready before evaluating', async () => {
     // This test verifies the "waitForClientReady" wrapper logic
     clientMock.providerStatus = ClientProviderStatus.NOT_READY;
-    getStringValue.mockReturnValue('treatment');
+    getBooleanValue.mockReturnValue(true);
 
     // Simulate event triggering
     addHandler.mockImplementation((event, handler) => {
@@ -67,21 +67,21 @@ describe('evaluateFeatureFlag', () => {
       }
     });
 
-    await evaluateFeatureFlag('drilldown.logs.aggregated_metrics');
+    await evaluateFeatureFlag('exploreLogsAggregatedMetrics');
 
     expect(addHandler).toHaveBeenCalledWith(ProviderEvents.Ready, expect.any(Function));
-    expect(getStringValue).toHaveBeenCalled();
+    expect(getBooleanValue).toHaveBeenCalled();
   });
 
   it('returns the default value from definition when evaluation throws', async () => {
     // This test verifies the error handling wrapper
-    getStringValue.mockImplementation(() => {
+    getBooleanValue.mockImplementation(() => {
       throw new Error('network');
     });
     // Suppress console.error for this test case
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    // 'excluded' is the default value defined in openFeature.ts for this flag
-    await expect(evaluateFeatureFlag('drilldown.logs.aggregated_metrics')).resolves.toBe('excluded');
+    // false is the default value defined in openFeature.ts for this flag
+    await expect(evaluateFeatureFlag('exploreLogsAggregatedMetrics')).resolves.toBe(false);
   });
 });

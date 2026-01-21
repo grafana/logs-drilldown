@@ -8,54 +8,107 @@ import { logger } from 'services/logger';
 import { getObjectKeys } from 'services/utils';
 
 /**
- * All feature flags that we intend to use from the GoFF service are defined here.
- * {@link https://github.com/grafana/deployment_tools/blob/master/ksonnet/environments/hosted-grafana/waves/feature-toggles/goff/drilldown/logs/flag-definitions.libsonnet | Metrics Drilldown GoFF flag definitions} for the source of truth.
+ * Maps valueType strings to their corresponding TypeScript types.
  */
-const goffFeatureFlags = {
-  'drilldown.logs.aggregated_metrics': {
-    valueType: 'string',
-    values: [
-      'treatment', // The sidebar opens by default
-      'control', // The sidebar remains closed (default behavior)
-      'excluded', // The user is excluded from experiment (sidebar remains closed)
-    ],
-    defaultValue: 'excluded',
-    trackingKey: 'experiment_aggregated_metrics',
-  },
-} as const satisfies Record<`drilldown.logs.${string}`, FeatureFlag>;
+type ValueTypeMap = {
+  boolean: boolean;
+  number: number;
+  object: JsonValue;
+  string: string;
+};
 
 /**
- * This discriminated union captures the different types of feature flags that can be evaluated.
+ * Core feature flag definition matching the OpenFeature OFREP response format.
+ * Used for flags that come from Grafana core.
  *
- * @param valueType - The type of the feature flag value.
- * @param values - The possible values for the feature flag.
- * @param defaultValue - The default value for the feature flag.
- * @param trackingKey - If provided, the feature flag value will be tracked using the given key.
+ * @example
+ * ```ts
+ * const flag: CoreFeatureFlag<'boolean'> = {
+ *   valueType: 'boolean',
+ *   value: true,
+ *   reason: 'static provider evaluation result',
+ *   variant: 'default',
+ * };
+ * ```
+ */
+type CoreFeatureFlag<VT extends keyof ValueTypeMap> = {
+  reason: string;
+  value: ValueTypeMap[VT];
+  valueType: VT;
+  variant: string;
+};
+
+/**
+ * Experiment feature flag definition for logs-drilldown scoped flags.
+ * Used for A/B testing and feature experiments.
+ *
+ * @example
+ * ```ts
+ * const flag: ExperimentFeatureFlag<'string', readonly ['treatment', 'control']> = {
+ *   valueType: 'string',
+ *   values: ['treatment', 'control'],
+ *   defaultValue: 'control',
+ *   trackingKey: 'experiment_name',
+ * };
+ * ```
+ */
+type ExperimentFeatureFlag<
+  VT extends keyof ValueTypeMap,
+  Values extends ReadonlyArray<ValueTypeMap[VT]> = ReadonlyArray<ValueTypeMap[VT]>
+> = {
+  defaultValue: Values[number];
+  trackingKey?: string;
+  values: Values;
+  valueType: VT;
+};
+
+/**
+ * Union type of all possible feature flag configurations.
+ * Supports both core OFREP flags and experiment flags.
  */
 type FeatureFlag =
-  | { defaultValue: boolean; trackingKey?: string; values: readonly boolean[]; valueType: 'boolean' }
-  | {
-      defaultValue: JsonValue;
-      trackingKey?: string;
-      values: readonly JsonValue[];
-      valueType: 'object';
-    }
-  | {
-      defaultValue: number;
-      trackingKey?: string;
-      values: readonly number[];
-      valueType: 'number';
-    }
-  | {
-      defaultValue: string;
-      trackingKey?: string;
-      values: readonly string[];
-      valueType: 'string';
-    };
+  | CoreFeatureFlag<'boolean'>
+  | CoreFeatureFlag<'number'>
+  | CoreFeatureFlag<'object'>
+  | CoreFeatureFlag<'string'>
+  | ExperimentFeatureFlag<'boolean'>
+  | ExperimentFeatureFlag<'number'>
+  | ExperimentFeatureFlag<'object'>
+  | ExperimentFeatureFlag<'string'>;
+
+/**
+ * Helper to get the default value from a feature flag definition.
+ * Works for both core flags (value) and experiment flags (defaultValue).
+ */
+type GetFlagDefault<F> = F extends { value: infer V } ? V : F extends { defaultValue: infer D } ? D : never;
+
+/**
+ * All Logs Drilldown feature flags that we intend to use from the GoFF service are defined here.
+ * {@link https://github.com/grafana/deployment_tools/blob/master/ksonnet/environments/hosted-grafana/waves/feature-toggles/goff/drilldown/logs/flag-definitions.libsonnet} for the source of truth.
+ * Core feature flags are defined in the {@link https://github.com/grafana/grafana/blob/main/packages/grafana-data/src/types/featureToggles.gen.ts} file.
+ */
+const goffFeatureFlags = {
+  exploreLogsAggregatedMetrics: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
+  'drilldown.logs.fake_flag': {
+    valueType: 'string',
+    values: [
+      'treatment',
+      'control', // default behavior
+      'excluded',
+    ],
+    defaultValue: 'excluded',
+    trackingKey: 'experiment_fake_flag',
+  },
+} as const satisfies Record<string, FeatureFlag>;
 
 const featureFlagNames = getObjectKeys(goffFeatureFlags);
 export type FeatureFlagName = (typeof featureFlagNames)[number];
-export type FlagValue<T extends FeatureFlagName> = (typeof goffFeatureFlags)[T]['values'][number];
+export type FlagValue<T extends FeatureFlagName> = GetFlagDefault<(typeof goffFeatureFlags)[T]>;
 export type FlagTrackingKey = (typeof goffFeatureFlags)[keyof typeof goffFeatureFlags] extends infer Flag
   ? Flag extends { trackingKey: infer K }
     ? K
@@ -77,6 +130,45 @@ export const featureFlagTrackingKeys = Object.fromEntries(
  * This isolates our provider from Grafana core and other plugins.
  */
 export const OPEN_FEATURE_DOMAIN = 'logs-drilldown';
+
+/**
+ * Cache for evaluated feature flag values.
+ * Populated during app initialization via `initializeFeatureFlags()`.
+ * Use `getFeatureFlag()` for synchronous access after initialization.
+ */
+const featureFlagCache = new Map<FeatureFlagName, FlagValue<FeatureFlagName>>();
+
+/**
+ * Gets a feature flag value synchronously from the cache.
+ * Returns the default value if the flag hasn't been evaluated yet.
+ *
+ * @param flagName - The name of the feature flag
+ * @returns The cached flag value, or the default if not yet initialized
+ */
+export function getFeatureFlag<T extends FeatureFlagName>(flagName: T): FlagValue<T> {
+  if (featureFlagCache.has(flagName)) {
+    return featureFlagCache.get(flagName) as FlagValue<T>;
+  }
+  // Return default value if not yet initialized
+  const flagDef = goffFeatureFlags[flagName] as FeatureFlag;
+  if ('value' in flagDef) {
+    return flagDef.value as FlagValue<T>;
+  }
+  return flagDef.defaultValue as FlagValue<T>;
+}
+
+/**
+ * Initializes all feature flags by evaluating them and caching the results.
+ * Call this once during app initialization, after `initOpenFeatureProvider()`.
+ */
+export async function initializeFeatureFlags(): Promise<void> {
+  await Promise.all(
+    featureFlagNames.map(async (flagName) => {
+      const value = await evaluateFeatureFlag(flagName);
+      featureFlagCache.set(flagName, value);
+    })
+  );
+}
 
 /**
  * Initializes the OpenFeature provider for the logs-drilldown plugin.
@@ -121,6 +213,17 @@ function waitForClientReady(client: Client): Promise<void> {
 }
 
 /**
+ * Gets the default value from a feature flag definition.
+ * Works for both core flags (value) and experiment flags (defaultValue).
+ */
+function getFlagDefaultValue(flagDef: FeatureFlag): boolean | number | string | JsonValue {
+  if ('value' in flagDef) {
+    return flagDef.value;
+  }
+  return flagDef.defaultValue;
+}
+
+/**
  * Evaluates a feature flag from the GoFF service.
  *
  * @param flagName - The name of the feature flag to evaluate.
@@ -132,30 +235,29 @@ export async function evaluateFeatureFlag<T extends keyof typeof goffFeatureFlag
     await waitForClientReady(client);
     client.addHooks(new TrackingHook());
     const flagDef = goffFeatureFlags[flagName] as FeatureFlag;
-
-    console.log('flagDef', flagDef);
+    // Check if the flag is a core flag or plugin-scoped flag
+    const defaultValue = getFlagDefaultValue(flagDef);
 
     switch (flagDef.valueType) {
       case 'boolean':
-        const booleanValue = client.getBooleanValue(flagName, flagDef.defaultValue);
-        // @ts-expect-error - this can be removed once we add a boolean-type flag to `goffFeatureFlags`
+        const booleanValue = client.getBooleanValue(flagName, defaultValue as boolean);
         return booleanValue as FlagValue<T>;
       case 'number':
-        const numberValue = client.getNumberValue(flagName, flagDef.defaultValue);
-        // @ts-expect-error - this can be removed once we add a number-type flag to `goffFeatureFlags`
+        const numberValue = client.getNumberValue(flagName, defaultValue as number);
         return numberValue as FlagValue<T>;
       case 'object':
-        const objectValue = client.getObjectValue(flagName, flagDef.defaultValue);
+        const objectValue = client.getObjectValue(flagName, defaultValue as JsonValue);
         return objectValue as FlagValue<T>;
       case 'string':
-        const stringValue = client.getStringValue(flagName, flagDef.defaultValue);
+        const stringValue = client.getStringValue(flagName, defaultValue as string);
         return stringValue as FlagValue<T>;
       default:
         throw new Error(`Invalid flag value type for flag ${flagName}`);
     }
   } catch (error) {
-    // On any error, default to default value
+    // On any error, fallback to default value
     logger.error(new Error(`Error evaluating ${flagName} flag.`, { cause: error }));
-    return goffFeatureFlags[flagName].defaultValue as FlagValue<T>;
+    const flagDef = goffFeatureFlags[flagName] as FeatureFlag;
+    return getFlagDefaultValue(flagDef) as FlagValue<T>;
   }
 }

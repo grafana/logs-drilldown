@@ -5,7 +5,7 @@ import { config } from '@grafana/runtime';
 import { featureFlagTrackingKeys, type FlagTrackingKey } from './openFeature';
 
 export const TRACKED_FLAG_VALUES: Record<FlagTrackingKey, unknown> = {
-  experiment_aggregated_metrics: null,
+  experiment_fake_flag: null,
 };
 
 /**
