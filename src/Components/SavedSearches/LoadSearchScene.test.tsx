@@ -2,14 +2,19 @@ import React from 'react';
 
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import { DataSourceVariable } from '@grafana/scenes';
+import { DataSourceVariable, sceneGraph, SceneTimeRange } from '@grafana/scenes';
 
 import { LoadSearchScene } from './LoadSearchScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { useHasSavedSearches, useSavedSearches } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
 jest.mock('services/variableGetters');
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  usePluginComponent: jest.fn().mockReturnValue({ component: undefined, isLoading: false }),
+}));
 
 const mockUseHasSavedSearches = jest.mocked(useHasSavedSearches);
 const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
@@ -21,6 +26,9 @@ describe('LoadSearchScene', () => {
     mockGetDataSourceVariable.mockReturnValue({
       getValue: () => 'test-datasource-uid',
       subscribeToState: jest.fn(),
+      state: {
+        text: 'test-datasource-uid',
+      },
     } as unknown as DataSourceVariable);
     mockUseSavedSearches.mockReturnValue({
       deleteSearch: jest.fn(),
@@ -28,6 +36,10 @@ describe('LoadSearchScene', () => {
       searches: [],
       isLoading: false,
     });
+    jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({} as IndexScene);
+    jest.spyOn(sceneGraph, 'getTimeRange').mockReturnValue({
+      state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
+    } as unknown as SceneTimeRange);
   });
 
   test('Disables button when there are no saved searches', () => {

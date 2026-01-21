@@ -62,12 +62,12 @@ export function SaveSearchButton({ sceneRef }: Props) {
     [dsUid, expr]
   );
 
-  if (!isQueryLibrarySupported()) {
-    return fallbackComponent;
-  }
-
   if (indexScene.state.embedded || isLoadingExposedComponent || !OpenQueryLibraryComponent) {
     return null;
+  }
+
+  if (!isQueryLibrarySupported()) {
+    return fallbackComponent;
   }
 
   return (

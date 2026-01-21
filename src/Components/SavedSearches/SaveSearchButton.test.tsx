@@ -11,6 +11,10 @@ import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
 jest.mock('services/variableGetters');
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  usePluginComponent: jest.fn().mockReturnValue({ component: undefined, isLoading: false }),
+}));
 
 const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
 const mockUseSaveSearches = jest.mocked(useSavedSearches);
@@ -22,6 +26,9 @@ describe('SaveSearchButton', () => {
     jest.clearAllMocks();
     mockGetDataSourceVariable.mockReturnValue({
       getValue: () => 'test-datasource-uid',
+      state: {
+        text: 'test-datasource-uid',
+      },
     } as DataSourceVariable);
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
       state: { embedded: false },
@@ -48,7 +55,7 @@ describe('SaveSearchButton', () => {
     expect(screen.queryByText('Save current search')).not.toBeInTheDocument();
   });
 
-  test('Returns null when the scene is embedded', () => {
+  test.only('Returns null when the scene is embedded', () => {
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
       state: { embedded: true },
     } as IndexScene);

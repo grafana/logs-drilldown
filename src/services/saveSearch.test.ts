@@ -30,13 +30,6 @@ jest.mock('@grafana/runtime', () => ({
   },
 }));
 
-jest.mock('lib/api-clients/queries/v1beta1', () => ({
-  useListQueryQuery: jest.fn(),
-  useCreateQueryMutation: jest.fn(),
-  useUpdateQueryMutation: jest.fn(),
-  useDeleteQueryMutation: jest.fn(),
-}));
-
 describe('Hooks', () => {
   describe('useSavedSearches', () => {
     beforeEach(() => {
