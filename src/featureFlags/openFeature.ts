@@ -192,9 +192,9 @@ export function initOpenFeatureProvider(): Promise<void> {
       ...config.openFeatureContext,
     }
   ).catch((error) => {
-    // OpenFeature initialization may fail in environments without the feature flag service.
-    // This is expected and the app will continue to work with default flag values.
-    logger.warn('OpenFeature provider initialization failed, using default flag values', {
+    // OpenFeature initialization may fail in environments without the feature flag service (e.g., Grafana 11.6).
+    // This is expected and the app will continue to work with config.featureToggles fallback or default flag values.
+    logger.warn('OpenFeature provider initialization failed, using config.featureToggles fallback', {
       error: error instanceof Error ? error.message : String(error),
     });
   });
@@ -202,13 +202,18 @@ export function initOpenFeatureProvider(): Promise<void> {
 
 /**
  * Helper to wait for a client to be ready.
+ * Rejects if the provider is in an error state or fails to initialize.
  */
 function waitForClientReady(client: Client): Promise<void> {
   if (client.providerStatus === ClientProviderStatus.READY) {
     return Promise.resolve();
   }
-  return new Promise((resolve) => {
+  if (client.providerStatus === ClientProviderStatus.ERROR || client.providerStatus === ClientProviderStatus.FATAL) {
+    return Promise.reject(new Error('OpenFeature provider failed to initialize'));
+  }
+  return new Promise((resolve, reject) => {
     client.addHandler(ProviderEvents.Ready, () => resolve());
+    client.addHandler(ProviderEvents.Error, () => reject(new Error('OpenFeature provider error')));
   });
 }
 
@@ -221,6 +226,21 @@ function getFlagDefaultValue(flagDef: FeatureFlag): boolean | number | string | 
     return flagDef.value;
   }
   return flagDef.defaultValue;
+}
+
+/**
+ * Gets a fallback value from config.featureToggles for flags that have equivalents there.
+ * This is used when the OpenFeature provider fails to initialize (e.g., in older Grafana versions like 11.6).
+ *
+ * @param flagName - The name of the feature flag
+ * @returns The value from config.featureToggles if available, undefined otherwise
+ */
+function getConfigToggleFallback(flagName: string): boolean | undefined {
+  // Only exploreLogsAggregatedMetrics has a config.featureToggles equivalent
+  if (flagName === 'exploreLogsAggregatedMetrics') {
+    return config.featureToggles.exploreLogsAggregatedMetrics;
+  }
+  return undefined;
 }
 
 /**
@@ -255,8 +275,12 @@ export async function evaluateFeatureFlag<T extends keyof typeof goffFeatureFlag
         throw new Error(`Invalid flag value type for flag ${flagName}`);
     }
   } catch (error) {
-    // On any error, fallback to default value
+    // On any error, try config.featureToggles fallback first, then default value
     logger.error(new Error(`Error evaluating ${flagName} flag.`, { cause: error }));
+    const configValue = getConfigToggleFallback(flagName);
+    if (configValue !== undefined) {
+      return configValue as FlagValue<T>;
+    }
     const flagDef = goffFeatureFlags[flagName] as FeatureFlag;
     return getFlagDefaultValue(flagDef) as FlagValue<T>;
   }
