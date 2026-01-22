@@ -610,7 +610,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
   }
 
   public static Component = ({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
     if (body) {

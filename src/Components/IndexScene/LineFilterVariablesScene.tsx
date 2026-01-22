@@ -21,7 +21,6 @@ interface LineFilterRendererState extends SceneObjectState {}
  */
 export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRendererState> {
   static Component = ({ model }: SceneComponentProps<LineFilterVariablesScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const lineFilterVar = getLineFiltersVariable(model);
     const { filters } = lineFilterVar.useState();
     const styles = useStyles2(getStyles);

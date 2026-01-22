@@ -51,7 +51,6 @@ export class ShowLogsButtonScene extends SceneObjectBase<ShowLogsButtonSceneStat
   };
 
   static Component = ({ model }: SceneComponentProps<ShowLogsButtonScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { disabled, hidden } = model.useState();
     const styles = useStyles2(getStyles);
 

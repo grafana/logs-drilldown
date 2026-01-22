@@ -112,4 +112,13 @@ export default defineConfig([
       'react/jsx-key': ['warn', { checkFragmentShorthand: true }],
     },
   },
+
+  // Grafana Scenes useStyles2 hook throws a warning in scene classes
+  // Wherever possible pull the scene component out into a function to avoid this warning
+  {
+    files: ['src/Components/**/*.tsx'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
 ]);

@@ -56,7 +56,6 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<ActionBarScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const styles = useStyles2(getStyles);
     let currentBreakdownViewSlug: PageSlugs | ValueSlugs | undefined;
     let allowNavToParent = false;

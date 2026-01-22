@@ -70,7 +70,6 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
   };
 
   static Component = ({ model }: SceneComponentProps<ToolbarScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { isOpen, options } = model.useState();
     const styles = useStyles2(getStyles);
 

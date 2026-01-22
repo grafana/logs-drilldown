@@ -47,7 +47,6 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
   };
 
   public static Component = ({ model }: SceneComponentProps<SelectServiceButton>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const styles = useStyles2(getStyles);
     const labels = getLabelsVariable(model);
     // Re-render links on label filter changes

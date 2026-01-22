@@ -255,7 +255,6 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
   }
 
   public static Component = ({ model }: SceneComponentProps<LabelsAggregatedBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
 

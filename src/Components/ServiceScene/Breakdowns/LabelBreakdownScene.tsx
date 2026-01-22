@@ -291,7 +291,6 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   };
 
   public static LabelsMenu = ({ model }: SceneComponentProps<LabelBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body, loading, search } = model.useState();
     const variable = getLabelGroupByVariable(model);
     const { options, value } = variable.useState();
@@ -310,7 +309,6 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   };
 
   public static ValuesMenu = ({ model }: SceneComponentProps<LabelBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { loading, sort } = model.useState();
     const variable = getLabelGroupByVariable(model);
     const { value } = variable.useState();
@@ -328,7 +326,6 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
   };
 
   public static Component = ({ model }: SceneComponentProps<LabelBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { blockingMessage, body, error, loading } = model.useState();
     const styles = useStyles2(getStyles);
 

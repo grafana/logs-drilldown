@@ -48,7 +48,6 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<LayoutScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { contentScene } = indexScene.useState();
     const { interceptDismissed, variableLayout } = model.useState();

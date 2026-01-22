@@ -130,7 +130,6 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
   };
 
   static Component = ({ model }: SceneComponentProps<LevelsVariableScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { isLoading, isOpen, options, visible } = model.useState();
     const styles = useStyles2(getStyles);
     const levelsVar = getLevelsVariable(model);

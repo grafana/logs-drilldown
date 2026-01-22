@@ -58,7 +58,6 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
   }
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionTabsScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     // Scene vars
     const { $labelsData, popover, showPopover, tabOptions } = model.useState();
     const { data } = $labelsData.useState();

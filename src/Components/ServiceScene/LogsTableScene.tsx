@@ -259,7 +259,6 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsTableScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const styles = useStyles2(getStyles);
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);

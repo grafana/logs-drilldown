@@ -67,7 +67,6 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
 
   // parent render
   public static Component = ({ model }: SceneComponentProps<PatternsBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { blockingMessage, body, error, loading, patternFrames } = model.useState();
     const { value: timeRange } = sceneGraph.getTimeRange(model).useState();
     const styles = useStyles2(getStyles);

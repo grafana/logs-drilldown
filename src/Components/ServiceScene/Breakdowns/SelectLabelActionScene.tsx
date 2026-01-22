@@ -93,7 +93,6 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
   }
 
   public static Component = ({ model }: SceneComponentProps<SelectLabelActionScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const {
       fieldType,
       hasNumericFilters,

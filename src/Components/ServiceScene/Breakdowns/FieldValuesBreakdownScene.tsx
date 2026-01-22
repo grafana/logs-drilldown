@@ -73,7 +73,6 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
   }
 
   public static Component = ({ model }: SceneComponentProps<FieldValuesBreakdownScene>) => {
-    /* eslint-disable react-hooks/rules-of-hooks -- This is a functional component, not a class component */
     const { body, errorBody } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
     const fieldsBreakdownScene = sceneGraph.getAncestor(model, FieldsBreakdownScene);
