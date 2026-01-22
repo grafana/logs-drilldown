@@ -72,8 +72,13 @@ describe('SaveSearchModal', () => {
 
   test('shows alert when search already exists', () => {
     mockUseCheckForExistingSearch.mockReturnValue({
+      description: 'Test description',
+      dsUid: 'test-ds',
+      query: '{job="test"}',
       title: 'Existing Search',
-    } as any);
+      timestamp: 123456,
+      uid: 'test',
+    });
 
     render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
 

@@ -2,19 +2,17 @@ import React from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { usePluginComponent } from '@grafana/runtime';
 import { DataSourceVariable, sceneGraph } from '@grafana/scenes';
 
 import { SaveSearchButton } from './SaveSearchButton';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useSavedSearches } from 'services/saveSearch';
+import { isQueryLibrarySupported, useSavedSearches } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
 jest.mock('services/variableGetters');
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  usePluginComponent: jest.fn().mockReturnValue({ component: undefined, isLoading: false }),
-}));
+jest.mock('@grafana/runtime');
 
 const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
 const mockUseSaveSearches = jest.mocked(useSavedSearches);
@@ -39,6 +37,8 @@ describe('SaveSearchButton', () => {
       searches: [],
       deleteSearch: jest.fn(),
     });
+    jest.mocked(usePluginComponent).mockReturnValue({ component: undefined, isLoading: false });
+    jest.mocked(isQueryLibrarySupported).mockReturnValue(false);
   });
 
   test('Opens the modal when the button is clicked', () => {
@@ -62,5 +62,15 @@ describe('SaveSearchButton', () => {
 
     const { container } = render(<SaveSearchButton sceneRef={mockSceneRef} />);
     expect(container.firstChild).toBeNull();
+  });
+
+  test('Uses the exposed component if available', () => {
+    const component = () => <div>Exposed component</div>;
+    jest.mocked(isQueryLibrarySupported).mockReturnValue(true);
+    jest.mocked(usePluginComponent).mockReturnValue({ component, isLoading: false });
+
+    render(<SaveSearchButton sceneRef={mockSceneRef} />);
+
+    expect(screen.getByText('Exposed component')).toBeInTheDocument();
   });
 });

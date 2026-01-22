@@ -2,19 +2,17 @@ import React from 'react';
 
 import { render, screen, fireEvent } from '@testing-library/react';
 
+import { usePluginComponent } from '@grafana/runtime';
 import { DataSourceVariable, sceneGraph, SceneTimeRange } from '@grafana/scenes';
 
 import { LoadSearchScene } from './LoadSearchScene';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
-import { useHasSavedSearches, useSavedSearches } from 'services/saveSearch';
+import { useHasSavedSearches, useSavedSearches, isQueryLibrarySupported } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
 jest.mock('services/variableGetters');
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  usePluginComponent: jest.fn().mockReturnValue({ component: undefined, isLoading: false }),
-}));
+jest.mock('@grafana/runtime');
 
 const mockUseHasSavedSearches = jest.mocked(useHasSavedSearches);
 const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
@@ -44,6 +42,8 @@ describe('LoadSearchScene', () => {
     jest.spyOn(sceneGraph, 'getTimeRange').mockReturnValue({
       state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
     } as unknown as SceneTimeRange);
+    jest.mocked(usePluginComponent).mockReturnValue({ component: undefined, isLoading: false });
+    jest.mocked(isQueryLibrarySupported).mockReturnValue(false);
   });
 
   test('Disables button when there are no saved searches', () => {
@@ -81,5 +81,27 @@ describe('LoadSearchScene', () => {
     fireEvent.click(screen.getByLabelText('Close'));
 
     expect(screen.queryByText('Load a previously saved search')).not.toBeInTheDocument();
+  });
+
+  test('Returns null when the scene is embedded', () => {
+    jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
+      state: { embedded: true },
+    } as IndexScene);
+
+    const scene = new LoadSearchScene();
+    const { container } = render(<scene.Component model={scene} />);
+
+    expect(container.firstChild).toBeNull();
+  });
+
+  test('Uses the exposed component if available', () => {
+    const component = () => <div>Exposed component</div>;
+    jest.mocked(isQueryLibrarySupported).mockReturnValue(true);
+    jest.mocked(usePluginComponent).mockReturnValue({ component, isLoading: false });
+
+    const scene = new LoadSearchScene();
+    render(<scene.Component model={scene} />);
+
+    expect(screen.getByText('Exposed component')).toBeInTheDocument();
   });
 });
