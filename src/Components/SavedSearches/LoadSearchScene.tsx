@@ -145,6 +145,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
     return (
       <OpenQueryLibraryComponent
+        className={styles.button}
         datasourceFilters={[dsName]}
         icon="folder-open"
         onSelectQuery={onSelectQuery}
