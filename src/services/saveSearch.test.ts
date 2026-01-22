@@ -15,11 +15,15 @@ import {
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
   config: {
+    buildInfo: {
+      version: '12.4.0',
+    },
     featureToggles: {
       queryLibrary: true,
     },
   },
 }));
+jest.unmock('semver/preload');
 
 const localSearches = [
   {
@@ -145,6 +149,12 @@ describe('isQueryLibrarySupported', () => {
 
   test('Returns false if the feature is not enabled', () => {
     config.featureToggles.queryLibrary = false;
+    expect(isQueryLibrarySupported()).toBe(false);
+  });
+
+  test('Returns false if the Grafana version is not supported', () => {
+    config.featureToggles.queryLibrary = true;
+    config.buildInfo.version = '12.3.0';
     expect(isQueryLibrarySupported()).toBe(false);
   });
 });
