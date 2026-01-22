@@ -1,6 +1,5 @@
 import { ReactNode, useCallback, useState } from 'react';
 
-import semver from 'semver/preload';
 import { v4 as uuidv4 } from 'uuid';
 
 import { config } from '@grafana/runtime';
@@ -10,11 +9,8 @@ import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
 
-const MIN_VERSION = '12.4.0-pre';
-const queryLibrarySupported = !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
-
 export function isQueryLibrarySupported() {
-  return Boolean(queryLibrarySupported);
+  return Boolean(config.featureToggles.queryLibrary);
 }
 
 export function useCheckForExistingSearch(dsUid: string, query: string) {
