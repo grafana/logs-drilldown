@@ -48,19 +48,14 @@ export function SaveSearchButton({ sceneRef }: Props) {
     [dsUid, saving, sceneRef]
   );
 
-  const expr = useMemo(() => getQueryExpr(indexScene), [indexScene]);
-
-  const query: LokiQuery = useMemo(
-    () => ({
-      refId: 'drilldown',
-      datasource: {
-        type: 'loki',
-        uid: dsUid,
-      },
-      expr,
-    }),
-    [dsUid, expr]
-  );
+  const query: LokiQuery = {
+    refId: 'drilldown',
+    datasource: {
+      type: 'loki',
+      uid: dsUid,
+    },
+    expr: getQueryExpr(indexScene),
+  };
 
   if (indexScene.state.embedded) {
     return null;
