@@ -71,6 +71,12 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
       isOpen={true}
       onDismiss={onClose}
     >
+      <Alert title="" severity="info">
+        {t(
+          'logs.logs-drilldown.save-search.modal-alert',
+          'Saved searches are stored locally in your browser and will only be available on this device.'
+        )}
+      </Alert>
       <Box marginBottom={2}>
         <code className={styles.query}>{query}</code>
       </Box>
