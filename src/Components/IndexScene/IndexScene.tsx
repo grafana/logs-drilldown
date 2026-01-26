@@ -10,7 +10,6 @@ import {
   DataSourceVariable,
   SceneComponentProps,
   SceneFlexItem,
-  SceneFlexItemLike,
   SceneFlexLayout,
   sceneGraph,
   SceneObject,
@@ -88,7 +87,6 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
-import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -160,15 +158,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       state.initialFields
     );
 
-    let extraControls: SceneFlexItemLike[] = [];
-    if (getDrilldownSlug() === 'explore') {
-      extraControls.push(new LoadSearchScene());
-    }
-
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
-          ...extraControls,
           new SceneFlexItem({
             body: new CustomVariableValueSelectors({
               include: [VAR_LABELS],
