@@ -157,6 +157,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       state.defaultLineFilters,
       state.initialFields
     );
+
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -215,13 +216,15 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
-      controls.push(
-        new ToolbarScene({
-          isOpen: false,
-          key: CONTROLS_VARS_TOOLBAR,
-        })
-      );
+    if (getDrilldownSlug() === 'explore') {
+      if (config.featureToggles.exploreLogsAggregatedMetrics) {
+        controls.push(
+          new ToolbarScene({
+            isOpen: false,
+            key: CONTROLS_VARS_TOOLBAR,
+          })
+        );
+      }
     }
 
     super({
