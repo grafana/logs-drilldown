@@ -9,6 +9,10 @@ const config = require('./.config/jest.config');
 module.exports = {
   // Jest configuration provided by Grafana scaffolding
   ...config,
+  testEnvironmentOptions: {
+    // Set base URL for jsdom - tests can use history.pushState to change pathname/search
+    url: 'http://localhost:3000/',
+  },
   moduleNameMapper: {
     ...config.moduleNameMapper,
     '/@bsull/augurs/changepoint/': '@bsull/augurs/changepoint.js',
