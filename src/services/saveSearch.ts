@@ -10,7 +10,7 @@ import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
 
-const MIN_VERSION = '12.4.0-pre';
+const MIN_VERSION = '12.4.0-21256324731';
 
 export function isQueryLibrarySupported() {
   return !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
