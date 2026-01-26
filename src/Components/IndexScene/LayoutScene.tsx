@@ -51,13 +51,12 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { contentScene } = indexScene.useState();
     const { interceptDismissed, variableLayout } = model.useState();
+    const styles = useStyles2(getStyles);
 
     if (!contentScene) {
       logger.warn('content scene not defined');
       return null;
     }
-
-    const styles = useStyles2(getStyles);
     return (
       <div className={styles.bodyContainer}>
         <div className={styles.container}>

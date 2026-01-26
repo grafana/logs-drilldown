@@ -6,7 +6,6 @@ import { generateLogShortlink } from './text';
 // Var declaration is required to hoist subPath, so we can use it in both the jest.mock call below (which is also hoisted), and the test assertion
 // eslint-disable-next-line no-var
 var mockSubPath: string;
-const protocolHost = 'http://localhost:3000';
 
 jest.mock('@grafana/runtime', () => {
   mockSubPath = '/sub-path';
@@ -16,8 +15,9 @@ jest.mock('@grafana/runtime', () => {
       appSubUrl: mockSubPath,
     },
     locationService: {
-      getLocation: () => location,
-      getSearch: () => new URLSearchParams(location.search),
+      // Uses the jsdom window.location set via history.pushState in beforeEach
+      getLocation: () => window.location,
+      getSearch: () => new URLSearchParams(window.location.search),
       replace: jest.fn(),
     },
   };
@@ -25,11 +25,10 @@ jest.mock('@grafana/runtime', () => {
 
 describe('generateLogShortlink', () => {
   beforeEach(() => {
-    Object.defineProperty(window, 'location', {
-      value: new URL(`${protocolHost}/a/${PLUGIN_ID}/explore?var-ds=DSID&from=now-5m&to=now`),
-      writable: true,
-    });
+    // Set up the URL for this test - history.pushState works in jsdom
+    window.history.pushState({}, '', `/a/${PLUGIN_ID}/explore?var-ds=DSID&from=now-5m&to=now`);
   });
+
   test('generated log link contains subpath', () => {
     const timeRange: TimeRange = {
       from: dateTime(0),
