@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.0.34
+
+##### Chores
+
+* **cp:**  update create-plugin (#1716) (b66d9a4b)
+* **default-columns:**
+  *  fix version gate (#1710) (47d2c4dd)
+  *  Tracking events (#1700) (d02be463)
+  *  upgrade API from alpha to beta (#1698) (093ea429)
+* **version:**  match grafana version to the playwright matrix version (#1701) (ed0883c2)
+* **deps:**  add lint-staged as dep (#1697) (97b2f321)
+*  remove investigations (#1690) (0452541f)
+
+##### Documentation Changes
+
+*  Second attempt to fix shared content (#1719) (5c5cf885)
+*  remove version (#1717) (44bf000d)
+*  Update troubleshooting topic (#1714) (40355e79)
+
+##### New Features
+
+*  App config default columns (#1664) (28b4ca93)
+
+##### Bug Fixes
+
+* **links:**  upgrade to clipboard.write for ios/safari (#1707) (948229a9)
+* **table:**  Improve table size container and fix resize behavior with docked Mega Menu (#1695) (80114e8e)
+
+##### Other Changes
+
+* enterprise (#1708) (fd352740)
+
+##### Tests
+
+*  App config default columns  (#1686) (3b54605e)
+
+
 ## 1.0.33
 
 ##### Chores
