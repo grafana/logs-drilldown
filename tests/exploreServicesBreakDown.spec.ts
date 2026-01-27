@@ -39,8 +39,9 @@ test.describe('explore services breakdown page', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await explorePage?.unroute();
-    explorePage?.echoConsoleLogsOnRetry();
+    if (!explorePage) return;
+    await explorePage.unroute();
+    explorePage.echoConsoleLogsOnRetry();
   });
 
   test('should filter logs panel on search for broadcast field', async ({ page }) => {

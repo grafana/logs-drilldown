@@ -28,8 +28,9 @@ test.describe('explore services page', () => {
     });
 
     test.afterEach(async ({ page }) => {
-      await explorePage?.unroute();
-      explorePage?.echoConsoleLogsOnRetry();
+      if (!explorePage) return;
+      await explorePage.unroute();
+      explorePage.echoConsoleLogsOnRetry();
     });
 
     test('should add labels to favorites', async ({ page }) => {

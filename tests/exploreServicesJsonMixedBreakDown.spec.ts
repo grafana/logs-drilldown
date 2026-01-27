@@ -22,8 +22,9 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await explorePage?.unroute();
-    explorePage?.echoConsoleLogsOnRetry();
+    if (!explorePage) return;
+    await explorePage.unroute();
+    explorePage.echoConsoleLogsOnRetry();
   });
 
   test(`should exclude ${mixedFieldName}, request should contain both parsers`, async ({ page }) => {

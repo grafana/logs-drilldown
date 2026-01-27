@@ -79,8 +79,9 @@ test.describe('embed', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await explorePage?.unroute();
-    explorePage?.echoConsoleLogsOnRetry();
+    if (!explorePage) return;
+    await explorePage.unroute();
+    explorePage.echoConsoleLogsOnRetry();
   });
 
   test('can navigate between tabs', async ({ page }) => {
