@@ -24,8 +24,9 @@ test.describe('explore nginx-json breakdown pages ', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await explorePage?.unroute();
-    explorePage?.echoConsoleLogsOnRetry();
+    if (!explorePage) return;
+    await explorePage.unroute();
+    explorePage.echoConsoleLogsOnRetry();
   });
 
   test.describe('Fields tab', () => {
