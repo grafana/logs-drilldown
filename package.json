@@ -120,6 +120,8 @@
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
+    "@openfeature/ofrep-web-provider": "^0.3.5",
+    "@openfeature/web-sdk": "^1.7.2",
     "@reduxjs/toolkit": "2.10.1",
     "@types/react-table": "^7.7.20",
     "@types/semver": "^7.7.1",
