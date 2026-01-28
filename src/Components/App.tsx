@@ -17,9 +17,14 @@ const App = (props: AppRootProps) => {
 
   useEffect(() => {
     // Initialize and cache the feature flags for use in the app
-    featureFlagsReady.then(() => {
-      setIsReady(true);
-    });
+    featureFlagsReady
+      .then(() => {
+        setIsReady(true);
+      })
+      .catch((err) => {
+        logger.error(err, { msg: 'Feature flags failed to load' });
+        setIsReady(true);
+      });
     // Log plugin loading success for SLO monitoring
     logger.info('Plugin loaded successfully');
   }, []);
