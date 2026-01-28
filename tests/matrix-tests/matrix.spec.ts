@@ -13,8 +13,8 @@ test.describe('matrix', () => {
   });
 
   test.afterEach(async () => {
-    await explorePage.unroute();
-    explorePage.echoConsoleLogsOnRetry();
+    await explorePage?.unroute();
+    explorePage?.echoConsoleLogsOnRetry();
   });
 
   test('can load', async ({ page }) => {

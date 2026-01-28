@@ -32,7 +32,6 @@ jobs:
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
 
       # Same settings as publish
-      run-playwright-with-skip-grafana-dev-image: true
       run-playwright-with-grafana-dependency: '>=11.6'
       upload-playwright-artifacts: true
       playwright-docker-compose-file: docker-compose.dev.yaml
