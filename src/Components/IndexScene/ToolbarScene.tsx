@@ -3,7 +3,6 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { config } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Dropdown, Switch, ToolbarButton, useStyles2 } from '@grafana/ui';
 
@@ -11,6 +10,7 @@ import pluginJson from '../../plugin.json';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { testIds } from '../../services/testIds';
 import { AGGREGATED_METRIC_START_DATE } from '../ServiceSelectionScene/ServiceSelectionScene';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 const AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY = `${pluginJson.id}.serviceSelection.aggregatedMetrics`;
 
 export interface ToolbarSceneState extends SceneObjectState {
@@ -26,7 +26,7 @@ export interface ToolbarSceneState extends SceneObjectState {
 export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
   constructor(state: Partial<ToolbarSceneState>) {
     const userOverride = localStorage.getItem(AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY);
-    const active = config.featureToggles.exploreLogsAggregatedMetrics && userOverride !== 'false';
+    const active = getFeatureFlag('exploreLogsAggregatedMetrics') && userOverride !== 'false';
 
     super({
       isOpen: false,

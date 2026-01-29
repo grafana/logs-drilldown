@@ -2,7 +2,7 @@ import React from 'react';
 
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
-import { config, getAppEvents, locationService } from '@grafana/runtime';
+import { getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -87,6 +87,7 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -130,7 +131,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 interface EmbeddedIndexSceneConstructor {
@@ -216,15 +216,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore') {
-      if (config.featureToggles.exploreLogsAggregatedMetrics) {
-        controls.push(
-          new ToolbarScene({
-            isOpen: false,
-            key: CONTROLS_VARS_TOOLBAR,
-          })
-        );
-      }
+    if (getDrilldownSlug() === 'explore' && getFeatureFlag('exploreLogsAggregatedMetrics')) {
+      controls.push(
+        new ToolbarScene({
+          isOpen: false,
+          key: CONTROLS_VARS_TOOLBAR,
+        })
+      );
     }
 
     super({
