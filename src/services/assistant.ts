@@ -67,6 +67,7 @@ export const updateAssistantContext = async (
             datasourceUid: ds.uid,
             fieldName: filter.key,
             fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(filter.value)}`,
+            instructions: 'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
           },
         });
       })
