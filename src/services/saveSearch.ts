@@ -98,6 +98,7 @@ function removeFromLocalStorage(uid: string) {
 
 export interface OpenQueryLibraryComponentProps {
   className?: string;
+  context?: string;
   datasourceFilters?: string[];
   fallbackComponent?: ReactNode;
   icon?: string;

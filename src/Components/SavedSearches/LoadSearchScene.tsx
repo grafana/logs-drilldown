@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { AppEvents, GrafanaTheme2 } from '@grafana/data';
+import { AppEvents, CoreApp, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getAppEvents, locationService, reportInteraction, usePluginComponent } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
@@ -146,6 +146,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
     return (
       <OpenQueryLibraryComponent
         className={styles.button}
+        context={CoreApp.Explore}
         datasourceFilters={[dsName]}
         icon="folder-open"
         onSelectQuery={onSelectQuery}
