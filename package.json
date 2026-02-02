@@ -116,7 +116,7 @@
     "@grafana/scenes-react": "^6.39.0",
     "@grafana/schema": "^12.2.0",
     "@grafana/ui": "^12.3.0",
-    "@gtk-grafana/react-json-tree": "^0.0.12",
+    "@gtk-grafana/react-json-tree": "^0.0.13",
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
