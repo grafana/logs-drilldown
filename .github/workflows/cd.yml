@@ -36,5 +36,4 @@ jobs:
       auto-merge-environments: dev,ops
       argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
 
-      # TODO remove this eventually. Explicitly set Node.js version to 22 to ensure compatibility with yargs@18.0.0
-      node-version: '22'
+      node-version: '24'
