@@ -67,6 +67,8 @@ import { NoServiceVolume } from './NoServiceVolume';
 import { goToLabelDrillDownLink, SelectServiceButton } from './SelectServiceButton';
 import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationScene';
 import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
+import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
@@ -92,7 +94,7 @@ import {
   VAR_PRIMARY_LABEL_SEARCH,
 } from 'services/variables';
 
-const aggregatedMetricsEnabled: boolean | undefined = config.featureToggles.exploreLogsAggregatedMetrics;
+const aggregatedMetricsEnabled: boolean = getFeatureFlag('exploreLogsAggregatedMetrics');
 // Don't export AGGREGATED_SERVICE_NAME, we want to rename things so the rest of the application is agnostic to how we got the services
 const AGGREGATED_SERVICE_NAME = '__aggregated_metric__';
 
@@ -107,11 +109,12 @@ interface ServiceSelectionSceneState extends SceneObjectState {
   // Pagination options
   countPerPage: number;
   currentPage: number;
+  loadSearch?: LoadSearchScene;
   paginationScene?: ServiceSelectionPaginationScene;
   // Show logs of a certain level for a given service
   serviceLevel: Map<string, string[]>;
-  showPopover: boolean;
 
+  showPopover: boolean;
   tabOptions: Array<{
     label: string;
     value: string;
@@ -201,6 +204,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       // pagination
       countPerPage: getServiceSelectionPageCount() ?? 20,
       currentPage: 1,
+      loadSearch: new LoadSearchScene(),
       serviceLevel: new Map<string, string[]>(),
 
       showPopover: false,
@@ -218,7 +222,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionScene>) => {
     const styles = useStyles2(getStyles);
-    const { $data, body, paginationScene, tabs } = model.useState();
+    const { $data, body, loadSearch, paginationScene, tabs } = model.useState();
     const { data } = $data.useState();
     const selectedTab = model.getSelectedTab();
 
@@ -245,7 +249,14 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     return (
       <div className={styles.container}>
         <div className={styles.bodyWrapper}>
-          {tabs && <tabs.Component model={tabs} />}
+          <div className={styles.tabsWrapper}>
+            {tabs && <tabs.Component model={tabs} />}
+            {loadSearch && (
+              <div className={styles.tabsButtons}>
+                <loadSearch.Component model={loadSearch} />
+              </div>
+            )}
+          </div>
           <Field className={styles.searchField}>
             <div className={styles.searchWrapper}>
               <ServiceFieldSelector
@@ -1140,6 +1151,15 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'column',
       flexGrow: 1,
+      paddingTop: theme.spacing(0.5),
+    }),
+    tabsWrapper: css({
+      position: 'relative',
+    }),
+    tabsButtons: css({
+      position: 'absolute',
+      right: 0,
+      bottom: theme.spacing(0.75),
     }),
     container: css({
       display: 'flex',

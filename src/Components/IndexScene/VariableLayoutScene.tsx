@@ -241,7 +241,6 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       flexWrap: 'wrap',
       gap: theme.spacing(2),
       label: 'filtersWrap',
-      width: 'calc(100% - 450)',
     }),
     firstRowWrapper: css({
       '& > div > div': {

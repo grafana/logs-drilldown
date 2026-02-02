@@ -8,6 +8,7 @@ import { Alert, Button, useStyles2 } from '@grafana/ui';
 import { ColumnsDragContext } from './ColumnsDragContext';
 import { useDefaultColumnsContext } from './Context';
 import { recordColumnsAreNotLogLine, recordColumnsHaveValues } from './Validation';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 
 interface Props {
@@ -35,6 +36,10 @@ export function Fields({ recordIndex }: Props) {
       const recordToUpdate = records[recordIndex];
       recordToUpdate.columns = [...recordToUpdate.columns, ''];
       setRecords(records);
+      reportAppInteraction(
+        USER_EVENTS_PAGES.default_columns_config,
+        USER_EVENTS_ACTIONS.default_columns_config.add_column
+      );
     }
   };
 

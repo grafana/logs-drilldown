@@ -4,11 +4,11 @@ import { createBaseQuery } from '../../utils/createBaseQuery';
 import { getAPIBaseURL } from '../../utils/utils';
 
 export const API_GROUP = 'logsdrilldown.grafana.app' as const;
-export const API_VERSION = 'v1alpha1' as const;
+export const API_VERSION = 'v1beta1' as const;
 export const BASE_URL = getAPIBaseURL(API_GROUP, API_VERSION);
 
 export const api = createApi({
-  reducerPath: 'logsdrilldownAPIv1alpha1',
+  reducerPath: 'logsdrilldownAPIv1beta1',
   baseQuery: createBaseQuery({
     baseURL: BASE_URL,
   }),

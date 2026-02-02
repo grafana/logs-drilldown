@@ -2,7 +2,7 @@ import React from 'react';
 
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
-import { config, getAppEvents, locationService } from '@grafana/runtime';
+import { getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -29,7 +29,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import {
   LogsDrilldownDefaultColumns,
   LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
-} from '../../lib/api-clients/logsdrilldown/v1alpha1';
+} from '../../lib/api-clients/logsdrilldown/v1beta1';
 import { getAPIBaseURL } from '../../lib/api-clients/utils/utils';
 import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
@@ -65,6 +65,7 @@ import {
 } from '../../services/variableGetters';
 import { areLabelFiltersEqual, operatorFunction } from '../../services/variableHelpers';
 import { JsonData } from '../AppConfig/AppConfig';
+import { isDefaultColumnsSupported } from '../AppConfig/DefaultColumns/isSupported';
 import { NoLokiSplash } from '../NoLokiSplash';
 import { DEFAULT_TIME_RANGE } from '../Pages';
 import { ServiceScene } from '../ServiceScene/ServiceScene';
@@ -86,6 +87,7 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -129,7 +131,6 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
-
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 interface EmbeddedIndexSceneConstructor {
@@ -156,6 +157,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       state.defaultLineFilters,
       state.initialFields
     );
+
     const controls: SceneObject[] = [
       new SceneFlexLayout({
         children: [
@@ -214,7 +216,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore' && config.featureToggles.exploreLogsAggregatedMetrics) {
+    if (getDrilldownSlug() === 'explore' && getFeatureFlag('exploreLogsAggregatedMetrics')) {
       controls.push(
         new ToolbarScene({
           isOpen: false,
@@ -350,7 +352,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   }
 
   private async getDefaultColumnsFromAppPlatform() {
-    if (config.featureToggles.kubernetesLogsDrilldown && config.featureToggles.grafanaAPIServerWithExperimentalAPIs) {
+    if (isDefaultColumnsSupported) {
       const dataSourceVariable = getDataSourceVariable(this);
       const dsUID = dataSourceVariable.state.value.toString();
       const metadataService = getMetadataService();
@@ -361,7 +363,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
           defaultColumnsRecords: cachedRecords,
         });
       } else {
-        const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1alpha1');
+        const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1beta1');
 
         const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultcolumns/${dsUID}`);
         const fetchResult = await fetch(request);

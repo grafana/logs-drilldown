@@ -10,7 +10,7 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
 import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from 'lib/api-clients/logsdrilldown/v1alpha1';
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { areArraysStrictlyEqual } from 'services/comparison';
 import { logger } from 'services/logger';
 import { LokiDatasource } from 'services/lokiQuery';

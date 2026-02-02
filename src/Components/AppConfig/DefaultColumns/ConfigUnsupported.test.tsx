@@ -34,6 +34,11 @@ const dataSources: Array<Partial<DataSourceInstanceSettings>> = [
   },
 ];
 
+jest.mock('semver/preload', () => ({
+  ...jest.requireActual('semver/preload'),
+  ltr: () => true,
+}));
+
 describe('Config', () => {
   let result: RenderResult;
   beforeEach(() => {
@@ -59,9 +64,8 @@ describe('Config', () => {
 
     test('Shows unsupported if missing feature flags', async () => {
       result = render(<Config />);
-      expect(screen.getByText(/default columns requires and feature flags to be enabled\./i)).toBeInTheDocument();
+      expect(screen.getByText(/default columns requires.+feature flag to be enabled\./i)).toBeInTheDocument();
       expect(screen.getByText('kubernetesLogsDrilldown')).toBeInTheDocument();
-      expect(screen.getByText('grafanaAPIServerWithExperimentalAPIs')).toBeInTheDocument();
     });
   });
 });

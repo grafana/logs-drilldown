@@ -175,7 +175,7 @@ export function setUrlParamsFromPatterns(patternFilters: PatternFilterType[], pa
   return appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
 }
 
-function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
+export function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   if (!context || !context.targets) {
     return undefined;
   }

@@ -5,6 +5,7 @@ import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
 import { JSONDerivedFieldLink } from './derivedFields';
 import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
+import { SavedSearch } from './saveSearch';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
 
@@ -237,3 +238,31 @@ export const getRTKQErrorContext = (defaultColumnsAPIError: NarrowedAPIError) =>
 };
 
 export class NarrowingError extends Error {}
+
+export function narrowSavedSearch(search: unknown): SavedSearch | null {
+  if (typeof search !== 'object' || search === null) {
+    return null;
+  }
+  return 'title' in search &&
+    'description' in search &&
+    'query' in search &&
+    'timestamp' in search &&
+    'dsUid' in search &&
+    'uid' in search
+    ? {
+        description: isString(search.description),
+        dsUid: isString(search.dsUid),
+        query: isString(search.query),
+        timestamp: Number(search.timestamp),
+        title: isString(search.title),
+        uid: isString(search.uid),
+      }
+    : null;
+}
+
+export function narrowSavedSearches(searches: unknown): SavedSearch[] {
+  if (!Array.isArray(searches)) {
+    return [];
+  }
+  return searches.map((search) => narrowSavedSearch(search)).filter((search) => search !== null);
+}

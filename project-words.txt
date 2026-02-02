@@ -338,6 +338,9 @@ otlphttp
 otlptrace
 otlptracegrpc
 otlptracehttp
+OFREP
+openfeature
+ofrep
 packd
 packr
 panicwrap

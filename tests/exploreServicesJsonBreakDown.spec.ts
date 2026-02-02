@@ -176,6 +176,11 @@ test.describe('explore nginx-json breakdown pages ', () => {
         'aria-selected',
         'true'
       );
+
+      await page
+        .getByLabel(/Include log lines containing url=".+"/)
+        .first()
+        .hover();
       // This always returns the hover style, even if you focus another element.
       await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveCSS(
         'color',
