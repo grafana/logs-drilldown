@@ -102,7 +102,7 @@
     "webpack-virtual-modules": "^0.6.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "dependencies": {
     "@bsull/augurs": "^0.6.0",
@@ -113,9 +113,9 @@
     "@grafana/lezer-logql": "^0.3.0",
     "@grafana/runtime": "^12.3.0",
     "@grafana/scenes": "^6.39.0",
-    "@grafana/scenes-react": "^6.39.0",
+    "@grafana/scenes-react": "^6.52.12",
     "@grafana/schema": "^12.2.0",
-    "@grafana/ui": "^12.3.0",
+    "@grafana/ui": "^12.3.2",
     "@gtk-grafana/react-json-tree": "^0.0.13",
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
@@ -137,9 +137,11 @@
   },
   "resolutions": {
     "react-router-dom": "^7.12.0",
+    "@remix-run/router": "1.23.2",
     "uuid": "^10.0.0",
     "qs": "6.14.1",
     "strip-ansi": "6.0.1",
+    "tar": "7.5.7",
     "**/js-yaml": "4.1.1"
   },
   "packageManager": "yarn@1.22.21"

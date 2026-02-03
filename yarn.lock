@@ -1371,7 +1371,7 @@
     rxjs "7.8.2"
     tslib "2.8.1"
 
-"@grafana/scenes-react@^6.39.0":
+"@grafana/scenes-react@^6.52.12":
   version "6.52.12"
   resolved "https://registry.yarnpkg.com/@grafana/scenes-react/-/scenes-react-6.52.12.tgz#96f0a62252cc3fc908130a3ab751a4536722a01d"
   integrity sha512-RvdjaT/wNUk062cbzzSJCayX/hWSTB+IRu9vqu9YRR41YB+zqtSVA1skqKMuoZpRrTcfgEzXRuhy/x5zOMlyDw==
@@ -1406,7 +1406,7 @@
   resolved "https://registry.yarnpkg.com/@grafana/tsconfig/-/tsconfig-2.0.1.tgz#231d46e996e53cd04367da850c03f1ef1170484c"
   integrity sha512-yGNQWQDlxFfklzMfk0i8qnDqKOvIGc0Aqe62zLS4LTqptkhnyLEVsdaVmX99m3QFOcBiiFn8scREDzGeF2iNvQ==
 
-"@grafana/ui@12.3.2", "@grafana/ui@^12.3.0":
+"@grafana/ui@12.3.2", "@grafana/ui@^12.3.2":
   version "12.3.2"
   resolved "https://registry.yarnpkg.com/@grafana/ui/-/ui-12.3.2.tgz#8b3d6d2619410577301e2ba8c48525bc3545b6c3"
   integrity sha512-ke6ONJx2/nZDl9zkc5alDc9vx03UGO1P0njUmzQa/qDFuFuX9miyfqnHLK46AQUhDegVqCODrtKZ4EcuOHciGA==
@@ -2381,10 +2381,10 @@
     redux-thunk "^3.1.0"
     reselect "^5.1.0"
 
-"@remix-run/router@1.23.0":
-  version "1.23.0"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.23.0.tgz#35390d0e7779626c026b11376da6789eb8389242"
-  integrity sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==
+"@remix-run/router@1.23.0", "@remix-run/router@1.23.2":
+  version "1.23.2"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.23.2.tgz#156c4b481c0bee22a19f7924728a67120de06971"
+  integrity sha512-Ic6m2U/rMjTkhERIa/0ZtXJP17QUi2CbWE7cqx4J58M8aA3QTfW+2UlQ4psvTX9IO1RfNVhK3pcpdjej7L+t2w==
 
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
@@ -10287,10 +10287,10 @@ tapable@^2.1.1, tapable@^2.2.0, tapable@^2.2.1:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-2.3.0.tgz#7e3ea6d5ca31ba8e078b560f0d83ce9a14aa8be6"
   integrity sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==
 
-tar@^7.4.3:
-  version "7.5.2"
-  resolved "https://registry.yarnpkg.com/tar/-/tar-7.5.2.tgz#115c061495ec51ff3c6745ff8f6d0871c5b1dedc"
-  integrity sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==
+tar@7.5.7, tar@^7.4.3:
+  version "7.5.7"
+  resolved "https://registry.yarnpkg.com/tar/-/tar-7.5.7.tgz#adf99774008ba1c89819f15dbd6019c630539405"
+  integrity sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==
   dependencies:
     "@isaacs/fs-minipass" "^4.0.0"
     chownr "^3.0.0"
