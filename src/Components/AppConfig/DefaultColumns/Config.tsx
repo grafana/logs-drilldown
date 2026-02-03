@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Badge, useStyles2 } from '@grafana/ui';
+import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
 
 import { DefaultColumnsContextProvider } from './Context';
 import { DataSource } from './DataSource';
@@ -31,18 +31,20 @@ const Config = () => {
         <span>Configure default fields to display instead of the full log line:</span>
       </div>
 
-      <DefaultColumnsContextProvider initialDSUID={dsUID}>
-        <header>
-          <DataSource />
-        </header>
-        <>
-          <section>
-            <DefaultColumns />
-          </section>
-        </>
+      <ErrorBoundaryAlert>
+        <DefaultColumnsContextProvider initialDSUID={dsUID}>
+          <header>
+            <DataSource />
+          </header>
+          <>
+            <section>
+              <DefaultColumns />
+            </section>
+          </>
 
-        <Footer />
-      </DefaultColumnsContextProvider>
+          <Footer />
+        </DefaultColumnsContextProvider>
+      </ErrorBoundaryAlert>
     </main>
   );
 };
