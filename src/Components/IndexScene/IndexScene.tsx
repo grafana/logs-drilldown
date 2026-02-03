@@ -133,6 +133,8 @@ import {
 } from 'services/variables';
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
+const DEFAULT_LOGS_DATASOURCE_UID = 'grafanacloud-logs';
+
 interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
   hideTimePicker?: boolean;
@@ -145,10 +147,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
     const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
     const datasourceUid =
+      state?.datasourceUid ??
       jsonData?.dataSource ??
       getLastUsedDataSourceFromStorage() ??
       getDefaultDatasourceFromDatasourceSrv() ??
-      'grafanacloud-logs';
+      DEFAULT_LOGS_DATASOURCE_UID;
 
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
