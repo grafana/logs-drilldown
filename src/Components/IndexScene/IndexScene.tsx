@@ -146,6 +146,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
     const datasourceUid =
       jsonData?.dataSource ??
+      state?.datasourceUid ??
       getLastUsedDataSourceFromStorage() ??
       getDefaultDatasourceFromDatasourceSrv() ??
       'grafanacloud-logs';
