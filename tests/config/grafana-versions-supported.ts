@@ -1,4 +1,6 @@
+import { test } from '@grafana/plugin-e2e';
 import semver from 'semver';
+
 export const GRAFANA_LATEST_SUPPORTED_VERSION = '12.3.1';
 /**
  * Check if the current Grafana version is the latest supported version or newer.
@@ -25,7 +27,5 @@ export const isLatestGrafana = (grafanaVersion: string): boolean => {
  * });
  */
 export const skipUnlessLatestGrafana = ({ grafanaVersion }: { grafanaVersion: string }): void => {
-  if (!isLatestGrafana(grafanaVersion)) {
-    test.skip(`Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
-  }
+  test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
 };
