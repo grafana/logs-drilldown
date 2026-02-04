@@ -1,13 +1,13 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { testIds } from '../src/services/testIds';
-import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { ExplorePage } from './fixtures/explore';
 
 test.describe.skip('Default fields', () => {
   let explorePage: ExplorePage;
   test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
-    test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
+    skipUnlessLatestGrafana({ grafanaVersion });
     explorePage = new ExplorePage(page, testInfo);
 
     await explorePage.setExtraTallViewportSize();

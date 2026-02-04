@@ -1,7 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { LokiQuery } from '../src/services/lokiQuery';
-import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const mixedFieldName = 'method';
@@ -14,7 +14,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   let explorePage: ExplorePage;
 
   test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
-    test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
+    skipUnlessLatestGrafana({ grafanaVersion });
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();

@@ -7,3 +7,25 @@ export const GRAFANA_LATEST_SUPPORTED_VERSION = '12.3.1';
 export const isLatestGrafana = (grafanaVersion: string): boolean => {
   return semver.gte(grafanaVersion, GRAFANA_LATEST_SUPPORTED_VERSION);
 };
+
+/**
+ * Use as a standalone beforeEach or call first inside your own beforeEach.
+ * Skips the test when Grafana version is below GRAFANA_LATEST_SUPPORTED_VERSION.
+ *
+ * @example
+ * // Only version check:
+ * test.beforeEach(skipUnlessLatestGrafana);
+ *
+ * @example
+ * // With other setup:
+ * test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+ *   skipUnlessLatestGrafana({ grafanaVersion });
+ *   await page.evaluate(() => window.localStorage.clear());
+ *   // ...
+ * });
+ */
+export const skipUnlessLatestGrafana = ({ grafanaVersion }: { grafanaVersion: string }): void => {
+  if (!isLatestGrafana(grafanaVersion)) {
+    test.skip(`Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
+  }
+};

@@ -8,11 +8,17 @@ This directory contains end-to-end (e2e) tests for the Grafana Logs Drilldown pl
 
 All tests in the `tests/` directory are configured to run **only on the latest supported Grafana version** in /tests/config/grafana-versions-supported.ts.
 
-Tests use the `isLatestGrafana()` helper to skip execution on older Grafana versions:
+Tests use the `skipUnlessLatestGrafana` helper to skip execution on older Grafana versions. Use it as a standalone `beforeEach` or call it first inside your own:
 
 ```typescript
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
+
+// Only version check:
+test.beforeEach(skipUnlessLatestGrafana);
+
+// With other setup:
 test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
-  test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
+  skipUnlessLatestGrafana({ grafanaVersion });
   // ... test setup
 });
 ```
@@ -58,7 +64,7 @@ To update the supported version, modify this constant and ensure all tests pass 
 
 When writing new tests:
 
-1. **For full test suite** (`tests/`): Add the version skip check in `beforeEach`
+1. **For full test suite** (`tests/`): Add `test.beforeEach(skipUnlessLatestGrafana)` or call `skipUnlessLatestGrafana({ grafanaVersion })` first in your `beforeEach`
 2. **For smoke tests** (`smoke-tests/`): No version skip logic needed
 3. **Use fixtures**: Leverage `ExplorePage` and other fixtures for common operations
 4. **Guard afterEach**: Always check if `explorePage` exists before cleanup:

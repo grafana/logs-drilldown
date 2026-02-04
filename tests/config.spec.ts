@@ -1,11 +1,9 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 
 test.describe('Plugin config', () => {
-  test.beforeEach(async ({ grafanaVersion }) => {
-    test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
-  });
+  test.beforeEach(skipUnlessLatestGrafana);
 
   test('plugin config can load', async ({ page }) => {
     await page.goto('/plugins/grafana-lokiexplore-app/');

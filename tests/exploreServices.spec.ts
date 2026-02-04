@@ -4,7 +4,7 @@ import { isNumber } from 'lodash';
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { testIds } from '../src/services/testIds';
-import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import {
   E2EComboboxStrings,
   ExplorePage,
@@ -18,7 +18,7 @@ test.describe('explore services page', () => {
 
   test.describe('parallel', () => {
     test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
-      test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
+      skipUnlessLatestGrafana({ grafanaVersion });
       explorePage = new ExplorePage(page, testInfo);
 
       // Header sizes may change, bringing up the third row in queries, which will break tests in this suite
@@ -527,6 +527,8 @@ test.describe('explore services page', () => {
   });
 
   test.describe('sequential', () => {
+    test.beforeEach(skipUnlessLatestGrafana);
+
     test.describe.configure({ mode: 'serial' });
     test.describe('tabs - namespace', () => {
       let page: Page;

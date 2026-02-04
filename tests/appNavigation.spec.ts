@@ -1,14 +1,14 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import pluginJson from '../src/plugin.json';
-import { GRAFANA_LATEST_SUPPORTED_VERSION, isLatestGrafana } from './config/grafana-versions-supported';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { ExplorePage } from './fixtures/explore';
 
 test.describe('navigating app', () => {
   let explorePage: ExplorePage;
 
   test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
-    test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
+    skipUnlessLatestGrafana({ grafanaVersion });
     await page.evaluate(() => window.localStorage.clear());
     explorePage = new ExplorePage(page, testInfo);
   });
