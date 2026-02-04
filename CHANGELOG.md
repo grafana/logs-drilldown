@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.0.35
+
+##### Chores
+
+* **cve:**  tar, remix, node 24 (#1736) (afd1ac99)
+*  add memberlist store and per request limits (#1648) (2812f4cb)
+* **deps:**
+  *  update dependency @lezer/lr to v1.4.8 (#1725) (10a424e5)
+  *  update dependency @types/node to v20.19.30 (#1726) (622bfd57)
+  *  update dependency terser-webpack-plugin to v5.3.16 (#1727) (b3c1c914)
+  *  update grafana/shared-workflows/create-github-app-token action to v0.2.2 (#1728) (bbe62f04)
+  *  update actions/cache action to v4.3.0 (#1732) (938f0a41)
+  *  update actions/checkout action to v4.3.1 (#1733) (e6bcfab8)
+  *  update actions/setup-node action to v4.4.0 (#1734) (81cfcbce)
+* **feature flags:**  add openfeature flags (#1711) (10a8cc4c)
+
+##### New Features
+
+* **config:**  wrap default columns in error boundary (#1735) (c004f683)
+* **SaveSearch:**  Add support to save filters (or queries) to local storage or to Saved Queries if available (#1702) (c3003ed0)
+
+##### Bug Fixes
+
+*  set correct datasource when embedding log drilldown component (#1737) (9ed21863)
+* **deps:**
+  *  update dependency @gtk-grafana/react-json-tree to ^0.0.13 (#1729) (50597cf1)
+  *  update module github.com/spf13/pflag to v1.0.10 (#1731) (b7f486f8)
+  *  update grafana packages (#1730) (3f2f2e96)
+* **LoadSearchScene:**  pass context to exposed component (#1724) (08b14163)
+* **assistant:**  add `instructions` for structured metadata for Assistant (#1723) (23f45935)
+
+
 ## 1.0.34
 
 ##### Chores
