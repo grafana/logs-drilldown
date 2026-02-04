@@ -1,6 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { LokiQuery } from '../src/services/lokiQuery';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
 
 const mixedFieldName = 'method';
@@ -12,7 +13,8 @@ const serviceName = 'nginx-json-mixed';
 test.describe('explore nginx-json-mixed breakdown pages ', () => {
   let explorePage: ExplorePage;
 
-  test.beforeEach(async ({ page }, testInfo) => {
+  test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+    skipUnlessLatestGrafana({ grafanaVersion });
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
@@ -20,6 +22,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   });
 
   test.afterEach(async ({ page }) => {
+    if (!explorePage) return;
     await explorePage.unroute();
     explorePage.echoConsoleLogsOnRetry();
   });

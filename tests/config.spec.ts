@@ -1,6 +1,10 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
+
 test.describe('Plugin config', () => {
+  test.beforeEach(skipUnlessLatestGrafana);
+
   test('plugin config can load', async ({ page }) => {
     await page.goto('/plugins/grafana-lokiexplore-app/');
     await expect(page.getByText('Grafana Logs Drilldown').first()).toBeVisible();

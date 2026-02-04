@@ -5,6 +5,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { PageSlugs, ValueSlugs } from '../src/services/enums';
 import { FilterOp } from '../src/services/filterTypes';
 import { testIds } from '../src/services/testIds';
+import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { ComboBoxIndex, ExplorePage } from './fixtures/explore';
 
 const fieldName = 'caller';
@@ -60,7 +61,8 @@ async function assertLogsTabActive(page: Page) {
 test.describe('embed', () => {
   let explorePage: ExplorePage;
 
-  test.beforeEach(async ({ page }, testInfo) => {
+  test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+    skipUnlessLatestGrafana({ grafanaVersion });
     explorePage = new ExplorePage(page, testInfo);
 
     await explorePage.setExtraTallViewportSize();
@@ -77,6 +79,7 @@ test.describe('embed', () => {
   });
 
   test.afterEach(async ({ page }) => {
+    if (!explorePage) return;
     await explorePage.unroute();
     explorePage.echoConsoleLogsOnRetry();
   });
