@@ -134,6 +134,7 @@ describe('LoadSearchScene', () => {
     beforeEach(() => {
       jest.mocked(contextToLink).mockClear();
       jest.mocked(isQueryLibrarySupported).mockReturnValue(true);
+      // @ts-expect-error
       jest.mocked(usePluginComponent).mockReturnValue({ component: FakeExposedComponent, isLoading: false });
       mockUseHasSavedSearches.mockReturnValue(true);
     });
