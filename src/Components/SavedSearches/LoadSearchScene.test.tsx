@@ -7,16 +7,40 @@ import { DataSourceVariable, sceneGraph, SceneTimeRange } from '@grafana/scenes'
 
 import { LoadSearchScene } from './LoadSearchScene';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { contextToLink } from 'services/extensions/links';
+import { LokiQuery } from 'services/lokiQuery';
 import { useHasSavedSearches, useSavedSearches, isQueryLibrarySupported } from 'services/saveSearch';
 import { getDataSourceVariable } from 'services/variableGetters';
 
 jest.mock('services/saveSearch');
 jest.mock('services/variableGetters');
 jest.mock('@grafana/runtime');
+jest.mock('services/extensions/links');
 
 const mockUseHasSavedSearches = jest.mocked(useHasSavedSearches);
 const mockGetDataSourceVariable = jest.mocked(getDataSourceVariable);
 const mockUseSavedSearches = jest.mocked(useSavedSearches);
+
+function FakeExposedComponent({ onSelectQuery }: { onSelectQuery(query: LokiQuery): void }) {
+  return (
+    <div>
+      <button
+        onClick={() => {
+          onSelectQuery({
+            refId: 'A',
+            datasource: {
+              type: 'loki',
+              uid: 'test-ds',
+            },
+            expr: '{job="test1"}',
+          });
+        }}
+      >
+        Select
+      </button>
+    </div>
+  );
+}
 
 describe('LoadSearchScene', () => {
   beforeEach(() => {
@@ -42,6 +66,7 @@ describe('LoadSearchScene', () => {
     jest.spyOn(sceneGraph, 'getTimeRange').mockReturnValue({
       state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
     } as unknown as SceneTimeRange);
+    jest.mocked(contextToLink).mockReturnValue({ path: 'https://drilldown.com/link' });
     jest.mocked(usePluginComponent).mockReturnValue({ component: undefined, isLoading: false });
     jest.mocked(isQueryLibrarySupported).mockReturnValue(false);
   });
@@ -103,5 +128,72 @@ describe('LoadSearchScene', () => {
     render(<scene.Component model={scene} />);
 
     expect(screen.getByText('Exposed component')).toBeInTheDocument();
+  });
+
+  describe('Loading a search', () => {
+    beforeEach(() => {
+      jest.mocked(contextToLink).mockClear();
+      jest.mocked(isQueryLibrarySupported).mockReturnValue(true);
+      jest.mocked(usePluginComponent).mockReturnValue({ component: FakeExposedComponent, isLoading: false });
+      mockUseHasSavedSearches.mockReturnValue(true);
+    });
+
+    test('Creates a link to load a search with relative time', () => {
+      const scene = new LoadSearchScene();
+      render(<scene.Component model={scene} />);
+
+      fireEvent.click(screen.getByText('Select'));
+
+      expect(contextToLink).toHaveBeenCalledWith({
+        targets: [
+          {
+            datasource: {
+              type: 'loki',
+              uid: 'test-ds',
+            },
+            expr: '{job="test1"}',
+            refId: 'A',
+          },
+        ],
+        timeRange: {
+          from: 'now-1h',
+          to: 'now',
+        },
+      });
+    });
+
+    test('Creates a link to load a search with absolute time', () => {
+      jest.spyOn(sceneGraph, 'getTimeRange').mockReturnValue({
+        state: {
+          value: {
+            from: '2026-02-05T11:26:55.860Z',
+            to: '2026-02-05T11:31:55.860Z',
+            raw: { from: '2026-02-05T11:26:55.860Z', to: '2026-02-05T11:31:55.860Z' },
+          },
+        },
+      } as unknown as SceneTimeRange);
+
+      const scene = new LoadSearchScene();
+      render(<scene.Component model={scene} />);
+
+      fireEvent.click(screen.getByText('Select'));
+
+      expect(contextToLink).toHaveBeenCalledWith({
+        targets: [
+          {
+            datasource: {
+              type: 'loki',
+              uid: 'test-ds',
+            },
+            expr: '{job="test1"}',
+            refId: 'A',
+          },
+        ],
+        timeRange: {
+          from: '2026-02-05T11:26:55.860Z',
+          to: '2026-02-05T11:31:55.860Z',
+        },
+      });
+    });
   });
 });
