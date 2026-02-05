@@ -117,7 +117,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
                 expr: query.expr,
               },
             ],
-            timeRange: sceneTimeRange,
+            timeRange: sceneTimeRange.raw,
           })?.path ?? '';
 
         if (link) {
