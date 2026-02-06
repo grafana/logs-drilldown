@@ -69,7 +69,6 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
       usePluginComponent<OpenQueryLibraryComponentProps>('grafana/query-library-context/v1');
 
     const indexScene = useMemo(() => sceneGraph.getAncestor(model, IndexScene), [model]);
-    const sceneTimeRange = useMemo(() => sceneGraph.getTimeRange(indexScene).state.value, [indexScene]);
 
     const fallbackComponent = useMemo(
       () => (
@@ -117,7 +116,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
                 expr: query.expr,
               },
             ],
-            timeRange: sceneTimeRange.raw,
+            timeRange: sceneGraph.getTimeRange(indexScene).state.value.raw,
           })?.path ?? '';
 
         if (link) {
@@ -130,7 +129,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
           });
         }
       },
-      [sceneTimeRange]
+      [indexScene]
     );
 
     if (indexScene.state.embedded) {
