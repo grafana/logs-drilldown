@@ -49,16 +49,15 @@ describe('LoadSearchModal', () => {
       state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
     } as unknown as SceneTimeRange);
     jest.mocked(contextToLink).mockReturnValue({ path: 'https://drilldown.com/link' });
-  });
-
-  test('renders the modal with saved searches', () => {
     mockUseSavedSearches.mockReturnValue({
       saveSearch: jest.fn(),
       searches: mockSearches,
       isLoading: false,
       deleteSearch: mockDeleteSearch,
     });
+  });
 
+  test('renders the modal with saved searches', () => {
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
     expect(screen.getAllByText('Test Search 1')).toHaveLength(2);
@@ -79,13 +78,6 @@ describe('LoadSearchModal', () => {
   });
 
   test('Selects a search when clicked', () => {
-    mockUseSavedSearches.mockReturnValue({
-      saveSearch: jest.fn(),
-      searches: mockSearches,
-      isLoading: false,
-      deleteSearch: mockDeleteSearch,
-    });
-
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
     fireEvent.click(screen.getAllByLabelText('Test Search 2')[0]);
@@ -94,18 +86,75 @@ describe('LoadSearchModal', () => {
   });
 
   test('Calls deleteSearch when delete button is clicked', () => {
-    mockUseSavedSearches.mockReturnValue({
-      saveSearch: jest.fn(),
-      searches: mockSearches,
-      isLoading: false,
-      deleteSearch: mockDeleteSearch,
-    });
-
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
     const deleteButton = screen.getByRole('button', { name: /remove/i });
     fireEvent.click(deleteButton);
 
     expect(mockDeleteSearch).toHaveBeenCalledWith('1');
+  });
+
+  test('Calls deleteSearch when delete button is clicked', () => {
+    render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
+
+    const deleteButton = screen.getByRole('button', { name: /remove/i });
+    fireEvent.click(deleteButton);
+
+    expect(mockDeleteSearch).toHaveBeenCalledWith('1');
+  });
+
+  test('Creates a link to load a search with relative time', () => {
+    jest.mocked(contextToLink).mockClear();
+
+    render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
+
+    expect(contextToLink).toHaveBeenCalledWith({
+      targets: [
+        {
+          datasource: {
+            type: 'loki',
+            uid: 'test-ds',
+          },
+          expr: '{job="test1"}',
+          refId: 'A',
+        },
+      ],
+      timeRange: {
+        from: 'now-1h',
+        to: 'now',
+      },
+    });
+  });
+
+  test('Creates a link to load a search with absolute time', () => {
+    jest.mocked(contextToLink).mockClear();
+    jest.spyOn(sceneGraph, 'getTimeRange').mockReturnValue({
+      state: {
+        value: {
+          from: '2026-02-05T11:26:55.860Z',
+          to: '2026-02-05T11:31:55.860Z',
+          raw: { from: '2026-02-05T11:26:55.860Z', to: '2026-02-05T11:31:55.860Z' },
+        },
+      },
+    } as unknown as SceneTimeRange);
+
+    render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
+
+    expect(contextToLink).toHaveBeenCalledWith({
+      targets: [
+        {
+          datasource: {
+            type: 'loki',
+            uid: 'test-ds',
+          },
+          expr: '{job="test1"}',
+          refId: 'A',
+        },
+      ],
+      timeRange: {
+        from: '2026-02-05T11:26:55.860Z',
+        to: '2026-02-05T11:31:55.860Z',
+      },
+    });
   });
 });
