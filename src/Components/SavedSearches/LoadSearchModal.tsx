@@ -56,7 +56,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
             expr: selectedSearch.query,
           },
         ],
-        timeRange: sceneTimeRange,
+        timeRange: sceneTimeRange.raw,
       })?.path ?? ''
     );
   }, [sceneTimeRange, selectedSearch]);
