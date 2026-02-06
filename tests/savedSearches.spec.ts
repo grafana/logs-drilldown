@@ -99,7 +99,10 @@ test.describe('saved searches', () => {
 
     // Step 10: Verify we're navigated to the service details page with the correct filter
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key')).toContainText('service_name = tempo-ingester');
+    // Multiple "Edit filter with key" chips exist; assert the one for our service is visible
+    await expect(
+      page.getByRole('button', { name: /Edit filter with key service_name/ }).filter({ hasText: 'tempo-ingester' })
+    ).toBeVisible();
   });
 
   test('should show empty state when no saved searches exist', async ({ page }) => {
@@ -241,6 +244,8 @@ test.describe('saved searches', () => {
 
     // Verify we're back on the breakdown view with correct filter
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key')).toContainText('service_name = tempo-ingester');
+    await expect(
+      page.getByRole('button', { name: /Edit filter with key service_name/ }).filter({ hasText: 'tempo-ingester' })
+    ).toBeVisible();
   });
 });
