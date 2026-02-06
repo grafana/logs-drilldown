@@ -27,6 +27,9 @@ test.describe('saved searches', () => {
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
     await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
+    await explorePage.servicesSearch.click();
+    await explorePage.servicesSearch.pressSequentially('tempo-ingester');
+    await page.keyboard.press('Escape');
 
     await explorePage.addServiceName();
     await explorePage.clickShowLogs();
