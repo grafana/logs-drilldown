@@ -23,7 +23,7 @@ jobs:
           restore-keys: ${{ runner.os }}-npm-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Save npm cache
         id: save-npm-cache
