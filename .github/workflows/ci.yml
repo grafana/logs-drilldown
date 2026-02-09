@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   cd:
     name: CI / CD
-    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@ci-cd-workflows/v5.0.0 # ci-cd-workflows/v5.0.0
+    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@ci-cd-workflows/v4.0.0 # v4: Setup does not pass cache to setup-node, so no "yarn cache dir" → no packageManager error in Setup
     permissions:
       contents: write
       id-token: write
