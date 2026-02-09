@@ -16,8 +16,6 @@ services:
         grafana_version: ${GRAFANA_VERSION:-main}
     ports: !override
       - 3001:3000/tcp
-    volumes:
-      - ./provisioning:/etc/grafana/provisioning
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   loki:

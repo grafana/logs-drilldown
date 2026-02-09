@@ -15,8 +15,6 @@ services:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
     ports: !override
       - 3001:3000/tcp
-    volumes:
-      - ./provisioning:/etc/grafana/provisioning
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
