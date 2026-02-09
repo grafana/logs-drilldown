@@ -8,7 +8,14 @@ import grafanaConfig from './.config/webpack/webpack.config';
 
 const config = async (env: any): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
+  // React 19: externalize jsx-runtime so plugin uses Grafana's React (required for Grafana >= 12.3.0)
+  const existingExternals = Array.isArray(baseConfig.externals)
+    ? baseConfig.externals
+    : baseConfig.externals
+    ? [baseConfig.externals]
+    : [];
   return merge(baseConfig, {
+    externals: [...existingExternals, 'react/jsx-runtime', 'react/jsx-dev-runtime'],
     resolve: {
       ...baseConfig.resolve,
       alias: {
