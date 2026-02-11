@@ -13,6 +13,7 @@ import {
   Identifier,
   Json,
   LabelFilter,
+  LabelFormatMatcher,
   LineFilter,
   Logfmt,
   Lss,
@@ -388,6 +389,23 @@ export function getMatcherFromQuery(
   const { lineFilters, patternFilters } = parseLineFilters(query);
 
   return { fields, labelFilters, lineFilters, patternFilters };
+}
+
+export function getLabelFormatIdentifiersFromQuery(query: string): string[] {
+  const labelFormatNodes = getNodesFromQuery(query, [LabelFormatMatcher]);
+  if (!labelFormatNodes.length) {
+    return [];
+  }
+
+  return labelFormatNodes
+    .map((labelFormatNode) => {
+      const identifier = labelFormatNode.getChild(Identifier);
+      if (!identifier) {
+        return '';
+      }
+      return query.substring(identifier.from, identifier.to);
+    })
+    .filter((identifier) => identifier !== '');
 }
 
 export function isQueryWithNode(query: string, nodeType: number): boolean {

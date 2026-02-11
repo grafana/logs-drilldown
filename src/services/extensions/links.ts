@@ -13,7 +13,7 @@ import { getTemplateSrv, locationService } from '@grafana/runtime';
 import pluginJson from '../../plugin.json';
 import { LabelType } from '../fieldsTypes';
 import { FieldFilter, IndexedLabelFilter, LineFilterType, PatternFilterOp, PatternFilterType } from '../filterTypes';
-import { getMatcherFromQuery } from '../logqlMatchers';
+import { getLabelFormatIdentifiersFromQuery, getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { renderPatternFilters } from '../renderPatternFilters';
@@ -220,7 +220,16 @@ export function contextToLink<T extends PluginExtensionPanelContext>(context?: T
     params = setLineFilterUrlParams(lineFilters, params);
   }
   if (fields?.length) {
-    params = setUrlParamsFromFieldFilters(fields, params);
+    /**
+     * When label_format labels are used as label filters, in Logs Drilldown they end up as invalid field filters
+     * which produces no results. For example, log_line_contains_trace_id and log_line_contains_span_id
+     * https://github.com/grafana/grafana/blob/43b5c5696acdfae5bee7f192c487cc5f5327065c/public/app/features/explore/TraceView/createSpanLink.tsx#L447-L455
+     * Since these can't be used, we remove them from the filters.
+     */
+    const labelFormatFields = getLabelFormatIdentifiersFromQuery(expr);
+    const filteredFields = fields.filter((field) => !labelFormatFields.includes(field.key));
+
+    params = setUrlParamsFromFieldFilters(filteredFields, params);
   }
   if (patternFilters?.length) {
     params = setUrlParamsFromPatterns(patternFilters, params);
