@@ -32,7 +32,7 @@ jobs:
       plugin-version-suffix: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
 
       # Same settings as publish
-      run-playwright-with-grafana-dependency: '>=11.6'
+      run-playwright-with-grafana-dependency: '>=12.3.0'
       upload-playwright-artifacts: true
       playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001/grafana
