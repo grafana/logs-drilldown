@@ -175,6 +175,7 @@ export function setUrlParamsFromPatterns(patternFilters: PatternFilterType[], pa
   return appendUrlParameter(UrlParameters.PatternsVariable, patternsString, params);
 }
 
+const TRACES_TO_LOGS_FIELDS = ['log_line_contains_trace_id', 'log_line_contains_span_id'];
 export function contextToLink<T extends PluginExtensionPanelContext>(context?: T) {
   if (!context || !context.targets) {
     return undefined;
@@ -228,6 +229,18 @@ export function contextToLink<T extends PluginExtensionPanelContext>(context?: T
      */
     const labelFormatFields = getLabelFormatIdentifiersFromQuery(expr);
     const filteredFields = fields.filter((field) => !labelFormatFields.includes(field.key));
+
+    /**
+     * With traces to logs fields present, we want to add these label filters after the parser, in case these are not
+     * structured metadata but parsed.
+     */
+    const tracesToLogsFieldsPresent = fields.some((field) => TRACES_TO_LOGS_FIELDS.includes(field.key));
+    if (tracesToLogsFieldsPresent) {
+      filteredFields.forEach((field) => {
+        field.parser = 'mixed';
+        field.type = LabelType.Parsed;
+      });
+    }
 
     params = setUrlParamsFromFieldFilters(filteredFields, params);
   }

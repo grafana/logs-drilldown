@@ -114,7 +114,7 @@ describe('contextToLink', () => {
 
   it('should not include label_format labels as label filters ', () => {
     const target = getTestTarget({
-      expr: '{cluster="test"}  | label_format log_line_contains_trace_id=`{{ contains "abcd2134" __line__  }}` | log_line_contains_trace_id="true" or trace_id="abcd2134" | label_format log_line_contains_span_id=`{{ contains "c0ff33" __line__  }}` | log_line_contains_span_id="true" or span_id="c0ff33" | metadata="value"',
+      expr: '{cluster="test"}  | label_format log_line_contains_trace_id=`{{ contains "abcd2134" __line__  }}` | log_line_contains_trace_id="true" or trace_id="abcd2134" | label_format log_line_contains_span_id=`{{ contains "c0ff33" __line__  }}` | log_line_contains_span_id="true" or span_id="c0ff33" | key="value"',
     });
     const config = getTestConfig(linkConfigs, target);
 
@@ -122,9 +122,15 @@ describe('contextToLink', () => {
       path: getPath({
         expectedLabelFiltersUrlString:
           `&var-filters=${encodeFilter(`cluster|=|${addCustomInputPrefixAndValueLabels('test')}`)}` +
-          `&var-metadata=${encodeFilter(`trace_id|=|${addCustomInputPrefixAndValueLabels('abcd2134')}`)}` +
-          `&var-metadata=${encodeFilter(`span_id|=|${addCustomInputPrefixAndValueLabels('c0ff33')}`)}` +
-          `&var-metadata=${encodeFilter(`metadata|=|${addCustomInputPrefixAndValueLabels('value')}`)}`,
+          `&var-fields=${encodeFilter(
+            `trace_id|=|${addAdHocFilterUserInputPrefix('{"value":"abcd2134"__gfc__"parser":"mixed"}')},abcd2134`
+          )}` +
+          `&var-fields=${encodeFilter(
+            `span_id|=|${addAdHocFilterUserInputPrefix('{"value":"c0ff33"__gfc__"parser":"mixed"}')},c0ff33`
+          )}` +
+          `&var-fields=${encodeFilter(
+            `key|=|${addAdHocFilterUserInputPrefix('{"value":"value"__gfc__"parser":"mixed"}')},value`
+          )}`,
         slug: 'cluster/test',
       }),
     });
