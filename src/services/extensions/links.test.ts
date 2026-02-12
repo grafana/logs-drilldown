@@ -112,7 +112,7 @@ describe('contextToLink', () => {
     });
   });
 
-  it('should not include label_format labels as label filters ', () => {
+  it('should not include label_format labels as label filters', () => {
     const target = getTestTarget({
       expr: '{cluster="test"}  | label_format log_line_contains_trace_id=`{{ contains "abcd2134" __line__  }}` | log_line_contains_trace_id="true" or trace_id="abcd2134" | label_format log_line_contains_span_id=`{{ contains "c0ff33" __line__  }}` | log_line_contains_span_id="true" or span_id="c0ff33" | key="value"',
     });
