@@ -13,13 +13,6 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-    ports: !override
-      - 3001:3000/tcp
-    volumes:
-      - ./dist:/var/lib/grafana/plugins/grafana-logsapp
-      - ./provisioning:/etc/grafana/provisioning
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
 
   loki:
     image: grafana/loki:3.6

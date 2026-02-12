@@ -3,6 +3,13 @@ services:
     extends:
       file: .config/docker-compose-base.yaml
       service: grafana
+    ports: !override
+      - 3001:3000/tcp
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/grafana-logsapp
+      - ./provisioning:/etc/grafana/provisioning
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     environment:
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_ANONYMOUS_ENABLED: true

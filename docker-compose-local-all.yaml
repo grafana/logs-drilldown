@@ -9,11 +9,17 @@ services:
     environment:
       - GF_TRACING_OPENTELEMETRY_JAEGER_ADDRESS=http://host.docker.internal:14268/api/traces
       - GF_TRACING_OPENTELEMETRY_JAEGER_PROPAGATION=jaeger,w3c
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=grafana-lokiexplore-app,grafana-metricsdrilldown-app,grafana-exploretraces-app
     build:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
         grafana_version: ${GRAFANA_VERSION:-main}
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/grafana-logsapp
+      - ./provisioning-all:/etc/grafana/provisioning
+      - ../metrics-drilldown/dist:/var/lib/grafana/plugins/grafana-metricsdrilldown-app
+      - ../traces-drilldown/dist:/var/lib/grafana/plugins/grafana-exploretraces-app
   loki:
     image: grafana/loki:3.6
     environment:
