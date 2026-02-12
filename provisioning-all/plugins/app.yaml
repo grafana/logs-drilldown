@@ -1,0 +1,36 @@
+apiVersion: 1
+
+# Run Logs, Metrics, and Traces
+# Assumes the plugins are in adjacent directories:
+# - ../metrics-drilldown/dist
+# - ../traces-drilldown/dist
+# Used only by yarn start:all (docker-compose-local-all.yaml)
+# For logs only, use yarn start (docker-compose.local.yaml)
+apps:
+  - type: 'grafana-lokiexplore-app'
+    org_id: 1
+    org_name: 'Grafana'
+    disabled: false
+    jsonData:
+      apiUrl: http://default-url.com
+      isApiKeySet: true
+    secureJsonData:
+      apiKey: secret-key
+  - type: 'grafana-metricsdrilldown-app'
+    org_id: 1
+    org_name: 'Grafana'
+    disabled: false
+    jsonData:
+      apiUrl: http://default-url.com
+      isApiKeySet: true
+    secureJsonData:
+      apiKey: secret-key
+  - type: 'grafana-exploretraces-app'
+    org_id: 1
+    org_name: 'Grafana'
+    disabled: false
+    jsonData:
+      apiUrl: http://default-url.com
+      isApiKeySet: true
+    secureJsonData:
+      apiKey: secret-key

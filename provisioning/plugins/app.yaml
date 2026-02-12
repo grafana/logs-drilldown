@@ -1,5 +1,7 @@
 apiVersion: 1
 
+# Logs app only. Used by yarn start, docker-compose.local.yaml, etc.
+# For metrics + traces, use yarn start:all (mounts provisioning-all/)
 apps:
   - type: 'grafana-lokiexplore-app'
     org_id: 1

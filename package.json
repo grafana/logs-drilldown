@@ -23,6 +23,7 @@
     "server": "docker compose -f docker-compose.local.yaml up --build",
     "server:enterprise": "GRAFANA_VERSION=nightly GRAFANA_IMAGE=grafana-enterprise GF_FEATURE_TOGGLES_ENABLE=queryLibrary docker compose -f docker-compose.local.yaml  up --build",
     "start": "yarn build && docker compose -f docker-compose.local.yaml up --build -d && yarn dev",
+    "start:all": "yarn build && docker compose -f docker-compose-local-all.yaml up --build -d && yarn dev",
     "server:localLoki": "docker compose -f docker-compose-local-loki.dev.yaml up --build",
     "server:ci": "docker compose -f docker-compose.dev.yaml up --build -d",
     "server:syslog": "docker compose -f docker-compose-syslog.dev.yaml up --build",

@@ -48,5 +48,7 @@ storage:
     local:
       path: /tmp/tempo/blocks
 
+# local-blocks is required for TraceQL metrics (Grafana Traces Drilldown)
+# https://grafana.com/docs/tempo/latest/operations/traceql-metrics/#activate-and-configure-the-local-blocks-processor
 overrides:
-  metrics_generator_processors: [service-graphs, span-metrics]
+  metrics_generator_processors: [service-graphs, span-metrics, local-blocks]

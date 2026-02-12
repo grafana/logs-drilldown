@@ -17,6 +17,7 @@ import { getMatcherFromQuery } from '../logqlMatchers';
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { ensureValidTimeRangeForLink } from '../text';
 import { escapeLabelValueInExactSelector, lokiSpecialRegexEscape } from './scenesMethods';
 import {
   addAdHocFilterUserInputPrefix,
@@ -211,9 +212,12 @@ export function contextToLink<T extends PluginExtensionPanelContext>(context?: T
   // sort `primary label` first
   labelFilters.sort((a) => (a.key === labelName ? -1 : 1));
 
+  const fromMs = context.timeRange.from.valueOf();
+  const toMs = context.timeRange.to.valueOf();
+  const [from, to] = ensureValidTimeRangeForLink(Number(fromMs), Number(toMs));
   let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUid, new URLSearchParams());
-  params = setUrlParameter(UrlParameters.TimeRangeFrom, context.timeRange.from.valueOf().toString(), params);
-  params = setUrlParameter(UrlParameters.TimeRangeTo, context.timeRange.to.valueOf().toString(), params);
+  params = setUrlParameter(UrlParameters.TimeRangeFrom, from.toString(), params);
+  params = setUrlParameter(UrlParameters.TimeRangeTo, to.toString(), params);
   params = setUrlParamsFromLabelFilters(labelFilters, params);
 
   if (lineFilters) {
