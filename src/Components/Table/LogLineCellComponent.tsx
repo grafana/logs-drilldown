@@ -147,7 +147,7 @@ export const LogLineCellComponent = (props: Props) => {
       rowIndex={props.rowIndex}
       field={props.field}
     >
-      <ScrollSyncPane innerRef={ref} group="horizontal">
+      <ScrollSyncPane innerRef={ref as React.RefObject<HTMLElement>} group="horizontal">
         <div className={styles.content}>
           {/* First Field gets the icons */}
           {props.fieldIndex === 0 && <LineActionIcons rowIndex={props.rowIndex} value={value} />}

@@ -20,7 +20,6 @@ export const onExploreLinkClick = (indexScene: IndexScene, expr?: string, open =
   const displayedFields = getDisplayedFieldsInStorage(indexScene);
   const visualisationType = getLogsVisualizationType();
   const columns = getUrlColumns();
-  /* eslint-disable sort/object-properties */
   const exploreState = JSON.stringify({
     ['loki-explore']: {
       range: toURLRange(timeRange.raw),
