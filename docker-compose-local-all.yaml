@@ -16,7 +16,7 @@ services:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
         grafana_version: ${GRAFANA_VERSION:-main}
     volumes:
-      - ./dist:/var/lib/grafana/plugins/grafana-logsapp
+      - ./dist:/var/lib/grafana/plugins/grafana-lokiexplore-app
       - ./provisioning-all:/etc/grafana/provisioning
       - ../metrics-drilldown/dist:/var/lib/grafana/plugins/grafana-metricsdrilldown-app
       - ../traces-drilldown/dist:/var/lib/grafana/plugins/grafana-exploretraces-app
