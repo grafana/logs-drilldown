@@ -6,6 +6,8 @@ services:
       file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     build:
       context: ./.config
       args:
