@@ -6,7 +6,7 @@ import {
   PluginExtensionPanelContext,
 } from '@grafana/data';
 
-import { getMatcherFromQuery } from './logqlMatchers';
+import { getLabelFormatIdentifiersFromQuery, getMatcherFromQuery } from './logqlMatchers';
 
 describe('getMatcherFromQuery', () => {
   describe('Fields', () => {
@@ -109,5 +109,14 @@ describe('getMatcherFromQuery', () => {
         },
       ]);
     });
+  });
+});
+
+describe('getLabelFormatIdentifiersFromQuery', () => {
+  test('Should return the label format labels from a query', () => {
+    const result = getLabelFormatIdentifiersFromQuery(
+      '{cluster="test"}  | label_format log_line_contains_trace_id=`{{ contains "abcd2134" __line__  }}` | log_line_contains_trace_id="true" or trace_id="abcd2134" | label_format log_line_contains_span_id=`{{ contains "c0ff33" __line__  }}` | log_line_contains_span_id="true" or span_id="c0ff33" | metadata="value"'
+    );
+    expect(result).toEqual(['log_line_contains_trace_id', 'log_line_contains_span_id']);
   });
 });
