@@ -13,7 +13,7 @@ import {
   rangeUtil,
 } from '@grafana/data';
 import { DataSourcePicker, getBackendSrv, locationService } from '@grafana/runtime';
-import { Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
@@ -164,7 +164,11 @@ const AppConfig = ({ plugin }: Props) => {
             Save settings
           </Button>
         </div>
-        <p className={styles.note}>Active users must refresh the app to update configuration.</p>
+        <div className={styles.note}>
+          <Alert severity="info" title="">
+            Active users must reload the app to reflect configuration changes.
+          </Alert>
+        </div>
       </FieldSet>
     </div>
   );
@@ -189,9 +193,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     margin-top: ${theme.spacing(6)};
   `,
   note: css({
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   }),
 });
 
