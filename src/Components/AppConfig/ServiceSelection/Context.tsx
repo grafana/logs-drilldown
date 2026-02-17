@@ -1,6 +1,15 @@
 import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 
+import { LoadingPlaceholder } from '@grafana/ui';
+
+import {
+  LogsDrilldownDefaultLabels,
+  useGetLogsDrilldownDefaultLabelsQuery,
+} from 'lib/api-clients/logsdrilldown/v1beta1';
+import { narrowRTKQError } from 'services/narrowing';
+
 type DefaultColumnsContextType = {
+  data: LogsDrilldownDefaultLabels | undefined;
   dsUID: string;
   setDsUID: (dsUID: string) => void;
 };
@@ -8,6 +17,7 @@ type DefaultColumnsContextType = {
 const Context = createContext<DefaultColumnsContextType>({
   dsUID: '',
   setDsUID: () => {},
+  data: undefined,
 });
 
 interface Props {
@@ -17,6 +27,14 @@ interface Props {
 
 export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props) => {
   const [dsUID, setDsUID] = useState(initialDSUID);
+
+  const {
+    currentData: data,
+    error,
+    isLoading,
+  } = useGetLogsDrilldownDefaultLabelsQuery({
+    name: dsUID,
+  });
 
   /**
    * Sets the datasource UID and clears the existing state
@@ -30,9 +48,10 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
       value={{
         dsUID,
         setDsUID: handleSetDsUID,
+        data,
       }}
     >
-      {children}
+      {isLoading ? <LoadingPlaceholder text={'Loading...'} /> : children}
     </Context.Provider>
   );
 };
