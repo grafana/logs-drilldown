@@ -6,15 +6,14 @@ import {
   LogsDrilldownDefaultLabels,
   useGetLogsDrilldownDefaultLabelsQuery,
 } from 'lib/api-clients/logsdrilldown/v1beta1';
-import { narrowRTKQError } from 'services/narrowing';
 
-type DefaultColumnsContextType = {
+type ServiceSelectionContextType = {
   data: LogsDrilldownDefaultLabels | undefined;
   dsUID: string;
   setDsUID: (dsUID: string) => void;
 };
 
-const Context = createContext<DefaultColumnsContextType>({
+const Context = createContext<ServiceSelectionContextType>({
   dsUID: '',
   setDsUID: () => {},
   data: undefined,
@@ -25,12 +24,12 @@ interface Props {
   initialDSUID: string;
 }
 
-export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props) => {
+export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Props) => {
   const [dsUID, setDsUID] = useState(initialDSUID);
 
   const {
     currentData: data,
-    error,
+    //error,
     isLoading,
   } = useGetLogsDrilldownDefaultLabelsQuery({
     name: dsUID,
@@ -56,6 +55,6 @@ export const DefaultColumnsContextProvider = ({ children, initialDSUID }: Props)
   );
 };
 
-export const useDefaultColumnsContext = () => {
+export const useServiceSelectionContext = () => {
   return useContext(Context);
 };
