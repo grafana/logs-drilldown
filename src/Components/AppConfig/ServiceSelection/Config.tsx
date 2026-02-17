@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsContextProvider } from './Context';
+import { ServiceSelectionContextProvider } from './Context';
 import { DataSource } from './DataSource';
 import { DefaultLabels } from './DefaultLabels';
 import { Footer } from './Footer';
@@ -28,11 +28,11 @@ const Config = () => {
     <main className={styles.main}>
       <div className={styles.introText}>
         <Badge color={'blue'} text={'Experimental'} />
-        <span>Configure default fields to display instead of the full log line:</span>
+        <span>Configure the default labels to show in the landing page of Logs Drilldown:</span>
       </div>
 
       <ErrorBoundaryAlert>
-        <DefaultColumnsContextProvider initialDSUID={dsUID}>
+        <ServiceSelectionContextProvider initialDSUID={dsUID}>
           <header>
             <DataSource />
           </header>
@@ -40,7 +40,7 @@ const Config = () => {
           <DefaultLabels />
 
           <Footer />
-        </DefaultColumnsContextProvider>
+        </ServiceSelectionContextProvider>
       </ErrorBoundaryAlert>
     </main>
   );

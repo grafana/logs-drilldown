@@ -1,8 +1,13 @@
 import React from 'react';
 
-import { Box, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { Box, Button, Combobox, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+
+import { useServiceSelectionContext } from './Context';
+import { getLabelsForCombobox } from 'services/labels';
 
 export function DefaultLabels() {
+  const { dsUID } = useServiceSelectionContext();
+  const labelName = '';
   return (
     <Box
       backgroundColor="primary"
@@ -18,6 +23,24 @@ export function DefaultLabels() {
           <Icon name="info-circle" />
         </Tooltip>
       </Stack>
+
+      <Combobox<string>
+        value={labelName}
+        invalid={!labelName}
+        placeholder={'Select label name'}
+        width={'auto'}
+        minWidth={30}
+        maxWidth={90}
+        createCustomValue={true}
+        onChange={(fieldName) => console.log(fieldName?.value)}
+        options={(typeAhead) =>
+          getLabelsForCombobox(dsUID).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+        }
+      />
+
+      <Button tooltip="Add new label to match against user query" variant="secondary" fill="outline" icon="plus">
+        Add label
+      </Button>
     </Box>
   );
 }
