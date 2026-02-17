@@ -112,7 +112,7 @@
     "@grafana/i18n": "^12.2.0",
     "@grafana/lezer-logql": "^0.3.0",
     "@grafana/runtime": "^12.3.0",
-    "@grafana/scenes": "^6.39.0",
+    "@grafana/scenes": "^6.53.0",
     "@grafana/scenes-react": "^6.52.12",
     "@grafana/schema": "^12.2.0",
     "@grafana/ui": "^12.3.2",
