@@ -7,6 +7,7 @@ import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
 
 import { DefaultColumnsContextProvider } from './Context';
 import { DataSource } from './DataSource';
+import { DefaultLabels } from './DefaultLabels';
 import { Footer } from './Footer';
 import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
@@ -35,9 +36,8 @@ const Config = () => {
           <header>
             <DataSource />
           </header>
-          <>
-            <section>Here be dragons</section>
-          </>
+
+          <DefaultLabels />
 
           <Footer />
         </DefaultColumnsContextProvider>
