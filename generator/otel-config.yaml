@@ -10,6 +10,13 @@ processors:
   batch:
     timeout: 1s
     send_batch_size: 1024
+  # Add service label (copy of service.name) so Loki has service=... matching Prometheus span metrics.
+  # Metrics Drilldown "Related logs" correlates by shared labels; span metrics use service, Loki uses service_name.
+  resource:
+    attributes:
+      - key: service
+        from_attribute: service.name
+        action: upsert
   # Transform disabled: ParseJSON+merge caused "empty label name" when nested_object
   # produced attributes Loki rejected. Raw JSON body is forwarded as-is.
 
@@ -25,5 +32,5 @@ service:
   pipelines:
     logs:
       receivers: [otlp]
-      processors: [batch]
+      processors: [resource, batch]
       exporters: [otlphttp/logs]

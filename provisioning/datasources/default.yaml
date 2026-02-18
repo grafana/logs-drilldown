@@ -62,6 +62,12 @@ datasources:
       exemplarTraceIdDestinations:
         - name: traceID
           datasourceUid: gdev-tempo
+      # Link metrics to logs for Metrics Drilldown "Related logs" tab.
+      # Uses service_name from metric labels; add label filter in Metrics Drilldown for best results.
+      metricsToLogsV2:
+        datasourceUid: gdev-loki
+        customQuery: true
+        query: '{service_name=~"tempo-ingester|tempo-distributor|mimir-ingester|mimir-distributor|mimir-querier|mimir-ruler|loki-ingester-otel|loki-querier-otel|loki-queryfrontend-otel|loki-distributor-otel|grafanacon-json-otel|grafanacon-otel|shopping-cart-otel|shopping-cart-structured-otel|nginx|nginx-json|nginx-json-mixed|apache|httpd"}'
     secureJsonData:
       basicAuthPassword: admin #https://grafana.com/docs/grafana/latest/administration/provisioning/#using-environment-variables
   - name: grafanacloud-dev-logs
