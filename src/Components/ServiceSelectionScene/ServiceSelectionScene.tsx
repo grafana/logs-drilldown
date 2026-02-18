@@ -109,16 +109,13 @@ interface ServiceSelectionSceneState extends SceneObjectState {
   // Pagination options
   countPerPage: number;
   currentPage: number;
+  defaultLabels?: string[];
   loadSearch?: LoadSearchScene;
   paginationScene?: ServiceSelectionPaginationScene;
+
   // Show logs of a certain level for a given service
   serviceLevel: Map<string, string[]>;
-
   showPopover: boolean;
-  tabOptions: Array<{
-    label: string;
-    value: string;
-  }>;
   tabs?: ServiceSelectionTabsScene;
 }
 
@@ -180,7 +177,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             },
             filters: [
               {
-                key: getSelectedTabFromUrl().key ?? SERVICE_NAME,
+                key: getSelectedTabFromUrl().key ?? state.defaultLabels?.[0] ?? SERVICE_NAME,
                 operator: '=~',
                 value: '.+',
               },
@@ -208,12 +205,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       serviceLevel: new Map<string, string[]>(),
 
       showPopover: false,
-      tabOptions: [
-        {
-          label: SERVICE_UI_LABEL,
-          value: SERVICE_NAME,
-        },
-      ],
       ...state,
     });
 
@@ -437,8 +428,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   selectDefaultLabelTab() {
     // Need to update the history before the state with replace instead of push, or we'll get invalid services saved to url state after changing datasource
-    this.addLabelChangeToBrowserHistory(SERVICE_NAME, true);
-    this.setSelectedTab(SERVICE_NAME);
+    const defaultLabel = this.state.defaultLabels?.length ? this.state.defaultLabels[0] : SERVICE_NAME;
+    this.addLabelChangeToBrowserHistory(defaultLabel, true);
+    this.setSelectedTab(defaultLabel);
   }
 
   setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
@@ -907,9 +899,26 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   private updateTabs() {
     if (!this.state.tabs) {
-      const tabs = new ServiceSelectionTabsScene({});
+      const defaultTabOptions = [
+        {
+          label: SERVICE_UI_LABEL,
+          saved: true,
+          value: SERVICE_NAME,
+        },
+      ];
+
+      const tabOptions = this.state.defaultLabels?.length
+        ? this.state.defaultLabels.map((label) => ({
+            label,
+            saved: true,
+            value: label,
+          }))
+        : defaultTabOptions;
+
       this.setState({
-        tabs,
+        tabs: new ServiceSelectionTabsScene({
+          tabOptions,
+        }),
       });
     }
   }

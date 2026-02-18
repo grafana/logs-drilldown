@@ -37,20 +37,13 @@ interface LabelOptions {
 }
 
 export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionTabsSceneState> {
-  constructor(state: Partial<ServiceSelectionTabsSceneState>) {
+  constructor(state: Partial<ServiceSelectionTabsSceneState> & { tabOptions: TabOption[] }) {
     super({
       $labelsData: getSceneQueryRunner({
         queries: [buildResourceQuery('', 'detected_labels')],
         runQueriesMode: 'manual',
       }),
       showPopover: false,
-      tabOptions: [
-        {
-          label: SERVICE_UI_LABEL,
-          saved: true,
-          value: SERVICE_NAME,
-        },
-      ],
       ...state,
     });
 

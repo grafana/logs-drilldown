@@ -29,6 +29,8 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import {
   LogsDrilldownDefaultColumns,
   LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+  LogsDrilldownDefaultLabels,
+  LogsDrilldownDefaultLabelsLogsLogsDefaultLabelsRecords,
 } from '../../lib/api-clients/logsdrilldown/v1beta1';
 import { getAPIBaseURL } from '../../lib/api-clients/utils/utils';
 import { plugin } from '../../module';
@@ -87,6 +89,7 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { isDefaultLabelsSupported } from 'Components/AppConfig/ServiceSelection/isSupported';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import {
   provideServiceBreakdownQuestions,
@@ -118,6 +121,7 @@ import {
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
   PENDING_METADATA_EXPR,
+  SERVICE_NAME,
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
@@ -271,9 +275,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: false });
 
-    if (!this.state.contentScene) {
-      stateUpdate.contentScene = this.getContentScene();
-    }
     this.setTagProviders();
     this.setState(stateUpdate);
 
@@ -347,6 +348,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(this.subscribeToDataSourceChange());
 
     this.getDefaultColumnsFromAppPlatform();
+    this.getDefaultLabelsAndSetContentScene();
 
     return () => {
       clearKeyBindings();
@@ -384,12 +386,58 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
   }
 
+  private async getDefaultLabelsAndSetContentScene() {
+    // No need for fetching default labels when embedded or in service details
+    if (this.state.embedded || this.userInServiceSelection() === false || isDefaultLabelsSupported === false) {
+      this.setState({
+        contentScene: this.getContentScene(),
+      });
+      return;
+    }
+
+    const dataSourceVariable = getDataSourceVariable(this);
+    const dsUID = dataSourceVariable.state.value.toString();
+    const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1beta1');
+
+    try {
+      const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultlabels/${dsUID}`);
+      const fetchResult = await fetch(request);
+
+      if (fetchResult.ok) {
+        // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
+        const response = (await fetchResult.json()) as LogsDrilldownDefaultLabels;
+        const records: LogsDrilldownDefaultLabelsLogsLogsDefaultLabelsRecords = response.spec.records;
+
+        const defaultLabels =
+          Array.isArray(records[0]?.labels) && records[0].labels.length > 0 ? records[0].labels : [SERVICE_NAME];
+
+        this.setState({
+          contentScene: new ServiceSelectionScene({
+            defaultLabels,
+          }),
+        });
+
+        return;
+      }
+    } catch (e) {
+      logger.error(e);
+    }
+    this.setState({
+      contentScene: this.getContentScene(),
+    });
+  }
+
   public currentFiltersMatchReference() {
     const referenceLabelsDefined = this.state.referenceLabels && this.state.referenceLabels.length > 0;
     return (
       !referenceLabelsDefined ||
       areLabelFiltersEqual(this.state.referenceLabels || [], getLabelsVariable(this).state.filters)
     );
+  }
+
+  private userInServiceSelection() {
+    const slug = getDrilldownSlug();
+    return slug === PageSlugs.explore;
   }
 
   public getContentScene() {
@@ -405,7 +453,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       });
     }
 
-    return getContentScene(this.state.routeMatch?.params.breakdownLabel);
+    if (this.userInServiceSelection()) {
+      return new ServiceSelectionScene({});
+    }
+
+    return new ServiceScene({
+      drillDownLabel: this.state.routeMatch?.params.breakdownLabel,
+    });
   }
 
   private provideAssistantQuestions() {
@@ -422,6 +476,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       if (newState.value !== prevState.value) {
         this.state.$lokiConfig.runQueries();
         this.getDefaultColumnsFromAppPlatform();
+        this.getDefaultLabelsAndSetContentScene();
       }
     });
   }
@@ -777,17 +832,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   resetToReferenceQuery() {
     getLabelsVariable(this).setState({ filters: this.state.referenceLabels || [] });
   }
-}
-
-function getContentScene(drillDownLabel?: string) {
-  const slug = getDrilldownSlug();
-  if (slug === PageSlugs.explore) {
-    return new ServiceSelectionScene({});
-  }
-
-  return new ServiceScene({
-    drillDownLabel,
-  });
 }
 
 function getVariableSet(
