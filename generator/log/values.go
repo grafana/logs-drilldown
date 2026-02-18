@@ -123,6 +123,7 @@ func ForAllClusters(namespace, svc model.LabelValue, cb func(model.LabelSet, pus
 				"__stream_shard__": model.LabelValue(shards[clusterInt%len(shards)]),
 				"namespace":        namespace,
 				"service_name":     svc,
+				"service":          svc, // Match Prometheus span metrics for Metrics Drilldown "Related logs"
 				"file":             "C:\\Grafana\\logs\\" + namespace + ".txt",
 			}, RandStructuredMetadata(string(svc), i))
 		}

@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/prometheus/common/model"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -22,8 +22,12 @@ func traceEmitterDebugLogging() bool {
 }
 
 // Emitter creates spans and exports them to Tempo so trace IDs match between traces and logs.
+// Uses per-service TracerProviders so span metrics get service=nginx-json-mixed etc., matching
+// Loki's service_name for Metrics Drilldown "Related logs".
 type Emitter struct {
-	tracer *sdktrace.TracerProvider
+	conn   *grpc.ClientConn
+	mu     sync.RWMutex
+	providers map[string]*sdktrace.TracerProvider
 }
 
 // NewEmitter creates a trace emitter that exports spans to the given endpoint (e.g. "tempo:4317").
@@ -33,48 +37,68 @@ func NewEmitter(endpoint string) *Emitter {
 		return nil
 	}
 
-	ctx := context.Background()
 	conn, err := grpc.NewClient(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("trace emitter: failed to connect to %s: %v", endpoint, err)
 		return nil
 	}
 
-	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
+	log.Printf("trace emitter: connected to %s, spans will be exported to Tempo", endpoint)
+	return &Emitter{
+		conn:     conn,
+		providers: make(map[string]*sdktrace.TracerProvider),
+	}
+}
+
+func (e *Emitter) getProvider(serviceName string) *sdktrace.TracerProvider {
+	e.mu.RLock()
+	tp, ok := e.providers[serviceName]
+	e.mu.RUnlock()
+	if ok {
+		return tp
+	}
+
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	if tp, ok := e.providers[serviceName]; ok {
+		return tp
+	}
+
+	ctx := context.Background()
+	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(e.conn))
 	if err != nil {
-		log.Printf("trace emitter: failed to create exporter: %v", err)
-		_ = conn.Close()
+		log.Printf("trace emitter: failed to create exporter for %s: %v", serviceName, err)
 		return nil
 	}
 
-	tp := sdktrace.NewTracerProvider(
+	tp = sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceName("log-generator"),
+			semconv.ServiceName(serviceName),
 		)),
 	)
-
-	otel.SetTracerProvider(tp)
-
-	log.Printf("trace emitter: connected to %s, spans will be exported to Tempo", endpoint)
-	return &Emitter{tracer: tp}
+	e.providers[serviceName] = tp
+	return tp
 }
 
 // EmitSpan creates a span and exports it to Tempo. Returns the trace ID to use in log metadata.
 // The trace ID links the span (in Tempo) to logs (in Loki) for trace-to-logs.
+// Uses serviceName as the resource service name so span metrics match Loki's service_name.
 func (e *Emitter) EmitSpan(ctx context.Context, serviceName, spanName string, labels model.LabelSet) string {
-	if e == nil || e.tracer == nil {
+	if e == nil || e.conn == nil {
 		return ""
 	}
 
-	tracer := e.tracer.Tracer("log-generator")
+	tp := e.getProvider(serviceName)
+	if tp == nil {
+		return ""
+	}
+
+	tracer := tp.Tracer("log-generator")
 	_, span := tracer.Start(ctx, spanName)
 	defer span.End()
 
-	span.SetAttributes(
-		attribute.String(string(semconv.ServiceNameKey), serviceName),
-	)
 	for k, v := range labels {
 		span.SetAttributes(attribute.String(string(k), string(v)))
 	}
@@ -83,21 +107,28 @@ func (e *Emitter) EmitSpan(ctx context.Context, serviceName, spanName string, la
 	if traceEmitterDebugLogging() {
 		log.Printf("trace emitter: emitted span service=%s name=%s traceID=%s", serviceName, spanName, traceID)
 	}
-	// Use lowercase to match common trace ID formats (e.g. Grafana, Loki)
 	return traceID
 }
 
-// Shutdown flushes and shuts down the trace provider.
+// Shutdown flushes and shuts down all tracer providers.
 func (e *Emitter) Shutdown(ctx context.Context) error {
-	if e == nil || e.tracer == nil {
+	if e == nil || e.conn == nil {
 		return nil
 	}
 	log.Printf("trace emitter: shutting down, flushing pending spans")
-	err := e.tracer.Shutdown(ctx)
-	if err != nil {
-		log.Printf("trace emitter: shutdown error: %v", err)
-		return err
+	e.mu.Lock()
+	providers := e.providers
+	e.providers = make(map[string]*sdktrace.TracerProvider)
+	e.mu.Unlock()
+
+	var lastErr error
+	for _, tp := range providers {
+		if err := tp.Shutdown(ctx); err != nil {
+			lastErr = err
+			log.Printf("trace emitter: shutdown error: %v", err)
+		}
 	}
+	_ = e.conn.Close()
 	log.Printf("trace emitter: shutdown complete")
-	return nil
+	return lastErr
 }
