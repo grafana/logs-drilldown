@@ -27,7 +27,7 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={'Experimental'} />
+        <Badge color={'blue'} text={'Beta'} />
         <span>Configure the default labels to show in the landing page of Logs Drilldown:</span>
       </div>
 
