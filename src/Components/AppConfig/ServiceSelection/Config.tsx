@@ -9,7 +9,7 @@ import { ServiceSelectionContextProvider } from './Context';
 import { DataSource } from './DataSource';
 import { DefaultLabels } from './DefaultLabels';
 import { Footer } from './Footer';
-import { isDefaultColumnsSupported } from './isSupported';
+import { isDefaultLabelsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
@@ -20,7 +20,7 @@ const Config = () => {
   if (!dsUID) {
     return <NoLokiSplash />;
   }
-  if (!isDefaultColumnsSupported) {
+  if (!isDefaultLabelsSupported) {
     return <Unsupported />;
   }
 
