@@ -16,7 +16,7 @@ export function DefaultLabels() {
   }, []);
 
   const labels = useMemo(
-    () => (newDefaultLabels.length ? newDefaultLabels : currentDefaultLabels),
+    () => (newDefaultLabels ? newDefaultLabels : currentDefaultLabels),
     [currentDefaultLabels, newDefaultLabels]
   );
 
@@ -33,7 +33,7 @@ export function DefaultLabels() {
     }
   }, [labels, selectedLabel, setNewDefaultLabels]);
 
-  const noLabels = !currentDefaultLabels.length && !newDefaultLabels.length;
+  const noLabels = (!currentDefaultLabels.length && !newDefaultLabels) || newDefaultLabels?.length === 0;
 
   return (
     <Box
@@ -57,7 +57,6 @@ export function DefaultLabels() {
         <Stack>
           <Combobox<string>
             value={selectedLabel}
-            invalid={!selectedLabel}
             placeholder={'Select label name'}
             width={'auto'}
             minWidth={30}

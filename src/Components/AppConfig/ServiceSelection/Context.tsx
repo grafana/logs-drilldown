@@ -15,7 +15,7 @@ type ServiceSelectionContextType = {
   currentDefaultLabels: string[];
   dsUID: string;
   hasUnsavedChanges: boolean;
-  newDefaultLabels: string[];
+  newDefaultLabels: string[] | null;
   reset: () => void;
   save: () => void;
   setDsUID: (dsUID: string) => void;
@@ -26,7 +26,7 @@ const Context = createContext<ServiceSelectionContextType>({
   currentDefaultLabels: [],
   dsUID: '',
   hasUnsavedChanges: false,
-  newDefaultLabels: [],
+  newDefaultLabels: null,
   reset: () => {},
   save: () => {},
   setNewDefaultLabels: () => {},
@@ -40,7 +40,7 @@ interface Props {
 
 export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Props) => {
   const [dsUID, setDsUID] = useState(initialDSUID);
-  const [newDefaultLabels, setNewDefaultLabels] = useState<string[]>([]);
+  const [newDefaultLabels, setNewDefaultLabels] = useState<string[] | null>(null);
 
   const {
     currentData: data,
@@ -85,10 +85,13 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
   }, [data, isSuccess]);
 
   const reset = useCallback(() => {
-    setNewDefaultLabels([]);
+    setNewDefaultLabels(null);
   }, []);
 
   const save = useCallback(() => {
+    if (newDefaultLabels === null) {
+      throw new Error('DefaultLabelsSave: No labels to save');
+    }
     if (createNewRecord) {
       create({
         pretty: 'true',
@@ -109,7 +112,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
       });
     } else {
       if (!data) {
-        throw new Error('[Default Labels] Failed to fetch');
+        throw new Error('DefaultLabelsSave: Failed to fetch');
       }
       update({
         pretty: 'true',
@@ -130,15 +133,17 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
           },
         },
       });
+
+      reset();
     }
-  }, [create, createNewRecord, data, dsUID, newDefaultLabels, update]);
+  }, [create, createNewRecord, data, dsUID, newDefaultLabels, reset, update]);
 
   return (
     <Context.Provider
       value={{
         currentDefaultLabels,
         dsUID,
-        hasUnsavedChanges: !shallowCompare(currentDefaultLabels, newDefaultLabels),
+        hasUnsavedChanges: newDefaultLabels !== null,
         newDefaultLabels,
         reset,
         save,
