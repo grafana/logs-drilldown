@@ -1,14 +1,40 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
-import { Box, Button, Combobox, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { Alert, Box, Button, Combobox, ComboboxOption, Icon, Stack, Text, Tooltip } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
+import { LabelList } from './LabelList';
 import { getLabelsForCombobox } from 'services/labels';
+import { SERVICE_NAME } from 'services/variables';
 
 export function DefaultLabels() {
-  const { dsUID } = useServiceSelectionContext();
+  const { dsUID, currentDefaultLabels, newDefaultLabels, setNewDefaultLabels } = useServiceSelectionContext();
+  const [selectedLabel, setSelectedLabel] = useState('');
 
-  const labelName = '';
+  const handleChange = useCallback((fieldName: ComboboxOption<string>) => {
+    setSelectedLabel(fieldName?.value ?? '');
+  }, []);
+
+  const labels = useMemo(
+    () => (newDefaultLabels.length ? newDefaultLabels : currentDefaultLabels),
+    [currentDefaultLabels, newDefaultLabels]
+  );
+
+  const getOptions = useCallback(
+    (typeAhead: string) =>
+      getLabelsForCombobox(dsUID, labels).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead))),
+    [dsUID, labels]
+  );
+
+  const addLabel = useCallback(() => {
+    if (selectedLabel) {
+      setNewDefaultLabels([...labels, selectedLabel]);
+      setSelectedLabel('');
+    }
+  }, [labels, selectedLabel, setNewDefaultLabels]);
+
+  const noLabels = !currentDefaultLabels.length && !newDefaultLabels.length;
+
   return (
     <Box
       backgroundColor="primary"
@@ -30,24 +56,36 @@ export function DefaultLabels() {
       <Box marginBottom={2}>
         <Stack>
           <Combobox<string>
-            value={labelName}
-            invalid={!labelName}
+            value={selectedLabel}
+            invalid={!selectedLabel}
             placeholder={'Select label name'}
             width={'auto'}
             minWidth={30}
             maxWidth={90}
             createCustomValue={true}
-            onChange={(fieldName) => console.log(fieldName?.value)}
-            options={(typeAhead) =>
-              getLabelsForCombobox(dsUID).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
-            }
+            onChange={handleChange}
+            options={getOptions}
           />
 
-          <Button tooltip="Add new label to match against user query" variant="secondary" fill="outline" icon="plus">
+          <Button
+            tooltip="Add new label to match against user query"
+            variant="secondary"
+            fill="outline"
+            icon="plus"
+            onClick={addLabel}
+          >
             Add label
           </Button>
         </Stack>
       </Box>
+
+      {noLabels ? (
+        <Alert title="" severity="info">
+          No labels selected. Logs Drilldown will default to {SERVICE_NAME}
+        </Alert>
+      ) : (
+        <LabelList />
+      )}
     </Box>
   );
 }
