@@ -1,6 +1,5 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { shallowCompare } from '@grafana/data';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import {
