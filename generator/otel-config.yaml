@@ -10,13 +10,8 @@ processors:
   batch:
     timeout: 1s
     send_batch_size: 1024
-  transform:
-    log_statements:
-      - context: log
-        statements:
-          - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where resource.attributes["service.name"] == "grafanacon-otel"
-          - set(log.body, log.attributes["msg"]) where resource.attributes["service.name"] == "grafanacon-otel" and log.attributes["msg"] != nil
-          - delete_key(log.attributes, "msg") where resource.attributes["service.name"] == "grafanacon-otel" and log.attributes["msg"] != nil
+  # Transform disabled: ParseJSON+merge caused "empty label name" when nested_object
+  # produced attributes Loki rejected. Raw JSON body is forwarded as-is.
 
 exporters:
   otlphttp/logs:
@@ -30,5 +25,5 @@ service:
   pipelines:
     logs:
       receivers: [otlp]
-      processors: [batch, transform]
+      processors: [batch]
       exporters: [otlphttp/logs]

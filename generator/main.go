@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/grafana/explore-logs/generator/log"
+	"github.com/grafana/explore-logs/generator/trace"
 	"github.com/grafana/loki-client-go/loki"
 	"github.com/grafana/loki/pkg/push"
 	"github.com/prometheus/common/config"
@@ -20,6 +21,7 @@ import (
 
 func main() {
 	url := flag.String("url", "http://localhost:3100/loki/api/v1/push", "Loki URL")
+	traceURL := flag.String("trace-url", "", "Tempo OTLP gRPC endpoint (e.g. localhost:4317) to emit spans so trace IDs match logs")
 	dry := flag.Bool("dry", false, "Dry run: log to stdout instead of Loki")
 	useOtel := flag.Bool("otel", true, "Ship logs for otel apps to OTel collector")
 	tenantId := flag.String("tenant-id", "", "Loki tenant ID")
@@ -57,7 +59,15 @@ func main() {
 	}
 	defer client.Stop()
 
+	traceEmitter := trace.NewEmitter(*traceURL)
+	if traceEmitter != nil {
+		defer func() { _ = traceEmitter.Shutdown(context.Background()) }()
+	}
+
 	var logger log.Logger = client
+	if traceEmitter != nil {
+		logger = log.NewTraceAwareLogger(logger, traceEmitter, true) // append for Loki line filter
+	}
 
 	// Configure the output based on flags, dry trumps all
 	if *dry {
@@ -93,12 +103,13 @@ func main() {
 						if !*useOtel {
 							return
 						}
+						var otelLogger log.Logger = log.NewOtelLogger(string(serviceName), labels)
+						if traceEmitter != nil {
+							otelLogger = log.NewTraceAwareLogger(otelLogger, traceEmitter, false) // no append: trace_id in attributes, avoids breaking ParseJSON
+						}
 						generator(
 							ctx,
-							log.NewAppLogger(
-								labels,
-								log.NewOtelLogger(string(serviceName), labels),
-							),
+							log.NewAppLogger(labels, otelLogger),
 							metadata,
 						)
 					} else {

@@ -35,6 +35,6 @@ services:
   generator:
     build:
       context: ./generator
-    command: -url http://loki:3100/loki/api/v1/push -tenant-id=1
+    command: -url http://loki:3100/loki/api/v1/push -tenant-id=1 -trace-url tempo:4317
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp
