@@ -28,7 +28,7 @@ const Config = () => {
     <main className={styles.main}>
       <div className={styles.introText}>
         <Badge color={'blue'} text={'Beta'} />
-        <span>Configure default fields to display instead of the full log line:</span>
+        <span>Configure default fields to display instead of the full log line.</span>
       </div>
 
       <ErrorBoundaryAlert>
