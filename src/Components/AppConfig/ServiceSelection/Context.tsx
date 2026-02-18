@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
+import { shallowCompare } from '@grafana/data';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { useGetLogsDrilldownDefaultLabelsQuery } from 'lib/api-clients/logsdrilldown/v1beta1';
@@ -7,15 +8,21 @@ import { useGetLogsDrilldownDefaultLabelsQuery } from 'lib/api-clients/logsdrill
 type ServiceSelectionContextType = {
   currentDefaultLabels: string[];
   dsUID: string;
+  hasUnsavedChanges: boolean;
   newDefaultLabels: string[];
+  reset: () => void;
+  save: () => void;
   setDsUID: (dsUID: string) => void;
   setNewDefaultLabels: (labels: string[]) => void;
 };
 
 const Context = createContext<ServiceSelectionContextType>({
   currentDefaultLabels: [],
-  newDefaultLabels: [],
   dsUID: '',
+  hasUnsavedChanges: false,
+  newDefaultLabels: [],
+  reset: () => {},
+  save: () => {},
   setNewDefaultLabels: () => {},
   setDsUID: () => {},
 });
@@ -52,12 +59,21 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
     return record?.labels ?? [];
   }, [data, dsUID, isSuccess]);
 
+  const reset = useCallback(() => {
+    setNewDefaultLabels([]);
+  }, []);
+
+  const save = useCallback(() => {}, []);
+
   return (
     <Context.Provider
       value={{
         currentDefaultLabels,
-        newDefaultLabels,
         dsUID,
+        hasUnsavedChanges: !shallowCompare(currentDefaultLabels, newDefaultLabels),
+        newDefaultLabels,
+        reset,
+        save,
         setNewDefaultLabels,
         setDsUID: handleSetDsUID,
       }}
