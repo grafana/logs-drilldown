@@ -330,6 +330,7 @@ osext
 otelslog
 otlplog
 otlploggrpc
+sdktrace
 semconv
 otelgrpc
 otelhttp
