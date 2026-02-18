@@ -1,9 +1,15 @@
-import React, { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { shallowCompare } from '@grafana/data';
 import { LoadingPlaceholder } from '@grafana/ui';
 
-import { useGetLogsDrilldownDefaultLabelsQuery } from 'lib/api-clients/logsdrilldown/v1beta1';
+import {
+  useCreateLogsDrilldownDefaultLabelsMutation,
+  useGetLogsDrilldownDefaultLabelsQuery,
+  useReplaceLogsDrilldownDefaultLabelsMutation,
+} from 'lib/api-clients/logsdrilldown/v1beta1';
+import { logger } from 'services/logger';
+import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
 type ServiceSelectionContextType = {
   currentDefaultLabels: string[];
@@ -38,12 +44,33 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
 
   const {
     currentData: data,
-    //error,
+    error: fetchError,
     isLoading,
     isSuccess,
   } = useGetLogsDrilldownDefaultLabelsQuery({
     name: dsUID,
   });
+
+  const [create, { error: createError }] = useCreateLogsDrilldownDefaultLabelsMutation();
+  const [update, { error: updateError }] = useReplaceLogsDrilldownDefaultLabelsMutation();
+
+  useEffect(() => {
+    const error = createError ?? updateError;
+    if (error) {
+      const error = narrowRTKQError(createError);
+      logger.error(
+        new Error(`DefaultLabelsSubmit::${createError ? 'createNewRecord' : 'updateRecord'}`),
+        error
+          ? getRTKQErrorContext(error)
+          : { msg: `DefaultColumnsSubmit:${createError ? 'createNewRecord' : 'updateRecord'} error` }
+      );
+    }
+  }, [createError, updateError]);
+
+  const createNewRecord = useMemo(() => {
+    const processedError = narrowRTKQError(fetchError);
+    return processedError?.status === 404;
+  }, [fetchError]);
 
   const handleSetDsUID = useCallback((dsUID: string) => {
     setDsUID(dsUID);
@@ -54,16 +81,57 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
       return [];
     }
 
-    const record = data?.spec?.records?.find((record) => record.dsUid === dsUID);
-
-    return record?.labels ?? [];
-  }, [data, dsUID, isSuccess]);
+    return data?.spec?.records[0]?.labels ?? [];
+  }, [data, isSuccess]);
 
   const reset = useCallback(() => {
     setNewDefaultLabels([]);
   }, []);
 
-  const save = useCallback(() => {}, []);
+  const save = useCallback(() => {
+    if (createNewRecord) {
+      create({
+        pretty: 'true',
+        logsDrilldownDefaultLabels: {
+          apiVersion: 'logsdrilldown.grafana.app/v1beta1',
+          kind: 'LogsDrilldownDefaultLabels',
+          metadata: {
+            name: dsUID,
+          },
+          spec: {
+            records: [
+              {
+                labels: newDefaultLabels,
+              },
+            ],
+          },
+        },
+      });
+    } else {
+      if (!data) {
+        throw new Error('[Default Labels] Failed to fetch');
+      }
+      update({
+        pretty: 'true',
+        name: dsUID,
+        logsDrilldownDefaultLabels: {
+          apiVersion: 'logsdrilldown.grafana.app/v1beta1',
+          kind: 'LogsDrilldownDefaultLabels',
+          metadata: {
+            name: dsUID,
+            resourceVersion: data.metadata.resourceVersion,
+          },
+          spec: {
+            records: [
+              {
+                labels: newDefaultLabels,
+              },
+            ],
+          },
+        },
+      });
+    }
+  }, [create, createNewRecord, data, dsUID, newDefaultLabels, update]);
 
   return (
     <Context.Provider

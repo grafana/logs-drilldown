@@ -41,7 +41,7 @@ export function DefaultLabels() {
       borderColor="weak"
       borderStyle="solid"
       borderRadius="default"
-      marginBottom={2}
+      marginBottom={4}
       padding={2}
     >
       <Box marginBottom={2}>
