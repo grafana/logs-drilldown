@@ -13,7 +13,6 @@ import { narrowLogsSortOrder } from '../../services/narrowing';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { LogsListScene } from './LogsListScene';
-import { LogsPanelScene } from './LogsPanelScene';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType, setLogOption } from 'services/store';
 
@@ -61,7 +60,9 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   };
 
   getLogsPanelScene = () => {
-    return sceneGraph.getAncestor(this, LogsPanelScene);
+    //@todo unhack
+    return this.parent as any;
+    // return sceneGraph.getAncestor(this, LogsPanelScene);
   };
 }
 
