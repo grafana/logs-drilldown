@@ -8,7 +8,7 @@ import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene'
 export function LabelList() {
   const { currentDefaultLabels, newDefaultLabels } = useServiceSelectionContext();
 
-  const labels = newDefaultLabels.length ? newDefaultLabels : currentDefaultLabels;
+  const labels = newDefaultLabels ? newDefaultLabels : currentDefaultLabels;
 
   return (
     <Box
