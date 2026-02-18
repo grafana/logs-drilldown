@@ -81,7 +81,7 @@ export function DefaultLabels() {
 
       {noLabels ? (
         <Alert title="" severity="info">
-          No labels selected. Logs Drilldown will default to {SERVICE_NAME}
+          No labels selected. Logs Drilldown will default to <strong>{SERVICE_NAME}</strong>.
         </Alert>
       ) : (
         <LabelList />
