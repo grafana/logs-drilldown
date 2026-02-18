@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { config, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
@@ -32,6 +32,7 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
@@ -472,8 +473,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
             ]
           : [
               new SceneFlexItem({
-                body: new LogsTableScene({ error, canClearFilters }),
-                height: panelHeight,
+                body: 'logsTablePanel' in config.featureToggles && config.featureToggles.logsTablePanel
+                  ? new LogsTablePanelScene({ error, canClearFilters })
+                  : new LogsTableScene({ error, canClearFilters }),
+                height: 'calc(100vh - 220px)',
               }),
             ];
 
