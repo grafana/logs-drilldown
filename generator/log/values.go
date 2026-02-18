@@ -1,14 +1,20 @@
 package log
 
 import (
-	"github.com/brianvoe/gofakeit/v7"
-	"github.com/grafana/loki/pkg/push"
-	"github.com/prometheus/common/model"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/brianvoe/gofakeit/v7"
+	"github.com/grafana/loki/pkg/push"
+	"github.com/prometheus/common/model"
 )
+
+// LogSleep sleeps 5–15s between logs to keep CPU usage low.
+func LogSleep() {
+	time.Sleep(time.Duration(5000+rand.Intn(10000)) * time.Millisecond)
+}
 
 var Clusters = []string{
 	"us-west-1",
@@ -102,11 +108,9 @@ func RandURI() string {
 }
 
 func ForAllClusters(namespace, svc model.LabelValue, cb func(model.LabelSet, push.LabelsAdapter)) {
-	podCount := rand.Intn(10) + 1
-	if string(svc) == lessRandomPodLabelName {
-		podCount = 8
-	}
-	for _, cluster := range Clusters {
+	podCount := 1
+	clusters := Clusters[:1] // 1 cluster to keep goroutine count low
+	for _, cluster := range clusters {
 		for i := 0; i < podCount; i++ {
 			clusterInt := 0
 			for _, char := range cluster {
@@ -191,4 +195,26 @@ func RandStructuredMetadata(svc string, index int) push.LabelsAdapter {
 		push.LabelAdapter{Name: "pod", Value: podName},
 		push.LabelAdapter{Name: "user", Value: RandUserID()},
 	}
+}
+
+// MetadataWithTraceID returns a copy of metadata with traceID set. Used when trace ID comes from
+// an emitted span so logs and traces share the same ID for trace-to-logs.
+func MetadataWithTraceID(metadata push.LabelsAdapter, traceID string) push.LabelsAdapter {
+	if traceID == "" {
+		return metadata
+	}
+	out := make(push.LabelsAdapter, 0, len(metadata)+1)
+	hasTraceID := false
+	for _, l := range metadata {
+		if l.Name == "traceID" {
+			out = append(out, push.LabelAdapter{Name: "traceID", Value: traceID})
+			hasTraceID = true
+		} else {
+			out = append(out, l)
+		}
+	}
+	if !hasTraceID {
+		out = append(out, push.LabelAdapter{Name: "traceID", Value: traceID})
+	}
+	return out
 }

@@ -14,6 +14,7 @@ COPY go.mod go.sum ./
 COPY *.go ./
 COPY flog/ flog/
 COPY log/ log/
+COPY trace/ trace/
 
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o /generator

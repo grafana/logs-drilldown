@@ -15,4 +15,9 @@ yarn.lock
 **/*.svg
 **/*.river
 **/*.sh
+config/tempo.yaml
+docker-compose-local-all.yaml
+docker-compose.dev.yaml
+docker-compose.local.yaml
+generator/
 .yarnrc

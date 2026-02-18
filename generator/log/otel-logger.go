@@ -44,22 +44,24 @@ func (o *OtelLogger) HandleWithMetadata(labels model.LabelSet, timestamp time.Ti
 	// Convert labels to slog attributes
 	attrs := make([]slog.Attr, 0, len(labels)+3) // +3 for potential trace context
 
-	// Add all labels as attributes
+	// Add all labels as attributes (skip empty names - Loki rejects them)
 	for k, v := range labels {
-		// Skip indexed labels, they've already been added as resource attributes
 		switch k {
 		case "cluster", "namespace", "env", "service_name":
 			continue
 		}
-
+		if k == "" {
+			continue
+		}
 		attrs = append(attrs, slog.String(string(k), string(v)))
 	}
 
-	//
-	// Add metadata if present
+	// Add metadata if present (skip empty names - Loki rejects them)
 	if metadata != nil {
 		for _, label := range metadata {
-			attrs = append(attrs, slog.String(label.Name, label.Value))
+			if label.Name != "" {
+				attrs = append(attrs, slog.String(label.Name, label.Value))
+			}
 		}
 	}
 

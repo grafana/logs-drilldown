@@ -40,10 +40,13 @@ datasources:
     jsonData:
       tracesToLogsV2:
         datasourceUid: gdev-loki
-        spanStartTimeShift: '5m'
-        spanEndTimeShift: '-5m'
+        # Negative = look earlier; positive = look later. Span at 14:16 -> search 14:11 to 14:21
+        spanStartTimeShift: '-5m'
+        spanEndTimeShift: '5m'
         customQuery: true
-        query: '{filename="/var/log/grafana/grafana.log"} |="$${__span.traceId}"'
+        # Generator streams first - Logs Drilldown uses only the first selector for the link path.
+        # Run generator with -trace-url to emit matching traces. Widened time window for log search.
+        query: '{service_name=~"tempo-ingester|tempo-distributor|mimir-ingester|mimir-distributor|mimir-querier|mimir-ruler|loki-ingester-otel|loki-querier-otel|loki-queryfrontend-otel|loki-distributor-otel|grafanacon-json-otel|grafanacon-otel|shopping-cart-otel|shopping-cart-structured-otel"} |="$${__span.traceId}"'
   - name: gdev-prometheus
     uid: gdev-prometheus
     type: prometheus
