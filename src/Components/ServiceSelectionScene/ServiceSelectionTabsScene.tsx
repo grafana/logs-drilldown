@@ -53,7 +53,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionTabsScene>) => {
     // Scene vars
-    const { $labelsData, popover, showPopover, tabOptions } = model.useState();
+    const { $labelsData, popover, showPopover, tabOptions, defaultTabs } = model.useState();
     const { data } = $labelsData.useState();
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const primaryLabel = getServiceSelectionPrimaryLabel(model);
@@ -83,7 +83,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
               label={truncateText(tabLabel.label, maxLabelLength, true)}
               active={tabLabel.active}
               suffix={
-                tabLabel.value !== SERVICE_NAME
+                defaultTabs?.includes(tabLabel.value) === false
                   ? (props) => {
                       return (
                         <>
