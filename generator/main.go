@@ -72,7 +72,7 @@ func main() {
 	}
 
 	var logger log.Logger = client
-	if traceEmitter != nil {
+	if traceEmitter != nil && !log.IsFullDataMode() {
 		logger = log.NewTraceAwareLogger(logger, traceEmitter, true) // append for Loki line filter
 	}
 
@@ -112,7 +112,7 @@ func main() {
 							return
 						}
 						var otelLogger log.Logger = log.NewOtelLogger(string(serviceName), labels)
-						if traceEmitter != nil {
+						if traceEmitter != nil && !log.IsFullDataMode() {
 							otelLogger = log.NewTraceAwareLogger(otelLogger, traceEmitter, false) // no append: trace_id in attributes, avoids breaking ParseJSON
 						}
 						appLogger = log.NewAppLogger(labels, otelLogger)
@@ -120,7 +120,11 @@ func main() {
 						appLogger = log.NewAppLogger(labels, logger)
 					}
 					if log.UseFullDataForService(serviceName) {
-						appLogger.SetSleep(log.LogSleepFast)
+						if log.IsFullDataMode() {
+							appLogger.SetSleep(log.LogSleepOriginal)
+						} else {
+							appLogger.SetSleep(log.LogSleepFast)
+						}
 					}
 					generator(ctx, appLogger, metadata)
 				},

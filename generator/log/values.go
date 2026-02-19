@@ -22,9 +22,19 @@ func LogSleepFast() {
 	time.Sleep(time.Duration(500+rand.Intn(1500)) * time.Millisecond)
 }
 
+// LogSleepOriginal sleeps 0–5s. Used when GENERATOR_FULL_DATA=1 (E2E) to match pre-refactor behavior.
+func LogSleepOriginal() {
+	time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+}
+
+// IsFullDataMode returns true when GENERATOR_FULL_DATA=1 (CI/E2E uses old/full dataset).
+func IsFullDataMode() bool {
+	return os.Getenv("GENERATOR_FULL_DATA") == "1"
+}
+
 // isFullDataMode returns true when GENERATOR_FULL_DATA=1 (CI uses old/full dataset).
 func isFullDataMode() bool {
-	return os.Getenv("GENERATOR_FULL_DATA") == "1"
+	return IsFullDataMode()
 }
 
 // e2eCriticalServices are services that need full cluster/pod/volume for E2E tests.
