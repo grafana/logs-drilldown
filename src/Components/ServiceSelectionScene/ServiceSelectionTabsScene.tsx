@@ -197,7 +197,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     });
   }
 
-  public populatePrimaryLabelsVariableOptions(labels: LabelOptions[]) {
+  private populatePrimaryLabelsVariableOptions(labels: LabelOptions[]) {
     const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
     const selectedTab = serviceSelectionScene.getSelectedTab();
     const savedTabs = getFavoriteTabsFromStorage(getDataSourceVariable(this).getValue().toString());
