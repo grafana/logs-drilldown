@@ -899,25 +899,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   private updateTabs() {
     if (!this.state.tabs) {
-      const defaultTabOptions = [
-        {
-          label: SERVICE_UI_LABEL,
-          saved: true,
-          value: SERVICE_NAME,
-        },
-      ];
-
-      const tabOptions = this.state.defaultLabels?.length
-        ? this.state.defaultLabels.map((label) => ({
-            label,
-            saved: true,
-            value: label,
-          }))
-        : defaultTabOptions;
-
       this.setState({
         tabs: new ServiceSelectionTabsScene({
-          tabOptions,
+          defaultTabs: this.state.defaultLabels ?? undefined,
         }),
       });
     }
