@@ -1,5 +1,3 @@
-version: '3.0'
-
 services:
   grafana:
     extends:
@@ -38,6 +36,7 @@ services:
     command: -url http://loki:3100/loki/api/v1/push -tenant-id=1 -trace-url tempo:4317
     environment:
       - OTLP_ENDPOINT=http://loki:3100/otlp
+      - GENERATOR_FULL_DATA=1
   alloy:
     image: grafana/alloy:latest@sha256:85e4a706181741dd735d9a69bea81f9e03e16d5349bff46dd9640379f143c007
     environment:

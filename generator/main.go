@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	stdlog "log"
 	"log/syslog"
 	"net"
 	"os"
@@ -32,6 +33,12 @@ func main() {
 	syslogAddr := flag.String("syslog-addr", "127.0.0.1:514", "Syslog remote address (e.g., '127.0.0.1:514')")
 
 	flag.Parse()
+
+	if os.Getenv("GENERATOR_FULL_DATA") == "1" {
+		stdlog.Print("generator: GENERATOR_FULL_DATA=1, using full clusters/pods for all services (CI mode)")
+	} else {
+		stdlog.Print("generator: service-tiered mode (docker-compose-local-all), E2E-critical services get full data")
+	}
 
 	cfg, err := loki.NewDefaultConfig(*url)
 	if err != nil {
@@ -99,6 +106,7 @@ func main() {
 					if serviceName == "nginx" {
 						metadata = push.LabelsAdapter{}
 					}
+					var appLogger *log.AppLogger
 					if strings.Contains(string(serviceName), "-otel") {
 						if !*useOtel {
 							return
@@ -107,14 +115,14 @@ func main() {
 						if traceEmitter != nil {
 							otelLogger = log.NewTraceAwareLogger(otelLogger, traceEmitter, false) // no append: trace_id in attributes, avoids breaking ParseJSON
 						}
-						generator(
-							ctx,
-							log.NewAppLogger(labels, otelLogger),
-							metadata,
-						)
+						appLogger = log.NewAppLogger(labels, otelLogger)
 					} else {
-						generator(ctx, log.NewAppLogger(labels, logger), metadata)
+						appLogger = log.NewAppLogger(labels, logger)
 					}
+					if log.UseFullDataForService(serviceName) {
+						appLogger.SetSleep(log.LogSleepFast)
+					}
+					generator(ctx, appLogger, metadata)
 				},
 			)
 		}
