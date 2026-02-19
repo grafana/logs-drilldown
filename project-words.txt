@@ -408,6 +408,7 @@ sourcegraph
 spaolacci
 spdystream
 stargz
+stdlog
 stdr
 stefanberger
 stoewer
