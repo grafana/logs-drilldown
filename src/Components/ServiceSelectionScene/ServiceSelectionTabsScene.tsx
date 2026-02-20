@@ -265,8 +265,10 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
     // Update labels (tabs) when datasource is changed
     this._subs.add(
-      getDataSourceVariable(this).subscribeToState(() => {
-        this.setTabOptions();
+      getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          this.setTabOptions();
+        }
         this.state.$labelsData.runQueries();
       })
     );
