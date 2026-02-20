@@ -8,7 +8,10 @@ import grafanaConfig from './.config/webpack/webpack.config';
 
 const config = async (env: any): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
+
   return merge(baseConfig, {
+    // Requires Grafana >= 12.3.0
+    externals: ['react/jsx-runtime', 'react/jsx-dev-runtime'],
     resolve: {
       ...baseConfig.resolve,
       alias: {
