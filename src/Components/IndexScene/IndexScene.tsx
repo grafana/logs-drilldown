@@ -87,7 +87,9 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { isDefaultLabelsSupported } from 'Components/AppConfig/ServiceSelection/isSupported';
 import { getFeatureFlag } from 'featureFlags/openFeature';
+import { getDefaultLabelSettings } from 'services/api';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -271,9 +273,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: false });
 
-    if (!this.state.contentScene) {
-      stateUpdate.contentScene = this.getContentScene();
-    }
     this.setTagProviders();
     this.setState(stateUpdate);
 
@@ -347,6 +346,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(this.subscribeToDataSourceChange());
 
     this.getDefaultColumnsFromAppPlatform();
+    this.getDefaultLabelsAndSetContentScene();
 
     return () => {
       clearKeyBindings();
@@ -384,12 +384,38 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
   }
 
+  private async getDefaultLabelsAndSetContentScene() {
+    // No need for fetching default labels when embedded or in service details
+    if (this.state.embedded || this.userInServiceSelection() === false || isDefaultLabelsSupported === false) {
+      this.setState({
+        contentScene: this.getContentScene(),
+      });
+      return;
+    }
+
+    const defaultLabelSettings = await getDefaultLabelSettings();
+    getMetadataService().setDefaultLabels(defaultLabelSettings);
+
+    const dsUID = getDataSourceVariable(this).getValue().toString();
+
+    this.setState({
+      contentScene: new ServiceSelectionScene({
+        initialLabel: defaultLabelSettings ? defaultLabelSettings[dsUID]?.[0] : undefined,
+      }),
+    });
+  }
+
   public currentFiltersMatchReference() {
     const referenceLabelsDefined = this.state.referenceLabels && this.state.referenceLabels.length > 0;
     return (
       !referenceLabelsDefined ||
       areLabelFiltersEqual(this.state.referenceLabels || [], getLabelsVariable(this).state.filters)
     );
+  }
+
+  private userInServiceSelection() {
+    const slug = getDrilldownSlug();
+    return slug === PageSlugs.explore;
   }
 
   public getContentScene() {
@@ -405,7 +431,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       });
     }
 
-    return getContentScene(this.state.routeMatch?.params.breakdownLabel);
+    if (this.userInServiceSelection()) {
+      return new ServiceSelectionScene({});
+    }
+
+    return new ServiceScene({
+      drillDownLabel: this.state.routeMatch?.params.breakdownLabel,
+    });
   }
 
   private provideAssistantQuestions() {
@@ -777,17 +809,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   resetToReferenceQuery() {
     getLabelsVariable(this).setState({ filters: this.state.referenceLabels || [] });
   }
-}
-
-function getContentScene(drillDownLabel?: string) {
-  const slug = getDrilldownSlug();
-  if (slug === PageSlugs.explore) {
-    return new ServiceSelectionScene({});
-  }
-
-  return new ServiceScene({
-    drillDownLabel,
-  });
 }
 
 function getVariableSet(

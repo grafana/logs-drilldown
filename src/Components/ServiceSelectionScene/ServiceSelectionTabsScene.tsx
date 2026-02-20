@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import { css, cx } from '@emotion/css';
 import { rest } from 'lodash';
@@ -15,17 +15,18 @@ import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from '../../se
 import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
 import { ServiceSelectionScene } from './ServiceSelectionScene';
 import { TabPopoverScene } from './TabPopoverScene';
+import { getMetadataService } from 'services/metadata';
 
 export interface TabOption extends SelectableValue<string> {
   active?: boolean;
   label: string;
   saved?: boolean;
-  savedIndex?: number;
   value: string;
 }
 
 export interface ServiceSelectionTabsSceneState extends SceneObjectState {
   $labelsData: SceneQueryRunner;
+  defaultTabs: string[];
   popover?: TabPopoverScene;
   showPopover: boolean;
   tabOptions: TabOption[];
@@ -37,20 +38,15 @@ interface LabelOptions {
 }
 
 export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionTabsSceneState> {
-  constructor(state: Partial<ServiceSelectionTabsSceneState>) {
+  constructor(state: Partial<ServiceSelectionTabsSceneState> = {}) {
     super({
       $labelsData: getSceneQueryRunner({
         queries: [buildResourceQuery('', 'detected_labels')],
         runQueriesMode: 'manual',
       }),
       showPopover: false,
-      tabOptions: [
-        {
-          label: SERVICE_UI_LABEL,
-          saved: true,
-          value: SERVICE_NAME,
-        },
-      ],
+      tabOptions: [],
+      defaultTabs: [],
       ...state,
     });
 
@@ -59,7 +55,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionTabsScene>) => {
     // Scene vars
-    const { $labelsData, popover, showPopover, tabOptions } = model.useState();
+    const { $labelsData, defaultTabs, popover, showPopover, tabOptions } = model.useState();
     const { data } = $labelsData.useState();
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const primaryLabel = getServiceSelectionPrimaryLabel(model);
@@ -71,68 +67,62 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     const popoverRef = useRef<HTMLElement>(null);
     const maxLabelLength = 15;
 
+    const filteredTabs = useMemo(
+      () => tabOptions.filter((tabLabel) => tabLabel.saved || tabLabel.active),
+      [tabOptions]
+    );
+
     return (
       <TabsBar className={styles.tabs}>
-        {tabOptions
-          .filter((tabLabel) => tabLabel.saved || tabLabel.active || tabLabel.value === SERVICE_NAME)
-          .sort((a, b) => {
-            // Service name goes first
-            if (a.value === SERVICE_NAME || b.value === SERVICE_NAME) {
-              return a.value === SERVICE_NAME ? -1 : 1;
-            }
-
-            // Then sort by the order added to local storage
-            return (a.savedIndex ?? 0) - (b.savedIndex ?? 0);
-          })
-          .map((tabLabel) => {
-            const tab = (
-              <Tab
-                key={tabLabel.value}
-                onChangeTab={() => {
-                  // Set the new active tab
-                  serviceSelectionScene.setSelectedTab(tabLabel.value);
-                }}
-                label={truncateText(tabLabel.label, maxLabelLength, true)}
-                active={tabLabel.active}
-                suffix={
-                  tabLabel.value !== SERVICE_NAME
-                    ? (props) => {
-                        return (
-                          <>
-                            <Tooltip content={'Remove tab'}>
-                              <Icon
-                                onKeyDownCapture={(e) => {
-                                  if (e.key === 'Enter') {
-                                    model.removeSavedTab(tabLabel.value);
-                                  }
-                                }}
-                                onClick={(e) => {
-                                  // Don't bubble up to the tab component, we don't want to select the tab we're removing
-                                  e.stopPropagation();
+        {filteredTabs.map((tabLabel) => {
+          const tab = (
+            <Tab
+              key={tabLabel.value}
+              onChangeTab={() => {
+                // Set the new active tab
+                serviceSelectionScene.setSelectedTab(tabLabel.value);
+              }}
+              label={truncateText(tabLabel.label, maxLabelLength, true)}
+              active={tabLabel.active}
+              suffix={
+                defaultTabs.includes(tabLabel.value) === false
+                  ? (props) => {
+                      return (
+                        <>
+                          <Tooltip content={'Remove tab'}>
+                            <Icon
+                              onKeyDownCapture={(e) => {
+                                if (e.key === 'Enter') {
                                   model.removeSavedTab(tabLabel.value);
-                                }}
-                                name={'times'}
-                                className={cx(props.className)}
-                              />
-                            </Tooltip>
-                          </>
-                        );
-                      }
-                    : undefined
-                }
-              />
-            );
+                                }
+                              }}
+                              onClick={(e) => {
+                                // Don't bubble up to the tab component, we don't want to select the tab we're removing
+                                e.stopPropagation();
+                                model.removeSavedTab(tabLabel.value);
+                              }}
+                              name={'times'}
+                              className={cx(props.className)}
+                            />
+                          </Tooltip>
+                        </>
+                      );
+                    }
+                  : undefined
+              }
+            />
+          );
 
-            if (tabLabel.label.length > maxLabelLength) {
-              return (
-                <Tooltip key={tabLabel.value} content={tabLabel.label}>
-                  {tab}
-                </Tooltip>
-              );
-            } else {
-              return tab;
-            }
-          })}
+          if (tabLabel.label.length > maxLabelLength) {
+            return (
+              <Tooltip key={tabLabel.value} content={tabLabel.label}>
+                {tab}
+              </Tooltip>
+            );
+          } else {
+            return tab;
+          }
+        })}
         {data?.state === LoadingState.Loading && <Tab label={'Loading tabs'} icon={'spinner'} />}
 
         {/* Add more tabs tab */}
@@ -204,34 +194,38 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     });
   }
 
-  public populatePrimaryLabelsVariableOptions(labels: LabelOptions[]) {
+  private populatePrimaryLabelsVariableOptions(labels: LabelOptions[]) {
     const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
     const selectedTab = serviceSelectionScene.getSelectedTab();
     const savedTabs = getFavoriteTabsFromStorage(getDataSourceVariable(this).getValue().toString());
+    const defaultTabs = this.state.defaultTabs;
+    const savedAndDefaultTabs = Array.from(new Set([...defaultTabs, ...savedTabs]));
 
-    const tabOptions: TabOption[] = labels
+    const defaultTabOptions = savedAndDefaultTabs.map((label) => {
+      if (label === SERVICE_NAME) {
+        return getDefaultServiceTab(selectedTab === label);
+      }
+      return {
+        active: selectedTab === label,
+        label,
+        saved: true,
+        value: label,
+      };
+    });
+    const otherTabOptions: TabOption[] = labels
+      .filter((l) => savedAndDefaultTabs.includes(l.label) === false)
       .map((l) => {
-        const savedIndex = savedTabs.indexOf(l.label);
         const option: TabOption = {
           active: selectedTab === l.label,
-          label: l.label === SERVICE_NAME ? SERVICE_UI_LABEL : l.label,
-          saved: savedIndex !== -1,
-          savedIndex,
+          label: l.label,
           value: l.label,
         };
         return option;
       })
-      .sort((a, b) => {
-        // Sort service first
-        if (a.value === SERVICE_NAME || b.value === SERVICE_NAME) {
-          return a.value === SERVICE_NAME ? -1 : 1;
-        }
+      .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
 
-        // Then sort alphabetically
-        return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
-      });
     this.setState({
-      tabOptions,
+      tabOptions: [...defaultTabOptions, ...otherTabOptions],
     });
   }
 
@@ -259,6 +253,10 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     // Get labels
     this.runDetectedLabels();
 
+    const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
+    const selectedTab = serviceSelectionScene.getSelectedTab();
+    this.setTabOptions(selectedTab);
+
     this.setState({
       popover: new TabPopoverScene({}),
     });
@@ -267,7 +265,10 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
     // Update labels (tabs) when datasource is changed
     this._subs.add(
-      getDataSourceVariable(this).subscribeToState(() => {
+      getDataSourceVariable(this).subscribeToState((newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          this.setTabOptions();
+        }
         this.state.$labelsData.runQueries();
       })
     );
@@ -300,6 +301,44 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
       })
     );
   }
+
+  private setTabOptions(selectedTab?: string) {
+    const dsUID = getDataSourceVariable(this).getValue().toString();
+    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID) ?? [SERVICE_NAME];
+
+    // Without a selected tab, it means a data source change, so we remove the previously selected tab
+    if (!selectedTab) {
+      selectedTab = defaultTabs[0];
+      const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
+      serviceSelectionScene.setSelectedTab(selectedTab, 'auto');
+    }
+
+    const tabOptions = defaultTabs.map((label) => {
+      if (label === SERVICE_NAME) {
+        return getDefaultServiceTab(selectedTab === label);
+      }
+      return {
+        active: selectedTab === label,
+        label,
+        saved: true,
+        value: label,
+      };
+    });
+
+    this.setState({
+      defaultTabs,
+      tabOptions,
+    });
+  }
+}
+
+function getDefaultServiceTab(active?: boolean) {
+  return {
+    active,
+    label: SERVICE_UI_LABEL,
+    saved: true,
+    value: SERVICE_NAME,
+  };
 }
 
 const getTabsStyles = (theme: GrafanaTheme2) => ({

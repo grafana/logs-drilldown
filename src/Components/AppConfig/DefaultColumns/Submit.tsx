@@ -105,7 +105,7 @@ export function Submit() {
 
 const getStyles = (theme: GrafanaTheme2, isInvalid: boolean) => ({
   button: css({
-    borderColor: isInvalid ? theme.colors.error.border : theme.colors.border.strong,
+    borderColor: isInvalid ? theme.colors.error.border : undefined,
   }),
 });
 

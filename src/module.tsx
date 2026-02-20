@@ -43,6 +43,11 @@ const DefaultColumnsConfig = lazy(async () => {
   return await import('./Components/AppConfig/DefaultColumns/Config');
 });
 
+const ServiceSelectionConfig = lazy(async () => {
+  await initPluginTranslations(pluginJson.id);
+  return await import('./Components/AppConfig/ServiceSelection/Config');
+});
+
 export const plugin = new AppPlugin<{}>()
   .setRootPage(App)
   .addConfigPage({
@@ -56,6 +61,12 @@ export const plugin = new AppPlugin<{}>()
     icon: 'columns',
     id: 'admin-default-fields',
     title: 'Default fields',
+  })
+  .addConfigPage({
+    body: ServiceSelectionConfig,
+    icon: 'home-alt',
+    id: 'admin-service-selection',
+    title: 'Service selection',
   });
 
 for (const linkConfig of linkConfigs) {

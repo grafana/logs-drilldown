@@ -91,7 +91,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                   <IconButton
                     variant={'destructive'}
                     tooltip={`Remove ${getNormalizedFieldName(column)}`}
-                    name={'minus'}
+                    name="trash-alt"
                     size={'lg'}
                     className={styles.column__removeIcon}
                     onClick={() => onRemoveColumn(colIdx)}
