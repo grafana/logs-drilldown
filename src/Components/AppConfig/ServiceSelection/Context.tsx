@@ -70,6 +70,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
 
   const handleSetDsUID = useCallback((dsUID: string) => {
     setDsUID(dsUID);
+    setNewDefaultLabels(null);
   }, []);
 
   const currentDefaultLabels = useMemo(() => {
