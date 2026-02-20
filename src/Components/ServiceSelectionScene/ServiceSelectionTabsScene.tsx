@@ -15,6 +15,7 @@ import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from '../../se
 import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
 import { ServiceSelectionScene } from './ServiceSelectionScene';
 import { TabPopoverScene } from './TabPopoverScene';
+import { getMetadataService } from 'services/metadata';
 
 export interface TabOption extends SelectableValue<string> {
   active?: boolean;
@@ -37,7 +38,7 @@ interface LabelOptions {
 }
 
 export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionTabsSceneState> {
-  constructor(state: Partial<ServiceSelectionTabsSceneState>) {
+  constructor(state: Partial<ServiceSelectionTabsSceneState> = {}) {
     super({
       $labelsData: getSceneQueryRunner({
         queries: [buildResourceQuery('', 'detected_labels')],
@@ -53,7 +54,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
   public static Component = ({ model }: SceneComponentProps<ServiceSelectionTabsScene>) => {
     // Scene vars
-    const { $labelsData, popover, showPopover, tabOptions, defaultTabs } = model.useState();
+    const { $labelsData, defaultTabs, popover, showPopover, tabOptions } = model.useState();
     const { data } = $labelsData.useState();
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const primaryLabel = getServiceSelectionPrimaryLabel(model);
@@ -201,7 +202,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
     const defaultTabOptions = savedAndDefaultTabs.map((label) => {
       if (label === SERVICE_NAME) {
-        return getDefaultServiceTab();
+        return getDefaultServiceTab(selectedTab === label);
       }
       return {
         active: selectedTab === label,
@@ -255,8 +256,11 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
     const selectedTab = serviceSelectionScene.getSelectedTab();
 
-    const tabOptions = this.state.defaultTabs
-      ? this.state.defaultTabs.map((label) => ({
+    const dsUID = getDataSourceVariable(this).getValue().toString();
+    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID);
+
+    const tabOptions = defaultTabs
+      ? defaultTabs.map((label) => ({
           active: selectedTab === label,
           label,
           saved: true,
@@ -265,6 +269,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
       : [getDefaultServiceTab()];
 
     this.setState({
+      defaultTabs,
       popover: new TabPopoverScene({}),
       tabOptions,
     });
@@ -274,6 +279,9 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     // Update labels (tabs) when datasource is changed
     this._subs.add(
       getDataSourceVariable(this).subscribeToState(() => {
+        this.setState({
+          defaultTabs: getMetadataService().getDefaultLabelsForDS(dsUID),
+        });
         this.state.$labelsData.runQueries();
       })
     );
@@ -308,10 +316,11 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
   }
 }
 
-function getDefaultServiceTab() {
+function getDefaultServiceTab(selected?: boolean) {
   return {
     label: SERVICE_UI_LABEL,
     saved: true,
+    selected,
     value: SERVICE_NAME,
   };
 }
