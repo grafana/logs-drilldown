@@ -18,7 +18,6 @@ export interface IndexSceneState extends SceneObjectState {
   controls?: SceneObject[];
   currentFiltersMatchReference?: boolean;
   defaultColumnsRecords?: LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords;
-  defaultLabels?: string[];
   defaultLineFilters?: LineFilterType[];
   ds?: LokiDatasource;
   embedded?: boolean;
