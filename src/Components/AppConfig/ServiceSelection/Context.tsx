@@ -57,7 +57,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
     const error = createError ?? updateError;
     if (error) {
       logger.error(
-        new Error(`DefaultLabelsSubmit::${createError ? 'createNewRecord' : 'updateRecord'}`),
+        new Error(`DefaultLabels::${createError ? 'createNewRecord' : 'updateRecord'}`),
         getRTKQErrorContext(error)
       );
     }
