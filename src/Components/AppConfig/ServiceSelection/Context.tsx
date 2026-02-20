@@ -56,12 +56,9 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
   useEffect(() => {
     const error = createError ?? updateError;
     if (error) {
-      const error = narrowRTKQError(createError);
       logger.error(
         new Error(`DefaultLabelsSubmit::${createError ? 'createNewRecord' : 'updateRecord'}`),
-        error
-          ? getRTKQErrorContext(error)
-          : { msg: `DefaultColumnsSubmit:${createError ? 'createNewRecord' : 'updateRecord'} error` }
+        getRTKQErrorContext(error)
       );
     }
   }, [createError, updateError]);
