@@ -811,6 +811,7 @@ function getVariableSet(
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
     filters: initialLabelFilters ?? [],
+    inputPlaceholder: 'Filter by labels',
   });
 
   labelVariable._getOperators = function () {
@@ -863,6 +864,7 @@ function getVariableSet(
     name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
     skipUrlSync: true,
+    inputPlaceholder: 'Filter by fields',
   });
 
   const levelsVariable = new AdHocFiltersVariable({
