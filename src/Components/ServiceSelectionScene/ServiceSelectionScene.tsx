@@ -436,7 +436,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
-    addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
+    if (type === 'manual') {
+      addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
+    }
 
     // clear active search
     clearServiceSelectionSearchVariable(this);

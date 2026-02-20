@@ -26,7 +26,7 @@ export interface TabOption extends SelectableValue<string> {
 
 export interface ServiceSelectionTabsSceneState extends SceneObjectState {
   $labelsData: SceneQueryRunner;
-  defaultTabs?: string[];
+  defaultTabs: string[];
   popover?: TabPopoverScene;
   showPopover: boolean;
   tabOptions: TabOption[];
@@ -46,6 +46,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
       }),
       showPopover: false,
       tabOptions: [],
+      defaultTabs: [],
       ...state,
     });
 
@@ -84,7 +85,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
               label={truncateText(tabLabel.label, maxLabelLength, true)}
               active={tabLabel.active}
               suffix={
-                defaultTabs?.includes(tabLabel.value) === false
+                defaultTabs.includes(tabLabel.value) === false
                   ? (props) => {
                       return (
                         <>
@@ -197,7 +198,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
     const selectedTab = serviceSelectionScene.getSelectedTab();
     const savedTabs = getFavoriteTabsFromStorage(getDataSourceVariable(this).getValue().toString());
-    const defaultTabs = this.state.defaultTabs ?? [SERVICE_NAME];
+    const defaultTabs = this.state.defaultTabs;
     const savedAndDefaultTabs = Array.from(new Set([...defaultTabs, ...savedTabs]));
 
     const defaultTabOptions = savedAndDefaultTabs.map((label) => {
@@ -252,26 +253,12 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     // Get labels
     this.runDetectedLabels();
 
-    // Set tab options
     const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
     const selectedTab = serviceSelectionScene.getSelectedTab();
-
-    const dsUID = getDataSourceVariable(this).getValue().toString();
-    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID);
-
-    const tabOptions = defaultTabs
-      ? defaultTabs.map((label) => ({
-          active: selectedTab === label,
-          label,
-          saved: true,
-          value: label,
-        }))
-      : [getDefaultServiceTab()];
+    this.setTabOptions(selectedTab);
 
     this.setState({
-      defaultTabs,
       popover: new TabPopoverScene({}),
-      tabOptions,
     });
 
     this.runDetectedLabelsSubs();
@@ -279,9 +266,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     // Update labels (tabs) when datasource is changed
     this._subs.add(
       getDataSourceVariable(this).subscribeToState(() => {
-        this.setState({
-          defaultTabs: getMetadataService().getDefaultLabelsForDS(dsUID),
-        });
+        this.setTabOptions();
         this.state.$labelsData.runQueries();
       })
     );
@@ -314,13 +299,42 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
       })
     );
   }
+
+  private setTabOptions(selectedTab?: string) {
+    const dsUID = getDataSourceVariable(this).getValue().toString();
+    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID) ?? [SERVICE_NAME];
+
+    // Without a selected tab, it means a data source change, so we remove the previously selected tab
+    if (!selectedTab) {
+      selectedTab = defaultTabs[0];
+      const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
+      serviceSelectionScene.setSelectedTab(selectedTab, 'auto');
+    }
+
+    const tabOptions = defaultTabs.map((label) => {
+      if (label === SERVICE_NAME) {
+        return getDefaultServiceTab(selectedTab === label);
+      }
+      return {
+        active: selectedTab === label,
+        label,
+        saved: true,
+        value: label,
+      };
+    });
+
+    this.setState({
+      defaultTabs,
+      tabOptions,
+    });
+  }
 }
 
-function getDefaultServiceTab(selected?: boolean) {
+function getDefaultServiceTab(active?: boolean) {
   return {
+    active,
     label: SERVICE_UI_LABEL,
     saved: true,
-    selected,
     value: SERVICE_NAME,
   };
 }
