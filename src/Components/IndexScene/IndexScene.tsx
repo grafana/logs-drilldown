@@ -454,7 +454,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       if (newState.value !== prevState.value) {
         this.state.$lokiConfig.runQueries();
         this.getDefaultColumnsFromAppPlatform();
-        this.getDefaultLabelsAndSetContentScene();
       }
     });
   }
