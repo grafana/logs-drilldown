@@ -130,9 +130,8 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
           },
         },
       });
-
-      reset();
     }
+    reset();
   }, [create, createNewRecord, data, dsUID, newDefaultLabels, reset, update]);
 
   return (
