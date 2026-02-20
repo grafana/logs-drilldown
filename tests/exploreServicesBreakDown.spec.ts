@@ -1321,39 +1321,33 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
-    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
-    let numberOfQueries = 0;
-    // Let's not wait for all these queries
-    await page.route('**/ds/query*', async (route) => {
+    await explorePage.unroute();
+    let bytesIncludeQueries = 0;
+    // Count bytes!="" queries first, then fall through to blockAllQueriesExcept
+    await page.route('**/ds/query**', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
+      const refId = queries[0]?.refId;
+      const expr = queries[0]?.expr ?? '';
 
-      if (queries[0].refId === 'logsPanelQuery') {
-        await route.continue();
-      } else {
-        await route.fulfill({ json: [] });
+      if (refId === 'bytes' && expr.includes('bytes!=""')) {
+        bytesIncludeQueries++;
       }
+      await route.fallback();
     });
-    // Click on the fields tab
+    // Allow bytes panel through so it gets data and renders the filter
+    explorePage.blockAllQueriesExcept({
+      legendFormats: [`{{${levelName}}}`],
+      refIds: ['logsPanelQuery', fieldName, 'bytes'],
+    });
+
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
     await explorePage.goToFieldsTab();
-    // Selector
     const bytesIncludeButton = page
       .getByTestId('data-testid Panel header bytes')
       .getByTestId(testIds.breakdowns.common.filterButtonGroup);
 
-    // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
-
-    // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
-    await page.route('**/ds/query*', async (route) => {
-      const post = route.request().postDataJSON();
-      const queries = post.queries as LokiQuery[];
-
-      await expect.poll(() => queries[0].expr).toContain('bytes!=""');
-      numberOfQueries++;
-
-      await route.fulfill({ json: [] });
-    });
 
     // assert the filter select is in the document
     await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
@@ -1365,11 +1359,11 @@ test.describe('explore services breakdown page', () => {
     // Assert the panel is still there
     expect(page.getByTestId('data-testid Panel header bytes')).toBeDefined();
 
-    // Assert that the button state is now "include"
+    // Assert the button state is now "include"
     await expect(bytesIncludeButton).toHaveText('Include');
 
-    // Assert that we actually ran some queries
-    await expect.poll(() => numberOfQueries).toBeGreaterThan(0);
+    // Verify the bytes Include filter triggered a query with bytes!=""
+    await expect.poll(() => bytesIncludeQueries).toBeGreaterThan(0);
   });
 
   test('should exclude all logs that contain bytes field', async ({ page }) => {
