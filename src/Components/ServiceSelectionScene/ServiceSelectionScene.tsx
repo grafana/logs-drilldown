@@ -71,6 +71,7 @@ import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
+import { getMetadataService } from 'services/metadata';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
 import {
   buildDataQuery,
@@ -109,7 +110,7 @@ interface ServiceSelectionSceneState extends SceneObjectState {
   // Pagination options
   countPerPage: number;
   currentPage: number;
-  defaultLabels?: string[];
+  initialLabel?: string;
   loadSearch?: LoadSearchScene;
   paginationScene?: ServiceSelectionPaginationScene;
 
@@ -177,7 +178,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             },
             filters: [
               {
-                key: getSelectedTabFromUrl().key ?? state.defaultLabels?.[0] ?? SERVICE_NAME,
+                key: getSelectedTabFromUrl().key ?? state.initialLabel ?? SERVICE_NAME,
                 operator: '=~',
                 value: '.+',
               },
@@ -428,7 +429,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   selectDefaultLabelTab() {
     // Need to update the history before the state with replace instead of push, or we'll get invalid services saved to url state after changing datasource
-    const defaultLabel = this.state.defaultLabels?.length ? this.state.defaultLabels[0] : SERVICE_NAME;
+    const dsUID = getDataSourceVariable(this).getValue().toString();
+    const defaultLabel = getMetadataService().getDefaultLabelForDS(dsUID) ?? SERVICE_NAME;
     this.addLabelChangeToBrowserHistory(defaultLabel, true);
     this.setSelectedTab(defaultLabel);
   }
@@ -900,9 +902,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   private updateTabs() {
     if (!this.state.tabs) {
       this.setState({
-        tabs: new ServiceSelectionTabsScene({
-          defaultTabs: this.state.defaultLabels ?? undefined,
-        }),
+        tabs: new ServiceSelectionTabsScene(),
       });
     }
   }

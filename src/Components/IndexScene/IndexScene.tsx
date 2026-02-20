@@ -29,8 +29,6 @@ import { LoadingPlaceholder } from '@grafana/ui';
 import {
   LogsDrilldownDefaultColumns,
   LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
-  LogsDrilldownDefaultLabels,
-  LogsDrilldownDefaultLabelsLogsLogsDefaultLabelsRecords,
 } from '../../lib/api-clients/logsdrilldown/v1beta1';
 import { getAPIBaseURL } from '../../lib/api-clients/utils/utils';
 import { plugin } from '../../module';
@@ -91,6 +89,7 @@ import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
 import { isDefaultLabelsSupported } from 'Components/AppConfig/ServiceSelection/isSupported';
 import { getFeatureFlag } from 'featureFlags/openFeature';
+import { getDefaultLabelSettings } from 'services/api';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
@@ -121,7 +120,6 @@ import {
   MIXED_FORMAT_EXPR,
   PENDING_FIELDS_EXPR,
   PENDING_METADATA_EXPR,
-  SERVICE_NAME,
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
@@ -395,35 +393,15 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       return;
     }
 
-    const dataSourceVariable = getDataSourceVariable(this);
-    const dsUID = dataSourceVariable.state.value.toString();
-    const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1beta1');
+    const defaultLabelSettings = await getDefaultLabelSettings();
+    getMetadataService().setDefaultLabels(defaultLabelSettings);
 
-    try {
-      const request: Request = new Request(`${baseUrl}/logsdrilldowndefaultlabels/${dsUID}`);
-      const fetchResult = await fetch(request);
+    const dsUID = getDataSourceVariable(this).getValue().toString();
 
-      if (fetchResult.ok) {
-        // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
-        const response = (await fetchResult.json()) as LogsDrilldownDefaultLabels;
-        const records: LogsDrilldownDefaultLabelsLogsLogsDefaultLabelsRecords = response.spec.records;
-
-        const defaultLabels =
-          Array.isArray(records[0]?.labels) && records[0].labels.length > 0 ? records[0].labels : [SERVICE_NAME];
-
-        this.setState({
-          contentScene: new ServiceSelectionScene({
-            defaultLabels,
-          }),
-        });
-
-        return;
-      }
-    } catch (e) {
-      logger.error(e);
-    }
     this.setState({
-      contentScene: this.getContentScene(),
+      contentScene: new ServiceSelectionScene({
+        initialLabel: defaultLabelSettings ? defaultLabelSettings[dsUID]?.[0] : undefined,
+      }),
     });
   }
 
