@@ -330,6 +330,7 @@ osext
 otelslog
 otlplog
 otlploggrpc
+sdktrace
 semconv
 otelgrpc
 otelhttp
@@ -407,6 +408,7 @@ sourcegraph
 spaolacci
 spdystream
 stargz
+stdlog
 stdr
 stefanberger
 stoewer

@@ -1,14 +1,57 @@
 package log
 
 import (
-	"github.com/brianvoe/gofakeit/v7"
-	"github.com/grafana/loki/pkg/push"
-	"github.com/prometheus/common/model"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/brianvoe/gofakeit/v7"
+	"github.com/grafana/loki/pkg/push"
+	"github.com/prometheus/common/model"
 )
+
+// LogSleep sleeps 5–15s between logs to keep CPU usage low.
+func LogSleep() {
+	time.Sleep(time.Duration(5000+rand.Intn(10000)) * time.Millisecond)
+}
+
+// LogSleepFast sleeps 0.5–2s for full-data mode (CI/E2E-critical services).
+func LogSleepFast() {
+	time.Sleep(time.Duration(500+rand.Intn(1500)) * time.Millisecond)
+}
+
+// LogSleepOriginal sleeps 0–5s. Used when GENERATOR_FULL_DATA=1 (E2E) to match pre-refactor behavior.
+func LogSleepOriginal() {
+	time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+}
+
+// IsFullDataMode returns true when GENERATOR_FULL_DATA=1 (CI/E2E uses old/full dataset).
+func IsFullDataMode() bool {
+	return os.Getenv("GENERATOR_FULL_DATA") == "1"
+}
+
+// isFullDataMode returns true when GENERATOR_FULL_DATA=1 (CI uses old/full dataset).
+func isFullDataMode() bool {
+	return IsFullDataMode()
+}
+
+// e2eCriticalServices are services that need full cluster/pod/volume for E2E tests.
+// Used when GENERATOR_FULL_DATA is unset (docker-compose-local-all).
+var e2eCriticalServices = map[string]bool{
+	"tempo-distributor": true, "tempo-ingester": true,
+	"nginx-json-mixed": true, "nginx-json": true, "nginx": true,
+	"mimir-ingester": true, "mimir-distributor": true, "mimir-querier": true, "mimir-ruler": true,
+}
+
+// UseFullDataForService returns true if this service should use full clusters, pods, and fast sleep.
+func UseFullDataForService(svc model.LabelValue) bool {
+	if isFullDataMode() {
+		return true
+	}
+	return e2eCriticalServices[string(svc)]
+}
 
 var Clusters = []string{
 	"us-west-1",
@@ -102,11 +145,16 @@ func RandURI() string {
 }
 
 func ForAllClusters(namespace, svc model.LabelValue, cb func(model.LabelSet, push.LabelsAdapter)) {
-	podCount := rand.Intn(10) + 1
-	if string(svc) == lessRandomPodLabelName {
-		podCount = 8
+	podCount := 1
+	clusters := Clusters[:1]
+	if UseFullDataForService(svc) {
+		clusters = Clusters
+		podCount = rand.Intn(10) + 1
+		if string(svc) == lessRandomPodLabelName {
+			podCount = 8
+		}
 	}
-	for _, cluster := range Clusters {
+	for _, cluster := range clusters {
 		for i := 0; i < podCount; i++ {
 			clusterInt := 0
 			for _, char := range cluster {
@@ -119,6 +167,7 @@ func ForAllClusters(namespace, svc model.LabelValue, cb func(model.LabelSet, pus
 				"__stream_shard__": model.LabelValue(shards[clusterInt%len(shards)]),
 				"namespace":        namespace,
 				"service_name":     svc,
+				"service":          svc, // Match Prometheus span metrics for Metrics Drilldown "Related logs"
 				"file":             "C:\\Grafana\\logs\\" + namespace + ".txt",
 			}, RandStructuredMetadata(string(svc), i))
 		}
@@ -191,4 +240,26 @@ func RandStructuredMetadata(svc string, index int) push.LabelsAdapter {
 		push.LabelAdapter{Name: "pod", Value: podName},
 		push.LabelAdapter{Name: "user", Value: RandUserID()},
 	}
+}
+
+// MetadataWithTraceID returns a copy of metadata with traceID set. Used when trace ID comes from
+// an emitted span so logs and traces share the same ID for trace-to-logs.
+func MetadataWithTraceID(metadata push.LabelsAdapter, traceID string) push.LabelsAdapter {
+	if traceID == "" {
+		return metadata
+	}
+	out := make(push.LabelsAdapter, 0, len(metadata)+1)
+	hasTraceID := false
+	for _, l := range metadata {
+		if l.Name == "traceID" {
+			out = append(out, push.LabelAdapter{Name: "traceID", Value: traceID})
+			hasTraceID = true
+		} else {
+			out = append(out, l)
+		}
+	}
+	if !hasTraceID {
+		out = append(out, push.LabelAdapter{Name: "traceID", Value: traceID})
+	}
+	return out
 }

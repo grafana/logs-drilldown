@@ -6,14 +6,9 @@ services:
       file: docker-compose-defaults.yaml
       service: grafana
     container_name: 'grafana-logsapp'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     build:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-    ports: !override
-      - 3001:3000/tcp
-    volumes:
-      - ./dist:/var/lib/grafana/plugins/grafana-logsapp
-      - ./provisioning:/etc/grafana/provisioning
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'

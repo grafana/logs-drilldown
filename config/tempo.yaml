@@ -28,6 +28,8 @@ metrics_generator:
     external_labels:
       source: tempo
       cluster: docker-compose
+  traces_storage:
+    path: /tmp/tempo/generator/traces
   storage:
     path: /tmp/tempo/generator/wal
     remote_write:
@@ -48,5 +50,7 @@ storage:
     local:
       path: /tmp/tempo/blocks
 
+# local-blocks is required for TraceQL metrics (Grafana Traces Drilldown)
+# https://grafana.com/docs/tempo/latest/operations/traceql-metrics/#activate-and-configure-the-local-blocks-processor
 overrides:
-  metrics_generator_processors: [service-graphs, span-metrics]
+  metrics_generator_processors: [service-graphs, span-metrics, local-blocks]

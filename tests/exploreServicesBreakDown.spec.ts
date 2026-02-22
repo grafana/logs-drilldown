@@ -1115,7 +1115,10 @@ test.describe('explore services breakdown page', () => {
     await page.locator('.unwrapped-log-line').nth(1).click();
 
     await explorePage.scrollToBottom();
-    const adHocLocator = explorePage.getLogsPanelLocator().getByText('mimir-distributor', { exact: true });
+    // Target the ad-hoc filter chip specifically; with more data, "mimir-distributor" also appears in log line labels
+    const adHocLocator = page
+      .getByRole('button', { name: /Edit filter with key service_name/ })
+      .filter({ hasText: 'mimir-distributor' });
     await expect(adHocLocator).toHaveCount(1);
     // find text corresponding text to match adhoc filter
     await expect(adHocLocator).toBeVisible();
@@ -1558,7 +1561,7 @@ test.describe('explore services breakdown page', () => {
     await expect(versionVariableLocator).toContainText('!=');
 
     // Assert errors are visible
-    await expect(panelErrorLocator).toHaveCount(0);
+    await expect.poll(() => panelErrorLocator.count()).toEqual(0);
 
     // Now assert that content is hidden (will hit 1000 series limit and throw error)
     // @todo update in https://github.com/grafana/logs-drilldown/issues/1465 that we're showing a warning

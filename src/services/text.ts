@@ -51,6 +51,15 @@ export const generateLogShortlink = (paramName: string, data: PermalinkDataType,
   return generateLink(urlUtil.renderUrl(location.pathname, searchParams));
 };
 
+/** Ensures end > start so downstream (e.g. Tempo trace lookup) never gets "end timestamp must not be before or equal to start time". */
+export function ensureValidTimeRangeForLink(fromMs: number, toMs: number): [number, number] {
+  const minDurationMs = 1000;
+  if (toMs <= fromMs) {
+    return [fromMs, fromMs + minDurationMs];
+  }
+  return [fromMs, toMs];
+}
+
 export function capitalizeFirstLetter(input: string) {
   if (input.length) {
     return input?.charAt(0).toUpperCase() + input.slice(1);
@@ -64,10 +73,15 @@ export function truncateText(input: string, length: number, ellipsis: boolean) {
   return input.substring(0, length) + (ellipsis && input.length > length ? '…' : '');
 }
 
+/** Minimum duration in ms so trace lookups (e.g. from Loki derived field) always get start < end. */
+const MIN_SHARE_RANGE_MS = 1000;
+
 export function resolveRowTimeRangeForSharing(row: LogRowModel): TimeRange {
   // With infinite scrolling, we cannot rely on the time picker range, so we use a time range around the shared log line.
-  const from = dateTime(row.timeEpochMs - 1);
-  const to = dateTime(row.timeEpochMs + 1);
+  // Ensure end > start (Tempo returns "end timestamp must not be before or equal to start time" otherwise).
+  const half = Math.max(MIN_SHARE_RANGE_MS / 2, 1);
+  const from = dateTime(row.timeEpochMs - half);
+  const to = dateTime(row.timeEpochMs + half);
 
   const range = {
     from,

@@ -23,7 +23,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					level := log.RandLevel()
 					t := time.Now()
 					logger.LogWithMetadata(level, t, flog.NewApacheCommonLog(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -33,7 +33,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					level := log.RandLevel()
 					t := time.Now()
 					logger.LogWithMetadata(level, t, flog.NewApacheCombinedLog(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -43,7 +43,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					level := log.RandLevel()
 					t := time.Now()
 					logger.LogWithMetadata(level, t, flog.NewCommonLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -53,7 +53,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					level := log.RandLevel()
 					t := time.Now()
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -68,7 +68,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 						logger.LogWithMetadata(level, t, fmt.Sprintf("%s %s", log, `method=GET namespace=whoopsie caller=flush.go:253 stacktrace="Exception in thread \"main\" java.lang.NullPointerException\n        at com.example.myproject.Book.getTitle(Book.java:16)\n        at com.example.myproject.Author.getBookTitles(Author.java:25)\n        at com.example.myproject.Bootstrap.main(Bootstrap.java:14)"`), metadata)
 					}
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -104,7 +104,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					level := log.RandLevel()
 					t := time.Now()
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -114,7 +114,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					level := log.RandLevel()
 					t := time.Now()
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -135,7 +135,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 						logLine = flog.NewShoppingCart(t)
 					}
 					logger.LogWithMetadata(level, t, logLine, metadata)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -164,7 +164,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					}
 
 					logger.LogWithMetadata(level, t, logLine, newLabels)
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		},
@@ -196,7 +196,7 @@ func lokiOtelPod(svc string) LogGenerator {
 				for ctx.Err() == nil {
 					t := time.Now()
 					logger.LogWithMetadata(k, t, v, log.RandStructuredMetadata("loki-ingester", 0))
-					time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+					logger.Sleep()
 				}
 			}()
 		}
@@ -216,56 +216,56 @@ var noisyTempo = func(ctx context.Context, logger *log.AppLogger, metadata push.
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.DEBUG, t, fmt.Sprintf(fmt1, t.Format(time.RFC3339Nano), rand.Intn(100), rand.Intn(100), log.RandSeq(5), log.RandSeq(5)), metadata)
-			time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.WARN, t, fmt.Sprintf(fmt2, t.Format(time.RFC3339Nano), log.RandOrgID()), metadata)
-			time.Sleep(time.Duration(rand.Intn(3000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt3, t.Format(time.RFC3339Nano), rand.Intn(1000), rand.Intn(1000), rand.Intn(1000)), metadata)
-			time.Sleep(time.Duration(rand.Intn(4000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt4, t.Format(time.RFC3339Nano), rand.Intn(1000)), metadata)
-			time.Sleep(time.Duration(rand.Intn(7000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt5, t.Format(time.RFC3339Nano), log.RandOrgID(), log.RandSeq(5)), metadata)
-			time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.ERROR, t, fmt.Sprintf(fmt6, t.Format(time.RFC3339Nano), flog.FakeIP()), metadata)
-			time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt7, t.Format(time.RFC3339Nano), log.RandOrgID(), rand.Intn(1000)), metadata)
-			time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt8, t.Format(time.RFC3339Nano)), metadata)
-			time.Sleep(20 * time.Second)
+			logger.Sleep()
 		}
 	}()
 }
@@ -275,7 +275,7 @@ var mimirPod = func(ctx context.Context, logger *log.AppLogger, metadata push.La
 		for ctx.Err() == nil {
 			t := time.Now()
 			logger.LogWithMetadata(log.INFO, t, mimirGRPCLog("", "/cortex.Ingester/Push"), metadata)
-			time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+			logger.Sleep()
 		}
 	}()
 }
@@ -286,19 +286,26 @@ func startFailingMimirPod(ctx context.Context, logger log.Logger) {
 		"namespace":    model.LabelValue("mimir"),
 		"service_name": "mimir-ingester",
 	}, logger)
+	if log.UseFullDataForService("mimir-ingester") {
+		if log.IsFullDataMode() {
+			appLogger.SetSleep(log.LogSleepOriginal)
+		} else {
+			appLogger.SetSleep(log.LogSleepFast)
+		}
+	}
 
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			appLogger.LogWithMetadata(log.ERROR, t, mimirGRPCLog("connection refused to object store", "/cortex.Ingester/Push"), log.RandStructuredMetadata("mimir-ingester", 0))
-			time.Sleep(time.Duration(rand.Intn(10000)) * time.Millisecond)
+			appLogger.Sleep()
 		}
 	}()
 	go func() {
 		for ctx.Err() == nil {
 			t := time.Now()
 			appLogger.LogWithMetadata(log.INFO, t, mimirGRPCLog("", "/cortex.Ingester/Push"), log.RandStructuredMetadata("mimir-ingester", 0))
-			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
+			appLogger.Sleep()
 		}
 	}()
 }
