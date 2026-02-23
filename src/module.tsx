@@ -26,7 +26,11 @@ const App = lazy(async () => {
   initRuntimeDs();
 
   if (wasmSupported()) {
-    await Promise.all([initChangepoint(), initOutlier()]);
+    try {
+      await Promise.all([initChangepoint(), initOutlier()]);
+    } catch (e) {
+      console.warn('grafana-lokiexplore-app: WebAssembly init failed, ML sorting disabled.', e);
+    }
   }
 
   return import('Components/App');
