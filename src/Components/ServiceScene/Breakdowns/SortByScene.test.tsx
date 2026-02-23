@@ -4,19 +4,32 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { select } from 'react-select-event';
 
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
+import { setWasmInit } from 'services/sorting';
 import { setSortByPreference } from 'services/store';
 
 describe('SortByScene', () => {
   let scene: SortByScene;
   beforeEach(() => {
     localStorage.clear();
+    setWasmInit(true);
     scene = new SortByScene({ target: 'fields' });
   });
 
-  test('Sorts by standard deviation by default', () => {
+  test('Shows changepoint as default when WASM init succeeded', () => {
     render(<scene.Component model={scene} />);
 
     expect(screen.getByText('Most relevant')).toBeInTheDocument();
+    expect(screen.getByText('Desc')).toBeInTheDocument();
+  });
+
+  test('Hides changepoint and outliers when WASM init failed', () => {
+    setWasmInit(false);
+    scene = new SortByScene({ target: 'fields' });
+    render(<scene.Component model={scene} />);
+
+    expect(screen.queryByText('Most relevant')).not.toBeInTheDocument();
+    expect(screen.queryByText('Outlying values')).not.toBeInTheDocument();
+    expect(screen.getByText('Widest spread')).toBeInTheDocument();
     expect(screen.getByText('Desc')).toBeInTheDocument();
   });
 

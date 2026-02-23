@@ -29,7 +29,6 @@ import { logger } from '../../../services/logger';
 import { LokiQuery } from '../../../services/lokiQuery';
 import { getQueryRunner } from '../../../services/panel';
 import { buildDataQuery, renderLogQLFieldFilters, renderLogQLMetadataFilters } from '../../../services/query';
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getSortByPreference } from '../../../services/store';
 import {
   getFieldGroupByVariable,
@@ -50,6 +49,7 @@ import { LayoutSwitcher } from './LayoutSwitcher';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
 import { QueryErrorAlert } from './QueryErrorAlert';
 import { getLabelValue } from './SortByScene';
+import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
   $data?: SceneDataProvider;
@@ -377,7 +377,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
    */
   private buildBody(query: LokiQuery) {
     const { optionValue, parser } = this.getParserForThisField();
-    const { direction, sortBy } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('fields', getDefaultSortBy(), DEFAULT_SORT_DIRECTION);
     const fieldsBreakdownScene = sceneGraph.getAncestor(this, FieldsBreakdownScene);
     const getFilter = () => fieldsBreakdownScene.state.search.state.filter ?? '';
 

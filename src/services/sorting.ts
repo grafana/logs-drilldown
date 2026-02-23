@@ -9,6 +9,20 @@ import { getLabelValueFromDataFrame } from './levels';
 import { logger } from './logger';
 
 export const DEFAULT_SORT_BY = 'changepoint';
+export const SORT_BY_OUTLIERS = 'outliers';
+export const DEFAULT_SORT_DIRECTION = 'desc' as const;
+
+export type SortBy = typeof DEFAULT_SORT_BY | typeof SORT_BY_OUTLIERS | ReducerID | '';
+
+let wasmInitSucceeded = false;
+
+export const setWasmInit = (succeeded: boolean) => {
+  wasmInitSucceeded = succeeded;
+};
+
+export const isWasmInit = () => wasmInitSucceeded;
+
+export const getDefaultSortBy = (): SortBy => (isWasmInit() ? DEFAULT_SORT_BY : ReducerID.stdDev);
 
 export const sortSeries = memoize(
   (series: DataFrame[], sortBy: string, direction: string) => {
@@ -16,16 +30,16 @@ export const sortSeries = memoize(
       return sortSeriesByName(series, direction);
     }
 
-    if (sortBy === 'outliers') {
+    if (sortBy === SORT_BY_OUTLIERS) {
       initOutlierDetector(series);
     }
 
     const reducer = (dataFrame: DataFrame) => {
       // ML & Wasm sorting options
       try {
-        if (sortBy === 'changepoint') {
+        if (sortBy === DEFAULT_SORT_BY) {
           return calculateDataFrameChangepoints(dataFrame);
-        } else if (sortBy === 'outliers') {
+        } else if (sortBy === SORT_BY_OUTLIERS) {
           return calculateOutlierValue(series, dataFrame);
         }
       } catch (e) {
@@ -78,7 +92,7 @@ export const sortSeries = memoize(
 );
 
 export const calculateDataFrameChangepoints = (data: DataFrame) => {
-  if (!wasmSupported()) {
+  if (!isWasmInit()) {
     throw new Error('WASM not supported, fall back to stdDev');
   }
 
@@ -117,7 +131,7 @@ export const sortSeriesByName = (series: DataFrame[], direction: string) => {
 };
 
 const initOutlierDetector = (series: DataFrame[]) => {
-  if (!wasmSupported()) {
+  if (!isWasmInit()) {
     return;
   }
 
@@ -142,7 +156,7 @@ const initOutlierDetector = (series: DataFrame[]) => {
 let outliers: OutlierOutput | undefined = undefined;
 
 export const calculateOutlierValue = (series: DataFrame[], data: DataFrame): number => {
-  if (!wasmSupported()) {
+  if (!isWasmInit()) {
     throw new Error('WASM not supported, fall back to stdDev');
   }
   if (!outliers) {
