@@ -94,6 +94,12 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
+  lokiShardSplitting: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
   'drilldown.logs.fake_flag': {
     valueType: 'string',
     values: [
@@ -236,9 +242,11 @@ function getFlagDefaultValue(flagDef: FeatureFlag): boolean | number | string | 
  * @returns The value from config.featureToggles if available, undefined otherwise
  */
 function getConfigToggleFallback(flagName: string): boolean | undefined {
-  // Only exploreLogsAggregatedMetrics has a config.featureToggles equivalent
   if (flagName === 'exploreLogsAggregatedMetrics') {
     return config.featureToggles.exploreLogsAggregatedMetrics;
+  }
+  if (flagName === 'lokiShardSplitting') {
+    return config.featureToggles.lokiShardSplitting;
   }
   return undefined;
 }

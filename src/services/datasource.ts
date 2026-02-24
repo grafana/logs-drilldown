@@ -9,7 +9,7 @@ import {
   LoadingState,
   TestDataSourceResponse,
 } from '@grafana/data';
-import { config, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
 
@@ -29,6 +29,7 @@ import { sanitizeStreamSelector } from './query';
 import { getDataSource } from './scenes';
 import { runShardSplitQuery } from './shardQuerySplitting';
 import { SERVICE_NAME } from './variables';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 
 export const WRAPPED_LOKI_DS_UID = 'wrapped-loki-ds-uid';
 
@@ -157,7 +158,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 
   private getData(request: SceneDataQueryRequest, ds: LokiDatasource, subscriber: Subscriber<DataQueryResponse>) {
-    const shardingEnabled = config.featureToggles.exploreLogsShardSplitting;
+    const shardingEnabled = getFeatureFlag('lokiShardSplitting');
 
     const updatedRequest = {
       ...request,
