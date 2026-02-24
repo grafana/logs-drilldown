@@ -1,2 +1,3 @@
 * @grafana/observability-logs
+* @grafana/observability-metrics
 /docs/* @JStickler
