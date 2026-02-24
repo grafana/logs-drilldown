@@ -87,7 +87,9 @@ export const sortSeries = memoize(
         '_' +
         frame.fields.map((field) => field.name + '_' + field.values[0] + '_' + field.values[field.values.length - 1])
     );
-    return `${firstValue}_${lastValue}_${firstTimestamp}_${lastTimestamp}_${series.length}_${allSeriesKey}_${sortBy}_${direction}`;
+    return `${firstValue}_${lastValue}_${firstTimestamp}_${lastTimestamp}_${
+      series.length
+    }_${allSeriesKey}_${sortBy}_${direction}_${isWasmInit()}`;
   }
 );
 

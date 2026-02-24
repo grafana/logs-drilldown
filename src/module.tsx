@@ -17,6 +17,7 @@ const App = lazy(async () => {
   // Initialize i18n before loading any components
   await initPluginTranslations(pluginJson.id);
 
+  const { logger } = await import('services/logger');
   const { setWasmInit, wasmSupported } = await import('services/sorting');
 
   const { default: initRuntimeDs } = await import('services/datasource');
@@ -30,7 +31,7 @@ const App = lazy(async () => {
       await Promise.all([initChangepoint(), initOutlier()]);
       setWasmInit(true);
     } catch (e) {
-      console.warn('grafana-lokiexplore-app: WebAssembly init failed, ML sorting disabled.', e);
+      logger.warn('WebAssembly init failed, ML sorting disabled.');
       setWasmInit(false);
     }
   }
