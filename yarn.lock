@@ -1777,7 +1777,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grafana/i18n@npm:12.4.0":
+"@grafana/i18n@npm:12.4.0, @grafana/i18n@npm:^12.4.0":
   version: 12.4.0
   resolution: "@grafana/i18n@npm:12.4.0"
   dependencies:
@@ -1792,24 +1792,6 @@ __metadata:
   peerDependencies:
     react: ">=18"
   checksum: 10c0/b7f320e2f151743442fc91c0d71ab5fa9cdefafa25283b24531a80c713fa968d6bbb1906cb3723325ce537f3ae05f0ebbe09f46b07a77c6328f83cddb1f75459
-  languageName: node
-  linkType: hard
-
-"@grafana/i18n@npm:^12.2.0":
-  version: 12.3.2
-  resolution: "@grafana/i18n@npm:12.3.2"
-  dependencies:
-    "@formatjs/intl-durationformat": "npm:^0.7.0"
-    "@typescript-eslint/utils": "npm:^8.33.1"
-    fast-deep-equal: "npm:^3.1.3"
-    i18next: "npm:^25.0.0"
-    i18next-browser-languagedetector: "npm:^8.0.0"
-    i18next-pseudo: "npm:^2.2.1"
-    micro-memoize: "npm:^4.1.2"
-    react-i18next: "npm:^15.0.0"
-  peerDependencies:
-    react: ">=18"
-  checksum: 10c0/8190ca63e528e54d61a84f7b10b95711bdded7c613fbc9002df4a462b8dbecaa499778d6a250668411f0d9e1c6f30ec8b9ed8986857f514f5561877b4c0e4c15
   languageName: node
   linkType: hard
 
@@ -8839,7 +8821,7 @@ __metadata:
     "@grafana/assistant": "npm:0.1.13"
     "@grafana/data": "npm:^12.4.0"
     "@grafana/eslint-config": "npm:8.2.0"
-    "@grafana/i18n": "npm:^12.2.0"
+    "@grafana/i18n": "npm:^12.4.0"
     "@grafana/lezer-logql": "npm:^0.3.0"
     "@grafana/plugin-e2e": "npm:2.2.3"
     "@grafana/plugin-types-bundler": "npm:0.5.0"
