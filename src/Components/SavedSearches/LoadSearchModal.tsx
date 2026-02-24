@@ -168,7 +168,7 @@ function SavedSearchItem({ onSelect, search, selected }: SavedSearchItemProps) {
 
   const id = useId();
   return (
-    <label className={styles.label} htmlFor={id} aria-label={search.title}>
+    <label className={styles.label} htmlFor={id} aria-label={search.title} data-selected={selected}>
       <input
         // only the selected item should be tabbable
         // arrow keys should navigate between items
@@ -217,11 +217,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
       }),
     },
 
-    ':has(:checked)': {
+    '&[data-selected="true"]': {
       backgroundColor: theme.colors.action.selected,
     },
 
-    ':has(:focus-visible)': css({
+    '&:focus-within': css({
       backgroundColor: theme.colors.action.hover,
       outline: `2px solid ${theme.colors.primary.main}`,
       outlineOffset: '-2px',

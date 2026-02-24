@@ -2,6 +2,15 @@ import { ClientProviderStatus, OpenFeature, ProviderEvents } from '@openfeature/
 
 import { evaluateFeatureFlag, OPEN_FEATURE_DOMAIN } from './openFeature';
 
+// Mock @grafana/runtime before it loads - it pulls in @openfeature/react-sdk which fails in Jest
+jest.mock('@grafana/runtime', () => ({
+  config: {
+    namespace: 'test-namespace',
+    openFeatureContext: {},
+    featureToggles: { exploreLogsAggregatedMetrics: false },
+  },
+}));
+
 jest.mock('@openfeature/web-sdk', () => ({
   OpenFeature: {
     getClient: jest.fn(),
