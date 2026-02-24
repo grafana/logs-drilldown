@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.37
+
+##### Chores
+
+* **deps:**  update dependency tar to v7.5.8 [security] (#1753) (ae8e728b)
+* **cd:**  publish github release (#1751) (0be14ed6)
+
+##### Bug Fixes
+
+* **augurs:**  fallback if wasm fails (#1757) (8452c3c5)
+
+
 ## 1.0.36
 
 ##### Chores

@@ -36,4 +36,7 @@ jobs:
       auto-merge-environments: dev,ops
       argo-workflow-slack-channel: '#drilldown-cd-alerts-dev-ops'
 
+      # Use Node.js 24
       node-version: '24'
+      # Publish the github release
+      github-draft-release: false

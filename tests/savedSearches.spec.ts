@@ -99,10 +99,9 @@ test.describe('saved searches', () => {
 
     // Step 10: Verify we're navigated to the service details page with the correct filter
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    // Multiple "Edit filter with key" chips exist; assert the one for our service is visible
-    await expect(
-      page.getByRole('button', { name: /Edit filter with key service_name/ }).filter({ hasText: 'tempo-ingester' })
-    ).toBeVisible();
+    // Use getByLabel which matches Grafana's ad-hoc filter chip (used in embed.spec, exploreServices.spec)
+    await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('tempo-ingester');
   });
 
   test('should show empty state when no saved searches exist', async ({ page }) => {
@@ -155,8 +154,9 @@ test.describe('saved searches', () => {
       await unlockButton.click();
     }
 
-    // Click the delete button
-    const deleteButton = page.getByRole('button', { name: 'Remove' });
+    // Click the delete button - scope to modal to avoid matching favorite "Remove X from favorites" button
+    const loadSearchModal = page.getByRole('dialog', { name: /Load a previously saved search/ });
+    const deleteButton = loadSearchModal.getByRole('button', { name: 'Remove' });
     await expect(deleteButton).toBeVisible();
     await deleteButton.click();
 
@@ -244,8 +244,8 @@ test.describe('saved searches', () => {
 
     // Verify we're back on the breakdown view with correct filter
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: /Edit filter with key service_name/ }).filter({ hasText: 'tempo-ingester' })
-    ).toBeVisible();
+    // Use getByLabel which matches Grafana's ad-hoc filter chip
+    await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('tempo-ingester');
   });
 });
