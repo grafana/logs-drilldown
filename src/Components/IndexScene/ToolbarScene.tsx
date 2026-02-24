@@ -120,6 +120,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
             icon="cog"
             variant="canvas"
             isOpen={isOpen}
+            aria-label="Aggregated metrics options"
             data-testid={testIds.index.aggregatedMetricsMenu}
           />
         </Dropdown>
