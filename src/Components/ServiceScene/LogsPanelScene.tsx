@@ -349,8 +349,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
             onClick: this.handleShareLogLine,
           },
         ])
-        // @ts-expect-error Requires Grafana 12.3
-        .setOption('showFieldSelector', this.setDisplayedFields);
+        .setOption('showFieldSelector', true);
     }
 
     return panel.build();
