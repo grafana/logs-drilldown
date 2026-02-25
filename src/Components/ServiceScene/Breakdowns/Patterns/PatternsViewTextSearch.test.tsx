@@ -7,7 +7,8 @@ import { sceneGraph } from '@grafana/scenes';
 
 import { PatternTextSearchComponent, PatternsViewTextSearch } from './PatternsViewTextSearch';
 
-const NON_INDEXED_FILTERS_ALERT_TEXT = /Parsed fields, structured metadata, and string filters are not applied/;
+const NON_INDEXED_FILTERS_ALERT_TEXT =
+  /Parsed fields, structured metadata, and string filters are not supported for the pattern list/;
 
 const mockGetAncestor = jest.spyOn(sceneGraph, 'getAncestor');
 const mockGetFieldsVariable = jest.fn();
