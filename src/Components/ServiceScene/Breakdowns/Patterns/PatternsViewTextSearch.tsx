@@ -2,9 +2,10 @@ import React, { ChangeEvent } from 'react';
 
 import { css } from '@emotion/css';
 
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Alert, Field } from '@grafana/ui';
+import { Alert, Field, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../../services/comparison';
 import { debouncedFuzzySearch, fuzzySearch } from '../../../../services/search';
@@ -135,7 +136,7 @@ export class PatternsViewTextSearch extends SceneObjectBase<PatternsViewTextSear
   }
 }
 
-const styles = {
+const getStyles = (theme: GrafanaTheme2) => ({
   field: css({
     label: 'field',
     marginBottom: 0,
@@ -145,14 +146,13 @@ const styles = {
   }),
   infoAlert: css({
     marginBottom: 0,
-    padding: '8px 12px',
   }),
   wrapper: css({
     display: 'flex',
     flexDirection: 'column',
-    gap: 8,
+    gap: theme.spacing(1),
   }),
-};
+});
 
 export function PatternTextSearchComponent({ model }: SceneComponentProps<PatternsViewTextSearch>) {
   const patternsBreakdownScene = sceneGraph.getAncestor(model, PatternsBreakdownScene);
@@ -162,6 +162,7 @@ export function PatternTextSearchComponent({ model }: SceneComponentProps<Patter
   const { filters: lineFilters } = getLineFiltersVariable(model).useState();
 
   const hasNonIndexedFilters = fieldFilters.length > 0 || metadataFilters.length > 0 || lineFilters.length > 0;
+  const styles = useStyles2(getStyles);
 
   return (
     <div className={styles.wrapper}>
@@ -177,7 +178,7 @@ export function PatternTextSearchComponent({ model }: SceneComponentProps<Patter
         <Alert severity="info" title="" className={styles.infoAlert}>
           {t(
             'logs.logs-drilldown.patterns.indexed-labels-only',
-            'Patterns are filtered by indexed labels only. Parsed fields, structured metadata, and line filters are not applied to the pattern aggregation.'
+            'Patterns are selected by labels and can be filtered by level. Parsed fields, structured metadata, and string filters are not applied to the pattern list.'
           )}
         </Alert>
       )}
