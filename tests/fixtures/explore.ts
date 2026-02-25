@@ -365,8 +365,9 @@ export class ExplorePage {
     n: number,
     typeAhead?: string
   ) {
+    const placeholder = comboBox === ComboBoxIndex.labels ? 'Filter by labels' : 'Filter by fields';
     // Open combobox
-    const comboboxLocator = this.page.getByPlaceholder('Filter by label values').nth(comboBox);
+    const comboboxLocator = this.page.getByPlaceholder(placeholder).nth(comboBox);
     await comboboxLocator.click();
 
     if (typeAhead) {
@@ -409,10 +410,12 @@ export class ExplorePage {
     typeAhead?: string,
     exact = false
   ) {
+    await expect(this.page.getByRole('combobox', { name: 'Filter by labels' })).toHaveCount(1);
+    await expect(this.page.getByRole('combobox', { name: 'Filter by fields' })).toHaveCount(1);
+
     // Open combobox
-    const comboboxes = this.page.getByRole('combobox', { name: 'Filter by label values' });
-    await expect(comboboxes).toHaveCount(2);
-    const comboboxLocator = this.page.getByRole('combobox', { name: 'Filter by label values' }).nth(comboBox);
+    const placeholder = comboBox === ComboBoxIndex.labels ? 'Filter by labels' : 'Filter by fields';
+    const comboboxLocator = this.page.getByRole('combobox', { name: placeholder }).nth(comboBox);
     await comboboxLocator.click();
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);
