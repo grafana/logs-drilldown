@@ -2,11 +2,13 @@ import React, { ChangeEvent } from 'react';
 
 import { css } from '@emotion/css';
 
+import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Field } from '@grafana/ui';
+import { Alert, Field } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../../services/comparison';
 import { debouncedFuzzySearch, fuzzySearch } from '../../../../services/search';
+import { getFieldsVariable, getLineFiltersVariable, getMetadataVariable } from '../../../../services/variableGetters';
 import { SearchInput } from '../SearchInput';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 
@@ -141,19 +143,44 @@ const styles = {
   icon: css({
     cursor: 'pointer',
   }),
+  infoAlert: css({
+    marginBottom: 0,
+    padding: '8px 12px',
+  }),
+  wrapper: css({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  }),
 };
 
 export function PatternTextSearchComponent({ model }: SceneComponentProps<PatternsViewTextSearch>) {
   const patternsBreakdownScene = sceneGraph.getAncestor(model, PatternsBreakdownScene);
   const { patternFilter } = patternsBreakdownScene.useState();
+  const { filters: fieldFilters } = getFieldsVariable(model).useState();
+  const { filters: metadataFilters } = getMetadataVariable(model).useState();
+  const { filters: lineFilters } = getLineFiltersVariable(model).useState();
+
+  const hasNonIndexedFilters = fieldFilters.length > 0 || metadataFilters.length > 0 || lineFilters.length > 0;
+
   return (
-    <Field className={styles.field}>
-      <SearchInput
-        onChange={model.handleSearchChange}
-        onClear={model.clearSearch}
-        value={patternFilter}
-        placeholder="Search patterns"
-      />
-    </Field>
+    <div className={styles.wrapper}>
+      <Field className={styles.field}>
+        <SearchInput
+          onChange={model.handleSearchChange}
+          onClear={model.clearSearch}
+          value={patternFilter}
+          placeholder="Search patterns"
+        />
+      </Field>
+      {hasNonIndexedFilters && (
+        <Alert severity="info" title="" className={styles.infoAlert}>
+          {t(
+            'logs.logs-drilldown.patterns.indexed-labels-only',
+            'Patterns are filtered by indexed labels only. Parsed fields, structured metadata, and line filters are not applied to the pattern aggregation.'
+          )}
+        </Alert>
+      )}
+    </div>
   );
 }
