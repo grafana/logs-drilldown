@@ -178,7 +178,7 @@ export function PatternTextSearchComponent({ model }: SceneComponentProps<Patter
         <Alert severity="info" title="" className={styles.infoAlert}>
           {t(
             'logs.logs-drilldown.patterns.indexed-labels-only',
-            'Patterns are selected by labels and can be filtered by level. Parsed fields, structured metadata, and string filters are not applied to the pattern list.'
+            'Patterns are selected by label and may be filtered by level. Parsed fields, structured metadata, and string filters are not supported for the pattern list.'
           )}
         </Alert>
       )}
