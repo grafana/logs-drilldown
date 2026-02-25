@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { css, cx } from '@emotion/css';
 
@@ -82,7 +82,7 @@ export const DefaultPill = (props: DefaultPillProps) => {
       {!!value && (
         <>
           <span className={styles.pill}>
-            <>{value}</>
+            <>{value as ReactNode}</>
           </span>
           {isPillActive && typeof value === 'string' && props.field.type !== FieldType.time && (
             <CellContextMenu label={props.label} value={value} pillType={'column'} />

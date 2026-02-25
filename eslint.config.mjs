@@ -119,6 +119,9 @@ export default defineConfig([
     files: ['src/Components/**/*.tsx'],
     rules: {
       'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/refs': 'off',
     },
   },
 ]);

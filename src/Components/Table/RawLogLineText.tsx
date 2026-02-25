@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -12,7 +12,7 @@ export function RawLogLineText(props: { value: unknown }) {
   const styles = getStyles(theme);
   return (
     <div data-testid={testIds.table.rawLogLine} className={styles.rawLogLine}>
-      <>{props.value}</>
+      <>{props.value as ReactNode}</>
     </div>
   );
 }
