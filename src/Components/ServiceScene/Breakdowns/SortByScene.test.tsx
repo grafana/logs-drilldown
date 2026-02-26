@@ -4,14 +4,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { select } from 'react-select-event';
 
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
-import { DEFAULT_SORT_BY, setWasmInit } from 'services/sorting';
+import { DEFAULT_SORT_BY, setWasmSortInit } from 'services/sorting';
 import { setSortByPreference } from 'services/store';
 
 describe('SortByScene', () => {
   let scene: SortByScene;
   beforeEach(() => {
     localStorage.clear();
-    setWasmInit(true);
+    setWasmSortInit(true);
     scene = new SortByScene({ target: 'fields' });
   });
 
@@ -23,7 +23,7 @@ describe('SortByScene', () => {
   });
 
   test('Hides changepoint and outliers when WASM init failed', () => {
-    setWasmInit(false);
+    setWasmSortInit(false);
     scene = new SortByScene({ target: 'fields' });
     render(<scene.Component model={scene} />);
 
@@ -65,7 +65,7 @@ describe('SortByScene', () => {
 
   test('Overrides stored changepoint/outliers preference when WASM init failed', () => {
     setSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
-    setWasmInit(false);
+    setWasmSortInit(false);
     scene = new SortByScene({ target: 'fields' });
     render(<scene.Component model={scene} />);
 

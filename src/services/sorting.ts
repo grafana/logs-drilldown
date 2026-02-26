@@ -16,7 +16,7 @@ export type SortBy = typeof DEFAULT_SORT_BY | typeof SORT_BY_OUTLIERS | ReducerI
 
 let wasmInitSucceeded = false;
 
-export const setWasmInit = (succeeded: boolean) => {
+export const setWasmSortInit = (succeeded: boolean) => {
   wasmInitSucceeded = succeeded;
 };
 

@@ -18,7 +18,7 @@ const App = lazy(async () => {
   await initPluginTranslations(pluginJson.id);
 
   const { logger } = await import('services/logger');
-  const { setWasmInit, wasmSupported } = await import('services/sorting');
+  const { setWasmSortInit, wasmSupported } = await import('services/sorting');
 
   const { default: initRuntimeDs } = await import('services/datasource');
   const { default: initChangepoint } = await import('@bsull/augurs/changepoint');
@@ -29,10 +29,10 @@ const App = lazy(async () => {
   if (wasmSupported()) {
     try {
       await Promise.all([initChangepoint(), initOutlier()]);
-      setWasmInit(true);
+      setWasmSortInit(true);
     } catch (e) {
       logger.warn('WebAssembly init failed, ML sorting disabled.');
-      setWasmInit(false);
+      setWasmSortInit(false);
     }
   }
 
