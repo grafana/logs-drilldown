@@ -23,6 +23,8 @@ function makeDs(overrides: Partial<DataSourceInstanceSettings>): DataSourceInsta
 }
 
 describe('getDefaultDatasourceFromDatasourceSrv', () => {
+  beforeEach(() => jest.clearAllMocks());
+
   it('returns the data source marked as default when present', () => {
     const defaultDs = makeDs({ uid: 'default-uid', name: 'Default Loki', isDefault: true });
     const otherDs = makeDs({ uid: 'other-uid', name: 'grafanacloud-mystack-logs', isDefault: false });
