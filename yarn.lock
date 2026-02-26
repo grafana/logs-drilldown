@@ -438,10 +438,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bsull/augurs@npm:^0.6.0":
-  version: 0.6.3
-  resolution: "@bsull/augurs@npm:0.6.3"
-  checksum: 10c0/0a60e6003b6c0762e7dc481ad7f85e48506f59f1629630bd2b31dd3fdea413d4972bebd4792d2443c9a43ed53fa7062ca453916f571f088c217f98387ecc97ca
+"@bsull/augurs@npm:^0.10.2":
+  version: 0.10.2
+  resolution: "@bsull/augurs@npm:0.10.2"
+  checksum: 10c0/080f9fc255d5855ac1e3c9f8963c661c161936a16586c4a12d28eaed92ee6d146bc3103048db9fcf4cbf4c028caff4e0b1eff0f241594773b6c8c4c732aade5f
   languageName: node
   linkType: hard
 
@@ -8840,7 +8840,7 @@ __metadata:
   resolution: "grafana-lokiexplore-app@workspace:."
   dependencies:
     "@babel/core": "npm:7.28.5"
-    "@bsull/augurs": "npm:^0.6.0"
+    "@bsull/augurs": "npm:^0.10.2"
     "@commitlint/cli": "npm:20.3.0"
     "@commitlint/config-conventional": "npm:19.8.1"
     "@emotion/css": "npm:11.10.6"

@@ -25,7 +25,6 @@ import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../.
 import { logger } from '../../../services/logger';
 import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
 import { renderLevelsFilter, renderLogQLLabelFilters } from '../../../services/query';
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getSortByPreference } from '../../../services/store';
 import {
   getFieldsVariable,
@@ -53,6 +52,7 @@ import { LayoutSwitcher } from './LayoutSwitcher';
 import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { ValueSummaryPanelScene } from './Panels/ValueSummary';
 import { getLabelValue } from './SortByScene';
+import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 
 type DisplayError = DataQueryError & { displayed: boolean };
 type DisplayErrors = Record<string, DisplayError>;
@@ -373,7 +373,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       .setMenu(new PanelMenu({}))
       .setTitle(tagKey);
 
-    const { direction, sortBy } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('labels', getDefaultSortBy(), DEFAULT_SORT_DIRECTION);
 
     const getFilter = () => labelBreakdownScene.state.search.state.filter ?? '';
 

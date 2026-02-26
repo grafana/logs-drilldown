@@ -5,13 +5,14 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 
 import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import { SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
 import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
+import { SortBy } from './sorting';
 import { getDataSourceName } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
