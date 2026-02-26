@@ -63,6 +63,9 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
     return <DefaultPill field={props.field} rowIndex={props.rowIndex} label={label} value={value} />;
   };
 
+  const displayableValue: string | ReactNode | ReactElement =
+    typeof value === 'string' || React.isValidElement(value) ? value : String(value);
+
   return (
     <DefaultCellWrapComponent
       onClick={() => {
@@ -75,10 +78,10 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
       rowIndex={props.rowIndex}
     >
       <div className={styles.content}>
-        {props.fieldIndex === 0 && <LineActionIcons value={value} rowIndex={props.rowIndex} />}
+        {props.fieldIndex === 0 && <LineActionIcons value={displayableValue} rowIndex={props.rowIndex} />}
         <div className={styles.flexWrap}></div>
 
-        {!hasLinks && renderValue(value, field.name)}
+        {!hasLinks && renderValue(displayableValue, field.name)}
 
         {hasLinks && field.getLinks && (
           <DataLinksContextMenu links={() => getCellLinks(field, row) ?? []}>
@@ -86,13 +89,13 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
               if (api.openMenu) {
                 return (
                   <button className={styles.linkWrapper} onClick={api.openMenu}>
-                    <>{value as React.ReactNode}</>
+                    <>{displayableValue}</>
                   </button>
                 );
               } else {
                 return (
                   <div className={styles.linkWrapper}>
-                    <>{value as React.ReactNode}</>
+                    <>{displayableValue}</>
                   </div>
                 );
               }
