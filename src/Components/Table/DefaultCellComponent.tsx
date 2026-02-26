@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { css } from '@emotion/css';
 import { Row } from 'react-table';
@@ -59,7 +59,7 @@ export const DefaultCellComponent = (props: CustomCellRendererProps & DefaultCel
     value = formattedValueToString(displayValue);
   }
 
-  const renderValue = (value: string | unknown | ReactElement, label: string) => {
+  const renderValue = (value: string | ReactNode | ReactElement, label: string) => {
     return <DefaultPill field={props.field} rowIndex={props.rowIndex} label={label} value={value} />;
   };
 

@@ -15,7 +15,7 @@ interface DefaultPillProps {
   label: string;
   rowIndex: number;
   showColumns?: () => void;
-  value: string | unknown | ReactElement;
+  value: string | ReactElement | ReactNode;
 }
 
 const getStyles = (theme: GrafanaTheme2, levelColor?: string) => ({
@@ -82,7 +82,7 @@ export const DefaultPill = (props: DefaultPillProps) => {
       {!!value && (
         <>
           <span className={styles.pill}>
-            <>{value as ReactNode}</>
+            <>{value}</>
           </span>
           {isPillActive && typeof value === 'string' && props.field.type !== FieldType.time && (
             <CellContextMenu label={props.label} value={value} pillType={'column'} />

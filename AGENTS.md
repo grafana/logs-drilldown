@@ -32,3 +32,17 @@ Before proposing a fix, verify whether the reported behavior is:
 Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. Never modify anything inside the `.config` folder; It is managed by Grafana plugin tools.
 
 - **Frontend security** — Follow workspace rules for HTML sanitization (DOMPurify), URLs (`textUtil.sanitizeUrl`), and avoiding unsafe DOM APIs.
+
+### Grafana Scenes
+
+Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) for app structure, routing, and interactive UI. When working on scenes-related code, follow the [Grafana Scenes documentation](https://grafana.com/developers/scenes/) and [demos](https://github.com/grafana/scenes/tree/main/packages/scenes-app/src/demos)
+
+- **SceneApp and useSceneApp** — Use `SceneApp` as the root object for routing and Grafana integration. Memoize and cache scene creation with `useSceneApp` so URL syncing works and state is preserved when navigating away and back.
+
+- **Scene objects** — Custom scene objects extend `SceneObjectBase<SceneObjectState>`. Implement state-modifying logic in the scene object class (not in the renderer) to keep model complexity separate from the component. Use `model.useState()` to subscribe to state changes and `model.setState()` to modify state.
+
+- **Object tree** — Do not reuse the same scene object instance in multiple scenes or locations. Use `SceneObjectRef` to wrap shared references, or clone the source object for separate instances.
+
+- **Data and time range** — Use `$data` (e.g. `SceneQueryRunner`) and `$timeRange` (e.g. `SceneTimeRange`) on scene objects. These propagate to descendants in the object tree.
+
+- **Layout** — Use `SceneFlexLayout`, `SceneFlexItem`, `EmbeddedScene`, and `SceneAppPage` for structure. For app pages, use `SceneAppPage` for drill-downs, tabs, breadcrumbs, and routing.
