@@ -19,7 +19,7 @@ function makeDs(overrides: Partial<DataSourceInstanceSettings>): DataSourceInsta
     jsonData: {},
     access: 'proxy',
     ...overrides,
-  };
+  } as DataSourceInstanceSettings;
 }
 
 describe('getDefaultDatasourceFromDatasourceSrv', () => {
