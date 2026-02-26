@@ -21,7 +21,6 @@ import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
 import { ValueSlugs } from '../../../services/enums';
 import { navigateToValueBreakdown } from '../../../services/navigate';
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
 import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
 import { IndexScene } from '../../IndexScene/IndexScene';
@@ -38,6 +37,7 @@ import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLabelOptions } from 'services/filters';
 import { getRouteParams } from 'services/routing';
+import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
 import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
 
@@ -273,7 +273,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     const variable = getLabelGroupByVariable(this);
     variable.changeValueTo(value);
 
-    const { direction, sortBy } = getSortByPreference('labels', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('labels', getDefaultSortBy(), DEFAULT_SORT_DIRECTION);
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.select_field_in_breakdown_clicked,

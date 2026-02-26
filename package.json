@@ -105,7 +105,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@bsull/augurs": "^0.6.0",
+    "@bsull/augurs": "^0.10.2",
     "@emotion/css": "11.10.6",
     "@grafana/assistant": "0.1.13",
     "@grafana/data": "^12.4.0",

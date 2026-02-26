@@ -21,7 +21,6 @@ import { CustomConstantVariable, CustomConstantVariableState } from '../../../se
 import { ValueSlugs } from '../../../services/enums';
 import { navigateToValueBreakdown } from '../../../services/navigate';
 import { getRouteParams, getUILabelName } from '../../../services/routing';
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
 import { getFieldGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
 import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
 import { IndexScene } from '../../IndexScene/IndexScene';
@@ -39,6 +38,7 @@ import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getFieldOptions } from 'services/filters';
+import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
 import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_FIELDS, VAR_LABELS } from 'services/variables';
 
@@ -269,7 +269,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     }
 
     const variable = getFieldGroupByVariable(this);
-    const { direction, sortBy } = getSortByPreference('fields', DEFAULT_SORT_BY, 'desc');
+    const { direction, sortBy } = getSortByPreference('fields', getDefaultSortBy(), DEFAULT_SORT_DIRECTION);
 
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
