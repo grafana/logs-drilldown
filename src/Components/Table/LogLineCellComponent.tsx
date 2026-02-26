@@ -136,6 +136,9 @@ export const LogLineCellComponent = (props: Props) => {
   const isAuto = bodyState === LogLineState.auto;
   const hasLabels = labels.length > 0;
 
+  const displayableValue: string | number | React.ReactElement =
+    typeof value === 'string' || typeof value === 'number' || React.isValidElement(value) ? value : String(value);
+
   return (
     <DefaultCellWrapComponent
       onMouseIn={() => {
@@ -150,14 +153,14 @@ export const LogLineCellComponent = (props: Props) => {
       <ScrollSyncPane innerRef={ref} group="horizontal">
         <div className={styles.content}>
           {/* First Field gets the icons */}
-          {props.fieldIndex === 0 && <LineActionIcons rowIndex={props.rowIndex} value={value} />}
+          {props.fieldIndex === 0 && <LineActionIcons rowIndex={props.rowIndex} value={displayableValue} />}
           {/* Labels */}
           {isAuto && hasLabels && <>{labels}</>}
           {bodyState === LogLineState.labels && hasLabels && <>{labels}</>}
-          {bodyState === LogLineState.labels && !hasLabels && <RawLogLineText value={value} />}
+          {bodyState === LogLineState.labels && !hasLabels && <RawLogLineText value={displayableValue} />}
           {/* Raw log line*/}
-          {isAuto && !hasLabels && <RawLogLineText value={value} />}
-          {bodyState === LogLineState.text && <RawLogLineText value={value} />}
+          {isAuto && !hasLabels && <RawLogLineText value={displayableValue} />}
+          {bodyState === LogLineState.text && <RawLogLineText value={displayableValue} />}
           {isHover && <Scroller scrollerRef={ref} />}
         </div>
       </ScrollSyncPane>

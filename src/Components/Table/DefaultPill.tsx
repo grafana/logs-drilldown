@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { css, cx } from '@emotion/css';
 
@@ -15,7 +15,7 @@ interface DefaultPillProps {
   label: string;
   rowIndex: number;
   showColumns?: () => void;
-  value: string | unknown | ReactElement;
+  value: string | ReactElement | ReactNode;
 }
 
 const getStyles = (theme: GrafanaTheme2, levelColor?: string) => ({
