@@ -133,7 +133,7 @@ import {
 } from 'services/variables';
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
-const DEFAULT_LOGS_DATASOURCE_UID = 'grafanacloud-logs';
+const FALLBACK_DATASOURCE_UID = 'grafanacloud-logs';
 
 interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
@@ -151,7 +151,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       jsonData?.dataSource ??
       getLastUsedDataSourceFromStorage() ??
       getDefaultDatasourceFromDatasourceSrv() ??
-      DEFAULT_LOGS_DATASOURCE_UID;
+      FALLBACK_DATASOURCE_UID;
 
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,
@@ -811,6 +811,7 @@ function getVariableSet(
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
     filters: initialLabelFilters ?? [],
+    inputPlaceholder: 'Filter by labels',
   });
 
   labelVariable._getOperators = function () {
@@ -863,6 +864,7 @@ function getVariableSet(
     name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
     skipUrlSync: true,
+    inputPlaceholder: 'Filter by fields',
   });
 
   const levelsVariable = new AdHocFiltersVariable({
