@@ -4,7 +4,7 @@ import { css, cx } from '@emotion/css';
 import { Draggable, DraggableProvided, DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Box, Icon, IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Box, ControlledCollapse, Icon, IconButton, Stack, useStyles2 } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
 import { DefaultLabel } from 'services/api';
@@ -32,16 +32,7 @@ export function LabelList() {
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="default-labels" direction="vertical">
         {(provided) => (
-          <Box
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            backgroundColor="primary"
-            borderColor="weak"
-            borderStyle="solid"
-            borderRadius="default"
-            marginBottom={2}
-            padding={2}
-          >
+          <Box ref={provided.innerRef} {...provided.droppableProps} marginBottom={2}>
             {labels.map((label, index) => (
               <Draggable key={label.label} draggableId={label.label} index={index}>
                 {(draggableProvided: DraggableProvided, snapshot) => (
@@ -87,23 +78,33 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
 
   return (
     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={rowClassName}>
-      <Stack gap={0} alignItems="center">
-        <Icon
-          aria-label="Drag and drop icon"
-          title="Drag and drop to reorder"
-          name="draggabledots"
-          size="lg"
-          className={styles.dragIcon}
-        />
-        <div className={styles.label}>{label.label}</div>
-        <IconButton
-          variant="destructive"
-          tooltip={`Remove ${label.label}`}
-          name="trash-alt"
-          size="lg"
-          onClick={handleRemove}
-        />
-      </Stack>
+      <ControlledCollapse
+        label={
+          <Stack alignItems="center" justifyContent="space-between">
+            <div className={styles.label}>{label.label}</div>
+            <Icon
+              aria-label="Drag and drop icon"
+              title="Drag and drop to reorder"
+              name="draggabledots"
+              size="lg"
+              className={styles.dragIcon}
+            />
+            <IconButton
+              variant="destructive"
+              tooltip={`Remove ${label.label}`}
+              name="trash-alt"
+              size="lg"
+              onClick={handleRemove}
+            />
+          </Stack>
+        }
+      >
+        {!label.values.length && (
+          <Alert title="" severity="info">
+            No label values selected. It will show the full list of values for this label..
+          </Alert>
+        )}
+      </ControlledCollapse>
     </div>
   );
 }
