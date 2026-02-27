@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { createBaseQuery } from '../../utils/createBaseQuery';
-import { getAPIBaseURL } from '../../utils/utils';
+import { createBaseQuery } from 'lib/api-clients/utils/createBaseQuery';
+import { getAPIBaseURL } from 'lib/api-clients/utils/utils';
 
 export const API_GROUP = 'logsdrilldown.grafana.app' as const;
 export const API_VERSION = 'v1beta1' as const;
