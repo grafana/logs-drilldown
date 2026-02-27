@@ -17,7 +17,7 @@ export function DefaultLabels() {
   }, []);
 
   const handleValueChange = useCallback((values: Array<ComboboxOption<string>>) => {
-    setSelectedValues(values?.map(value => value.value) ?? []);
+    setSelectedValues(values?.map((value) => value.value) ?? []);
   }, []);
 
   const labels = useMemo(
@@ -27,7 +27,10 @@ export function DefaultLabels() {
 
   const getOptions = useCallback(
     (typeAhead: string) =>
-      getLabelsForCombobox(dsUID, labels.map(label => label.label)).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead))),
+      getLabelsForCombobox(
+        dsUID,
+        labels.map((label) => label.label)
+      ).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead))),
     [dsUID, labels]
   );
 
@@ -53,7 +56,9 @@ export function DefaultLabels() {
       <Box marginBottom={2}>
         <Stack gap={0.5} alignItems="center">
           <Text element="h5">Service selection default labels</Text>
-          <Tooltip content={'Configure the default labels to show in the landing page of Logs Drilldown'}>
+          <Tooltip
+            content={'Configure the default labels and optional values to show in the landing page of Logs Drilldown'}
+          >
             <Icon name="info-circle" />
           </Tooltip>
         </Stack>
@@ -82,7 +87,9 @@ export function DefaultLabels() {
               createCustomValue={true}
               onChange={handleValueChange}
               options={(typeAhead) =>
-                getLabelValuesForCombobox(selectedLabel, dsUID).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+                getLabelValuesForCombobox(selectedLabel, dsUID).then((opts) =>
+                  opts.filter((opt) => opt.value.includes(typeAhead))
+                )
               }
             />
           )}
