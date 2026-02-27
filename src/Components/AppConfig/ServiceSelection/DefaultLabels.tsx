@@ -35,6 +35,7 @@ export function DefaultLabels() {
     if (selectedLabel) {
       setNewDefaultLabels([...labels, { label: selectedLabel, values: selectedValues }]);
       setSelectedLabel('');
+      setSelectedValues([]);
     }
   }, [labels, selectedLabel, selectedValues, setNewDefaultLabels]);
 
@@ -85,17 +86,20 @@ export function DefaultLabels() {
               }
             />
           )}
-
-          <Button
-            tooltip="Add new label to match against user query"
-            variant="secondary"
-            fill="outline"
-            icon="plus"
-            onClick={addLabel}
-          >
-            {selectedValues.length ? 'Add label and values' : 'Add label'}
-          </Button>
         </Stack>
+        {selectedLabel && (
+          <Box marginTop={2}>
+            <Button
+              tooltip="Add new label to match against user query"
+              variant="secondary"
+              fill="outline"
+              icon="plus"
+              onClick={addLabel}
+            >
+              {selectedValues.length ? 'Add label and values' : 'Add label'}
+            </Button>
+          </Box>
+        )}
       </Box>
 
       {noLabels ? (
