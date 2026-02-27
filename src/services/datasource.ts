@@ -158,7 +158,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 
   private getData(request: SceneDataQueryRequest, ds: LokiDatasource, subscriber: Subscriber<DataQueryResponse>) {
-    const shardingEnabled = getFeatureFlag('lokiShardSplitting');
+    const shardingEnabled = getFeatureFlag('exploreLogsShardSplitting');
 
     const updatedRequest = {
       ...request,

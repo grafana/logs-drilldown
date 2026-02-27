@@ -94,7 +94,7 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
-  lokiShardSplitting: {
+  exploreLogsShardSplitting: {
     valueType: 'boolean',
     value: false,
     reason: 'static provider evaluation result',
@@ -245,8 +245,8 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
   if (flagName === 'exploreLogsAggregatedMetrics') {
     return config.featureToggles.exploreLogsAggregatedMetrics;
   }
-  if (flagName === 'lokiShardSplitting') {
-    return config.featureToggles.lokiShardSplitting;
+  if (flagName === 'exploreLogsShardSplitting') {
+    return config.featureToggles.exploreLogsShardSplitting;
   }
   return undefined;
 }

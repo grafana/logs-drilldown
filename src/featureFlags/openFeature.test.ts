@@ -9,7 +9,7 @@ jest.mock('@grafana/runtime', () => ({
     openFeatureContext: {},
     featureToggles: {
       exploreLogsAggregatedMetrics: false,
-      lokiShardSplitting: false,
+      exploreLogsShardSplitting: false,
     },
   },
 }));
@@ -97,28 +97,28 @@ describe('evaluateFeatureFlag', () => {
     await expect(evaluateFeatureFlag('exploreLogsAggregatedMetrics')).resolves.toBe(false);
   });
 
-  it('correctly evaluates lokiShardSplitting flag using the OpenFeature client', async () => {
+  it('correctly evaluates exploreLogsShardSplitting flag using the OpenFeature client', async () => {
     getBooleanValue.mockReturnValue(true);
 
-    const result = await evaluateFeatureFlag('lokiShardSplitting');
+    const result = await evaluateFeatureFlag('exploreLogsShardSplitting');
 
-    expect(getBooleanValue).toHaveBeenCalledWith('lokiShardSplitting', false);
+    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsShardSplitting', false);
     expect(result).toBe(true);
   });
 
-  it('returns config.featureToggles fallback for lokiShardSplitting when evaluation throws', async () => {
+  it('returns config.featureToggles fallback for exploreLogsShardSplitting when evaluation throws', async () => {
     const { config } = require('@grafana/runtime');
-    config.featureToggles.lokiShardSplitting = true;
+    config.featureToggles.exploreLogsShardSplitting = true;
 
     getBooleanValue.mockImplementation(() => {
       throw new Error('network');
     });
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const result = await evaluateFeatureFlag('lokiShardSplitting');
+    const result = await evaluateFeatureFlag('exploreLogsShardSplitting');
 
     expect(result).toBe(true);
 
-    config.featureToggles.lokiShardSplitting = false;
+    config.featureToggles.exploreLogsShardSplitting = false;
   });
 });
