@@ -400,7 +400,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this.setState({
       contentScene: new ServiceSelectionScene({
-        initialLabel: defaultLabelSettings ? defaultLabelSettings[dsUID]?.[0] : undefined,
+        initialLabel: defaultLabelSettings ? defaultLabelSettings[dsUID]?.[0]?.label : undefined,
       }),
     });
   }

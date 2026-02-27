@@ -15,6 +15,7 @@ import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from '../../se
 import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
 import { ServiceSelectionScene } from './ServiceSelectionScene';
 import { TabPopoverScene } from './TabPopoverScene';
+import { DefaultLabel } from 'services/api';
 import { getMetadataService } from 'services/metadata';
 
 export interface TabOption extends SelectableValue<string> {
@@ -26,7 +27,7 @@ export interface TabOption extends SelectableValue<string> {
 
 export interface ServiceSelectionTabsSceneState extends SceneObjectState {
   $labelsData: SceneQueryRunner;
-  defaultTabs: string[];
+  defaultTabs: DefaultLabel[];
   popover?: TabPopoverScene;
   showPopover: boolean;
   tabOptions: TabOption[];
@@ -72,6 +73,8 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
       [tabOptions]
     );
 
+    const defaultLabels = defaultTabs.map((defaultTab) => defaultTab.label);
+
     return (
       <TabsBar className={styles.tabs}>
         {filteredTabs.map((tabLabel) => {
@@ -85,7 +88,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
               label={truncateText(tabLabel.label, maxLabelLength, true)}
               active={tabLabel.active}
               suffix={
-                defaultTabs.includes(tabLabel.value) === false
+                defaultLabels.includes(tabLabel.value) === false
                   ? (props) => {
                       return (
                         <>
@@ -198,7 +201,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
     const selectedTab = serviceSelectionScene.getSelectedTab();
     const savedTabs = getFavoriteTabsFromStorage(getDataSourceVariable(this).getValue().toString());
-    const defaultTabs = this.state.defaultTabs;
+    const defaultTabs = this.state.defaultTabs.map((defaultLabel) => defaultLabel.label);
     const savedAndDefaultTabs = Array.from(new Set([...defaultTabs, ...savedTabs]));
 
     const defaultTabOptions = savedAndDefaultTabs.map((label) => {
@@ -304,24 +307,24 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
   private setTabOptions(selectedTab?: string) {
     const dsUID = getDataSourceVariable(this).getValue().toString();
-    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID) ?? [SERVICE_NAME];
+    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID) ?? [{ label: SERVICE_NAME, values: [] }];
 
     // Without a selected tab, it means a data source change, so we remove the previously selected tab
     if (!selectedTab) {
-      selectedTab = defaultTabs[0];
+      selectedTab = defaultTabs[0].label;
       const serviceSelectionScene = sceneGraph.getAncestor(this, ServiceSelectionScene);
       serviceSelectionScene.setSelectedTab(selectedTab, 'auto');
     }
 
-    const tabOptions = defaultTabs.map((label) => {
-      if (label === SERVICE_NAME) {
-        return getDefaultServiceTab(selectedTab === label);
+    const tabOptions = defaultTabs.map((defaultTab) => {
+      if (defaultTab.label === SERVICE_NAME) {
+        return getDefaultServiceTab(selectedTab === defaultTab.label);
       }
       return {
-        active: selectedTab === label,
-        label,
+        active: selectedTab === defaultTab.label,
+        label: defaultTab.label,
         saved: true,
-        value: label,
+        value: defaultTab.label,
       };
     });
 

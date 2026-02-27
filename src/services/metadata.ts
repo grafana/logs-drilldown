@@ -107,7 +107,7 @@ export class MetadataService {
   }
 
   public getDefaultLabelForDS(dsUID: string) {
-    return this.defaultLabels?.[dsUID]?.[0];
+    return this.defaultLabels?.[dsUID]?.[0]?.label;
   }
 }
 
