@@ -99,14 +99,20 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
           </Stack>
         }
       >
-        {!label.values.length && (
+        {!label.values.length ? (
           <Alert title="" severity="info">
             No label values selected. It will show the full list of values for this label..
           </Alert>
+        ) : (
+          <LabelValues label={label} />
         )}
       </ControlledCollapse>
     </div>
   );
+}
+
+function LabelValues({ label }: { label: DefaultLabel }) {
+  // todo: implement
 }
 
 function getLabelStyles(theme: GrafanaTheme2) {
