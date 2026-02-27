@@ -76,6 +76,15 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
     setNewDefaultLabels(labels.filter((currentLabel) => currentLabel.label !== label.label));
   }, [label, labels, setNewDefaultLabels]);
 
+  const handleRemoveValue = useCallback(
+    (valueToRemove: string) => {
+      setNewDefaultLabels(
+        labels.map((l) => (l.label === label.label ? { ...l, values: l.values.filter((v) => v !== valueToRemove) } : l))
+      );
+    },
+    [label.label, labels, setNewDefaultLabels]
+  );
+
   return (
     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={rowClassName}>
       <ControlledCollapse
@@ -104,15 +113,38 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
             No label values selected. It will show the full list of values for this label..
           </Alert>
         ) : (
-          <LabelValues label={label} />
+          <LabelValues label={label} onRemoveValue={handleRemoveValue} />
         )}
       </ControlledCollapse>
     </div>
   );
 }
 
-function LabelValues({ label }: { label: DefaultLabel }) {
-  // todo: implement
+interface LabelValuesProps {
+  label: DefaultLabel;
+  onRemoveValue: (value: string) => void;
+}
+
+function LabelValues({ label, onRemoveValue }: LabelValuesProps) {
+  return (
+    <Stack direction="column" gap={1}>
+      {label.values.map((value) => (
+        <Box key={value} padding={1}>
+          <Stack alignItems="center" justifyContent="space-between">
+            <div>{value}</div>
+            <IconButton
+              aria-label={`Remove ${value}`}
+              variant="destructive"
+              tooltip={`Remove ${value}`}
+              name="trash-alt"
+              size="sm"
+              onClick={() => onRemoveValue(value)}
+            />
+          </Stack>
+        </Box>
+      ))}
+    </Stack>
+  );
 }
 
 function getLabelStyles(theme: GrafanaTheme2) {
