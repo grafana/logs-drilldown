@@ -1,18 +1,23 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { Alert, Box, Button, Combobox, ComboboxOption, Icon, Stack, Text, Tooltip } from '@grafana/ui';
+import { Alert, Box, Button, Combobox, ComboboxOption, Icon, MultiCombobox, Stack, Text, Tooltip } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
 import { LabelList } from './LabelList';
-import { getLabelsForCombobox } from 'services/labels';
+import { getLabelsForCombobox, getLabelValuesForCombobox } from 'services/labels';
 import { SERVICE_NAME } from 'services/variables';
 
 export function DefaultLabels() {
   const { dsUID, currentDefaultLabels, newDefaultLabels, setNewDefaultLabels } = useServiceSelectionContext();
   const [selectedLabel, setSelectedLabel] = useState('');
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  const handleChange = useCallback((fieldName: ComboboxOption<string>) => {
+  const handleLabelChange = useCallback((fieldName: ComboboxOption<string>) => {
     setSelectedLabel(fieldName?.value ?? '');
+  }, []);
+
+  const handleValueChange = useCallback((values: Array<ComboboxOption<string>>) => {
+    setSelectedValues(values?.map(value => value.value) ?? []);
   }, []);
 
   const labels = useMemo(
@@ -62,9 +67,24 @@ export function DefaultLabels() {
             minWidth={30}
             maxWidth={90}
             createCustomValue={true}
-            onChange={handleChange}
+            onChange={handleLabelChange}
             options={getOptions}
           />
+
+          {selectedLabel && (
+            <MultiCombobox<string>
+              key={selectedLabel}
+              placeholder={'Select values (optional)'}
+              width={'auto'}
+              minWidth={30}
+              value={selectedValues}
+              createCustomValue={true}
+              onChange={handleValueChange}
+              options={(typeAhead) =>
+                getLabelValuesForCombobox(selectedLabel, dsUID).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead)))
+              }
+            />
+          )}
 
           <Button
             tooltip="Add new label to match against user query"
@@ -73,7 +93,7 @@ export function DefaultLabels() {
             icon="plus"
             onClick={addLabel}
           >
-            Add label
+            {selectedValues.length ? 'Add label and values' : 'Add label'}
           </Button>
         </Stack>
       </Box>
