@@ -294,10 +294,10 @@ describe('Config', () => {
 });
 
 function queryDisplayColumns() {
-  return screen.queryByRole('heading', { name: /display columns/i });
+  return screen.queryByRole('heading', { name: /display fields/i });
 }
 function getDisplayColumns() {
-  return screen.getByRole('heading', { name: /display columns/i });
+  return screen.getByRole('heading', { name: /display fields/i });
 }
 
 function getDeleteRecordButton() {
