@@ -2,7 +2,12 @@ import { logger } from './logger';
 import { LogsDrilldownDefaultLabelsList } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { getAPIBaseURL } from 'lib/api-clients/utils/utils';
 
-export type DefaultLabelsSettings = Record<string, string[]>;
+export type DefaultLabel = {
+  label: string;
+  values: string[];
+}
+
+export type DefaultLabelsSettings = Record<string, DefaultLabel[]>;
 
 export async function getDefaultLabelSettings(): Promise<DefaultLabelsSettings | null> {
   const baseUrl = getAPIBaseURL('logsdrilldown.grafana.app', 'v1beta1');
@@ -18,8 +23,8 @@ export async function getDefaultLabelSettings(): Promise<DefaultLabelsSettings |
 
       if (response.items) {
         response.items.forEach((item) => {
-          if (item.metadata.name && item.spec.records?.[0]?.labels?.length) {
-            settings[item.metadata.name] = item.spec.records[0].labels;
+          if (item.metadata.name && item.spec.records) {
+            settings[item.metadata.name] = item.spec.records;
           }
         });
       }

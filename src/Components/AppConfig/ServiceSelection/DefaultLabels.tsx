@@ -27,16 +27,16 @@ export function DefaultLabels() {
 
   const getOptions = useCallback(
     (typeAhead: string) =>
-      getLabelsForCombobox(dsUID, labels).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead))),
+      getLabelsForCombobox(dsUID, labels.map(label => label.label)).then((opts) => opts.filter((opt) => opt.value.includes(typeAhead))),
     [dsUID, labels]
   );
 
   const addLabel = useCallback(() => {
     if (selectedLabel) {
-      setNewDefaultLabels([...labels, selectedLabel]);
+      setNewDefaultLabels([...labels, { label: selectedLabel, values: selectedValues }]);
       setSelectedLabel('');
     }
-  }, [labels, selectedLabel, setNewDefaultLabels]);
+  }, [labels, selectedLabel, selectedValues, setNewDefaultLabels]);
 
   const noLabels = (!currentDefaultLabels.length && !newDefaultLabels) || newDefaultLabels?.length === 0;
 

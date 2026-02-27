@@ -7,7 +7,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Box, Icon, IconButton, Stack, useStyles2 } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
-import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
+import { DefaultLabel } from 'services/api';
 
 export function LabelList() {
   const styles = useStyles2(getLabelListStyles);
@@ -43,7 +43,7 @@ export function LabelList() {
             padding={2}
           >
             {labels.map((label, index) => (
-              <Draggable key={label} draggableId={label} index={index}>
+              <Draggable key={label.label} draggableId={label.label} index={index}>
                 {(draggableProvided: DraggableProvided, snapshot) => (
                   <Label
                     label={label}
@@ -71,8 +71,8 @@ function getLabelListStyles(theme: GrafanaTheme2) {
 }
 
 interface LabelProps {
-  label: string;
-  labels: string[];
+  label: DefaultLabel;
+  labels: DefaultLabel[];
   provided: DraggableProvided;
   rowClassName: string;
 }
@@ -82,7 +82,7 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
   const styles = useStyles2(getLabelStyles);
 
   const handleRemove = useCallback(() => {
-    setNewDefaultLabels(labels.filter((currentLabel) => currentLabel !== label));
+    setNewDefaultLabels(labels.filter((currentLabel) => currentLabel.label !== label.label));
   }, [label, labels, setNewDefaultLabels]);
 
   return (
@@ -95,10 +95,10 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
           size="lg"
           className={styles.dragIcon}
         />
-        <div className={styles.label}>{label}</div>
+        <div className={styles.label}>{label.label}</div>
         <IconButton
           variant="destructive"
-          tooltip={`Remove ${getNormalizedFieldName(label)}`}
+          tooltip={`Remove ${label.label}`}
           name="trash-alt"
           size="lg"
           onClick={handleRemove}

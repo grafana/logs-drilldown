@@ -9,16 +9,17 @@ import {
 } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { logger } from 'services/logger';
 import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
+import { DefaultLabel } from 'services/api';
 
 type ServiceSelectionContextType = {
-  currentDefaultLabels: string[];
+  currentDefaultLabels: DefaultLabel[];
   dsUID: string;
   hasUnsavedChanges: boolean;
-  newDefaultLabels: string[] | null;
+  newDefaultLabels: DefaultLabel[] | null;
   reset: () => void;
   save: () => void;
   setDsUID: (dsUID: string) => void;
-  setNewDefaultLabels: (labels: string[]) => void;
+  setNewDefaultLabels: (labels: DefaultLabel[]) => void;
 };
 
 const Context = createContext<ServiceSelectionContextType>({
@@ -39,7 +40,7 @@ interface Props {
 
 export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Props) => {
   const [dsUID, setDsUID] = useState(initialDSUID);
-  const [newDefaultLabels, setNewDefaultLabels] = useState<string[] | null>(null);
+  const [newDefaultLabels, setNewDefaultLabels] = useState<DefaultLabel[] | null>(null);
 
   const {
     currentData: data,
@@ -78,7 +79,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
       return [];
     }
 
-    return data?.spec?.records[0]?.labels ?? [];
+    return data?.spec?.records ?? [];
   }, [data, isSuccess]);
 
   const reset = useCallback(() => {
@@ -99,11 +100,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
             name: dsUID,
           },
           spec: {
-            records: [
-              {
-                labels: newDefaultLabels,
-              },
-            ],
+            records: newDefaultLabels,
           },
         },
       });
@@ -122,11 +119,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
             resourceVersion: data.metadata.resourceVersion,
           },
           spec: {
-            records: [
-              {
-                labels: newDefaultLabels,
-              },
-            ],
+            records: newDefaultLabels,
           },
         },
       });
