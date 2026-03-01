@@ -2770,11 +2770,11 @@ __metadata:
   linkType: hard
 
 "@openfeature/web-sdk@npm:^1.7.2":
-  version: 1.7.2
-  resolution: "@openfeature/web-sdk@npm:1.7.2"
+  version: 1.7.3
+  resolution: "@openfeature/web-sdk@npm:1.7.3"
   peerDependencies:
-    "@openfeature/core": ^1.9.0
-  checksum: 10c0/dce511a87c035bba3305d81aa6a3e80638f6623319d16065f32ce8047adef5170df14658cba531074665f7c4764953b8607c733a9f94804ff7feb8ff175235fe
+    "@openfeature/core": ^1.9.2
+  checksum: 10c0/e3e409f7cff6ff83fcc9a6251dbc7ed22b1d9caab82b60675c8764e34ac61a50877d404d4f13136993fc4a456702b8aea8eb1a0789e6e5df586fc1ad4482f0d7
   languageName: node
   linkType: hard
 
