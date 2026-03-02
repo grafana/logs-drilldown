@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -7,7 +7,7 @@ import { useTheme2 } from '@grafana/ui';
 
 import { testIds } from '../../services/testIds';
 
-export function RawLogLineText(props: { value: unknown }) {
+export function RawLogLineText(props: { value: string | number | ReactElement }) {
   const theme = useTheme2();
   const styles = getStyles(theme);
   return (

@@ -12,7 +12,7 @@ import {
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
 import { PanelMenu, TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
-import { SortBy, SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import { SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { LabelType } from './fieldsTypes';
 import { logger } from './logger';
@@ -25,6 +25,7 @@ import {
 } from './logsFrame';
 import { getLabelTypeFromFrame } from './lokiQuery';
 import { setLevelColorOverrides } from './panel';
+import { SortBy } from './sorting';
 import {
   getFieldsVariable,
   getJSONFieldsVariable,

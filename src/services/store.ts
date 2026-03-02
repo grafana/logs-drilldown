@@ -5,13 +5,14 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 
 import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { SortBy, SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
+import { SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
 import { replaceSlash } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
+import { SortBy } from './sorting';
 import { getDataSourceName } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
@@ -165,12 +166,27 @@ export function getLastUsedDataSourceFromStorage(): string | undefined {
   return localStorage.getItem(DS_LOCALSTORAGE_KEY) ?? undefined;
 }
 
+/**
+ * Matches Grafana Cloud Logs data source names/UIDs: grafanacloud-{stack}-logs
+ */
+const GRAFANACLOUD_LOGS_DS_PATTERN = /^grafanacloud-.+-logs$/;
+
 export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
   const dsList = getDataSourceSrv().getList({
     type: 'loki',
   });
-  const ds = dsList.find((ds) => ds.isDefault);
-  return ds?.uid ?? dsList?.[0]?.uid;
+  const defaultDs = dsList.find((ds) => ds.isDefault);
+  if (defaultDs?.uid) {
+    return defaultDs.uid;
+  }
+  const grafanacloudLogsDs = dsList.find(
+    (ds) =>
+      (ds.name && GRAFANACLOUD_LOGS_DS_PATTERN.test(ds.name)) || (ds.uid && GRAFANACLOUD_LOGS_DS_PATTERN.test(ds.uid))
+  );
+  if (grafanacloudLogsDs?.uid) {
+    return grafanacloudLogsDs.uid;
+  }
+  return dsList?.[0]?.uid;
 }
 
 export function addLastUsedDataSourceToStorage(dsKey: string) {

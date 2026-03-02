@@ -4,12 +4,18 @@ import { BusEventBase, DataFrame, FieldReducerInfo, fieldReducers, ReducerID, Se
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { InlineField, Select } from '@grafana/ui';
 
-import { DEFAULT_SORT_BY } from '../../../services/sorting';
-import { testIds } from '../../../services/testIds';
 import { getLabelValueFromDataFrame } from 'services/levels';
+import {
+  DEFAULT_SORT_BY,
+  DEFAULT_SORT_DIRECTION,
+  getDefaultSortBy,
+  isWasmInit,
+  SORT_BY_OUTLIERS,
+  SortBy,
+} from 'services/sorting';
 import { getSortByPreference, setSortByPreference } from 'services/store';
+import { testIds } from 'services/testIds';
 
-export type SortBy = 'changepoint' | 'outliers' | ReducerID | '';
 export type SortDirection = 'asc' | 'desc';
 export interface SortBySceneState extends SceneObjectState {
   direction: SortDirection;
@@ -32,12 +38,12 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
         {
           description: 'Smart ordering of graphs based on the most significant spikes in the data',
           label: 'Most relevant',
-          value: 'changepoint',
+          value: DEFAULT_SORT_BY,
         },
         {
           description: 'Order by the amount of outlying values in the data',
           label: 'Outlying values',
-          value: 'outliers',
+          value: SORT_BY_OUTLIERS,
         },
         {
           description: 'Sort graphs by deviation from the average value',
@@ -73,10 +79,13 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
   ];
 
   constructor(state: Pick<SortBySceneState, 'target'>) {
-    const { direction, sortBy } = getSortByPreference(state.target, DEFAULT_SORT_BY, 'desc');
+    const defaultSortBy = getDefaultSortBy();
+    const { direction, sortBy } = getSortByPreference(state.target, defaultSortBy, DEFAULT_SORT_DIRECTION);
+    const finalSortBy: SortBy =
+      (sortBy === DEFAULT_SORT_BY || sortBy === SORT_BY_OUTLIERS) && !isWasmInit() ? defaultSortBy : sortBy;
     super({
       direction,
-      sortBy,
+      sortBy: finalSortBy,
       target: state.target,
     });
   }
@@ -101,8 +110,17 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
 
   public static Component = ({ model }: SceneComponentProps<SortByScene>) => {
     const { direction, sortBy } = model.useState();
-    const group = model.sortingOptions.find((group) =>
-      group.options.find((option: SelectableValue<SortBy>) => option.value === sortBy)
+    const wasmInit = isWasmInit();
+    const defaultOptions = wasmInit
+      ? model.sortingOptions
+      : model.sortingOptions.map((group) => ({
+          ...group,
+          options: group.options.filter(
+            (opt: SelectableValue<SortBy>) => opt.value !== DEFAULT_SORT_BY && opt.value !== SORT_BY_OUTLIERS
+          ),
+        }));
+    const group = defaultOptions.find((g) =>
+      g.options.find((option: SelectableValue<SortBy>) => option.value === sortBy)
     );
     const sortByValue: SelectableValue<SortBy> | undefined = group?.options.find(
       (option: SelectableValue<SortBy>) => option.value === sortBy
@@ -119,7 +137,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
             value={sortByValue}
             width={20}
             isSearchable={true}
-            options={model.sortingOptions}
+            options={defaultOptions}
             placeholder={'Choose criteria'}
             onChange={model.onCriteriaChange}
             inputId="sort-by-criteria"
@@ -139,7 +157,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
               },
               {
                 label: 'Desc',
-                value: 'desc',
+                value: DEFAULT_SORT_DIRECTION,
               },
             ]}
           ></Select>
