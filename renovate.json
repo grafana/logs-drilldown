@@ -8,6 +8,7 @@
   ],
   "extends": ["config:best-practices"],
   "schedule": ["on the first day of the month"],
+  "internalChecksFilter": "strict",
   "rebaseWhen": "behind-base-branch",
   "packageRules": [
     {
