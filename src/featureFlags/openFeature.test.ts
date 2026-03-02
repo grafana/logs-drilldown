@@ -7,7 +7,10 @@ jest.mock('@grafana/runtime', () => ({
   config: {
     namespace: 'test-namespace',
     openFeatureContext: {},
-    featureToggles: { exploreLogsAggregatedMetrics: false },
+    featureToggles: {
+      exploreLogsAggregatedMetrics: false,
+      exploreLogsShardSplitting: false,
+    },
   },
 }));
 
@@ -92,5 +95,30 @@ describe('evaluateFeatureFlag', () => {
 
     // false is the default value defined in openFeature.ts for this flag
     await expect(evaluateFeatureFlag('exploreLogsAggregatedMetrics')).resolves.toBe(false);
+  });
+
+  it('correctly evaluates exploreLogsShardSplitting flag using the OpenFeature client', async () => {
+    getBooleanValue.mockReturnValue(true);
+
+    const result = await evaluateFeatureFlag('exploreLogsShardSplitting');
+
+    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsShardSplitting', false);
+    expect(result).toBe(true);
+  });
+
+  it('returns config.featureToggles fallback for exploreLogsShardSplitting when evaluation throws', async () => {
+    const { config } = require('@grafana/runtime');
+    config.featureToggles.exploreLogsShardSplitting = true;
+
+    getBooleanValue.mockImplementation(() => {
+      throw new Error('network');
+    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const result = await evaluateFeatureFlag('exploreLogsShardSplitting');
+
+    expect(result).toBe(true);
+
+    config.featureToggles.exploreLogsShardSplitting = false;
   });
 });
