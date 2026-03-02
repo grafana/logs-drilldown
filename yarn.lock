@@ -3716,20 +3716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin-ts@npm:4.4.0":
-  version: 4.4.0
-  resolution: "@stylistic/eslint-plugin-ts@npm:4.4.0"
-  dependencies:
-    "@typescript-eslint/utils": "npm:^8.32.1"
-    eslint-visitor-keys: "npm:^4.2.0"
-    espree: "npm:^10.3.0"
-  peerDependencies:
-    eslint: ">=9.0.0"
-  checksum: 10c0/bd228bd4f84c77cc17884fcfb57ebc309032c681d3468640f7b29a012ad312d57feb66a26efb94bc8a60196de502233ab022480f11089b6d040c33d71345d3f1
-  languageName: node
-  linkType: hard
-
-"@stylistic/eslint-plugin-ts@npm:^4.2.0":
+"@stylistic/eslint-plugin-ts@npm:4.4.1, @stylistic/eslint-plugin-ts@npm:^4.2.0":
   version: 4.4.1
   resolution: "@stylistic/eslint-plugin-ts@npm:4.4.1"
   dependencies:
@@ -8943,7 +8930,7 @@ __metadata:
     "@openfeature/web-sdk": "npm:^1.7.2"
     "@playwright/test": "npm:1.57.0"
     "@reduxjs/toolkit": "npm:2.10.1"
-    "@stylistic/eslint-plugin-ts": "npm:4.4.0"
+    "@stylistic/eslint-plugin-ts": "npm:4.4.1"
     "@swc/core": "npm:1.15.0"
     "@swc/helpers": "npm:0.5.17"
     "@swc/jest": "npm:0.2.39"
