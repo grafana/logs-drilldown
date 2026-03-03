@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.0.38
+
+##### Chores
+
+* **goff:**  update exploreLogsShardSplitting to goff (#1766) (2056eb88)
+* **deps:**
+  *  update dependency css-loader to v7.1.4 (#1782) (6629fbdf)
+  *  update dependency @stylistic/eslint-plugin-ts to v4.4.1 (#1779) (c7119896)
+  *  update dependency @types/lodash to v4.17.24 (#1780) (fe5b9492)
+  *  update dependency copy-webpack-plugin to v13.0.1 (#1781) (482fda0e)
+  *  update dependency webpack to v5.104.1 [security] (#1772) (0d3fa3d7)
+* **renonvate:**  use strict (#1783) (4959d9b5)
+* **agents:**  update create plugin to get the latest agents.md and add a logs specific agents.md (#1770) (ec593303)
+* **ci:**  update deps for compatibility check  (#1763) (1519638e)
+
+##### New Features
+
+* **patterns:**  alert to explain only index labels are applied to patterns (#1769) (cd9e1b3a)
+
+##### Bug Fixes
+
+* **deps:**  update github.com/grafana/loki-client-go digest to 7465710 (#1777) (ed824665)
+* **wasm:**  check if wasm enabled and no errors (#1762) (83441484)
+* **default datasource:**  update default data source resolution (#1771) (d4e312fe)
+* **IndexScene:**  use custom placeholder for comboboxes (#1745) (72dd64d8)
+
+
 ## 1.0.37
 
 ##### Chores
