@@ -38,5 +38,3 @@ jobs:
 
       # Use Node.js 24
       node-version: '24'
-      # Publish the github release
-      github-draft-release: false

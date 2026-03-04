@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.39
+
+##### Chores
+
+* **cd:**  remove github-draft-release (#1785) (4b0f27d4)
+
+
 ## 1.0.38
 
 ##### Chores
