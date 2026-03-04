@@ -1,4 +1,4 @@
-const PRETTIER_WRITE = 'prettier --write --ignore-path .prettierignore';
+const PRETTIER_WRITE = 'prettier --write';
 
 module.exports = {
   'src/**/*.{js,jsx,ts,tsx}': 'yarn lint',
