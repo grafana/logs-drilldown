@@ -5,9 +5,6 @@ services:
       service: grafana
     ports: !override
       - 3001:3000/tcp
-    volumes:
-      - ./dist:/var/lib/grafana/plugins/grafana-lokiexplore-app
-      - ./provisioning:/etc/grafana/provisioning
     environment:
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_ANONYMOUS_ENABLED: true
