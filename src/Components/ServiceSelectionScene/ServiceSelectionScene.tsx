@@ -713,6 +713,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       getDataSourceVariable(this).subscribeToState((newState) => {
         this.setState({
           body: new SceneCSSGridLayout({ children: [] }),
+          tabs: undefined,
         });
         this.addDatasourceChangeToBrowserHistory(newState.value.toString());
         this.runVolumeQuery();
