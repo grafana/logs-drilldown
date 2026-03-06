@@ -34,8 +34,8 @@ func main() {
 
 	flag.Parse()
 
-	if os.Getenv("GENERATOR_FULL_DATA") == "1" {
-		stdlog.Print("generator: GENERATOR_FULL_DATA=1, using full clusters/pods for all services (CI mode)")
+	if os.Getenv("GENERATOR_CI_DATA") == "1" {
+		stdlog.Print("generator: GENERATOR_CI_DATA=1, using full clusters/pods for all services (CI mode)")
 	} else {
 		stdlog.Print("generator: service-tiered mode (docker-compose-local-all), E2E-critical services get full data")
 	}
@@ -72,7 +72,7 @@ func main() {
 	}
 
 	var logger log.Logger = client
-	if traceEmitter != nil && !log.IsFullDataMode() {
+	if traceEmitter != nil && !log.IsCIData() {
 		logger = log.NewTraceAwareLogger(logger, traceEmitter, true) // append for Loki line filter
 	}
 
@@ -112,7 +112,7 @@ func main() {
 							return
 						}
 						var otelLogger log.Logger = log.NewOtelLogger(string(serviceName), labels)
-						if traceEmitter != nil && !log.IsFullDataMode() {
+						if traceEmitter != nil && !log.IsCIData() {
 							otelLogger = log.NewTraceAwareLogger(otelLogger, traceEmitter, false) // no append: trace_id in attributes, avoids breaking ParseJSON
 						}
 						appLogger = log.NewAppLogger(labels, otelLogger)
@@ -120,7 +120,7 @@ func main() {
 						appLogger = log.NewAppLogger(labels, logger)
 					}
 					if log.UseFullDataForService(serviceName) {
-						if log.IsFullDataMode() {
+						if log.IsCIData() {
 							appLogger.SetSleep(log.LogSleepOriginal)
 						} else {
 							appLogger.SetSleep(log.LogSleepFast)

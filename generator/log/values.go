@@ -22,23 +22,19 @@ func LogSleepFast() {
 	time.Sleep(time.Duration(500+rand.Intn(1500)) * time.Millisecond)
 }
 
-// LogSleepOriginal sleeps 0–5s. Used when GENERATOR_FULL_DATA=1 (E2E) to match pre-refactor behavior.
+// LogSleepOriginal sleeps 0–5s. Used when GENERATOR_CI_DATA=1 (E2E) to match pre-refactor behavior.
 func LogSleepOriginal() {
 	time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
 }
 
-// IsFullDataMode returns true when GENERATOR_FULL_DATA=1 (CI/E2E uses old/full dataset).
-func IsFullDataMode() bool {
-	return os.Getenv("GENERATOR_FULL_DATA") == "1"
-}
-
-// isFullDataMode returns true when GENERATOR_FULL_DATA=1 (CI uses old/full dataset).
-func isFullDataMode() bool {
-	return IsFullDataMode()
+// IsCIData returns true when GENERATOR_CI_DATA=1.
+// In this mode, the generator produces more logs by expanding clusters/pods and using shorter sleep intervals.
+func IsCIData() bool {
+	return os.Getenv("GENERATOR_CI_DATA") == "1"
 }
 
 // e2eCriticalServices are services that need full cluster/pod/volume for E2E tests.
-// Used when GENERATOR_FULL_DATA is unset (docker-compose-local-all).
+// Used when GENERATOR_CI_DATA is unset (docker-compose-local-all).
 var e2eCriticalServices = map[string]bool{
 	"tempo-distributor": true, "tempo-ingester": true,
 	"nginx-json-mixed": true, "nginx-json": true, "nginx": true,
@@ -47,7 +43,7 @@ var e2eCriticalServices = map[string]bool{
 
 // UseFullDataForService returns true if this service should use full clusters, pods, and fast sleep.
 func UseFullDataForService(svc model.LabelValue) bool {
-	if isFullDataMode() {
+	if IsCIData() {
 		return true
 	}
 	return e2eCriticalServices[string(svc)]

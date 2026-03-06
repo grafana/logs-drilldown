@@ -287,7 +287,7 @@ func startFailingMimirPod(ctx context.Context, logger log.Logger) {
 		"service_name": "mimir-ingester",
 	}, logger)
 	if log.UseFullDataForService("mimir-ingester") {
-		if log.IsFullDataMode() {
+		if log.IsCIData() {
 			appLogger.SetSleep(log.LogSleepOriginal)
 		} else {
 			appLogger.SetSleep(log.LogSleepFast)
