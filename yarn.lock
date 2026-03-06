@@ -1661,12 +1661,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@gar/promise-retry@npm:^1.0.0":
   version: 1.0.2
   resolution: "@gar/promise-retry@npm:1.0.2"
   dependencies:
     retry: "npm:^0.13.1"
   checksum: 10c0/748a84fb0ab962f7867966f21dc24d1872c53c1656dd3352320fe69ad3b2043f2dfdb3be024c7636ce4904c5ba1da22d0f3558e489c3de578f5bb520f062d0fd
+=======
+"@grafana/api-clients@npm:^13.0.0-22766927077":
+  version: 13.0.0-22766927077
+  resolution: "@grafana/api-clients@npm:13.0.0-22766927077"
+  peerDependencies:
+    "@grafana/runtime": ">=11.6 <= 12.x"
+    "@reduxjs/toolkit": ^2.10.0
+    rxjs: 7.8.2
+  checksum: 10c0/ad27898dde4e23d69ebd7c6213ebed8dd65bff25787542c7451f6e53dbec50bc25f642bad6de31cee69b15b9ed3ae2bc7dd2fb103846735821995572c9e71945
+>>>>>>> cdbfb2a8 (chore: delete local rtkq stuff)
   languageName: node
   linkType: hard
 
@@ -8787,6 +8798,7 @@ __metadata:
     "@commitlint/cli": "npm:20.3.0"
     "@commitlint/config-conventional": "npm:19.8.1"
     "@emotion/css": "npm:11.10.6"
+    "@grafana/api-clients": "npm:^13.0.0-22766927077"
     "@grafana/assistant": "npm:0.1.13"
     "@grafana/data": "npm:^12.4.0"
     "@grafana/eslint-config": "npm:8.2.0"

@@ -1,11 +1,12 @@
+// import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1beta1';
 import React, { useEffect } from 'react';
 
+import { useGetLogsDrilldownDefaultColumnsQuery } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { Records } from './Records';
 import { APIColumnsState } from './types';
-import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { logger } from 'services/logger';
 import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 
