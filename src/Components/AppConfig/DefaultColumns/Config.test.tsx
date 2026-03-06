@@ -66,8 +66,8 @@ jest.mock('@grafana/runtime', () => ({
   },
 }));
 
-jest.mock('lib/api-clients/logsdrilldown/v1beta1', () => ({
-  ...jest.requireActual('lib/api-clients/logsdrilldown/v1beta1'),
+jest.mock('@grafana/api-clients/rtkq/logsdrilldown/v1beta1', () => ({
+  ...jest.requireActual('@grafana/api-clients/rtkq/logsdrilldown/v1beta1'),
   useGetLogsDrilldownDefaultColumnsQuery: jest.fn(),
   useCreateLogsDrilldownDefaultColumnsMutation: jest.fn(),
   useReplaceLogsDrilldownDefaultColumnsMutation: jest.fn(),
