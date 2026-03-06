@@ -1,4 +1,3 @@
-// import { useGetLogsDrilldownDefaultColumnsQuery } from 'lib/api-clients/logsdrilldown/v1beta1';
 import React, { useEffect } from 'react';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
