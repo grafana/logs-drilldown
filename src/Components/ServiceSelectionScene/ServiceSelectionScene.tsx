@@ -1100,11 +1100,18 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   };
 
   private getLabels(series?: DataFrame[]) {
-    const labelsByVolume: string[] = series?.[0]?.fields[0].values ?? [];
     const dsString = getDataSourceVariable(this).getValue()?.toString();
-    const searchString = getServiceSelectionSearchVariable(this).getValue();
     const selectedTab = this.getSelectedTab();
+
+    const defaultLabels = getMetadataService().getDefaultLabelsForDS(dsString);
+    const defaultLabelValues = defaultLabels
+      ? defaultLabels.find((defaultLabel) => defaultLabel.label === selectedTab)?.values
+      : undefined;
+
+    const labelsByVolume: string[] = defaultLabelValues ?? series?.[0]?.fields[0].values ?? [];
+    const searchString = getServiceSelectionSearchVariable(this).getValue();
     const labelsToQuery = createListOfLabelsToQuery(labelsByVolume, dsString, String(searchString), selectedTab);
+
     return { labelsByVolume, labelsToQuery: labelsToQuery };
   }
 }
