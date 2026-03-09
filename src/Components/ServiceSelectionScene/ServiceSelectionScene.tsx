@@ -435,9 +435,14 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.setSelectedTab(defaultLabel);
   }
 
-  setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
+  setSelectedTab = (labelName: string, type: 'auto' | 'manual' = 'manual') => {
     if (type === 'manual') {
       addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
+    }
+
+    // We have default label values, check if we need to create a query runner
+    if (!this.state.$data.state.queries.length) {
+      this.setVolumeQueryRunner();
     }
 
     // clear active search
@@ -451,7 +456,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       newTab: labelName,
       type,
     });
-  }
+  };
 
   // Creates a layout with timeseries panel
   buildServiceLayout(
@@ -619,11 +624,25 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private setVolumeQueryRunner() {
+    const dsUID = getDataSourceVariable(this).getValue()?.toString();
+    const selectedTab = this.getSelectedTab();
+
+    const defaultLabels = getMetadataService().getDefaultLabelsForDS(dsUID);
+    const defaultLabelValues = defaultLabels
+      ? defaultLabels.find((defaultLabel) => defaultLabel.label === selectedTab)?.values
+      : undefined;
+
     this.setState({
       $data: getSceneQueryRunner({
-        queries: [
-          buildVolumeQuery(`{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`, 'volume', this.getSelectedTab()),
-        ],
+        queries: defaultLabelValues
+          ? []
+          : [
+              buildVolumeQuery(
+                `{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`,
+                'volume',
+                this.getSelectedTab()
+              ),
+            ],
         runQueriesMode: 'manual',
       }),
     });
@@ -719,6 +738,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         // Select the default label for the new data source before running the volume query,
         // so we don't query using the previous data source's selected label.
         this.selectDefaultLabelTab();
+        this.setVolumeQueryRunner();
         this.runVolumeQuery(true);
       })
     );
