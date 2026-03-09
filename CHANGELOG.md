@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.40
+
+##### Chores
+
+* **cp:**  revert create-plugin updates bundler externals (#1788) (9a92236d)
+* **deps:**
+  *  update grafanaDependency version (#1793) (78335386)
+  *  update dependency tar to v7.5.10 [security] (#1790) (f5fd3aaa)
+  *  update supported grafana versions (#1789) (07b8c110)
+* **ci:**  run e2e tests only on PRs (#1786) (2154024f)
+
+
 ## 1.0.39
 
 ##### Chores
