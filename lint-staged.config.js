@@ -1,4 +1,4 @@
-const PRETTIER_WRITE = 'prettier --write';
+const PRETTIER_WRITE = 'prettier --write --ignore-unknown';
 
 module.exports = {
   'src/**/*.{js,jsx,ts,tsx}': 'yarn lint',

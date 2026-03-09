@@ -15,4 +15,7 @@ yarn.lock
 **/*.svg
 **/*.river
 **/*.sh
+**/*.go
+**/go.mod
+**/go.sum
 .yarnrc
