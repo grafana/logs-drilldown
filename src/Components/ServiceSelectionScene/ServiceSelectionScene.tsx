@@ -716,7 +716,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           tabs: undefined,
         });
         this.addDatasourceChangeToBrowserHistory(newState.value.toString());
-        this.runVolumeQuery();
+        // Select the default label for the new data source before running the volume query,
+        // so we don't query using the previous data source's selected label.
+        this.selectDefaultLabelTab();
+        this.runVolumeQuery(true);
       })
     );
   }
