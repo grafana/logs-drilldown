@@ -432,7 +432,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const dsUID = getDataSourceVariable(this).getValue().toString();
     const defaultLabel = getMetadataService().getDefaultLabelForDS(dsUID) ?? SERVICE_NAME;
     this.addLabelChangeToBrowserHistory(defaultLabel, true);
-    this.setSelectedTab(defaultLabel);
+    this.setSelectedTab(defaultLabel, 'auto');
   }
 
   setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
