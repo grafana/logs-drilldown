@@ -4,6 +4,7 @@ import { css, cx } from '@emotion/css';
 import { CellProps } from 'react-table';
 
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   AdHocFilterWithLabels,
@@ -386,13 +387,16 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     return (
       <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
         <EmptyState
-          message={
-            filters.length > 0
-              ? 'No patterns found in the current time range or matching the current level filters.'
-              : 'No patterns found in the current time range.'
-          }
+          message={t('logs.logs-drilldown.paterns.no-patterns-title', 'No patterns to display')}
           variant="not-found"
-        />
+        >
+          {filters.length > 0
+            ? t(
+                'logs.logs-drilldown.paterns.no-filtered-patterns-message',
+                'No patterns found in the current time range or matching the current level filters.'
+              )
+            : t('logs.logs-drilldown.paterns.no-patterns-message', 'No patterns found in the current time range.')}
+        </EmptyState>
       </div>
     );
   }
