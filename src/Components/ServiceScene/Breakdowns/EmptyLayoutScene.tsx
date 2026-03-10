@@ -21,9 +21,10 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
   const { type } = model.useState();
 
   useEffect(() => {
-    isAssistantAvailable().subscribe((isAvailable: boolean) => {
+    const sub = isAssistantAvailable().subscribe((isAvailable: boolean) => {
       setAssistantAvailable(isAvailable);
     });
+    return () => sub.unsubscribe();
   }, []);
 
   const embeddedOptions = getEmptyStateOptions(type, model);
