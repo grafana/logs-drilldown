@@ -1,7 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 
 import { css, cx } from '@emotion/css';
-import { rest } from 'lodash';
 
 import { GrafanaTheme2, LoadingState, SelectableValue } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
@@ -149,7 +148,6 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
                     <>
                       <Popover
                         {...popperProps}
-                        {...rest}
                         show={showPopover}
                         wrapperClassName={styles.popover}
                         referenceElement={popoverRef.current}
