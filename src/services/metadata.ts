@@ -53,6 +53,14 @@ export class MetadataService {
     this.serviceSceneState.fieldsCount = count;
   }
 
+  public setTotalLogsCount(count: number) {
+    if (!this.serviceSceneState) {
+      this.serviceSceneState = {};
+    }
+
+    this.serviceSceneState.totalLogsCount = count;
+  }
+
   public setServiceSceneState(state: ServiceSceneCustomState) {
     this.serviceSceneState = {
       embedded: state.embedded,
