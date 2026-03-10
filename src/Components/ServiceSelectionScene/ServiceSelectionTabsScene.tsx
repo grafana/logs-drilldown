@@ -270,7 +270,6 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
         if (newState.value !== prevState.value) {
           this.setTabOptions();
         }
-        this.state.$labelsData.runQueries();
       })
     );
 

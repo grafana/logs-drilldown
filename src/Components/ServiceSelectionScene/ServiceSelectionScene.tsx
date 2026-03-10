@@ -1119,7 +1119,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const defaultLabelValues = getMetadataService().getDefaultLabelValuesForDS(dsString, selectedTab);
     const defaultValues = defaultLabelValues && defaultLabelValues.length ? defaultLabelValues : undefined;
 
-    const labelsByVolume: string[] = defaultValues ?? series?.[0]?.fields[0].values ?? [];
+    const labelsByVolume: string[] = defaultValues ?? series?.[0]?.fields?.[0]?.values ?? [];
     const searchString = getServiceSelectionSearchVariable(this).getValue();
     const labelsToQuery = createListOfLabelsToQuery(labelsByVolume, dsString, String(searchString), selectedTab);
 
