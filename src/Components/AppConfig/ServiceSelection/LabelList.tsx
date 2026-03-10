@@ -4,7 +4,7 @@ import { css, cx } from '@emotion/css';
 import { Draggable, DraggableProvided, DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Alert, Box, ControlledCollapse, Icon, IconButton, Stack, useStyles2 } from '@grafana/ui';
+import { Alert, Box, ControlledCollapse, Icon, IconButton, Stack, Tag, useStyles2 } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
 import { DefaultLabel } from 'services/api';
@@ -129,21 +129,23 @@ interface LabelValuesProps {
 function LabelValues({ label, onRemoveValue }: LabelValuesProps) {
   return (
     <Stack direction="column" gap={1}>
-      {label.values.map((value) => (
-        <Box key={value} padding={1}>
-          <Stack alignItems="center" justifyContent="space-between">
-            <div>{value}</div>
-            <IconButton
-              aria-label={`Remove ${value}`}
-              variant="destructive"
-              tooltip={`Remove ${value}`}
-              name="trash-alt"
-              size="sm"
-              onClick={() => onRemoveValue(value)}
-            />
-          </Stack>
-        </Box>
-      ))}
+      <Box paddingLeft={1} maxWidth="max-content">
+        {label.values.map((value) => (
+          <Box key={value} paddingLeft={1} marginBottom={1}>
+            <Stack alignItems="center" justifyContent="space-between">
+              <Tag name={value} />
+              <IconButton
+                aria-label={`Remove ${value}`}
+                variant="destructive"
+                tooltip={`Remove ${value}`}
+                name="trash-alt"
+                size="sm"
+                onClick={() => onRemoveValue(value)}
+              />
+            </Stack>
+          </Box>
+        ))}
+      </Box>
     </Stack>
   );
 }
