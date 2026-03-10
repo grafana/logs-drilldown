@@ -106,7 +106,6 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
 
   private subscribeToIndexScene() {
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-
     return serviceScene.subscribeToState((newState) => {
       if (newState.$patternsData) {
         this.subscribeToPatterns();
