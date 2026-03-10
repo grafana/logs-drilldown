@@ -806,12 +806,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private subscribeToLogsCountQuery() {
     return this.state.$logsCount?.subscribeToState((newState) => {
       if (newState.data?.state === LoadingState.Done) {
-        const value: number | undefined = newState.data.series[0]?.fields?.[1]?.values?.[0] ?? 0;
+        const value: number | undefined = newState.data.series[0]?.fields?.[1]?.values?.[0];
 
         this.setState({
           totalLogsCount: value,
         });
-        getMetadataService().setTotalLogsCount(value);
+        getMetadataService().setTotalLogsCount(value ?? 0);
       }
     });
   }
