@@ -164,23 +164,26 @@ export async function getLabelsForCombobox(dsUID: string, excludeLabels: string[
   return results.filter((label) => !excludeLabels.includes(label.text)).map((label) => ({ value: label.text }));
 }
 
-export const getLabelValuesForCombobox = memoize(async (label: string, dsUID: string): Promise<ComboboxOption[]> => {
-  const datasource = await getDatasource(dsUID);
-  if (!datasource) {
+export const getLabelValuesForCombobox = memoize(
+  async (label: string, dsUID: string): Promise<ComboboxOption[]> => {
+    const datasource = await getDatasource(dsUID);
+    if (!datasource) {
+      return [];
+    }
+    const filter: AdHocFilterWithLabels = { value: `""`, key: label, operator: LabelFilterOp.NotEqual };
+    const result = await getLabelValues([], filter, datasource, dsUID);
+
+    if (isArray(result)) {
+      return result.map((metricFindValue) => {
+        const value = metricFindValue.text.toString();
+        return {
+          value,
+          label: value,
+        };
+      });
+    }
+
     return [];
-  }
-  const filter: AdHocFilterWithLabels = { value: `""`, key: label, operator: LabelFilterOp.NotEqual };
-  const result = await getLabelValues([], filter, datasource, dsUID);
-
-  if (isArray(result)) {
-    return result.map((metricFindValue) => {
-      const value = metricFindValue.text.toString();
-      return {
-        value,
-        label: value,
-      };
-    });
-  }
-
-  return [];
-});
+  },
+  (label: string, dsUID: string) => `${dsUID}.${label}`
+);

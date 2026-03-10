@@ -80,7 +80,8 @@ const getLabels = memoize(
       options.unshift(service[0]);
     }
     return options;
-  }
+  },
+  (columnsLabels, dsUID) => `${dsUID}.${JSON.stringify(columnsLabels)}`
 );
 
 const getStyles = (theme: GrafanaTheme2) => ({
