@@ -35,13 +35,25 @@ export function LabelList() {
           <Box ref={provided.innerRef} {...provided.droppableProps} marginBottom={2}>
             {labels.map((label, index) => (
               <Draggable key={label.label} draggableId={label.label} index={index}>
-                {(draggableProvided: DraggableProvided, snapshot) => (
-                  <Label
-                    label={label}
-                    labels={labels}
-                    provided={draggableProvided}
-                    rowClassName={cx(snapshot.isDropAnimating ? styles.dropAnimating : undefined)}
-                  />
+                {(provided: DraggableProvided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    className={cx(snapshot.isDropAnimating ? styles.dropAnimating : undefined)}
+                  >
+                    <Stack alignItems="center">
+                      <Box paddingBottom={1}>
+                        <Icon
+                          aria-label="Drag and drop icon"
+                          title="Drag and drop to reorder"
+                          name="draggabledots"
+                          size="lg"
+                          {...provided.dragHandleProps}
+                        />
+                      </Box>
+                      <Label label={label} labels={labels} />
+                    </Stack>
+                  </div>
                 )}
               </Draggable>
             ))}
@@ -64,11 +76,9 @@ function getLabelListStyles(theme: GrafanaTheme2) {
 interface LabelProps {
   label: DefaultLabel;
   labels: DefaultLabel[];
-  provided: DraggableProvided;
-  rowClassName: string;
 }
 
-export function Label({ label, labels, provided, rowClassName }: LabelProps) {
+export function Label({ label, labels }: LabelProps) {
   const { setNewDefaultLabels } = useServiceSelectionContext();
   const styles = useStyles2(getLabelStyles);
 
@@ -86,37 +96,28 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
   );
 
   return (
-    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={rowClassName}>
-      <ControlledCollapse
-        label={
-          <Stack alignItems="center" justifyContent="space-between">
-            <div className={styles.label}>{label.label}</div>
-            <Icon
-              aria-label="Drag and drop icon"
-              title="Drag and drop to reorder"
-              name="draggabledots"
-              size="lg"
-              className={styles.dragIcon}
-            />
-            <IconButton
-              variant="destructive"
-              tooltip={`Remove ${label.label}`}
-              name="trash-alt"
-              size="lg"
-              onClick={handleRemove}
-            />
-          </Stack>
-        }
-      >
-        {!label.values.length ? (
-          <Alert title="" severity="info">
-            No label values selected. It will show the full list of values for this label.
-          </Alert>
-        ) : (
-          <LabelValues label={label} onRemoveValue={handleRemoveValue} />
-        )}
-      </ControlledCollapse>
-    </div>
+    <ControlledCollapse
+      label={
+        <Stack alignItems="center" justifyContent="space-between">
+          <div className={styles.label}>{label.label}</div>
+          <IconButton
+            variant="destructive"
+            tooltip={`Remove ${label.label}`}
+            name="trash-alt"
+            size="lg"
+            onClick={handleRemove}
+          />
+        </Stack>
+      }
+    >
+      {!label.values.length ? (
+        <Alert title="" severity="info">
+          No label values selected. It will show the full list of values for this label.
+        </Alert>
+      ) : (
+        <LabelValues label={label} onRemoveValue={handleRemoveValue} />
+      )}
+    </ControlledCollapse>
   );
 }
 
@@ -151,11 +152,6 @@ function getLabelStyles(theme: GrafanaTheme2) {
   return {
     label: css({
       minWidth: theme.spacing(30),
-    }),
-    dragIcon: css({
-      cursor: 'drag',
-      opacity: 0.4,
-      marginRight: theme.spacing(1),
     }),
   };
 }

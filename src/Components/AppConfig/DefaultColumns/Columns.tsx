@@ -128,7 +128,6 @@ const getStyles = (theme: GrafanaTheme2, containerDragging: boolean) => ({
   }),
   column__dragIcon: css({
     cursor: 'drag',
-    opacity: 0.4,
     marginRight: theme.spacing(1),
   }),
 });
