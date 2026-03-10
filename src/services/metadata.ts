@@ -106,6 +106,10 @@ export class MetadataService {
     return this.defaultLabels?.[dsUID];
   }
 
+  public getDefaultLabelValuesForDS(dsUID: string, label: string) {
+    return this.defaultLabels?.[dsUID]?.find((defaultLabel) => defaultLabel.label === label)?.values;
+  }
+
   public getDefaultLabelForDS(dsUID: string) {
     return this.defaultLabels?.[dsUID]?.[0]?.label;
   }

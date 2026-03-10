@@ -622,10 +622,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const dsUID = getDataSourceVariable(this).getValue()?.toString();
     const selectedTab = this.getSelectedTab();
 
-    const defaultLabels = getMetadataService().getDefaultLabelsForDS(dsUID);
-    const defaultLabelValues = defaultLabels
-      ? defaultLabels.find((defaultLabel) => defaultLabel.label === selectedTab)?.values
-      : undefined;
+    const defaultLabelValues = getMetadataService().getDefaultLabelValuesForDS(dsUID, selectedTab);
 
     this.setState({
       $data: getSceneQueryRunner({
@@ -1119,11 +1116,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const dsString = getDataSourceVariable(this).getValue()?.toString();
     const selectedTab = this.getSelectedTab();
 
-    const defaultLabels = getMetadataService().getDefaultLabelsForDS(dsString);
-    const defaultLabelValues = defaultLabels
-      ? defaultLabels.find((defaultLabel) => defaultLabel.label === selectedTab)?.values
-      : undefined;
-
+    const defaultLabelValues = getMetadataService().getDefaultLabelValuesForDS(dsString, selectedTab);
     const defaultValues = defaultLabelValues && defaultLabelValues.length ? defaultLabelValues : undefined;
 
     const labelsByVolume: string[] = defaultValues ?? series?.[0]?.fields[0].values ?? [];
