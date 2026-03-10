@@ -435,14 +435,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     this.setSelectedTab(defaultLabel);
   }
 
-  setSelectedTab = (labelName: string, type: 'auto' | 'manual' = 'manual') => {
+  setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
     if (type === 'manual') {
       addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
-    }
-
-    // We have default label values, check if we need to create a query runner
-    if (!this.state.$data.state.queries.length) {
-      this.setVolumeQueryRunner();
     }
 
     // clear active search
@@ -456,7 +451,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       newTab: labelName,
       type,
     });
-  };
+  }
 
   // Creates a layout with timeseries panel
   buildServiceLayout(
@@ -634,15 +629,16 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
     this.setState({
       $data: getSceneQueryRunner({
-        queries: defaultLabelValues
-          ? []
-          : [
-              buildVolumeQuery(
-                `{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`,
-                'volume',
-                this.getSelectedTab()
-              ),
-            ],
+        queries:
+          defaultLabelValues && defaultLabelValues.length > 0
+            ? []
+            : [
+                buildVolumeQuery(
+                  `{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`,
+                  'volume',
+                  this.getSelectedTab()
+                ),
+              ],
         runQueriesMode: 'manual',
       }),
     });
@@ -1128,7 +1124,9 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       ? defaultLabels.find((defaultLabel) => defaultLabel.label === selectedTab)?.values
       : undefined;
 
-    const labelsByVolume: string[] = defaultLabelValues ?? series?.[0]?.fields[0].values ?? [];
+    const defaultValues = defaultLabelValues && defaultLabelValues.length ? defaultLabelValues : undefined;
+
+    const labelsByVolume: string[] = defaultValues ?? series?.[0]?.fields[0].values ?? [];
     const searchString = getServiceSelectionSearchVariable(this).getValue();
     const labelsToQuery = createListOfLabelsToQuery(labelsByVolume, dsString, String(searchString), selectedTab);
 
