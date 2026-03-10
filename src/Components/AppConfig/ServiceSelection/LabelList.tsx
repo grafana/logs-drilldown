@@ -110,7 +110,7 @@ export function Label({ label, labels, provided, rowClassName }: LabelProps) {
       >
         {!label.values.length ? (
           <Alert title="" severity="info">
-            No label values selected. It will show the full list of values for this label..
+            No label values selected. It will show the full list of values for this label.
           </Alert>
         ) : (
           <LabelValues label={label} onRemoveValue={handleRemoveValue} />
