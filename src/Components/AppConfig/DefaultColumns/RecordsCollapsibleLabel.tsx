@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
-import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
+import { getNormalizedFieldName } from 'services/logFieldNames';
 
 interface Props {
   isOpen: boolean;

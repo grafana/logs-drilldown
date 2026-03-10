@@ -8,8 +8,8 @@ import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { getKeys } from './State';
-import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getNormalizedFieldName } from 'services/logFieldNames';
 import { logger } from 'services/logger';
 
 interface Props {

@@ -3,7 +3,6 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
-import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
@@ -155,14 +154,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-export const OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME = '___OTEL_LOG_ATTRIBUTES___';
-export const LOG_LINE_BODY_FIELD_NAME = '___LOG_LINE_BODY___';
-
-export function getNormalizedFieldName(field: string) {
-  if (field === LOG_LINE_BODY_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-line-field', 'Log line');
-  } else if (field === OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME) {
-    return t('logs.logs-drilldown.fields.log-attributes-field', 'Log attributes');
-  }
-  return field;
-}
+export {
+  getNormalizedFieldName,
+  LOG_LINE_BODY_FIELD_NAME,
+  OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
+} from '../../services/logFieldNames';

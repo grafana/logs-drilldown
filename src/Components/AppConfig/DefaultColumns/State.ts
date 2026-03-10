@@ -9,9 +9,9 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
-import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { areArraysStrictlyEqual } from 'services/comparison';
+import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'services/logFieldNames';
 import { logger } from 'services/logger';
 import { LokiDatasource } from 'services/lokiQuery';
 import { getDetectedFieldsFn, getLabelsKeys } from 'services/TagKeysProviders';
