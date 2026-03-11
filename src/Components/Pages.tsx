@@ -27,6 +27,7 @@ import {
   ROUTE_DEFINITIONS,
   ROUTES,
   SERVICE_URL_KEYS,
+  SERVICE_URL_KEYS_NO_TIMERANGE,
   SUB_ROUTES,
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
@@ -181,7 +182,8 @@ export function makeIndexPage() {
     ],
     getScene: (routeMatch) => getServicesScene(routeMatch),
     layout: PageLayoutType.Custom,
-    preserveUrlKeys: SERVICE_URL_KEYS,
+    // Fallback to default time range if configured
+    preserveUrlKeys: plugin.meta.jsonData?.defaultTimeRange ? SERVICE_URL_KEYS_NO_TIMERANGE : SERVICE_URL_KEYS,
     routePath: `${PageSlugs.explore}/*`,
     // Top level breadcrumb
     title: 'Grafana Logs Drilldown',
