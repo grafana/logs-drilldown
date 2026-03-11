@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { css, cx } from '@emotion/css';
 import { CellProps } from 'react-table';
 
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   AdHocFilterWithLabels,
@@ -15,7 +16,15 @@ import {
   SceneObjectBase,
   SceneObjectState,
 } from '@grafana/scenes';
-import { AxisPlacement, Column, InteractiveTable, TooltipDisplayMode, useTheme2, Button } from '@grafana/ui';
+import {
+  AxisPlacement,
+  Column,
+  InteractiveTable,
+  TooltipDisplayMode,
+  useTheme2,
+  Button,
+  EmptyState,
+} from '@grafana/ui';
 
 import { isOperatorInclusive } from '../../../../services/operatorHelpers';
 import { LINE_LIMIT } from '../../../../services/query';
@@ -343,8 +352,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   const { legendSyncPatterns } = patternsFrameScene.useState();
 
   // Must use local patternFrames as the parent decides if we get the filtered or not
-  const { patternFrames: patternFramesRaw, patternsNotMatchingFilters } = model.useState();
-  let patternFrames = patternFramesRaw ?? [];
+  const { patternFrames = [], patternsNotMatchingFilters } = model.useState();
   const levelsVar = getLevelsVariable(model);
   const { filters } = levelsVar.useState();
 
@@ -357,16 +365,41 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     return previousValue + frame.sum;
   }, 0);
 
-  const tableData = model.buildTableData(patternFrames, legendSyncPatterns);
-  const columns = model.buildColumns(
-    total,
-    appliedPatterns,
-    theme,
-    model.state.maxLines ?? LINE_LIMIT,
-    patternFrames,
-    patternsNotMatchingFilters,
-    filters
+  const tableData = useMemo(
+    () => model.buildTableData(patternFrames, legendSyncPatterns),
+    [legendSyncPatterns, model, patternFrames]
   );
+  const columns = useMemo(
+    () =>
+      model.buildColumns(
+        total,
+        appliedPatterns,
+        theme,
+        model.state.maxLines ?? LINE_LIMIT,
+        patternFrames,
+        patternsNotMatchingFilters,
+        filters
+      ),
+    [appliedPatterns, filters, model, patternFrames, patternsNotMatchingFilters, theme, total]
+  );
+
+  if (patternFrames.length === 0) {
+    return (
+      <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+        <EmptyState
+          message={t('logs.logs-drilldown.patterns.no-patterns-title', 'No patterns to display')}
+          variant="not-found"
+        >
+          {filters.length > 0
+            ? t(
+                'logs.logs-drilldown.patterns.no-filtered-patterns-message',
+                'No patterns found in the current time range or matching the current level filters.'
+              )
+            : t('logs.logs-drilldown.patterns.no-patterns-message', 'No patterns found in the current time range.')}
+        </EmptyState>
+      </div>
+    );
+  }
 
   return (
     <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>

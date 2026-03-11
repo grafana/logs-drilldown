@@ -67,6 +67,7 @@ import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
 import { AddToDashboardData, AddToDashboardEvent } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
+import { getPatternsCount } from 'services/patterns';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import { getLogOption, getMaxLines } from 'services/store';
 import {
@@ -713,6 +714,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       if (!areArraysEqual(newState.filters, prevState.filters)) {
         this.state.$logsCount?.runQueries();
       }
+      const patternsCount = getPatternsCount(this);
+      this.setState({
+        patternsCount,
+      });
+      getMetadataService().setPatternsCount(patternsCount);
     });
   }
 
@@ -743,14 +749,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     return this.state.$patternsData?.subscribeToState((newState) => {
       this.updateLoadingState(newState, TabNames.patterns);
       if (newState.data?.state === LoadingState.Done) {
-        const patternsResponse = newState.data.series;
-        if (patternsResponse?.length !== undefined) {
-          // Save the count of patterns to state
-          this.setState({
-            patternsCount: patternsResponse.length,
-          });
-          getMetadataService().setPatternsCount(patternsResponse.length);
-        }
+        const patternsCount = getPatternsCount(this);
+        this.setState({
+          patternsCount,
+        });
+        getMetadataService().setPatternsCount(patternsCount);
       }
     });
   }
@@ -804,9 +807,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     return this.state.$logsCount?.subscribeToState((newState) => {
       if (newState.data?.state === LoadingState.Done) {
         const value: number | undefined = newState.data.series[0]?.fields?.[1]?.values?.[0];
+
         this.setState({
           totalLogsCount: value,
         });
+        getMetadataService().setTotalLogsCount(value ?? 0);
       }
     });
   }

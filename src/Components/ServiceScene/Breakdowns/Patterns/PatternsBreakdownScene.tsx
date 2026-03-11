@@ -90,7 +90,7 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
           )}
 
           {!error && !loading && patternFrames?.length === 0 && timeRangeTooOld && <PatternsTooOld />}
-          {!error && !loading && !patternFrames && !timeRangeTooOld && <PatternsNotDetected />}
+          {!error && !loading && patternFrames?.length === 0 && !timeRangeTooOld && <PatternsNotDetected />}
           {!error && !loading && patternFrames && patternFrames.length > 0 && (
             <div className={styles.content}>{body && <body.Component model={body} />}</div>
           )}
@@ -100,9 +100,26 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
   };
 
   private onActivate() {
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this.setBody();
+    this._subs.add(this.subscribeToIndexScene());
+  }
 
+  private subscribeToIndexScene() {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    // Subscribe if ready, or else when ServiceScene is ready
+    if (serviceScene.state.$patternsData) {
+      this.subscribeToPatterns();
+      return;
+    }
+    return serviceScene.subscribeToState((newState, prevState) => {
+      if (!prevState.$patternsData && newState.$patternsData) {
+        this.subscribeToPatterns();
+      }
+    });
+  }
+
+  private subscribeToPatterns() {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     // If the patterns exist already, update the dataframe
     if (serviceScene.state.$patternsData?.state) {
       this.onDataChange(serviceScene.state.$patternsData?.state);
