@@ -3,7 +3,7 @@ import { lazy } from 'react';
 import { AppPlugin } from '@grafana/data';
 import { initPluginTranslations } from '@grafana/i18n';
 
-import { JsonData } from './Components/AppConfig/AppConfig';
+import type { JsonData } from './Components/AppConfig/AppConfig';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
