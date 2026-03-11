@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { AppPluginMeta, dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
+import { dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
 import { usePluginComponent } from '@grafana/runtime';
 import {
   EmbeddedScene,
@@ -30,7 +30,6 @@ import {
   SUB_ROUTES,
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
-import { JsonData } from './AppConfig/AppConfig';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
 import { IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
@@ -44,7 +43,7 @@ export type OptionalRouteMatch = SceneRouteMatch<OptionalRouteProps>;
 export const DEFAULT_TIME_RANGE = { from: 'now-15m', to: 'now' };
 
 function getDefaultTimeRangeFromPlugin(): { from: string; to: string } {
-  const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+  const { jsonData } = plugin.meta;
   const custom = jsonData?.defaultTimeRange;
   if (custom?.from && custom?.to) {
     return { from: custom.from, to: custom.to };
