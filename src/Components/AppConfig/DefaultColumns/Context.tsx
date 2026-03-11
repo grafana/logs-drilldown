@@ -2,6 +2,11 @@ import React, { createContext, ReactNode, useCallback, useContext, useMemo, useS
 
 import { cloneDeep } from 'lodash';
 
+import {
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+  ObjectMeta,
+} from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+
 import { isDefaultColumnsStateChanged, recordsHaveDuplicates } from './State';
 import {
   APIColumnsState,
@@ -12,10 +17,6 @@ import {
   LocalLogsDrilldownDefaultColumnsSpec,
 } from './types';
 import { isRecordInvalid } from './Validation';
-import {
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
-  ObjectMeta,
-} from 'lib/api-clients/logsdrilldown/v1beta1';
 
 type DefaultColumnsContextType = {
   apiDefaultColumnsState?: DefaultColumnsState | null;
