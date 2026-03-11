@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
+import { AppPluginMeta, dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
 import { usePluginComponent } from '@grafana/runtime';
 import {
   EmbeddedScene,
@@ -13,6 +13,7 @@ import {
 } from '@grafana/scenes';
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import { plugin } from '../module';
 import { PageSlugs, ValueSlugs } from '../services/enums';
 import { logger } from '../services/logger';
 import { navigateToIndex } from '../services/navigate';
@@ -29,6 +30,7 @@ import {
   SUB_ROUTES,
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
+import { JsonData } from './AppConfig/AppConfig';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
 import { IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
@@ -40,10 +42,21 @@ export type OptionalRouteProps = Optional<RouteProps, 'labelName' | 'labelValue'
 export type OptionalRouteMatch = SceneRouteMatch<OptionalRouteProps>;
 
 export const DEFAULT_TIME_RANGE = { from: 'now-15m', to: 'now' };
+
+function getDefaultTimeRangeFromPlugin(): { from: string; to: string } {
+  const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+  const custom = jsonData?.defaultTimeRange;
+  if (custom?.from && custom?.to) {
+    return { from: custom.from, to: custom.to };
+  }
+  return DEFAULT_TIME_RANGE;
+}
+
 function getServicesScene(routeMatch: OptionalRouteMatch) {
+  const initialTimeRange = getDefaultTimeRangeFromPlugin();
   return new EmbeddedScene({
     body: new IndexScene({
-      $timeRange: new SceneTimeRange(DEFAULT_TIME_RANGE),
+      $timeRange: new SceneTimeRange(initialTimeRange),
       routeMatch,
     }),
   });
