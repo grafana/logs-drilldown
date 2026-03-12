@@ -1,4 +1,4 @@
-import { LogsDrilldownDefaultColumnsSpec } from 'lib/api-clients/logsdrilldown/v1beta1';
+import { LogsDrilldownDefaultColumnsSpec } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 
 type dsUID = string;
 export type DefaultColumnsState = Record<dsUID, LocalLogsDrilldownDefaultColumnsSpec>;
