@@ -194,6 +194,16 @@ describe('AppConfig', () => {
       fireEvent.change(toInput, { target: { value: 'now-1h' } });
       expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
     });
+
+    it('disables Save when the time range is not valid', () => {
+      renderAppConfig();
+      fireEvent.click(screen.getByLabelText('Use custom default time range'));
+      const fromInput = screen.getByTestId('data-testid ac-default-time-range-from');
+      const toInput = screen.getByTestId('data-testid ac-default-time-range-to');
+      fireEvent.change(fromInput, { target: { value: 'nope' } });
+      fireEvent.change(toInput, { target: { value: 'now-1h' } });
+      expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
+    });
   });
 
   describe('Save settings', () => {

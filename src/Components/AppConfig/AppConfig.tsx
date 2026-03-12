@@ -18,6 +18,7 @@ import { Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/u
 
 import { logger } from '../../services/logger';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
+import { isValidTimeRange } from 'services/utils';
 
 export type JsonData = {
   dataSource?: string;
@@ -51,7 +52,7 @@ function validateDefaultTimeRange(from: string, to: string): DefaultTimeRangeVal
   try {
     const timeZone = getTimeZone();
     const range = rangeUtil.convertRawToRange({ from: fromTrimmed, to: toTrimmed }, timeZone);
-    if (!range) {
+    if (!range || !isValidTimeRange(range)) {
       return { valid: false, error: 'Invalid time range. Use relative times (e.g. now-15m, now-1h, now) or absolute.' };
     }
     if (range.from.valueOf() >= range.to.valueOf()) {
