@@ -156,8 +156,8 @@ describe('ServiceSelection Config', () => {
 
       render(<Config />);
 
-      expect(screen.getByRole('heading', { name: /service selection/i })).toBeInTheDocument();
-      expect(screen.getByText(/service selection settings requires/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /landing page/i })).toBeInTheDocument();
+      expect(screen.getByText(/landing page settings requires/i)).toBeInTheDocument();
       expect(screen.getByText(/kubernetesLogsDrilldown/)).toBeInTheDocument();
     });
   });
@@ -178,7 +178,7 @@ describe('ServiceSelection Config', () => {
       render(<Config />);
 
       // DefaultLabels section
-      expect(screen.getByRole('heading', { name: /service selection default labels/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /landing page default labels/i })).toBeInTheDocument();
 
       // Footer actions
       expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument();
@@ -193,7 +193,7 @@ describe('ServiceSelection Config', () => {
       render(<Config />);
 
       // Config renders main content (would use stored UID in context)
-      expect(screen.getByRole('heading', { name: /service selection default labels/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /landing page default labels/i })).toBeInTheDocument();
       expect(getLastUsedDataSourceFromStorage).toHaveBeenCalled();
     });
 
