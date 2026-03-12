@@ -4,7 +4,7 @@ import { isNumber } from 'lodash';
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { testIds } from '../src/services/testIds';
-import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
+import { skipUnlessDefaultLabelsSupported, skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import {
   E2EComboboxStrings,
   ExplorePage,
@@ -71,6 +71,46 @@ test.describe('explore services page', () => {
 
       // assert the first element is nginx now
       await expect(firstResult).toHaveText('nginx');
+    });
+
+    test.describe('default labels', () => {
+      const defaultLabelsMockResponse = {
+        items: [
+          {
+            metadata: { name: 'gdev-loki' },
+            spec: {
+              records: [
+                { label: 'app', values: ['app1', 'app2'] },
+                { label: 'env', values: ['prod'] },
+              ],
+            },
+          },
+        ],
+      };
+
+      test.beforeEach(async ({ page, grafanaVersion }) => {
+        skipUnlessLatestGrafana({ grafanaVersion });
+        skipUnlessDefaultLabelsSupported({ grafanaVersion });
+        await page.route('**/logsdrilldowndefaultlabels*', async (route) => {
+          await route.fulfill({ json: defaultLabelsMockResponse });
+        });
+        await page.route('**/ds/query*', async (route) => {
+          await route.fulfill({ json: {} });
+        });
+        await explorePage.gotoServices();
+      });
+
+      test('should show default labels and first label values on service selection page', async ({ page }) => {
+        await expect.poll(() => page.getByText('Loading tabs').count()).toEqual(0);
+
+        // Default labels from API: app, env — shown as tabs
+        await expect(page.getByTestId('data-testid Tab app1')).toBeVisible();
+        await expect(page.getByTestId('data-testid Tab app2')).toBeVisible();
+
+        await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
+        await expect(explorePage.getPanelHeaderLocator().filter({ hasText: 'app1' }).first()).toBeVisible();
+        await expect(explorePage.getPanelHeaderLocator().filter({ hasText: 'app2' }).first()).toBeVisible();
+      });
     });
 
     test('should filter service labels on search', async ({ page }) => {
