@@ -1,15 +1,16 @@
+/* eslint-disable sort/imports */
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import { DefaultLabel } from 'services/api';
+import { logger } from 'services/logger';
+import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
 import {
   useCreateLogsDrilldownDefaultLabelsMutation,
   useGetLogsDrilldownDefaultLabelsQuery,
   useReplaceLogsDrilldownDefaultLabelsMutation,
-} from 'lib/api-clients/logsdrilldown/v1beta1';
-import { DefaultLabel } from 'services/api';
-import { logger } from 'services/logger';
-import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
+} from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 
 type ServiceSelectionContextType = {
   currentDefaultLabels: DefaultLabel[];
