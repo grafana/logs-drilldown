@@ -1,11 +1,12 @@
+import { getAPIBaseURL } from '@grafana/api-clients';
+import { LogsDrilldownDefaultLabelsList } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+
 import { logger } from './logger';
-import { LogsDrilldownDefaultLabelsList } from 'lib/api-clients/logsdrilldown/v1beta1';
-import { getAPIBaseURL } from 'lib/api-clients/utils/utils';
 
 export type DefaultLabel = {
   label: string;
   values: string[];
-}
+};
 
 export type DefaultLabelsSettings = Record<string, DefaultLabel[]>;
 
@@ -17,7 +18,6 @@ export async function getDefaultLabelSettings(): Promise<DefaultLabelsSettings |
     const fetchResult = await fetch(request);
 
     if (fetchResult.ok) {
-      // @todo refactor fetch once https://github.com/grafana/grafana-community-team/issues/633 is merged
       const response = (await fetchResult.json()) as LogsDrilldownDefaultLabelsList;
       const settings: DefaultLabelsSettings = {};
 
