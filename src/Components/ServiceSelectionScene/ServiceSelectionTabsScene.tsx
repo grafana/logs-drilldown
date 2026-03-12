@@ -304,7 +304,8 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
 
   private setTabOptions(selectedTab?: string) {
     const dsUID = getDataSourceVariable(this).getValue().toString();
-    const defaultTabs = getMetadataService().getDefaultLabelsForDS(dsUID) ?? [{ label: SERVICE_NAME, values: [] }];
+    const defaultLabels = getMetadataService().getDefaultLabelsForDS(dsUID);
+    const defaultTabs = defaultLabels && defaultLabels.length ? defaultLabels : [{ label: SERVICE_NAME, values: [] }];
 
     // Without a selected tab, it means a data source change, so we remove the previously selected tab
     if (!selectedTab) {
