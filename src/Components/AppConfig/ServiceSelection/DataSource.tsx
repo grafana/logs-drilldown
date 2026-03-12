@@ -9,9 +9,7 @@ import { useStyles2 } from '@grafana/ui';
 import { useServiceSelectionContext } from './Context';
 import { addLastUsedDataSourceToStorage } from 'services/store';
 
-interface Props {}
-
-export const DataSource = (props: Props) => {
+export const DataSource = () => {
   const styles = useStyles2(getStyles);
   const { dsUID, setDsUID } = useServiceSelectionContext();
   return (
