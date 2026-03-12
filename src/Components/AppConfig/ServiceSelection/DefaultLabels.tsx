@@ -55,7 +55,7 @@ export function DefaultLabels() {
     >
       <Box marginBottom={2}>
         <Stack gap={0.5} alignItems="center">
-          <Text element="h5">Service selection default labels</Text>
+          <Text element="h5">Landing Page default labels</Text>
           <Tooltip
             content={'Configure the default labels and optional values to show in the landing page of Logs Drilldown'}
           >

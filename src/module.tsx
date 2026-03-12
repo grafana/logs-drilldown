@@ -65,16 +65,16 @@ export const plugin = new AppPlugin<JsonData>()
     title: 'Configuration',
   })
   .addConfigPage({
+    body: ServiceSelectionConfig,
+    icon: 'home-alt',
+    id: 'admin-service-selection',
+    title: 'Landing Page',
+  })
+  .addConfigPage({
     body: DefaultColumnsConfig,
     icon: 'columns',
     id: 'admin-default-fields',
     title: 'Default fields',
-  })
-  .addConfigPage({
-    body: ServiceSelectionConfig,
-    icon: 'home-alt',
-    id: 'admin-service-selection',
-    title: 'Service selection',
   });
 
 for (const linkConfig of linkConfigs) {

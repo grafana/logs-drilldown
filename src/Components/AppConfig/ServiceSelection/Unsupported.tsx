@@ -5,13 +5,13 @@ import { isDefaultLabelsFlagsSupported, isDefaultLabelsVersionSupported } from '
 export function Unsupported() {
   return (
     <section>
-      <h2>Service Selection</h2>
+      <h2>Landing Page</h2>
       {!isDefaultLabelsFlagsSupported && (
         <p>
-          Service Selection settings requires <code>kubernetesLogsDrilldown</code> feature flag to be enabled.
+          Landing Page settings requires <code>kubernetesLogsDrilldown</code> feature flag to be enabled.
         </p>
       )}
-      {!isDefaultLabelsVersionSupported && <p>Service Selection settings requires Grafana 12.4 or greater.</p>}
+      {!isDefaultLabelsVersionSupported && <p>Landing Page settings requires Grafana 13.0 or greater.</p>}
     </section>
   );
 }
