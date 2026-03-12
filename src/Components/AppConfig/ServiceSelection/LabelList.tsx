@@ -43,13 +43,14 @@ export function LabelList() {
                   >
                     <Stack alignItems="center">
                       <Box paddingBottom={1}>
-                        <Icon
-                          aria-label="Drag and drop icon"
-                          title="Drag and drop to reorder"
-                          name="draggabledots"
-                          size="lg"
-                          {...provided.dragHandleProps}
-                        />
+                        <div {...provided.dragHandleProps}>
+                          <Icon
+                            aria-label="Drag and drop icon"
+                            title="Drag and drop to reorder"
+                            name="draggabledots"
+                            size="lg"
+                          />
+                        </div>
                       </Box>
                       <Label label={label} labels={labels} />
                     </Stack>
