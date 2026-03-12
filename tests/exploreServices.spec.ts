@@ -56,9 +56,6 @@ test.describe('explore services page', () => {
       // Click on nav to return to service selection
       await page.getByRole('link', { name: 'Logs' }).first().click();
 
-      // Clear the existing search filter added above
-      await page.getByLabel('Clear value').click();
-
       // Assert there is more then one result now
       await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
 
@@ -104,9 +101,10 @@ test.describe('explore services page', () => {
         await expect.poll(() => page.getByText('Loading tabs').count()).toEqual(0);
 
         // Default labels from API: app, env — shown as tabs
-        await expect(page.getByTestId('data-testid Tab app1')).toBeVisible();
-        await expect(page.getByTestId('data-testid Tab app2')).toBeVisible();
+        await expect(page.getByTestId('data-testid Tab app')).toBeVisible();
+        await expect(page.getByTestId('data-testid Tab env')).toBeVisible();
 
+        // First label is "app"; its values (app1, app2) are shown as service panels
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
         await expect(explorePage.getPanelHeaderLocator().filter({ hasText: 'app1' }).first()).toBeVisible();
         await expect(explorePage.getPanelHeaderLocator().filter({ hasText: 'app2' }).first()).toBeVisible();
