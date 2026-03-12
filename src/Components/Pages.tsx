@@ -13,6 +13,7 @@ import {
 } from '@grafana/scenes';
 import { LoadingPlaceholder } from '@grafana/ui';
 
+import { plugin } from '../module';
 import { PageSlugs, ValueSlugs } from '../services/enums';
 import { logger } from '../services/logger';
 import { navigateToIndex } from '../services/navigate';
@@ -26,6 +27,7 @@ import {
   ROUTE_DEFINITIONS,
   ROUTES,
   SERVICE_URL_KEYS,
+  SERVICE_URL_KEYS_NO_TIMERANGE,
   SUB_ROUTES,
 } from '../services/routing';
 import { capitalizeFirstLetter } from '../services/text';
@@ -40,10 +42,21 @@ export type OptionalRouteProps = Optional<RouteProps, 'labelName' | 'labelValue'
 export type OptionalRouteMatch = SceneRouteMatch<OptionalRouteProps>;
 
 export const DEFAULT_TIME_RANGE = { from: 'now-15m', to: 'now' };
+
+function getDefaultTimeRangeFromPlugin(): { from: string; to: string } {
+  const { jsonData } = plugin.meta;
+  const custom = jsonData?.defaultTimeRange;
+  if (custom?.from && custom?.to) {
+    return { from: custom.from, to: custom.to };
+  }
+  return DEFAULT_TIME_RANGE;
+}
+
 function getServicesScene(routeMatch: OptionalRouteMatch) {
+  const initialTimeRange = getDefaultTimeRangeFromPlugin();
   return new EmbeddedScene({
     body: new IndexScene({
-      $timeRange: new SceneTimeRange(DEFAULT_TIME_RANGE),
+      $timeRange: new SceneTimeRange(initialTimeRange),
       routeMatch,
     }),
   });
@@ -169,7 +182,8 @@ export function makeIndexPage() {
     ],
     getScene: (routeMatch) => getServicesScene(routeMatch),
     layout: PageLayoutType.Custom,
-    preserveUrlKeys: SERVICE_URL_KEYS,
+    // Fallback to default time range if configured
+    preserveUrlKeys: plugin.meta.jsonData?.defaultTimeRange ? SERVICE_URL_KEYS_NO_TIMERANGE : SERVICE_URL_KEYS,
     routePath: `${PageSlugs.explore}/*`,
     // Top level breadcrumb
     title: 'Grafana Logs Drilldown',
