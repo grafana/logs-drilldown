@@ -26,7 +26,7 @@ export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteSe
       [ds, labelName, labelValue]
     );
     const styles = useStyles2((theme) => getStyles(theme, isFavorite, hover));
-    const tooltipCopy = isFavorite ? `Remove  ${labelValue} from favorites` : `Add ${labelValue} to favorites`;
+    const tooltipCopy = isFavorite ? `Remove ${labelValue} from favorites` : `Add ${labelValue} to favorites`;
 
     if (isDefaultLabelValue) {
       return null;
