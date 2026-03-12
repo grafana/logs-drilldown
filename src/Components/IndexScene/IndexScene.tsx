@@ -1,5 +1,10 @@
 import React from 'react';
 
+import { getAPIBaseURL } from '@grafana/api-clients';
+import {
+  LogsDrilldownDefaultColumns,
+  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
+} from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
 import { getAppEvents, locationService } from '@grafana/runtime';
@@ -26,11 +31,6 @@ import {
 import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
-import {
-  LogsDrilldownDefaultColumns,
-  LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
-} from '../../lib/api-clients/logsdrilldown/v1beta1';
-import { getAPIBaseURL } from '../../lib/api-clients/utils/utils';
 import { plugin } from '../../module';
 import { reportAppInteraction } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
@@ -133,6 +133,7 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from 'services/variables';
+
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
 const FALLBACK_DATASOURCE_UID = 'grafanacloud-logs';

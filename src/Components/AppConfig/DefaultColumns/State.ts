@@ -1,5 +1,6 @@
 import { flatten, memoize } from 'lodash';
 
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
@@ -9,7 +10,6 @@ import {
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord,
   LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords,
 } from './types';
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from 'lib/api-clients/logsdrilldown/v1beta1';
 import { areArraysStrictlyEqual } from 'services/comparison';
 import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'services/logFieldNames';
 import { logger } from 'services/logger';

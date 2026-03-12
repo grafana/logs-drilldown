@@ -1,5 +1,6 @@
+import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+
 import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '../lib/api-clients/logsdrilldown/v1beta1';
 import { DefaultLabelsSettings } from './api';
 import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
 
