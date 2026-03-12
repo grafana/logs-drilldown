@@ -396,6 +396,12 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const defaultLabelSettings = await getDefaultLabelSettings();
     getMetadataService().setDefaultLabels(defaultLabelSettings);
 
+    // Avoid replacing with a new ServiceSelectionScene if we already have one (e.g. when
+    // IndexScene.onActivate runs twice on navigate back), which would cause onActivate to fire twice.
+    if (this.state.contentScene instanceof ServiceSelectionScene) {
+      return;
+    }
+
     const dsUID = getDataSourceVariable(this).getValue().toString();
 
     this.setState({
