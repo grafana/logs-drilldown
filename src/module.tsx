@@ -3,6 +3,7 @@ import { lazy } from 'react';
 import { AppPlugin } from '@grafana/data';
 import { initPluginTranslations } from '@grafana/i18n';
 
+import type { JsonData } from './Components/AppConfig/AppConfig';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
@@ -55,7 +56,7 @@ const ServiceSelectionConfig = lazy(async () => {
   return await import('./Components/AppConfig/ServiceSelection/Config');
 });
 
-export const plugin = new AppPlugin<{}>()
+export const plugin = new AppPlugin<JsonData>()
   .setRootPage(App)
   .addConfigPage({
     body: AppConfig,
