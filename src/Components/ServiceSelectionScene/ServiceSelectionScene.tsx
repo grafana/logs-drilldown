@@ -71,6 +71,7 @@ import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
+import { getMetadataService } from 'services/metadata';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
 import {
   buildDataQuery,
@@ -109,16 +110,13 @@ interface ServiceSelectionSceneState extends SceneObjectState {
   // Pagination options
   countPerPage: number;
   currentPage: number;
+  initialLabel?: string;
   loadSearch?: LoadSearchScene;
   paginationScene?: ServiceSelectionPaginationScene;
+
   // Show logs of a certain level for a given service
   serviceLevel: Map<string, string[]>;
-
   showPopover: boolean;
-  tabOptions: Array<{
-    label: string;
-    value: string;
-  }>;
   tabs?: ServiceSelectionTabsScene;
 }
 
@@ -180,7 +178,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             },
             filters: [
               {
-                key: getSelectedTabFromUrl().key ?? SERVICE_NAME,
+                key: getSelectedTabFromUrl().key ?? state.initialLabel ?? SERVICE_NAME,
                 operator: '=~',
                 value: '.+',
               },
@@ -208,12 +206,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       serviceLevel: new Map<string, string[]>(),
 
       showPopover: false,
-      tabOptions: [
-        {
-          label: SERVICE_UI_LABEL,
-          value: SERVICE_NAME,
-        },
-      ],
       ...state,
     });
 
@@ -437,12 +429,16 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   selectDefaultLabelTab() {
     // Need to update the history before the state with replace instead of push, or we'll get invalid services saved to url state after changing datasource
-    this.addLabelChangeToBrowserHistory(SERVICE_NAME, true);
-    this.setSelectedTab(SERVICE_NAME);
+    const dsUID = getDataSourceVariable(this).getValue().toString();
+    const defaultLabel = getMetadataService().getDefaultLabelForDS(dsUID) ?? SERVICE_NAME;
+    this.addLabelChangeToBrowserHistory(defaultLabel, true);
+    this.setSelectedTab(defaultLabel, 'auto');
   }
 
   setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
-    addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
+    if (type === 'manual') {
+      addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
+    }
 
     // clear active search
     clearServiceSelectionSearchVariable(this);
@@ -623,11 +619,23 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private setVolumeQueryRunner() {
+    const dsUID = getDataSourceVariable(this).getValue()?.toString();
+    const selectedTab = this.getSelectedTab();
+
+    const defaultLabelValues = getMetadataService().getDefaultLabelValuesForDS(dsUID, selectedTab);
+
     this.setState({
       $data: getSceneQueryRunner({
-        queries: [
-          buildVolumeQuery(`{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`, 'volume', this.getSelectedTab()),
-        ],
+        queries:
+          defaultLabelValues && defaultLabelValues.length > 0
+            ? []
+            : [
+                buildVolumeQuery(
+                  `{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`,
+                  'volume',
+                  this.getSelectedTab()
+                ),
+              ],
         runQueriesMode: 'manual',
       }),
     });
@@ -717,9 +725,14 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       getDataSourceVariable(this).subscribeToState((newState) => {
         this.setState({
           body: new SceneCSSGridLayout({ children: [] }),
+          tabs: undefined,
         });
         this.addDatasourceChangeToBrowserHistory(newState.value.toString());
-        this.runVolumeQuery();
+        // Select the default label for the new data source before running the volume query,
+        // so we don't query using the previous data source's selected label.
+        this.selectDefaultLabelTab();
+        this.setVolumeQueryRunner();
+        this.runVolumeQuery(true);
       })
     );
   }
@@ -907,9 +920,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
   private updateTabs() {
     if (!this.state.tabs) {
-      const tabs = new ServiceSelectionTabsScene({});
       this.setState({
-        tabs,
+        tabs: new ServiceSelectionTabsScene(),
       });
     }
   }
@@ -1101,11 +1113,16 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   };
 
   private getLabels(series?: DataFrame[]) {
-    const labelsByVolume: string[] = series?.[0]?.fields[0].values ?? [];
     const dsString = getDataSourceVariable(this).getValue()?.toString();
-    const searchString = getServiceSelectionSearchVariable(this).getValue();
     const selectedTab = this.getSelectedTab();
+
+    const defaultLabelValues = getMetadataService().getDefaultLabelValuesForDS(dsString, selectedTab);
+    const defaultValues = defaultLabelValues && defaultLabelValues.length ? defaultLabelValues : undefined;
+
+    const labelsByVolume: string[] = defaultValues ?? series?.[0]?.fields?.[0]?.values ?? [];
+    const searchString = getServiceSelectionSearchVariable(this).getValue();
     const labelsToQuery = createListOfLabelsToQuery(labelsByVolume, dsString, String(searchString), selectedTab);
+
     return { labelsByVolume, labelsToQuery: labelsToQuery };
   }
 }

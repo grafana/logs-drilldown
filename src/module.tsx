@@ -51,6 +51,11 @@ const DefaultColumnsConfig = lazy(async () => {
   return await import('./Components/AppConfig/DefaultColumns/Config');
 });
 
+const ServiceSelectionConfig = lazy(async () => {
+  await initPluginTranslations(pluginJson.id);
+  return await import('./Components/AppConfig/ServiceSelection/Config');
+});
+
 export const plugin = new AppPlugin<JsonData>()
   .setRootPage(App)
   .addConfigPage({
@@ -58,6 +63,12 @@ export const plugin = new AppPlugin<JsonData>()
     icon: 'cog',
     id: 'configuration',
     title: 'Configuration',
+  })
+  .addConfigPage({
+    body: ServiceSelectionConfig,
+    icon: 'home-alt',
+    id: 'admin-service-selection',
+    title: 'Landing Page',
   })
   .addConfigPage({
     body: DefaultColumnsConfig,

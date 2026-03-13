@@ -1,6 +1,7 @@
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 
 import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
+import { DefaultLabelsSettings } from './api';
 import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
 
 let metadataService: MetadataService;
@@ -19,6 +20,8 @@ export class MetadataService {
   private serviceSceneState: ServiceSceneCustomState | undefined = undefined;
   private lokiConfig: LokiConfigState;
   private defaultColumns: Record<string, LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords> = {};
+  private defaultLabels: DefaultLabelsSettings | null = null;
+
   public getServiceSceneState() {
     return this.serviceSceneState;
   }
@@ -90,6 +93,26 @@ export class MetadataService {
   // Don't call this except to init the indexScene.defaultColumnsRecords state!
   public getDefaultColumns(dsUID: string) {
     return this.defaultColumns[dsUID];
+  }
+
+  public setDefaultLabels(defaultLabels: DefaultLabelsSettings | null) {
+    this.defaultLabels = defaultLabels;
+  }
+
+  public getDefaultLabels() {
+    return this.defaultLabels;
+  }
+
+  public getDefaultLabelsForDS(dsUID: string) {
+    return this.defaultLabels?.[dsUID];
+  }
+
+  public getDefaultLabelValuesForDS(dsUID: string, label: string) {
+    return this.defaultLabels?.[dsUID]?.find((defaultLabel) => defaultLabel.label === label)?.values;
+  }
+
+  public getDefaultLabelForDS(dsUID: string) {
+    return this.defaultLabels?.[dsUID]?.[0]?.label;
   }
 }
 

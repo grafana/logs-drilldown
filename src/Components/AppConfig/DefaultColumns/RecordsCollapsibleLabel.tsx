@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
-import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
+import { getNormalizedFieldName } from 'services/logFieldNames';
 
 interface Props {
   isOpen: boolean;
@@ -18,8 +18,8 @@ export function RecordsCollapsibleLabel({ record, isOpen }: Props) {
   return (
     <div className={styles.label}>
       <h5 className={styles.label__title}>
-        Display columns
-        <Tooltip content={'Default columns to display in logs visualizations'}>
+        Display fields
+        <Tooltip content={'Default fields to display in logs visualizations for these labels'}>
           <Icon className={styles.label__icon} name="info-circle" />
         </Tooltip>
       </h5>

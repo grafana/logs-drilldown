@@ -1,11 +1,17 @@
+import { isArray, memoize } from 'lodash';
+
 import { DataFrame } from '@grafana/data';
-import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
+import { ComboboxOption } from '@grafana/ui';
 
 import { addToFilters, FilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { getParserForField, getParserFromFieldsFilters } from './fields';
+import { LabelFilterOp } from './filterTypes';
 import { getLabelValueFromDataFrame } from './levels';
 import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
 import { buildDataQuery } from './query';
+import { getLabelsKeys } from './TagKeysProviders';
+import { getLabelValues } from './TagValuesProviders';
 import {
   getFieldsAndMetadataVariable,
   getFieldsVariable,
@@ -15,6 +21,7 @@ import {
   getValueFromFieldsFilter,
 } from './variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
+import { getDatasource } from 'Components/AppConfig/DefaultColumns/State';
 import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 
 export const LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
@@ -145,3 +152,38 @@ export function isLabelLevel(label: string): boolean {
   }
   return false;
 }
+
+export async function getLabelsForCombobox(dsUID: string, excludeLabels: string[] = []): Promise<ComboboxOption[]> {
+  const datasource = await getDatasource(dsUID);
+  if (!datasource) {
+    return [];
+  }
+
+  const getLabelsKeysPromise = getLabelsKeys([], datasource);
+  const results = await getLabelsKeysPromise;
+  return results.filter((label) => !excludeLabels.includes(label.text)).map((label) => ({ value: label.text }));
+}
+
+export const getLabelValuesForCombobox = memoize(
+  async (label: string, dsUID: string): Promise<ComboboxOption[]> => {
+    const datasource = await getDatasource(dsUID);
+    if (!datasource) {
+      return [];
+    }
+    const filter: AdHocFilterWithLabels = { value: `""`, key: label, operator: LabelFilterOp.NotEqual };
+    const result = await getLabelValues([], filter, datasource, dsUID);
+
+    if (isArray(result)) {
+      return result.map((metricFindValue) => {
+        const value = metricFindValue.text.toString();
+        return {
+          value,
+          label: value,
+        };
+      });
+    }
+
+    return [];
+  },
+  (label: string, dsUID: string) => `${dsUID}.${label}`
+);
