@@ -56,6 +56,9 @@ test.describe('explore services page', () => {
       // Click on nav to return to service selection
       await page.getByRole('link', { name: 'Logs' }).first().click();
 
+      // Clear the existing search filter added above
+      await page.getByLabel('Clear value').click();
+
       // Assert there is more then one result now
       await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
 
