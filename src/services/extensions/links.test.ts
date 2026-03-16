@@ -6,7 +6,7 @@ import {
 } from '../../Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
 import { LokiQuery } from '../lokiQuery';
 import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from '../variables';
-import { interpolateQueryExpr, LinkConfigs, linkConfigs } from './links';
+import { interpolateQueryExpr, LinkConfigs, linkConfigs, replaceSlash, restoreLabelValueFromUrlParam } from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
 
 // Mocking templateSrv is such a pain, if you are fighting variable interpolation start here.
@@ -156,7 +156,7 @@ describe('contextToLink', () => {
         path: getPath({
           expectedLabelFiltersUrlString,
           expectedLevelsFilterUrlString,
-          slug: 'service/nginx.+',
+          slug: 'service/nginx.%2B',
         }),
       });
     });
@@ -526,7 +526,7 @@ describe('contextToLink', () => {
             expectedFieldsUrlString,
             expectedLabelFiltersUrlString,
             expectedMetadataString,
-            slug: 'cluster/C:-Grafana-logs-log.txt',
+            slug: 'cluster/C%3A-Grafana-logs-log.txt',
           }),
         });
       });
@@ -547,7 +547,7 @@ describe('contextToLink', () => {
           path: getPath({
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
-            slug: 'cluster/C:-Grafana-logs-log.txt',
+            slug: 'cluster/C%3A-Grafana-logs-log.txt',
           }),
         });
       });
@@ -1007,5 +1007,104 @@ describe('interpolateQueryExpr', () => {
       state: LoadingState.Done,
     };
     expect(interpolateQueryExpr(['value1', 'value2'], variable)).toEqual('value1|value2');
+  });
+});
+
+describe('replaceSlash', () => {
+  it('replaces forward slashes with hyphens', () => {
+    expect(replaceSlash('path/to/value')).toBe(encodeURIComponent('path-to-value'));
+    expect(replaceSlash('a/b/c')).toBe(encodeURIComponent('a-b-c'));
+  });
+
+  it('replaces backslashes with hyphens', () => {
+    // In JS 'C:\\Grafana\\logs' is C:\Grafana\logs → C:-Grafana-logs (colon encoded in URL)
+    expect(replaceSlash('C:\\Grafana\\logs')).toBe(encodeURIComponent('C:-Grafana-logs'));
+    expect(replaceSlash('a\\b')).toBe(encodeURIComponent('a-b'));
+  });
+
+  it('replaces question marks with placeholder so path is not broken', () => {
+    const encoded = replaceSlash('key?value');
+    expect(encoded).toBe(encodeURIComponent('key__qm__value'));
+    expect(encoded).not.toContain('?');
+  });
+
+  it('encodes regex/special characters for safe routing', () => {
+    expect(replaceSlash('(group)')).toBe(encodeURIComponent('(group)'));
+    expect(replaceSlash('.*')).toBe(encodeURIComponent('.*'));
+    expect(replaceSlash('a[b]')).toBe(encodeURIComponent('a[b]'));
+    expect(replaceSlash('a|b')).toBe(encodeURIComponent('a|b'));
+  });
+
+  it('handles empty string', () => {
+    expect(replaceSlash('')).toBe('');
+  });
+
+  it('handles plain alphanumeric values unchanged except encoding', () => {
+    expect(replaceSlash('simple')).toBe('simple');
+    expect(replaceSlash('service_name')).toBe('service_name');
+  });
+
+  it('strips ad-hoc filter user input prefix before encoding', () => {
+    const prefix = '__CVΩ__';
+    expect(replaceSlash(prefix + 'myvalue')).toBe(replaceSlash('myvalue'));
+    expect(replaceSlash(prefix + 'a/b')).toBe(encodeURIComponent('a-b'));
+  });
+
+  it('handles unicode characters', () => {
+    const withUnicode = 'café-日本語-emoji🎉';
+    expect(replaceSlash(withUnicode)).toBe(encodeURIComponent(withUnicode));
+  });
+
+  it('handles mixed slashes, backslashes, and question marks', () => {
+    const mixed = 'a/b\\c?d';
+    const encoded = replaceSlash(mixed);
+    expect(encoded).toBe(encodeURIComponent('a-b-c__qm__d'));
+  });
+});
+
+describe('restoreLabelValueFromUrlParam', () => {
+  it('decodes URI component and restores question mark from placeholder', () => {
+    const encoded = replaceSlash('key?value');
+    expect(restoreLabelValueFromUrlParam(encoded)).toBe('key?value');
+  });
+
+  it('round-trips with replaceSlash for plain text', () => {
+    const plain = 'my-service-name';
+    expect(restoreLabelValueFromUrlParam(replaceSlash(plain))).toBe(plain);
+  });
+
+  it('round-trips with replaceSlash for values with question marks', () => {
+    const withQ = 'foo?bar?baz';
+    expect(restoreLabelValueFromUrlParam(replaceSlash(withQ))).toBe(withQ);
+  });
+
+  it('round-trips with replaceSlash for regex-like values', () => {
+    const regexLike = '.*grafana.*|.*coreplugin';
+    expect(restoreLabelValueFromUrlParam(replaceSlash(regexLike))).toBe(regexLike);
+  });
+
+  it('round-trips with replaceSlash for values with parentheses', () => {
+    const withParens = '(group|alt)';
+    expect(restoreLabelValueFromUrlParam(replaceSlash(withParens))).toBe(withParens);
+  });
+
+  it('round-trips with replaceSlash for unicode', () => {
+    const unicode = 'café-日本語-emoji🎉';
+    expect(restoreLabelValueFromUrlParam(replaceSlash(unicode))).toBe(unicode);
+  });
+
+  it('correctly decodes multiple question mark placeholders', () => {
+    const encoded = encodeURIComponent('a__qm__b__qm__c');
+    expect(restoreLabelValueFromUrlParam(encoded)).toBe('a?b?c');
+  });
+
+  it('handles already decoded string with placeholders', () => {
+    expect(restoreLabelValueFromUrlParam('a__qm__b')).toBe('a?b');
+  });
+
+  it('round-trips with replaceSlash for ad-hoc prefix (stripped by replaceSlash)', () => {
+    const withPrefix = '__CVΩ__user?input';
+    const encoded = replaceSlash(withPrefix);
+    expect(restoreLabelValueFromUrlParam(encoded)).toBe('user?input');
   });
 });

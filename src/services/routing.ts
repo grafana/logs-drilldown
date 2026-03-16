@@ -5,7 +5,7 @@ import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { RouteMatch, RouteProps } from '../Components/Pages';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { PageSlugs, ValueSlugs } from './enums';
-import { replaceSlash } from './extensions/links';
+import { replaceSlash, restoreLabelValueFromUrlParam } from './extensions/links';
 import { narrowValueSlug } from './narrowing';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
 import { getPrimaryLabelFromEmbeddedScene } from './variableHelpers';
@@ -135,7 +135,7 @@ export function getPrimaryLabelFromUrl(): RouteProps {
   const routeParams = endOfUrl.split('/');
 
   let labelName = routeParams[0];
-  const labelValue = decodeURIComponent(routeParams[1]);
+  const labelValue = restoreLabelValueFromUrlParam(routeParams[1] ?? '');
   const breakdownLabel = routeParams[3];
 
   return { breakdownLabel, labelName: getUILabelName(labelName), labelValue };
@@ -154,7 +154,7 @@ export function extractValuesFromRoute(routeMatch: RouteMatch): RouteProps {
   return {
     breakdownLabel: routeMatch.params.breakdownLabel,
     labelName: routeMatch.params.labelName,
-    labelValue: routeMatch.params.labelValue,
+    labelValue: restoreLabelValueFromUrlParam(routeMatch.params.labelValue ?? ''),
   };
 }
 
