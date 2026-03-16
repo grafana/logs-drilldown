@@ -15198,7 +15198,11 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "undici@npm:^7.19.0":
+=======
+"undici@npm:^7.24.0":
+>>>>>>> 6f89ca47 (chore(cve): undici resolutions)
   version: 7.24.4
   resolution: "undici@npm:7.24.4"
   checksum: 10c0/cb302e81fadb7f0b7946ab77595715c0961b46a025ccecae79ba599432d0bc8d1e3da4dfe7ff66bc74f115c1b8ff0f099bc4e9bf313db4562da23995872c6d17
