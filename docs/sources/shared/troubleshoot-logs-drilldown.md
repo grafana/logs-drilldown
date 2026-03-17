@@ -16,9 +16,11 @@ This page addresses common issues when getting started and using Grafana Logs Dr
 
 ## Can't see Logs Drilldown in the menu
 
-Grafana Explore Logs is installed by default in Grafana versions Grafana v11.3.0 through v11.5.
+Grafana Explore Logs is installed by default in Grafana versions v11.3.0 through v11.5.
 
-Grafana Logs Drilldown is installed by default in Grafana versions Grafana 11.6 and later.
+Grafana Logs Drilldown is installed by default in Grafana versions 11.6.11 and later.
+
+In Grafana v12 and later, the **Drilldown** menu includes all Drilldown apps by default.
 
 For more information about the name change for this feature, see this [blog post](https://grafana.com/blog/2025/02/20/grafana-drilldown-apps-the-improved-queryless-experience-formerly-known-as-the-explore-apps/).
 
@@ -30,7 +32,7 @@ Your instance needs internet connection in order to download the Logs Drilldown 
 
 ## Ensure Loki is properly configured
 
-To use Grafana Logs Drilldown, you need to have Loki properly configured. You can find full instructions on how to do this when [installing Grafana Logs Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
+To use Grafana Logs Drilldown, you need to have Loki properly configured. You can find full instructions in [Access or install Grafana Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/).
 
 ## Service selection errors
 
@@ -133,14 +135,14 @@ Try the following fixes:
 1. Broaden your time range.
 1. Check that your label filter values are correct and exist in your log data.
 
-### We did not find any fields for the given timerange
+### We did not find any fields for the given time range
 
 This message indicates that no detected fields (structured metadata or parsed fields) were found for your current selection and time range.
 
 Try the following fixes:
 
 1. Expand your time range to include more log data.
-1. Verify that your logs contain structured data (JSON, logfmt, or other parse-able formats).
+1. Verify that your logs contain structured data (JSON, logfmt, or other parseable formats).
 1. Check that [structured metadata](https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/) is enabled in your Loki configuration by setting `allow_structured_metadata: true`.
 
 ## There are no color levels
@@ -231,11 +233,11 @@ This section covers error messages related to the Patterns feature.
 
 Pattern matching has not been configured.
 
-1. Ensure pattern extraction is enabled by setting `pattern-ingester.enabled=true` in your Loki config. [Learn about other necessary config](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/access/).
+1. Ensure pattern extraction is enabled by setting `pattern_ingester.enabled=true` in your Loki config. [Learn about other necessary config](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/).
 1. Ensure the volume endpoint is enabled by setting `volume_enabled=true` within your [Loki configuration file](https://grafana.com/docs/loki/latest/configure/#limits_config).
 
 {{< admonition type="note" >}}
-The Patterns feature does not support multi-tenant or cross-stack datasources.
+The Patterns feature does not support multi-tenant or cross-stack data sources.
 {{< /admonition >}}
 
 If you see a message in the UI on the Patterns tab that says "An error occurred within the plugin." or receive an error message HTTP 500 with the message `multiple org IDs present` you have two options to work around the issue:

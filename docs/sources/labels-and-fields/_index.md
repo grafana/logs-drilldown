@@ -13,7 +13,7 @@ weight: 600
 
 # Labels and Fields
 
-Grafana Logs Drilldown visualises log volumes for the labels attached to your log lines, and fields automatically extracted from the text of the line itself.
+Grafana Logs Drilldown visualizes log volume for labels attached to your log lines, and for fields automatically extracted from each log line.
 
 {{< admonition type="note" >}}
 The type of data being expressed in a label or field may require different treatments. For example, fields expressing `bytes` are visualized differently than other types of data. Please [share your feedback](https://forms.gle/1sYWCTPvD72T1dPH9) if you have suggestions for how to improve this experience.
@@ -21,7 +21,7 @@ The type of data being expressed in a label or field may require different treat
 
 Grafana Logs Drilldown adds a special `detected_level` label to all log lines where Loki assigns a level of the log line, including `debug`, `info`, `warn`, `error`, `fatal`, `critical`, `trace`, or `unknown` if no level could be determined.
 
-The `detected_labels` visualizations are helpful for:
+Label visualizations are helpful for:
 
 - Spotting unexpected spikes in log volume.
 - Noticing dips or outages in your services.
@@ -42,12 +42,12 @@ The next section is common across all the Logs Drilldown pages.
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
 
-{{< figure alt="Grafana Logs Drilldown Labels tab" caption="Labels tab" width="900px" align="center" src="/media/docs/explore-logs/labels_v1.0.14.png" >}}
+{{< figure alt="Grafana Logs Drilldown Labels tab" caption="Labels tab" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-labels.png" >}}
 
 Labels tab user interface:
 
 - **Label** filter: Lets you search for or select label names from the menu.
-- **Single / Grid / Rows**: Lets you select how the labels are displayed, in a grid or in rows.
+- **Grid / Rows**: Lets you select how labels are displayed.
 - **Select** or **Include** button: Click to access a breakdown of the label's values, seeing the log volumes visualized along the way.
 - **Menu** (three dots): Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
 
@@ -56,8 +56,8 @@ Labels tab user interface:
 To explore labels with your own data, follow these steps:
 
 1. From the Grafana main menu, select **Drilldown** > **Logs**.
-1. Click the **Select** button for the **Service** you want to explore.
-1. Click the **Labels** tab.
+1. Click **Show logs** for the service you want to explore.
+1. Click the **Labels** tab on the service details page.
 1. Browse the labels detected for this service.
 1. Look for an interesting label and click the **Select** button.
 
@@ -74,13 +74,14 @@ The next section is common across all the Logs Drilldown pages.
 
 <!-- Lets make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets you know the last time the screenshots were updated.-->
 
-{{< figure alt="Grafana Logs Drilldown Fields tab" caption="Fields tab" width="900px" align="center" src="/media/docs/explore-logs/fields_v1.0.14.png" >}}
+{{< figure alt="Grafana Logs Drilldown Fields tab" caption="Fields tab" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-fields.png" >}}
 
 Fields tab user interface:
 
 - **Field** filter: Lets you search for or select field names from the menu.
-- **Single / Grid / Rows**: Lets you select how the fields are displayed, in a grid or in rows.
-- **Add to filter** menu: Lets you add an expression to further filter the field values.-
+- **Grid / Rows**: Lets you select how fields are displayed.
+- **Volume / Names**: Lets you toggle between showing field volume graphs and showing field names only.
+- **Include** or **Add to filter** button: Lets you filter log results by a specific field value. The button label varies depending on the field type.
 - **Select** or **Include** button: Click to access a breakdown of the field's values, seeing the log volumes visualized along the way.
 - **Menu** (three dots): Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
 
@@ -89,15 +90,15 @@ Fields tab user interface:
 To explore fields with your own data, follow these steps:
 
 1. From the Grafana main menu, select **Drilldown** > **Logs**.
-1. Click the **Select** button for the **Service** you want to explore.
-1. Click the **Fields** tab.
+1. Click **Show logs** for the service you want to explore.
+1. Click the **Fields** tab on the service details page.
 1. Browse the fields detected for this service.
 1. Look for an interesting field and click the **Select** button.
 
 You will see a selection of visualizations showing the volume of each field.
 
-To remove the filter, select **All** from the **Filter** search menu or click the **x** next to the selection in the Filter fields at the top of the page.
+To remove the filter, select **All** from the **Field** search menu or click the **x** next to the selection in the Filter fields at the top of the page.
 
 ## What next?
 
-Learn about how [Log patterns](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/patterns/) can help you deal with different types of log lines in bulk.
+Learn how [Log patterns](../patterns/) can help you work with different types of log lines in bulk.
