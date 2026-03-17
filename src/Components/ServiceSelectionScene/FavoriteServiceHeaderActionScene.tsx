@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -8,6 +8,7 @@ import { Icon, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { addToFavorites, removeFromFavorites } from '../../services/favorites';
 import { getFavoriteLabelValuesFromStorage } from '../../services/store';
+import { getMetadataService } from 'services/metadata';
 
 export interface FavoriteServiceHeaderActionSceneState extends SceneObjectState {
   ds: string;
@@ -20,8 +21,16 @@ export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteSe
   public static Component = ({ model }: SceneComponentProps<FavoriteServiceHeaderActionScene>) => {
     const { ds, hover, labelName, labelValue } = model.useState();
     const isFavorite = getFavoriteLabelValuesFromStorage(ds, labelName).includes(labelValue);
+    const isDefaultLabelValue = useMemo(
+      () => getMetadataService().getDefaultLabelValuesForDS(ds, labelName)?.includes(labelValue) ?? false,
+      [ds, labelName, labelValue]
+    );
     const styles = useStyles2((theme) => getStyles(theme, isFavorite, hover));
-    const tooltipCopy = isFavorite ? `Remove  ${labelValue} from favorites` : `Add ${labelValue} to favorites`;
+    const tooltipCopy = isFavorite ? `Remove ${labelValue} from favorites` : `Add ${labelValue} to favorites`;
+
+    if (isDefaultLabelValue) {
+      return null;
+    }
 
     return (
       <span className={styles.wrapper}>

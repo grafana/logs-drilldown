@@ -29,3 +29,20 @@ export const isLatestGrafana = (grafanaVersion: string): boolean => {
 export const skipUnlessLatestGrafana = ({ grafanaVersion }: { grafanaVersion: string }): void => {
   test.skip(!isLatestGrafana(grafanaVersion), `Skipping: requires Grafana >= ${GRAFANA_LATEST_SUPPORTED_VERSION}`);
 };
+
+/** Minimum Grafana version for default labels (service selection). Requires kubernetesLogsDrilldown feature flag. */
+const DEFAULT_LABELS_MIN_VERSION = '13.0.0';
+
+export const isDefaultLabelsGrafanaVersion = (grafanaVersion: string): boolean => {
+  return semver.gte(grafanaVersion, DEFAULT_LABELS_MIN_VERSION);
+};
+
+/**
+ * Skips the test when Grafana version is below 13.0.0 (default labels and kubernetesLogsDrilldown).
+ */
+export const skipUnlessDefaultLabelsSupported = ({ grafanaVersion }: { grafanaVersion: string }): void => {
+  test.skip(
+    !isDefaultLabelsGrafanaVersion(grafanaVersion),
+    `Skipping: default labels require Grafana >= ${DEFAULT_LABELS_MIN_VERSION} and kubernetesLogsDrilldown`
+  );
+};

@@ -5,11 +5,11 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
 
-import { DefaultColumnsContextProvider } from './Context';
+import { ServiceSelectionContextProvider } from './Context';
 import { DataSource } from './DataSource';
-import { DefaultColumns } from './DefaultColumns';
+import { DefaultLabels } from './DefaultLabels';
 import { Footer } from './Footer';
-import { isDefaultColumnsSupported } from './isSupported';
+import { isDefaultLabelsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
@@ -20,7 +20,7 @@ const Config = () => {
   if (!dsUID) {
     return <NoLokiSplash />;
   }
-  if (!isDefaultColumnsSupported) {
+  if (!isDefaultLabelsSupported) {
     return <Unsupported />;
   }
 
@@ -28,24 +28,19 @@ const Config = () => {
     <main className={styles.main}>
       <div className={styles.introText}>
         <Badge color={'blue'} text={'Beta'} />
-        <span>
-          Configure the fields to show by default. These can replace the full log line or be displayed next to it.
-        </span>
+        <span>Configure which labels and label values appear by default on the Logs Drilldown landing page.</span>
       </div>
 
       <ErrorBoundaryAlert>
-        <DefaultColumnsContextProvider initialDSUID={dsUID}>
+        <ServiceSelectionContextProvider initialDSUID={dsUID}>
           <header>
             <DataSource />
           </header>
-          <>
-            <section>
-              <DefaultColumns />
-            </section>
-          </>
+
+          <DefaultLabels />
 
           <Footer />
-        </DefaultColumnsContextProvider>
+        </ServiceSelectionContextProvider>
       </ErrorBoundaryAlert>
     </main>
   );

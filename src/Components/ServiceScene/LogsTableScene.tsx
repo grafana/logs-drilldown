@@ -18,6 +18,7 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { areArraysStrictlyEqual } from '../../services/comparison';
 import { getVariableForLabel } from '../../services/fields';
 import { getAllLabelsFromDataFrame } from '../../services/labels';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from '../../services/logFieldNames';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import {
   getLogOption,
@@ -34,7 +35,6 @@ import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogListControls } from './LogListControls';
-import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';

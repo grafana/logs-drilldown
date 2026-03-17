@@ -40,7 +40,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     paddingBottom: theme.spacing(2),
     marginBottom: theme.spacing(3),
     position: 'relative',
-    boxShadow: theme.shadows.z2,
   }),
   recordContainer__content: css({
     paddingLeft: theme.spacing(2),
