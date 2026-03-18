@@ -107,7 +107,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
               const panel = panelWrap.state.viz;
               if (newParser) {
                 const index = newNamesField?.values.indexOf(panel.state.title);
-                const existingParser = index && index !== -1 ? newParsersField?.values[index] : undefined;
+                const existingParser = index !== undefined && index !== -1 ? newParsersField?.values[index] : undefined;
 
                 // If a new field filter was added that updated the parsers, we'll need to rebuild the query
                 if (this.state.fieldsPanelsType === 'timeseries' && existingParser !== newParser) {
