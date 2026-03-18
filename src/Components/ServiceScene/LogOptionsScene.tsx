@@ -73,7 +73,7 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   return (
     <div className={styles.container}>
       {buttonRendererScene && <buttonRendererScene.Component model={buttonRendererScene} />}
-      {!logsControlsSupported && (
+      {!logsControlsSupported() && (
         <>
           <InlineField className={styles.buttonGroupWrapper} transparent>
             <RadioButtonGroup

@@ -66,6 +66,12 @@ jest.mock('@grafana/runtime', () => ({
   },
 }));
 
+jest.mock('./isSupported', () => ({
+  isDefaultColumnsSupported: () => true,
+  isDefaultColumnsFlagsSupported: () => true,
+  isDefaultColumnsVersionSupported: true,
+}));
+
 jest.mock('@grafana/api-clients/rtkq/logsdrilldown/v1beta1', () => ({
   ...jest.requireActual('@grafana/api-clients/rtkq/logsdrilldown/v1beta1'),
   useGetLogsDrilldownDefaultColumnsQuery: jest.fn(),

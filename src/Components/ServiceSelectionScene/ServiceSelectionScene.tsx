@@ -11,7 +11,7 @@ import {
   GrafanaTheme2,
   LoadingState,
 } from '@grafana/data';
-import { config, locationService } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   behaviors,
@@ -1057,7 +1057,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private getLogExpression(labelName: string, labelValue: string, levelFilter: string) {
-    if (config.featureToggles.kubernetesLogsDrilldown) {
+    if (getFeatureFlag('kubernetesLogsDrilldown')) {
       if (this.hasDefaultColumnsSet()) {
         const matchingCols = this.getDefaultColumns(labelName, labelValue);
         if (matchingCols.length > 0) {

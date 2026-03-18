@@ -321,7 +321,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               }
             >
               <div className={styles.container}>
-                {logsControlsSupported && dataFrame && dataFrame.length > 0 && (
+                {logsControlsSupported() && dataFrame && dataFrame.length > 0 && (
                   <LogListControls
                     controlsExpanded={controlsExpanded}
                     onExpandControlsClick={() => {
