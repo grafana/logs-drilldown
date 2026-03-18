@@ -145,6 +145,32 @@ Try the following fixes:
 1. Verify that your logs contain structured data (JSON, logfmt, or other parsable formats).
 1. Check that [structured metadata](https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/) is enabled in your Loki configuration by setting `allow_structured_metadata: true`.
 
+### Default fields tab not appearing
+
+If the **Default fields** tab does not appear in the Logs Drilldown plugin settings, or if it displays an unsupported message, check the following:
+
+1. Ensure you are running Grafana 12.4 or later. Default fields requires this minimum version.
+1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
+1. Confirm that you have the Org Admin role in your organization.
+
+For more information about configuring Default fields, refer to [Configure Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/#default-fields-beta).
+
+<!-- Uncomment when Grafana 13.0 is released:
+
+### Landing page default labels not appearing
+
+If the **Landing Page** tab does not appear in the Logs Drilldown plugin settings, or if it displays an unsupported message, check the following:
+
+1. Ensure you are running Grafana 13.0 or later. Landing Page default labels requires this minimum version.
+1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
+1. Confirm that you have the Org Admin role in your organization.
+1. After saving changes, verify the correct Loki data source is selected. Landing page label configuration is per data source.
+1. Check that the labels you are configuring exist in the selected Loki data source.
+
+For more information about configuring Landing Page default labels, refer to [Configure Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/#landing-page-default-labels-beta).
+
+-->
+
 ## There are no color levels
 
 Color coding for log severity levels is a setting in Loki. You must have `discover_log_levels: true` in your [Loki configuration file](https://grafana.com/docs/loki/latest/configure/#limits_config).

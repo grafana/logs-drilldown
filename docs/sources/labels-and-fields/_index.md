@@ -6,12 +6,12 @@ keywords:
   - Explore
   - Labels
   - Analysis
-menuTitle: Labels and Fields
-title: Labels and Fields
+menuTitle: Labels and fields
+title: Labels and fields
 weight: 600
 ---
 
-# Labels and Fields
+# Labels and fields
 
 Grafana Logs Drilldown visualizes log volume for labels attached to your log lines, and for fields automatically extracted from each log line.
 
@@ -94,8 +94,6 @@ To explore fields with your own data, follow these steps:
 1. Click the **Fields** tab on the service details page.
 1. Browse the fields detected for this service.
 1. Look for an interesting field and click the **Select** button.
-
-You will see a selection of visualizations showing the volume of each field.
 
 To remove the filter, select **All** from the **Field** search menu or click the **x** next to the selection in the Filter fields at the top of the page.
 

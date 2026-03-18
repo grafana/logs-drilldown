@@ -105,3 +105,5 @@ Refer to the [troubleshooting guide](../troubleshooting/) for tips on how to sol
 
 Before you can use Grafana Logs Drilldown, an administrator must configure a Loki data source in order to access your logs in Grafana Logs Drilldown.
 Refer to the [Loki data source documentation](https://grafana.com/docs/grafana-cloud/connect-externally-hosted/data-sources/loki/) for instructions.
+
+After installing, you can customize default settings such as time range, data source, and display fields. Refer to [Configure Logs Drilldown](./configure/) for details.
