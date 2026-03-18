@@ -25,7 +25,6 @@ To learn more, check out our overview video:
 
 We will walk through a simple step-by-step guided tour of Grafana Logs Drilldown.
 
-The navigation steps in this guide are verified on [Grafana Play](https://play.grafana.org/a/grafana-lokiexplore-app/explore).
 
 While you are browsing your log data in Grafana Logs Drilldown, watch for any unexpected spikes in your logs. Or perhaps one of your services is down and has stopped logging. Maybe you're seeing an increase in errors after a recent release.
 

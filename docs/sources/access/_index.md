@@ -26,11 +26,9 @@ Grafana Logs Drilldown is installed by default in both Grafana and Grafana Cloud
 
 In Grafana v12 and later, Grafana includes all Drilldown apps by default in the same **Drilldown** section.
 
-These menu navigation steps are verified on [Grafana Play](https://play.grafana.org/a/grafana-lokiexplore-app/explore).
 
 ## Installation
 
-The installation procedures in this section are not executable on Grafana Play and should be validated in your own environment.
 
 Logs Drilldown is installed by default in current Grafana releases. If you are upgrading an older installation, you might need to install the plugin manually.
 

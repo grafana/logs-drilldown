@@ -142,7 +142,7 @@ This message indicates that no detected fields (structured metadata or parsed fi
 Try the following fixes:
 
 1. Expand your time range to include more log data.
-1. Verify that your logs contain structured data (JSON, logfmt, or other parseable formats).
+1. Verify that your logs contain structured data (JSON, logfmt, or other parsable formats).
 1. Check that [structured metadata](https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/) is enabled in your Loki configuration by setting `allow_structured_metadata: true`.
 
 ## There are no color levels
