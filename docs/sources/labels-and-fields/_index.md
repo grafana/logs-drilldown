@@ -16,7 +16,7 @@ weight: 600
 Grafana Logs Drilldown visualizes log volume for labels attached to your log lines, and for fields automatically extracted from each log line.
 
 {{< admonition type="note" >}}
-The type of data being expressed in a label or field may require different treatments. For example, fields expressing `bytes` are visualized differently than other types of data. Please [share your feedback](https://forms.gle/1sYWCTPvD72T1dPH9) if you have suggestions for how to improve this experience.
+The type of data being expressed in a label or field may require different treatments. For example, fields expressing `bytes` are visualized differently than other types of data. [Share your feedback](https://forms.gle/1sYWCTPvD72T1dPH9) if you have suggestions for how to improve this experience.
 {{< /admonition >}}
 
 Grafana Logs Drilldown adds a special `detected_level` label to all log lines where Loki assigns a level of the log line, including `debug`, `info`, `warn`, `error`, `fatal`, `critical`, `trace`, or `unknown` if no level could be determined.
