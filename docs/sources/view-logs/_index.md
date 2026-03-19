@@ -10,37 +10,38 @@ The logs visualization in Grafana Logs Drilldown displays log lines from your Lo
 
 ## Log controls
 
-The controls component provides different options to interact with and customize the list of logs. You can find options to jump to the top or bottom of the list, change the sort order, filter by string or level, access deduplication, and select display options such as the timestamp format or color highlighting.
+The controls component provides options to interact with and customize the log list. You can jump to the top or bottom, change sort order, filter by string or level, use deduplication, and choose display options such as timestamp format or color highlighting.
 
 From top to bottom, the log controls include:
 
 * **Expand/collapse controls**: Show or hide the full controls toolbar.
 * **Scroll to the bottom**: Jump to the last log line in the view.
 * **Sort direction**: Toggle between ascending (oldest logs first) or descending (newest logs first) order.
-* **Client-side string search**: Click to open/close the client side string search of the displayed logs result.
+* **Client-side string search**: Click to open or close client-side string search for displayed results.
 * **Deduplication**: Hide duplicate log lines using a few different deduplication algorithms.
   * **None**: Disables deduplication.
   * **Exact**: Matches on the whole line except for date fields.
   * **Numbers**: Matches after stripping out numbers such as durations, IP addresses, and so on.
   * **Signature**: The most aggressive deduplication as it strips all letters and numbers and matches on the remaining whitespace and punctuation.
-* **Filter logs by log level**: Filters logs by log level: All levels, Info, Debut, Warning, Error
-* **Set timestamp format**: Hide timestamps (disabled), Show milliseconds timestamps, Show nanoseconds timestamps.
+* **Filter logs by log level**: Filter logs by level, such as All levels, Info, Warn, and Error.
+* **Set timestamp format**: Hide timestamps, show millisecond timestamps, or show nanosecond timestamps.
 * **Line wrapping control**:
   * **Disabled**: Log lines are truncated.
   * **Enabled**: Log lines wrap to multiple lines.
   * **Enabled with JSON formatting**: Pretty-prints JSON log lines.
-* **Logs highlighting**: Plain text or color highlighting enabled.
-* **Font size control**: Small font (default), Large font..
-* **Unescape newlines**: Conditionally displayed if the logs contain escaped new lines. Click to unescape and display as new lines.
+* **Logs highlighting**: Toggle between plain text and color highlighting.
+* **Font size control**: Toggle between small (default) and large font.
+* **Unescape newlines**: Displayed when logs contain escaped new lines. Click to render escaped new lines as new lines.
 * **Download logs**: Download in plain text (txt), JavaScript Object Notation (JSON), or Comma-separated values (CSV) format.
+* **Scroll to the top**: Jump to the first log line in the view.
 
 {{< admonition type="note" >}}
-Note that when in [JSON view](../viewing-json-logs/) the following controls are not available: Client-side string search, Deduplication, Filter logs by log level, Set timestamp format,  Font size control, and Download logs.  JSON view does include two additional controls: Show/Hide metadata and Show/Hide labels.
+When you are in [JSON view](../viewing-json-logs/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
 {{< /admonition >}}
 
 ## Log Details
 
-The Log Details component is displayed by clicking on a log line. It displays more information that is part of the log line in collapsible sections containing details such as fields (usually key-value pairs) and links (derived fields, correlations, etc.).
+The **Log details** component is displayed when you click a log line. It shows additional information from that log line in collapsible sections, including fields (usually key-value pairs) and links (derived fields, correlations, and more).
 
 ### Fields
 

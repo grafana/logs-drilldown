@@ -13,7 +13,7 @@ weight: 200
 
 # Access or install Grafana Logs Drilldown
 
-To use Grafana Logs Drilldown to view your logs data, you can either access it in Grafana Cloud or install it in your own Grafana instance.
+To use Grafana Logs Drilldown to view your log data, you can either access it in Grafana Cloud or install it in your own Grafana instance.
 
 {{< docs/play title="the Grafana Play site" url="https://play.grafana.org/a/grafana-lokiexplore-app/explore?var-ds=ddhr3fttaw8aod&var-patterns=&var-lineFilter=&var-logsFormat=" >}}
 
@@ -24,9 +24,13 @@ Grafana Logs Drilldown is installed by default in both Grafana and Grafana Cloud
 1. Open your Grafana stack in a web browser.
 1. In the main menu, select **Drilldown** > **Logs**.
 
+In Grafana v12 and later, Grafana includes all Drilldown apps by default in the same **Drilldown** section.
+
+
 ## Installation
 
-Logs Drilldown has been installed by default since Grafana v11.3.0.  If you are upgrading, you may need to manually install the plugin.
+
+Logs Drilldown is installed by default in current Grafana releases. If you are upgrading an older installation, you might need to install the plugin manually.
 
 ### Install via Plugins catalog
 
@@ -40,16 +44,17 @@ For Enterprise and OSS Grafana users, you can install Grafana Logs Drilldown via
 
 The following Loki and Grafana version and configuration are required:
 
-- Grafana v11.6.0 or later
+- Grafana v11.6.11 or later
 - Loki v3.2.0 or later
 
   {{< admonition type="note" >}}
   To get the most recent features, including experimental features, upgrade to Loki 3.5.0 or later.
   {{< /admonition >}}
 
-  - Enable pattern ingestion by setting `pattern-ingester.enabled` to `true`in your Loki configuration file.
+  - Enable pattern ingestion by setting `pattern_ingester.enabled` to `true` in your Loki configuration file.
   - Enable structured metadata by setting `allow_structured_metadata` to `true` within your Loki configuration file.
   - Enable the volume endpoint by setting `volume_enabled` to `true` within your Loki configuration file.
+  - Enable log level detection by setting `discover_log_levels` to `true` within your Loki configuration file.
 
     ```yaml
     pattern_ingester:
@@ -57,6 +62,7 @@ The following Loki and Grafana version and configuration are required:
     limits_config:
       allow_structured_metadata: true
       volume_enabled: true
+      discover_log_levels: true
     ```
 
 ### Install via environment variable
@@ -64,17 +70,17 @@ The following Loki and Grafana version and configuration are required:
 If you want to [install the app in a Docker container](https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/#install-plugins-in-the-docker-container), you need to configure the following environment variable:
 
 ```sh
-GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip;grafana-lokiexplore-app
+GF_INSTALL_PLUGINS="https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip;grafana-lokiexplore-app"
 ```
 
-### Install using grafana-cli
+### Install using Grafana CLI
 
-You can install Grafana Logs Drilldown in your own Grafana instance using `grafana-cli`. For more information about `grafana-cli` refer to the [Grafana CLI documentation](https://grafana.com/docs/grafana/latest/cli/.)
+You can install Grafana Logs Drilldown in your own Grafana instance using the Grafana CLI. For more information, refer to the [Grafana CLI documentation](https://grafana.com/docs/grafana/latest/cli/).
 
-Using `grafana-cli` run the following command:
+Run the following command:
 
 ```sh
-grafana-cli --pluginUrl=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip plugins install grafana-lokiexplore-app
+grafana cli plugins install --pluginUrl=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip grafana-lokiexplore-app
 ```
 
 ## Test with Docker Compose
@@ -99,3 +105,5 @@ Refer to the [troubleshooting guide](../troubleshooting/) for tips on how to sol
 
 Before you can use Grafana Logs Drilldown, an administrator must configure a Loki data source in order to access your logs in Grafana Logs Drilldown.
 Refer to the [Loki data source documentation](https://grafana.com/docs/grafana-cloud/connect-externally-hosted/data-sources/loki/) for instructions.
+
+After installing, you can customize default settings such as time range, data source, and display fields. Refer to [Configure Logs Drilldown](./configure/) for details.
