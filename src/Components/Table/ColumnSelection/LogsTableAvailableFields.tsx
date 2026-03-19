@@ -8,7 +8,7 @@ import { useTheme2 } from '@grafana/ui';
 import { FieldNameMeta } from '../TableTypes';
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
-import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'Components/ServiceScene/LogOptionsScene';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'services/logFieldNames';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 

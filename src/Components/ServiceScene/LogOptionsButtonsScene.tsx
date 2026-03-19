@@ -5,7 +5,7 @@ import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } fr
 import { Button, Tooltip } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from './LogOptionsScene';
+import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from '../../services/logFieldNames';
 import { LogsListScene } from './LogsListScene';
 import { ServiceScene } from './ServiceScene';
 

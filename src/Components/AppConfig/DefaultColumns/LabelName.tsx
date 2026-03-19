@@ -4,8 +4,7 @@ import { css } from '@emotion/css';
 import { memoize } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Combobox, useStyles2 } from '@grafana/ui';
-import { ComboboxOption } from '@grafana/ui/dist/types/components/Combobox/types';
+import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
 import { testIds } from '../../../services/testIds';
 import { useDefaultColumnsContext } from './Context';
@@ -80,7 +79,8 @@ const getLabels = memoize(
       options.unshift(service[0]);
     }
     return options;
-  }
+  },
+  (columnsLabels, dsUID) => `${dsUID}.${JSON.stringify(columnsLabels)}`
 );
 
 const getStyles = (theme: GrafanaTheme2) => ({

@@ -2,13 +2,13 @@
 import {
   DataFrame,
   DataSourceGetTagKeysOptions,
+  DataSourceGetTagValuesOptions,
   DataSourceJsonData,
   GetTagResponse,
   MetricFindValue,
   ScopedVars,
   TimeRange,
 } from '@grafana/data';
-import { DataSourceGetTagValuesOptions } from '@grafana/data/dist/types/types/datasource';
 import { DataSourceWithBackend } from '@grafana/runtime';
 import { DataQuery, DataSourceRef } from '@grafana/schema';
 

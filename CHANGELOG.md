@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.0.0
+
+##### Chores
+
+* **react19:**  update to latest for react19 (#1799) (f4621a3c)
+
+##### Documentation Changes
+
+*  Updates for Logs Drilldown docs features and UI (#1807) (fe65dba7)
+
+
+## 1.0.41
+
+##### Chores
+
+* **deps:**  update dependency tar to v7.5.11 [security] (#1802) (928f526c)
+* **DefaultColumns:**  replace local rtkq with @grafana/api-clients (#1792) (8db4e341)
+* **cve:**  update immutable, go, dompurify, serialize-javascript (#1795) (6a390325)
+
+##### New Features
+
+* **Service Selection:**  Add support for configured default labels (#1755) (a426e79d)
+* **AppConfig:**  add support to set a custom default time range (#1801) (c9ac6f0f)
+
+##### Bug Fixes
+
+* **Breakdowns:**  Fix tab counts and add empty state to Patterns (#1797) (df53b2d4)
+
+
 ## 1.0.40
 
 ##### Chores

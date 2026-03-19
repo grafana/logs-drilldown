@@ -7,17 +7,17 @@ import { MemoryRouter } from 'react-router-dom';
 // jest-canvas-mock prevents the combobox from breaking tests
 import 'jest-canvas-mock';
 
-import { DataSourceInstanceSettings } from '@grafana/data/dist/types/types/datasource';
+import {
+  useCreateLogsDrilldownDefaultColumnsMutation,
+  useGetLogsDrilldownDefaultColumnsQuery,
+  useReplaceLogsDrilldownDefaultColumnsMutation,
+} from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+import { DataSourceInstanceSettings } from '@grafana/data';
 import { DataSourceWithBackend, getDataSourceSrv, locationService, LocationServiceProvider } from '@grafana/runtime';
 
 import Config from './Config';
 import { DefaultColumnsContextProvider } from './Context';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
-import {
-  useCreateLogsDrilldownDefaultColumnsMutation,
-  useGetLogsDrilldownDefaultColumnsQuery,
-  useReplaceLogsDrilldownDefaultColumnsMutation,
-} from 'lib/api-clients/logsdrilldown/v1beta1';
 
 // Constants
 const DEBUG = false;
@@ -66,8 +66,8 @@ jest.mock('@grafana/runtime', () => ({
   },
 }));
 
-jest.mock('lib/api-clients/logsdrilldown/v1beta1', () => ({
-  ...jest.requireActual('lib/api-clients/logsdrilldown/v1beta1'),
+jest.mock('@grafana/api-clients/rtkq/logsdrilldown/v1beta1', () => ({
+  ...jest.requireActual('@grafana/api-clients/rtkq/logsdrilldown/v1beta1'),
   useGetLogsDrilldownDefaultColumnsQuery: jest.fn(),
   useCreateLogsDrilldownDefaultColumnsMutation: jest.fn(),
   useReplaceLogsDrilldownDefaultColumnsMutation: jest.fn(),
@@ -294,10 +294,10 @@ describe('Config', () => {
 });
 
 function queryDisplayColumns() {
-  return screen.queryByRole('heading', { name: /display columns/i });
+  return screen.queryByRole('heading', { name: /display fields/i });
 }
 function getDisplayColumns() {
-  return screen.getByRole('heading', { name: /display columns/i });
+  return screen.getByRole('heading', { name: /display fields/i });
 }
 
 function getDeleteRecordButton() {

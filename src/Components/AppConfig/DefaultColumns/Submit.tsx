@@ -2,18 +2,18 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
-
-import { useDefaultColumnsContext } from './Context';
-import { DefaultColumnsValidationState } from './types';
 import {
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabel,
   LogsDrilldownDefaultColumnsLogsDefaultColumnsLabels,
   LogsDrilldownDefaultColumnsSpec,
   useCreateLogsDrilldownDefaultColumnsMutation,
   useReplaceLogsDrilldownDefaultColumnsMutation,
-} from 'lib/api-clients/logsdrilldown/v1beta1';
+} from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, useStyles2 } from '@grafana/ui';
+
+import { useDefaultColumnsContext } from './Context';
+import { DefaultColumnsValidationState } from './types';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 import { getRTKQErrorContext, narrowRTKQError } from 'services/narrowing';
@@ -105,7 +105,7 @@ export function Submit() {
 
 const getStyles = (theme: GrafanaTheme2, isInvalid: boolean) => ({
   button: css({
-    borderColor: isInvalid ? theme.colors.error.border : theme.colors.border.strong,
+    borderColor: isInvalid ? theme.colors.error.border : undefined,
   }),
 });
 

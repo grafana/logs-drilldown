@@ -8,8 +8,8 @@ import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { getKeys } from './State';
-import { getNormalizedFieldName } from 'Components/ServiceScene/LogOptionsScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getNormalizedFieldName } from 'services/logFieldNames';
 import { logger } from 'services/logger';
 
 interface Props {
@@ -91,7 +91,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                   <IconButton
                     variant={'destructive'}
                     tooltip={`Remove ${getNormalizedFieldName(column)}`}
-                    name={'minus'}
+                    name="trash-alt"
                     size={'lg'}
                     className={styles.column__removeIcon}
                     onClick={() => onRemoveColumn(colIdx)}
@@ -128,7 +128,6 @@ const getStyles = (theme: GrafanaTheme2, containerDragging: boolean) => ({
   }),
   column__dragIcon: css({
     cursor: 'drag',
-    opacity: 0.4,
     marginRight: theme.spacing(1),
   }),
 });

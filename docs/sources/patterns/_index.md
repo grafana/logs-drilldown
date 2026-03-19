@@ -22,7 +22,7 @@ Loki automatically extracts patterns when your logs are ingested. Patterns are e
 
 The Grafana Logs Drilldown app shows you the patterns alongside their log volumes. From this view, you can investigate spikes and include or exclude specific log lines from your view.
 
-Patterns can change over time as your logging evolves. In order to see patterns displayed on the Patterns page, you must have the [pattern ingester enabled](https://grafana.com/docs/loki/latest/configure/#supported-contents-and-default-values-of-lokiyaml) in your Loki configuration file. If you don't see any patterns, refer to [Troubleshooting](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/troubleshooting/#there-are-no-patterns).
+Patterns can change over time as your logging evolves. To see patterns on the **Patterns** tab, you must have the [pattern ingester enabled](https://grafana.com/docs/loki/latest/configure/#supported-contents-and-default-values-of-lokiyaml) in your Loki configuration file. If you don't see any patterns, refer to [Troubleshooting](../troubleshooting/#there-are-no-patterns).
 
 ## Pattern extraction
 
@@ -76,26 +76,26 @@ The next section is common across all the Logs Drilldown pages.
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
 
-{{< figure alt="Grafana Logs Drilldown Patterns tab" caption="Patterns tab" width="900px" align="center" src="/media/docs/explore-logs/patterns_v1.0.14.png" >}}
+{{< figure alt="Grafana Logs Drilldown Patterns tab" caption="Patterns tab" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-patterns.png" >}}
 
 Patterns tab user interface:
 
 - **Search patterns** field: Lets you search for text that appears in patterns, for example HTTP methods or response codes.
-- **>** : Expand or collapse the pattern row to view log lines with that pattern.
+- **>**: Expand or collapse a pattern row to view log lines with that pattern.
 - **Patterns** graph: The graph shows you the patterns alongside their log volumes.
 - **Include** and **Exclude** buttons: Lets you include or exclude the log pattern from the log view.
 
 When you expand a pattern row to view log lines with that pattern, each row has a menu with the following options:
 
-- **Show/Hide log details**: Select from the menu for the individual log line to view the log line, index labels, parsed fields, and structured metadata.  For more information, refer to [View logs](../view-logs/).
+- **Show/Hide log details**: Select from the menu for the individual log line to view the log line, index labels, parsed fields, and structured metadata. For more information, refer to [View logs](../view-logs/).
 - **Show context**: Select from the menu to view the log line in the context of the logs that occurred before and after that specific log.
 - **Copy log line**: Select from the menu to copy individual log lines to the clipboard.
 
-The patterns roll includes infinite scroll. Scroll to the bottom of the log list to load more results.
+The patterns table includes infinite scroll. Scroll to the bottom of the list to load more results.
 
 ## Guided tour of log patterns
 
-We've outlined the steps you'll need to take to perform some common use cases.
+You can follow these steps to perform some common use cases using your own instance or [Grafana Play](https://play.grafana.org/a/grafana-lokiexplore-app/explore).
 
 ### Browse log volumes by type
 
@@ -110,7 +110,7 @@ If you know the kind of log line you're looking for, log patterns are an easy wa
 To view only a specific set of patterns, perform the following steps:
 
 1. From the Grafana main menu, select **Drilldown** > **Logs**.
-1. Select the relevant **Service**.
+1. Click **Show logs** for the relevant service.
 1. On the service details page, click the **Patterns** tab.
 1. Identify a pattern that matches the type of logs you're interested in viewing.
 1. Click the **Include** button for the pattern.
@@ -123,7 +123,7 @@ You can repeat steps 4 and 5 to include multiple patterns.
 To hide noisy log lines, perform the following steps:
 
 1. From the Grafana main menu, select **Drilldown** > **Logs**.
-1. Select the relevant **Service**.
+1. Click **Show logs** for the relevant service.
 1. On the service details page, click the **Patterns** tab.
 1. Identify a pattern that represents noise in the logs that you want to remove.
 1. Click the **Exclude** button to exclude that pattern.

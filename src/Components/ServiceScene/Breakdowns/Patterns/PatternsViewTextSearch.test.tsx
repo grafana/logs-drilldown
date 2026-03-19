@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { sceneGraph } from '@grafana/scenes';
@@ -134,7 +134,9 @@ describe('PatternsViewTextSearch', () => {
       render(<TestWrapper model={model} onSetState={setStateSpy} />);
 
       const input = screen.getByPlaceholderText('Search patterns');
-      await userEvent.type(input, 'foo');
+      await act(async () => {
+        await userEvent.type(input, 'foo');
+      });
 
       expect(setStateSpy).toHaveBeenCalledWith({ patternFilter: 'f' });
       expect(setStateSpy).toHaveBeenCalledWith({ patternFilter: 'fo' });
@@ -149,7 +151,9 @@ describe('PatternsViewTextSearch', () => {
       render(<PatternTextSearchComponent model={model} />);
 
       const clearButton = screen.getByLabelText('Clear search');
-      await userEvent.click(clearButton);
+      await act(async () => {
+        await userEvent.click(clearButton);
+      });
 
       expect(setStateSpy).toHaveBeenCalledWith({ patternFilter: '' });
     });
