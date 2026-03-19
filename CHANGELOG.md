@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.0
+
+##### Chores
+
+* **react19:**  update to latest for react19 (#1799) (f4621a3c)
+
+##### Documentation Changes
+
+*  Updates for Logs Drilldown docs features and UI (#1807) (fe65dba7)
+
+
 ## 1.0.41
 
 ##### Chores
