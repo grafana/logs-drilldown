@@ -151,7 +151,7 @@ test.describe('explore services breakdown page', () => {
     await page.getByLabel(E2EComboboxStrings.removeByKey(SERVICE_NAME)).click();
 
     // Assert cluster has been added as the new URL slug
-    await expect(page).toHaveURL(/\/cluster\/us-\.%2B\//);
+    await expect(page).toHaveURL(/\/cluster\/us-\.%252B\//);
 
     // Navigate to labels aggregation view
     await explorePage.goToLabelsTab();
