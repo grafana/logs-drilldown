@@ -438,13 +438,13 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
     if (type === 'manual') {
       addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
-    }
 
-    this.setState({
-      body: new SceneCSSGridLayout({ children: [] }),
-      countPerPage: getServiceSelectionPageCount() ?? 20,
-      currentPage: 1,
-    });
+      this.setState({
+        body: new SceneCSSGridLayout({ children: [] }),
+        countPerPage: getServiceSelectionPageCount() ?? 20,
+        currentPage: 1,
+      });
+    }
 
     // clear active search
     clearServiceSelectionSearchVariable(this);
