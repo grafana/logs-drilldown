@@ -17,6 +17,10 @@ cards:
       href: ./access/
       description: Get access to Grafana Logs Drilldown in Grafana Cloud or in your own stack.
       height: 24
+    - title: Configure Logs Drilldown
+      href: ./access/configure/
+      description: Configure default data source, time range, and display fields for your Logs Drilldown instance.
+      height: 24
     - title: Get started
       href: ./get-started/
       description: Install Grafana Logs Drilldown and take a tour of Grafana Logs Drilldown using your own data.
@@ -73,12 +77,11 @@ With Grafana Logs Drilldown, you get the same powerful insights, by just viewing
 
 {{< card-grid key="cards" type="simple" >}}
 
-## Please share your feedback
+## Share your feedback
 
-Our new experiences are in their early stages, and we'd love to hear your feedback.
+Use the **Give feedback** link on each Grafana Logs Drilldown page to share your thoughts with the team building Grafana Logs Drilldown.
 
-- You'll find a **Give feedback** link on each Grafana Logs Drilldown page.
-- You can also fill out [this Google form](https://forms.gle/1sYWCTPvD72T1dPH9) to send your thoughts directly to the team building Grafana Logs Drilldown.
+You can also fill out [this Google form](https://forms.gle/1sYWCTPvD72T1dPH9) to send your thoughts directly to the team building Grafana Logs Drilldown.
 
 ## What's next?
 
