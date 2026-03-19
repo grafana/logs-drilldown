@@ -20,20 +20,15 @@ To use this feature, you must be running Loki 3.5.0 or later.
 
 ## Viewing JSON logs
 
-To interact with the JSON view, select the **Show Logs** button for your service in Logs Drilldown.
+To interact with the JSON view, select **Show logs** for your service in Logs Drilldown.
 
-{{< figure alt="JSON Table viewer with selector and include exclude highlighted" caption="Show Logs button" width="500px" align="center" src="/media/docs/explore-logs/show-logs.png" >}}
+{{< figure alt="Logs Drilldown service panel with Show logs highlighted" caption="Show logs button" width="500px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-show-logs.png" >}}
 
-You can use the **Line wrapping** control in the log controls to enable JSON formatting. When enabled with JSON formatting, your logs will be displayed in a structured, collapsible way, enabling you to sort, filter, and otherwise adjust your log data in the visualizations for your logs.
+On the **Logs** tab, select the **JSON** radio button in the panel header (next to **Logs** and **Table**) to switch to the JSON viewer. Your logs are displayed in a structured, collapsible tree view, enabling you to browse, expand, and collapse JSON fields.
 
-The line wrapping control offers three options:
-- **Disabled**: Log lines are truncated at the edge of the panel.
-- **Enabled**: Log lines wrap to multiple lines.
-- **Enabled with JSON formatting**: JSON logs are pretty-printed for easier reading.
+{{< figure alt="Logs Drilldown JSON viewer with structured log rows" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-json-viewer.png" caption="The JSON viewer" >}}
 
-{{< figure alt="Show Logs button on a JSON logging service" width="900px" align="center" src="/media/docs/explore-logs/json-viewer.png" caption="The JSON viewer" >}}
-
-For more information about log controls, refer to [View logs](../view-logs/).
+The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but does not open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../view-logs/).
 
 ## Filtering log lines with the JSON view
 
@@ -52,7 +47,3 @@ To include filtered log data again, remove the excluded data from the **Fields**
 Log lines entirely formatted as JSON are supported.
 
 Log lines with only certain fields or metadata structured as JSON are not currently supported.
-
-{{< admonition type="note" >}}
-We are keen to improve this feature, so please [contact us](https://forms.gle/1sYWCTPvD72T1dPH9) if there is something that would help you find the signal in the noise.
-{{< /admonition >}}
