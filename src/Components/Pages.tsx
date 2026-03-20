@@ -90,7 +90,7 @@ function getEmbeddedScene() {
   const initialStart = 'now-15m';
   const initialEnd = 'now';
   const query =
-    '{place=~"(l|c)?una"} | user!="03428" |~ "(?i)Error" | json | logfmt | drop __error__, __error_details__ |  msg!="Failed to get keys from redis"';
+    '{service_name=~"tempo-distributor|tempo-ingester"} | user!="03428" |~ "(?i)Error" | json | logfmt | drop __error__, __error_details__ |  msg!="Failed to get keys from redis"';
 
   const from = dateTimeParse(initialStart);
   const to = dateTimeParse(initialEnd);
