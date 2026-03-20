@@ -305,7 +305,6 @@ export function escapePrimaryLabel(parameter: string): string {
   return encodeURIComponent(normalized);
 }
 
-// Restore label value when reading from URL (reverses the ? placeholder from escapePrimaryLabel)
 export function restoreLabelValueFromUrlParam(value: string): string {
   return decodeURIComponent(value);
 }
