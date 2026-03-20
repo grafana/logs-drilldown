@@ -135,7 +135,7 @@ export function getPrimaryLabelFromUrl(): RouteProps {
   const routeParams = endOfUrl.split('/');
 
   let labelName = routeParams[0];
-  const labelValue = restoreLabelValueFromUrlParam(routeParams[1] ?? '');
+  const labelValue = restoreLabelValueFromUrlParam(routeParams[1]);
   const breakdownLabel = routeParams[3];
 
   return { breakdownLabel, labelName: getUILabelName(labelName), labelValue };
@@ -154,7 +154,7 @@ export function extractValuesFromRoute(routeMatch: RouteMatch): RouteProps {
   return {
     breakdownLabel: routeMatch.params.breakdownLabel,
     labelName: routeMatch.params.labelName,
-    labelValue: restoreLabelValueFromUrlParam(routeMatch.params.labelValue ?? ''),
+    labelValue: restoreLabelValueFromUrlParam(routeMatch.params.labelValue),
   };
 }
 

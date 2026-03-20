@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -347,10 +347,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private handlePrimaryLabelChange(newPrimaryLabel: AdHocFilterWithLabels<{}>, breakdownLabel: string | undefined) {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const prevRouteMatch = indexScene.state.routeMatch;
-
     const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
       ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
       : replaceSlash(newPrimaryLabel.value);
+
     indexScene.setState({
       routeMatch: {
         ...prevRouteMatch,
@@ -950,7 +950,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
-    const status = model.getLabelFiltersStatus(filters);
+    const status = useMemo(() => model.getLabelFiltersStatus(filters), [filters, model]);
 
     if (!status.isValid && !status.newPrimaryLabel) {
       return (

@@ -102,7 +102,7 @@ export function getDrillDownTabLink(path: PageSlugs, serviceScene: ServiceScene,
   const urlLabelName = indexScene.state.routeMatch?.params.labelName;
 
   if (urlLabelValue && !serviceScene.state.embedded) {
-    const fullUrl = prefixRoute(`${PageSlugs.explore}/${urlLabelName}/${replaceSlash(urlLabelValue)}/${path}`);
+    const fullUrl = prefixRoute(`${PageSlugs.explore}/${urlLabelName}/${urlLabelValue}/${path}`);
     return buildDrilldownPageUrl(fullUrl, extraQueryParams);
   } else if (serviceScene.state.embedded) {
     const location = locationService.getLocation();

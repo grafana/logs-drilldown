@@ -296,23 +296,18 @@ export function appendUrlParameter(
   return searchParams;
 }
 
-// Placeholder for ? in path segments so the URL is not broken (? starts query string)
-const LABEL_VALUE_QUESTION_MARK_PLACEHOLDER = '__qm__';
-
 export function replaceSlash(parameter: string): string {
   const normalized = stripAdHocFilterUserInputPrefix(parameter)
     // back-slash is converted to forward-slash in the URL, replace that char
     .replace(/\//g, '-')
-    .replace(/\\/g, '-')
-    // ? in path would be interpreted as start of query string; use placeholder
-    .replace(/\?/g, LABEL_VALUE_QUESTION_MARK_PLACEHOLDER);
+    .replace(/\\/g, '-');
   // Encode so regex/special chars in path (e.g. ()) don't break routing
   return encodeURIComponent(normalized);
 }
 
 // Restore label value when reading from URL (reverses the ? placeholder from replaceSlash)
 export function restoreLabelValueFromUrlParam(value: string): string {
-  return decodeURIComponent(value.replaceAll(LABEL_VALUE_QUESTION_MARK_PLACEHOLDER, '?'));
+  return decodeURIComponent(value);
 }
 
 // Manually copied over from @grafana/scenes so we don't need to import scenes to build links

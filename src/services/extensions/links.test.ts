@@ -1012,27 +1012,26 @@ describe('interpolateQueryExpr', () => {
 
 describe('replaceSlash', () => {
   it('replaces forward slashes with hyphens', () => {
-    expect(replaceSlash('path/to/value')).toBe(encodeURIComponent('path-to-value'));
-    expect(replaceSlash('a/b/c')).toBe(encodeURIComponent('a-b-c'));
+    expect(replaceSlash('path/to/value')).toBe('path-to-value');
+    expect(replaceSlash('a/b/c')).toBe('a-b-c');
   });
 
   it('replaces backslashes with hyphens', () => {
-    // In JS 'C:\\Grafana\\logs' is C:\Grafana\logs → C:-Grafana-logs (colon encoded in URL)
-    expect(replaceSlash('C:\\Grafana\\logs')).toBe(encodeURIComponent('C:-Grafana-logs'));
-    expect(replaceSlash('a\\b')).toBe(encodeURIComponent('a-b'));
+    expect(replaceSlash('C:\\Grafana\\logs')).toBe('C%3A-Grafana-logs');
+    expect(replaceSlash('a\\b')).toBe('a-b');
   });
 
   it('replaces question marks with placeholder so path is not broken', () => {
     const encoded = replaceSlash('key?value');
-    expect(encoded).toBe(encodeURIComponent('key__qm__value'));
+    expect(encoded).toBe('key%3Fvalue');
     expect(encoded).not.toContain('?');
   });
 
   it('encodes regex/special characters for safe routing', () => {
-    expect(replaceSlash('(group)')).toBe(encodeURIComponent('(group)'));
-    expect(replaceSlash('.*')).toBe(encodeURIComponent('.*'));
-    expect(replaceSlash('a[b]')).toBe(encodeURIComponent('a[b]'));
-    expect(replaceSlash('a|b')).toBe(encodeURIComponent('a|b'));
+    expect(replaceSlash('(group)')).toBe('(group)');
+    expect(replaceSlash('.*')).toBe('.*');
+    expect(replaceSlash('a[b]')).toBe('a%5Bb%5D');
+    expect(replaceSlash('a|b')).toBe('a%7Cb');
   });
 
   it('handles empty string', () => {
@@ -1047,18 +1046,19 @@ describe('replaceSlash', () => {
   it('strips ad-hoc filter user input prefix before encoding', () => {
     const prefix = '__CVΩ__';
     expect(replaceSlash(prefix + 'myvalue')).toBe(replaceSlash('myvalue'));
-    expect(replaceSlash(prefix + 'a/b')).toBe(encodeURIComponent('a-b'));
+    expect(replaceSlash(prefix + 'a/b')).toBe('a-b');
   });
 
   it('handles unicode characters', () => {
     const withUnicode = 'café-日本語-emoji🎉';
-    expect(replaceSlash(withUnicode)).toBe(encodeURIComponent(withUnicode));
+    expect(replaceSlash(withUnicode)).toBe('caf%C3%A9-%E6%97%A5%E6%9C%AC%E8%AA%9E-emoji%F0%9F%8E%89');
+    expect(restoreLabelValueFromUrlParam(replaceSlash(withUnicode))).toBe(withUnicode);
   });
 
   it('handles mixed slashes, backslashes, and question marks', () => {
     const mixed = 'a/b\\c?d';
     const encoded = replaceSlash(mixed);
-    expect(encoded).toBe(encodeURIComponent('a-b-c__qm__d'));
+    expect(encoded).toBe('a-b-c%3Fd');
   });
 });
 
@@ -1093,13 +1093,9 @@ describe('restoreLabelValueFromUrlParam', () => {
     expect(restoreLabelValueFromUrlParam(replaceSlash(unicode))).toBe(unicode);
   });
 
-  it('correctly decodes multiple question mark placeholders', () => {
-    const encoded = encodeURIComponent('a__qm__b__qm__c');
+  it('correctly decodes multiple question marks', () => {
+    const encoded = 'a%3Fb%3Fc';
     expect(restoreLabelValueFromUrlParam(encoded)).toBe('a?b?c');
-  });
-
-  it('handles already decoded string with placeholders', () => {
-    expect(restoreLabelValueFromUrlParam('a__qm__b')).toBe('a?b');
   });
 
   it('round-trips with replaceSlash for ad-hoc prefix (stripped by replaceSlash)', () => {
