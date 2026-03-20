@@ -347,9 +347,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private handlePrimaryLabelChange(newPrimaryLabel: AdHocFilterWithLabels<{}>, breakdownLabel: string | undefined) {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const prevRouteMatch = indexScene.state.routeMatch;
-    const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
-      ? escapePrimaryLabel(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
-      : escapePrimaryLabel(newPrimaryLabel.value);
+    const newPrimaryLabelValue = escapePrimaryLabel(newPrimaryLabel.value);
 
     indexScene.setState({
       routeMatch: {
