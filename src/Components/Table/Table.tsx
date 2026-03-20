@@ -333,7 +333,7 @@ export const Table = (props: Props) => {
 
   const idField = logsFrame.raw.fields.find((field) => field.name === getIdName(logsFrame));
   const lineIndex = idField?.values.findIndex((v) => v === localSelectedLine?.id);
-  const cleanLineIndex = lineIndex && lineIndex !== -1 ? lineIndex : undefined;
+  const cleanLineIndex = lineIndex !== undefined && lineIndex !== -1 ? lineIndex : undefined;
 
   if (!tableFrame) {
     return <></>;
