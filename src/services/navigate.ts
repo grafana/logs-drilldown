@@ -6,7 +6,7 @@ import { IndexScene } from '../Components/IndexScene/IndexScene';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceSceneConstants';
 import { PageSlugs, ValueSlugs } from './enums';
-import { replaceSlash } from './extensions/links';
+import { escapePrimaryLabel } from './extensions/links';
 import { getMetadataService } from './metadata';
 import { prefixRoute } from './plugin';
 import { buildServicesUrl, DRILLDOWN_URL_KEYS, ROUTES } from './routing';
@@ -16,12 +16,12 @@ let previousRoute: string | undefined = undefined;
 
 function buildValueBreakdownUrl(label: string, newPath: ValueSlugs, labelValue: string, labelName = 'service') {
   if (label === ALL_VARIABLE_VALUE && newPath === ValueSlugs.label) {
-    return prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.labels}`);
+    return prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.labels}`);
   } else if (label === ALL_VARIABLE_VALUE && newPath === ValueSlugs.field) {
-    return prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.fields}`);
+    return prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.fields}`);
   } else {
     return prefixRoute(
-      `${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${newPath}/${replaceSlash(label)}`
+      `${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${newPath}/${escapePrimaryLabel(label)}`
     );
   }
 }

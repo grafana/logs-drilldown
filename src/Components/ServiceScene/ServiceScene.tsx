@@ -31,7 +31,7 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { areArraysEqual } from '../../services/comparison';
 import { LOKI_CONFIG_API_NOT_SUPPORTED, LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { replaceSlash } from '../../services/extensions/links';
+import { escapePrimaryLabel } from '../../services/extensions/links';
 import { clearJSONParserFields } from '../../services/fields';
 import { filterUnusedJSONFilters } from '../../services/filters';
 import { logger } from '../../services/logger';
@@ -248,14 +248,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           (f) =>
             f.key === SERVICE_NAME &&
             isOperatorInclusive(f.operator) &&
-            replaceSlash(f.value) === replaceSlash(labelValue)
+            escapePrimaryLabel(f.value) === escapePrimaryLabel(labelValue)
         );
 
       const primaryLabelMissingInFilters = !newFilters.some(
         (f) =>
           f.key === primaryLabelInRoute &&
           isOperatorInclusive(f.operator) &&
-          replaceSlash(f.value) === replaceSlash(labelValue)
+          escapePrimaryLabel(f.value) === escapePrimaryLabel(labelValue)
       );
 
       // The "primary" label used in the URL is no longer active, pick a new one
@@ -348,8 +348,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const prevRouteMatch = indexScene.state.routeMatch;
     const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
-      ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
-      : replaceSlash(newPrimaryLabel.value);
+      ? escapePrimaryLabel(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
+      : escapePrimaryLabel(newPrimaryLabel.value);
 
     indexScene.setState({
       routeMatch: {

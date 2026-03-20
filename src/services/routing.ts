@@ -5,7 +5,7 @@ import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { RouteMatch, RouteProps } from '../Components/Pages';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { PageSlugs, ValueSlugs } from './enums';
-import { replaceSlash, restoreLabelValueFromUrlParam } from './extensions/links';
+import { escapePrimaryLabel, restoreLabelValueFromUrlParam } from './extensions/links';
 import { narrowValueSlug } from './narrowing';
 import { PLUGIN_BASE_URL, prefixRoute } from './plugin';
 import { getPrimaryLabelFromEmbeddedScene } from './variableHelpers';
@@ -39,23 +39,23 @@ export const ROUTES = {
   embed: () => prefixRoute(PageSlugs.embed),
   explore: () => prefixRoute(PageSlugs.explore),
   fields: (labelValue: string, labelName = 'service') =>
-    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.fields}`),
+    prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.fields}`),
   labels: (labelValue: string, labelName = 'service') =>
-    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.labels}`),
+    prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.labels}`),
   logs: (labelValue: string, labelName = 'service') =>
-    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.logs}`),
+    prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.logs}`),
   patterns: (labelValue: string, labelName = 'service') =>
-    prefixRoute(`${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${PageSlugs.patterns}`),
+    prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.patterns}`),
 };
 
 export const SUB_ROUTES = {
   field: (labelValue: string, labelName = 'service', breakdownLabelName: string) =>
     prefixRoute(
-      `${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${ValueSlugs.field}/${breakdownLabelName}`
+      `${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${ValueSlugs.field}/${breakdownLabelName}`
     ),
   label: (labelValue: string, labelName = 'service', breakdownLabelName: string) =>
     prefixRoute(
-      `${PageSlugs.explore}/${labelName}/${replaceSlash(labelValue)}/${ValueSlugs.label}/${breakdownLabelName}`
+      `${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${ValueSlugs.label}/${breakdownLabelName}`
     ),
 };
 
