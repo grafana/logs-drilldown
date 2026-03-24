@@ -1,0 +1,182 @@
+{
+  "clipboard-button": {
+    "inline-toast": {
+      "success": "Copied"
+    }
+  },
+  "drilldown-logs": {
+    "notices": {
+      "max-series-reached": "Maximum limit of results reached. Displaying partial results."
+    }
+  },
+  "grafana-ui": {
+    "date-time-pickers": {
+      "quick-options": {
+        "day-before-yesterday": "Day before yesterday",
+        "day-five-days-ago": "Five days ago",
+        "day-four-days-ago": "Four days ago",
+        "day-three-days-ago": "Three days ago",
+        "four-weeks-ago": "Four weeks ago",
+        "last-1-hour": "Last 1 hour",
+        "last-1-mins": "Last minute",
+        "last-12-hours": "Last 12 hours",
+        "last-15-mins": "Last 15 minutes",
+        "last-2-days": "Last 2 days",
+        "last-24-hours": "Last 24 hours",
+        "last-3-hours": "Last 3 hours",
+        "last-30-days": "Last 30 days",
+        "last-30-mins": "Last 30 minutes",
+        "last-5-mins": "Last 5 minutes",
+        "last-6-hours": "Last 6 hours",
+        "last-6-months": "Last 6 months",
+        "last-60-days": "Last 60 days",
+        "last-7-days": "Last 7 days",
+        "last-90-days": "Last 90 days",
+        "previous-month": "Previous month",
+        "previous-week": "Previous week",
+        "this-day-last-week": "This day last week",
+        "this-month": "This month",
+        "this-month-so-far": "This month so far",
+        "this-week": "This week",
+        "this-week-so-far": "This week so far",
+        "three-months-ago": "Three months ago",
+        "three-weeks-ago": "Three weeks ago",
+        "today": "Today",
+        "today-so-far": "Today so far",
+        "two-months-ago": "Two months ago",
+        "two-weeks-ago": "Two weeks ago",
+        "yesterday": "Yesterday"
+      }
+    }
+  },
+  "logs": {
+    "json": {
+      "line": {
+        "detectedLevel": {
+          "toggleButton": ""
+        }
+      }
+    },
+    "log-line-details": {
+      "copy-to-clipboard": "Copy to clipboard",
+      "copy-to-clipboard-error": "Error copying link!"
+    },
+    "log-line-menu": {
+      "copy-link": "Copy link to log line"
+    },
+    "log-options": {
+      "max-lines-label": "Line limit",
+      "max-lines-tooltip": "Number of log lines to request. Depends on the Loki configuration value for max_entries_limit."
+    },
+    "logs-controls": {
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "json": {
+        "label": {
+          "metadata": {
+            "disable": "Show metadata",
+            "enable": "Hide metadata"
+          }
+        },
+        "tooltip": {
+          "labels": {
+            "disable": "Hide Labels",
+            "enable": "Show labels"
+          },
+          "metadata": {
+            "disable": "Hide structured metadata",
+            "enable": "Show structured metadata"
+          }
+        }
+      },
+      "label": {
+        "collapse": "Expanded",
+        "expand": "Collapsed",
+        "highlight": {
+          "disable": "Highlight disabled",
+          "enable": "Highlight enabled"
+        },
+        "unwrap-lines": "Wrap lines",
+        "wrap-lines": "Unwrap lines"
+      },
+      "labels": {
+        "sort": {
+          "newest-first": "Oldest logs first",
+          "oldest-first": "Newest logs first"
+        }
+      },
+      "scrollToBottom": "Scroll to bottom",
+      "scrollToTop": "Scroll to top",
+      "table": {
+        "label": {
+          "show-labels": "Log text",
+          "show-text": "Log labels"
+        },
+        "tooltip": {
+          "show-labels": "Show labels",
+          "show-text": "Show log text"
+        }
+      },
+      "tooltip": {
+        "highlight": {
+          "disable": "Disable highlighting",
+          "enable": "Enable highlighting"
+        },
+        "sort": {
+          "newest-first": "Set newest logs first",
+          "oldest-first": "Set oldest logs first"
+        }
+      },
+      "unwrap-lines": "Unwrap lines",
+      "wrap-lines": "Wrap lines"
+    },
+    "logs-drilldown": {
+      "add-to-dashboard": {
+        "title": "Add to Dashboard"
+      },
+      "fields": {
+        "log-attributes-field": "Log attributes",
+        "log-line-field": "Log line"
+      },
+      "load-search": {
+        "button-no-search-tooltip": "No saved searches to load",
+        "button-tooltip": "Load saved search",
+        "empty": "No saved searches to display.",
+        "modal-title": "Load a previously saved search",
+        "remove": "Remove",
+        "saved-query-button-tooltip": "Load saved query",
+        "select": "Select"
+      },
+      "patterns": {
+        "indexed-labels-only": "Patterns are selected by label and may be filtered by level. Parsed fields, structured metadata, and string filters are not supported for the pattern list.",
+        "no-filtered-patterns-message": "No patterns found in the current time range or matching the current level filters.",
+        "no-patterns-message": "No patterns found in the current time range.",
+        "no-patterns-title": "No patterns to display"
+      },
+      "save-search": {
+        "already-exists": {
+          "alert": "There is a previously saved search with the same query: {{title}}"
+        },
+        "button-tooltip": "Save search",
+        "button-tooltip-saved-queries": "Save in Saved Queries",
+        "description": "Description",
+        "error": "Unexpected error saving this search.",
+        "load-error": "Could not generate a link.",
+        "load-type-error": "Please select a Loki query.",
+        "modal-alert": "Saved searches are stored locally in your browser and will only be available on this device.",
+        "modal-title": "Save current search",
+        "success": "Search successfully saved.",
+        "title": "Title"
+      }
+    },
+    "logs-drilldown-header": {
+      "collapse": "Collapse filters",
+      "expand": "Expand filters"
+    },
+    "table": {
+      "header": {
+        "close": "Close"
+      }
+    }
+  }
+}

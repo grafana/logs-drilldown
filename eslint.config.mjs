@@ -1,9 +1,11 @@
 import { FlatCompat } from '@eslint/eslintrc';
 import { defineConfig } from 'eslint/config';
 import importPlugin from 'eslint-plugin-import';
-// Plugins
 import jsxa11y from 'eslint-plugin-jsx-a11y';
 import sortPlugin from 'eslint-plugin-sort';
+
+// eslint-disable-next-line import/no-unresolved -- package.json exports field not recognized by import plugin
+import grafanaI18nPlugin from '@grafana/i18n/eslint-plugin';
 
 import baseConfig from './.config/eslint.config.mjs';
 
@@ -122,6 +124,26 @@ export default defineConfig([
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/immutability': 'off',
       'react-hooks/refs': 'off',
+    },
+  },
+
+  {
+    name: 'logs-drilldown/i18n',
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', '**/__tests__/**', '**/test/**', '**/mocks/**'],
+    plugins: {
+      '@grafana/i18n': grafanaI18nPlugin,
+    },
+    rules: {
+      '@grafana/i18n/no-untranslated-strings': [
+        'warn',
+        {
+          basePaths: ['src'],
+          namespace: 'grafana-lokiexplore-app',
+          calleesToIgnore: ['^css$', 'use[A-Z].*', '^get.*Styles$'],
+        },
+      ],
+      '@grafana/i18n/no-translation-top-level': 'warn',
     },
   },
 ]);

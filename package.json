@@ -31,7 +31,9 @@
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "prepare": "husky",
     "docs": "cd docs && make docs",
-    "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\""
+    "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\"",
+    "i18n:extract": "i18next-cli extract -c i18next.config.ts",
+    "i18n:extract:check": "i18next-cli extract -c i18next.config.ts --ci"
   },
   "author": "Grafana",
   "license": "AGPL-3.0-only",
@@ -75,6 +77,7 @@
     "fork-ts-checker-webpack-plugin": "9.1.0",
     "glob": "11.1.0",
     "husky": "9.1.7",
+    "i18next-cli": "^1.40.1",
     "identity-obj-proxy": "3.0.0",
     "imports-loader": "5.0.0",
     "jest": "30.2.0",
@@ -87,7 +90,6 @@
     "replace-in-file-webpack-plugin": "1.0.6",
     "sass": "1.89.0",
     "sass-loader": "16.0.0",
-    "semver": "7.7.0",
     "style-loader": "4.0.0",
     "swc-loader": "0.2.6",
     "terser-webpack-plugin": "5.3.16",
@@ -134,6 +136,7 @@
     "react-router-dom": "^7.12.0",
     "react-table": "^7.8.0",
     "rxjs": "7.8.2",
+    "semver": "7.7.0",
     "tslib": "2.5.3",
     "uuid": "^10.0.0"
   },
