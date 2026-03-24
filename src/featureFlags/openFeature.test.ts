@@ -10,6 +10,10 @@ jest.mock('@grafana/runtime', () => ({
     featureToggles: {
       exploreLogsAggregatedMetrics: false,
       exploreLogsShardSplitting: false,
+      kubernetesLogsDrilldown: false,
+      logsPanelControls: false,
+      otelLogsFormatting: false,
+      queryLibrary: false,
     },
   },
 }));
@@ -120,5 +124,21 @@ describe('evaluateFeatureFlag', () => {
     expect(result).toBe(true);
 
     config.featureToggles.exploreLogsShardSplitting = false;
+  });
+
+  it('returns config.featureToggles fallback for queryLibrary when evaluation throws', async () => {
+    const { config } = require('@grafana/runtime');
+    config.featureToggles.queryLibrary = true;
+
+    getBooleanValue.mockImplementation(() => {
+      throw new Error('network');
+    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const result = await evaluateFeatureFlag('queryLibrary');
+
+    expect(result).toBe(true);
+
+    config.featureToggles.queryLibrary = false;
   });
 });

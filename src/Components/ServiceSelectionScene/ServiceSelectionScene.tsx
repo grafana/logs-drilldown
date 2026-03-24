@@ -11,7 +11,7 @@ import {
   GrafanaTheme2,
   LoadingState,
 } from '@grafana/data';
-import { config, locationService } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   behaviors,
@@ -438,6 +438,12 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   setSelectedTab(labelName: string, type: 'auto' | 'manual' = 'manual') {
     if (type === 'manual') {
       addTabToLocalStorage(getDataSourceVariable(this).getValue().toString(), labelName);
+
+      this.setState({
+        body: new SceneCSSGridLayout({ children: [] }),
+        countPerPage: getServiceSelectionPageCount() ?? 20,
+        currentPage: 1,
+      });
     }
 
     // clear active search
@@ -745,7 +751,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           this.addLabelChangeToBrowserHistory(newKey);
           // Need to tear down volume query runner to select other labels, as we need the selected tab to parse the volume response
           const { needsSync } = this.doVariablesNeedSync();
-
           if (needsSync) {
             this.syncVariables();
           } else {
@@ -1057,7 +1062,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private getLogExpression(labelName: string, labelValue: string, levelFilter: string) {
-    if (config.featureToggles.kubernetesLogsDrilldown) {
+    if (getFeatureFlag('kubernetesLogsDrilldown')) {
       if (this.hasDefaultColumnsSet()) {
         const matchingCols = this.getDefaultColumns(labelName, labelValue);
         if (matchingCols.length > 0) {

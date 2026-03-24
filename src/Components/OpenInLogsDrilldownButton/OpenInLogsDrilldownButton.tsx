@@ -11,7 +11,7 @@ import {
   createAppUrl,
   escapeURLDelimiters,
   replaceEscapeChars,
-  replaceSlash,
+  escapePrimaryLabel,
   setUrlParameter,
   stringifyAdHocValues,
   UrlParameters,
@@ -46,7 +46,7 @@ export default function OpenInLogsDrilldownButton({
       return null;
     }
 
-    const labelValue = replaceSlash(mainLabel.value);
+    const labelValue = escapePrimaryLabel(mainLabel.value);
 
     let params = new URLSearchParams();
 

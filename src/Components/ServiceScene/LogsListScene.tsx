@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
-import { config, locationService } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
@@ -37,6 +37,7 @@ import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getBooleanLogOption,
@@ -442,7 +443,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     let extraStateChanges: Partial<LogsListSceneState> = {};
 
     // Clean up default displayed fields
-    if (config.featureToggles.otelLogsFormatting && this.state.displayedFields.length > 0) {
+    if (getFeatureFlag('otelLogsFormatting') && this.state.displayedFields.length > 0) {
       if (shallowCompare(this.state.displayedFields, this.state.otelDisplayedFields)) {
         extraStateChanges = {
           displayedFields: [],

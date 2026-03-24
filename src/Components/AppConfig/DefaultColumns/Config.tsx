@@ -20,7 +20,7 @@ const Config = () => {
   if (!dsUID) {
     return <NoLokiSplash />;
   }
-  if (!isDefaultColumnsSupported) {
+  if (!isDefaultColumnsSupported()) {
     return <Unsupported />;
   }
 

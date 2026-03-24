@@ -101,7 +101,7 @@ export const EMPTY_VARIABLE_VALUE = '""';
 // @todo we need ad-hoc-filter meta that is persisted in the URL so we can clean this up.
 export const USER_INPUT_ADHOC_VALUE_PREFIX = '__CVΩ__';
 export function stripAdHocFilterUserInputPrefix(value = '') {
-  if (value.startsWith(USER_INPUT_ADHOC_VALUE_PREFIX)) {
+  if (isAdHocFilterValueUserInput(value)) {
     return value.substring(USER_INPUT_ADHOC_VALUE_PREFIX.length);
   }
   return value;
