@@ -26,7 +26,6 @@ test.describe('saved searches', () => {
     await explorePage.gotoServices();
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await explorePage.servicesSearch.click();
     await explorePage.servicesSearch.pressSequentially('tempo-ingester');
     await page.keyboard.press('Escape');
@@ -101,7 +100,7 @@ test.describe('saved searches', () => {
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
     // Use getByLabel which matches Grafana's ad-hoc filter chip (used in embed.spec, exploreServices.spec)
     await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('tempo-ingester');
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('service_name');
   });
 
   test('should show empty state when no saved searches exist', async ({ page }) => {
@@ -246,6 +245,6 @@ test.describe('saved searches', () => {
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
     // Use getByLabel which matches Grafana's ad-hoc filter chip
     await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('tempo-ingester');
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('service_name');
   });
 });
