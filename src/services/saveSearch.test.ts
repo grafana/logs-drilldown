@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { config } from '@grafana/runtime';
 
+import { getFeatureFlag } from '../featureFlags/openFeature';
 import { narrowSavedSearches } from './narrowing';
 import {
   isQueryLibrarySupported,
@@ -18,10 +19,11 @@ jest.mock('@grafana/runtime', () => ({
     buildInfo: {
       version: '12.4.0',
     },
-    featureToggles: {
-      queryLibrary: true,
-    },
   },
+}));
+
+jest.mock('../featureFlags/openFeature', () => ({
+  getFeatureFlag: jest.fn(),
 }));
 jest.unmock('semver/preload');
 
@@ -53,6 +55,8 @@ const localSearches = [
 ];
 
 beforeEach(() => {
+  config.buildInfo.version = '12.4.0';
+  (getFeatureFlag as jest.Mock).mockReturnValue(true);
   localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(localSearches));
 });
 
@@ -148,12 +152,12 @@ describe('isQueryLibrarySupported', () => {
   });
 
   test('Returns false if the feature is not enabled', () => {
-    config.featureToggles.queryLibrary = false;
+    (getFeatureFlag as jest.Mock).mockReturnValue(false);
     expect(isQueryLibrarySupported()).toBe(false);
   });
 
   test('Returns false if the Grafana version is not supported', () => {
-    config.featureToggles.queryLibrary = true;
+    (getFeatureFlag as jest.Mock).mockReturnValue(true);
     config.buildInfo.version = '12.3.0';
     expect(isQueryLibrarySupported()).toBe(false);
   });

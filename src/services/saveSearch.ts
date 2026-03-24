@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 
+import { getFeatureFlag } from '../featureFlags/openFeature';
 import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
@@ -13,7 +14,7 @@ import { narrowSavedSearches } from './narrowing';
 const MIN_VERSION = '12.4.0-21256324731';
 
 export function isQueryLibrarySupported() {
-  return !semver.ltr(config.buildInfo.version, MIN_VERSION) && config.featureToggles.queryLibrary;
+  return !semver.ltr(config.buildInfo.version, MIN_VERSION) && getFeatureFlag('queryLibrary');
 }
 
 export function useCheckForExistingSearch(dsUid: string, query: string) {

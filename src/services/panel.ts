@@ -1,4 +1,4 @@
-import { map, Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import {
   DataFrame,
@@ -27,6 +27,7 @@ import { HideSeriesConfig } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
 import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
+import { getFeatureFlag } from '../featureFlags/openFeature';
 import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
@@ -360,6 +361,6 @@ export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel
   }
 }
 
-export const logsControlsSupported =
-  config.featureToggles.logsPanelControls &&
+export const logsControlsSupported = () =>
+  getFeatureFlag('logsPanelControls') &&
   (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));

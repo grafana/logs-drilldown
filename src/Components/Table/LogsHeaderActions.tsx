@@ -17,7 +17,7 @@ export function LogsPanelHeaderActions(props: {
   vizType: LogsVisualizationType;
 }) {
   return (
-    <div className={logsControlsSupported ? styles.container : undefined}>
+    <div className={logsControlsSupported() ? styles.container : undefined}>
       <RadioButtonGroup
         options={[
           {

@@ -6,7 +6,7 @@ export function Unsupported() {
   return (
     <section>
       <h2>Default columns</h2>
-      {!isDefaultColumnsFlagsSupported && (
+      {!isDefaultColumnsFlagsSupported() && (
         <p>
           Default columns requires <code>kubernetesLogsDrilldown</code> feature flag to be enabled.
         </p>

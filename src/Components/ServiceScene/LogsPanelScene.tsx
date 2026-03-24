@@ -147,7 +147,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         if (typeof decodedWrapLogMessage === 'boolean') {
           stateUpdate.wrapLogMessage = decodedWrapLogMessage;
           // Before controls, wrapLogMessage was synced with prettifyLogMessage
-          if (!logsControlsSupported) {
+          if (!logsControlsSupported()) {
             stateUpdate.prettifyLogMessage = decodedWrapLogMessage;
           }
         }
@@ -334,7 +334,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
       .setOption('dedupStrategy', this.state.dedupStrategy);
 
-    if (!logsControlsSupported) {
+    if (!logsControlsSupported()) {
       panel.setOption('showTime', true);
     } else {
       panel

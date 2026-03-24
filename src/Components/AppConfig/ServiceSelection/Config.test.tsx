@@ -17,15 +17,10 @@ const mockIsSupported = {
   isDefaultLabelsVersionSupported: true,
 };
 jest.mock('./isSupported', () => ({
-  get isDefaultLabelsSupported() {
-    return mockIsSupported.isDefaultLabelsFlagsSupported && mockIsSupported.isDefaultLabelsVersionSupported;
-  },
-  get isDefaultLabelsVersionSupported() {
-    return mockIsSupported.isDefaultLabelsVersionSupported;
-  },
-  get isDefaultLabelsFlagsSupported() {
-    return mockIsSupported.isDefaultLabelsFlagsSupported;
-  },
+  isDefaultLabelsSupported: () =>
+    mockIsSupported.isDefaultLabelsFlagsSupported && mockIsSupported.isDefaultLabelsVersionSupported,
+  isDefaultLabelsVersionSupported: () => mockIsSupported.isDefaultLabelsVersionSupported,
+  isDefaultLabelsFlagsSupported: () => mockIsSupported.isDefaultLabelsFlagsSupported,
 }));
 
 jest.mock('services/store');
