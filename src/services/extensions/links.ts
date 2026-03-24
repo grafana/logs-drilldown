@@ -207,7 +207,7 @@ export function contextToLink<T extends PluginExtensionPanelContext>(context?: T
 
   // If there are a bunch of values for the same field, the value slug can get really long, let's just use the first one in the URL
   const urlLabelValue = labelSelector.value.split('|')[0];
-  const labelValue = replaceSlash(urlLabelValue);
+  const labelValue = escapePrimaryLabel(urlLabelValue);
   let labelName = labelSelector.key === SERVICE_NAME ? 'service' : labelSelector.key;
   // sort `primary label` first
   labelFilters.sort((a) => (a.key === labelName ? -1 : 1));
@@ -296,13 +296,17 @@ export function appendUrlParameter(
   return searchParams;
 }
 
-export function replaceSlash(parameter: string): string {
-  return (
-    stripAdHocFilterUserInputPrefix(parameter)
-      // back-slash is converted to forward-slash in the URL, replace that char
-      .replace(/\//g, '-')
-      .replace(/\\/g, '-')
-  );
+export function escapePrimaryLabel(parameter: string): string {
+  const normalized = stripAdHocFilterUserInputPrefix(parameter)
+    // back-slash is converted to forward-slash in the URL, replace that char
+    .replace(/\//g, '-')
+    .replace(/\\/g, '-');
+  // Encode so regex/special chars in path (e.g. ()) don't break routing
+  return encodeURIComponent(normalized);
+}
+
+export function restoreLabelValueFromUrlParam(value: string): string {
+  return decodeURIComponent(value);
 }
 
 // Manually copied over from @grafana/scenes so we don't need to import scenes to build links

@@ -7,7 +7,7 @@ import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
-import { replaceSlash } from './extensions/links';
+import { escapePrimaryLabel } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
@@ -224,9 +224,9 @@ function getExplorationPrefix(sceneRef: SceneObject) {
 export function getExplorationPrefixForLabelValue(sceneRef: SceneObject, label: string, value: string) {
   const ds = getDataSourceName(sceneRef);
   if (label === SERVICE_NAME || label === SERVICE_UI_LABEL) {
-    return `${ds}.${replaceSlash(value)}`;
+    return `${ds}.${escapePrimaryLabel(value)}`;
   }
-  return `${ds}.${label}.${replaceSlash(value)}`;
+  return `${ds}.${label}.${escapePrimaryLabel(value)}`;
 }
 // https://github.com/grafana/grafana/blob/3d009ff7edf6095f79e95bc60b728acf04149665/public/app/plugins/datasource/loki/datasource.ts#L102
 const DEFAULT_MAX_LINES = 1000;
