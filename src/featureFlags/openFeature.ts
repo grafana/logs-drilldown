@@ -80,7 +80,12 @@ type FeatureFlag =
  * Helper to get the default value from a feature flag definition.
  * Works for both core flags (value) and experiment flags (defaultValue).
  */
-type GetFlagDefault<F> = F extends { value: infer V } ? V : F extends { defaultValue: infer D } ? D : never;
+type WidenPrimitive<T> = T extends boolean ? boolean : T extends number ? number : T extends string ? string : T;
+type GetFlagDefault<F> = F extends { value: infer V }
+  ? WidenPrimitive<V>
+  : F extends { defaultValue: infer D }
+  ? WidenPrimitive<D>
+  : never;
 
 /**
  * All Logs Drilldown feature flags that we intend to use from the GoFF service are defined here.
@@ -88,6 +93,30 @@ type GetFlagDefault<F> = F extends { value: infer V } ? V : F extends { defaultV
  * Core feature flags are defined in the {@link https://github.com/grafana/grafana/blob/main/packages/grafana-data/src/types/featureToggles.gen.ts} file.
  */
 const goffFeatureFlags = {
+  kubernetesLogsDrilldown: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
+  logsPanelControls: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
+  otelLogsFormatting: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
+  queryLibrary: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
   exploreLogsAggregatedMetrics: {
     valueType: 'boolean',
     value: false,
@@ -242,6 +271,18 @@ function getFlagDefaultValue(flagDef: FeatureFlag): boolean | number | string | 
  * @returns The value from config.featureToggles if available, undefined otherwise
  */
 function getConfigToggleFallback(flagName: string): boolean | undefined {
+  if (flagName === 'kubernetesLogsDrilldown') {
+    return config.featureToggles.kubernetesLogsDrilldown;
+  }
+  if (flagName === 'logsPanelControls') {
+    return config.featureToggles.logsPanelControls;
+  }
+  if (flagName === 'otelLogsFormatting') {
+    return config.featureToggles.otelLogsFormatting;
+  }
+  if (flagName === 'queryLibrary') {
+    return config.featureToggles.queryLibrary;
+  }
   if (flagName === 'exploreLogsAggregatedMetrics') {
     return config.featureToggles.exploreLogsAggregatedMetrics;
   }

@@ -356,7 +356,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   }
 
   private async getDefaultColumnsFromAppPlatform() {
-    if (isDefaultColumnsSupported) {
+    if (isDefaultColumnsSupported()) {
       const dataSourceVariable = getDataSourceVariable(this);
       const dsUID = dataSourceVariable.state.value.toString();
       const metadataService = getMetadataService();
@@ -386,7 +386,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
   private async getDefaultLabelsAndSetContentScene() {
     // No need for fetching default labels when embedded or in service details
-    if (this.state.embedded || this.userInServiceSelection() === false || isDefaultLabelsSupported === false) {
+    if (this.state.embedded || this.userInServiceSelection() === false || isDefaultLabelsSupported() === false) {
       this.setState({
         contentScene: this.getContentScene(),
       });

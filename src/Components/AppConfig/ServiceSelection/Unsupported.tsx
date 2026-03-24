@@ -6,7 +6,7 @@ export function Unsupported() {
   return (
     <section>
       <h2>Landing Page</h2>
-      {!isDefaultLabelsFlagsSupported && (
+      {!isDefaultLabelsFlagsSupported() && (
         <p>
           Landing Page settings requires <code>kubernetesLogsDrilldown</code> feature flag to be enabled.
         </p>
