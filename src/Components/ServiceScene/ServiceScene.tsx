@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -31,7 +31,7 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { areArraysEqual } from '../../services/comparison';
 import { LOKI_CONFIG_API_NOT_SUPPORTED, LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { replaceSlash } from '../../services/extensions/links';
+import { escapePrimaryLabel } from '../../services/extensions/links';
 import { clearJSONParserFields } from '../../services/fields';
 import { filterUnusedJSONFilters } from '../../services/filters';
 import { logger } from '../../services/logger';
@@ -73,12 +73,10 @@ import { getLogOption, getMaxLines } from 'services/store';
 import {
   DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
-  isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
   LOG_STREAM_SELECTOR_EXPR,
   SERVICE_NAME,
   SERVICE_UI_LABEL,
-  stripAdHocFilterUserInputPrefix,
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_LABELS,
@@ -248,14 +246,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           (f) =>
             f.key === SERVICE_NAME &&
             isOperatorInclusive(f.operator) &&
-            replaceSlash(f.value) === replaceSlash(labelValue)
+            escapePrimaryLabel(f.value) === escapePrimaryLabel(labelValue)
         );
 
       const primaryLabelMissingInFilters = !newFilters.some(
         (f) =>
           f.key === primaryLabelInRoute &&
           isOperatorInclusive(f.operator) &&
-          replaceSlash(f.value) === replaceSlash(labelValue)
+          escapePrimaryLabel(f.value) === escapePrimaryLabel(labelValue)
       );
 
       // The "primary" label used in the URL is no longer active, pick a new one
@@ -347,10 +345,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private handlePrimaryLabelChange(newPrimaryLabel: AdHocFilterWithLabels<{}>, breakdownLabel: string | undefined) {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const prevRouteMatch = indexScene.state.routeMatch;
+    const newPrimaryLabelValue = escapePrimaryLabel(newPrimaryLabel.value);
 
-    const newPrimaryLabelValue = isAdHocFilterValueUserInput(newPrimaryLabel.value)
-      ? replaceSlash(stripAdHocFilterUserInputPrefix(newPrimaryLabel.value))
-      : replaceSlash(newPrimaryLabel.value);
     indexScene.setState({
       routeMatch: {
         ...prevRouteMatch,
@@ -950,7 +946,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
-    const status = model.getLabelFiltersStatus(filters);
+    const status = useMemo(() => model.getLabelFiltersStatus(filters), [filters, model]);
 
     if (!status.isValid && !status.newPrimaryLabel) {
       return (
