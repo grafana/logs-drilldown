@@ -100,7 +100,7 @@ test.describe('saved searches', () => {
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
     // Use getByLabel which matches Grafana's ad-hoc filter chip (used in embed.spec, exploreServices.spec)
     await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('service_name');
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('service_name =');
   });
 
   test('should show empty state when no saved searches exist', async ({ page }) => {
@@ -245,6 +245,6 @@ test.describe('saved searches', () => {
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
     // Use getByLabel which matches Grafana's ad-hoc filter chip
     await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('service_name');
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('service_name =');
   });
 });

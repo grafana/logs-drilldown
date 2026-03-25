@@ -410,6 +410,7 @@ test.describe('explore services page', () => {
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
         await expect.poll(() => logsVolumeCount).toEqual(2);
+        await explorePage.assertPanelsNotLoading();
         await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(10);
 
         // Click on first service
