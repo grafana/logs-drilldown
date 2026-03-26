@@ -6,7 +6,13 @@ import {
 } from '../../Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
 import { LokiQuery } from '../lokiQuery';
 import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from '../variables';
-import { interpolateQueryExpr, LinkConfigs, linkConfigs } from './links';
+import {
+  interpolateQueryExpr,
+  LinkConfigs,
+  linkConfigs,
+  escapePrimaryLabel,
+  restoreLabelValueFromUrlParam,
+} from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
 
 // Mocking templateSrv is such a pain, if you are fighting variable interpolation start here.
@@ -156,7 +162,7 @@ describe('contextToLink', () => {
         path: getPath({
           expectedLabelFiltersUrlString,
           expectedLevelsFilterUrlString,
-          slug: 'service/nginx.+',
+          slug: 'service/nginx.%2B',
         }),
       });
     });
@@ -526,7 +532,7 @@ describe('contextToLink', () => {
             expectedFieldsUrlString,
             expectedLabelFiltersUrlString,
             expectedMetadataString,
-            slug: 'cluster/C:-Grafana-logs-log.txt',
+            slug: 'cluster/C%3A-Grafana-logs-log.txt',
           }),
         });
       });
@@ -547,7 +553,7 @@ describe('contextToLink', () => {
           path: getPath({
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
-            slug: 'cluster/C:-Grafana-logs-log.txt',
+            slug: 'cluster/C%3A-Grafana-logs-log.txt',
           }),
         });
       });
@@ -1007,5 +1013,100 @@ describe('interpolateQueryExpr', () => {
       state: LoadingState.Done,
     };
     expect(interpolateQueryExpr(['value1', 'value2'], variable)).toEqual('value1|value2');
+  });
+});
+
+describe('escapePrimaryLabel', () => {
+  it('replaces forward slashes with hyphens', () => {
+    expect(escapePrimaryLabel('path/to/value')).toBe('path-to-value');
+    expect(escapePrimaryLabel('a/b/c')).toBe('a-b-c');
+  });
+
+  it('replaces backslashes with hyphens', () => {
+    expect(escapePrimaryLabel('C:\\Grafana\\logs')).toBe('C%3A-Grafana-logs');
+    expect(escapePrimaryLabel('a\\b')).toBe('a-b');
+  });
+
+  it('replaces question marks with placeholder so path is not broken', () => {
+    const encoded = escapePrimaryLabel('key?value');
+    expect(encoded).toBe('key%3Fvalue');
+    expect(encoded).not.toContain('?');
+  });
+
+  it('encodes regex/special characters for safe routing', () => {
+    expect(escapePrimaryLabel('(group)')).toBe('(group)');
+    expect(escapePrimaryLabel('.*')).toBe('.*');
+    expect(escapePrimaryLabel('a[b]')).toBe('a%5Bb%5D');
+    expect(escapePrimaryLabel('a|b')).toBe('a%7Cb');
+  });
+
+  it('handles empty string', () => {
+    expect(escapePrimaryLabel('')).toBe('');
+  });
+
+  it('handles plain alphanumeric values unchanged except encoding', () => {
+    expect(escapePrimaryLabel('simple')).toBe('simple');
+    expect(escapePrimaryLabel('service_name')).toBe('service_name');
+  });
+
+  it('strips ad-hoc filter user input prefix before encoding', () => {
+    const prefix = '__CVΩ__';
+    expect(escapePrimaryLabel(prefix + 'myvalue')).toBe(escapePrimaryLabel('myvalue'));
+    expect(escapePrimaryLabel(prefix + 'a/b')).toBe('a-b');
+  });
+
+  it('handles unicode characters', () => {
+    const withUnicode = 'café-日本語-emoji🎉';
+    expect(escapePrimaryLabel(withUnicode)).toBe('caf%C3%A9-%E6%97%A5%E6%9C%AC%E8%AA%9E-emoji%F0%9F%8E%89');
+    expect(restoreLabelValueFromUrlParam(escapePrimaryLabel(withUnicode))).toBe(withUnicode);
+  });
+
+  it('handles mixed slashes, backslashes, and question marks', () => {
+    const mixed = 'a/b\\c?d';
+    const encoded = escapePrimaryLabel(mixed);
+    expect(encoded).toBe('a-b-c%3Fd');
+  });
+});
+
+describe('restoreLabelValueFromUrlParam', () => {
+  it('decodes URI component and restores question mark from placeholder', () => {
+    const encoded = escapePrimaryLabel('key?value');
+    expect(restoreLabelValueFromUrlParam(encoded)).toBe('key?value');
+  });
+
+  it('round-trips with escapePrimaryLabel for plain text', () => {
+    const plain = 'my-service-name';
+    expect(restoreLabelValueFromUrlParam(escapePrimaryLabel(plain))).toBe(plain);
+  });
+
+  it('round-trips with escapePrimaryLabel for values with question marks', () => {
+    const withQ = 'foo?bar?baz';
+    expect(restoreLabelValueFromUrlParam(escapePrimaryLabel(withQ))).toBe(withQ);
+  });
+
+  it('round-trips with escapePrimaryLabel for regex-like values', () => {
+    const regexLike = '.*grafana.*|.*coreplugin';
+    expect(restoreLabelValueFromUrlParam(escapePrimaryLabel(regexLike))).toBe(regexLike);
+  });
+
+  it('round-trips with escapePrimaryLabel for values with parentheses', () => {
+    const withParens = '(group|alt)';
+    expect(restoreLabelValueFromUrlParam(escapePrimaryLabel(withParens))).toBe(withParens);
+  });
+
+  it('round-trips with escapePrimaryLabel for unicode', () => {
+    const unicode = 'café-日本語-emoji🎉';
+    expect(restoreLabelValueFromUrlParam(escapePrimaryLabel(unicode))).toBe(unicode);
+  });
+
+  it('correctly decodes multiple question marks', () => {
+    const encoded = 'a%3Fb%3Fc';
+    expect(restoreLabelValueFromUrlParam(encoded)).toBe('a?b?c');
+  });
+
+  it('round-trips with escapePrimaryLabel for ad-hoc prefix (stripped by escapePrimaryLabel)', () => {
+    const withPrefix = '__CVΩ__user?input';
+    const encoded = escapePrimaryLabel(withPrefix);
+    expect(restoreLabelValueFromUrlParam(encoded)).toBe('user?input');
   });
 });

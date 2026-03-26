@@ -9,9 +9,10 @@ import (
 )
 
 type AppLogger struct {
-	labels model.LabelSet
-	levels map[model.LabelValue]model.LabelSet
-	logger Logger
+	labels  model.LabelSet
+	levels  map[model.LabelValue]model.LabelSet
+	logger  Logger
+	sleepFn func()
 }
 
 func NewAppLogger(labels model.LabelSet, logger Logger) *AppLogger {
@@ -22,10 +23,25 @@ func NewAppLogger(labels model.LabelSet, logger Logger) *AppLogger {
 		ERROR: labels.Merge(model.LabelSet{"level": ERROR}),
 	}
 	return &AppLogger{
-		labels: labels,
-		levels: levels,
-		logger: logger,
+		labels:  labels,
+		levels:  levels,
+		logger:  logger,
+		sleepFn: LogSleep,
 	}
+}
+
+// SetSleep sets the sleep function used by Sleep(). When nil, uses LogSleep.
+func (app *AppLogger) SetSleep(fn func()) {
+	if fn != nil {
+		app.sleepFn = fn
+	} else {
+		app.sleepFn = LogSleep
+	}
+}
+
+// Sleep calls the configured sleep function (LogSleep or LogSleepFast).
+func (app *AppLogger) Sleep() {
+	app.sleepFn()
 }
 
 func (app *AppLogger) Log(level model.LabelValue, t time.Time, message string) {

@@ -17,6 +17,7 @@ import { getLabelFormatIdentifiersFromQuery, getMatcherFromQuery } from '../logq
 import { LokiQuery } from '../lokiQuery';
 import { isOperatorInclusive } from '../operatorHelpers';
 import { renderPatternFilters } from '../renderPatternFilters';
+import { ensureValidTimeRangeForLink } from '../text';
 import { escapeLabelValueInExactSelector, lokiSpecialRegexEscape } from './scenesMethods';
 import {
   addAdHocFilterUserInputPrefix,
@@ -207,14 +208,17 @@ export function contextToLink<T extends PluginExtensionPanelContext>(context?: T
 
   // If there are a bunch of values for the same field, the value slug can get really long, let's just use the first one in the URL
   const urlLabelValue = labelSelector.value.split('|')[0];
-  const labelValue = replaceSlash(urlLabelValue);
+  const labelValue = escapePrimaryLabel(urlLabelValue);
   let labelName = labelSelector.key === SERVICE_NAME ? 'service' : labelSelector.key;
   // sort `primary label` first
   labelFilters.sort((a) => (a.key === labelName ? -1 : 1));
 
+  const fromMs = context.timeRange.from.valueOf();
+  const toMs = context.timeRange.to.valueOf();
+  const [from, to] = ensureValidTimeRangeForLink(Number(fromMs), Number(toMs));
   let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUid, new URLSearchParams());
-  params = setUrlParameter(UrlParameters.TimeRangeFrom, context.timeRange.from.valueOf().toString(), params);
-  params = setUrlParameter(UrlParameters.TimeRangeTo, context.timeRange.to.valueOf().toString(), params);
+  params = setUrlParameter(UrlParameters.TimeRangeFrom, from.toString(), params);
+  params = setUrlParameter(UrlParameters.TimeRangeTo, to.toString(), params);
   params = setUrlParamsFromLabelFilters(labelFilters, params);
 
   if (lineFilters) {
@@ -296,13 +300,17 @@ export function appendUrlParameter(
   return searchParams;
 }
 
-export function replaceSlash(parameter: string): string {
-  return (
-    stripAdHocFilterUserInputPrefix(parameter)
-      // back-slash is converted to forward-slash in the URL, replace that char
-      .replace(/\//g, '-')
-      .replace(/\\/g, '-')
-  );
+export function escapePrimaryLabel(parameter: string): string {
+  const normalized = stripAdHocFilterUserInputPrefix(parameter)
+    // back-slash is converted to forward-slash in the URL, replace that char
+    .replace(/\//g, '-')
+    .replace(/\\/g, '-');
+  // Encode so regex/special chars in path (e.g. ()) don't break routing
+  return encodeURIComponent(normalized);
+}
+
+export function restoreLabelValueFromUrlParam(value: string): string {
+  return decodeURIComponent(value);
 }
 
 // Manually copied over from @grafana/scenes so we don't need to import scenes to build links
