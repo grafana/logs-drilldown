@@ -15,6 +15,7 @@ import { LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../module';
 import { PageSlugs, ValueSlugs } from '../services/enums';
+import { getKgSceneProps } from '../services/kgAnnotations';
 import { logger } from '../services/logger';
 import { navigateToIndex } from '../services/navigate';
 import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
@@ -54,11 +55,14 @@ function getDefaultTimeRangeFromPlugin(): { from: string; to: string } {
 
 function getServicesScene(routeMatch: OptionalRouteMatch) {
   const initialTimeRange = getDefaultTimeRangeFromPlugin();
+  const kg = getKgSceneProps('Service', routeMatch.params.labelValue);
   return new EmbeddedScene({
+    ...(kg ? { $data: kg.$data } : {}),
     body: new IndexScene({
       $timeRange: new SceneTimeRange(initialTimeRange),
       routeMatch,
     }),
+    ...(kg ? { controls: [kg.controls] } : {}),
   });
 }
 
