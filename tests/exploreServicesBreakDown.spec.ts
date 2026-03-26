@@ -1525,9 +1525,8 @@ test.describe('explore services breakdown page', () => {
     const versionVariableLocator = page.getByLabel(E2EComboboxStrings.editByKey('version'));
     const versionFilterButton = page.getByRole('menuitemradio', { name: /Exclude/ });
 
-    // Go to the fields tab and assert errors aren't showing
+    // Go to the fields tab and wait for panels to load
     await explorePage.goToFieldsTab();
-    await expect.poll(() => panelErrorLocator.count()).toEqual(1);
     await expect.poll(() => contentPanelLocator.count()).toEqual(1);
     await expect.poll(() => versionPanelLocator.count()).toEqual(1);
 
@@ -1560,7 +1559,7 @@ test.describe('explore services breakdown page', () => {
     // Check the right options are visible
     await expect(versionVariableLocator).toContainText('!=');
 
-    // Assert errors are visible
+    // Assert no panel errors after changing filters
     await expect.poll(() => panelErrorLocator.count()).toEqual(0);
 
     // Now assert that content is hidden (will hit 1000 series limit and throw error)

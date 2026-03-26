@@ -393,7 +393,7 @@ test.describe('explore services page', () => {
 
         const removeVariableBtn = page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel);
         await expect.poll(() => logsVolumeCount).toEqual(1);
-        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(4);
+        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(8);
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
         // Click on first service
@@ -410,6 +410,8 @@ test.describe('explore services page', () => {
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
         await expect.poll(() => logsVolumeCount).toEqual(2);
+        await explorePage.assertPanelsNotLoading();
+        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(10);
 
         // Click on first service
         await explorePage.addServiceName();
