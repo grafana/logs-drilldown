@@ -248,6 +248,7 @@ kisielk
 klauspost
 klog
 Knetic
+knowledgegraph
 konnectivity
 konsorten
 kvstore
