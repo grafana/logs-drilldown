@@ -1,10 +1,12 @@
+import { OFREPWebProvider } from '@openfeature/ofrep-web-provider';
 import { ClientProviderStatus, OpenFeature, ProviderEvents } from '@openfeature/web-sdk';
 
-import { evaluateFeatureFlag, OPEN_FEATURE_DOMAIN } from './openFeature';
+import { evaluateFeatureFlag, initOpenFeatureProvider, OPEN_FEATURE_DOMAIN } from './openFeature';
 
 // Mock @grafana/runtime before it loads - it pulls in @openfeature/react-sdk which fails in Jest
 jest.mock('@grafana/runtime', () => ({
   config: {
+    appSubUrl: '',
     namespace: 'test-namespace',
     openFeatureContext: {},
     featureToggles: {
@@ -21,14 +23,22 @@ jest.mock('@grafana/runtime', () => ({
 jest.mock('@openfeature/web-sdk', () => ({
   OpenFeature: {
     getClient: jest.fn(),
+    setProviderAndWait: jest.fn().mockResolvedValue(undefined),
   },
   ClientProviderStatus: {
     READY: 'READY',
     NOT_READY: 'NOT_READY',
+    ERROR: 'ERROR',
+    FATAL: 'FATAL',
   },
   ProviderEvents: {
     Ready: 'PROVIDER_READY',
+    Error: 'PROVIDER_ERROR',
   },
+}));
+
+jest.mock('@openfeature/ofrep-web-provider', () => ({
+  OFREPWebProvider: jest.fn().mockImplementation((providerConfig) => ({ providerConfig })),
 }));
 
 // Mock the tracking hook module since it's used in the function under test
@@ -140,5 +150,25 @@ describe('evaluateFeatureFlag', () => {
     expect(result).toBe(true);
 
     config.featureToggles.queryLibrary = false;
+  });
+});
+
+describe('initOpenFeatureProvider', () => {
+  beforeEach(() => {
+    (OpenFeature.setProviderAndWait as jest.Mock).mockClear();
+    (OFREPWebProvider as jest.Mock).mockClear();
+  });
+
+  it('uses appSubUrl when building the feature flag API baseUrl', async () => {
+    const { config } = require('@grafana/runtime');
+    config.appSubUrl = '/grafana';
+
+    await initOpenFeatureProvider();
+
+    expect(OFREPWebProvider).toHaveBeenCalledWith(
+      expect.objectContaining({
+        baseUrl: '/grafana/apis/features.grafana.app/v0alpha1/namespaces/test-namespace',
+      })
+    );
   });
 });

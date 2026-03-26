@@ -54,7 +54,7 @@ type CoreFeatureFlag<VT extends keyof ValueTypeMap> = {
  */
 type ExperimentFeatureFlag<
   VT extends keyof ValueTypeMap,
-  Values extends ReadonlyArray<ValueTypeMap[VT]> = ReadonlyArray<ValueTypeMap[VT]>
+  Values extends ReadonlyArray<ValueTypeMap[VT]> = ReadonlyArray<ValueTypeMap[VT]>,
 > = {
   defaultValue: Values[number];
   trackingKey?: string;
@@ -84,8 +84,8 @@ type WidenPrimitive<T> = T extends boolean ? boolean : T extends number ? number
 type GetFlagDefault<F> = F extends { value: infer V }
   ? WidenPrimitive<V>
   : F extends { defaultValue: infer D }
-  ? WidenPrimitive<D>
-  : never;
+    ? WidenPrimitive<D>
+    : never;
 
 /**
  * All Logs Drilldown feature flags that we intend to use from the GoFF service are defined here.
@@ -214,10 +214,14 @@ export async function initializeFeatureFlags(): Promise<void> {
  * This prevents re-initialization if the app component re-renders.
  */
 export function initOpenFeatureProvider(): Promise<void> {
+  // Build the base URL to support subpaths
+  const subPath = config.appSubUrl ?? '';
+  const baseUrl = `${subPath}/apis/features.grafana.app/v0alpha1/namespaces/${config.namespace}`;
+
   return OpenFeature.setProviderAndWait(
     OPEN_FEATURE_DOMAIN,
     new OFREPWebProvider({
-      baseUrl: `/apis/features.grafana.app/v0alpha1/namespaces/${config.namespace}`,
+      baseUrl,
       pollInterval: -1, // Do not poll - flags are fetched once on init
       timeoutMs: 10_000, // Timeout after 10 seconds
     }),
