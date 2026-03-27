@@ -18,7 +18,7 @@ const KG_DATASOURCE_UID = 'grafanacloud-knowledgegraph';
 
 interface KgSceneProps {
   $data: SceneDataLayerSet;
-  behaviors: KgAnnotationBehaviour[];
+  behaviors: KgAnnotationBehavior[];
   controls: KgAnnotationToggle;
 }
 
@@ -73,15 +73,15 @@ function createAnnotationLayers(labels: Record<string, string>, datasourceUid: s
   );
 }
 
-interface KgAnnotationBehaviourState extends SceneObjectState {
+interface KgAnnotationBehaviorState extends SceneObjectState {
   layerSet: SceneObjectRef<SceneDataLayerSet>;
   toggle: SceneObjectRef<KgAnnotationToggle>;
 }
 
-class KgAnnotationBehaviour extends SceneObjectBase<KgAnnotationBehaviourState> {
+class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
   private currentLookupKey: string | undefined;
 
-  constructor(state: KgAnnotationBehaviourState) {
+  constructor(state: KgAnnotationBehaviorState) {
     super(state);
     this.addActivationHandler(this._onActivate);
   }
@@ -163,14 +163,14 @@ export function getKgSceneProps(): KgSceneProps | undefined {
     layerSetRef: new SceneObjectRef(layerSet),
   });
 
-  const behaviour = new KgAnnotationBehaviour({
+  const behavior = new KgAnnotationBehavior({
     layerSet: new SceneObjectRef(layerSet),
     toggle: new SceneObjectRef(toggle),
   });
 
   return {
     $data: layerSet,
-    behaviors: [behaviour],
+    behaviors: [behavior],
     controls: toggle,
   };
 }
