@@ -55,14 +55,14 @@ function getDefaultTimeRangeFromPlugin(): { from: string; to: string } {
 
 function getServicesScene(routeMatch: OptionalRouteMatch) {
   const initialTimeRange = getDefaultTimeRangeFromPlugin();
-  const kg = getKgSceneProps('Service', routeMatch.params.labelValue);
+  const kg = getKgSceneProps();
   return new EmbeddedScene({
     ...(kg ? { $data: kg.$data } : {}),
     body: new IndexScene({
       $timeRange: new SceneTimeRange(initialTimeRange),
       routeMatch,
+      ...(kg ? { $behaviors: kg.behaviors, kgAnnotationToggle: kg.controls } : {}),
     }),
-    ...(kg ? { controls: [kg.controls] } : {}),
   });
 }
 

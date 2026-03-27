@@ -1,11 +1,9 @@
-import React from 'react';
+import { sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 
-import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-
-import { isOperatorInclusive } from '../../../services/operatorHelpers';
-import { getLabelsVariable } from '../../../services/variableGetters';
-import { SERVICE_NAME } from '../../../services/variables';
-import { InsightsTimelineWidget } from '../../AddedComponents/InsightsTimelineWidget';
+// import { isOperatorInclusive } from '../../../services/operatorHelpers';
+// import { getLabelsVariable } from '../../../services/variableGetters';
+// import { SERVICE_NAME } from '../../../services/variables';
+// import { InsightsTimelineWidget } from '../../AddedComponents/InsightsTimelineWidget';
 import { LogsVolumeContainerScene } from './LogsVolumeContainerScene';
 import { LogsVolumePanel } from './LogsVolumePanel';
 
@@ -37,19 +35,21 @@ export class InsightsWidgetScene extends SceneObjectBase<InsightsWidgetSceneStat
     }
   }
 
-  public static Component = ({ model }: SceneComponentProps<InsightsWidgetScene>) => {
-    const { collapsed } = model.useState();
-    const labelsVar = getLabelsVariable(model);
-    const { filters } = labelsVar.useState();
-    const serviceNameFilter = filters.find(
-      (filter) => isOperatorInclusive(filter.operator) && filter.key === SERVICE_NAME
-    );
-    const serviceName = serviceNameFilter?.value;
-
-    if (serviceName && !collapsed) {
-      return <InsightsTimelineWidget serviceName={serviceName} model={model} />;
-    }
-
-    return null;
-  };
+  // TODO: Re-enable once KG annotations replace this widget
+  // public static Component = ({ model }: SceneComponentProps<InsightsWidgetScene>) => {
+  //   const { collapsed } = model.useState();
+  //   const labelsVar = getLabelsVariable(model);
+  //   const { filters } = labelsVar.useState();
+  //   const serviceNameFilter = filters.find(
+  //     (filter) => isOperatorInclusive(filter.operator) && filter.key === SERVICE_NAME
+  //   );
+  //   const serviceName = serviceNameFilter?.value;
+  //
+  //   if (serviceName && !collapsed) {
+  //     return <InsightsTimelineWidget serviceName={serviceName} model={model} />;
+  //   }
+  //
+  //   return null;
+  // };
+  public static Component = () => null;
 }

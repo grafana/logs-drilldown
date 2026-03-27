@@ -73,7 +73,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns, embedded } = indexScene.useState();
+    const { controls, patterns, embedded, kgAnnotationToggle } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
@@ -140,7 +140,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             </div>
           )}
 
-          {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
+          {/* 2nd row - Combined fields (fields + metadata) + Levels + KG Insights toggle - custom renderer */}
           <div className={styles.controlsRowContainer}>
             {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
             {controls && (
@@ -155,6 +155,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
             )}
+            {kgAnnotationToggle && <kgAnnotationToggle.Component model={kgAnnotationToggle} />}
           </div>
 
           {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}

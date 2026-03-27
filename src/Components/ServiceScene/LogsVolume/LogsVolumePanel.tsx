@@ -147,6 +147,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         displayMode: LegendDisplayMode.List,
         showLegend: true,
       })
+      .setOption('annotations', { multiLane: true })
       .setDisplayMode('default')
       .setUnit('short')
       .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })

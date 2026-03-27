@@ -4,6 +4,7 @@ import { SceneObject, SceneObjectState, SceneQueryRunner } from '@grafana/scenes
 
 import { LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
 import { LineFilterType } from '../../services/filterTypes';
+import { KgAnnotationToggle } from '../../services/KgAnnotationToggle';
 import { LokiDatasource } from '../../services/lokiQuery';
 import { AdHocFiltersWithLabelsAndMeta, AppliedPattern } from '../../services/variables';
 import { OptionalRouteMatch } from '../Pages';
@@ -25,6 +26,7 @@ export interface IndexSceneState extends SceneObjectState {
   embedderName?: string;
   initialFields?: AdHocFiltersWithLabelsAndMeta[];
   initialLabels?: AdHocVariableFilter[];
+  kgAnnotationToggle?: KgAnnotationToggle;
 
   // A LokiConfigNotSupported response indicates the Loki instance does not support the new config endpoint, and is probably < 3.6
   lokiConfig?: LokiConfig | LokiConfigNotSupported;
