@@ -49,9 +49,6 @@ interface LogsTableSceneState extends SceneObjectState {
   sortOrder: LogsSortOrder;
 }
 export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
-  // Reference to the active panel, maybe a bad idea if they get out of sync, but the point here is you should be updating the options not the panel
-  private _viz: VizPanel | null = null;
-
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     // urlColumns are options.displayedFields
     keys: ['sortOrder', 'urlColumns'],
@@ -117,7 +114,6 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
     // panelBuilder.setOverrides();
 
     const panel = new VizPanel({ ...panelBuilder.build() });
-    this._viz = panel;
 
     panel.subscribeToState((newState, prevState) => {
       this.onOptionsChange(newState.options, prevState.options);
