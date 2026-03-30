@@ -3,6 +3,9 @@ import React from 'react';
 import { ControlsLabel, SceneDataLayerSet, SceneObjectBase, SceneObjectRef, SceneObjectState } from '@grafana/scenes';
 import { InlineSwitch } from '@grafana/ui';
 
+export const KG_INSIGHTS_DESCRIPTION =
+  'Overlay health states (critical, warning, info) from the Knowledge Graph on timeseries panels';
+
 export interface KgAnnotationToggleState extends SceneObjectState {
   isEnabled: boolean;
   layerSetRef: SceneObjectRef<SceneDataLayerSet>;
@@ -36,7 +39,7 @@ function KgAnnotationToggleRenderer({ model }: { model: KgAnnotationToggle }) {
 
   return (
     <div style={{ display: 'flex', alignSelf: 'flex-end' }}>
-      <ControlsLabel label="Insights" />
+      <ControlsLabel label="Insights" description={KG_INSIGHTS_DESCRIPTION} />
       <InlineSwitch value={isEnabled} onChange={model.toggleEnabled} />
     </div>
   );

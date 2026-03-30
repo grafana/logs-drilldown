@@ -22,21 +22,12 @@ interface KgSceneProps {
   controls: KgAnnotationToggle;
 }
 
-function isKgAnnotationsAvailable(): boolean {
+export function isKgAnnotationsAvailable(): boolean {
   const featureEnabled = (config.featureToggles as Record<string, boolean | undefined>)['kgAnnotationsInLokiExplore'];
   if (!featureEnabled) {
-    console.log('[KG Annotations] Feature flag kgAnnotationsInLokiExplore is not enabled');
     return false;
   }
-
-  const hasDs = Object.values(config.datasources).some((d) => d.uid === KG_DATASOURCE_UID);
-  if (!hasDs) {
-    console.log('[KG Annotations] KG datasource not found');
-    return false;
-  }
-
-  console.log('[KG Annotations] Available');
-  return true;
+  return Object.values(config.datasources).some((d) => d.uid === KG_DATASOURCE_UID);
 }
 
 function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string) {
@@ -89,7 +80,6 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
   private _onActivate = () => {
     const filtersVar = sceneGraph.lookupVariable(VAR_LABELS, this) as AdHocFiltersVariable | undefined;
     if (!filtersVar) {
-      console.log('[KG Annotations] Labels variable not found');
       return;
     }
 
@@ -129,8 +119,6 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
     const datasourceUid = (dsVar?.getValue() as string) || '';
     const lookupKey = `${datasourceUid}::${JSON.stringify(labels)}`;
 
-    console.log(`[KG Annotations] Filters changed, labels=${JSON.stringify(labels)}, ds=${datasourceUid}`);
-
     if (lookupKey === this.currentLookupKey) {
       return;
     }
@@ -143,10 +131,8 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
       const layers = createAnnotationLayers(labels, datasourceUid);
       layerSet.setState({ layers });
       toggle.syncLayerEnabledState();
-      console.log(`[KG Annotations] Created fromLabels layers with ${Object.keys(labels).length} labels`);
     } else {
       layerSet.setState({ layers: [] });
-      console.log('[KG Annotations] Cleared layers (no filters or datasource)');
     }
   }
 }

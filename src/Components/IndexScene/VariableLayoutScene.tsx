@@ -155,7 +155,9 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
             )}
-            {kgAnnotationToggle && <kgAnnotationToggle.Component model={kgAnnotationToggle} />}
+            {kgAnnotationToggle && slug !== PageSlugs.explore && (
+              <kgAnnotationToggle.Component model={kgAnnotationToggle} />
+            )}
           </div>
 
           {/* JSON parser props and line filter vars are only visible with a local storage debug flag */}
