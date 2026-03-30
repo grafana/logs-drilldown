@@ -551,3 +551,4 @@ mutatable
 DSUID
 newrecords
 logsdrilldowndefaultlabels
+logstable
