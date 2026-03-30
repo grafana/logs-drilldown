@@ -60,7 +60,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   };
 
   getLogsPanelScene = () => {
-    //@todo unhack
+    //@todo fix
     return this.parent as any;
     // return sceneGraph.getAncestor(this, LogsPanelScene);
   };
