@@ -473,6 +473,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const { error, errorType, canClearFilters } = this.state;
 
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
+    const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
     const children =
       this.state.visualizationType === 'logs'
@@ -527,7 +528,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                 ],
               }),
               new SceneFlexItem({
-                body: 'logsTablePanel' in config.featureToggles && config.featureToggles.logsTablePanel
+                body: logsTablePanelNG
                   ? new LogsTablePanelScene({ error, canClearFilters })
                   : new LogsTableScene({ error, canClearFilters }),
                 height: 'calc(100vh - 220px)',
