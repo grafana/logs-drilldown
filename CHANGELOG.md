@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.0.1
+
+##### Chores
+
+* **deps:**  update dependency serialize-javascript to v7.0.5 [security] (#1820) (07cbaadc)
+* **drilldown:**  run drilldown apps together locally (#1748) (6607b9c1)
+* **cve:**  undici resolutions (#1806) (1c9a3897)
+* **GOFF:**  update all feature flags to goff (#1810) (11ae7a6b)
+
+##### Bug Fixes
+
+* **renonvate:**  prCreation: not-pending (#1821) (84987dce)
+* **goff:**  use appSubUrl in the base path of the api call (#1818) (4099e5be)
+* **e2e:**  stabilize flaky savedSearches and exploreServices tests (#1816) (9efd0df6)
+* **links:**  improve escaping of the primary label (#1805) (48b460f4)
+* **ServiceSelection:**  Reset scene when changing tabs (#1809) (834b7de5)
+* **deps:**  update module google.golang.org/grpc to v1.79.3 [security] (#1808) (e302ea8f)
+
+
 ## 2.0.0
 
 ##### Chores
