@@ -12,6 +12,7 @@ import { DataQuery } from '@grafana/schema';
 
 import { KgAnnotationToggle } from './KgAnnotationToggle';
 import { VAR_DATASOURCE, VAR_LABELS } from './variables';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 
 const KG_DATASOURCE_TYPE = 'grafana-knowledgegraph-datasource';
 const KG_DATASOURCE_UID = 'grafanacloud-knowledgegraph';
@@ -23,7 +24,7 @@ interface KgSceneProps {
 }
 
 export function isKgAnnotationsAvailable(): boolean {
-  const featureEnabled = (config.featureToggles as Record<string, boolean | undefined>)['kgAnnotationsInLokiExplore'];
+  const featureEnabled = getFeatureFlag('kgAnnotationsInLokiExplore');
   if (!featureEnabled) {
     return false;
   }
