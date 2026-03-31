@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { t } from '@grafana/i18n';
 import { ControlsLabel, SceneDataLayerSet, SceneObjectBase, SceneObjectRef, SceneObjectState } from '@grafana/scenes';
 import { InlineSwitch } from '@grafana/ui';
 
@@ -40,7 +41,11 @@ function KgAnnotationToggleRenderer({ model }: { model: KgAnnotationToggle }) {
   return (
     <div style={{ display: 'flex', alignSelf: 'flex-end' }}>
       <ControlsLabel label="Insights" description={KG_INSIGHTS_DESCRIPTION} />
-      <InlineSwitch value={isEnabled} onChange={model.toggleEnabled} />
+      <InlineSwitch
+        value={isEnabled}
+        onChange={model.toggleEnabled}
+        aria-label={t('logs.logs-drilldown.kg-annotation-toggle', 'Insights')}
+      />
     </div>
   );
 }
