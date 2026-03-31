@@ -1,9 +1,6 @@
 import { lazy } from 'react';
 
-import { lt } from 'semver';
-
 import { AppPlugin } from '@grafana/data';
-import { config } from '@grafana/runtime';
 
 import type { JsonData } from './Components/AppConfig/AppConfig';
 import pluginJson from 'plugin.json';
@@ -16,6 +13,15 @@ import { functionConfigs, linkConfigs } from 'services/extensions/links';
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
 // Link extensions are the exception as they must be included in the main bundle in order to work in core Grafana
+const initPluginI18n = async () => {
+  const { lt } = await import('semver');
+  const { config } = await import('@grafana/runtime');
+  const { initPluginTranslations } = await import('@grafana/i18n');
+  const { loadResources } = await import('./i18n/loadResources');
+  const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
+  await initPluginTranslations(pluginJson.id, pluginLoaders);
+};
+
 const App = lazy(async () => {
   const { initPluginTranslations } = await import('@grafana/i18n');
 
@@ -24,11 +30,7 @@ const App = lazy(async () => {
   await initPluginTranslations('grafana-scenes', [scenesLoadResources]);
 
   // Initialize i18n for this plugin
-  // Before Grafana 12.1.0, plugins must load their own resources
-  // After 12.1.0, Grafana handles resource loading
-  const { loadResources } = await import('./i18n/loadResources');
-  const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
-  await initPluginTranslations(pluginJson.id, pluginLoaders);
+  await initPluginI18n();
 
   const { logger } = await import('services/logger');
   const { setWasmSortInit, wasmSupported } = await import('services/sorting');
@@ -53,26 +55,17 @@ const App = lazy(async () => {
 });
 
 const AppConfig = lazy(async () => {
-  const { initPluginTranslations } = await import('@grafana/i18n');
-  const { loadResources } = await import('./i18n/loadResources');
-  const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
-  await initPluginTranslations(pluginJson.id, pluginLoaders);
+  await initPluginI18n();
   return await import('./Components/AppConfig/AppConfig');
 });
 
 const DefaultColumnsConfig = lazy(async () => {
-  const { initPluginTranslations } = await import('@grafana/i18n');
-  const { loadResources } = await import('./i18n/loadResources');
-  const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
-  await initPluginTranslations(pluginJson.id, pluginLoaders);
+  await initPluginI18n();
   return await import('./Components/AppConfig/DefaultColumns/Config');
 });
 
 const ServiceSelectionConfig = lazy(async () => {
-  const { initPluginTranslations } = await import('@grafana/i18n');
-  const { loadResources } = await import('./i18n/loadResources');
-  const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
-  await initPluginTranslations(pluginJson.id, pluginLoaders);
+  await initPluginI18n();
   return await import('./Components/AppConfig/ServiceSelection/Config');
 });
 
