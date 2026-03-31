@@ -78,6 +78,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { kgAnnotationToggle } = indexScene.useState();
     const kgToggleState = kgAnnotationToggle?.useState();
+    const exploreLogsAggregatedMetrics = getFeatureFlag('exploreLogsAggregatedMetrics');
 
     const renderPopover = () => {
       return (
@@ -92,28 +93,31 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
         >
           <div className={styles.heading}>Query options</div>
           <div className={styles.options}>
-            <div
-              title={
-                'Aggregated metrics will return service queries results much more quickly, but with lower resolution'
-              }
-            >
-              Aggregated metrics
-            </div>
-            <span
-              title={
-                options.aggregatedMetrics.disabled
-                  ? `Aggregated metrics can only be enabled for queries starting after ${AGGREGATED_METRIC_START_DATE.toLocaleString()}`
-                  : ''
-              }
-            >
-              <Switch
-                label={'Toggle aggregated metrics'}
-                data-testid={testIds.index.aggregatedMetricsToggle}
-                value={options.aggregatedMetrics.active}
-                disabled={options.aggregatedMetrics.disabled}
-                onChange={model.toggleAggregatedMetricsOverride}
-              />
-            </span>
+            {exploreLogsAggregatedMetrics && (
+              <>
+                <div>
+                  Aggregated metrics{' '}
+                  <Tooltip
+                    content={
+                      options.aggregatedMetrics.disabled
+                        ? `Aggregated metrics can only be enabled for queries starting after ${AGGREGATED_METRIC_START_DATE.toLocaleString()}`
+                        : 'Aggregated metrics will return service queries results much more quickly, but with lower resolution'
+                    }
+                  >
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </div>
+                <span>
+                  <Switch
+                    label={'Toggle aggregated metrics'}
+                    data-testid={testIds.index.aggregatedMetricsToggle}
+                    value={options.aggregatedMetrics.active}
+                    disabled={options.aggregatedMetrics.disabled}
+                    onChange={model.toggleAggregatedMetricsOverride}
+                  />
+                </span>
+              </>
+            )}
             {kgAnnotationToggle && (
               <>
                 <div>

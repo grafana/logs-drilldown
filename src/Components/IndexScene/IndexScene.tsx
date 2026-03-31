@@ -222,7 +222,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore' && getFeatureFlag('exploreLogsAggregatedMetrics')) {
+    if (
+      getDrilldownSlug() === 'explore' &&
+      (getFeatureFlag('exploreLogsAggregatedMetrics') || getFeatureFlag('kgAnnotationsInLokiExplore'))
+    ) {
       controls.push(
         new ToolbarScene({
           isOpen: false,
