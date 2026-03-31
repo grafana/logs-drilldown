@@ -348,7 +348,7 @@ describe('PanelMenu', () => {
       expect(payload).toEqual({
         panel: expect.objectContaining({
           type: 'timeseries',
-          title: 'Metric query',
+          title: 'Log query',
           datasource: {
             type: 'loki',
             uid: 'test-datasource',
