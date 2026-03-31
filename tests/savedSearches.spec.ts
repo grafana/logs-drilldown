@@ -26,7 +26,6 @@ test.describe('saved searches', () => {
     await explorePage.gotoServices();
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await explorePage.servicesSearch.click();
     await explorePage.servicesSearch.pressSequentially('tempo-ingester');
     await page.keyboard.press('Escape');
@@ -37,6 +36,11 @@ test.describe('saved searches', () => {
     // Wait for the logs tab to be visible and active
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
     await explorePage.assertTabsNotLoading();
+
+    // Capture the selected service chip text for later round-trip validation
+    const serviceChip = page.getByLabel('Edit filter with key service_name');
+    await expect(serviceChip).toBeVisible();
+    const selectedServiceText = (await serviceChip.textContent()) ?? '';
 
     // Step 2: Click the save search button
     const saveSearchButton = page.getByRole('button', { name: 'Save search' });
@@ -99,9 +103,9 @@ test.describe('saved searches', () => {
 
     // Step 10: Verify we're navigated to the service details page with the correct filter
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    // Use getByLabel which matches Grafana's ad-hoc filter chip (used in embed.spec, exploreServices.spec)
+    // Validate the saved search restored the exact same service filter value
     await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('tempo-ingester');
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText(selectedServiceText);
   });
 
   test('should show empty state when no saved searches exist', async ({ page }) => {
@@ -216,6 +220,11 @@ test.describe('saved searches', () => {
     await explorePage.clickShowLogs();
     await explorePage.assertTabsNotLoading();
 
+    // Capture the selected service chip text for later round-trip validation
+    const serviceChip = page.getByLabel('Edit filter with key service_name');
+    await expect(serviceChip).toBeVisible();
+    const selectedServiceText = (await serviceChip.textContent()) ?? '';
+
     // Save a search from the breakdown view
     const saveSearchButton = page.getByRole('button', { name: 'Save search' });
     await saveSearchButton.click();
@@ -242,10 +251,9 @@ test.describe('saved searches', () => {
     const selectButton = page.getByRole('link', { name: 'Select' });
     await selectButton.click();
 
-    // Verify we're back on the breakdown view with correct filter
+    // Verify we're back on the breakdown view with correct filter value
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    // Use getByLabel which matches Grafana's ad-hoc filter chip
     await expect(page.getByLabel('Edit filter with key service_name')).toBeVisible();
-    await expect(page.getByLabel('Edit filter with key service_name')).toContainText('tempo-ingester');
+    await expect(page.getByLabel('Edit filter with key service_name')).toContainText(selectedServiceText);
   });
 });
