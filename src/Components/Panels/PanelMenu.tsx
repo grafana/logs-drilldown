@@ -395,12 +395,17 @@ export const getCreateAlertPayload = (model: PanelMenu) => {
 
   const DEFAULT_ALERT_RANGE = '[5m]';
   // Alert rules require a fixed range window; $__auto is dashboard-context dependent.
-  const normalizedExpr = expr.replace(/\[\s*\$__auto\s*\]/g, DEFAULT_ALERT_RANGE);
+  const normalizedExpr = expr.replace(/\[\s*(?:\$\{__auto\}|\$__auto)\s*\]/g, DEFAULT_ALERT_RANGE);
 
   // Alerting conditions require numeric values
   // Convert log queries to a numeric/metric query
   const alertExpr = isLogsQuery(normalizedExpr)
-    ? `count_over_time(${normalizedExpr}${DEFAULT_ALERT_RANGE})`
+    ? (() => {
+        const trimmedExpr = normalizedExpr.trim();
+        const hasTrailingRange = /\[[^\]]+\]\s*$/.test(trimmedExpr);
+        const logRangeExpr = hasTrailingRange ? `(${trimmedExpr})` : `(${trimmedExpr})${DEFAULT_ALERT_RANGE}`;
+        return `count_over_time(${logRangeExpr})`;
+      })()
     : normalizedExpr;
 
   const panel: Panel = {

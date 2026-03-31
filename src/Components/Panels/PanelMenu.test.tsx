@@ -374,7 +374,67 @@ describe('PanelMenu', () => {
             type: 'loki',
             uid: 'test-datasource',
           },
-          targets: [{ refId: 'A', expr: 'count_over_time({service_name="tempo-distributor"}[5m])' }],
+          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"})[5m])' }],
+        }),
+        timeRange: { from: 'now-1h', to: 'now' },
+      });
+    });
+
+    it('should generate create alert payload for logs query with pipeline expression', () => {
+      const menu = new PanelMenu({});
+      jest.mocked(interpolateExpression).mockReturnValue('{service_name="tempo-distributor"} |= "err"');
+      jest.mocked(isLogsQuery).mockReturnValue(true);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload).toEqual({
+        panel: expect.objectContaining({
+          title: 'Log count alert',
+          datasource: {
+            type: 'loki',
+            uid: 'test-datasource',
+          },
+          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"} |= "err")[5m])' }],
+        }),
+        timeRange: { from: 'now-1h', to: 'now' },
+      });
+    });
+
+    it('should not duplicate existing range selector in logs alert expression', () => {
+      const menu = new PanelMenu({});
+      jest.mocked(interpolateExpression).mockReturnValue('{service_name="tempo-distributor"}[10m]');
+      jest.mocked(isLogsQuery).mockReturnValue(true);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload).toEqual({
+        panel: expect.objectContaining({
+          title: 'Log count alert',
+          datasource: {
+            type: 'loki',
+            uid: 'test-datasource',
+          },
+          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"}[10m]))' }],
+        }),
+        timeRange: { from: 'now-1h', to: 'now' },
+      });
+    });
+
+    it('should normalize $__auto range in logs alert expression without duplicating range', () => {
+      const menu = new PanelMenu({});
+      jest.mocked(interpolateExpression).mockReturnValue('{service_name="tempo-distributor"}[$__auto]');
+      jest.mocked(isLogsQuery).mockReturnValue(true);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload).toEqual({
+        panel: expect.objectContaining({
+          title: 'Log count alert',
+          datasource: {
+            type: 'loki',
+            uid: 'test-datasource',
+          },
+          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"}[5m]))' }],
         }),
         timeRange: { from: 'now-1h', to: 'now' },
       });
