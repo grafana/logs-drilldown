@@ -28,6 +28,7 @@ import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 import {
   CollapsablePanelText,
   getAddToDashboardPayload,
+  getCreateAlertPayload,
   getExploreLink,
   PanelMenu,
   TimeSeriesPanelType,
@@ -348,12 +349,52 @@ describe('PanelMenu', () => {
       expect(payload).toEqual({
         panel: expect.objectContaining({
           type: 'timeseries',
-          title: 'Log query',
+          title: 'Metric query',
           datasource: {
             type: 'loki',
             uid: 'test-datasource',
           },
           targets: [{ refId: 'A', expr: 'test_query_expression', legendFormat: 'test' }],
+        }),
+        timeRange: { from: 'now-1h', to: 'now' },
+      });
+    });
+
+    it('should generate create alert payload for logs query', () => {
+      const menu = new PanelMenu({});
+      jest.mocked(interpolateExpression).mockReturnValue('{service_name="tempo-distributor"}');
+      jest.mocked(isLogsQuery).mockReturnValue(true);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload).toEqual({
+        panel: expect.objectContaining({
+          title: 'Log count alert',
+          datasource: {
+            type: 'loki',
+            uid: 'test-datasource',
+          },
+          targets: [{ refId: 'A', expr: 'count_over_time({service_name="tempo-distributor"}[5m])' }],
+        }),
+        timeRange: { from: 'now-1h', to: 'now' },
+      });
+    });
+
+    it('should normalize $__auto range in create alert payload metric expression', () => {
+      const menu = new PanelMenu({});
+      jest.mocked(interpolateExpression).mockReturnValue('sum(count_over_time({service_name="tempo"}[$__auto]))');
+      jest.mocked(isLogsQuery).mockReturnValue(false);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload).toEqual({
+        panel: expect.objectContaining({
+          title: 'Log count alert',
+          datasource: {
+            type: 'loki',
+            uid: 'test-datasource',
+          },
+          targets: [{ refId: 'A', expr: 'sum(count_over_time({service_name="tempo"}[5m]))' }],
         }),
         timeRange: { from: 'now-1h', to: 'now' },
       });
