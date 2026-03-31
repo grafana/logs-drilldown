@@ -481,6 +481,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       headerActions.push(new SelectServiceButton({ labelName: primaryLabelName, labelValue: primaryLabelValue }));
     }
     const panel = PanelBuilders.timeseries()
+      .setOption('annotations', { multiLane: true })
       // If service was previously selected, we show it in the title
       .setTitle(primaryLabelValue)
       .setData(

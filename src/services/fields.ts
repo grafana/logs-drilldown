@@ -257,6 +257,7 @@ export function getFilterBreakdownValueScene(
   return (frame: DataFrame, frameIndex: number) => {
     const reducerID = getReducerId(sortByScene.state.sortBy);
     const panel = PanelBuilders.timeseries()
+      .setOption('annotations', { multiLane: true })
       .setOption('legend', { showLegend: false })
       .setCustomFieldConfig('fillOpacity', 9)
       .setTitle(getTitle(frame))
