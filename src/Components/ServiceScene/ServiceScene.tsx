@@ -60,8 +60,8 @@ import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { AddToDashboardModal } from './AddToDashboardModal';
-import { CreateAlertModal } from './CreateAlertModal';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { CreateAlertModal } from './CreateAlertModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
@@ -131,9 +131,9 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   // null implies it is not supported, undefined is not set yet
   $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
-  createAlertData?: CreateAlertData;
   backendDisplayedFields?: string[];
   body: SceneFlexLayout | undefined;
+  createAlertData?: CreateAlertData;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
