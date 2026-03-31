@@ -20,7 +20,7 @@ import {
   Options,
   pluginVersion,
 } from '@grafana/schema/dist/esm/raw/composable/logstable/panelcfg/x/LogsTablePanelCfg_types.gen';
-import { useStyles2 } from '@grafana/ui';
+import { AdHocFilterItem, PanelContext, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { areArraysEqual } from '../../services/comparison';
@@ -30,10 +30,14 @@ import { getLogOption, setDisplayedFieldsInStorage } from '../../services/store'
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
+import { addToFilters } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogOptionsScene, OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
+import { ServiceScene } from './ServiceScene';
+import { getVariableForLabel } from 'services/fields';
+import { FilterOp } from 'services/filterTypes';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
@@ -114,6 +118,9 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
     // panelBuilder.setOverrides();
 
     const panel = new VizPanel({ ...panelBuilder.build() });
+    panel.setState({
+      extendPanelContext: (_, context) => this.extendLogsTableContext(context),
+    });
 
     panel.subscribeToState((newState, prevState) => {
       this.onOptionsChange(newState.options, prevState.options);
@@ -167,8 +174,28 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
     );
   }
 
+  private extendLogsTableContext = (context: PanelContext) => {
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    context.onAddAdHocFilter = ({ value, key, operator }: AdHocFilterItem) => {
+      const frame = serviceScene.state.$data?.state?.data?.series?.[0];
+      const variableType = getVariableForLabel(frame, key, serviceScene);
+
+      const operation = operator === FilterOp.Equal ? 'toggle' : 'exclude';
+
+      addToFilters(key, value, operation, this, variableType);
+
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_details,
+        USER_EVENTS_ACTIONS.service_details.logs_detail_filter_applied,
+        {
+          action: operation,
+          filterType: variableType,
+          key,
+        }
+      );
+    };
+  };
   private getParentScene() {
-    console.log('getParentScene', this);
     return sceneGraph.getAncestor(this, LogsListScene);
   }
 
