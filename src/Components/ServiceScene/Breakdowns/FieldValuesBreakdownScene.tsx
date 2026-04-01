@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { DataQueryError, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   SceneComponentProps,
   SceneControlsSpacer,
@@ -100,7 +101,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
       );
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('breakdowns.field-values.loading', 'Loading...')} />;
   };
 
   private getTagKey() {
@@ -457,8 +458,8 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         }),
       ],
       options: [
-        { label: 'Grid', value: 'grid' },
-        { label: 'Rows', value: 'rows' },
+        { label: t('breakdowns.field-values.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('breakdowns.field-values.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }

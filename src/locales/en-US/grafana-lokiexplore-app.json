@@ -1,4 +1,32 @@
 {
+  "breakdowns": {
+    "field-values": {
+      "layout": {
+        "grid": "Grid",
+        "rows": "Rows"
+      },
+      "loading": "Loading..."
+    },
+    "label-values": {
+      "error": {
+        "message": "Message",
+        "status": "Status",
+        "trace-id": "TraceId"
+      },
+      "layout": {
+        "grid": "Grid",
+        "rows": "Rows"
+      },
+      "loading": "Loading..."
+    },
+    "labels-aggregated": {
+      "layout": {
+        "grid": "Grid",
+        "rows": "Rows"
+      },
+      "loading": "Loading..."
+    }
+  },
   "clipboard-button": {
     "inline-toast": {
       "success": "Copied"
