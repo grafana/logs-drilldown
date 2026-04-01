@@ -53,3 +53,6 @@ generator/generator
 
 # Environment variables
 .env
+
+# Claude
+.claude/
