@@ -34,7 +34,7 @@ export function isKgAnnotationsAvailable(): boolean {
 function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string) {
   const severities = [
     { value: 'critical', color: 'red', label: 'Critical' },
-    { value: 'warning', color: 'orange', label: 'Warning' },
+    { value: 'warning', color: 'yellow', label: 'Warning' },
     { value: 'info', color: 'blue', label: 'Info' },
   ] as const;
 
