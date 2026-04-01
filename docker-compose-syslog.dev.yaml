@@ -9,7 +9,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     environment:
-      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane localizationForPlugins
+      - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
       - GF_PLUGINS_PREINSTALL_DISABLED=true
     build:
       context: ./.config
