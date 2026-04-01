@@ -171,6 +171,9 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
     const { component: AddToDashboardComponent, isLoading: isLoadingAddToDashboard } = usePluginComponent(
       'grafana/add-to-dashboard-form/v1'
     );
+    const { component: CreateAlertComponent, isLoading: isLoadingCreateAlert } = usePluginComponent(
+      'grafana/alerting/create-alert-from-panel/v1'
+    );
 
     // Update availability flag when component loads
     useEffect(() => {
@@ -195,6 +198,32 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         );
       }
     }, [isLoadingAddToDashboard, AddToDashboardComponent, model]);
+
+    useEffect(() => {
+      const isAvailable = !isLoadingCreateAlert && Boolean(CreateAlertComponent);
+
+      if (!isLoadingCreateAlert && !CreateAlertComponent) {
+        logger.warn(`Failed to load create alert component: grafana/alerting/create-alert-from-panel/v1`);
+      }
+
+      if (isAvailable) {
+        addItemToGroup(
+          model,
+          {
+            text: 'Create alert',
+            onClick: () => {
+              reportAppInteraction(
+                USER_EVENTS_PAGES.service_details,
+                USER_EVENTS_ACTIONS.service_details.create_alert_from_panel_clicked
+              );
+              model.publishEvent(new CreateAlertEvent(getCreateAlertPayload(model)), true);
+            },
+            iconClassName: 'bell',
+          },
+          'Navigation'
+        );
+      }
+    }, [isLoadingCreateAlert, CreateAlertComponent, model]);
 
     if (body) {
       return <body.Component model={body} />;
@@ -352,6 +381,49 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
   return { panel, timeRange };
 };
 
+export const getCreateAlertPayload = (model: PanelMenu) => {
+  const indexScene = sceneGraph.getAncestor(model, IndexScene);
+  let sourcePanel: VizPanel | undefined = undefined;
+  try {
+    sourcePanel = sceneGraph.getAncestor(model, VizPanel);
+  } catch (e) {}
+
+  const expr = getQueryExpression(model);
+  const datasource = getDataSource(indexScene);
+  const timeRange = sceneGraph.getTimeRange(indexScene).state.value;
+  const request = sourcePanel?.state.$data?.state.data?.request;
+
+  const DEFAULT_ALERT_RANGE = '[5m]';
+  // Alert rules require a fixed range window; $__auto is dashboard-context dependent.
+  const normalizedExpr = expr.replace(/\[\s*(?:\$\{__auto\}|\$__auto)\s*\]/g, DEFAULT_ALERT_RANGE);
+
+  // Alerting conditions require numeric values
+  // Convert log queries to a numeric/metric query
+  const alertExpr = isLogsQuery(normalizedExpr)
+    ? (() => {
+        const trimmedExpr = normalizedExpr.trim();
+        const hasTrailingRange = /\[[^\]]+\]\s*$/.test(trimmedExpr);
+        const logRangeExpr = hasTrailingRange ? `(${trimmedExpr})` : `(${trimmedExpr})${DEFAULT_ALERT_RANGE}`;
+        return `count_over_time(${logRangeExpr})`;
+      })()
+    : normalizedExpr;
+
+  const panel: Panel = {
+    ...request,
+    title: 'Log count alert',
+    targets: [{ refId: 'A', expr: alertExpr }],
+    datasource: {
+      type: 'loki',
+      uid: datasource,
+    },
+    // @ts-expect-error
+    fieldConfig: sourcePanel?.state.fieldConfig,
+    options: sourcePanel?.state.options,
+  };
+
+  return { panel, timeRange };
+};
+
 const onExploreLinkClickTracking = () => {
   reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
@@ -404,6 +476,18 @@ export class AddToDashboardEvent extends BusEventBase {
     super();
   }
   public static type = 'add-to-dashboard';
+}
+
+export interface CreateAlertData {
+  panel: Panel;
+  timeRange: TimeRange;
+}
+
+export class CreateAlertEvent extends BusEventBase {
+  constructor(public payload: CreateAlertData) {
+    super();
+  }
+  public static type = 'create-alert';
 }
 
 export const getPanelWrapperStyles = (theme: GrafanaTheme2) => {

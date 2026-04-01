@@ -61,10 +61,11 @@ import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
 import { AddToDashboardModal } from './AddToDashboardModal';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { CreateAlertModal } from './CreateAlertModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardData, AddToDashboardEvent } from 'Components/Panels/PanelMenu';
+import { AddToDashboardData, AddToDashboardEvent, CreateAlertData, CreateAlertEvent } from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
@@ -132,6 +133,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   addToDashboardData?: AddToDashboardData;
   backendDisplayedFields?: string[];
   body: SceneFlexLayout | undefined;
+  createAlertData?: CreateAlertData;
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
@@ -564,6 +566,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToTimeRange());
 
     this._subs.add(this.subscribeToEvent(AddToDashboardEvent, this.subscribeToAddToDashboard));
+    this._subs.add(this.subscribeToEvent(CreateAlertEvent, this.subscribeToCreateAlert));
 
     // Migrations
     migrateLineFilterV1(this);
@@ -850,6 +853,18 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
   };
 
+  private subscribeToCreateAlert = (event: CreateAlertEvent) => {
+    this.setState({
+      createAlertData: event.payload,
+    });
+  };
+
+  public hideCreateAlert = () => {
+    this.setState({
+      createAlertData: undefined,
+    });
+  };
+
   private resetBodyAndData = () => {
     let stateUpdate: Partial<ServiceSceneState> = {};
 
@@ -942,7 +957,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body, addToDashboardData } = model.useState();
+    const { body, addToDashboardData, createAlertData } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
@@ -971,6 +986,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       return (
         <>
           {addToDashboardData && <AddToDashboardModal data={addToDashboardData} onClose={model.hideAddToDashboard} />}
+          {createAlertData && <CreateAlertModal data={createAlertData} onDismiss={model.hideCreateAlert} />}
           <body.Component model={body} />
         </>
       );
