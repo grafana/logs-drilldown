@@ -406,8 +406,8 @@ test.describe('explore services breakdown page', () => {
 
     await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toContainText(valueName);
     await explorePage.goToLogsTab();
-    const logsVolumeHeader = page.getByTestId(/data-testid Panel header Log volume/);
-    await logsVolumeHeader.getByTestId(testIds.linkToExplore.btn).click();
+    const logsHeader = explorePage.getLogsPanelLocator().first();
+    await logsHeader.getByTestId(testIds.linkToExplore.btn).click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
   test(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
@@ -424,8 +424,8 @@ test.describe('explore services breakdown page', () => {
 
     // Navigate to logs query
     await explorePage.goToLogsTab();
-    const logsVolumeHeader = page.getByTestId(/data-testid Panel header Log volume/);
-    await logsVolumeHeader.getByTestId(testIds.linkToExplore.btn).click();
+    const logsHeader = explorePage.getLogsPanelLocator().first();
+    await logsHeader.getByTestId(testIds.linkToExplore.btn).click();
 
     await expect(
       page.getByText(
@@ -2211,7 +2211,7 @@ test.describe('explore services breakdown page', () => {
       await expect(lineFilters.nth(3)).toHaveValue('getBookTitles\\(Author\\.java:25\\)\\\\n');
 
       // go back to explore
-      await page.getByTestId('data-testid Panel header Logs').getByTestId(testIds.linkToExplore.btn).click();
+      await page.getByTestId(/data-testid Panel header Logs/).first().getByTestId(testIds.linkToExplore.btn).click();
 
       // Explore query should be unchanged
       expect(await page.getByTestId('data-testid Query field').textContent()).toContain(

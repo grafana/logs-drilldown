@@ -34,7 +34,10 @@ export class ExplorePage {
   refreshPicker: Locator;
   logs: Array<{ msg: ConsoleMessage; type: string }> = [];
 
-  constructor(public readonly page: Page, public readonly testInfo: TestInfo) {
+  constructor(
+    public readonly page: Page,
+    public readonly testInfo: TestInfo
+  ) {
     this.firstServicePageSelect = this.page.getByTestId(testIds.index.showLogsButton).first();
     this.logVolumeGraph = this.page.getByText('Log volume');
     this.servicesSearch = this.page.getByTestId(testIds.exploreServiceSearch.search);
@@ -62,7 +65,7 @@ export class ExplorePage {
     return this.page.getByTestId(/data-testid Panel header Logs/);
   }
 
-  getLogsVolumePanelLocator() {
+  getLogsMenuPanelLocator() {
     return this.page.getByTestId(/data-testid Panel menu Logs/);
   }
 
