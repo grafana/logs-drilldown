@@ -45,7 +45,7 @@ export class LinkToExplore extends SceneObjectBase<LinkToExploreState> {
 }
 
 export const onLinkToExploreClick = () => {
-  reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.open_in_explore_clicked);
+  reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
 
 export const getLinkToExploreSafe = (sceneRef: SceneObject): string | undefined => {
