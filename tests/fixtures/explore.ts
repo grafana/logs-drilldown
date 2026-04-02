@@ -31,7 +31,6 @@ export class ExplorePage {
   logVolumeGraph: Locator;
   servicesSearch: Locator;
   serviceBreakdownSearch: Locator;
-  serviceBreakdownOpenExplore: Locator;
   refreshPicker: Locator;
   logs: Array<{ msg: ConsoleMessage; type: string }> = [];
 
@@ -40,7 +39,6 @@ export class ExplorePage {
     this.logVolumeGraph = this.page.getByText('Log volume');
     this.servicesSearch = this.page.getByTestId(testIds.exploreServiceSearch.search);
     this.serviceBreakdownSearch = this.page.getByTestId(testIds.exploreServiceDetails.searchLogs);
-    this.serviceBreakdownOpenExplore = this.page.getByTestId(testIds.exploreServiceDetails.openExplore);
     this.refreshPicker = this.page.getByTestId(testIds.header.refreshPicker);
   }
 
@@ -460,7 +458,8 @@ export class ExplorePage {
 
   async assertTwoPanelMenus() {
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const exploreButton = this.page.getByTestId(testIds.exploreServiceDetails.openExplore);
+    const exploreButton = this.page.getByTestId(testIds.linkToExplore.btn);
+    const panelMenuItem = this.page.getByTestId(/data-testid Panel menu item/).first();
 
     // Check menus for errors and verify explore action is visible in panel header
     await expect(exploreButton.first()).toBeVisible();
@@ -468,11 +467,15 @@ export class ExplorePage {
     // Check menus for open/close behavior
     // Check first panel
     await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuItem).toBeVisible();
     await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuItem).not.toBeVisible();
 
     // Check second panel
     await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuItem).toBeVisible();
     await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuItem).not.toBeVisible();
   }
 
   /**
@@ -484,7 +487,8 @@ export class ExplorePage {
     await this.assertTwoPanelMenus();
 
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const exploreButton = this.page.getByTestId(testIds.exploreServiceDetails.openExplore);
+    const exploreButton = this.page.getByTestId(testIds.linkToExplore.btn);
+    const panelMenuItem = this.page.getByTestId(/data-testid Panel menu item/).first();
 
     // Go to label value summary
     await this.page.getByText('Select').first().click();
@@ -492,11 +496,15 @@ export class ExplorePage {
 
     // Check first (summary) panel
     await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuItem).toBeVisible();
     await labelsPanelMenu.nth(0).click();
+    await expect(panelMenuItem).not.toBeVisible();
 
     // Check second (value) panel
     await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuItem).toBeVisible();
     await labelsPanelMenu.nth(1).click();
+    await expect(panelMenuItem).not.toBeVisible();
   }
 
   async defaultColumnsAdminAddNewRecord() {

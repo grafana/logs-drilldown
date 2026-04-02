@@ -23,7 +23,7 @@ describe('LinkToExplore', () => {
     const model = new LinkToExplore({});
     render(<LinkToExplore.Component model={model} />);
 
-    const button = screen.getByTestId(testIds.exploreServiceDetails.openExplore);
+    const button = screen.getByTestId(testIds.linkToExplore.btn);
     expect(button).toBeVisible();
     expect(button).toHaveAttribute('href', '/explore?test=true');
   });
@@ -33,7 +33,7 @@ describe('LinkToExplore', () => {
     const model = new LinkToExplore({});
     render(<LinkToExplore.Component model={model} />);
 
-    await user.click(screen.getByTestId(testIds.exploreServiceDetails.openExplore));
+    await user.click(screen.getByTestId(testIds.linkToExplore.btn));
 
     expect(reportAppInteraction).toHaveBeenCalledWith(
       USER_EVENTS_PAGES.all,

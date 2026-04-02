@@ -51,6 +51,9 @@ export const testIds = {
   header: {
     refreshPicker: 'data-testid RefreshPicker run button',
   },
+  linkToExplore: {
+    btn: 'data-testid link-to-explore-btn',
+  },
 
   index: {
     addNewLabelTab: 'data-testid Tab Add label',

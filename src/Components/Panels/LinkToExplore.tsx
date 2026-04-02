@@ -20,7 +20,7 @@ export const ExploreLinkButton = (props: ExploreLinkButtonProps) => {
   return (
     <LinkButton
       className={props.className}
-      data-testid={testIds.exploreServiceDetails.openExplore}
+      data-testid={testIds.linkToExplore.btn}
       variant="secondary"
       fill="outline"
       size="sm"

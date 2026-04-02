@@ -205,11 +205,10 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLogsTab();
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
-    const panelMenu = page.getByTestId('data-testid Panel menu Logs');
-    const panelMenuItem = page.getByTestId(testIds.exploreServiceDetails.openExplore);
+    const panelHeader = page.getByTestId('data-testid Panel header Logs');
+    const panelMenuItem = panelHeader.getByTestId(testIds.linkToExplore.btn);
 
-    await expect(panelMenu).toHaveCount(1);
-    await panelMenu.click();
+    await expect(panelHeader).toHaveCount(1);
     await expect(panelMenuItem).toHaveCount(1);
     await panelMenuItem.click();
     await expect(page.getByRole('button', { name: 'Go queryless' })).toBeVisible();
@@ -407,8 +406,8 @@ test.describe('explore services breakdown page', () => {
 
     await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toContainText(valueName);
     await explorePage.goToLogsTab();
-    await explorePage.getLogsVolumePanelLocator().click();
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    const logsVolumeHeader = page.getByTestId(/data-testid Panel header Log volume/);
+    await logsVolumeHeader.getByTestId(testIds.linkToExplore.btn).click();
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
   test(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
@@ -425,8 +424,8 @@ test.describe('explore services breakdown page', () => {
 
     // Navigate to logs query
     await explorePage.goToLogsTab();
-    await explorePage.getLogsVolumePanelLocator().click();
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    const logsVolumeHeader = page.getByTestId(/data-testid Panel header Log volume/);
+    await logsVolumeHeader.getByTestId(testIds.linkToExplore.btn).click();
 
     await expect(
       page.getByText(
@@ -1736,13 +1735,14 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText('Shortened link copied to')).toBeVisible();
   });
 
-  test('panel menu: label name panel should open links in explore', async ({ context, page }) => {
+  test('panel header: label name panel should open link to Explore button', async ({ context, page }) => {
     await explorePage.goToLabelsTab();
-    await page.getByTestId('data-testid Panel menu detected_level').click();
+    const detectedLevelPanel = page.getByTestId('data-testid Panel header detected_level');
+    const exploreButton = detectedLevelPanel.getByTestId(testIds.linkToExplore.btn);
 
     // Open link
-    await expect(page.getByTestId(testIds.exploreServiceDetails.openExplore)).toHaveAttribute('href');
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    await expect(exploreButton).toHaveAttribute('href');
+    await exploreButton.click();
 
     const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
@@ -1751,14 +1751,15 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('panel menu: label value panel should open links in explore', async ({ context, page }) => {
+  test('panel header: label value panel should open link to Explore button', async ({ context, page }) => {
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
-    await page.getByTestId('data-testid Panel menu error').click();
+    const errorPanel = page.getByTestId('data-testid Panel header error');
+    const exploreButton = errorPanel.getByTestId(testIds.linkToExplore.btn);
 
     // Open link
-    await expect(page.getByTestId(testIds.exploreServiceDetails.openExplore)).toHaveAttribute('href');
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    await expect(exploreButton).toHaveAttribute('href');
+    await exploreButton.click();
 
     const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
@@ -1767,13 +1768,14 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('panel menu: field name panel should open links in explore', async ({ context, page }) => {
+  test('panel header: field name panel should open link to Explore button', async ({ context, page }) => {
     await explorePage.goToFieldsTab();
-    await page.getByTestId(`data-testid Panel menu ${fieldName}`).click();
+    const fieldNamePanel = page.getByTestId(`data-testid Panel header ${fieldName}`);
+    const exploreButton = fieldNamePanel.getByTestId(testIds.linkToExplore.btn);
 
     // Open link
-    await expect(page.getByTestId(testIds.exploreServiceDetails.openExplore)).toHaveAttribute('href');
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    await expect(exploreButton).toHaveAttribute('href');
+    await exploreButton.click();
 
     const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
@@ -1782,17 +1784,16 @@ test.describe('explore services breakdown page', () => {
     );
   });
 
-  test('panel menu: field value panel should open links in explore', async ({ context, page }) => {
+  test('panel header: field value panel should open link to Explore button', async ({ context, page }) => {
     await explorePage.goToFieldsTab();
     await page.getByLabel('Select caller').click();
 
-    // Assert we've navigated to the sub page
-    await expect(page.getByTestId('data-testid Panel menu poller.go:133')).toHaveCount(1);
-    await page.getByTestId('data-testid Panel menu poller.go:133').click();
+    const fieldValuePanel = page.getByTestId('data-testid Panel header poller.go:133');
+    const exploreButton = fieldValuePanel.getByTestId(testIds.linkToExplore.btn);
 
     // Open link
-    await expect(page.getByTestId(testIds.exploreServiceDetails.openExplore)).toHaveAttribute('href');
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    await expect(exploreButton).toHaveAttribute('href');
+    await exploreButton.click();
 
     const newPageCodeEditor = explorePage.getExploreCodeQueryLocator();
     await expect(newPageCodeEditor).toBeInViewport();
@@ -2210,8 +2211,7 @@ test.describe('explore services breakdown page', () => {
       await expect(lineFilters.nth(3)).toHaveValue('getBookTitles\\(Author\\.java:25\\)\\\\n');
 
       // go back to explore
-      await page.getByTestId(/data-testid Panel menu Logs/).click();
-      await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+      await page.getByTestId('data-testid Panel header Logs').getByTestId(testIds.linkToExplore.btn).click();
 
       // Explore query should be unchanged
       expect(await page.getByTestId('data-testid Query field').textContent()).toContain(

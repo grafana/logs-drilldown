@@ -281,8 +281,7 @@ test.describe('embed', () => {
     await expect(page.getByText('user != 03428')).toBeVisible();
     await expect(page.getByText('msg != Failed to get keys from redis')).toBeVisible();
     // go to explore
-    await page.getByTestId(/data-testid Panel menu Logs/).click();
-    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
+    await page.getByTestId('data-testid Panel header Logs').getByTestId(testIds.linkToExplore.btn).click();
     // Assert the query is showing
     await expect(
       page.getByText(
