@@ -9,6 +9,7 @@ import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
+import { getLinkToExploreSafe, onLinkToExploreClick } from '../Panels/LinkToExplore';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { LogsListScene } from './LogsListScene';
@@ -69,6 +70,7 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
+  const exploreHref = getLinkToExploreSafe(model);
 
   return (
     <div className={styles.container}>
@@ -115,7 +117,12 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
           </InlineField>
         </>
       )}
-      <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} />
+      <LogsPanelHeaderActions
+        vizType={visualizationType}
+        onChange={onChangeVisualizationType}
+        exploreHref={exploreHref}
+        onExploreClick={onLinkToExploreClick}
+      />
     </div>
   );
 }

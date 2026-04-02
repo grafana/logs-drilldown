@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { RadioButtonGroup } from '@grafana/ui';
 
+import { ExploreLinkButton } from '../Panels/LinkToExplore';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType } from 'services/store';
 
@@ -13,7 +14,9 @@ import { LogsVisualizationType } from 'services/store';
  * @constructor
  */
 export function LogsPanelHeaderActions(props: {
+  exploreHref?: string;
   onChange: (type: LogsVisualizationType) => void;
+  onExploreClick?: () => void;
   vizType: LogsVisualizationType;
 }) {
   return (
@@ -40,6 +43,13 @@ export function LogsPanelHeaderActions(props: {
         value={props.vizType}
         onChange={props.onChange}
       />
+      {props.exploreHref && (
+        <ExploreLinkButton
+          className={styles.exploreLink}
+          href={props.exploreHref}
+          onClick={props.onExploreClick}
+        />
+      )}
     </div>
   );
 }
@@ -47,5 +57,8 @@ export function LogsPanelHeaderActions(props: {
 const styles = {
   container: css({
     paddingRight: 6,
+  }),
+  exploreLink: css({
+    marginLeft: 8,
   }),
 };

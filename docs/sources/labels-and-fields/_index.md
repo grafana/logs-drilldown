@@ -49,7 +49,7 @@ Labels tab user interface:
 - **Label** filter: Lets you search for or select label names from the menu.
 - **Grid / Rows**: Lets you select how labels are displayed.
 - **Select** or **Include** button: Click to access a breakdown of the label's values, seeing the log volumes visualized along the way.
-- **Menu** (three dots): Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
+- **Explore** button: Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
 
 ## Filtering logs by label
 
@@ -83,7 +83,7 @@ Fields tab user interface:
 - **Volume / Names**: Lets you toggle between showing field volume graphs and showing field names only.
 - **Include** or **Add to filter** button: Lets you filter log results by a specific field value. The button label varies depending on the field type.
 - **Select** button (value breakdown): Click to access a breakdown of the field's values, seeing the log volumes visualized along the way.
-- **Menu** (three dots): Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
+- **Explore** button: Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
 
 ## Filtering logs by field
 

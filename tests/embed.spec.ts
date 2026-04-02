@@ -282,7 +282,7 @@ test.describe('embed', () => {
     await expect(page.getByText('msg != Failed to get keys from redis')).toBeVisible();
     // go to explore
     await page.getByTestId(/data-testid Panel menu Logs/).click();
-    await page.getByTestId('data-testid Panel menu item Explore').click();
+    await page.getByTestId(testIds.exploreServiceDetails.openExplore).click();
     // Assert the query is showing
     await expect(
       page.getByText(

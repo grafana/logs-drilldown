@@ -22,6 +22,7 @@ import {
 import { LogsVolumeActions } from '../LogsVolumeActions';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
+import { LinkToExplore } from 'Components/Panels/LinkToExplore';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
@@ -158,7 +159,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setMenu(new PanelMenu({}))
       .setCollapsible(true)
       .setCollapsed(isCollapsed)
-      .setHeaderActions(new LogsVolumeActions({}))
+      .setHeaderActions([new LogsVolumeActions({}), new LinkToExplore({})])
       .setShowMenuAlways(true)
       .setData(
         isCollapsed

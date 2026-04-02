@@ -17,6 +17,7 @@ import { getLogsPanelFrame } from '../ServiceScene';
 import ItemString from './ItemString';
 import { JSONTree } from '@gtk-grafana/react-json-tree';
 import { ScrollToPath } from '@gtk-grafana/react-json-tree/dist/types';
+import { getLinkToExploreSafe, onLinkToExploreClick } from 'Components/Panels/LinkToExplore';
 import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
 import { isLogLineField, isLogsIdField } from 'services/fields';
 import { getLogsHighlightStyles } from 'services/highlight';
@@ -135,6 +136,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
   const showNoJSONDetected = lineField && lineField.values.length > 0 && hasJSONFields === false;
   const showLokiNotSupported = !JSONFiltersSupported && showNoJSONDetected !== true;
   const controlsExpanded = logsListScene.state.controlsExpanded;
+  const exploreHref = getLinkToExploreSafe(model);
 
   return (
     <div className={styles.panelChromeWrap}>
@@ -149,7 +151,12 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
             title={'JSON'}
             menu={menu ? <menu.Component model={menu} /> : undefined}
             actions={
-              <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
+              <LogsPanelHeaderActions
+                vizType={visualizationType}
+                onChange={logsListScene.setVisualizationType}
+                exploreHref={exploreHref}
+                onExploreClick={onLinkToExploreClick}
+              />
             }
           >
             <div className={styles.container}>

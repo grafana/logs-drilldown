@@ -16,7 +16,6 @@ import {
   VizPanelMenu,
 } from '@grafana/scenes';
 
-import { reportAppInteraction } from '../../services/analytics';
 import { isLogsQuery } from '../../services/logql';
 import { interpolateExpression } from '../../services/query';
 import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
@@ -185,12 +184,6 @@ describe('PanelMenu', () => {
           type: 'group',
         })
       );
-      expect(items).toContainEqual(
-        expect.objectContaining({
-          text: 'Explore',
-          iconClassName: 'compass',
-        })
-      );
     });
 
     it('should add visualization options when the viz panel has collapsible state', () => {
@@ -249,19 +242,6 @@ describe('PanelMenu', () => {
   });
 
   describe('Event Handlers', () => {
-    it('should track analytics when explore link is clicked', () => {
-      const menu = new PanelMenu({});
-      menu.activate();
-
-      const items = menu.state.body?.state.items;
-      const exploreItem = items?.find((item: PanelMenuItem) => item.text === 'Explore');
-
-      // @ts-expect-error
-      exploreItem?.onClick?.();
-
-      expect(reportAppInteraction).toHaveBeenCalled();
-    });
-
     it('should handle collapse/expand toggle correctly', () => {
       const menu = new PanelMenu({});
       menu.activate();

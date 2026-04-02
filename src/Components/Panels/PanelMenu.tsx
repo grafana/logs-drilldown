@@ -65,13 +65,6 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           text: 'Navigation',
           type: 'group',
         },
-        {
-          href: getExploreLink(this),
-          iconClassName: 'compass',
-          onClick: () => onExploreLinkClickTracking(),
-          shortcut: 'p x',
-          text: 'Explore',
-        },
       ];
 
       let viz;
@@ -422,10 +415,6 @@ export const getCreateAlertPayload = (model: PanelMenu) => {
   };
 
   return { panel, timeRange };
-};
-
-const onExploreLinkClickTracking = () => {
-  reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
 
 const onSwitchVizTypeTracking = (newVizType: TimeSeriesPanelType) => {

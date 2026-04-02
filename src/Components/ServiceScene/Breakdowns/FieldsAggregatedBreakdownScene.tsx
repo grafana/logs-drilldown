@@ -42,6 +42,7 @@ import {
   getValueFromFieldsFilter,
 } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
+import { LinkToExplore } from '../../Panels/LinkToExplore';
 import { getPanelWrapperStyles, PanelMenu, TimeSeriesPanelType, TimeSeriesQueryType } from '../../Panels/PanelMenu';
 import {
   getDetectedFieldsFrame,
@@ -461,12 +462,15 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       .setTitle(labelName)
       .setData(queryProvider)
       .setHeaderActions(
-        new SelectLabelActionScene({
-          fieldType: ValueSlugs.field,
-          hasNumericFilters:
-            fieldType === 'int' || fieldType === 'float' || fieldType === 'bytes' || fieldType === 'duration',
-          labelName: String(labelName),
-        })
+        [
+          new SelectLabelActionScene({
+            fieldType: ValueSlugs.field,
+            hasNumericFilters:
+              fieldType === 'int' || fieldType === 'float' || fieldType === 'bytes' || fieldType === 'duration',
+            labelName: String(labelName),
+          }),
+          new LinkToExplore({}),
+        ]
       );
 
     text.setOption('content', '');
@@ -526,7 +530,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       );
     }
     body.setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES);
-    body.setHeaderActions(headerActions);
+    body.setHeaderActions([...headerActions, new LinkToExplore({})]);
     return body;
   };
 

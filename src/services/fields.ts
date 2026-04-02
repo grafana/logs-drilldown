@@ -11,6 +11,7 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
+import { LinkToExplore } from '../Components/Panels/LinkToExplore';
 import { PanelMenu, TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
 import { SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../Components/ServiceScene/ServiceScene';
@@ -270,6 +271,7 @@ export function getFilterBreakdownValueScene(
       .setMenu(new PanelMenu({}))
       .setHeaderActions([
         new AddToFiltersButton({ frame, hideExclude: labelKey === LEVEL_VARIABLE_VALUE, variableName }),
+        new LinkToExplore({}),
       ]);
 
     if (style === DrawStyle.Bars) {

@@ -460,20 +460,19 @@ export class ExplorePage {
 
   async assertTwoPanelMenus() {
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
+    const exploreButton = this.page.getByTestId(testIds.exploreServiceDetails.openExplore);
 
-    // Check menus for errors
+    // Check menus for errors and verify explore action is visible in panel header
+    await expect(exploreButton.first()).toBeVisible();
+
+    // Check menus for open/close behavior
     // Check first panel
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuExploreItem).not.toBeVisible();
 
     // Check second panel
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).not.toBeVisible();
   }
 
   /**
@@ -485,22 +484,19 @@ export class ExplorePage {
     await this.assertTwoPanelMenus();
 
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
+    const exploreButton = this.page.getByTestId(testIds.exploreServiceDetails.openExplore);
 
     // Go to label value summary
     await this.page.getByText('Select').first().click();
+    await expect(exploreButton.first()).toBeVisible();
 
     // Check first (summary) panel
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuExploreItem).not.toBeVisible();
 
     // Check second (value) panel
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).not.toBeVisible();
   }
 
   async defaultColumnsAdminAddNewRecord() {

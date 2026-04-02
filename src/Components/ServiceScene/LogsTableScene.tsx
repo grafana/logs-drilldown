@@ -28,6 +28,7 @@ import {
   setTableLogLine,
 } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
+import { getLinkToExploreSafe, onLinkToExploreClick } from '../Panels/LinkToExplore';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
@@ -302,6 +303,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     };
 
     const controlsExpanded = parentModel.state.controlsExpanded;
+    const exploreHref = getLinkToExploreSafe(model);
 
     return (
       <div className={styles.panelWrapper}>
@@ -316,7 +318,12 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               actions={
                 <>
                   {/*// @todo add scene*/}
-                  <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
+                  <LogsPanelHeaderActions
+                    vizType={visualizationType}
+                    onChange={parentModel.setVisualizationType}
+                    exploreHref={exploreHref}
+                    onExploreClick={onLinkToExploreClick}
+                  />
                 </>
               }
             >
