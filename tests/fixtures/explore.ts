@@ -458,24 +458,23 @@ export class ExplorePage {
 
   async assertTwoPanelMenus() {
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const exploreButton = this.page.getByTestId(testIds.linkToExplore.btn);
-    const panelMenuItem = this.page.getByTestId(/data-testid Panel menu item/).first();
+    const addToDashboardMenuItem = this.page.getByTestId(/data-testid Panel menu item Add to [dD]ashboard/);
 
-    // Check menus for errors and verify explore action is visible in panel header
-    await expect(exploreButton.first()).toBeVisible();
+    // Check menus for errors and verify add-to-dashboard action is available.
+    await expect(addToDashboardMenuItem.first()).toHaveCount(0);
 
     // Check menus for open/close behavior
     // Check first panel
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuItem).toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(1);
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuItem).not.toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(0);
 
     // Check second panel
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuItem).toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(1);
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuItem).not.toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(0);
   }
 
   /**
@@ -487,24 +486,23 @@ export class ExplorePage {
     await this.assertTwoPanelMenus();
 
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const exploreButton = this.page.getByTestId(testIds.linkToExplore.btn);
-    const panelMenuItem = this.page.getByTestId(/data-testid Panel menu item/).first();
+    const addToDashboardMenuItem = this.page.getByTestId(/data-testid Panel menu item Add to [dD]ashboard/);
 
     // Go to label value summary
     await this.page.getByText('Select').first().click();
-    await expect(exploreButton.first()).toBeVisible();
+    await expect(addToDashboardMenuItem.first()).toHaveCount(0);
 
     // Check first (summary) panel
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuItem).toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(1);
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuItem).not.toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(0);
 
     // Check second (value) panel
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuItem).toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(1);
     await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuItem).not.toBeVisible();
+    await expect(addToDashboardMenuItem).toHaveCount(0);
   }
 
   async defaultColumnsAdminAddNewRecord() {
