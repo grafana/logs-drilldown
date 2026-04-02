@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { AppEvents, DataQueryError, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { getAppEvents } from '@grafana/runtime';
 import {
   PanelBuilders,
@@ -391,7 +392,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                 children: [
                   new SceneFlexItem({
                     body: new SceneReactObject({
-                      reactNode: <LoadingPlaceholder text="Loading..." />,
+                      reactNode: <LoadingPlaceholder text={t('breakdowns.label-values.loading', 'Loading...')} />,
                     }),
                   }),
                 ],
@@ -423,7 +424,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                 children: [
                   new SceneFlexItem({
                     body: new SceneReactObject({
-                      reactNode: <LoadingPlaceholder text="Loading..." />,
+                      reactNode: <LoadingPlaceholder text={t('breakdowns.label-values.loading', 'Loading...')} />,
                     }),
                   }),
                 ],
@@ -445,8 +446,8 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
         }),
       ],
       options: [
-        { label: 'Grid', value: 'grid' },
-        { label: 'Rows', value: 'rows' },
+        { label: t('breakdowns.label-values.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('breakdowns.label-values.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }
@@ -483,17 +484,17 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       <div key={key}>
         {err.status && (
           <>
-            <strong>Status</strong>: {err.status} <br />
+            <strong>{t('breakdowns.label-values.error.status', 'Status')}</strong>: {err.status} <br />
           </>
         )}
         {err.message && (
           <>
-            <strong>Message</strong>: {err.message} <br />
+            <strong>{t('breakdowns.label-values.error.message', 'Message')}</strong>: {err.message} <br />
           </>
         )}
         {err.traceId && (
           <>
-            <strong>TraceId</strong>: {err.traceId}
+            <strong>{t('breakdowns.label-values.error.trace-id', 'TraceId')}</strong>: {err.traceId}
           </>
         )}
       </div>
@@ -512,6 +513,6 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('breakdowns.label-values.loading', 'Loading...')} />;
   };
 }

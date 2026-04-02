@@ -67,6 +67,7 @@
     }
   },
   "preload": true,
+  "languages": ["en-US"],
   "extensions": {
     "addedComponents": [
       {

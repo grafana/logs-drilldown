@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { DataFrame, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -193,8 +194,8 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
         }),
       ],
       options: [
-        { label: 'Grid', value: 'grid' },
-        { label: 'Rows', value: 'rows' },
+        { label: t('breakdowns.labels-aggregated.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('breakdowns.labels-aggregated.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }
@@ -262,6 +263,6 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
       return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('breakdowns.labels-aggregated.loading', 'Loading...')} />;
   };
 }

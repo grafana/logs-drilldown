@@ -1,13 +1,33 @@
 import React, { lazy, Suspense } from 'react';
 
-import { initPluginTranslations } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
 import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
-const OpenInLogsDrilldownButton = lazy(() => import('Components/OpenInLogsDrilldownButton/OpenInLogsDrilldownButton'));
-const EmbeddedLogsExploration = lazy(() => import('Components/EmbeddedLogsExploration/EmbeddedLogs'));
+
+const initI18n = async () => {
+  const { lt } = await import('semver');
+  const { config } = await import('@grafana/runtime');
+  const { initPluginTranslations } = await import('@grafana/i18n');
+
+  const { loadResources: scenesLoadResources } = await import('@grafana/scenes');
+  await initPluginTranslations('grafana-scenes', [scenesLoadResources]);
+
+  const { loadResources } = await import('../../i18n/loadResources');
+  const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
+  await initPluginTranslations(pluginJson.id, pluginLoaders);
+};
+
+const OpenInLogsDrilldownButton = lazy(async () => {
+  await initI18n();
+  return import('Components/OpenInLogsDrilldownButton/OpenInLogsDrilldownButton');
+});
+
+const EmbeddedLogsExploration = lazy(async () => {
+  await initI18n();
+  return import('Components/EmbeddedLogsExploration/EmbeddedLogs');
+});
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
   return (
@@ -24,8 +44,6 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
 }
 
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
-  // Need to init plugin translations or plugins that don't use translations will sometimes break
-  initPluginTranslations(pluginJson.id);
   return (
     <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
       <EmbeddedLogsExploration {...props} />
