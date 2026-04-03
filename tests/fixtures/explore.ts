@@ -196,9 +196,10 @@ export class ExplorePage {
   }
 
   async assertNotLoading() {
-    const locator = this.page.getByText(/loading/i);
+    // Wait until visible loading indicators disappear. In CI, hidden loading elements
+    const locator = this.page.getByText(/loading/i).locator(':visible');
     await expect(locator).toHaveCount(0);
-    const grafanaLoading = this.page.getByLabel(/loading/i);
+    const grafanaLoading = this.page.getByLabel(/loading/i).locator(':visible');
     await expect(grafanaLoading).toHaveCount(0);
   }
 
