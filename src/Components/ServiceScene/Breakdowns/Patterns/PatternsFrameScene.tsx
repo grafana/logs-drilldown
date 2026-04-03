@@ -220,6 +220,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
     const timeSeries = PanelBuilders.timeseries()
       .setData(this.getTimeseriesDataNode(patternFrames))
+      .setOption('annotations', { multiLane: true })
       .setOption('legend', {
         asTable: true,
         displayMode: LegendDisplayMode.Table,

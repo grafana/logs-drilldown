@@ -107,6 +107,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
 
           const timeSeries = PanelBuilders.timeseries()
             .setData(dataNode)
+            .setOption('annotations', { multiLane: true })
             .setHoverHeader(true)
             .setOption('tooltip', {
               mode: TooltipDisplayMode.None,

@@ -484,6 +484,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     let headerActions = [];
     if (queryType === TimeSeriesQueryType.count) {
       body = PanelBuilders.timeseries()
+        .setOption('annotations', { multiLane: true })
         .setTitle(labelName)
         .setData(dataTransformer)
         .setMenu(
@@ -510,7 +511,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       if (panelType === TimeSeriesPanelType.histogram) {
         body = PanelBuilders.histogram();
       } else {
-        body = PanelBuilders.timeseries();
+        body = PanelBuilders.timeseries().setOption('annotations', { multiLane: true });
       }
       body
         .setTitle(labelName)

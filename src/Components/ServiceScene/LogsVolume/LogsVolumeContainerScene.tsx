@@ -12,7 +12,6 @@ import {
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { InsightsWidgetScene } from './InsightsWidgetScene';
 import { LogsVolumePanel } from './LogsVolumePanel';
 
 export interface LogsVolumeContainerSceneState extends SceneObjectState {
@@ -32,11 +31,6 @@ export class LogsVolumeContainerScene extends SceneObjectBase<LogsVolumeContaine
         children: [
           new SceneFlexItem({
             body: new LogsVolumePanel({}),
-          }),
-          new SceneFlexItem({
-            body: new InsightsWidgetScene({}),
-            height: 'auto',
-            minHeight: 'auto',
           }),
         ],
       }),
