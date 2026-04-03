@@ -9,6 +9,7 @@ import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSce
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import initRuntimeDs from 'services/datasource';
+import { getKgSceneProps } from 'services/kgAnnotations';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
 import { addAdHocFilterUserInputPrefix } from 'services/variables';
@@ -78,9 +79,12 @@ export function buildLogsExplorationFromState({
   // Report valid init
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_init);
 
+  const kg = getKgSceneProps();
+
   return new IndexScene({
     ...state,
     $timeRange,
+    ...(kg ? { $data: kg.$data, $behaviors: kg.behaviors, kgAnnotationToggle: kg.controls } : {}),
     defaultLineFilters: lineFilters,
     embedded: true,
     embeddedOptions: options,

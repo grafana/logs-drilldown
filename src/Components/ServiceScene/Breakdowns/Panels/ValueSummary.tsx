@@ -286,6 +286,7 @@ function buildValueSummaryPanel(title: string, options?: { levelColor?: boolean 
   // Field config is overwritten by `syncLabelsValueSummaryVisibleSeries`
   // @todo merge existing options or make sure to set any changes in `setValueSummaryFieldConfigs` as well
   const body = PanelBuilders.timeseries()
+    .setOption('annotations', { multiLane: true })
     .setTitle(title)
     .setMenu(new PanelMenu({}))
     .setCollapsible(true)
