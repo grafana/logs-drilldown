@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import { css } from '@emotion/css';
-
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneObject } from '@grafana/scenes';
-import { Button, EmptyState, Stack, useStyles2 } from '@grafana/ui';
+import { Button, EmptyState, Stack } from '@grafana/ui';
 
 import { getEmptyStateOptions } from 'services/extensions/embedding';
+import { useSharedStyles } from 'styles/shared-styles';
 
 interface Props {
   clearFilters?: () => void;
@@ -20,7 +18,7 @@ interface Props {
 export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
-  const styles = useStyles2(getStyles);
+  const sharedStyles = useSharedStyles();
   const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
@@ -36,12 +34,12 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
   const message = error || t('logs.logs-drilldown.logs-panel-error.default', 'An error occurred');
 
   return (
-    <div className={styles.wrap}>
+    <div className={sharedStyles.emptyStateWrap}>
       <EmptyState variant="not-found" message={message}>
         <Stack justifyContent="center">
           {clearFilters && (
             <Button variant="secondary" onClick={clearFilters}>
-              Clear filters
+              {t('logs.logs-drilldown.logs-panel-error.clear-filters', 'Clear filters')}
             </Button>
           )}
           {errorType === 'no-logs' && assistantAvailable && (
@@ -66,17 +64,4 @@ function solveWithAssistant(
     origin: 'logs-drilldown-empty-results',
     prompt,
   });
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrap: css({
-      width: '100%',
-      minHeight: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-start',
-      padding: theme.spacing(2),
-    }),
-  };
 }

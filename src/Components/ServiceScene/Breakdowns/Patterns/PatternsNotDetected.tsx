@@ -60,7 +60,8 @@ export const PatternsTooOld = () => {
       variant="not-found"
       message={t(
         'logs.logs-drilldown.patterns.too-old-title',
-        `Patterns are only available for the most recent ${PATTERNS_MAX_AGE_HOURS} hours of data.`
+        'Patterns are only available for the most recent {{maxAgeHours}} hours of data.',
+        { maxAgeHours: PATTERNS_MAX_AGE_HOURS }
       )}
     >
       <p>

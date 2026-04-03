@@ -34,12 +34,14 @@ export interface PatternsBreakdownSceneState extends SceneObjectState {
   blockingMessage?: string;
   body?: SceneFlexLayout;
   error?: boolean;
-  // Subset of patternFrames, undefined if empty, empty array if search results returned nothing (no data)
+  // Subset of patternFrames used for client-side pattern text filtering.
+  // undefined means no filter applied, empty array means filter applied but no matches.
   filteredPatterns?: PatternFrame[];
   loading?: boolean;
   patternFilter: string;
 
-  // The dataframe built from the patterns that we get back from the loki Patterns API
+  // Pattern frames built from Loki Patterns API results.
+  // undefined means no pattern data returned for current filters; [] means API returned data structure with zero rows.
   patternFrames?: PatternFrame[];
   value?: string;
 }

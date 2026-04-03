@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-import { css } from '@emotion/css';
-
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Button, EmptyState, Stack, useStyles2 } from '@grafana/ui';
+import { Button, EmptyState, Stack } from '@grafana/ui';
 
 import { emptyStateStyles } from './FieldsBreakdownScene';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
+import { useSharedStyles } from 'styles/shared-styles';
 
 export interface ClearFiltersLayoutSceneState extends SceneObjectState {
   clearCallback: () => void;
@@ -20,7 +18,7 @@ export class NoMatchingLabelsScene extends SceneObjectBase<ClearFiltersLayoutSce
 }
 
 function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabelsScene>) {
-  const styles = useStyles2(getStyles);
+  const sharedStyles = useSharedStyles();
   const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
   const { clearCallback, type = 'labels' } = model.useState();
 
@@ -33,7 +31,7 @@ function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabe
   const embeddedOptions = getEmptyStateOptions(type, model);
 
   return (
-    <div className={styles.wrap}>
+    <div className={sharedStyles.emptyStateWrap}>
       <EmptyState
         variant="not-found"
         message={t('logs.logs-drilldown.no-matching-labels.title', 'No {{type}} match these filters.', { type })}
@@ -65,17 +63,4 @@ function solveWithAssistant(
     origin: 'logs-drilldown-empty-results',
     prompt,
   });
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    wrap: css({
-      width: '100%',
-      minHeight: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-start',
-      padding: theme.spacing(2),
-    }),
-  };
 }
