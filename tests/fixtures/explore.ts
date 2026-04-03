@@ -195,9 +195,11 @@ export class ExplorePage {
   }
 
   async assertNotLoading() {
-    const locator = this.page.getByText(/loading/i);
+    // Match the plugin's specific loading placeholders rather than any text containing "loading",
+    // which can match unrelated elements like Grafana's "Error loading RSS feed" on the home page.
+    const locator = this.page.getByText('Loading...', { exact: true });
     await expect(locator).toHaveCount(0);
-    const grafanaLoading = this.page.getByLabel(/loading/i);
+    const grafanaLoading = this.page.getByLabel('Panel loading bar');
     await expect(grafanaLoading).toHaveCount(0);
   }
 
