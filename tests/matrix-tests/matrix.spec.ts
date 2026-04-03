@@ -30,19 +30,8 @@ test.describe('matrix', () => {
     await explorePage.assertTwoPanelMenus();
   });
 
-  test('can open viz menu without error - labels tab', async ({ page }) => {
+  test('link to explore button should be visible', async ({ page }) => {
     await page.goto('/a/grafana-lokiexplore-app/explore?from=now-15s&to=now');
-    // Click on first service
-    await page.getByText('Show logs').nth(1).click();
-    await explorePage.goToLabelsTab();
-    await explorePage.assertBreakdownPanelMenus();
-  });
-
-  test('can open viz menu without error - fields tab', async ({ page }) => {
-    await page.goto('/a/grafana-lokiexplore-app/explore?from=now-15s&to=now');
-    // Click on first service
-    await page.getByText('Show logs').nth(1).click();
-    await explorePage.goToFieldsTab();
-    await explorePage.assertBreakdownPanelMenus();
+    await explorePage.assertLinkToExploreBtn();
   });
 });

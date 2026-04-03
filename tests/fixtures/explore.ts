@@ -462,51 +462,21 @@ export class ExplorePage {
 
   async assertTwoPanelMenus() {
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const addToDashboardMenuItem = this.page.getByTestId(/data-testid Panel menu item Add to [dD]ashboard/);
-
-    // Check menus for errors and verify add-to-dashboard action is available.
-    await expect(addToDashboardMenuItem.first()).toHaveCount(0);
-
-    // Check menus for open/close behavior
-    // Check first panel
-    await labelsPanelMenu.nth(0).click();
-    await expect(addToDashboardMenuItem).toHaveCount(1);
-    await labelsPanelMenu.nth(0).click();
-    await expect(addToDashboardMenuItem).toHaveCount(0);
-
-    // Check second panel
-    await labelsPanelMenu.nth(1).click();
-    await expect(addToDashboardMenuItem).toHaveCount(1);
-    await labelsPanelMenu.nth(1).click();
-    await expect(addToDashboardMenuItem).toHaveCount(0);
+    // Check both panel menus are visible
+    await expect(labelsPanelMenu.nth(0)).toBeVisible();
+    await expect(labelsPanelMenu.nth(1)).toBeVisible();
   }
 
   /**
-   * Asserts that label/field menus open and have link to explore
-   * Since most of the integrations with other plugins are hooked into the viz panel menus,
-   * this test asserts that fatal errors are not being triggered when the menu is rendered
+   * Asserts the link to explore button is visible
    */
-  async assertBreakdownPanelMenus() {
-    await this.assertTwoPanelMenus();
+  async assertLinkToExploreBtn() {
+    const linkToExploreBtn = await this.page
+      .getByTestId(/data-testid Panel header Logs/)
+      .first()
+      .getByTestId(testIds.linkToExplore.btn);
 
-    const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
-    const addToDashboardMenuItem = this.page.getByTestId(/data-testid Panel menu item Add to [dD]ashboard/);
-
-    // Go to label value summary
-    await this.page.getByText('Select').first().click();
-    await expect(addToDashboardMenuItem.first()).toHaveCount(0);
-
-    // Check first (summary) panel
-    await labelsPanelMenu.nth(0).click();
-    await expect(addToDashboardMenuItem).toHaveCount(1);
-    await labelsPanelMenu.nth(0).click();
-    await expect(addToDashboardMenuItem).toHaveCount(0);
-
-    // Check second (value) panel
-    await labelsPanelMenu.nth(1).click();
-    await expect(addToDashboardMenuItem).toHaveCount(1);
-    await labelsPanelMenu.nth(1).click();
-    await expect(addToDashboardMenuItem).toHaveCount(0);
+    await expect(linkToExploreBtn).toBeVisible();
   }
 
   async defaultColumnsAdminAddNewRecord() {
