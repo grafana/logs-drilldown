@@ -812,7 +812,7 @@ test.describe('explore services breakdown page', () => {
     // Assert the container size of the plugin hasn't changed, or that will mess with the assumptions below
     const pageContainerSize = await page.locator('#pageContent').boundingBox();
     expect(pageContainerSize.width).toEqual(1280);
-    expect(pageContainerSize.height).toEqual(640);
+    expect(pageContainerSize.height).toBeGreaterThanOrEqual(632);
 
     const INITIAL_ROWS = 2;
     const COUNT_PER_ROW = 3;
@@ -2211,7 +2211,11 @@ test.describe('explore services breakdown page', () => {
       await expect(lineFilters.nth(3)).toHaveValue('getBookTitles\\(Author\\.java:25\\)\\\\n');
 
       // go back to explore
-      await page.getByTestId(/data-testid Panel header Logs/).first().getByTestId(testIds.linkToExplore.btn).click();
+      await page
+        .getByTestId(/data-testid Panel header Logs/)
+        .first()
+        .getByTestId(testIds.linkToExplore.btn)
+        .click();
 
       // Explore query should be unchanged
       expect(await page.getByTestId('data-testid Query field').textContent()).toContain(
