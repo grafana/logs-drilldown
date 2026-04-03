@@ -364,6 +364,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
 
     let bodyOpts = PanelBuilders.timeseries();
     bodyOpts = bodyOpts
+      .setOption('annotations', { multiLane: true })
       .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
       .setCustomFieldConfig('fillOpacity', 100)
       .setCustomFieldConfig('lineWidth', 0)

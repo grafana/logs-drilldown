@@ -214,6 +214,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
       children.push(
         new SceneCSSGridItem({
           body: PanelBuilders.timeseries()
+            .setOption('annotations', { multiLane: true })
             .setTitle(optionValue)
             .setData(queryRunner)
             .setHeaderActions([new SelectLabelActionScene({ fieldType: ValueSlugs.label, labelName: optionValue })])
