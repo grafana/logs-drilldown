@@ -32,6 +32,7 @@ test.describe('matrix', () => {
 
   test('link to explore button should be visible', async ({ page }) => {
     await page.goto('/a/grafana-lokiexplore-app/explore?from=now-15s&to=now');
+    await page.getByText('Show logs').nth(1).click();
     await explorePage.assertLinkToExploreBtn();
   });
 });
