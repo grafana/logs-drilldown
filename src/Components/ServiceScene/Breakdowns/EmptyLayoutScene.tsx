@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
+import { css } from '@emotion/css';
+
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Box, Button, EmptyState } from '@grafana/ui';
+import { Box, Button, EmptyState, useStyles2 } from '@grafana/ui';
 
 import { emptyStateStyles } from './FieldsBreakdownScene';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
@@ -17,6 +20,7 @@ export class EmptyLayoutScene extends SceneObjectBase<EmptyLayoutSceneState> {
 }
 
 function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) {
+  const styles = useStyles2(getStyles);
   const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
   const { type } = model.useState();
 
@@ -30,32 +34,34 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
   const embeddedOptions = getEmptyStateOptions(type, model);
 
   return (
-    <EmptyState
-      variant="not-found"
-      message={t('logs.logs-drilldown.empty-layout.title', `We did not find any ${type} for the given timerange.`)}
-    >
-      {t('logs.logs-drilldown.empty-layout.prefix', 'Please')}{' '}
-      <a
-        className={emptyStateStyles.link}
-        href="https://forms.gle/1sYWCTPvD72T1dPH9"
-        target="_blank"
-        rel="noopener noreferrer"
+    <div className={styles.wrap}>
+      <EmptyState
+        variant="not-found"
+        message={t('logs.logs-drilldown.empty-layout.title', `We did not find any ${type} for the given timerange.`)}
       >
-        {t('logs.logs-drilldown.empty-layout.link', 'let us know')}
-      </a>{' '}
-      {t('logs.logs-drilldown.empty-layout.suffix', 'if you think this is a mistake.')}
-      <Box marginTop={1} justifyContent="center">
-        {assistantAvailable && (
-          <Button
-            variant="secondary"
-            onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
-            icon="ai-sparkle"
-          >
-            {embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
-          </Button>
-        )}
-      </Box>
-    </EmptyState>
+        {t('logs.logs-drilldown.empty-layout.prefix', 'Please')}{' '}
+        <a
+          className={emptyStateStyles.link}
+          href="https://forms.gle/1sYWCTPvD72T1dPH9"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('logs.logs-drilldown.empty-layout.link', 'let us know')}
+        </a>{' '}
+        {t('logs.logs-drilldown.empty-layout.suffix', 'if you think this is a mistake.')}
+        <Box marginTop={1} justifyContent="center">
+          {assistantAvailable && (
+            <Button
+              variant="secondary"
+              onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
+              icon="ai-sparkle"
+            >
+              {embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
+            </Button>
+          )}
+        </Box>
+      </EmptyState>
+    </div>
   );
 }
 
@@ -67,4 +73,17 @@ function solveWithAssistant(
     origin: 'logs-drilldown-empty-results',
     prompt,
   });
+}
+
+function getStyles(theme: GrafanaTheme2) {
+  return {
+    wrap: css({
+      width: '100%',
+      minHeight: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      padding: theme.spacing(2),
+    }),
+  };
 }
