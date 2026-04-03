@@ -68,6 +68,19 @@ describe('PatternsBreakdownScene', () => {
 
       expect(screen.getByText(/Sorry, we could not detect any patterns/)).toBeInTheDocument();
     });
+
+    it('renders no-match empty state when patternFrames is undefined', () => {
+      mockGetTimeRange.mockReturnValue(createTimeRangeMock(dateTime()));
+
+      const scene = new PatternsBreakdownScene({
+        error: false,
+        loading: false,
+        patternFrames: undefined,
+      });
+      render(<scene.Component model={scene} />);
+
+      expect(screen.getByText('No patterns match these filters.')).toBeInTheDocument();
+    });
   });
 
   describe('constructor', () => {

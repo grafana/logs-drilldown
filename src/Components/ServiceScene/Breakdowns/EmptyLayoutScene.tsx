@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Alert, Box, Button } from '@grafana/ui';
+import { Box, Button, EmptyState } from '@grafana/ui';
 
-import { GrotError } from '../../GrotError';
 import { emptyStateStyles } from './FieldsBreakdownScene';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
 
@@ -30,19 +30,20 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
   const embeddedOptions = getEmptyStateOptions(type, model);
 
   return (
-    <GrotError>
-      <Alert title="" severity="warning">
-        We did not find any {type} for the given timerange. Please{' '}
-        <a
-          className={emptyStateStyles.link}
-          href="https://forms.gle/1sYWCTPvD72T1dPH9"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          let us know
-        </a>{' '}
-        if you think this is a mistake.
-      </Alert>
+    <EmptyState
+      variant="not-found"
+      message={t('logs.logs-drilldown.empty-layout.title', `We did not find any ${type} for the given timerange.`)}
+    >
+      {t('logs.logs-drilldown.empty-layout.prefix', 'Please')}{' '}
+      <a
+        className={emptyStateStyles.link}
+        href="https://forms.gle/1sYWCTPvD72T1dPH9"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {t('logs.logs-drilldown.empty-layout.link', 'let us know')}
+      </a>{' '}
+      {t('logs.logs-drilldown.empty-layout.suffix', 'if you think this is a mistake.')}
       <Box marginTop={1} justifyContent="center">
         {assistantAvailable && (
           <Button
@@ -54,7 +55,7 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
           </Button>
         )}
       </Box>
-    </GrotError>
+    </EmptyState>
   );
 }
 

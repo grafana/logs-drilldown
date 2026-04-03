@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { SceneObject } from '@grafana/scenes';
-import { Button, Stack } from '@grafana/ui';
+import { css } from '@emotion/css';
 
-import { GrotError } from 'Components/GrotError';
+import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
+import { SceneObject } from '@grafana/scenes';
+import { Button, EmptyState, Stack, useStyles2 } from '@grafana/ui';
+
 import { getEmptyStateOptions } from 'services/extensions/embedding';
 
 interface Props {
@@ -17,6 +20,7 @@ interface Props {
 export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
+  const styles = useStyles2(getStyles);
   const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
@@ -29,11 +33,11 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
   }, [errorType]);
 
   const embeddedOptions = getEmptyStateOptions('logs', sceneRef);
+  const message = error || t('logs.logs-drilldown.logs-panel-error.default', 'An error occurred');
 
   return (
-    <GrotError>
-      <div>
-        <p>{error}</p>
+    <div className={styles.wrap}>
+      <EmptyState variant="not-found" message={message}>
         <Stack justifyContent="center">
           {clearFilters && (
             <Button variant="secondary" onClick={clearFilters}>
@@ -50,8 +54,8 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
             </Button>
           )}
         </Stack>
-      </div>
-    </GrotError>
+      </EmptyState>
+    </div>
   );
 };
 
@@ -62,4 +66,17 @@ function solveWithAssistant(
     origin: 'logs-drilldown-empty-results',
     prompt,
   });
+}
+
+function getStyles(theme: GrafanaTheme2) {
+  return {
+    wrap: css({
+      width: '100%',
+      minHeight: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      padding: theme.spacing(2),
+    }),
+  };
 }
