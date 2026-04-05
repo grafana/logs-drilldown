@@ -1,57 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 
 import { css } from '@emotion/css';
-import { DataFrame, DataQueryRequest, dateTime, FieldType, GrafanaTheme2 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Spinner, useStyles2 } from '@grafana/ui';
-import { lastValueFrom } from 'rxjs';
-
-import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
-
-// Pretty-name overrides for known Faro fields applied to dynamically detected fields.
-// Any field not in this map will display with its raw field name as the label.
-// Note: priority attributes defined in ErrorsAnalysis.tsx carry their own labels and
-// take precedence -- this map only affects fields that appear outside the priority list.
-// Both lists are provisional; see ErrorsAnalysis.tsx comment.
-const FARO_LABEL_MAP: Record<string, string> = {
-  app_version: 'Version',
-  browser_name: 'Browser',
-  country_iso: 'Location',
-  os_name: 'OS / Device',
-  page_id: 'View / Page',
-};
-
-// Fields that are not useful for distribution analysis: stream selector
-// labels, error-grouping keys, raw log body, high-noise timestamp fields,
-// and unique-per-occurrence identifiers.
-const FIELDS_TO_EXCLUDE = new Set([
-  // Stream selector labels
-  'app_id',
-  'kind',
-  // Error grouping keys
-  'attribute_hash',
-  'hash',
-  // Unique-per-occurrence identifiers (too high cardinality to be useful)
-  'app',
-  'session_id',
-  'trace_id',
-  'span_id',
-  'user_id',
-  // Free-text / high-cardinality content fields
-  'stacktrace',
-  'value',
-  'body',
-  'message',
-  'msg',
-  // Noise / internal fields
-  'level',
-  'level_extracted',
-  'kind_extracted',
-  'time',
-  'timestamp',
-  'ts',
-  'tsNs',
-]);
 
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
@@ -61,10 +12,18 @@ export interface AttributeConfig {
   label: string;
 }
 
-interface LabelValueCount {
+export interface LabelValueCount {
   value: string;
   count: number;
   percentage: number;
+}
+
+// The slice of state the component needs to fetch data.
+// The consumer builds this from its own datasource + query knowledge.
+export interface DatasetContext {
+  datasourceUid: string;
+  query: string;
+  timeRange: { from: number; to: number };
 }
 
 interface AttributeState {
@@ -171,27 +130,6 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export interface AttributeDistributionProps {
-  appId: string;
-  datasourceUid: string;
-  errorHash: string;
-  timeRange: { from: number; to: number };
-  onFilterApply?: (label: string, value: string) => void;
-  // Priority attributes are pinned to the top of the list, in the order given,
-  // before dynamically detected fields. Only priority attributes that are also
-  // present in the detected set are shown -- undetected ones are silently dropped.
-  // If not provided, detected fields appear in Loki's returned order.
-  // The list and its ordering should be defined by the consumer, not this component.
-  priorityAttributes?: AttributeConfig[];
-  // Optional label displayed at the top of the sidebar to communicate the scope
-  // of the dataset to the user. The consumer sets this because it knows what limit
-  // its query applies -- the component just renders it.
-  // Example values: "Last 1000 logs", "Slowest 1000 traces"
-  // Use this whenever the underlying query caps the number of events so users
-  // understand the distributions are based on a sample, not the full dataset.
-  queryLimitLabel?: string;
-}
-
 // Reorders detected attributes so that any fields named in priorityAttributes
 // appear first (in priority order), followed by the remaining detected fields.
 // Priority attributes not present in the detected set are dropped.
@@ -206,131 +144,38 @@ function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[
   return [...priorityFirst, ...rest];
 }
 
-function buildErrorStreamSelector(appId: string, errorHash: string): string {
-  return `{app_id="${appId}", kind="exception"} | logfmt | attribute_hash="${errorHash}" or hash="${errorHash}"`;
-}
-
-function buildDistributionQuery(appId: string, errorHash: string, field: string): string {
-  return (
-    `sum by (${field}) (` +
-    `count_over_time(` +
-    `{app_id="${appId}", kind="exception"} | logfmt ` +
-    `| attribute_hash="${errorHash}" or hash="${errorHash}" ` +
-    `| keep ${field} ` +
-    `[$__range]` +
-    `))`
-  );
-}
-
-async function fetchDetectedFields(
-  datasourceUid: string,
-  appId: string,
-  errorHash: string,
-  timeRange: { from: number; to: number }
-): Promise<AttributeConfig[]> {
-  const ds = (await getDataSourceSrv().get(datasourceUid)) as LokiDatasource;
-  const query = buildErrorStreamSelector(appId, errorHash);
-
-  const response = (await (ds as any).getResource(
-    'detected_fields',
-    {
-      end: dateTime(timeRange.to).utc().toISOString(),
-      query,
-      start: dateTime(timeRange.from).utc().toISOString(),
-    },
-    { requestId: 'errors-detected-fields' }
-  )) as { fields?: Array<{ label: string }> };
-
-  return (response.fields ?? [])
-    .filter((f: { label: string }) => !FIELDS_TO_EXCLUDE.has(f.label))
-    .map((f: { label: string }) => ({
-      field: f.label,
-      label: FARO_LABEL_MAP[f.label] ?? f.label,
-    }));
-}
-
-async function fetchLabelDistribution(
-  datasourceUid: string,
-  appId: string,
-  errorHash: string,
-  field: string,
-  timeRange: { from: number; to: number }
-): Promise<LabelValueCount[]> {
-  const ds = (await getDataSourceSrv().get(datasourceUid)) as LokiDatasource;
-  const rangeSec = Math.max(1, Math.round((timeRange.to - timeRange.from) / 1000));
-
-  const target: LokiQuery = {
-    datasource: { type: 'loki', uid: datasourceUid },
-    expr: buildDistributionQuery(appId, errorHash, field),
-    queryType: 'instant',
-    refId: field,
-  };
-
-  const request: DataQueryRequest<LokiQuery> = {
-    app: 'explore',
-    interval: `${rangeSec}s`,
-    intervalMs: rangeSec * 1000,
-    range: {
-      from: dateTime(timeRange.from),
-      raw: { from: dateTime(timeRange.from).utc().toISOString(), to: dateTime(timeRange.to).utc().toISOString() },
-      to: dateTime(timeRange.to),
-    },
-    requestId: `errors-breakdown-${field}`,
-    scopedVars: {},
-    startTime: Date.now(),
-    targets: [target],
-    timezone: 'browser',
-  };
-
-  const response = await lastValueFrom(ds.query(request));
-
-  const counts: Array<{ value: string; count: number }> = [];
-
-  response.data.forEach((frame: DataFrame) => {
-    // Loki returns numeric-multi frames in wide format: one row per unique label value.
-    // The label values are in a string field named after the queried field.
-    // The counts are in the corresponding number field.
-    const labelField = frame.fields.find((f) => f.type === FieldType.string && f.name === field);
-    const valueField = frame.fields.find((f) => f.type === FieldType.number);
-
-    if (!labelField || !valueField) {
-      return;
-    }
-
-    function getValue(values: unknown, i: number): unknown {
-      if (typeof (values as any)?.get === 'function') {
-        return (values as any).get(i);
-      }
-      return (values as any)[i];
-    }
-
-    for (let i = 0; i < frame.length; i++) {
-      const labelValue = String(getValue(labelField.values, i) ?? '');
-      const count = Number(getValue(valueField.values, i));
-      if (labelValue && !isNaN(count) && count > 0) {
-        counts.push({ count, value: labelValue });
-      }
-    }
-  });
-
-  const total = counts.reduce((sum, c) => sum + c.count, 0);
-  if (total === 0) {
-    return [];
-  }
-
-  return counts
-    .map((c) => ({ ...c, percentage: Math.round((c.count / total) * 100) }))
-    .sort((a, b) => b.percentage - a.percentage);
+export interface AttributeDistributionProps {
+  context: DatasetContext;
+  // Adapter function -- provided by the consumer. Returns detected fields for
+  // the given context. The consumer is responsible for filtering, label mapping,
+  // and any dataset-specific field discovery logic.
+  fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
+  // Adapter function -- provided by the consumer. Returns value counts for a
+  // single field within the dataset described by context.
+  fetchDistribution: (context: DatasetContext, field: string) => Promise<LabelValueCount[]>;
+  onFilterApply?: (label: string, value: string) => void;
+  // Priority attributes are pinned to the top of the list, in the order given,
+  // before dynamically detected fields. Only priority attributes that are also
+  // present in the detected set are shown -- undetected ones are silently dropped.
+  // If not provided, detected fields appear in the order returned by fetchAttributes.
+  // The list and its ordering should be defined by the consumer, not this component.
+  priorityAttributes?: AttributeConfig[];
+  // Optional label displayed at the top of the sidebar to communicate the scope
+  // of the dataset to the user. The consumer sets this because it knows what limit
+  // its query applies -- the component just renders it.
+  // Example values: "Last 1000 logs", "Slowest 1000 traces"
+  // Use this whenever the underlying query caps the number of events so users
+  // understand the distributions are based on a sample, not the full dataset.
+  queryLimitLabel?: string;
 }
 
 export function AttributeDistribution({
-  appId,
-  datasourceUid,
-  errorHash,
+  context,
+  fetchAttributes,
+  fetchDistribution,
   onFilterApply,
   priorityAttributes = [],
   queryLimitLabel,
-  timeRange,
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [newFieldInput, setNewFieldInput] = useState('');
@@ -341,7 +186,7 @@ export function AttributeDistribution({
     detecting: false,
   });
 
-  const fetchDistributions = useCallback(
+  const loadDistributions = useCallback(
     async (attributes: AttributeConfig[]) => {
       if (!attributes.length) {
         return;
@@ -352,7 +197,7 @@ export function AttributeDistribution({
       await Promise.allSettled(
         attributes.map(async (attr) => {
           try {
-            const values = await fetchLabelDistribution(datasourceUid, appId, errorHash, attr.field, timeRange);
+            const values = await fetchDistribution(context, attr.field);
             dispatch({ type: 'LOADED', field: attr.field, values });
           } catch {
             dispatch({ type: 'ERROR', field: attr.field });
@@ -360,11 +205,14 @@ export function AttributeDistribution({
         })
       );
     },
-    [appId, datasourceUid, errorHash, timeRange]
+    // fetchDistribution is stable (module-level function); context fields are the
+    // true dependencies. Listing context object directly would re-run on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to]
   );
 
   useEffect(() => {
-    if (!datasourceUid || !appId || !errorHash) {
+    if (!context.datasourceUid || !context.query) {
       return;
     }
 
@@ -374,7 +222,7 @@ export function AttributeDistribution({
       dispatch({ type: 'DETECTING' });
       let detected: AttributeConfig[] = [];
       try {
-        detected = await fetchDetectedFields(datasourceUid, appId, errorHash, timeRange);
+        detected = await fetchAttributes(context);
       } catch {
         // fall through with empty list -- user can still add fields manually
       }
@@ -383,7 +231,7 @@ export function AttributeDistribution({
       }
       const ordered = orderByPriority(detected, priorityAttributes);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
-      fetchDistributions(ordered);
+      loadDistributions(ordered);
     }
 
     run();
@@ -391,18 +239,22 @@ export function AttributeDistribution({
     return () => {
       cancelled = true;
     };
+    // fetchAttributes is stable (module-level function); context fields and
+    // priorityAttributes are the true dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appId, errorHash, datasourceUid, timeRange.from, timeRange.to]);
+  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes]);
 
   function handleAddField() {
     const field = newFieldInput.trim();
     if (!field) {
       return;
     }
-    const config: AttributeConfig = { field, label: FARO_LABEL_MAP[field] ?? field };
+    // Use the raw field name as the label -- the consumer's label mapping only
+    // applies to the detected field list returned by fetchAttributes.
+    const config: AttributeConfig = { field, label: field };
     dispatch({ type: 'ADD_ATTRIBUTE', config });
     setNewFieldInput('');
-    fetchDistributions([config]);
+    loadDistributions([config]);
   }
 
   return (

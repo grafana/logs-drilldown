@@ -1,16 +1,168 @@
 import React from 'react';
 
-import { AttributeDistribution } from './AttributeDistribution';
+import { DataFrame, DataQueryRequest, dateTime, FieldType } from '@grafana/data';
+import { getDataSourceSrv } from '@grafana/runtime';
+import { lastValueFrom } from 'rxjs';
+
+import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
+import { AttributeConfig, AttributeDistribution, DatasetContext, LabelValueCount } from './AttributeDistribution';
+
+// Fields that are not useful for distribution analysis in a Faro error context:
+// stream selector labels, error-grouping keys, raw log body, high-noise timestamp
+// fields, and unique-per-occurrence identifiers.
+// This list is owned here because it is Faro/app-o11y domain knowledge -- it does
+// not belong in the generic AttributeDistribution component.
+const FIELDS_TO_EXCLUDE = new Set([
+  // Stream selector labels
+  'app_id',
+  'kind',
+  // Error grouping keys
+  'attribute_hash',
+  'hash',
+  // Unique-per-occurrence identifiers (too high cardinality to be useful)
+  'app',
+  'session_id',
+  'trace_id',
+  'span_id',
+  'user_id',
+  // Free-text / high-cardinality content fields
+  'stacktrace',
+  'value',
+  'body',
+  'message',
+  'msg',
+  // Noise / internal fields
+  'level',
+  'level_extracted',
+  'kind_extracted',
+  'time',
+  'timestamp',
+  'ts',
+  'tsNs',
+]);
+
+// Display name overrides for known Faro fields.
+// Any field not in this map will display with its raw field name as the label.
+// Provisional -- field names and display labels need review against the Faro SDK
+// spec and sign-off from the team before being considered canonical.
+const FARO_LABEL_MAP: Record<string, string> = {
+  app_version: 'Version',
+  browser_name: 'Browser',
+  country_iso: 'Location',
+  os_name: 'OS / Device',
+  page_id: 'View / Page',
+};
+
+// Appends a per-field metric aggregation around the base log query.
+// The base query must already include logfmt and any hash filters so that
+// [$__range] counts only events in this error group.
+function buildDistributionQuery(baseQuery: string, field: string): string {
+  return `sum by (${field}) (count_over_time(${baseQuery} | keep ${field} [$__range]))`;
+}
+
+async function fetchAttributes(context: DatasetContext): Promise<AttributeConfig[]> {
+  const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
+
+  const response = (await (ds as any).getResource(
+    'detected_fields',
+    {
+      end: dateTime(context.timeRange.to).utc().toISOString(),
+      query: context.query,
+      start: dateTime(context.timeRange.from).utc().toISOString(),
+    },
+    { requestId: 'errors-detected-fields' }
+  )) as { fields?: Array<{ label: string }> };
+
+  return (response.fields ?? [])
+    .filter((f) => !FIELDS_TO_EXCLUDE.has(f.label))
+    .map((f) => ({
+      field: f.label,
+      label: FARO_LABEL_MAP[f.label] ?? f.label,
+    }));
+}
+
+async function fetchDistribution(context: DatasetContext, field: string): Promise<LabelValueCount[]> {
+  const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
+  const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
+
+  const target: LokiQuery = {
+    datasource: { type: 'loki', uid: context.datasourceUid },
+    expr: buildDistributionQuery(context.query, field),
+    queryType: 'instant',
+    refId: field,
+  };
+
+  const request: DataQueryRequest<LokiQuery> = {
+    app: 'explore',
+    interval: `${rangeSec}s`,
+    intervalMs: rangeSec * 1000,
+    range: {
+      from: dateTime(context.timeRange.from),
+      raw: {
+        from: dateTime(context.timeRange.from).utc().toISOString(),
+        to: dateTime(context.timeRange.to).utc().toISOString(),
+      },
+      to: dateTime(context.timeRange.to),
+    },
+    requestId: `errors-breakdown-${field}`,
+    scopedVars: {},
+    startTime: Date.now(),
+    targets: [target],
+    timezone: 'browser',
+  };
+
+  const response = await lastValueFrom(ds.query(request));
+
+  const counts: Array<{ value: string; count: number }> = [];
+
+  response.data.forEach((frame: DataFrame) => {
+    // Loki returns numeric-multi frames in wide format: one row per unique label value.
+    // The label values are in a string field named after the queried field.
+    // The counts are in the corresponding number field.
+    const labelField = frame.fields.find((f) => f.type === FieldType.string && f.name === field);
+    const valueField = frame.fields.find((f) => f.type === FieldType.number);
+
+    if (!labelField || !valueField) {
+      return;
+    }
+
+    function getValue(values: unknown, i: number): unknown {
+      if (typeof (values as any)?.get === 'function') {
+        return (values as any).get(i);
+      }
+      return (values as any)[i];
+    }
+
+    for (let i = 0; i < frame.length; i++) {
+      const labelValue = String(getValue(labelField.values, i) ?? '');
+      const count = Number(getValue(valueField.values, i));
+      if (labelValue && !isNaN(count) && count > 0) {
+        counts.push({ count, value: labelValue });
+      }
+    }
+  });
+
+  const total = counts.reduce((sum, c) => sum + c.count, 0);
+  if (total === 0) {
+    return [];
+  }
+
+  return counts
+    .map((c) => ({ ...c, percentage: Math.round((c.count / total) * 100) }))
+    .sort((a, b) => b.percentage - a.percentage);
+}
 
 export interface ErrorsAnalysisProps {
-  appId: string;
   datasourceUid: string;
-  errorHash: string;
+  // The full Loki log query for this error group, including any active filters.
+  // Built and interpolated by the consuming app -- logs-drilldown does not construct
+  // or modify it.
+  query: string;
   timeRange: { from: number; to: number };
   onFilterApply?: (label: string, value: string) => void;
   // Optional ordered list of attributes to pin first in the distribution sidebar.
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
-  // If not provided, detected fields appear in Loki's returned order.
+  // If not provided, detected fields appear in the order returned by fetchAttributes.
   priorityAttributes?: Array<{ field: string; label: string }>;
   // Optional label shown at the top of the sidebar communicating the dataset scope.
   // Set this when the underlying query caps the number of events so users understand
@@ -19,6 +171,24 @@ export interface ErrorsAnalysisProps {
   queryLimitLabel?: string;
 }
 
-export default function ErrorsAnalysis(props: ErrorsAnalysisProps) {
-  return <AttributeDistribution {...props} />;
+export default function ErrorsAnalysis({
+  datasourceUid,
+  query,
+  timeRange,
+  onFilterApply,
+  priorityAttributes,
+  queryLimitLabel,
+}: ErrorsAnalysisProps) {
+  const context: DatasetContext = { datasourceUid, query, timeRange };
+
+  return (
+    <AttributeDistribution
+      context={context}
+      fetchAttributes={fetchAttributes}
+      fetchDistribution={fetchDistribution}
+      onFilterApply={onFilterApply}
+      priorityAttributes={priorityAttributes}
+      queryLimitLabel={queryLimitLabel}
+    />
+  );
 }
