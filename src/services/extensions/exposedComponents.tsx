@@ -3,6 +3,7 @@ import React, { lazy, Suspense } from 'react';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
+import { ErrorsAnalysisProps } from 'Components/ErrorsAnalysis/ErrorsAnalysis';
 import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
@@ -29,6 +30,8 @@ const EmbeddedLogsExploration = lazy(async () => {
   return import('Components/EmbeddedLogsExploration/EmbeddedLogs');
 });
 
+const ErrorsAnalysis = lazy(() => import('Components/ErrorsAnalysis/ErrorsAnalysis'));
+
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
   return (
     <Suspense
@@ -47,6 +50,14 @@ export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationP
   return (
     <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
       <EmbeddedLogsExploration {...props} />
+    </Suspense>
+  );
+}
+
+export function SuspendedErrorsAnalysis(props: ErrorsAnalysisProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ErrorsAnalysis {...props} />
     </Suspense>
   );
 }

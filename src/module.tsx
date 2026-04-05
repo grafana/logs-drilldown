@@ -6,6 +6,7 @@ import type { JsonData } from './Components/AppConfig/AppConfig';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
+  SuspendedErrorsAnalysis,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
 import { functionConfigs, linkConfigs } from 'services/extensions/links';
@@ -100,9 +101,9 @@ for (const functionConfig of functionConfigs) {
 
 plugin.exposeComponent({
   component: SuspendedOpenInLogsDrilldownButton,
-  description: 'A button that opens a logs view in the Logs Drilldown app.',
+  description: 'dsfasdfasdga A button that opens a logs view in the Logs Drilldown app.',
   id: `grafana-lokiexplore-app/open-in-explore-logs-button/v1`,
-  title: 'Open in Logs Drilldown button',
+  title: 'gsdfgsdfgsdf Open in Logs Drilldown button',
 });
 
 plugin.exposeComponent({
@@ -110,4 +111,11 @@ plugin.exposeComponent({
   description: 'A component that renders a logs exploration view that can be embedded in other parts of Grafana.',
   id: `grafana-lokiexplore-app/embedded-logs-exploration/v1`,
   title: 'Embedded Logs Exploration',
+});
+
+plugin.exposeComponent({
+  component: SuspendedErrorsAnalysis,
+  description: 'An errors analysis view for a given Faro app.',
+  id: `grafana-lokiexplore-app/errors-analysis/v1`,
+  title: 'Errors Analysis',
 });

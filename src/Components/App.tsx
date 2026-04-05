@@ -36,6 +36,7 @@ const App = (props: AppRootProps) => {
 
   return (
     <PluginPropsContext.Provider value={props}>
+      <>FUUUCKCKKKKK</>
       <LogExplorationView />
     </PluginPropsContext.Provider>
   );
