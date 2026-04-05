@@ -183,6 +183,13 @@ export interface AttributeDistributionProps {
   // If not provided, detected fields appear in Loki's returned order.
   // The list and its ordering should be defined by the consumer, not this component.
   priorityAttributes?: AttributeConfig[];
+  // Optional label displayed at the top of the sidebar to communicate the scope
+  // of the dataset to the user. The consumer sets this because it knows what limit
+  // its query applies -- the component just renders it.
+  // Example values: "Last 1000 logs", "Slowest 1000 traces"
+  // Use this whenever the underlying query caps the number of events so users
+  // understand the distributions are based on a sample, not the full dataset.
+  queryLimitLabel?: string;
 }
 
 // Reorders detected attributes so that any fields named in priorityAttributes
@@ -322,6 +329,7 @@ export function AttributeDistribution({
   errorHash,
   onFilterApply,
   priorityAttributes = [],
+  queryLimitLabel,
   timeRange,
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
@@ -401,6 +409,7 @@ export function AttributeDistribution({
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.title}>Attribute Distribution</div>
+        {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
         <div className={styles.description}>
           Distributions highlight which fields differ most between this error group and all other logs. High-delta
           fields may indicate causal factors. Click a value to narrow the error subset.
@@ -530,6 +539,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
   addField: css({
     display: 'flex',
     gap: theme.spacing(1),
+  }),
+  queryLimit: css({
+    backgroundColor: theme.colors.background.primary,
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.bodySmall.fontSize,
+    padding: theme.spacing(0.5, 1),
   }),
   bar: css({
     background: theme.colors.warning.main,
