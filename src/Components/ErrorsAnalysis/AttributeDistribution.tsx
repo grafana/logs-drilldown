@@ -8,8 +8,11 @@ import { lastValueFrom } from 'rxjs';
 
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 
-// Pretty-name overrides for known Faro fields. Any field not in this map
-// will display with its raw field name as the label.
+// Pretty-name overrides for known Faro fields applied to dynamically detected fields.
+// Any field not in this map will display with its raw field name as the label.
+// Note: priority attributes defined in ErrorsAnalysis.tsx carry their own labels and
+// take precedence -- this map only affects fields that appear outside the priority list.
+// Both lists are provisional; see ErrorsAnalysis.tsx comment.
 const FARO_LABEL_MAP: Record<string, string> = {
   app_version: 'Version',
   browser_name: 'Browser',
@@ -53,7 +56,7 @@ const FIELDS_TO_EXCLUDE = new Set([
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
 
-interface AttributeConfig {
+export interface AttributeConfig {
   field: string;
   label: string;
 }
@@ -174,6 +177,26 @@ export interface AttributeDistributionProps {
   errorHash: string;
   timeRange: { from: number; to: number };
   onFilterApply?: (label: string, value: string) => void;
+  // Priority attributes are pinned to the top of the list, in the order given,
+  // before dynamically detected fields. Only priority attributes that are also
+  // present in the detected set are shown -- undetected ones are silently dropped.
+  // If not provided, detected fields appear in Loki's returned order.
+  // The list and its ordering should be defined by the consumer, not this component.
+  priorityAttributes?: AttributeConfig[];
+}
+
+// Reorders detected attributes so that any fields named in priorityAttributes
+// appear first (in priority order), followed by the remaining detected fields.
+// Priority attributes not present in the detected set are dropped.
+function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[]): AttributeConfig[] {
+  if (!priority.length) {
+    return detected;
+  }
+  const detectedByField = new Map(detected.map((a) => [a.field, a]));
+  const priorityFirst = priority.filter((p) => detectedByField.has(p.field));
+  const priorityFields = new Set(priorityFirst.map((p) => p.field));
+  const rest = detected.filter((a) => !priorityFields.has(a.field));
+  return [...priorityFirst, ...rest];
 }
 
 function buildErrorStreamSelector(appId: string, errorHash: string): string {
@@ -298,6 +321,7 @@ export function AttributeDistribution({
   datasourceUid,
   errorHash,
   onFilterApply,
+  priorityAttributes = [],
   timeRange,
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
@@ -349,8 +373,9 @@ export function AttributeDistribution({
       if (cancelled) {
         return;
       }
-      dispatch({ type: 'SET_ATTRIBUTES', configs: detected });
-      fetchDistributions(detected);
+      const ordered = orderByPriority(detected, priorityAttributes);
+      dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
+      fetchDistributions(ordered);
     }
 
     run();
