@@ -7,52 +7,6 @@ import { lastValueFrom } from 'rxjs';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { AttributeConfig, AttributeDistribution, DatasetContext, LabelValueCount } from './AttributeDistribution';
 
-// Fields that are not useful for distribution analysis in a Faro error context:
-// stream selector labels, error-grouping keys, raw log body, high-noise timestamp
-// fields, and unique-per-occurrence identifiers.
-// This list is owned here because it is Faro/app-o11y domain knowledge -- it does
-// not belong in the generic AttributeDistribution component.
-const FIELDS_TO_EXCLUDE = new Set([
-  // Stream selector labels
-  'app_id',
-  'kind',
-  // Error grouping keys
-  'attribute_hash',
-  'hash',
-  // Unique-per-occurrence identifiers (too high cardinality to be useful)
-  'app',
-  'session_id',
-  'trace_id',
-  'span_id',
-  'user_id',
-  // Free-text / high-cardinality content fields
-  'stacktrace',
-  'value',
-  'body',
-  'message',
-  'msg',
-  // Noise / internal fields
-  'level',
-  'level_extracted',
-  'kind_extracted',
-  'time',
-  'timestamp',
-  'ts',
-  'tsNs',
-]);
-
-// Display name overrides for known Faro fields.
-// Any field not in this map will display with its raw field name as the label.
-// Provisional -- field names and display labels need review against the Faro SDK
-// spec and sign-off from the team before being considered canonical.
-const FARO_LABEL_MAP: Record<string, string> = {
-  app_version: 'Version',
-  browser_name: 'Browser',
-  country_iso: 'Location',
-  os_name: 'OS / Device',
-  page_id: 'View / Page',
-};
-
 // Appends a per-field metric aggregation around the base log query.
 // The base query must already include logfmt and any hash filters so that
 // [$__range] counts only events in this error group.
@@ -60,25 +14,30 @@ function buildDistributionQuery(baseQuery: string, field: string): string {
   return `sum by (${field}) (count_over_time(${baseQuery} | keep ${field} [$__range]))`;
 }
 
-async function fetchAttributes(context: DatasetContext): Promise<AttributeConfig[]> {
-  const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
+function makeFetchAttributes(
+  fieldsToExclude: Set<string>,
+  labelMap: Record<string, string>
+): (context: DatasetContext) => Promise<AttributeConfig[]> {
+  return async function fetchAttributes(context: DatasetContext): Promise<AttributeConfig[]> {
+    const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
 
-  const response = (await (ds as any).getResource(
-    'detected_fields',
-    {
-      end: dateTime(context.timeRange.to).utc().toISOString(),
-      query: context.query,
-      start: dateTime(context.timeRange.from).utc().toISOString(),
-    },
-    { requestId: 'errors-detected-fields' }
-  )) as { fields?: Array<{ label: string }> };
+    const response = (await (ds as any).getResource(
+      'detected_fields',
+      {
+        end: dateTime(context.timeRange.to).utc().toISOString(),
+        query: context.query,
+        start: dateTime(context.timeRange.from).utc().toISOString(),
+      },
+      { requestId: 'errors-detected-fields' }
+    )) as { fields?: Array<{ label: string }> };
 
-  return (response.fields ?? [])
-    .filter((f) => !FIELDS_TO_EXCLUDE.has(f.label))
-    .map((f) => ({
-      field: f.label,
-      label: FARO_LABEL_MAP[f.label] ?? f.label,
-    }));
+    return (response.fields ?? [])
+      .filter((f) => !fieldsToExclude.has(f.label))
+      .map((f) => ({
+        field: f.label,
+        label: labelMap[f.label] ?? f.label,
+      }));
+  };
 }
 
 async function fetchDistribution(context: DatasetContext, field: string): Promise<LabelValueCount[]> {
@@ -159,6 +118,15 @@ export interface ErrorsAnalysisProps {
   // or modify it.
   query: string;
   timeRange: { from: number; to: number };
+  // Fields to exclude from the distribution sidebar. The consuming app owns this
+  // list because it has domain knowledge of which fields are noise for its dataset.
+  // If not provided, all detected fields are shown.
+  fieldsToExclude?: Set<string>;
+  // Display name overrides for raw field names. The consuming app owns this mapping
+  // because it knows what its fields mean to users.
+  // Unknown fields fall back to their raw field name.
+  // If not provided, all fields display with their raw name.
+  labelMap?: Record<string, string>;
   onFilterApply?: (label: string, value: string) => void;
   // Optional ordered list of attributes to pin first in the distribution sidebar.
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
@@ -175,11 +143,14 @@ export default function ErrorsAnalysis({
   datasourceUid,
   query,
   timeRange,
+  fieldsToExclude = new Set(),
+  labelMap = {},
   onFilterApply,
   priorityAttributes,
   queryLimitLabel,
 }: ErrorsAnalysisProps) {
   const context: DatasetContext = { datasourceUid, query, timeRange };
+  const fetchAttributes = makeFetchAttributes(fieldsToExclude, labelMap);
 
   return (
     <AttributeDistribution
