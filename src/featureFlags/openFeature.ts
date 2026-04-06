@@ -129,7 +129,7 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
-  kgAnnotationsInLokiExplore: {
+  'drilldown.logs.kgAnnotationsInLokiExplore': {
     valueType: 'boolean',
     value: false,
     reason: 'static provider evaluation result',
@@ -299,10 +299,7 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
   if (flagName === 'exploreLogsShardSplitting') {
     return config.featureToggles.exploreLogsShardSplitting;
   }
-  if (flagName === 'exploreLogsShardSplitting') {
-    return config.featureToggles.exploreLogsShardSplitting;
-  }
-  if (flagName === 'kgAnnotationsInLokiExplore' && 'kgAnnotationsInLokiExplore' in config.featureToggles) {
+  if (flagName === 'drilldown.logs.kgAnnotationsInLokiExplore' && 'kgAnnotationsInLokiExplore' in config.featureToggles) {
     return Boolean(config.featureToggles.kgAnnotationsInLokiExplore);
   }
   return undefined;
