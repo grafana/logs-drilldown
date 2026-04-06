@@ -299,9 +299,6 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
   if (flagName === 'exploreLogsShardSplitting') {
     return config.featureToggles.exploreLogsShardSplitting;
   }
-  if (flagName === 'exploreLogsShardSplitting') {
-    return config.featureToggles.exploreLogsShardSplitting;
-  }
   if (flagName === 'drilldown.logs.kgAnnotationsInLokiExplore' && 'kgAnnotationsInLokiExplore' in config.featureToggles) {
     return Boolean(config.featureToggles.kgAnnotationsInLokiExplore);
   }
