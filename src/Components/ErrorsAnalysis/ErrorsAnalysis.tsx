@@ -15,9 +15,14 @@ function buildDistributionQuery(baseQuery: string, field: string): string {
 }
 
 function makeFetchAttributes(
-  fieldsToExclude: Set<string>,
+  fieldsToExclude: string[],
   labelMap: Record<string, string>
 ): (context: DatasetContext) => Promise<AttributeConfig[]> {
+  // Build the Set here, inside logs-drilldown's module, so Set.prototype methods
+  // operate on a Set from this bundle's realm. Passing a Set across plugin
+  // boundaries (different webpack bundles) causes cross-realm prototype errors.
+  const excludeSet = new Set(fieldsToExclude);
+
   return async function fetchAttributes(context: DatasetContext): Promise<AttributeConfig[]> {
     const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
 
@@ -32,7 +37,7 @@ function makeFetchAttributes(
     )) as { fields?: Array<{ label: string }> };
 
     return (response.fields ?? [])
-      .filter((f) => !fieldsToExclude.has(f.label))
+      .filter((f) => !excludeSet.has(f.label))
       .map((f) => ({
         field: f.label,
         label: labelMap[f.label] ?? f.label,
@@ -121,13 +126,13 @@ export interface ErrorsAnalysisProps {
   // Fields to exclude from the distribution sidebar. The consuming app owns this
   // list because it has domain knowledge of which fields are noise for its dataset.
   // If not provided, all detected fields are shown.
-  fieldsToExclude?: Set<string>;
+  fieldsToExclude?: string[];
   // Display name overrides for raw field names. The consuming app owns this mapping
   // because it knows what its fields mean to users.
   // Unknown fields fall back to their raw field name.
   // If not provided, all fields display with their raw name.
   labelMap?: Record<string, string>;
-  onFilterApply?: (label: string, value: string) => void;
+  onFiltersChange?: (filters: Array<{ field: string; value: string }>) => void;
   // Optional ordered list of attributes to pin first in the distribution sidebar.
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
   // If not provided, detected fields appear in the order returned by fetchAttributes.
@@ -143,9 +148,9 @@ export default function ErrorsAnalysis({
   datasourceUid,
   query,
   timeRange,
-  fieldsToExclude = new Set(),
+  fieldsToExclude = [],
   labelMap = {},
-  onFilterApply,
+  onFiltersChange,
   priorityAttributes,
   queryLimitLabel,
 }: ErrorsAnalysisProps) {
@@ -157,7 +162,7 @@ export default function ErrorsAnalysis({
       context={context}
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
-      onFilterApply={onFilterApply}
+      onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
       queryLimitLabel={queryLimitLabel}
     />

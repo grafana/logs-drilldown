@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 
+import { cx } from '@emotion/css';
 import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Spinner, useStyles2 } from '@grafana/ui';
@@ -26,6 +27,19 @@ export interface DatasetContext {
   timeRange: { from: number; to: number };
 }
 
+export interface ActiveFilter {
+  field: string;
+  value: string;
+}
+
+// A value entry extended with a `retained` flag used for the sticky values pattern.
+interface DisplayValue extends LabelValueCount {
+  // True for values from the pre-filter snapshot that are absent from the current
+  // filtered distribution. Shown at 0% and dimmed so the user can still see and
+  // interact with them after filtering narrows the result set.
+  retained: boolean;
+}
+
 interface AttributeState {
   error: boolean;
   expanded: boolean;
@@ -37,6 +51,10 @@ interface State {
   attributes: AttributeConfig[];
   data: Record<string, AttributeState>;
   detecting: boolean;
+  selectedFilters: ActiveFilter[];
+  // Snapshot of value lists per field, taken the moment the first filter is applied.
+  // Retained until all filters are cleared. null when no filters are active.
+  valueSnapshot: Record<string, LabelValueCount[]> | null;
 }
 
 type Action =
@@ -46,14 +64,15 @@ type Action =
   | { type: 'LOADED'; field: string; values: LabelValueCount[] }
   | { type: 'ERROR'; field: string }
   | { type: 'TOGGLE_EXPANDED'; field: string }
-  | { type: 'ADD_ATTRIBUTE'; config: AttributeConfig };
+  | { type: 'ADD_ATTRIBUTE'; config: AttributeConfig }
+  | { type: 'TOGGLE_FILTER'; field: string; value: string }
+  | { type: 'CLEAR_FILTERS' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'DETECTING':
       return { ...state, detecting: true };
     case 'SET_ATTRIBUTES': {
-      // Preserve user-added attributes not in the detected list
       const detectedFields = new Set(action.configs.map((c) => c.field));
       const userAdded = state.attributes.filter((a) => !detectedFields.has(a.field));
       const merged = [...action.configs, ...userAdded];
@@ -61,7 +80,7 @@ function reducer(state: State, action: Action): State {
       for (const c of merged) {
         data[c.field] = state.data[c.field] ?? { error: false, expanded: false, loading: true, values: [] };
       }
-      return { attributes: merged, data, detecting: false };
+      return { ...state, attributes: merged, data, detecting: false };
     }
     case 'LOADING':
       return {
@@ -125,14 +144,36 @@ function reducer(state: State, action: Action): State {
           [action.config.field]: { error: false, expanded: false, loading: true, values: [] },
         },
       };
+    case 'TOGGLE_FILTER': {
+      const { field, value } = action;
+      const isRemoving = state.selectedFilters.some((f) => f.field === field && f.value === value);
+      const newFilters = isRemoving
+        ? state.selectedFilters.filter((f) => !(f.field === field && f.value === value))
+        : [...state.selectedFilters, { field, value }];
+
+      // Take a snapshot of current values when the first filter is added.
+      // This snapshot is used to retain values that drop to 0% after filtering.
+      let { valueSnapshot } = state;
+      if (!isRemoving && state.selectedFilters.length === 0) {
+        valueSnapshot = {};
+        for (const [f, attrState] of Object.entries(state.data)) {
+          valueSnapshot[f] = attrState.values;
+        }
+      }
+      // Release the snapshot when the last filter is removed.
+      if (isRemoving && newFilters.length === 0) {
+        valueSnapshot = null;
+      }
+
+      return { ...state, selectedFilters: newFilters, valueSnapshot };
+    }
+    case 'CLEAR_FILTERS':
+      return { ...state, selectedFilters: [], valueSnapshot: null };
     default:
       return state;
   }
 }
 
-// Reorders detected attributes so that any fields named in priorityAttributes
-// appear first (in priority order), followed by the remaining detected fields.
-// Priority attributes not present in the detected set are dropped.
 function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[]): AttributeConfig[] {
   if (!priority.length) {
     return detected;
@@ -144,6 +185,56 @@ function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[
   return [...priorityFirst, ...rest];
 }
 
+// Escapes special RE2 regex characters in a literal value string.
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Appends LogQL filter pipeline stages for active filters to the base query.
+// Multiple values for the same field are combined as OR using regex match.
+// Filters across different fields stack as AND (separate pipeline stages).
+function buildEffectiveQuery(baseQuery: string, filters: ActiveFilter[]): string {
+  if (!filters.length) {
+    return baseQuery;
+  }
+
+  const byField = new Map<string, string[]>();
+  for (const { field, value } of filters) {
+    if (!byField.has(field)) {
+      byField.set(field, []);
+    }
+    byField.get(field)!.push(value);
+  }
+
+  let q = baseQuery;
+  for (const [field, values] of byField) {
+    if (values.length === 1) {
+      q += ` | ${field}="${values[0]}"`;
+    } else {
+      const pattern = values.map(escapeRegex).join('|');
+      q += ` | ${field}=~"${pattern}"`;
+    }
+  }
+  return q;
+}
+
+// Merges current distribution values with snapshot values.
+// Values in the snapshot but absent from current results are appended at 0%
+// and marked retained -- they remain visible and selectable after filtering.
+function mergeWithSnapshot(current: LabelValueCount[], snapshot: LabelValueCount[] | null): DisplayValue[] {
+  if (!snapshot) {
+    return current.map((v) => ({ ...v, retained: false }));
+  }
+  const currentByValue = new Map(current.map((v) => [v.value, v]));
+  const result: DisplayValue[] = current.map((v) => ({ ...v, retained: false }));
+  for (const snap of snapshot) {
+    if (!currentByValue.has(snap.value)) {
+      result.push({ value: snap.value, count: 0, percentage: 0, retained: true });
+    }
+  }
+  return result;
+}
+
 export interface AttributeDistributionProps {
   context: DatasetContext;
   // Adapter function -- provided by the consumer. Returns detected fields for
@@ -153,7 +244,10 @@ export interface AttributeDistributionProps {
   // Adapter function -- provided by the consumer. Returns value counts for a
   // single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string) => Promise<LabelValueCount[]>;
-  onFilterApply?: (label: string, value: string) => void;
+  // Called whenever the active filter set changes. The consumer can use this
+  // to update other panels on the page. Filter state is owned by this component
+  // and is scoped to its lifetime -- no persistent writes are made externally.
+  onFiltersChange?: (filters: ActiveFilter[]) => void;
   // Priority attributes are pinned to the top of the list, in the order given,
   // before dynamically detected fields. Only priority attributes that are also
   // present in the detected set are shown -- undetected ones are silently dropped.
@@ -164,8 +258,6 @@ export interface AttributeDistributionProps {
   // of the dataset to the user. The consumer sets this because it knows what limit
   // its query applies -- the component just renders it.
   // Example values: "Last 1000 logs", "Slowest 1000 traces"
-  // Use this whenever the underlying query caps the number of events so users
-  // understand the distributions are based on a sample, not the full dataset.
   queryLimitLabel?: string;
 }
 
@@ -173,7 +265,7 @@ export function AttributeDistribution({
   context,
   fetchAttributes,
   fetchDistribution,
-  onFilterApply,
+  onFiltersChange,
   priorityAttributes = [],
   queryLimitLabel,
 }: AttributeDistributionProps) {
@@ -184,10 +276,12 @@ export function AttributeDistribution({
     attributes: [],
     data: {},
     detecting: false,
+    selectedFilters: [],
+    valueSnapshot: null,
   });
 
   const loadDistributions = useCallback(
-    async (attributes: AttributeConfig[]) => {
+    async (attributes: AttributeConfig[], ctx: DatasetContext) => {
       if (!attributes.length) {
         return;
       }
@@ -197,7 +291,7 @@ export function AttributeDistribution({
       await Promise.allSettled(
         attributes.map(async (attr) => {
           try {
-            const values = await fetchDistribution(context, attr.field);
+            const values = await fetchDistribution(ctx, attr.field);
             dispatch({ type: 'LOADED', field: attr.field, values });
           } catch {
             dispatch({ type: 'ERROR', field: attr.field });
@@ -205,10 +299,9 @@ export function AttributeDistribution({
         })
       );
     },
-    // fetchDistribution is stable (module-level function); context fields are the
-    // true dependencies. Listing context object directly would re-run on every render.
+    // fetchDistribution is a stable module-level function passed from the adapter.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to]
+    []
   );
 
   useEffect(() => {
@@ -231,7 +324,7 @@ export function AttributeDistribution({
       }
       const ordered = orderByPriority(detected, priorityAttributes);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
-      loadDistributions(ordered);
+      loadDistributions(ordered, context);
     }
 
     run();
@@ -239,10 +332,29 @@ export function AttributeDistribution({
     return () => {
       cancelled = true;
     };
-    // fetchAttributes is stable (module-level function); context fields and
+    // fetchAttributes is a stable module-level function; context fields and
     // priorityAttributes are the true dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes]);
+
+  function handleToggleFilter(field: string, value: string) {
+    const isRemoving = state.selectedFilters.some((f) => f.field === field && f.value === value);
+    const newFilters = isRemoving
+      ? state.selectedFilters.filter((f) => !(f.field === field && f.value === value))
+      : [...state.selectedFilters, { field, value }];
+
+    dispatch({ type: 'TOGGLE_FILTER', field, value });
+
+    const effectiveContext = { ...context, query: buildEffectiveQuery(context.query, newFilters) };
+    loadDistributions(state.attributes, effectiveContext);
+    onFiltersChange?.(newFilters);
+  }
+
+  function handleClearFilters() {
+    dispatch({ type: 'CLEAR_FILTERS' });
+    loadDistributions(state.attributes, context);
+    onFiltersChange?.([]);
+  }
 
   function handleAddField() {
     const field = newFieldInput.trim();
@@ -254,7 +366,8 @@ export function AttributeDistribution({
     const config: AttributeConfig = { field, label: field };
     dispatch({ type: 'ADD_ATTRIBUTE', config });
     setNewFieldInput('');
-    loadDistributions([config]);
+    const effectiveContext = { ...context, query: buildEffectiveQuery(context.query, state.selectedFilters) };
+    loadDistributions([config], effectiveContext);
   }
 
   return (
@@ -270,6 +383,28 @@ export function AttributeDistribution({
           Add additional fields to explore distributions or correlations, including custom labels.
         </div>
       </div>
+
+      {state.selectedFilters.length > 0 && (
+        <div className={styles.filterChips}>
+          {state.selectedFilters.map(({ field, value }) => (
+            <div key={`${field}=${value}`} className={styles.chip}>
+              <span className={styles.chipText}>
+                {field} = {value}
+              </span>
+              <button
+                aria-label={`Remove filter ${field} = ${value}`}
+                className={styles.chipRemove}
+                onClick={() => handleToggleFilter(field, value)}
+              >
+                <Icon name="times" size="xs" />
+              </button>
+            </div>
+          ))}
+          <button className={styles.clearAll} onClick={handleClearFilters}>
+            Clear all
+          </button>
+        </div>
+      )}
 
       <div className={styles.addField}>
         <input
@@ -301,12 +436,18 @@ export function AttributeDistribution({
           if (!attrState) {
             return null;
           }
+          const selectedValues = new Set(
+            state.selectedFilters.filter((f) => f.field === attr.field).map((f) => f.value)
+          );
+          const snapshotValues = state.valueSnapshot?.[attr.field] ?? null;
           return (
             <AttributeSection
               key={attr.field}
               attrState={attrState}
               config={attr}
-              onFilterApply={onFilterApply}
+              selectedValues={selectedValues}
+              snapshotValues={snapshotValues}
+              onToggleFilter={(value) => handleToggleFilter(attr.field, value)}
               onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.field })}
             />
           );
@@ -319,16 +460,26 @@ export function AttributeDistribution({
 interface AttributeSectionProps {
   attrState: AttributeState;
   config: AttributeConfig;
-  onFilterApply?: (label: string, value: string) => void;
+  selectedValues: Set<string>;
+  snapshotValues: LabelValueCount[] | null;
+  onToggleFilter: (value: string) => void;
   onToggle: () => void;
 }
 
-function AttributeSection({ attrState, config, onFilterApply, onToggle }: AttributeSectionProps) {
+function AttributeSection({
+  attrState,
+  config,
+  selectedValues,
+  snapshotValues,
+  onToggleFilter,
+  onToggle,
+}: AttributeSectionProps) {
   const styles = useStyles2(getStyles);
   const { error, expanded, loading, values } = attrState;
 
-  const visibleValues = expanded ? values.slice(0, MAX_VALUES_EXPANDED) : values.slice(0, MAX_VALUES_COLLAPSED);
-  const hasMore = values.length > MAX_VALUES_EXPANDED;
+  const allValues = mergeWithSnapshot(values, snapshotValues);
+  const visibleValues = expanded ? allValues.slice(0, MAX_VALUES_EXPANDED) : allValues.slice(0, MAX_VALUES_COLLAPSED);
+  const hasMore = allValues.length > MAX_VALUES_EXPANDED;
 
   return (
     <div className={styles.section}>
@@ -347,23 +498,31 @@ function AttributeSection({ attrState, config, onFilterApply, onToggle }: Attrib
 
       {!loading &&
         !error &&
-        visibleValues.map((item) => (
-          <button
-            key={item.value}
-            className={styles.valueRow}
-            onClick={() => onFilterApply?.(config.field, item.value)}
-          >
-            <span className={styles.valueLabel} title={item.value}>
-              {item.value}
-            </span>
-            <div className={styles.barWrapper}>
-              <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
-            </div>
-            <span className={styles.percentage}>{item.percentage}%</span>
-          </button>
-        ))}
+        visibleValues.map((item) => {
+          const isSelected = selectedValues.has(item.value);
+          return (
+            <button
+              key={item.value}
+              className={cx(
+                styles.valueRow,
+                isSelected && styles.valueRowSelected,
+                item.retained && styles.valueRowRetained
+              )}
+              onClick={() => onToggleFilter(item.value)}
+            >
+              <span className={styles.valueLabel} title={item.value}>
+                {item.value}
+              </span>
+              <div className={styles.barWrapper}>
+                <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
+              </div>
+              <span className={styles.percentage}>{item.percentage}%</span>
+              {isSelected && <Icon name="check" size="xs" />}
+            </button>
+          );
+        })}
 
-      {!loading && !error && values.length === 0 && <div className={styles.emptyRow}>No values found</div>}
+      {!loading && !error && allValues.length === 0 && <div className={styles.emptyRow}>No values found</div>}
 
       {expanded && hasMore && (
         <button className={styles.showAllButton} onClick={(e) => e.stopPropagation()}>
@@ -392,14 +551,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'flex',
     gap: theme.spacing(1),
   }),
-  queryLimit: css({
-    backgroundColor: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.weak}`,
-    borderRadius: theme.shape.radius.default,
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: theme.spacing(0.5, 1),
-  }),
   bar: css({
     background: theme.colors.warning.main,
     borderRadius: theme.shape.radius.default,
@@ -412,6 +563,43 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flex: 1,
     height: '6px',
     overflow: 'hidden',
+  }),
+  chip: css({
+    alignItems: 'center',
+    background: theme.colors.background.primary,
+    border: `1px solid ${theme.colors.primary.border}`,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.text.primary,
+    display: 'flex',
+    fontSize: theme.typography.bodySmall.fontSize,
+    gap: theme.spacing(0.5),
+    padding: theme.spacing(0.25, 0.5),
+  }),
+  chipRemove: css({
+    alignItems: 'center',
+    background: 'none',
+    border: 'none',
+    color: theme.colors.text.secondary,
+    cursor: 'pointer',
+    display: 'flex',
+    padding: 0,
+    '&:hover': {
+      color: theme.colors.text.primary,
+    },
+  }),
+  chipText: css({
+    fontSize: theme.typography.bodySmall.fontSize,
+  }),
+  clearAll: css({
+    background: 'none',
+    border: 'none',
+    color: theme.colors.text.link,
+    cursor: 'pointer',
+    fontSize: theme.typography.bodySmall.fontSize,
+    padding: theme.spacing(0.25, 0),
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   }),
   container: css({
     backgroundColor: theme.colors.background.secondary,
@@ -464,6 +652,12 @@ const getStyles = (theme: GrafanaTheme2) => ({
       borderColor: theme.colors.primary.border,
     },
   }),
+  filterChips: css({
+    alignItems: 'center',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: theme.spacing(0.5),
+  }),
   header: css({
     display: 'flex',
     flexDirection: 'column',
@@ -480,6 +674,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.bodySmall.fontSize,
     minWidth: '32px',
     textAlign: 'right',
+  }),
+  queryLimit: css({
+    backgroundColor: theme.colors.background.primary,
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.bodySmall.fontSize,
+    padding: theme.spacing(0.5, 1),
   }),
   section: css({
     display: 'flex',
@@ -551,6 +753,15 @@ const getStyles = (theme: GrafanaTheme2) => ({
     width: '100%',
     '&:hover': {
       background: theme.colors.action.hover,
+    },
+  }),
+  valueRowRetained: css({
+    opacity: 0.45,
+  }),
+  valueRowSelected: css({
+    background: theme.colors.action.selected,
+    '&:hover': {
+      background: theme.colors.action.selected,
     },
   }),
 });
