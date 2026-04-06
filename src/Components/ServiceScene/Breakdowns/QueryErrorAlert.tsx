@@ -3,11 +3,11 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { DataQueryError, GrafanaTheme2 } from '@grafana/data';
-import { Alert, LinkButton, useStyles2 } from '@grafana/ui';
+import { t } from '@grafana/i18n';
+import { Alert, EmptyState, LinkButton, useStyles2 } from '@grafana/ui';
 
 import { PageSlugs } from '../../../services/enums';
 import { getDrillDownTabLink } from '../../../services/navigate';
-import { GrotError } from '../../GrotError';
 import { ServiceScene } from '../ServiceScene';
 
 export const MaxSeriesRegex = /maximum of series \(\d+\) reached for a single query/;
@@ -35,11 +35,11 @@ export function QueryErrorAlert(props: {
   });
 
   const title = props.isPartial
-    ? `Showing partial results for ${props.tagKey}`
-    : `Error fetching results for ${props.tagKey}`;
+    ? t('logs.logs-drilldown.query-error.partial', 'Showing partial results for {{tagKey}}', { tagKey: props.tagKey })
+    : t('logs.logs-drilldown.query-error.fetch', 'Error fetching results for {{tagKey}}', { tagKey: props.tagKey });
 
   return (
-    <GrotError>
+    <EmptyState variant="not-found" message={title}>
       <div className={styles.queryError}>
         <Alert title={title} severity={'error'}>
           {errors?.map((err, index) => (
@@ -47,12 +47,12 @@ export function QueryErrorAlert(props: {
           ))}
           <div className={styles.buttonWrap}>
             <LinkButton variant={'secondary'} href={getDrillDownTabLink(PageSlugs.fields, props.serviceScene)}>
-              Return to all fields
+              {t('logs.logs-drilldown.query-error.return-fields', 'Return to all fields')}
             </LinkButton>
           </div>
         </Alert>
       </div>
-    </GrotError>
+    </EmptyState>
   );
 }
 

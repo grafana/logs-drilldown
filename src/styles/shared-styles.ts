@@ -6,6 +6,14 @@ import { useStyles2 } from '@grafana/ui';
 export const useSharedStyles = () => {
   return useStyles2((theme: GrafanaTheme2) => {
     return {
+      emptyStateWrap: css({
+        width: '100%',
+        minHeight: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        padding: theme.spacing(2),
+      }),
       linkButton: css({
         '&:focus': {
           outline: 'none',

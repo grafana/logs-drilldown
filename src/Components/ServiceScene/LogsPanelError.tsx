@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { t } from '@grafana/i18n';
 import { SceneObject } from '@grafana/scenes';
-import { Button, Stack } from '@grafana/ui';
+import { Button, EmptyState, Stack } from '@grafana/ui';
 
-import { GrotError } from 'Components/GrotError';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
+import { useSharedStyles } from 'styles/shared-styles';
 
 interface Props {
   clearFilters?: () => void;
@@ -17,6 +18,7 @@ interface Props {
 export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
+  const sharedStyles = useSharedStyles();
   const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
@@ -29,15 +31,15 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
   }, [errorType]);
 
   const embeddedOptions = getEmptyStateOptions('logs', sceneRef);
+  const message = error || t('logs.logs-drilldown.logs-panel-error.default', 'An error occurred');
 
   return (
-    <GrotError>
-      <div>
-        <p>{error}</p>
+    <div className={sharedStyles.emptyStateWrap}>
+      <EmptyState variant="not-found" message={message}>
         <Stack justifyContent="center">
           {clearFilters && (
             <Button variant="secondary" onClick={clearFilters}>
-              Clear filters
+              {t('logs.logs-drilldown.logs-panel-error.clear-filters', 'Clear filters')}
             </Button>
           )}
           {errorType === 'no-logs' && assistantAvailable && (
@@ -50,8 +52,8 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
             </Button>
           )}
         </Stack>
-      </div>
-    </GrotError>
+      </EmptyState>
+    </div>
   );
 };
 

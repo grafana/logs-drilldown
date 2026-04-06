@@ -14,13 +14,18 @@ import {
   SceneObjectState,
   SceneVariableSet,
 } from '@grafana/scenes';
-import { Text, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../../services/comparison';
 import { IndexScene } from '../../../IndexScene/IndexScene';
 import { ServiceScene } from '../../ServiceScene';
 import { PatternsFrameScene } from './PatternsFrameScene';
-import { PatternsNotDetected, PatternsTooOld } from './PatternsNotDetected';
+import {
+  PatternsNoMatchingFilters,
+  PatternsNotConfigured,
+  PatternsNotDetected,
+  PatternsTooOld,
+} from './PatternsNotDetected';
 import { PatternsViewTextSearch } from './PatternsViewTextSearch';
 import { StatusWrapper } from 'Components/ServiceScene/Breakdowns/StatusWrapper';
 import { VAR_LABEL_GROUP_BY } from 'services/variables';
@@ -29,12 +34,14 @@ export interface PatternsBreakdownSceneState extends SceneObjectState {
   blockingMessage?: string;
   body?: SceneFlexLayout;
   error?: boolean;
-  // Subset of patternFrames, undefined if empty, empty array if search results returned nothing (no data)
+  // Subset of patternFrames used for client-side pattern text filtering.
+  // undefined means no filter applied, empty array means filter applied but no matches.
   filteredPatterns?: PatternFrame[];
   loading?: boolean;
   patternFilter: string;
 
-  // The dataframe built from the patterns that we get back from the loki Patterns API
+  // Pattern frames built from Loki Patterns API results.
+  // undefined means no pattern data returned for current filters; [] means API returned data structure with zero rows.
   patternFrames?: PatternFrame[];
   value?: string;
 }
@@ -75,20 +82,8 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
     return (
       <div className={styles.container}>
         <StatusWrapper {...{ blockingMessage, isLoading: loading }}>
-          {!loading && error && (
-            <div className={styles.patternMissingText}>
-              <Text textAlignment="center" color="primary">
-                <p>There are no pattern matches.</p>
-                <p>Pattern matching has not been configured.</p>
-                <p>Patterns let you detect similar log lines and add or exclude them from your search.</p>
-                <p>To see them in action, add the following to your Loki configuration</p>
-                <p>
-                  <code>--pattern-ingester.enabled=true</code>
-                </p>
-              </Text>
-            </div>
-          )}
-
+          {!loading && error && <PatternsNotConfigured />}
+          {!error && !loading && patternFrames === undefined && <PatternsNoMatchingFilters />}
           {!error && !loading && patternFrames?.length === 0 && timeRangeTooOld && <PatternsTooOld />}
           {!error && !loading && patternFrames?.length === 0 && !timeRangeTooOld && <PatternsNotDetected />}
           {!error && !loading && patternFrames && patternFrames.length > 0 && (
@@ -174,6 +169,9 @@ export class PatternsBreakdownScene extends SceneObjectBase<PatternsBreakdownSce
 
   private updatePatternFrames(dataFrames?: DataFrame[]) {
     if (!dataFrames) {
+      this.setState({
+        patternFrames: undefined,
+      });
       return;
     }
 
@@ -236,9 +234,6 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexGrow: 0,
       justifyContent: 'flex-end',
-    }),
-    patternMissingText: css({
-      padding: theme.spacing(2),
     }),
   };
 }
