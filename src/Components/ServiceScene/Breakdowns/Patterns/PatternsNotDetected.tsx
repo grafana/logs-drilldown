@@ -5,8 +5,6 @@ import { EmptyState, TextLink } from '@grafana/ui';
 
 import { PATTERNS_MAX_AGE_HOURS } from './PatternsBreakdownScene';
 
-const PATTERN_INGESTER_ENABLED_FLAG = '--pattern-ingester.enabled=true';
-
 export const PatternsNotConfigured = () => {
   return (
     <EmptyState
@@ -18,7 +16,8 @@ export const PatternsNotConfigured = () => {
         'Pattern matching has not been configured. Patterns let you detect similar log lines and add or exclude them from your search. To see them in action, add the following to your Loki configuration.'
       )}
       <p>
-        <code>{PATTERN_INGESTER_ENABLED_FLAG}</code>
+        {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- Loki config flag literal */}
+        <code>--pattern-ingester.enabled=true</code>
       </p>
     </EmptyState>
   );
