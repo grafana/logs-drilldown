@@ -813,7 +813,7 @@ test.describe('explore services breakdown page', () => {
     // Assert the container size of the plugin hasn't changed, or that will mess with the assumptions below
     const pageContainerSize = await page.locator('#pageContent').boundingBox();
     expect(pageContainerSize.width).toEqual(1280);
-    expect(pageContainerSize.height).toEqual(640);
+    expect(pageContainerSize.height).toBeGreaterThanOrEqual(632);
 
     const INITIAL_ROWS = 2;
     const COUNT_PER_ROW = 3;

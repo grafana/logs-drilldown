@@ -24,7 +24,7 @@ interface KgSceneProps {
 }
 
 export function isKgAnnotationsAvailable(): boolean {
-  const featureEnabled = getFeatureFlag('kgAnnotationsInLokiExplore');
+  const featureEnabled = getFeatureFlag('drilldown.logs.kgAnnotationsInLokiExplore');
   if (!featureEnabled) {
     return false;
   }
