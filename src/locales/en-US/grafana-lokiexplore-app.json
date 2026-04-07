@@ -53,7 +53,7 @@
     "add-visualization-header": {
       "text": {
         "visualization": "Visualization",
-        "visualizationdivider": "visualization_divider"
+        "visualization-divider": "visualization_divider"
       }
     },
     "app": {
@@ -64,7 +64,7 @@
       "default-data-source-description": "The default data source to be used for new Logs Drilldown users. Each user can override their default by setting another data source in Logs Drilldown.",
       "default-time-range-description": "When enabled, this time range is used when users open Logs Drilldown for the first time, and without a time range in the URL. When disabled, the app uses its built-in default (last 15 minutes).",
       "default-time-range-enabled-label-use-custom-default-time-range": "Use custom default time range",
-      "default-time-range-from-placeholder-nowm": "now-15m",
+      "default-time-range-from-placeholder-now-15m": "now-15m",
       "default-time-range-to-placeholder-now": "now",
       "description-end-of-the-range-eg-now": "End of the range (e.g. now)",
       "description-start-range": "Start of the range (e.g. now-15m, now-1h, now-24h)",
@@ -168,7 +168,7 @@
     },
     "get-styles": {
       "label": {
-        "firstrowwrapper": "first-row-wrapper"
+        "first-row-wrapper": "first-row-wrapper"
       }
     },
     "get-variable-set": {
@@ -371,7 +371,7 @@
       "text": {
         "add-to-dashboard": "Add to Dashboard",
         "ai": "AI",
-        "aidivider": "ai_divider",
+        "ai-divider": "ai_divider",
         "create-alert": "Create alert",
         "explain-in-assistant": "Explain in Assistant"
       },

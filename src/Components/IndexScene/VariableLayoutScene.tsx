@@ -252,7 +252,7 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
         },
         gap: '16px',
 
-        label: t("Components.get-styles.label.firstrowwrapper", "first-row-wrapper"),
+        label: t("Components.get-styles.label.first-row-wrapper", "first-row-wrapper"),
       },
     }),
     stickyControlsContainer: css({

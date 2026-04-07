@@ -198,7 +198,7 @@ const AppConfig = ({ plugin }: Props) => {
                 id="default-time-range-from"
                 data-testid={testIds.appConfig.defaultTimeRangeFrom}
                 value={state.defaultTimeRangeFrom}
-                placeholder={t("Components.app-config.default-time-range-from-placeholder-nowm", "now-15m")}
+                placeholder={t("Components.app-config.default-time-range-from-placeholder-now-15m", "now-15m")}
                 onChange={onChangeDefaultTimeRangeFrom}
               />
             </Field>

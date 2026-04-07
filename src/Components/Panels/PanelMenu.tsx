@@ -120,7 +120,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           if (isAvailable) {
             const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
-              text: t("Components.panel-menu.text.aidivider", "ai_divider"),
+              text: t("Components.panel-menu.text.ai-divider", "ai_divider"),
               type: 'divider',
             });
             this.addItem({
@@ -236,7 +236,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
 function addVisualizationHeader(items: PanelMenuItem[]) {
   items.push({
-    text: t("Components.add-visualization-header.text.visualizationdivider", "visualization_divider"),
+    text: t("Components.add-visualization-header.text.visualization-divider", "visualization_divider"),
     type: 'divider',
   });
   items.push({
