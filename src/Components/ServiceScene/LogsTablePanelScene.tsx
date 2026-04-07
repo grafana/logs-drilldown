@@ -26,7 +26,7 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '..
 import { areArraysEqual } from '../../services/comparison';
 import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import { getLogOption, setDisplayedFieldsInStorage } from '../../services/store';
+import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
@@ -102,7 +102,10 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
   }
 
   protected onOptionsChange(options: DeepPartial<Options>, prevOptions: DeepPartial<Options>) {
-    console.log('options change', options);
+    // todo: Update after Grafana >= 13.1
+    if ('wrapText' in options && 'wrapText' in prevOptions && options.wrapText !== prevOptions.wrapText) {
+      setLogOption('wrapText', Boolean(options.wrapText));
+    }
   }
 
   public onActivate() {
@@ -112,6 +115,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
       ...defaultOptions,
       // Could do url columns
       displayedFields: parentScene.state.displayedFields,
+      wrapText: getBooleanLogOption('wrapText', true),
     }));
 
     // @todo set field defaults
