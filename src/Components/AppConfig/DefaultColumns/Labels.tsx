@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { AddLabel } from './AddLabel';
@@ -24,8 +25,8 @@ export function Labels({ recordIndex }: Props) {
   return (
     <>
       <h5 className={styles.labelTitle}>
-        Labels match
-        <Tooltip content={'Queries containing these labels will display the selected columns'}>
+        <Trans i18nKey="Components.labels.labels-match">Labels match</Trans>
+        <Tooltip content={t("Components.labels.content-queries-containing-these-labels-display-selected", "Queries containing these labels will display the selected columns")}>
           <Icon className={styles.labelIcon} name="info-circle" />
         </Tooltip>
       </h5>

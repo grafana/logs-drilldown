@@ -3,6 +3,7 @@ import React from 'react';
 import { css, cx } from '@emotion/css';
 
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
 
 import { LineFilterCaseSensitive } from '../../../services/filterTypes';
@@ -31,9 +32,9 @@ export const LineFilterCaseSensitivityButton = (props: Props) => {
         aria-label={description}
       >
         <svg fill={fill} width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-          <text fontSize="13" width="16" height="16" x="50%" y="50%" dominantBaseline="central" textAnchor="middle">
+          <text fontSize="13" width="16" height="16" x="50%" y="50%" dominantBaseline="central" textAnchor="middle"><Trans i18nKey="Components.line-filter-case-sensitivity-button.aa">
             Aa
-          </text>
+          </Trans></text>
         </svg>
       </button>
     </Tooltip>

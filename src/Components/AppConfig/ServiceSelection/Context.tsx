@@ -1,4 +1,5 @@
 /* eslint-disable sort/imports */
+import { t } from '@grafana/i18n';
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { LoadingPlaceholder } from '@grafana/ui';
@@ -141,7 +142,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
         setDsUID: handleSetDsUID,
       }}
     >
-      {isLoading ? <LoadingPlaceholder text={'Loading...'} /> : children}
+      {isLoading ? <LoadingPlaceholder text={t("Components.service-selection-context-provider.text-loading", "Loading...")} /> : children}
     </Context.Provider>
   );
 };

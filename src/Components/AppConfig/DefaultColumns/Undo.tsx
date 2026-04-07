@@ -2,6 +2,7 @@ import React from 'react';
 
 import { cloneDeep } from 'lodash';
 
+import { t } from '@grafana/i18n';
 import { ConfirmButton } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -21,12 +22,12 @@ export function Undo() {
         }
       }}
       closeOnConfirm={true}
-      confirmText={'Reset'}
+      confirmText={t("Components.undo.confirmText-reset", "Reset")}
       confirmVariant={'destructive'}
       aria-disabled={!validation.hasPendingChanges}
       disabled={!validation.hasPendingChanges}
     >
-      Reset
+      {t("Components.undo.reset", "Reset")}
     </ConfirmButton>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Trans } from '@grafana/i18n';
 import { Button } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -25,8 +26,8 @@ export function AddRecord() {
           USER_EVENTS_ACTIONS.default_columns_config.add_record
         );
       }}
-    >
+    ><Trans i18nKey="Components.add-record.add">
       Add
-    </Button>
+    </Trans></Button>
   );
 }

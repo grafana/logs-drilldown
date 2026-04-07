@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 
+import { Trans } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
@@ -33,9 +34,9 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
   return (
     <Suspense
       fallback={
-        <LinkButton variant="secondary" disabled>
+        <LinkButton variant="secondary" disabled><Trans i18nKey="services.suspended-open-in-logs-drilldown-button.open-in-logs-drilldown">
           Open in Logs Drilldown
-        </LinkButton>
+        </Trans></LinkButton>
       }
     >
       <OpenInLogsDrilldownButton {...props} />
@@ -45,7 +46,7 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
 
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   return (
-    <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
+    <Suspense fallback={<div><Trans i18nKey="services.suspended-embedded-logs-exploration.loading-logs-drilldown">Loading Logs Drilldown...</Trans></div>}>
       <EmbeddedLogsExploration {...props} />
     </Suspense>
   );

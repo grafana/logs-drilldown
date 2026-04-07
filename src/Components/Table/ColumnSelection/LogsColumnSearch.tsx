@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Field, IconButton, Input, useStyles2 } from '@grafana/ui';
 
@@ -79,7 +80,7 @@ export function LogsColumnSearch({
         className={`${styles.collapseTableSidebarButton} ${isTableSidebarCollapsed ? '' : styles.iconExpanded}`}
         onClick={onToggleTableSidebarCollapse}
         name="arrow-from-right"
-        tooltip={isTableSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        tooltip={isTableSidebarCollapsed ? t('logs-column-search.tooltip.expand-sidebar', 'Expand sidebar') : t('logs-column-search.tooltip.collapse-sidebar', 'Collapse sidebar')}
         size="sm"
       />
       {!isTableSidebarCollapsed && (
@@ -87,7 +88,7 @@ export function LogsColumnSearch({
           <Input
             value={searchValue}
             type={'text'}
-            placeholder={'Search fields by name'}
+            placeholder={t("Components.logs-column-search.placeholder-search-fields-by-name", "Search fields by name")}
             onChange={onSearchInputChange}
           />
         </Field>

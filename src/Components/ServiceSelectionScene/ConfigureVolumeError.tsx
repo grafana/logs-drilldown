@@ -19,6 +19,7 @@ export const ConfigureVolumeError = () => {
       </p>
       <Text textAlignment="left">
         <pre>
+          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- Config syntax example, not user-facing text */}
           <code>
             limits_config:
             <br />

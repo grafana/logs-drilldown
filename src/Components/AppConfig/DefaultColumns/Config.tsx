@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
 
 import { DefaultColumnsContextProvider } from './Context';
@@ -27,9 +28,11 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={'Beta'} />
+        <Badge color={'blue'} text={t("Components.config.text-beta", "Beta")} />
         <span>
-          Configure the fields to show by default. These can replace the full log line or be displayed next to it.
+          <Trans i18nKey="Components.config.default-columns-description">
+            Configure the fields to show by default. These can replace the full log line or be displayed next to it.
+          </Trans>
         </span>
       </div>
 

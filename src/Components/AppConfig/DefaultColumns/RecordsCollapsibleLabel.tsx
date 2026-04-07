@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from './types';
@@ -18,8 +19,8 @@ export function RecordsCollapsibleLabel({ record, isOpen }: Props) {
   return (
     <div className={styles.label}>
       <h5 className={styles.label__title}>
-        Display fields
-        <Tooltip content={'Default fields to display in logs visualizations for these labels'}>
+        <Trans i18nKey="Components.records-collapsible-label.display-fields">Display fields</Trans>
+        <Tooltip content={t("Components.records-collapsible-label.content-default-fields-display-visualizations-these-labels", "Default fields to display in logs visualizations for these labels")}>
           <Icon className={styles.label__icon} name="info-circle" />
         </Tooltip>
       </h5>

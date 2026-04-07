@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { testIds } from 'services/testIds';
@@ -35,9 +36,9 @@ export const FilterButton = (props: Props) => {
         onClick={isIncluded ? onClear : onInclude}
         data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         title={titles?.include}
-      >
+      ><Trans i18nKey="Components.filter-button.include">
         Include
-      </Button>
+      </Trans></Button>
       {!hideExclude && (
         <Button
           variant={isExcluded ? 'primary' : 'secondary'}
@@ -48,9 +49,9 @@ export const FilterButton = (props: Props) => {
           onClick={isExcluded ? onClear : onExclude}
           title={titles?.exclude}
           data-testid={testIds.exploreServiceDetails.buttonFilterExclude}
-        >
+        ><Trans i18nKey="Components.filter-button.exclude">
           Exclude
-        </Button>
+        </Trans></Button>
       )}
     </div>
   );

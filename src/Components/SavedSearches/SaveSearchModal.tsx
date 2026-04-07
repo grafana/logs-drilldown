@@ -3,7 +3,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { css } from '@emotion/css';
 
 import { AppEvents, GrafanaTheme2 } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t, Trans } from '@grafana/i18n';
 import { getAppEvents, reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert } from '@grafana/ui';
@@ -121,23 +121,23 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
             </Box>
           </Stack>
           <Modal.ButtonRow>
-            <Button variant="secondary" fill="outline" onClick={onClose} disabled={state === 'saving'}>
+            <Button variant="secondary" fill="outline" onClick={onClose} disabled={state === 'saving'}><Trans i18nKey="Components.save-search-modal.cancel">
               Cancel
-            </Button>
-            <Button type="submit" disabled={!title || state === 'saving'}>
+            </Trans></Button>
+            <Button type="submit" disabled={!title || state === 'saving'}><Trans i18nKey="Components.save-search-modal.save">
               Save
-            </Button>
+            </Trans></Button>
           </Modal.ButtonRow>
         </form>
       ) : (
         <>
-          <Alert title="Success" severity="success">
+          <Alert title={t("Components.save-search-modal.title-success", "Success")} severity="success">
             {t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')}
           </Alert>
           <Modal.ButtonRow>
-            <Button variant="secondary" fill="outline" onClick={onClose}>
+            <Button variant="secondary" fill="outline" onClick={onClose}><Trans i18nKey="Components.save-search-modal.close">
               Close
-            </Button>
+            </Trans></Button>
           </Modal.ButtonRow>
         </>
       )}

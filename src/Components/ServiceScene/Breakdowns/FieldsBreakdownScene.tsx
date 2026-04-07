@@ -3,6 +3,7 @@ import React from 'react';
 import { css, cx } from '@emotion/css';
 
 import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   QueryRunnerState,
   SceneComponentProps,
@@ -314,7 +315,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
-          <FieldSelector label="Field" options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
+          <FieldSelector label={t("Components.fields-breakdown-scene.label-field", "Field")} options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
         )}
       </div>
     );

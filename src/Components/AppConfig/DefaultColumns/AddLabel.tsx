@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -44,15 +45,15 @@ export function AddLabel({ recordIndex }: Props) {
     <div className={styles.labelContainer}>
       <Button
         disabled={isInvalid}
-        tooltip={'Add new label to match against user query'}
+        tooltip={t("Components.add-label.tooltip-label-match-against-query", "Add new label to match against user query")}
         variant={'secondary'}
         fill={'outline'}
         icon={'plus'}
         onClick={() => onAddLabel()}
         className={styles.labelContainer__add}
-      >
+      ><Trans i18nKey="Components.add-label.add-label">
         Add label
-      </Button>
+      </Trans></Button>
     </div>
   );
 }

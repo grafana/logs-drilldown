@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
@@ -80,13 +81,13 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
               size="sm"
               options={[
                 {
-                  description: 'Show results newest to oldest',
-                  label: 'Newest first',
+                  description: t("Components.log-options-renderer.description.show-results-newest-to-oldest", "Show results newest to oldest"),
+                  label: t("Components.log-options-renderer.label.newest-first", "Newest first"),
                   value: LogsSortOrder.Descending,
                 },
                 {
-                  description: 'Show results oldest to newest',
-                  label: 'Oldest first',
+                  description: t("Components.log-options-renderer.description.show-results-oldest-to-newest", "Show results oldest to newest"),
+                  label: t("Components.log-options-renderer.label.oldest-first", "Oldest first"),
                   value: LogsSortOrder.Ascending,
                 },
               ]}
@@ -101,13 +102,13 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
               onChange={model.handleWrapLinesChange}
               options={[
                 {
-                  description: 'Enable wrapping of long log lines',
-                  label: 'Wrap',
+                  description: t("Components.log-options-renderer.description.enable-wrapping-of-long-log-lines", "Enable wrapping of long log lines"),
+                  label: t("Components.log-options-renderer.label.wrap", "Wrap"),
                   value: true,
                 },
                 {
-                  description: 'Disable wrapping of long log lines',
-                  label: 'No wrap',
+                  description: t("Components.log-options-renderer.description.disable-wrapping-of-long-log-lines", "Disable wrapping of long log lines"),
+                  label: t("Components.log-options-renderer.label.no-wrap", "No wrap"),
                   value: false,
                 },
               ]}

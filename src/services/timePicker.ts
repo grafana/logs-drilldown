@@ -55,7 +55,7 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
 };
 
 // Taken from grafana-ui/src/components/DateTimePickers/options.ts and adapted for typical logs searches and retentions
-export const quickOptions: TimeOption[] = [
+export const getQuickOptions = (): TimeOption[] => [
   { from: 'now-1m', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-1-mins', 'Last minute') },
   { from: 'now-5m', to: 'now', display: t('grafana-ui.date-time-pickers.quick-options.last-5-mins', 'Last 5 minutes') },
   {

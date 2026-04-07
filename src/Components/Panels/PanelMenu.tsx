@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { getDataSourceSrv, usePluginComponent } from '@grafana/runtime';
 import {
   SceneComponentProps,
@@ -62,7 +63,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       // Navigation options (all panels)
       const items: PanelMenuItem[] = [
         {
-          text: 'Navigation',
+          text: t("Components.panel-menu.items.text.navigation", "Navigation"),
           type: 'group',
         },
         {
@@ -70,7 +71,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           iconClassName: 'compass',
           onClick: () => onExploreLinkClickTracking(),
           shortcut: 'p x',
-          text: 'Explore',
+          text: t("Components.panel-menu.items.text.explore", "Explore"),
         },
       ];
 
@@ -119,16 +120,16 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           if (isAvailable) {
             const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
-              text: 'ai_divider',
+              text: t("Components.panel-menu.text.aidivider", "ai_divider"),
               type: 'divider',
             });
             this.addItem({
-              text: 'AI',
+              text: t("Components.panel-menu.text.ai", "AI"),
               type: 'group',
             });
             this.addItem({
               iconClassName: 'ai-sparkle',
-              text: 'Explain in Assistant',
+              text: t("Components.panel-menu.text.explain-in-assistant", "Explain in Assistant"),
               onClick: () => {
                 openAssistant({
                   origin: 'logs-drilldown-panel',
@@ -139,7 +140,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
                       datasourceUid: datasource.uid,
                     }),
                     createAssistantContextItem('structured', {
-                      title: 'Logs Drilldown Query',
+                      title: t("Components.panel-menu.title.logs-drilldown-query", "Logs Drilldown Query"),
                       data: {
                         query: getQueryExpression(this),
                       },
@@ -188,7 +189,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         addItemToGroup(
           model,
           {
-            text: 'Add to Dashboard',
+            text: t("Components.panel-menu.text.add-to-dashboard", "Add to Dashboard"),
             onClick: () => {
               model.publishEvent(new AddToDashboardEvent(getAddToDashboardPayload(model)), true);
             },
@@ -210,7 +211,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         addItemToGroup(
           model,
           {
-            text: 'Create alert',
+            text: t("Components.panel-menu.text.create-alert", "Create alert"),
             onClick: () => {
               reportAppInteraction(
                 USER_EVENTS_PAGES.service_details,
@@ -235,11 +236,11 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
 function addVisualizationHeader(items: PanelMenuItem[]) {
   items.push({
-    text: 'visualization_divider',
+    text: t("Components.add-visualization-header.text.visualizationdivider", "visualization_divider"),
     type: 'divider',
   });
   items.push({
-    text: 'Visualization',
+    text: t("Components.add-visualization-header.text.visualization", "Visualization"),
     type: 'group',
   });
 }
@@ -410,7 +411,7 @@ export const getCreateAlertPayload = (model: PanelMenu) => {
 
   const panel: Panel = {
     ...request,
-    title: 'Log count alert',
+    title: t("Components.get-create-alert-payload.panel.title.log-count-alert", "Log count alert"),
     targets: [{ refId: 'A', expr: alertExpr }],
     datasource: {
       type: 'loki',

@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Alert, useStyles2 } from '@grafana/ui';
 
 export function InterceptBanner(props: { onRemove: () => void }) {
@@ -12,43 +13,45 @@ export function InterceptBanner(props: { onRemove: () => void }) {
       <Alert
         className={styles.alert}
         severity={'info'}
-        title={'Welcome to Grafana Logs Drilldown!'}
+        title={t("Components.intercept-banner.title-welcome-to-grafana-logs-drilldown", "Welcome to Grafana Logs Drilldown!")}
         onRemove={props.onRemove}
       >
         <div>
-          Check out our{' '}
-          <a
-            className="external-link"
-            target="_blank"
-            href="https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/"
-            rel="noreferrer"
-          >
-            Get started doc
-          </a>
-          , or see{' '}
-          <a
-            className="external-link"
-            target="_blank"
-            href="https://github.com/grafana/explore-logs/releases"
-            rel="noreferrer"
-          >
-            recent changes
-          </a>
-          .<br />
-          Help us shape the future of the app.{' '}
-          <a className="external-link" target="_blank" href="https://forms.gle/1sYWCTPvD72T1dPH9" rel="noreferrer">
-            Send us feedback
-          </a>{' '}
-          or engage with us on{' '}
-          <a
-            className="external-link"
-            target="_blank"
-            href="https://github.com/grafana/explore-logs/?tab=readme-ov-file#explore-logs"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
-          .
+          <Trans i18nKey="Components.intercept-banner.body">
+            Check out our{' '}
+            <a
+              className="external-link"
+              target="_blank"
+              href="https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/"
+              rel="noreferrer"
+            >
+              Get started doc
+            </a>
+            , or see{' '}
+            <a
+              className="external-link"
+              target="_blank"
+              href="https://github.com/grafana/explore-logs/releases"
+              rel="noreferrer"
+            >
+              recent changes
+            </a>
+            .<br />
+            Help us shape the future of the app.{' '}
+            <a className="external-link" target="_blank" href="https://forms.gle/1sYWCTPvD72T1dPH9" rel="noreferrer">
+              Send us feedback
+            </a>{' '}
+            or engage with us on{' '}
+            <a
+              className="external-link"
+              target="_blank"
+              href="https://github.com/grafana/explore-logs/?tab=readme-ov-file#explore-logs"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
+            .
+          </Trans>
         </div>
       </Alert>
     </>

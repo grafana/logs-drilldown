@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Button, ConfirmButton, Stack, useStyles2 } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
@@ -18,16 +19,16 @@ export function Footer() {
           <ConfirmButton
             onConfirm={reset}
             closeOnConfirm={true}
-            confirmText={'Reset'}
+            confirmText={t("Components.footer.confirmText-reset", "Reset")}
             confirmVariant={'destructive'}
             aria-disabled={!hasUnsavedChanges}
             disabled={!hasUnsavedChanges}
           >
-            Reset
+            {t("Components.footer.reset", "Reset")}
           </ConfirmButton>
-          <Button variant="primary" disabled={!hasUnsavedChanges} onClick={save}>
+          <Button variant="primary" disabled={!hasUnsavedChanges} onClick={save}><Trans i18nKey="Components.footer.save-changes">
             Save changes
-          </Button>
+          </Trans></Button>
         </Stack>
       </Stack>
     </footer>

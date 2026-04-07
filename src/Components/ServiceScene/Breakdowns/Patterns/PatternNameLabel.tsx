@@ -3,6 +3,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LoadingState, LogLabelStatsModel, TimeRange } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { AdHocFiltersVariable, sceneGraph } from '@grafana/scenes';
 import { Spinner, Toggletip, useStyles2 } from '@grafana/ui';
 
@@ -81,9 +82,9 @@ export const PatternNameLabel = ({ exploration, maxLines, pattern }: PatternName
                 <>
                   {stats && stats[index].length > 0 && <PatternFieldLabelStats stats={stats[index]} value="" />}
                   {stats && stats[index].length === 0 && (
-                    <div>No available stats for this field in the current timestamp.</div>
+                    <div><Trans i18nKey="Components.pattern-name-label.available-stats-field-current-timestamp">No available stats for this field in the current timestamp.</Trans></div>
                   )}
-                  {!stats && statsError && <div>Could not load stats for this pattern.</div>}
+                  {!stats && statsError && <div><Trans i18nKey="Components.pattern-name-label.could-stats-pattern">Could not load stats for this pattern.</Trans></div>}
                   {!stats && !statsError && (
                     <div style={{ padding: '10px' }}>
                       <Spinner size="xl" />

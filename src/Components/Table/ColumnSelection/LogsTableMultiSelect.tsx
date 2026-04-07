@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { useTheme2 } from '@grafana/ui';
 
 import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
@@ -60,9 +61,9 @@ export const LogsTableMultiSelect = (props: {
       {/* Sidebar columns */}
       <>
         <div className={styles.columnHeader}>
-          Selected fields
+          <Trans i18nKey="logs-table-multi-select.header.selected-fields">Selected fields</Trans>
           <button onClick={props.clear} className={styles.columnHeaderButton}>
-            Reset
+            {t('logs-table-multi-select.button.reset', 'Reset')}
           </button>
         </div>
         <LogsTableActiveFields
@@ -73,7 +74,7 @@ export const LogsTableMultiSelect = (props: {
           id={'selected-fields'}
         />
 
-        <div className={styles.columnHeader}>Fields</div>
+        <div className={styles.columnHeader}><Trans i18nKey="Components.logs-table-multi-select.fields">Fields</Trans></div>
         <LogsTableAvailableFields
           toggleColumn={props.toggleColumn}
           labels={props.filteredColumnsWithMeta ?? props.columnsWithMeta}

@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 import { map, Observable } from 'rxjs';
 
 import { DataFrame, LoadingState, PanelData } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import {
   SceneByFrameRepeater,
   SceneComponentProps,
@@ -200,9 +201,11 @@ function buildNoResultsScene(filter: string, clearFilter: () => void) {
           reactNode: (
             <div className={styles.alertContainer}>
               <Alert title="" severity="info" className={styles.noResultsAlert}>
-                No values found matching &ldquo;{filter}&rdquo;
+                <Trans i18nKey="Components.by-frame-repeater.no-values-found" values={{ filter }}>
+                  No values found matching &ldquo;{'{{filter}}'}&rdquo;
+                </Trans>
                 <Button className={styles.clearButton} onClick={clearFilter}>
-                  Clear filter
+                  <Trans i18nKey="Components.by-frame-repeater.clear-filter">Clear filter</Trans>
                 </Button>
               </Alert>
             </div>

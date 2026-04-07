@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
+import { Trans, t } from '@grafana/i18n';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -966,15 +967,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (!status.isValid && !status.newPrimaryLabel) {
       return (
         <Alert
-          title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
+          title={status.reason === LabelFiltersInvalidReason.Empty ? t('service-scene.alert.no-labels-selected', 'No labels selected') : t('service-scene.alert.invalid-labels-selected', 'Invalid labels selected')}
           severity="info"
         >
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
             {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
-              <p>You need at least one label with inclusive matching.</p>
+              <p><Trans i18nKey="Components.service-scene.least-label-inclusive-matching">You need at least one label with inclusive matching.</Trans></p>
             )}
             {status.reason === LabelFiltersInvalidReason.Empty && (
-              <p>Please select at least one label to see the logs breakdown.</p>
+              <p><Trans i18nKey="service-scene.alert.select-label">Please select at least one label to see the logs breakdown.</Trans></p>
             )}
             <ResetFiltersButton indexScene={indexScene} />
           </div>
@@ -992,7 +993,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t("Components.service-scene.text-loading", "Loading...")} />;
   };
 }
 

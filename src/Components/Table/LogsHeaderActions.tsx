@@ -2,6 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
+import { t } from '@grafana/i18n';
 import { RadioButtonGroup } from '@grafana/ui';
 
 import { logsControlsSupported } from 'services/panel';
@@ -21,18 +22,18 @@ export function LogsPanelHeaderActions(props: {
       <RadioButtonGroup
         options={[
           {
-            description: 'Show results in logs visualisation',
-            label: 'Logs',
+            description: t("Components.logs-panel-header-actions.description.show-results-in-logs-visualisation", "Show results in logs visualisation"),
+            label: t("Components.logs-panel-header-actions.label.logs", "Logs"),
             value: 'logs',
           },
           {
-            description: 'Show results in table visualisation',
-            label: 'Table',
+            description: t("Components.logs-panel-header-actions.description.show-results-in-table-visualisation", "Show results in table visualisation"),
+            label: t("Components.logs-panel-header-actions.label.table", "Table"),
             value: 'table',
           },
           {
-            description: 'Show results in json visualisation',
-            label: 'JSON',
+            description: t("Components.logs-panel-header-actions.description.show-results-in-json-visualisation", "Show results in json visualisation"),
+            label: t("Components.logs-panel-header-actions.label.json", "JSON"),
             value: 'json',
           },
         ]}

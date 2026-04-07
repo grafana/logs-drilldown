@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Select, Stack, useStyles2 } from '@grafana/ui';
 
@@ -39,7 +40,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
             isOpen={showPopover}
-            placeholder={'Search labels'}
+            placeholder={t("Components.tab-popover-scene.placeholder-search-labels", "Search labels")}
             options={tabOptionsWithIcon}
             isSearchable={true}
             openMenuOnFocus={true}

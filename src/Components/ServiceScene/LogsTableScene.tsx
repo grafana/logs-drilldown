@@ -3,6 +3,7 @@ import React, { lazy, useRef } from 'react';
 import { css } from '@emotion/css';
 
 import { AdHocVariableFilter, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   SceneComponentProps,
@@ -310,7 +311,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
             {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
             <PanelChrome
               loadingState={data?.state}
-              title={'Logs'}
+              title={t("Components.logs-table-scene.title-logs", "Logs")}
               menu={menu ? <menu.Component model={menu} /> : undefined}
               showMenuAlways={true}
               actions={

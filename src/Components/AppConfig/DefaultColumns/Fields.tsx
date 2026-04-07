@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { Alert, Button, useStyles2 } from '@grafana/ui';
 
 import { ColumnsDragContext } from './ColumnsDragContext';
@@ -63,9 +64,9 @@ export function Fields({ recordIndex }: Props) {
         icon={'plus'}
         onClick={() => addDisplayField()}
         className={styles.fieldsContainer__button}
-      >
+      ><Trans i18nKey="Components.fields.add-column">
         Add column
-      </Button>
+      </Trans></Button>
     </div>
   );
 }

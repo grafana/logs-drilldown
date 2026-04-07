@@ -171,7 +171,7 @@ export function PatternTextSearchComponent({ model }: SceneComponentProps<Patter
           onChange={model.handleSearchChange}
           onClear={model.clearSearch}
           value={patternFilter}
-          placeholder="Search patterns"
+          placeholder={t("Components.pattern-text-search.placeholder-search-patterns", "Search patterns")}
         />
       </Field>
       {hasNonIndexedFilters && (

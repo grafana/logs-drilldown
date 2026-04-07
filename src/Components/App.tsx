@@ -1,6 +1,7 @@
 import React, { lazy, useEffect, useState } from 'react';
 
 import { AppRootProps } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { initializeFeatureFlags, initOpenFeatureProvider } from 'featureFlags/openFeature';
@@ -31,7 +32,7 @@ const App = (props: AppRootProps) => {
 
   // Show a loading spinner until the feature flags are ready
   if (!isReady) {
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t("Components.app.text-loading", "Loading...")} />;
   }
 
   return (

@@ -9,6 +9,7 @@ import {
   FieldWithIndex,
   Labels,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 
 // these are like Labels, but their values can be
 // arbitrary structures, not just strings
@@ -215,7 +216,7 @@ export function getVisibleRangeFrame(start: number, end: number) {
     {
       color: 'rgba(58, 113, 255, 0.3)',
       isRegion: true,
-      text: 'Range from oldest to newest logs in display',
+      text: t("services.get-visible-range-frame.frame.text.range-oldest-newest-display", "Range from oldest to newest logs in display"),
       time: start,
       timeEnd: end,
     },

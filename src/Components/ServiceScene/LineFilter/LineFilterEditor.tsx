@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Button, Field, Select, useStyles2 } from '@grafana/ui';
 
 import { testIds } from '../../../services/testIds';
@@ -59,11 +60,11 @@ export function LineFilterEditor({
           value={exclusive ? 'exclusive' : 'inclusive'}
           options={[
             {
-              label: 'Exclude',
+              label: t("Components.line-filter-editor.label.exclude", "Exclude"),
               value: 'exclusive',
             },
             {
-              label: 'Include',
+              label: t("Components.line-filter-editor.label.include", "Include"),
               value: 'inclusive',
             },
           ]}
@@ -90,7 +91,7 @@ export function LineFilterEditor({
             </span>
           }
           prefix={null}
-          placeholder="Filter logs by string"
+          placeholder={t("Components.line-filter-editor.placeholder-filter-logs-by-string", "Filter logs by string")}
           onClear={onClearLineFilter}
           onKeyUp={(e) => {
             handleEnter(e, lineFilter);
@@ -109,9 +110,9 @@ export function LineFilterEditor({
             variant={'secondary'}
             fill={'outline'}
             disabled={!lineFilter}
-          >
+          ><Trans i18nKey="Components.line-filter-editor.include">
             Include
-          </Button>
+          </Trans></Button>
           <Button
             onClick={() => {
               setExclusive(true);
@@ -121,9 +122,9 @@ export function LineFilterEditor({
             variant={'secondary'}
             fill={'outline'}
             disabled={!lineFilter}
-          >
+          ><Trans i18nKey="Components.line-filter-editor.exclude">
             Exclude
-          </Button>
+          </Trans></Button>
         </span>
       )}
     </div>

@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 import { memoize } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
 import { testIds } from '../../../services/testIds';
@@ -43,7 +44,7 @@ export const LabelName = ({ recordIndex, labelIndex }: ValueProps) => {
         value={labelName}
         invalid={!labelName}
         data-testid={testIds.appConfig.defaultColumns.labels.key}
-        placeholder={'Select label name'}
+        placeholder={t("Components.label-name.placeholder-select-label-name", "Select label name")}
         width={'auto'}
         minWidth={30}
         maxWidth={90}

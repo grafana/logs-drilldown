@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Icon, useStyles2 } from '@grafana/ui';
 
 export const GiveFeedbackButton = () => {
@@ -12,11 +13,11 @@ export const GiveFeedbackButton = () => {
       <a
         href="https://forms.gle/1sYWCTPvD72T1dPH9"
         className={styles.feedback}
-        title="Share your thoughts about Logs in Grafana."
+        title={t("Components.give-feedback-button.title-share-thoughts-about-grafana", "Share your thoughts about Logs in Grafana.")}
         target="_blank"
         rel="noreferrer noopener"
       >
-        <Icon name="comment-alt-message" /> Give feedback
+        <Icon name="comment-alt-message" /> <Trans i18nKey="Components.give-feedback-button.give-feedback">Give feedback</Trans>
       </a>
     </div>
   );

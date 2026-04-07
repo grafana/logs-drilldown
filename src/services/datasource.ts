@@ -9,6 +9,7 @@ import {
   LoadingState,
   TestDataSourceResponse,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
@@ -579,7 +580,7 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 
   testDatasource(): Promise<TestDataSourceResponse> {
-    return Promise.resolve({ message: 'Data source is working', status: 'success', title: 'Success' });
+    return Promise.resolve({ message: t("services.wrapped-loki-datasource.message.data-source-is-working", "Data source is working"), status: 'success', title: t("services.wrapped-loki-datasource.title.success", "Success") });
   }
 }
 

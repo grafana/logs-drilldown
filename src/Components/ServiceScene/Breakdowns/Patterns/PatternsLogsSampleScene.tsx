@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { LoadingState } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -163,9 +164,9 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
       logger.error(new Error('Pattern sample query returns no results'), logContext);
 
       this.setWarningMessage(
-        <Alert severity={'error'} title={''}>
+        <Alert severity={'error'} title={''}><Trans i18nKey="Components.patterns-logs-sample-scene.this-pattern-returns-no-logs">
           This pattern returns no logs.
-        </Alert>
+        </Trans></Alert>
       );
 
       const panelFlexItem = this.getVizFlexItem();
@@ -236,9 +237,11 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
           body: new SceneReactObject({
             reactNode: (
               <Alert severity={'warning'} title={''}>
-                The logs returned by this pattern do not match the current query filters.
+                <Trans i18nKey="Components.patterns-logs-sample-scene.no-match-filters">
+                  The logs returned by this pattern do not match the current query filters.
+                </Trans>
                 <Button className={emptyStateStyles.button} onClick={() => this.clearFilters()}>
-                  Clear filters
+                  {t('Components.patterns-logs-sample-scene.clear-filters', 'Clear filters')}
                 </Button>
               </Alert>
             ),

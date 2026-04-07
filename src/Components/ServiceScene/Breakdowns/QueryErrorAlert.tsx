@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { DataQueryError, GrafanaTheme2 } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t, Trans } from '@grafana/i18n';
 import { Alert, EmptyState, LinkButton, useStyles2 } from '@grafana/ui';
 
 import { PageSlugs } from '../../../services/enums';
@@ -64,12 +64,12 @@ export function QueryErrorContent(props: { err: DataQueryError; label: string; t
         <div>
           {traces.length === 1 && (
             <>
-              <strong>TraceId</strong>: {traces[0]}
+              <strong><Trans i18nKey="Components.query-error-content.trace-id">TraceId</Trans></strong>: {traces[0]}
             </>
           )}
           {traces.length > 1 && (
             <>
-              <strong>TraceIds</strong>: {traces.join(', ')}
+              <strong><Trans i18nKey="Components.query-error-content.trace-ids">TraceIds</Trans></strong>: {traces.join(', ')}
             </>
           )}
         </div>
@@ -86,23 +86,27 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
         {props.err.message && (
           <>
             <p>
-              <strong>Max series limit exceeded</strong>: {props.err.message}.
+              <strong><Trans i18nKey="Components.error-message.max-series-limit-exceeded">Max series limit exceeded</Trans></strong>: {props.err.message}.
             </p>
             <p>
-              To increase this limit, adjust the{' '}
-              <a
-                target={'_blank'}
-                href="https://grafana.com/docs/loki/latest/configure/#limits_config"
-                className="external-link"
-                rel="noreferrer"
-              >
-                max_query_series
-              </a>{' '}
-              in your Loki configuration.
+              <Trans i18nKey="Components.error-message.increase-limit">
+                To increase this limit, adjust the{' '}
+                <a
+                  target={'_blank'}
+                  href="https://grafana.com/docs/loki/latest/configure/#limits_config"
+                  className="external-link"
+                  rel="noreferrer"
+                >
+                  max_query_series
+                </a>{' '}
+                in your Loki configuration.
+              </Trans>
             </p>
             <p>
-              <strong>Tip:</strong> Reduce the time range, or add additional filters to reduce the number of unique
-              values in the {props.label} field.
+              <Trans i18nKey="Components.error-message.tip-reduce-range" values={{ label: props.label }}>
+                <strong>Tip:</strong> Reduce the time range, or add additional filters to reduce the number of unique
+                values in the {'{{label}}'} field.
+              </Trans>
             </p>
           </>
         )}
@@ -114,7 +118,7 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
     <>
       {props.err.message && (
         <div>
-          <strong>Message</strong>: {props.err.message}
+          <strong><Trans i18nKey="Components.error-message.message">Message</Trans></strong>: {props.err.message}
         </div>
       )}
     </>

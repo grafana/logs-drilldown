@@ -11,6 +11,7 @@ import {
   GrafanaTheme2,
   LoadingState,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -148,7 +149,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           // Service search variable
           new CustomConstantVariable({
             hide: VariableHide.hideVariable,
-            label: 'Service',
+            label: t("Components.service-selection-scene.label.service", "Service"),
             name: VAR_PRIMARY_LABEL_SEARCH,
             skipUrlSync: true,
             value: '.+',

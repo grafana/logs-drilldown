@@ -2,6 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
+import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, useStyles2 } from '@grafana/ui';
 
@@ -66,7 +67,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
     return (
       <span className={styles.wrapper}>
         <Button
-          tooltip={included === true ? `Remove ${value} from filters` : `Add ${value} to filters`}
+          tooltip={included === true ? t('add-label-to-filters.tooltip.remove', 'Remove {{value}} from filters', { value }) : t('add-label-to-filters.tooltip.add', 'Add {{value}} to filters', { value })}
           variant={included ? 'destructive' : 'secondary'}
           fill={'outline'}
           size="sm"
@@ -74,7 +75,7 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           onClick={() => (included === true ? model.onClick('clear') : model.onClick('include'))}
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >
-          {included ? 'Remove' : 'Include'}
+          {included ? <Trans i18nKey="add-label-to-filters.button.remove">Remove</Trans> : <Trans i18nKey="add-label-to-filters.button.include">Include</Trans>}
         </Button>
       </span>
     );

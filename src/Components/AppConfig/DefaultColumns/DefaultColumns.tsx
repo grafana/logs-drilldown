@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useGetLogsDrilldownDefaultColumnsQuery } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+import { t } from '@grafana/i18n';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -82,7 +83,7 @@ export const DefaultColumns = ({}: Props) => {
   ]);
 
   if (isLoading) {
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t("Components.default-columns.text-loading", "Loading...")} />;
   }
 
   return <Records />;

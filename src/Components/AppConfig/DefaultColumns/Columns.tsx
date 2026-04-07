@@ -4,6 +4,7 @@ import { css, cx } from '@emotion/css';
 import { Draggable, DraggableProvided } from '@hello-pangea/dnd';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Combobox, Icon, IconButton, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -65,8 +66,8 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                 className={cx(styles.column, snapshot.isDropAnimating ? styles['column--drop-animating'] : undefined)}
               >
                 <Icon
-                  aria-label="Drag and drop icon"
-                  title="Drag and drop to reorder"
+                  aria-label={t("Components.columns.aria-label-drag-and-drop-icon", "Drag and drop icon")}
+                  title={t("Components.columns.title-drag-and-drop-to-reorder", "Drag and drop to reorder")}
                   name="draggabledots"
                   size="lg"
                   className={styles.column__dragIcon}
@@ -77,7 +78,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                     value: column,
                     label: getNormalizedFieldName(column),
                   }}
-                  placeholder={'Select column'}
+                  placeholder={t("Components.columns.placeholder-select-column", "Select column")}
                   width={'auto'}
                   minWidth={30}
                   isClearable={false}
@@ -90,7 +91,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                 {columns.length > 1 && (
                   <IconButton
                     variant={'destructive'}
-                    tooltip={`Remove ${getNormalizedFieldName(column)}`}
+                    tooltip={t("Components.columns.tooltip-remove-column", "Remove {{column}}", { column: getNormalizedFieldName(column) })}
                     name="trash-alt"
                     size={'lg'}
                     className={styles.column__removeIcon}

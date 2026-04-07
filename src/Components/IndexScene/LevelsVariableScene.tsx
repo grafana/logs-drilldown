@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { MetricFindValue, SelectableValue } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   ControlsLabel,
   SceneComponentProps,
@@ -141,11 +142,11 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
     return (
       <div data-testid={testIds.variables.levels.inputWrap} className={styles.wrapper}>
-        <ControlsLabel layout="vertical" label={'Log levels'} />
+        <ControlsLabel layout="vertical" label={t("Components.levels-variable-scene.label-log-levels", "Log levels")} />
         <MultiSelect
-          aria-label={'Log level filters'}
+          aria-label={t("Components.levels-variable-scene.aria-label-log-level-filters", "Log level filters")}
           prefix={<Icon size={'lg'} name={'filter'} />}
-          placeholder={'All levels'}
+          placeholder={t("Components.levels-variable-scene.placeholder-all-levels", "All levels")}
           className={styles.control}
           onChange={model.onChangeOptions}
           onCloseMenu={() => model.onCloseMenu()}

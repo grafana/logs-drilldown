@@ -10,6 +10,7 @@ import {
   useReplaceLogsDrilldownDefaultColumnsMutation,
 } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -98,7 +99,7 @@ export function Submit() {
         }
       }}
     >
-      {createNewRecord ? 'Create default columns' : 'Update default columns'}
+      {createNewRecord ? t("Components.submit.create-default-columns", "Create default columns") : t("Components.submit.update-default-columns", "Update default columns")}
     </Button>
   );
 }

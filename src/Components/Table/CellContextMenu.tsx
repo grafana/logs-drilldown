@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LinkModel } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Icon, useTheme2 } from '@grafana/ui';
 
 import { FilterOp } from '../../services/filterTypes';
@@ -74,7 +75,7 @@ export const CellContextMenu = (props: Props) => {
                 }
               }}
             >
-              <Icon title={'Add to search'} size={'md'} name={'plus-circle'} />
+              <Icon title={t("Components.cell-context-menu.title-add-to-search", "Add to search")} size={'md'} name={'plus-circle'} />
             </div>
             <div
               className={styles.menuItem}
@@ -97,14 +98,14 @@ export const CellContextMenu = (props: Props) => {
                 }
               }}
             >
-              <Icon title={'Exclude from search'} size={'md'} name={'minus-circle'} />
+              <Icon title={t("Components.cell-context-menu.title-exclude-from-search", "Exclude from search")} size={'md'} name={'minus-circle'} />
             </div>
           </>
         )}
 
         {props.showColumn && (
           <div
-            title={'Add column'}
+            title={t("Components.cell-context-menu.title-add-column", "Add column")}
             role="button"
             tabIndex={0}
             className={styles.menuItem}
