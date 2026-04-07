@@ -6,9 +6,11 @@ describe('loadResources', () => {
       const result = await loadResources('en-US');
 
       expect(result).toMatchObject({
-        logs: {
-          'log-line-details': {
-            'copy-to-clipboard': 'Copy to clipboard',
+        Components: {
+          logs: {
+            'log-line-details': {
+              'copy-to-clipboard': 'Copy to clipboard',
+            },
           },
         },
       });
@@ -18,9 +20,11 @@ describe('loadResources', () => {
       const result = await loadResources('');
 
       expect(result).toMatchObject({
-        logs: {
-          'log-line-details': {
-            'copy-to-clipboard': 'Copy to clipboard',
+        Components: {
+          logs: {
+            'log-line-details': {
+              'copy-to-clipboard': 'Copy to clipboard',
+            },
           },
         },
       });
@@ -32,9 +36,11 @@ describe('loadResources', () => {
       const result = await loadResources('xx-XX');
 
       expect(result).toMatchObject({
-        logs: {
-          'log-line-details': {
-            'copy-to-clipboard': 'Copy to clipboard',
+        Components: {
+          logs: {
+            'log-line-details': {
+              'copy-to-clipboard': 'Copy to clipboard',
+            },
           },
         },
       });
