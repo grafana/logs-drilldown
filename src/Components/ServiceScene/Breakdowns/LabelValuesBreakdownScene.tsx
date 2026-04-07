@@ -511,7 +511,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
     const { body } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
     if (body) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+      return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
     return <LoadingPlaceholder text={t('breakdowns.label-values.loading', 'Loading...')} />;
