@@ -35,7 +35,19 @@ export const JSONFieldValueButton = memo(
       () => (
         <ImgButton
           className={styles.button}
-          tooltip={type === 'include' ? t('json-filter-buttons.field-value.tooltip.include', 'Include log lines containing {{label}}="{{value}}"', { label, value }) : t('json-filter-buttons.field-value.tooltip.exclude', 'Exclude log lines containing {{label}}="{{value}}"', { label, value })}
+          tooltip={
+            type === 'include'
+              ? t(
+                  'Components.json-filter-buttons.field-value.tooltip.include',
+                  'Include log lines containing {{label}}="{{value}}"',
+                  { label, value }
+                )
+              : t(
+                  'Components.json-filter-buttons.field-value.tooltip.exclude',
+                  'Exclude log lines containing {{label}}="{{value}}"',
+                  { label, value }
+                )
+          }
           onClick={(e) => {
             e.stopPropagation();
             addJSONFieldFilter({
@@ -50,7 +62,11 @@ export const JSONFieldValueButton = memo(
           aria-selected={isActive}
           variant={isActive ? 'primary' : 'secondary'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
-          aria-label={type === 'include' ? t('json-filter-buttons.field-value.aria-label.include', 'include filter') : t('json-filter-buttons.field-value.aria-label.exclude', 'exclude filter')}
+          aria-label={
+            type === 'include'
+              ? t('Components.json-filter-buttons.field-value.aria-label.include', 'include filter')
+              : t('Components.json-filter-buttons.field-value.aria-label.exclude', 'exclude filter')
+          }
         />
       ),
       [isActive, selected, type, styles.button, keyPath, fullKey, value, label, model]
@@ -79,7 +95,19 @@ export const JSONMetadataButton = memo(
       () => (
         <ImgButton
           className={styles.button}
-          tooltip={type === 'include' ? t('json-filter-buttons.metadata.tooltip.include', 'Include log lines containing {{label}}="{{value}}"', { label, value }) : t('json-filter-buttons.metadata.tooltip.exclude', 'Exclude log lines containing {{label}}="{{value}}"', { label, value })}
+          tooltip={
+            type === 'include'
+              ? t(
+                  'Components.json-filter-buttons.metadata.tooltip.include',
+                  'Include log lines containing {{label}}="{{value}}"',
+                  { label, value }
+                )
+              : t(
+                  'Components.json-filter-buttons.metadata.tooltip.exclude',
+                  'Exclude log lines containing {{label}}="{{value}}"',
+                  { label, value }
+                )
+          }
           onClick={(e) => {
             e.stopPropagation();
 
@@ -94,7 +122,11 @@ export const JSONMetadataButton = memo(
           aria-selected={selected}
           variant={selected ? 'primary' : 'secondary'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
-          aria-label={type === 'include' ? t('json-filter-buttons.metadata.aria-label.include', 'include filter') : t('json-filter-buttons.metadata.aria-label.exclude', 'exclude filter')}
+          aria-label={
+            type === 'include'
+              ? t('Components.json-filter-buttons.metadata.aria-label.include', 'include filter')
+              : t('Components.json-filter-buttons.metadata.aria-label.exclude', 'exclude filter')
+          }
         />
       ),
       [selected, label, sceneRef, styles.button, type, value, variableType]

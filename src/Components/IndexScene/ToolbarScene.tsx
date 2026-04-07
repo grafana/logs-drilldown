@@ -89,10 +89,12 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
           className={styles.popover}
           role="dialog"
           aria-modal="true"
-          aria-label={t("Components.toolbar-scene.render-popover.aria-label-query-options", "Query options")}
+          aria-label={t('Components.toolbar-scene.render-popover.aria-label-query-options', 'Query options')}
           onClick={(evt) => evt.stopPropagation()}
         >
-          <div className={styles.heading}><Trans i18nKey="Components.toolbar-scene.render-popover.query-options">Query options</Trans></div>
+          <div className={styles.heading}>
+            <Trans i18nKey="Components.toolbar-scene.render-popover.query-options">Query options</Trans>
+          </div>
           <div className={styles.options}>
             {exploreLogsAggregatedMetrics && (
               <>
@@ -101,8 +103,15 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
                   <Tooltip
                     content={
                       options.aggregatedMetrics.disabled
-                        ? t('Components.toolbar-scene.aggregated-metrics-disabled-tooltip', 'Aggregated metrics can only be enabled for queries starting after {{date}}', { date: AGGREGATED_METRIC_START_DATE.toLocaleString() })
-                        : t('Components.toolbar-scene.aggregated-metrics-tooltip', 'Aggregated metrics will return service queries results much more quickly, but with lower resolution')
+                        ? t(
+                            'Components.toolbar-scene.aggregated-metrics-disabled-tooltip',
+                            'Aggregated metrics can only be enabled for queries starting after {{date}}',
+                            { date: AGGREGATED_METRIC_START_DATE.toLocaleString() }
+                          )
+                        : t(
+                            'Components.toolbar-scene.aggregated-metrics-tooltip',
+                            'Aggregated metrics will return service queries results much more quickly, but with lower resolution'
+                          )
                     }
                   >
                     <Icon name="info-circle" />
@@ -110,7 +119,10 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
                 </div>
                 <span>
                   <Switch
-                    label={t("Components.toolbar-scene.render-popover.label-toggle-aggregated-metrics", "Toggle aggregated metrics")}
+                    label={t(
+                      'Components.toolbar-scene.render-popover.label-toggle-aggregated-metrics',
+                      'Toggle aggregated metrics'
+                    )}
                     data-testid={testIds.index.aggregatedMetricsToggle}
                     value={options.aggregatedMetrics.active}
                     disabled={options.aggregatedMetrics.disabled}
@@ -129,7 +141,10 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
                 </div>
                 <span>
                   <Switch
-                    label={t("Components.toolbar-scene.render-popover.label-toggle-insights-annotations", "Toggle insights annotations")}
+                    label={t(
+                      'Components.toolbar-scene.render-popover.label-toggle-insights-annotations',
+                      'Toggle insights annotations'
+                    )}
                     value={kgToggleState?.isEnabled ?? false}
                     onChange={kgAnnotationToggle.toggleEnabled}
                   />
@@ -148,7 +163,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
             icon="cog"
             variant="canvas"
             isOpen={isOpen}
-            aria-label={t("Components.toolbar-scene.aria-label-query-options", "Query options")}
+            aria-label={t('Components.toolbar-scene.aria-label-query-options', 'Query options')}
             data-testid={testIds.index.aggregatedMetricsMenu}
           />
         </Dropdown>

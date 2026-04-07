@@ -92,8 +92,8 @@ export default function OpenInLogsDrilldownButton({
         reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.link_button_click);
         setReturnToPrevious(returnToPreviousSource || 'previous');
       }}
-    ><Trans i18nKey="Components.open-in-logs-drilldown-button.open-in-logs-drilldown">
-      Open in Logs Drilldown
-    </Trans></LinkButton>
+    >
+      <Trans i18nKey="Components.open-in-logs-drilldown-button.open-in-logs-drilldown">Open in Logs Drilldown</Trans>
+    </LinkButton>
   );
 }

@@ -67,7 +67,11 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
     return (
       <span className={styles.wrapper}>
         <Button
-          tooltip={included === true ? t('add-label-to-filters.tooltip.remove', 'Remove {{value}} from filters', { value }) : t('add-label-to-filters.tooltip.add', 'Add {{value}} to filters', { value })}
+          tooltip={
+            included === true
+              ? t('Components.add-label-to-filters.tooltip.remove', 'Remove {{value}} from filters', { value })
+              : t('Components.add-label-to-filters.tooltip.add', 'Add {{value}} to filters', { value })
+          }
           variant={included ? 'destructive' : 'secondary'}
           fill={'outline'}
           size="sm"
@@ -75,7 +79,11 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           onClick={() => (included === true ? model.onClick('clear') : model.onClick('include'))}
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >
-          {included ? <Trans i18nKey="add-label-to-filters.button.remove">Remove</Trans> : <Trans i18nKey="add-label-to-filters.button.include">Include</Trans>}
+          {included ? (
+            <Trans i18nKey="Components.add-label-to-filters.button.remove">Remove</Trans>
+          ) : (
+            <Trans i18nKey="Components.add-label-to-filters.button.include">Include</Trans>
+          )}
         </Button>
       </span>
     );

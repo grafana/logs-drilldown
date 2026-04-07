@@ -262,8 +262,17 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     menuPosition={'absolute'}
                     value={gte !== undefined ? gte.toString() : 'false'}
                     options={[
-                      { label: t("Components.numeric-filter-popover-scene.label.greater-than", "Greater than"), value: 'false' },
-                      { label: t("Components.numeric-filter-popover-scene.label.greater-than-or-equal", "Greater than or equal"), value: 'true' },
+                      {
+                        label: t('Components.numeric-filter-popover-scene.label.greater-than', 'Greater than'),
+                        value: 'false',
+                      },
+                      {
+                        label: t(
+                          'Components.numeric-filter-popover-scene.label.greater-than-or-equal',
+                          'Greater than or equal'
+                        ),
+                        value: 'true',
+                      },
                     ]}
                     onChange={(value) => model.setState({ gte: value.value === 'true' })}
                   />
@@ -293,7 +302,11 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit}
                       horizontal={true}
                       className={popoverStyles.card.field}
-                      label={<span className={popoverStyles.card.unitFieldLabel}><Trans i18nKey="Components.numeric-filter-popover-scene.unit">Unit</Trans></span>}
+                      label={
+                        <span className={popoverStyles.card.unitFieldLabel}>
+                          <Trans i18nKey="Components.numeric-filter-popover-scene.unit">Unit</Trans>
+                        </span>
+                      }
                     >
                       <Select
                         onChange={(e) => {
@@ -325,8 +338,17 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     menuPosition={'absolute'}
                     value={lte !== undefined ? lte.toString() : 'false'}
                     options={[
-                      { label: t("Components.numeric-filter-popover-scene.label.less-than", "Less than"), value: 'false' },
-                      { label: t("Components.numeric-filter-popover-scene.label.less-than-or-equal", "Less than or equal"), value: 'true' },
+                      {
+                        label: t('Components.numeric-filter-popover-scene.label.less-than', 'Less than'),
+                        value: 'false',
+                      },
+                      {
+                        label: t(
+                          'Components.numeric-filter-popover-scene.label.less-than-or-equal',
+                          'Less than or equal'
+                        ),
+                        value: 'true',
+                      },
                     ]}
                     onChange={(value) => model.setState({ lte: value.value === 'true' })}
                   />
@@ -352,7 +374,11 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit}
                       horizontal={true}
                       className={popoverStyles.card.field}
-                      label={<span className={popoverStyles.card.unitFieldLabel}><Trans i18nKey="Components.numeric-filter-popover-scene.unit">Unit</Trans></span>}
+                      label={
+                        <span className={popoverStyles.card.unitFieldLabel}>
+                          <Trans i18nKey="Components.numeric-filter-popover-scene.unit">Unit</Trans>
+                        </span>
+                      }
                     >
                       <Select
                         onChange={(e) => {
@@ -388,9 +414,9 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   size={'sm'}
                   variant={'destructive'}
                   fill={'outline'}
-                ><Trans i18nKey="Components.numeric-filter-popover-scene.remove">
-                  Remove
-                </Trans></Button>
+                >
+                  <Trans i18nKey="Components.numeric-filter-popover-scene.remove">Remove</Trans>
+                </Button>
               )}
               <Button
                 data-testid={testIds.breakdowns.common.filterNumericPopover.submitButton}
@@ -400,9 +426,9 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                 variant={'primary'}
                 fill={'outline'}
                 type={'submit'}
-              ><Trans i18nKey="Components.numeric-filter-popover-scene.add">
-                Add
-              </Trans></Button>
+              >
+                <Trans i18nKey="Components.numeric-filter-popover-scene.add">Add</Trans>
+              </Button>
 
               <Button
                 data-testid={testIds.breakdowns.common.filterNumericPopover.cancelButton}
@@ -410,9 +436,9 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                 size={'sm'}
                 variant={'secondary'}
                 fill={'outline'}
-              ><Trans i18nKey="Components.numeric-filter-popover-scene.cancel">
-                Cancel
-              </Trans></Button>
+              >
+                <Trans i18nKey="Components.numeric-filter-popover-scene.cancel">Cancel</Trans>
+              </Button>
             </div>
           </div>
         </Stack>

@@ -45,15 +45,18 @@ export function AddLabel({ recordIndex }: Props) {
     <div className={styles.labelContainer}>
       <Button
         disabled={isInvalid}
-        tooltip={t("Components.add-label.tooltip-label-match-against-query", "Add new label to match against user query")}
+        tooltip={t(
+          'Components.add-label.tooltip-label-match-against-query',
+          'Add new label to match against user query'
+        )}
         variant={'secondary'}
         fill={'outline'}
         icon={'plus'}
         onClick={() => onAddLabel()}
         className={styles.labelContainer__add}
-      ><Trans i18nKey="Components.add-label.add-label">
-        Add label
-      </Trans></Button>
+      >
+        <Trans i18nKey="Components.add-label.add-label">Add label</Trans>
+      </Button>
     </div>
   );
 }

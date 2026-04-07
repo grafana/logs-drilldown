@@ -62,13 +62,17 @@ export const updateAssistantContext = async (
     contexts.push(
       ...metadataVar.state.filters.map((filter) => {
         return createAssistantContextItem('structured', {
-          title: t("services.update-assistant-context.title.structured-metadata-filters", "Structured metadata filters"),
+          title: t(
+            'services.update-assistant-context.title.structured-metadata-filters',
+            'Structured metadata filters'
+          ),
           hidden: true,
           data: {
             datasourceUid: ds.uid,
             fieldName: filter.key,
             fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(filter.value)}`,
-            instructions: 'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
+            instructions:
+              'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
           },
         });
       })
@@ -81,7 +85,7 @@ export const updateAssistantContext = async (
       ...fieldsVar.state.filters.map((filter) => {
         const parsedFilter = getValueFromFieldsFilter(filter);
         return createAssistantContextItem('structured', {
-          title: t("services.update-assistant-context.title.parsed-fields-filters", "Parsed fields filters"),
+          title: t('services.update-assistant-context.title.parsed-fields-filters', 'Parsed fields filters'),
           hidden: true,
           data: {
             datasourceUid: ds.uid,

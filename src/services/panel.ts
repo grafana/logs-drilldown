@@ -244,26 +244,26 @@ export function sortLevelTransformation() {
             const aVal = aName?.match(CRITICAL_LEVEL_FIELD_NAME_REGEX)
               ? 5
               : aName?.match(ERROR_LEVEL_FIELD_NAME_REGEX)
-              ? 4
-              : aName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
-              ? 3
-              : aName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
-              ? 2
-              : aName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
-              ? 2
-              : 1;
+                ? 4
+                : aName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
+                  ? 3
+                  : aName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
+                    ? 2
+                    : aName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
+                      ? 2
+                      : 1;
             const bName: string | undefined = b.fields[1].config.displayNameFromDS;
             const bVal = bName?.match(CRITICAL_LEVEL_FIELD_NAME_REGEX)
               ? 5
               : bName?.match(ERROR_LEVEL_FIELD_NAME_REGEX)
-              ? 4
-              : bName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
-              ? 3
-              : bName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
-              ? 2
-              : bName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
-              ? 2
-              : 1;
+                ? 4
+                : bName?.match(WARNING_LEVEL_FIELD_NAME_REGEX)
+                  ? 3
+                  : bName?.match(DEBUG_LEVEL_FIELD_NAME_REGEX)
+                    ? 2
+                    : bName?.match(INFO_LEVEL_FIELD_NAME_REGEX)
+                      ? 2
+                      : 1;
 
             return aVal - bVal;
           });
@@ -350,7 +350,7 @@ export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel
   if (maxSeriesReached(result.data.series)) {
     panel.setState({
       _pluginLoadError: t(
-        'drilldown-logs.notices.max-series-reached',
+        'services.drilldown-logs.notices.max-series-reached',
         'Maximum limit of results reached. Displaying partial results.'
       ),
     });

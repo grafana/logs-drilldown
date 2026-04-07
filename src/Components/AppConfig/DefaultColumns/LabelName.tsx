@@ -44,7 +44,7 @@ export const LabelName = ({ recordIndex, labelIndex }: ValueProps) => {
         value={labelName}
         invalid={!labelName}
         data-testid={testIds.appConfig.defaultColumns.labels.key}
-        placeholder={t("Components.label-name.placeholder-select-label-name", "Select label name")}
+        placeholder={t('Components.label-name.placeholder-select-label-name', 'Select label name')}
         width={'auto'}
         minWidth={30}
         maxWidth={90}

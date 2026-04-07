@@ -7,7 +7,9 @@ import { isDefaultLabelsFlagsSupported, isDefaultLabelsVersionSupported } from '
 export function Unsupported() {
   return (
     <section>
-      <h2><Trans i18nKey="Components.unsupported.landing-page">Landing Page</Trans></h2>
+      <h2>
+        <Trans i18nKey="Components.unsupported.landing-page">Landing Page</Trans>
+      </h2>
       {!isDefaultLabelsFlagsSupported() && (
         <p>
           <Trans i18nKey="Components.unsupported.landing-requires-feature-flag">
@@ -15,7 +17,13 @@ export function Unsupported() {
           </Trans>
         </p>
       )}
-      {!isDefaultLabelsVersionSupported && <p><Trans i18nKey="Components.unsupported.landing-settings-requires-grafana-greater">Landing Page settings requires Grafana 13.0 or greater.</Trans></p>}
+      {!isDefaultLabelsVersionSupported && (
+        <p>
+          <Trans i18nKey="Components.unsupported.landing-settings-requires-grafana-greater">
+            Landing Page settings requires Grafana 13.0 or greater.
+          </Trans>
+        </p>
+      )}
     </section>
   );
 }

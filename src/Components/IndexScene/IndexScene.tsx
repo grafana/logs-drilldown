@@ -267,7 +267,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       return <body.Component model={body} />;
     }
 
-    return <LoadingPlaceholder text={t("Components.index-scene.text-loading", "Loading...")} />;
+    return <LoadingPlaceholder text={t('Components.index-scene.text-loading', 'Loading...')} />;
   };
 
   public onActivate() {
@@ -837,7 +837,7 @@ function getVariableSet(
     expressionBuilder: renderLogQLLabelFilters,
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
-    label: t("Components.get-variable-set.label-variable.label.labels", "Labels"),
+    label: t('Components.get-variable-set.label-variable.label.labels', 'Labels'),
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
@@ -854,7 +854,7 @@ function getVariableSet(
     applyMode: 'manual',
     expressionBuilder: renderLogQLFieldFilters,
     hide: VariableHide.hideVariable,
-    label: t("Components.get-variable-set.fields-variable.label.detected-fields", "Detected fields"),
+    label: t('Components.get-variable-set.fields-variable.label.detected-fields', 'Detected fields'),
     layout: 'combobox',
 
     name: VAR_FIELDS,
@@ -870,7 +870,7 @@ function getVariableSet(
     applyMode: 'manual',
     expressionBuilder: (filters: AdHocFilterWithLabels[]) => renderLogQLMetadataFilters(filters),
     hide: VariableHide.hideVariable,
-    label: t("Components.get-variable-set.metadata-variable.label.metadata", "Metadata"),
+    label: t('Components.get-variable-set.metadata-variable.label.metadata', 'Metadata'),
     layout: 'combobox',
     name: VAR_METADATA,
     filters: initialMetadataFilters ?? [],
@@ -890,7 +890,7 @@ function getVariableSet(
     allowCustomValue: true,
     applyMode: 'manual',
     hide: VariableHide.hideVariable,
-    label: t("Components.get-variable-set.fields-and-metadata-variable.label.fields", "Fields"),
+    label: t('Components.get-variable-set.fields-and-metadata-variable.label.fields', 'Fields'),
     layout: 'combobox',
     name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
@@ -902,7 +902,7 @@ function getVariableSet(
     applyMode: 'manual',
     expressionBuilder: renderLevelsFilter,
     hide: VariableHide.hideVariable,
-    label: t("Components.get-variable-set.levels-variable.label.error-levels", "Error levels"),
+    label: t('Components.get-variable-set.levels-variable.label.error-levels', 'Error levels'),
     layout: 'vertical',
     name: VAR_LEVELS,
     supportsMultiValueOperators: true,
@@ -928,7 +928,7 @@ function getVariableSet(
 
   const dsVariable = new DataSourceVariable({
     hide: embedded ? VariableHide.hideVariable : VariableHide.dontHide,
-    label: t("Components.get-variable-set.ds-variable.label.data-source", "Data source"),
+    label: t('Components.get-variable-set.ds-variable.label.data-source', 'Data source'),
     name: VAR_DATASOURCE,
     pluginId: 'loki',
     value: initialDatasourceUid,

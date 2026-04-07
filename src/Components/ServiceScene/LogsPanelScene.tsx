@@ -346,7 +346,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('setDisplayedFields', this.setDisplayedFields)
         .setOption('logLineMenuCustomItems', [
           {
-            label: t("Components.logs-panel-scene.label.copy-link-to-log-line", "Copy link to log line"),
+            label: t('Components.logs-panel-scene.label.copy-link-to-log-line', 'Copy link to log line'),
             onClick: this.handleShareLogLine,
           },
         ])
@@ -548,6 +548,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         </span>
       );
     }
-    return <LoadingPlaceholder text={t("Components.logs-panel-scene.text-loading", "Loading...")} />;
+    return <LoadingPlaceholder text={t('Components.logs-panel-scene.text-loading', 'Loading...')} />;
   };
 }

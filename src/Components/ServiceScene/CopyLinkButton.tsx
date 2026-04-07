@@ -35,8 +35,16 @@ export const CopyLinkButton = ({ onClick }: Props) => {
 
   return (
     <IconButton
-      aria-label={copied ? t('copy-link-button.aria-label.copied', 'Copied') : t('copy-link-button.aria-label.copy-link', 'Copy link to log line')}
-      tooltip={copied ? t('copy-link-button.tooltip.copied', 'Copied') : t('copy-link-button.tooltip.copy-link', 'Copy link to log line')}
+      aria-label={
+        copied
+          ? t('Components.copy-link-button.aria-label.copied', 'Copied')
+          : t('Components.copy-link-button.aria-label.copy-link', 'Copy link to log line')
+      }
+      tooltip={
+        copied
+          ? t('Components.copy-link-button.tooltip.copied', 'Copied')
+          : t('Components.copy-link-button.tooltip.copy-link', 'Copy link to log line')
+      }
       tooltipPlacement="top"
       variant={copied ? 'primary' : 'secondary'}
       size="md"

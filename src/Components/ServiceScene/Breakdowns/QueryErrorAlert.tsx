@@ -35,8 +35,12 @@ export function QueryErrorAlert(props: {
   });
 
   const title = props.isPartial
-    ? t('logs.logs-drilldown.query-error.partial', 'Showing partial results for {{tagKey}}', { tagKey: props.tagKey })
-    : t('logs.logs-drilldown.query-error.fetch', 'Error fetching results for {{tagKey}}', { tagKey: props.tagKey });
+    ? t('Components.logs.logs-drilldown.query-error.partial', 'Showing partial results for {{tagKey}}', {
+        tagKey: props.tagKey,
+      })
+    : t('Components.logs.logs-drilldown.query-error.fetch', 'Error fetching results for {{tagKey}}', {
+        tagKey: props.tagKey,
+      });
 
   return (
     <EmptyState variant="not-found" message={title}>
@@ -47,7 +51,7 @@ export function QueryErrorAlert(props: {
           ))}
           <div className={styles.buttonWrap}>
             <LinkButton variant={'secondary'} href={getDrillDownTabLink(PageSlugs.fields, props.serviceScene)}>
-              {t('logs.logs-drilldown.query-error.return-fields', 'Return to all fields')}
+              {t('Components.logs.logs-drilldown.query-error.return-fields', 'Return to all fields')}
             </LinkButton>
           </div>
         </Alert>
@@ -64,12 +68,18 @@ export function QueryErrorContent(props: { err: DataQueryError; label: string; t
         <div>
           {traces.length === 1 && (
             <>
-              <strong><Trans i18nKey="Components.query-error-content.trace-id">TraceId</Trans></strong>: {traces[0]}
+              <strong>
+                <Trans i18nKey="Components.query-error-content.trace-id">TraceId</Trans>
+              </strong>
+              : {traces[0]}
             </>
           )}
           {traces.length > 1 && (
             <>
-              <strong><Trans i18nKey="Components.query-error-content.trace-ids">TraceIds</Trans></strong>: {traces.join(', ')}
+              <strong>
+                <Trans i18nKey="Components.query-error-content.trace-ids">TraceIds</Trans>
+              </strong>
+              : {traces.join(', ')}
             </>
           )}
         </div>
@@ -86,7 +96,10 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
         {props.err.message && (
           <>
             <p>
-              <strong><Trans i18nKey="Components.error-message.max-series-limit-exceeded">Max series limit exceeded</Trans></strong>: {props.err.message}.
+              <strong>
+                <Trans i18nKey="Components.error-message.max-series-limit-exceeded">Max series limit exceeded</Trans>
+              </strong>
+              : {props.err.message}.
             </p>
             <p>
               <Trans i18nKey="Components.error-message.increase-limit">
@@ -118,7 +131,10 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
     <>
       {props.err.message && (
         <div>
-          <strong><Trans i18nKey="Components.error-message.message">Message</Trans></strong>: {props.err.message}
+          <strong>
+            <Trans i18nKey="Components.error-message.message">Message</Trans>
+          </strong>
+          : {props.err.message}
         </div>
       )}
     </>

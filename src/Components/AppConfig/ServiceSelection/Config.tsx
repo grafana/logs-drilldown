@@ -28,7 +28,7 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={t("Components.config.text-beta", "Beta")} />
+        <Badge color={'blue'} text={t('Components.config.text-beta', 'Beta')} />
         <span>
           <Trans i18nKey="Components.config.service-selection-description">
             Configure which labels and label values appear by default on the Logs Drilldown landing page.

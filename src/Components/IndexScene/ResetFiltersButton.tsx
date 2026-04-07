@@ -18,10 +18,13 @@ export function ResetFiltersButton({ indexScene }: Props) {
         icon="repeat"
         variant="secondary"
         onClick={() => indexScene.resetToReferenceQuery()}
-        tooltip={t("Components.reset-filters-button.tooltip-reset-label-filters-to-initial-values", "Reset label filters to initial values.")}
-      ><Trans i18nKey="Components.reset-filters-button.reset">
-        Reset
-      </Trans></Button>
+        tooltip={t(
+          'Components.reset-filters-button.tooltip-reset-label-filters-to-initial-values',
+          'Reset label filters to initial values.'
+        )}
+      >
+        <Trans i18nKey="Components.reset-filters-button.reset">Reset</Trans>
+      </Button>
     )
   );
 }

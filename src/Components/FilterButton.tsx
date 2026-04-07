@@ -36,9 +36,9 @@ export const FilterButton = (props: Props) => {
         onClick={isIncluded ? onClear : onInclude}
         data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         title={titles?.include}
-      ><Trans i18nKey="Components.filter-button.include">
-        Include
-      </Trans></Button>
+      >
+        <Trans i18nKey="Components.filter-button.include">Include</Trans>
+      </Button>
       {!hideExclude && (
         <Button
           variant={isExcluded ? 'primary' : 'secondary'}
@@ -49,9 +49,9 @@ export const FilterButton = (props: Props) => {
           onClick={isExcluded ? onClear : onExclude}
           title={titles?.exclude}
           data-testid={testIds.exploreServiceDetails.buttonFilterExclude}
-        ><Trans i18nKey="Components.filter-button.exclude">
-          Exclude
-        </Trans></Button>
+        >
+          <Trans i18nKey="Components.filter-button.exclude">Exclude</Trans>
+        </Button>
       )}
     </div>
   );

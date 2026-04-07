@@ -113,8 +113,8 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       onClick={model.toggleCollapsedState}
                       tooltip={
                         collapsed
-                          ? t('logs.logs-drilldown-header.expand', 'Expand filters')
-                          : t('logs.logs-drilldown-header.collapse', 'Collapse filters')
+                          ? t('Components.logs.logs-drilldown-header.expand', 'Expand filters')
+                          : t('Components.logs.logs-drilldown-header.collapse', 'Collapse filters')
                       }
                     />
                   )}
@@ -252,7 +252,7 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
         },
         gap: '16px',
 
-        label: t("Components.get-styles.label.first-row-wrapper", "first-row-wrapper"),
+        label: t('Components.get-styles.label.first-row-wrapper', 'first-row-wrapper'),
       },
     }),
     stickyControlsContainer: css({

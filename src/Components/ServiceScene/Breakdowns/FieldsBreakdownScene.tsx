@@ -315,7 +315,12 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
-          <FieldSelector label={t("Components.fields-breakdown-scene.label-field", "Field")} options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
+          <FieldSelector
+            label={t('Components.fields-breakdown-scene.label-field', 'Field')}
+            options={options}
+            value={String(value)}
+            onChange={model.onFieldSelectorChange}
+          />
         )}
       </div>
     );

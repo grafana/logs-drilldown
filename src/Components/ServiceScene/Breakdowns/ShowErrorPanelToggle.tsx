@@ -35,11 +35,16 @@ export function ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggreg
       <Label className={styles.toggleLabel}>
         <IconButton
           className={styles.toggleIcon}
-          tooltip={t("Components.show-error-panel-toggle.tooltip-requests-could-processed", "One or more requests could not be processed")}
+          tooltip={t(
+            'Components.show-error-panel-toggle.tooltip-requests-could-processed',
+            'One or more requests could not be processed'
+          )}
           name={'exclamation-triangle'}
           variant={'secondary'}
         />
-        <span className={styles.toggleLabelText}><Trans i18nKey="Components.show-error-panel-toggle.show-panels-with-errors">Show panels with errors</Trans></span>
+        <span className={styles.toggleLabelText}>
+          <Trans i18nKey="Components.show-error-panel-toggle.show-panels-with-errors">Show panels with errors</Trans>
+        </span>
 
         <InlineSwitch
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}

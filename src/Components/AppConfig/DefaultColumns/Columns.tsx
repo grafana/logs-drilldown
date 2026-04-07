@@ -66,8 +66,8 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                 className={cx(styles.column, snapshot.isDropAnimating ? styles['column--drop-animating'] : undefined)}
               >
                 <Icon
-                  aria-label={t("Components.columns.aria-label-drag-and-drop-icon", "Drag and drop icon")}
-                  title={t("Components.columns.title-drag-and-drop-to-reorder", "Drag and drop to reorder")}
+                  aria-label={t('Components.columns.aria-label-drag-and-drop-icon', 'Drag and drop icon')}
+                  title={t('Components.columns.title-drag-and-drop-to-reorder', 'Drag and drop to reorder')}
                   name="draggabledots"
                   size="lg"
                   className={styles.column__dragIcon}
@@ -78,7 +78,7 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                     value: column,
                     label: getNormalizedFieldName(column),
                   }}
-                  placeholder={t("Components.columns.placeholder-select-column", "Select column")}
+                  placeholder={t('Components.columns.placeholder-select-column', 'Select column')}
                   width={'auto'}
                   minWidth={30}
                   isClearable={false}
@@ -91,7 +91,9 @@ export function Columns({ recordIndex, containerDragging }: Props) {
                 {columns.length > 1 && (
                   <IconButton
                     variant={'destructive'}
-                    tooltip={t("Components.columns.tooltip-remove-column", "Remove {{column}}", { column: getNormalizedFieldName(column) })}
+                    tooltip={t('Components.columns.tooltip-remove-column', 'Remove {{column}}', {
+                      column: getNormalizedFieldName(column),
+                    })}
                     name="trash-alt"
                     size={'lg'}
                     className={styles.column__removeIcon}

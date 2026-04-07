@@ -56,17 +56,17 @@ export function Fields({ recordIndex }: Props) {
           !notOnlyLogLine
             ? INVALID_COLUMNS_LOG_LINE_ONLY_TEXT
             : !recordHasValues
-            ? 'Invalid columns'
-            : 'Add a default column to display in the logs'
+              ? 'Invalid columns'
+              : 'Add a default column to display in the logs'
         }
         variant={'secondary'}
         fill={'outline'}
         icon={'plus'}
         onClick={() => addDisplayField()}
         className={styles.fieldsContainer__button}
-      ><Trans i18nKey="Components.fields.add-column">
-        Add column
-      </Trans></Button>
+      >
+        <Trans i18nKey="Components.fields.add-column">Add column</Trans>
+      </Button>
     </div>
   );
 }

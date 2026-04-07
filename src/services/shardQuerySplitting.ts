@@ -134,11 +134,14 @@ function splitQueriesByStreamShard(
 
       retriesMap.set(cycle, retries + 1);
 
-      retryTimer = setTimeout(() => {
-        logger.info(`Retrying ${cycle} (${retries + 1})`);
-        runNextRequest(subscriber, cycle, shards, groupSize);
-        retryTimer = null;
-      }, 1500 * Math.pow(2, retries)); // Exponential backoff
+      retryTimer = setTimeout(
+        () => {
+          logger.info(`Retrying ${cycle} (${retries + 1})`);
+          runNextRequest(subscriber, cycle, shards, groupSize);
+          retryTimer = null;
+        },
+        1500 * Math.pow(2, retries)
+      ); // Exponential backoff
 
       retrying = true;
 
@@ -316,7 +319,7 @@ function getInitialGroupSize(shards: number[]) {
 function isRetriableError(errorResponse: DataQueryResponse) {
   const message = errorResponse.errors
     ? (errorResponse.errors[0].message ?? '').toLowerCase()
-    : errorResponse.error?.message ?? '';
+    : (errorResponse.error?.message ?? '');
   if (message.includes('timeout')) {
     return true;
   } else if (message.includes('parse error') || message.match(MaxSeriesRegex)) {

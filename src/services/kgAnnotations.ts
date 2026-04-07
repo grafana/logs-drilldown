@@ -34,9 +34,17 @@ export function isKgAnnotationsAvailable(): boolean {
 
 function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string) {
   const severities = [
-    { value: 'critical', color: 'red', label: t("services.create-annotation-layers.severities.label.critical", "Critical") },
-    { value: 'warning', color: 'yellow', label: t("services.create-annotation-layers.severities.label.warning", "Warning") },
-    { value: 'info', color: 'blue', label: t("services.create-annotation-layers.severities.label.info", "Info") },
+    {
+      value: 'critical',
+      color: 'red',
+      label: t('services.create-annotation-layers.severities.label.critical', 'Critical'),
+    },
+    {
+      value: 'warning',
+      color: 'yellow',
+      label: t('services.create-annotation-layers.severities.label.warning', 'Warning'),
+    },
+    { value: 'info', color: 'blue', label: t('services.create-annotation-layers.severities.label.info', 'Info') },
   ] as const;
 
   return severities.map(

@@ -61,9 +61,9 @@ export const LogsTableMultiSelect = (props: {
       {/* Sidebar columns */}
       <>
         <div className={styles.columnHeader}>
-          <Trans i18nKey="logs-table-multi-select.header.selected-fields">Selected fields</Trans>
+          <Trans i18nKey="Components.logs-table-multi-select.header.selected-fields">Selected fields</Trans>
           <button onClick={props.clear} className={styles.columnHeaderButton}>
-            {t('logs-table-multi-select.button.reset', 'Reset')}
+            {t('Components.logs-table-multi-select.button.reset', 'Reset')}
           </button>
         </div>
         <LogsTableActiveFields
@@ -74,7 +74,9 @@ export const LogsTableMultiSelect = (props: {
           id={'selected-fields'}
         />
 
-        <div className={styles.columnHeader}><Trans i18nKey="Components.logs-table-multi-select.fields">Fields</Trans></div>
+        <div className={styles.columnHeader}>
+          <Trans i18nKey="Components.logs-table-multi-select.fields">Fields</Trans>
+        </div>
         <LogsTableAvailableFields
           toggleColumn={props.toggleColumn}
           labels={props.filteredColumnsWithMeta ?? props.columnsWithMeta}

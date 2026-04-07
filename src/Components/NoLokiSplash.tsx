@@ -22,7 +22,11 @@ export const NoLokiSplash = () => {
         />
       </div>
       <div className={styles.text}>
-        <h3 className={styles.title}><Trans i18nKey="Components.no-loki-splash.welcome-to-grafana-logs-drilldown">Welcome to Grafana Logs Drilldown</Trans></h3>
+        <h3 className={styles.title}>
+          <Trans i18nKey="Components.no-loki-splash.welcome-to-grafana-logs-drilldown">
+            Welcome to Grafana Logs Drilldown
+          </Trans>
+        </h3>
 
         <p>
           <Trans i18nKey="Components.no-loki-splash.no-datasource">

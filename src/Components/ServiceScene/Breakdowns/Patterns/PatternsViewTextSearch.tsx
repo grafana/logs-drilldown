@@ -171,13 +171,13 @@ export function PatternTextSearchComponent({ model }: SceneComponentProps<Patter
           onChange={model.handleSearchChange}
           onClear={model.clearSearch}
           value={patternFilter}
-          placeholder={t("Components.pattern-text-search.placeholder-search-patterns", "Search patterns")}
+          placeholder={t('Components.pattern-text-search.placeholder-search-patterns', 'Search patterns')}
         />
       </Field>
       {hasNonIndexedFilters && (
         <Alert severity="info" title="" className={styles.infoAlert}>
           {t(
-            'logs.logs-drilldown.patterns.indexed-labels-only',
+            'Components.logs.logs-drilldown.patterns.indexed-labels-only',
             'Patterns are selected by label and may be filtered by level. Parsed fields, structured metadata, and string filters are not supported for the pattern list.'
           )}
         </Alert>

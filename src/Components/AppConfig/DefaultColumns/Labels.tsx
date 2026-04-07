@@ -26,7 +26,12 @@ export function Labels({ recordIndex }: Props) {
     <>
       <h5 className={styles.labelTitle}>
         <Trans i18nKey="Components.labels.labels-match">Labels match</Trans>
-        <Tooltip content={t("Components.labels.content-queries-containing-these-labels-display-selected", "Queries containing these labels will display the selected columns")}>
+        <Tooltip
+          content={t(
+            'Components.labels.content-queries-containing-these-labels-display-selected',
+            'Queries containing these labels will display the selected columns'
+          )}
+        >
           <Icon className={styles.labelIcon} name="info-circle" />
         </Tooltip>
       </h5>

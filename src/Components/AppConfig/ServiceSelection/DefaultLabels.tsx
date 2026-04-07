@@ -56,9 +56,14 @@ export function DefaultLabels() {
     >
       <Box marginBottom={2}>
         <Stack gap={0.5} alignItems="center">
-          <Text element="h5"><Trans i18nKey="Components.default-labels.landing-page-default-labels">Landing Page default labels</Trans></Text>
+          <Text element="h5">
+            <Trans i18nKey="Components.default-labels.landing-page-default-labels">Landing Page default labels</Trans>
+          </Text>
           <Tooltip
-            content={t("Components.default-labels.content-configure-default-labels-optional-values-landing", "Configure the default labels and optional values to show in the landing page of Logs Drilldown")}
+            content={t(
+              'Components.default-labels.content-configure-default-labels-optional-values-landing',
+              'Configure the default labels and optional values to show in the landing page of Logs Drilldown'
+            )}
           >
             <Icon name="info-circle" />
           </Tooltip>
@@ -69,7 +74,7 @@ export function DefaultLabels() {
         <Stack>
           <Combobox<string>
             value={selectedLabel}
-            placeholder={t("Components.default-labels.placeholder-select-label-name", "Select label name")}
+            placeholder={t('Components.default-labels.placeholder-select-label-name', 'Select label name')}
             width={'auto'}
             minWidth={30}
             maxWidth={90}
@@ -81,7 +86,10 @@ export function DefaultLabels() {
           {selectedLabel && (
             <MultiCombobox<string>
               key={selectedLabel}
-              placeholder={t("Components.default-labels.placeholder-select-values-optional", "Select values (optional)")}
+              placeholder={t(
+                'Components.default-labels.placeholder-select-values-optional',
+                'Select values (optional)'
+              )}
               width={'auto'}
               minWidth={30}
               value={selectedValues}
@@ -98,13 +106,18 @@ export function DefaultLabels() {
         {selectedLabel && (
           <Box marginTop={2}>
             <Button
-              tooltip={t("Components.default-labels.tooltip-label-match-against-query", "Add new label to match against user query")}
+              tooltip={t(
+                'Components.default-labels.tooltip-label-match-against-query',
+                'Add new label to match against user query'
+              )}
               variant="secondary"
               fill="outline"
               icon="plus"
               onClick={addLabel}
             >
-              {selectedValues.length ? t("Components.default-labels.add-label-and-values", "Add label and values") : t("Components.default-labels.add-label", "Add label")}
+              {selectedValues.length
+                ? t('Components.default-labels.add-label-and-values', 'Add label and values')
+                : t('Components.default-labels.add-label', 'Add label')}
             </Button>
           </Box>
         )}

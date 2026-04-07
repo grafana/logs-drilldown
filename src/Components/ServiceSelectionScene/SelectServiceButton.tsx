@@ -60,7 +60,9 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
     return (
       <LinkButton
         data-testid={testIds.index.selectServiceButton}
-        tooltip={t('select-service-button.tooltip', 'View logs for {{value}}', { value: model.state.labelValue })}
+        tooltip={t('Components.select-service-button.tooltip', 'View logs for {{value}}', {
+          value: model.state.labelValue,
+        })}
         className={styles.button}
         variant={'primary'}
         fill={'outline'}
@@ -68,9 +70,9 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
         disabled={!link}
         href={model.getLink()}
         onClick={model.onClick}
-      ><Trans i18nKey="Components.select-service-button.show-logs">
-        Show logs
-      </Trans></LinkButton>
+      >
+        <Trans i18nKey="Components.select-service-button.show-logs">Show logs</Trans>
+      </LinkButton>
     );
   };
 }

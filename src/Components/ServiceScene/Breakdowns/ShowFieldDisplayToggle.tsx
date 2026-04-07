@@ -16,11 +16,11 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
   const styles = useStyles2(getStyles);
   const options: Array<SelectableValue<FieldsPanelsType>> = [
     {
-      label: t("Components.show-field-display-toggle.options.label.volume", "Volume"),
+      label: t('Components.show-field-display-toggle.options.label.volume', 'Volume'),
       value: 'timeseries',
     },
     {
-      label: t("Components.show-field-display-toggle.options.label.names", "Names"),
+      label: t('Components.show-field-display-toggle.options.label.names', 'Names'),
       value: 'text',
     },
   ];

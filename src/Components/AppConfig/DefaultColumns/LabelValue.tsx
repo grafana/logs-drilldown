@@ -81,7 +81,7 @@ export function LabelValue({ recordIndex, labelIndex }: Props) {
       <Combobox<string>
         data-testid={testIds.appConfig.defaultColumns.labels.value}
         invalid={!label?.value}
-        placeholder={t("Components.label-value.placeholder-select-label-value", "Select label value")}
+        placeholder={t('Components.label-value.placeholder-select-label-value', 'Select label value')}
         width={'auto'}
         minWidth={30}
         value={label?.value}

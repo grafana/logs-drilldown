@@ -30,7 +30,7 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
     return (
       <span className={styles.searchPageCountWrap}>
         <span className={styles.searchFieldPlaceholderText}>
-          {t('service-selection-pagination.showing', 'Showing')}{' '}
+          {t('Components.service-selection-pagination.showing', 'Showing')}{' '}
           <Select
             className={styles.select}
             onChange={(value) => {
@@ -44,12 +44,16 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
             options={options}
             value={countPerPage.toString()}
           />{' '}
-          {t('service-selection-pagination.of-total', 'of {{totalCount}}', { totalCount })}{' '}
+          {t('Components.service-selection-pagination.of-total', 'of {{totalCount}}', { totalCount })}{' '}
           <IconButton
             className={styles.icon}
-            aria-label={t("Components.service-selection-pagination-scene.aria-label-count-info", "Count info")}
+            aria-label={t('Components.service-selection-pagination-scene.aria-label-count-info', 'Count info')}
             name={'info-circle'}
-            tooltip={t('service-selection-pagination.tooltip.count-info', '{{totalCount}} labels have values for the selected time range. Total label count may differ', { totalCount })}
+            tooltip={t(
+              'Components.service-selection-pagination.tooltip.count-info',
+              '{{totalCount}} labels have values for the selected time range. Total label count may differ',
+              { totalCount }
+            )}
           />
         </span>
       </span>

@@ -35,15 +35,17 @@ export function LogsTableNavField(props: {
               <div>{props.labels[props.label]?.percentOfLinesWithLabel}%</div>
               <div className={styles.valueCount}>
                 {props.labels[props.label]?.cardinality}{' '}
-                {props.labels[props.label]?.cardinality === 1 ? t('logs-table-nav-field.cardinality.value', 'value') : t('logs-table-nav-field.cardinality.values', 'values')}
+                {props.labels[props.label]?.cardinality === 1
+                  ? t('Components.logs-table-nav-field.cardinality.value', 'value')
+                  : t('Components.logs-table-nav-field.cardinality.values', 'values')}
               </div>
             </div>
           )}
         </div>
         {props.draggable && (
           <Icon
-            aria-label={t("Components.logs-table-nav-field.aria-label-drag-and-drop-icon", "Drag and drop icon")}
-            title={t("Components.logs-table-nav-field.title-drag-and-drop-to-reorder", "Drag and drop to reorder")}
+            aria-label={t('Components.logs-table-nav-field.aria-label-drag-and-drop-icon', 'Drag and drop icon')}
+            title={t('Components.logs-table-nav-field.title-drag-and-drop-to-reorder', 'Drag and drop to reorder')}
             name="draggabledots"
             size="lg"
             className={styles.dragIcon}

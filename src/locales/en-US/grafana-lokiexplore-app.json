@@ -1,51 +1,18 @@
 {
-  "add-label-to-filters": {
-    "button": {
-      "include": "Include",
-      "remove": "Remove"
-    },
-    "tooltip": {
-      "add": "Add {{value}} to filters",
-      "remove": "Remove {{value}} from filters"
-    }
-  },
-  "breakdowns": {
-    "field-values": {
-      "layout": {
-        "grid": "Grid",
-        "rows": "Rows"
-      },
-      "loading": "Loading..."
-    },
-    "label-values": {
-      "error": {
-        "message": "Message",
-        "status": "Status",
-        "trace-id": "TraceId"
-      },
-      "layout": {
-        "grid": "Grid",
-        "rows": "Rows"
-      },
-      "loading": "Loading..."
-    },
-    "labels-aggregated": {
-      "layout": {
-        "grid": "Grid",
-        "rows": "Rows"
-      },
-      "loading": "Loading..."
-    }
-  },
-  "clipboard-button": {
-    "inline-toast": {
-      "success": "Copied"
-    }
-  },
   "Components": {
     "add-label": {
       "add-label": "Add label",
       "tooltip-label-match-against-query": "Add new label to match against user query"
+    },
+    "add-label-to-filters": {
+      "button": {
+        "include": "Include",
+        "remove": "Remove"
+      },
+      "tooltip": {
+        "add": "Add {{value}} to filters",
+        "remove": "Remove {{value}} from filters"
+      }
     },
     "add-record": {
       "add": "Add"
@@ -87,6 +54,34 @@
     "breakdown-search-scene": {
       "placeholder-search-for-value": "Search for value"
     },
+    "breakdowns": {
+      "field-values": {
+        "layout": {
+          "grid": "Grid",
+          "rows": "Rows"
+        },
+        "loading": "Loading..."
+      },
+      "label-values": {
+        "error": {
+          "message": "Message",
+          "status": "Status",
+          "trace-id": "TraceId"
+        },
+        "layout": {
+          "grid": "Grid",
+          "rows": "Rows"
+        },
+        "loading": "Loading..."
+      },
+      "labels-aggregated": {
+        "layout": {
+          "grid": "Grid",
+          "rows": "Rows"
+        },
+        "loading": "Loading..."
+      }
+    },
     "by-frame-repeater": {
       "clear-filter": "Clear filter",
       "no-values-found": "No values found matching “{{filter}}”"
@@ -95,6 +90,11 @@
       "title-add-column": "Add column",
       "title-add-to-search": "Add to search",
       "title-exclude-from-search": "Exclude from search"
+    },
+    "clipboard-button": {
+      "inline-toast": {
+        "success": "Copied"
+      }
     },
     "columns": {
       "aria-label-drag-and-drop-icon": "Drag and drop icon",
@@ -106,6 +106,16 @@
       "default-columns-description": "Configure the fields to show by default. These can replace the full log line or be displayed next to it.",
       "service-selection-description": "Configure which labels and label values appear by default on the Logs Drilldown landing page.",
       "text-beta": "Beta"
+    },
+    "copy-link-button": {
+      "aria-label": {
+        "copied": "Copied",
+        "copy-link": "Copy link to log line"
+      },
+      "tooltip": {
+        "copied": "Copied",
+        "copy-link": "Copy link to log line"
+      }
     },
     "default-columns": {
       "text-loading": "Loading..."
@@ -215,6 +225,38 @@
       "body": "Check out our <2>Get started doc</2>, or see <5>recent changes</5>.<br/>Help us shape the future of the app. <10>Send us feedback</10> or engage with us on <14>GitHub</14>.",
       "title-welcome-to-grafana-logs-drilldown": "Welcome to Grafana Logs Drilldown!"
     },
+    "json-filter-buttons": {
+      "field-value": {
+        "aria-label": {
+          "exclude": "exclude filter",
+          "include": "include filter"
+        },
+        "tooltip": {
+          "exclude": "Exclude log lines containing {{label}}=\"{{value}}\"",
+          "include": "Include log lines containing {{label}}=\"{{value}}\""
+        }
+      },
+      "metadata": {
+        "aria-label": {
+          "exclude": "exclude filter",
+          "include": "include filter"
+        },
+        "tooltip": {
+          "exclude": "Exclude log lines containing {{label}}=\"{{value}}\"",
+          "include": "Include log lines containing {{label}}=\"{{value}}\""
+        }
+      }
+    },
+    "json-nested-node-filter-button": {
+      "aria-label": {
+        "exclude": "exclude filter",
+        "include": "include filter"
+      },
+      "tooltip": {
+        "exclude": "Exclude log lines that contain {{key}}",
+        "include": "Include log lines that contain {{key}}"
+      }
+    },
     "label-breakdown-scene": {
       "label-label": "Label",
       "labels-not-available": "The labels are not available at this moment. Try using a different time range or check again later."
@@ -268,6 +310,12 @@
       "line-filter": "Line filter",
       "tooltip-collapse": "Collapse"
     },
+    "log-options-buttons": {
+      "tooltip": {
+        "clear-displayed-fields": "Clear displayed fields: {{fields}}",
+        "show-default-fields": "Show default fields: {{fields}}"
+      }
+    },
     "log-options-renderer": {
       "description": {
         "disable-wrapping-of-long-log-lines": "Disable wrapping of long log lines",
@@ -282,13 +330,190 @@
         "wrap": "Wrap"
       }
     },
+    "logs": {
+      "json": {
+        "line": {
+          "detectedLevel": {
+            "toggleButton": ""
+          }
+        }
+      },
+      "log-line-details": {
+        "copy-to-clipboard": "Copy to clipboard",
+        "copy-to-clipboard-error": "Error copying link!"
+      },
+      "log-line-menu": {
+        "copy-link": "Copy link to log line"
+      },
+      "log-options": {
+        "max-lines-label": "Line limit",
+        "max-lines-tooltip": "Number of log lines to request. Depends on the Loki configuration value for max_entries_limit."
+      },
+      "logs-controls": {
+        "collapse": "Collapse",
+        "expand": "Expand",
+        "json": {
+          "label": {
+            "metadata": {
+              "disable": "Show metadata",
+              "enable": "Hide metadata"
+            }
+          },
+          "tooltip": {
+            "labels": {
+              "disable": "Hide Labels",
+              "enable": "Show labels"
+            },
+            "metadata": {
+              "disable": "Hide structured metadata",
+              "enable": "Show structured metadata"
+            }
+          }
+        },
+        "label": {
+          "collapse": "Expanded",
+          "expand": "Collapsed",
+          "highlight": {
+            "disable": "Highlight disabled",
+            "enable": "Highlight enabled"
+          },
+          "unwrap-lines": "Wrap lines",
+          "wrap-lines": "Unwrap lines"
+        },
+        "labels": {
+          "sort": {
+            "newest-first": "Oldest logs first",
+            "oldest-first": "Newest logs first"
+          }
+        },
+        "scrollToBottom": "Scroll to bottom",
+        "scrollToTop": "Scroll to top",
+        "table": {
+          "label": {
+            "show-labels": "Log text",
+            "show-text": "Log labels"
+          },
+          "tooltip": {
+            "show-labels": "Show labels",
+            "show-text": "Show log text"
+          }
+        },
+        "tooltip": {
+          "highlight": {
+            "disable": "Disable highlighting",
+            "enable": "Enable highlighting"
+          },
+          "sort": {
+            "newest-first": "Set newest logs first",
+            "oldest-first": "Set oldest logs first"
+          }
+        },
+        "unwrap-lines": "Unwrap lines",
+        "wrap-lines": "Wrap lines"
+      },
+      "logs-drilldown": {
+        "add-to-dashboard": {
+          "title": "Add to Dashboard"
+        },
+        "configure-volume-error": {
+          "docs-link": "Instructions to enable volume in the Loki config:",
+          "title": "Log volume has not been configured."
+        },
+        "empty-layout": {
+          "link": "let us know",
+          "prefix": "Please",
+          "suffix": "if you think this is a mistake.",
+          "title": "We did not find any {{type}} for the given time range."
+        },
+        "load-search": {
+          "button-no-search-tooltip": "No saved searches to load",
+          "button-tooltip": "Load saved search",
+          "empty": "No saved searches to display.",
+          "modal-title": "Load a previously saved search",
+          "remove": "Remove",
+          "saved-query-button-tooltip": "Load saved query",
+          "select": "Select"
+        },
+        "logs-panel-error": {
+          "clear-filters": "Clear filters",
+          "default": "An error occurred"
+        },
+        "no-matching-labels": {
+          "clear-filters": "Clear filters",
+          "title": "No {{type}} match these filters."
+        },
+        "no-service-search-results": {
+          "title": "No service matched your search."
+        },
+        "no-service-volume": {
+          "help": "Please adjust time range or select another label.",
+          "title": "No logs found in {{labelName}}."
+        },
+        "patterns": {
+          "error-message": "Pattern matching has not been configured. Patterns let you detect similar log lines and add or exclude them from your search. To see them in action, add the following to your Loki configuration.",
+          "error-title": "There are no pattern matches.",
+          "indexed-labels-only": "Patterns are selected by label and may be filtered by level. Parsed fields, structured metadata, and string filters are not supported for the pattern list.",
+          "no-filtered-patterns-message": "No patterns found in the current time range or matching the current level filters.",
+          "no-match-filters-title": "No patterns match these filters.",
+          "no-patterns-message": "No patterns found in the current time range.",
+          "no-patterns-title": "No patterns to display",
+          "not-detected-description": "Patterns let you detect similar log lines to include or exclude from your search.",
+          "not-detected-help-link": "Grafana Labs community Slack channel",
+          "not-detected-help-prefix": "Check back later or reach out to the team in the",
+          "not-detected-title": "Sorry, we could not detect any patterns.",
+          "too-old-docs-link": "patterns docs",
+          "too-old-docs-prefix": "See the",
+          "too-old-docs-suffix": "for more info.",
+          "too-old-title": "Patterns are only available for the most recent {{maxAgeHours}} hours of data."
+        },
+        "query-error": {
+          "fetch": "Error fetching results for {{tagKey}}",
+          "partial": "Showing partial results for {{tagKey}}",
+          "return-fields": "Return to all fields"
+        },
+        "save-search": {
+          "already-exists": {
+            "alert": "There is a previously saved search with the same query: {{title}}"
+          },
+          "button-tooltip": "Save search",
+          "button-tooltip-saved-queries": "Save in Saved Queries",
+          "description": "Description",
+          "error": "Unexpected error saving this search.",
+          "load-error": "Could not generate a link.",
+          "load-type-error": "Please select a Loki query.",
+          "modal-alert": "Saved searches are stored locally in your browser and will only be available on this device.",
+          "modal-title": "Save current search",
+          "success": "Search successfully saved.",
+          "title": "Title"
+        }
+      },
+      "logs-drilldown-header": {
+        "collapse": "Collapse filters",
+        "expand": "Expand filters"
+      },
+      "table": {
+        "header": {
+          "close": "Close"
+        }
+      }
+    },
     "logs-column-search": {
-      "placeholder-search-fields-by-name": "Search fields by name"
+      "placeholder-search-fields-by-name": "Search fields by name",
+      "tooltip": {
+        "collapse-sidebar": "Collapse sidebar",
+        "expand-sidebar": "Expand sidebar"
+      }
     },
     "logs-json": {
       "title-json": "JSON",
       "title-json-filtering-requires-loki": "JSON filtering requires Loki 3.5.0.",
       "title-no-json-fields-detected": "No JSON fields detected"
+    },
+    "logs-json-component": {
+      "alert": {
+        "loki-upgrade": "This view will be read only until Loki is upgraded to 3.5.0",
+        "no-json-fields": "This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a better experience."
+      }
     },
     "logs-panel-header-actions": {
       "description": {
@@ -308,22 +533,53 @@
       },
       "text-loading": "Loading..."
     },
+    "logs-table-available-fields": {
+      "field": {
+        "title": "{{labelName}} appears in {{percent}}% of log lines"
+      }
+    },
     "logs-table-empty-fields": {
       "no-fields": "No fields"
     },
     "logs-table-header": {
+      "aria-label": {
+        "show-menu": "Show {{name}} menu"
+      },
       "aria-label-reset-column-width": "Reset column width",
       "aria-label-show-log-labels": "Show log labels",
       "aria-label-show-log-text": "Show log text",
+      "tooltip": {
+        "show-menu": "Show {{name}} menu"
+      },
       "tooltip-reset-column-width": "Reset column width",
       "tooltip-show-log-labels": "Show log labels",
       "tooltip-show-log-text": "Show log text"
     },
+    "logs-table-header-wrap": {
+      "menu": {
+        "move-left": "Move left",
+        "move-right": "Move right",
+        "remove-column": "Remove column",
+        "reset-column-widths": "Reset column widths",
+        "show-labels": "Show labels",
+        "show-log-text": "Show log text"
+      }
+    },
     "logs-table-multi-select": {
-      "fields": "Fields"
+      "button": {
+        "reset": "Reset"
+      },
+      "fields": "Fields",
+      "header": {
+        "selected-fields": "Selected fields"
+      }
     },
     "logs-table-nav-field": {
       "aria-label-drag-and-drop-icon": "Drag and drop icon",
+      "cardinality": {
+        "value": "value",
+        "values": "values"
+      },
       "title-drag-and-drop-to-reorder": "Drag and drop to reorder"
     },
     "logs-table-scene": {
@@ -413,6 +669,10 @@
       "trace-id": "TraceId",
       "trace-ids": "TraceIds"
     },
+    "re-root-json-button": {
+      "aria-label": "drilldown into {{key}}",
+      "tooltip": "Set {{key}} as root node"
+    },
     "records-collapsible-label": {
       "content-default-fields-display-visualizations-these-labels": "Default fields to display in logs visualizations for these labels",
       "display-fields": "Display fields"
@@ -444,14 +704,27 @@
       "view-breakdown-title": "View breakdown of values for {{labelName}}"
     },
     "select-service-button": {
-      "show-logs": "Show logs"
+      "show-logs": "Show logs",
+      "tooltip": "View logs for {{value}}"
     },
     "service-scene": {
+      "alert": {
+        "invalid-labels-selected": "Invalid labels selected",
+        "no-labels-selected": "No labels selected",
+        "select-label": "Please select at least one label to see the logs breakdown."
+      },
       "least-label-inclusive-matching": "You need at least one label with inclusive matching.",
       "text-loading": "Loading..."
     },
     "service-selection-context-provider": {
       "text-loading": "Loading..."
+    },
+    "service-selection-pagination": {
+      "of-total": "of {{totalCount}}",
+      "showing": "Showing",
+      "tooltip": {
+        "count-info": "{{totalCount}} labels have values for the selected time range. Total label count may differ"
+      }
     },
     "service-selection-pagination-scene": {
       "aria-label-count-info": "Count info"
@@ -562,341 +835,6 @@
       "landing-settings-requires-grafana-greater": "Landing Page settings requires Grafana 13.0 or greater."
     }
   },
-  "copy-link-button": {
-    "aria-label": {
-      "copied": "Copied",
-      "copy-link": "Copy link to log line"
-    },
-    "tooltip": {
-      "copied": "Copied",
-      "copy-link": "Copy link to log line"
-    }
-  },
-  "drilldown-logs": {
-    "notices": {
-      "max-series-reached": "Maximum limit of results reached. Displaying partial results."
-    }
-  },
-  "grafana-ui": {
-    "date-time-pickers": {
-      "quick-options": {
-        "day-before-yesterday": "Day before yesterday",
-        "day-five-days-ago": "Five days ago",
-        "day-four-days-ago": "Four days ago",
-        "day-three-days-ago": "Three days ago",
-        "four-weeks-ago": "Four weeks ago",
-        "last-1-hour": "Last 1 hour",
-        "last-1-mins": "Last minute",
-        "last-12-hours": "Last 12 hours",
-        "last-15-mins": "Last 15 minutes",
-        "last-2-days": "Last 2 days",
-        "last-24-hours": "Last 24 hours",
-        "last-3-hours": "Last 3 hours",
-        "last-30-days": "Last 30 days",
-        "last-30-mins": "Last 30 minutes",
-        "last-5-mins": "Last 5 minutes",
-        "last-6-hours": "Last 6 hours",
-        "last-6-months": "Last 6 months",
-        "last-60-days": "Last 60 days",
-        "last-7-days": "Last 7 days",
-        "last-90-days": "Last 90 days",
-        "previous-month": "Previous month",
-        "previous-week": "Previous week",
-        "this-day-last-week": "This day last week",
-        "this-month": "This month",
-        "this-month-so-far": "This month so far",
-        "this-week": "This week",
-        "this-week-so-far": "This week so far",
-        "three-months-ago": "Three months ago",
-        "three-weeks-ago": "Three weeks ago",
-        "today": "Today",
-        "today-so-far": "Today so far",
-        "two-months-ago": "Two months ago",
-        "two-weeks-ago": "Two weeks ago",
-        "yesterday": "Yesterday"
-      }
-    }
-  },
-  "json-filter-buttons": {
-    "field-value": {
-      "aria-label": {
-        "exclude": "exclude filter",
-        "include": "include filter"
-      },
-      "tooltip": {
-        "exclude": "Exclude log lines containing {{label}}=\"{{value}}\"",
-        "include": "Include log lines containing {{label}}=\"{{value}}\""
-      }
-    },
-    "metadata": {
-      "aria-label": {
-        "exclude": "exclude filter",
-        "include": "include filter"
-      },
-      "tooltip": {
-        "exclude": "Exclude log lines containing {{label}}=\"{{value}}\"",
-        "include": "Include log lines containing {{label}}=\"{{value}}\""
-      }
-    }
-  },
-  "json-nested-node-filter-button": {
-    "aria-label": {
-      "exclude": "exclude filter",
-      "include": "include filter"
-    },
-    "tooltip": {
-      "exclude": "Exclude log lines that contain {{key}}",
-      "include": "Include log lines that contain {{key}}"
-    }
-  },
-  "log-options-buttons": {
-    "tooltip": {
-      "clear-displayed-fields": "Clear displayed fields: {{fields}}",
-      "show-default-fields": "Show default fields: {{fields}}"
-    }
-  },
-  "logs": {
-    "json": {
-      "line": {
-        "detectedLevel": {
-          "toggleButton": ""
-        }
-      }
-    },
-    "log-line-details": {
-      "copy-to-clipboard": "Copy to clipboard",
-      "copy-to-clipboard-error": "Error copying link!"
-    },
-    "log-line-menu": {
-      "copy-link": "Copy link to log line"
-    },
-    "log-options": {
-      "max-lines-label": "Line limit",
-      "max-lines-tooltip": "Number of log lines to request. Depends on the Loki configuration value for max_entries_limit."
-    },
-    "logs-controls": {
-      "collapse": "Collapse",
-      "expand": "Expand",
-      "json": {
-        "label": {
-          "metadata": {
-            "disable": "Show metadata",
-            "enable": "Hide metadata"
-          }
-        },
-        "tooltip": {
-          "labels": {
-            "disable": "Hide Labels",
-            "enable": "Show labels"
-          },
-          "metadata": {
-            "disable": "Hide structured metadata",
-            "enable": "Show structured metadata"
-          }
-        }
-      },
-      "label": {
-        "collapse": "Expanded",
-        "expand": "Collapsed",
-        "highlight": {
-          "disable": "Highlight disabled",
-          "enable": "Highlight enabled"
-        },
-        "unwrap-lines": "Wrap lines",
-        "wrap-lines": "Unwrap lines"
-      },
-      "labels": {
-        "sort": {
-          "newest-first": "Oldest logs first",
-          "oldest-first": "Newest logs first"
-        }
-      },
-      "scrollToBottom": "Scroll to bottom",
-      "scrollToTop": "Scroll to top",
-      "table": {
-        "label": {
-          "show-labels": "Log text",
-          "show-text": "Log labels"
-        },
-        "tooltip": {
-          "show-labels": "Show labels",
-          "show-text": "Show log text"
-        }
-      },
-      "tooltip": {
-        "highlight": {
-          "disable": "Disable highlighting",
-          "enable": "Enable highlighting"
-        },
-        "sort": {
-          "newest-first": "Set newest logs first",
-          "oldest-first": "Set oldest logs first"
-        }
-      },
-      "unwrap-lines": "Unwrap lines",
-      "wrap-lines": "Wrap lines"
-    },
-    "logs-drilldown": {
-      "add-to-dashboard": {
-        "title": "Add to Dashboard"
-      },
-      "configure-volume-error": {
-        "docs-link": "Instructions to enable volume in the Loki config:",
-        "title": "Log volume has not been configured."
-      },
-      "empty-layout": {
-        "link": "let us know",
-        "prefix": "Please",
-        "suffix": "if you think this is a mistake.",
-        "title": "We did not find any {{type}} for the given time range."
-      },
-      "fields": {
-        "log-attributes-field": "Log attributes",
-        "log-line-field": "Log line"
-      },
-      "kg-annotation-toggle": "Insights",
-      "load-search": {
-        "button-no-search-tooltip": "No saved searches to load",
-        "button-tooltip": "Load saved search",
-        "empty": "No saved searches to display.",
-        "modal-title": "Load a previously saved search",
-        "remove": "Remove",
-        "saved-query-button-tooltip": "Load saved query",
-        "select": "Select"
-      },
-      "logs-panel-error": {
-        "clear-filters": "Clear filters",
-        "default": "An error occurred"
-      },
-      "no-matching-labels": {
-        "clear-filters": "Clear filters",
-        "title": "No {{type}} match these filters."
-      },
-      "no-service-search-results": {
-        "title": "No service matched your search."
-      },
-      "no-service-volume": {
-        "help": "Please adjust time range or select another label.",
-        "title": "No logs found in {{labelName}}."
-      },
-      "patterns": {
-        "error-message": "Pattern matching has not been configured. Patterns let you detect similar log lines and add or exclude them from your search. To see them in action, add the following to your Loki configuration.",
-        "error-title": "There are no pattern matches.",
-        "indexed-labels-only": "Patterns are selected by label and may be filtered by level. Parsed fields, structured metadata, and string filters are not supported for the pattern list.",
-        "no-filtered-patterns-message": "No patterns found in the current time range or matching the current level filters.",
-        "no-match-filters-title": "No patterns match these filters.",
-        "no-patterns-message": "No patterns found in the current time range.",
-        "no-patterns-title": "No patterns to display",
-        "not-detected-description": "Patterns let you detect similar log lines to include or exclude from your search.",
-        "not-detected-help-link": "Grafana Labs community Slack channel",
-        "not-detected-help-prefix": "Check back later or reach out to the team in the",
-        "not-detected-title": "Sorry, we could not detect any patterns.",
-        "too-old-docs-link": "patterns docs",
-        "too-old-docs-prefix": "See the",
-        "too-old-docs-suffix": "for more info.",
-        "too-old-title": "Patterns are only available for the most recent {{maxAgeHours}} hours of data."
-      },
-      "query-error": {
-        "fetch": "Error fetching results for {{tagKey}}",
-        "partial": "Showing partial results for {{tagKey}}",
-        "return-fields": "Return to all fields"
-      },
-      "save-search": {
-        "already-exists": {
-          "alert": "There is a previously saved search with the same query: {{title}}"
-        },
-        "button-tooltip": "Save search",
-        "button-tooltip-saved-queries": "Save in Saved Queries",
-        "description": "Description",
-        "error": "Unexpected error saving this search.",
-        "load-error": "Could not generate a link.",
-        "load-type-error": "Please select a Loki query.",
-        "modal-alert": "Saved searches are stored locally in your browser and will only be available on this device.",
-        "modal-title": "Save current search",
-        "success": "Search successfully saved.",
-        "title": "Title"
-      }
-    },
-    "logs-drilldown-header": {
-      "collapse": "Collapse filters",
-      "expand": "Expand filters"
-    },
-    "table": {
-      "header": {
-        "close": "Close"
-      }
-    }
-  },
-  "logs-column-search": {
-    "tooltip": {
-      "collapse-sidebar": "Collapse sidebar",
-      "expand-sidebar": "Expand sidebar"
-    }
-  },
-  "logs-json-component": {
-    "alert": {
-      "loki-upgrade": "This view will be read only until Loki is upgraded to 3.5.0",
-      "no-json-fields": "This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a better experience."
-    }
-  },
-  "logs-table-available-fields": {
-    "field": {
-      "title": "{{labelName}} appears in {{percent}}% of log lines"
-    }
-  },
-  "logs-table-header": {
-    "aria-label": {
-      "show-menu": "Show {{name}} menu"
-    },
-    "tooltip": {
-      "show-menu": "Show {{name}} menu"
-    }
-  },
-  "logs-table-header-wrap": {
-    "menu": {
-      "move-left": "Move left",
-      "move-right": "Move right",
-      "remove-column": "Remove column",
-      "reset-column-widths": "Reset column widths",
-      "show-labels": "Show labels",
-      "show-log-text": "Show log text"
-    }
-  },
-  "logs-table-multi-select": {
-    "button": {
-      "reset": "Reset"
-    },
-    "header": {
-      "selected-fields": "Selected fields"
-    }
-  },
-  "logs-table-nav-field": {
-    "cardinality": {
-      "value": "value",
-      "values": "values"
-    }
-  },
-  "re-root-json-button": {
-    "aria-label": "drilldown into {{key}}",
-    "tooltip": "Set {{key}} as root node"
-  },
-  "select-service-button": {
-    "tooltip": "View logs for {{value}}"
-  },
-  "service-scene": {
-    "alert": {
-      "invalid-labels-selected": "Invalid labels selected",
-      "no-labels-selected": "No labels selected",
-      "select-label": "Please select at least one label to see the logs breakdown."
-    }
-  },
-  "service-selection-pagination": {
-    "of-total": "of {{totalCount}}",
-    "showing": "Showing",
-    "tooltip": {
-      "count-info": "{{totalCount}} labels have values for the selected time range. Total label count may differ"
-    }
-  },
   "services": {
     "create-annotation-layers": {
       "severities": {
@@ -905,6 +843,11 @@
           "info": "Info",
           "warning": "Warning"
         }
+      }
+    },
+    "drilldown-logs": {
+      "notices": {
+        "max-series-reached": "Maximum limit of results reached. Displaying partial results."
       }
     },
     "get-field-options": {
@@ -924,8 +867,57 @@
         }
       }
     },
+    "grafana-ui": {
+      "date-time-pickers": {
+        "quick-options": {
+          "day-before-yesterday": "Day before yesterday",
+          "day-five-days-ago": "Five days ago",
+          "day-four-days-ago": "Four days ago",
+          "day-three-days-ago": "Three days ago",
+          "four-weeks-ago": "Four weeks ago",
+          "last-1-hour": "Last 1 hour",
+          "last-1-mins": "Last minute",
+          "last-12-hours": "Last 12 hours",
+          "last-15-mins": "Last 15 minutes",
+          "last-2-days": "Last 2 days",
+          "last-24-hours": "Last 24 hours",
+          "last-3-hours": "Last 3 hours",
+          "last-30-days": "Last 30 days",
+          "last-30-mins": "Last 30 minutes",
+          "last-5-mins": "Last 5 minutes",
+          "last-6-hours": "Last 6 hours",
+          "last-6-months": "Last 6 months",
+          "last-60-days": "Last 60 days",
+          "last-7-days": "Last 7 days",
+          "last-90-days": "Last 90 days",
+          "previous-month": "Previous month",
+          "previous-week": "Previous week",
+          "this-day-last-week": "This day last week",
+          "this-month": "This month",
+          "this-month-so-far": "This month so far",
+          "this-week": "This week",
+          "this-week-so-far": "This week so far",
+          "three-months-ago": "Three months ago",
+          "three-weeks-ago": "Three weeks ago",
+          "today": "Today",
+          "today-so-far": "Today so far",
+          "two-months-ago": "Two months ago",
+          "two-weeks-ago": "Two weeks ago",
+          "yesterday": "Yesterday"
+        }
+      }
+    },
     "kg-annotation-toggle-renderer": {
       "label-insights": "Insights"
+    },
+    "logs": {
+      "logs-drilldown": {
+        "fields": {
+          "log-attributes-field": "Log attributes",
+          "log-line-field": "Log line"
+        },
+        "kg-annotation-toggle": "Insights"
+      }
     },
     "suspended-embedded-logs-exploration": {
       "loading-logs-drilldown": "Loading Logs Drilldown..."

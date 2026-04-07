@@ -63,7 +63,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       // Navigation options (all panels)
       const items: PanelMenuItem[] = [
         {
-          text: t("Components.panel-menu.items.text.navigation", "Navigation"),
+          text: t('Components.panel-menu.items.text.navigation', 'Navigation'),
           type: 'group',
         },
         {
@@ -71,7 +71,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           iconClassName: 'compass',
           onClick: () => onExploreLinkClickTracking(),
           shortcut: 'p x',
-          text: t("Components.panel-menu.items.text.explore", "Explore"),
+          text: t('Components.panel-menu.items.text.explore', 'Explore'),
         },
       ];
 
@@ -120,16 +120,16 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           if (isAvailable) {
             const datasource = await getDataSourceSrv().get(getDataSource(this));
             this.addItem({
-              text: t("Components.panel-menu.text.ai-divider", "ai_divider"),
+              text: t('Components.panel-menu.text.ai-divider', 'ai_divider'),
               type: 'divider',
             });
             this.addItem({
-              text: t("Components.panel-menu.text.ai", "AI"),
+              text: t('Components.panel-menu.text.ai', 'AI'),
               type: 'group',
             });
             this.addItem({
               iconClassName: 'ai-sparkle',
-              text: t("Components.panel-menu.text.explain-in-assistant", "Explain in Assistant"),
+              text: t('Components.panel-menu.text.explain-in-assistant', 'Explain in Assistant'),
               onClick: () => {
                 openAssistant({
                   origin: 'logs-drilldown-panel',
@@ -140,7 +140,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
                       datasourceUid: datasource.uid,
                     }),
                     createAssistantContextItem('structured', {
-                      title: t("Components.panel-menu.title.logs-drilldown-query", "Logs Drilldown Query"),
+                      title: t('Components.panel-menu.title.logs-drilldown-query', 'Logs Drilldown Query'),
                       data: {
                         query: getQueryExpression(this),
                       },
@@ -189,7 +189,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         addItemToGroup(
           model,
           {
-            text: t("Components.panel-menu.text.add-to-dashboard", "Add to Dashboard"),
+            text: t('Components.panel-menu.text.add-to-dashboard', 'Add to Dashboard'),
             onClick: () => {
               model.publishEvent(new AddToDashboardEvent(getAddToDashboardPayload(model)), true);
             },
@@ -211,7 +211,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         addItemToGroup(
           model,
           {
-            text: t("Components.panel-menu.text.create-alert", "Create alert"),
+            text: t('Components.panel-menu.text.create-alert', 'Create alert'),
             onClick: () => {
               reportAppInteraction(
                 USER_EVENTS_PAGES.service_details,
@@ -236,11 +236,11 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
 function addVisualizationHeader(items: PanelMenuItem[]) {
   items.push({
-    text: t("Components.add-visualization-header.text.visualization-divider", "visualization_divider"),
+    text: t('Components.add-visualization-header.text.visualization-divider', 'visualization_divider'),
     type: 'divider',
   });
   items.push({
-    text: t("Components.add-visualization-header.text.visualization", "Visualization"),
+    text: t('Components.add-visualization-header.text.visualization', 'Visualization'),
     type: 'group',
   });
 }
@@ -411,7 +411,7 @@ export const getCreateAlertPayload = (model: PanelMenu) => {
 
   const panel: Panel = {
     ...request,
-    title: t("Components.get-create-alert-payload.panel.title.log-count-alert", "Log count alert"),
+    title: t('Components.get-create-alert-payload.panel.title.log-count-alert', 'Log count alert'),
     targets: [{ refId: 'A', expr: alertExpr }],
     datasource: {
       type: 'loki',

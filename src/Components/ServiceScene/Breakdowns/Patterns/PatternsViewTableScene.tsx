@@ -388,15 +388,18 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     return (
       <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
         <EmptyState
-          message={t('logs.logs-drilldown.patterns.no-patterns-title', 'No patterns to display')}
+          message={t('Components.logs.logs-drilldown.patterns.no-patterns-title', 'No patterns to display')}
           variant="not-found"
         >
           {filters.length > 0
             ? t(
-                'logs.logs-drilldown.patterns.no-filtered-patterns-message',
+                'Components.logs.logs-drilldown.patterns.no-filtered-patterns-message',
                 'No patterns found in the current time range or matching the current level filters.'
               )
-            : t('logs.logs-drilldown.patterns.no-patterns-message', 'No patterns found in the current time range.')}
+            : t(
+                'Components.logs.logs-drilldown.patterns.no-patterns-message',
+                'No patterns found in the current time range.'
+              )}
         </EmptyState>
       </div>
     );

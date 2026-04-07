@@ -66,7 +66,12 @@ import { CreateAlertModal } from './CreateAlertModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardData, AddToDashboardEvent, CreateAlertData, CreateAlertEvent } from 'Components/Panels/PanelMenu';
+import {
+  AddToDashboardData,
+  AddToDashboardEvent,
+  CreateAlertData,
+  CreateAlertEvent,
+} from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
@@ -967,15 +972,27 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (!status.isValid && !status.newPrimaryLabel) {
       return (
         <Alert
-          title={status.reason === LabelFiltersInvalidReason.Empty ? t('service-scene.alert.no-labels-selected', 'No labels selected') : t('service-scene.alert.invalid-labels-selected', 'Invalid labels selected')}
+          title={
+            status.reason === LabelFiltersInvalidReason.Empty
+              ? t('Components.service-scene.alert.no-labels-selected', 'No labels selected')
+              : t('Components.service-scene.alert.invalid-labels-selected', 'Invalid labels selected')
+          }
           severity="info"
         >
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
             {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
-              <p><Trans i18nKey="Components.service-scene.least-label-inclusive-matching">You need at least one label with inclusive matching.</Trans></p>
+              <p>
+                <Trans i18nKey="Components.service-scene.least-label-inclusive-matching">
+                  You need at least one label with inclusive matching.
+                </Trans>
+              </p>
             )}
             {status.reason === LabelFiltersInvalidReason.Empty && (
-              <p><Trans i18nKey="service-scene.alert.select-label">Please select at least one label to see the logs breakdown.</Trans></p>
+              <p>
+                <Trans i18nKey="Components.service-scene.alert.select-label">
+                  Please select at least one label to see the logs breakdown.
+                </Trans>
+              </p>
             )}
             <ResetFiltersButton indexScene={indexScene} />
           </div>
@@ -993,7 +1010,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
     }
 
-    return <LoadingPlaceholder text={t("Components.service-scene.text-loading", "Loading...")} />;
+    return <LoadingPlaceholder text={t('Components.service-scene.text-loading', 'Loading...')} />;
   };
 }
 

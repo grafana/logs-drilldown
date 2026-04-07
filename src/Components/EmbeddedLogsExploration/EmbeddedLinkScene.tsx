@@ -66,9 +66,9 @@ export class EmbeddedLinkScene extends SceneObjectBase {
         href={urlUtil.renderUrl(ROUTES.logs(labelValue, labelName), params)}
         variant="secondary"
         icon="arrow-right"
-      ><Trans i18nKey="Components.embedded-link-scene.logs-drilldown">
-        Logs Drilldown
-      </Trans></LinkButton>
+      >
+        <Trans i18nKey="Components.embedded-link-scene.logs-drilldown">Logs Drilldown</Trans>
+      </LinkButton>
     );
   };
 }

@@ -78,7 +78,7 @@ function EmbeddedSceneWrapper(props: EmbeddedLogsExplorationProps) {
   const Component = useMemo(() => LogsDrilldownComponent, [isLoading]);
 
   if (isLoading) {
-    return <LoadingPlaceholder text={t("Components.embedded-scene-wrapper.text-loading", "Loading...")} />;
+    return <LoadingPlaceholder text={t('Components.embedded-scene-wrapper.text-loading', 'Loading...')} />;
   }
   if (Component) {
     return <Component {...props} />;
@@ -150,7 +150,10 @@ export function makeEmbeddedPage() {
     getScene: (routeMatch) => getEmbeddedScene(),
     layout: PageLayoutType.Custom,
     routePath: `${PageSlugs.embed}`,
-    title: t("Components.make-embedded-page.title.grafana-logs-drilldown-embedded", "Grafana Logs Drilldown — Embedded"),
+    title: t(
+      'Components.make-embedded-page.title.grafana-logs-drilldown-embedded',
+      'Grafana Logs Drilldown — Embedded'
+    ),
     url: prefixRoute(PageSlugs.embed),
   });
 }
@@ -191,7 +194,7 @@ export function makeIndexPage() {
     preserveUrlKeys: plugin.meta.jsonData?.defaultTimeRange ? SERVICE_URL_KEYS_NO_TIMERANGE : SERVICE_URL_KEYS,
     routePath: `${PageSlugs.explore}/*`,
     // Top level breadcrumb
-    title: t("Components.make-index-page.title.grafana-logs-drilldown", "Grafana Logs Drilldown"),
+    title: t('Components.make-index-page.title.grafana-logs-drilldown', 'Grafana Logs Drilldown'),
     url: prefixRoute(PageSlugs.explore),
   });
 }

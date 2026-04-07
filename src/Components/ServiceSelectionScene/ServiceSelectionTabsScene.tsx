@@ -92,7 +92,9 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
                   ? (props) => {
                       return (
                         <>
-                          <Tooltip content={t("Components.service-selection-tabs-scene.tab.content-remove-tab", "Remove tab")}>
+                          <Tooltip
+                            content={t('Components.service-selection-tabs-scene.tab.content-remove-tab', 'Remove tab')}
+                          >
                             <Icon
                               onKeyDownCapture={(e) => {
                                 if (e.key === 'Enter') {
@@ -126,12 +128,22 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
             return tab;
           }
         })}
-        {data?.state === LoadingState.Loading && <Tab label={t("Components.service-selection-tabs-scene.label-loading-tabs", "Loading tabs")} icon={'spinner'} />}
+        {data?.state === LoadingState.Loading && (
+          <Tab
+            label={t('Components.service-selection-tabs-scene.label-loading-tabs', 'Loading tabs')}
+            icon={'spinner'}
+          />
+        )}
 
         {/* Add more tabs tab */}
         {data?.state === LoadingState.Done && (
           <span className={styles.addTab}>
-            <Tab onChangeTab={model.toggleShowPopover} label={t("Components.service-selection-tabs-scene.label-add-label", "Add label")} ref={popoverRef} icon={'plus-circle'} />
+            <Tab
+              onChangeTab={model.toggleShowPopover}
+              label={t('Components.service-selection-tabs-scene.label-add-label', 'Add label')}
+              ref={popoverRef}
+              icon={'plus-circle'}
+            />
           </span>
         )}
 

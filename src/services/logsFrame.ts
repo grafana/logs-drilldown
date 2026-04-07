@@ -216,7 +216,10 @@ export function getVisibleRangeFrame(start: number, end: number) {
     {
       color: 'rgba(58, 113, 255, 0.3)',
       isRegion: true,
-      text: t("services.get-visible-range-frame.frame.text.range-oldest-newest-display", "Range from oldest to newest logs in display"),
+      text: t(
+        'services.get-visible-range-frame.frame.text.range-oldest-newest-display',
+        'Range from oldest to newest logs in display'
+      ),
       time: start,
       timeEnd: end,
     },

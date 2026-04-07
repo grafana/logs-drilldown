@@ -77,7 +77,7 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             getUrl: () => undefined,
             icon: 'link',
             key: 'copy-shortened-link',
-            label: t("Components.share-button-scene.menu-options.label.copy-shortened-url", "Copy shortened URL"),
+            label: t('Components.share-button-scene.menu-options.label.copy-shortened-url', 'Copy shortened URL'),
             shorten: true,
           },
           {
@@ -85,12 +85,12 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             getUrl: () => undefined,
             icon: 'link',
             key: 'copy-link',
-            label: t("Components.share-button-scene.menu-options.label.copy-url", "Copy URL"),
+            label: t('Components.share-button-scene.menu-options.label.copy-url', 'Copy URL'),
             shorten: false,
           },
         ],
         key: 'normal',
-        label: t("Components.share-button-scene.menu-options.label.normal-url-links", "Normal URL links"),
+        label: t('Components.share-button-scene.menu-options.label.normal-url-links', 'Normal URL links'),
       },
       {
         items: [
@@ -105,7 +105,10 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             },
             icon: 'clock-nine',
             key: 'copy-short-link-abs-time',
-            label: t("Components.share-button-scene.menu-options.label.copy-absolute-shortened-url", "Copy absolute shortened URL"),
+            label: t(
+              'Components.share-button-scene.menu-options.label.copy-absolute-shortened-url',
+              'Copy absolute shortened URL'
+            ),
             shorten: true,
           },
           {
@@ -119,12 +122,15 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             },
             icon: 'clock-nine',
             key: 'copy-link-abs-time',
-            label: t("Components.share-button-scene.menu-options.label.copy-absolute-url", "Copy absolute URL"),
+            label: t('Components.share-button-scene.menu-options.label.copy-absolute-url', 'Copy absolute URL'),
             shorten: false,
           },
         ],
         key: 'timesync',
-        label: t("Components.share-button-scene.menu-options.label.timesync-links-share-range-intact", "Time-sync URL links (share with time range intact)"),
+        label: t(
+          'Components.share-button-scene.menu-options.label.timesync-links-share-range-intact',
+          'Time-sync URL links (share with time range intact)'
+        ),
       },
     ];
 
@@ -170,16 +176,23 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             const url = lastSelected.getUrl();
             model.onCopyLink(lastSelected.shorten, lastSelected.absTime, url);
           }}
-          aria-label={t("Components.share-button-scene.aria-label-copy-shortened-url", "Copy shortened URL")}
+          aria-label={t('Components.share-button-scene.aria-label-copy-shortened-url', 'Copy shortened URL')}
         >
-          <span><Trans i18nKey="Components.share-button-scene.share">Share</Trans></span>
+          <span>
+            <Trans i18nKey="Components.share-button-scene.share">Share</Trans>
+          </span>
         </ToolbarButton>
         <Dropdown
           overlay={<ShareButtonScene.MenuActions model={model} />}
           placement="bottom-end"
           onVisibleChange={model.setIsOpen.bind(model)}
         >
-          <ToolbarButton narrow={true} variant={'canvas'} isOpen={isOpen} aria-label={t("Components.share-button-scene.aria-label-open-copy-link-options", "Open copy link options")} />
+          <ToolbarButton
+            narrow={true}
+            variant={'canvas'}
+            isOpen={isOpen}
+            aria-label={t('Components.share-button-scene.aria-label-open-copy-link-options', 'Open copy link options')}
+          />
         </Dropdown>
       </ButtonGroup>
     );

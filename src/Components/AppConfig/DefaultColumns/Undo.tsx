@@ -22,12 +22,12 @@ export function Undo() {
         }
       }}
       closeOnConfirm={true}
-      confirmText={t("Components.undo.confirmText-reset", "Reset")}
+      confirmText={t('Components.undo.confirmText-reset', 'Reset')}
       confirmVariant={'destructive'}
       aria-disabled={!validation.hasPendingChanges}
       disabled={!validation.hasPendingChanges}
     >
-      {t("Components.undo.reset", "Reset")}
+      {t('Components.undo.reset', 'Reset')}
     </ConfirmButton>
   );
 }

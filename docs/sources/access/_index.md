@@ -26,9 +26,7 @@ Grafana Logs Drilldown is installed by default in both Grafana and Grafana Cloud
 
 In Grafana v12 and later, Grafana includes all Drilldown apps by default in the same **Drilldown** section.
 
-
 ## Installation
-
 
 Logs Drilldown is installed by default in current Grafana releases. If you are upgrading an older installation, you might need to install the plugin manually.
 
@@ -50,7 +48,6 @@ The following Loki and Grafana version and configuration are required:
   {{< admonition type="note" >}}
   To get the most recent features, including experimental features, upgrade to Loki 3.5.0 or later.
   {{< /admonition >}}
-
   - Enable pattern ingestion by setting `pattern_ingester.enabled` to `true` in your Loki configuration file.
   - Enable structured metadata by setting `allow_structured_metadata` to `true` within your Loki configuration file.
   - Enable the volume endpoint by setting `volume_enabled` to `true` within your Loki configuration file.

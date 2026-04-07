@@ -34,9 +34,11 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
   return (
     <Suspense
       fallback={
-        <LinkButton variant="secondary" disabled><Trans i18nKey="services.suspended-open-in-logs-drilldown-button.open-in-logs-drilldown">
-          Open in Logs Drilldown
-        </Trans></LinkButton>
+        <LinkButton variant="secondary" disabled>
+          <Trans i18nKey="services.suspended-open-in-logs-drilldown-button.open-in-logs-drilldown">
+            Open in Logs Drilldown
+          </Trans>
+        </LinkButton>
       }
     >
       <OpenInLogsDrilldownButton {...props} />
@@ -46,7 +48,15 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
 
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   return (
-    <Suspense fallback={<div><Trans i18nKey="services.suspended-embedded-logs-exploration.loading-logs-drilldown">Loading Logs Drilldown...</Trans></div>}>
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-embedded-logs-exploration.loading-logs-drilldown">
+            Loading Logs Drilldown...
+          </Trans>
+        </div>
+      }
+    >
       <EmbeddedLogsExploration {...props} />
     </Suspense>
   );

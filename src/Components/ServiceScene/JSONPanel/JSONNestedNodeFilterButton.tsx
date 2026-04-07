@@ -26,7 +26,15 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
     () => (
       <ImgButton
         className={styles.button}
-        tooltip={type === 'include' ? t('json-nested-node-filter-button.tooltip.include', 'Include log lines that contain {{key}}', { key: keyPath[0] }) : t('json-nested-node-filter-button.tooltip.exclude', 'Exclude log lines that contain {{key}}', { key: keyPath[0] })}
+        tooltip={
+          type === 'include'
+            ? t('Components.json-nested-node-filter-button.tooltip.include', 'Include log lines that contain {{key}}', {
+                key: keyPath[0],
+              })
+            : t('Components.json-nested-node-filter-button.tooltip.exclude', 'Exclude log lines that contain {{key}}', {
+                key: keyPath[0],
+              })
+        }
         onClick={(e) => {
           e.stopPropagation();
           addJSONFieldFilter({
@@ -41,7 +49,11 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         aria-selected={active}
         variant={active ? 'primary' : 'secondary'}
         name={type === 'include' ? 'search-plus' : 'search-minus'}
-        aria-label={type === 'include' ? t('json-nested-node-filter-button.aria-label.include', 'include filter') : t('json-nested-node-filter-button.aria-label.exclude', 'exclude filter')}
+        aria-label={
+          type === 'include'
+            ? t('Components.json-nested-node-filter-button.aria-label.include', 'include filter')
+            : t('Components.json-nested-node-filter-button.aria-label.exclude', 'exclude filter')
+        }
       />
     ),
     [active, keyPath, fullKeyPath, logsJsonScene, styles.button, type]

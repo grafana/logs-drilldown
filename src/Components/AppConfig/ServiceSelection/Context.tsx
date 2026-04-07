@@ -142,7 +142,11 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
         setDsUID: handleSetDsUID,
       }}
     >
-      {isLoading ? <LoadingPlaceholder text={t("Components.service-selection-context-provider.text-loading", "Loading...")} /> : children}
+      {isLoading ? (
+        <LoadingPlaceholder text={t('Components.service-selection-context-provider.text-loading', 'Loading...')} />
+      ) : (
+        children
+      )}
     </Context.Provider>
   );
 };

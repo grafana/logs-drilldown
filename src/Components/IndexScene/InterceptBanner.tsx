@@ -13,7 +13,10 @@ export function InterceptBanner(props: { onRemove: () => void }) {
       <Alert
         className={styles.alert}
         severity={'info'}
-        title={t("Components.intercept-banner.title-welcome-to-grafana-logs-drilldown", "Welcome to Grafana Logs Drilldown!")}
+        title={t(
+          'Components.intercept-banner.title-welcome-to-grafana-logs-drilldown',
+          'Welcome to Grafana Logs Drilldown!'
+        )}
         onRemove={props.onRemove}
       >
         <div>

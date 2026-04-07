@@ -40,7 +40,7 @@ export function SaveSearchButton({ sceneRef }: Props) {
           variant="canvas"
           icon="save"
           onClick={() => setSaving(true)}
-          tooltip={t('logs.logs-drilldown.save-search.button-tooltip', 'Save search')}
+          tooltip={t('Components.logs.logs-drilldown.save-search.button-tooltip', 'Save search')}
         />
         {saving && <SaveSearchModal dsUid={dsUid} sceneRef={sceneRef} onClose={() => setSaving(false)} />}
       </>
@@ -71,7 +71,7 @@ export function SaveSearchButton({ sceneRef }: Props) {
     <OpenQueryLibraryComponent
       datasourceFilters={[dsName]}
       query={query}
-      tooltip={t('logs.logs-drilldown.save-search.button-tooltip-saved-queries', 'Save in Saved Queries')}
+      tooltip={t('Components.logs.logs-drilldown.save-search.button-tooltip-saved-queries', 'Save in Saved Queries')}
     />
   );
 }

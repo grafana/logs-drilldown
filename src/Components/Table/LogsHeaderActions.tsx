@@ -22,18 +22,27 @@ export function LogsPanelHeaderActions(props: {
       <RadioButtonGroup
         options={[
           {
-            description: t("Components.logs-panel-header-actions.description.show-results-in-logs-visualisation", "Show results in logs visualisation"),
-            label: t("Components.logs-panel-header-actions.label.logs", "Logs"),
+            description: t(
+              'Components.logs-panel-header-actions.description.show-results-in-logs-visualisation',
+              'Show results in logs visualisation'
+            ),
+            label: t('Components.logs-panel-header-actions.label.logs', 'Logs'),
             value: 'logs',
           },
           {
-            description: t("Components.logs-panel-header-actions.description.show-results-in-table-visualisation", "Show results in table visualisation"),
-            label: t("Components.logs-panel-header-actions.label.table", "Table"),
+            description: t(
+              'Components.logs-panel-header-actions.description.show-results-in-table-visualisation',
+              'Show results in table visualisation'
+            ),
+            label: t('Components.logs-panel-header-actions.label.table', 'Table'),
             value: 'table',
           },
           {
-            description: t("Components.logs-panel-header-actions.description.show-results-in-json-visualisation", "Show results in json visualisation"),
-            label: t("Components.logs-panel-header-actions.label.json", "JSON"),
+            description: t(
+              'Components.logs-panel-header-actions.description.show-results-in-json-visualisation',
+              'Show results in json visualisation'
+            ),
+            label: t('Components.logs-panel-header-actions.label.json', 'JSON'),
             value: 'json',
           },
         ]}

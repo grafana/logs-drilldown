@@ -303,7 +303,12 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
         {body instanceof LabelsAggregatedBreakdownScene && <LabelsAggregatedBreakdownScene.Selector model={body} />}
         {body instanceof LabelValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 0 && (
-          <FieldSelector label={t("Components.label-breakdown-scene.label-label", "Label")} options={options} value={String(value)} onChange={model.onChange} />
+          <FieldSelector
+            label={t('Components.label-breakdown-scene.label-label', 'Label')}
+            options={options}
+            value={String(value)}
+            onChange={model.onChange}
+          />
         )}
       </div>
     );

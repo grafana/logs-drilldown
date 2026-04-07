@@ -580,7 +580,11 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   }
 
   testDatasource(): Promise<TestDataSourceResponse> {
-    return Promise.resolve({ message: t("services.wrapped-loki-datasource.message.data-source-is-working", "Data source is working"), status: 'success', title: t("services.wrapped-loki-datasource.title.success", "Success") });
+    return Promise.resolve({
+      message: t('services.wrapped-loki-datasource.message.data-source-is-working', 'Data source is working'),
+      status: 'success',
+      title: t('services.wrapped-loki-datasource.title.success', 'Success'),
+    });
   }
 }
 

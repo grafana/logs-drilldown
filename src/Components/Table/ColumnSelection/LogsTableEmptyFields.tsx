@@ -19,5 +19,9 @@ function getStyles(theme: GrafanaTheme2) {
 export function LogsTableEmptyFields() {
   const theme = useTheme2();
   const styles = getStyles(theme);
-  return <div className={styles.empty}><Trans i18nKey="Components.logs-table-empty-fields.no-fields">No fields</Trans></div>;
+  return (
+    <div className={styles.empty}>
+      <Trans i18nKey="Components.logs-table-empty-fields.no-fields">No fields</Trans>
+    </div>
+  );
 }

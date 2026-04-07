@@ -56,17 +56,31 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
   return (
     <>
       {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
-        <Tooltip content={t('log-options-buttons.tooltip.clear-displayed-fields', 'Clear displayed fields: {{fields}}', { fields: displayedFieldsNames })}>
-          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}><Trans i18nKey="Components.show-default-fields-button-renderer.show-original-log-line">
-            Show original log line
-          </Trans></Button>
+        <Tooltip
+          content={t(
+            'Components.log-options-buttons.tooltip.clear-displayed-fields',
+            'Clear displayed fields: {{fields}}',
+            { fields: displayedFieldsNames }
+          )}
+        >
+          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
+            <Trans i18nKey="Components.show-default-fields-button-renderer.show-original-log-line">
+              Show original log line
+            </Trans>
+          </Button>
         </Tooltip>
       )}
       {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
-        <Tooltip content={t('log-options-buttons.tooltip.show-default-fields', 'Show default fields: {{fields}}', { fields: backendFieldsNames })}>
-          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}><Trans i18nKey="Components.show-default-fields-button-renderer.show-default-fields">
-            Show default fields
-          </Trans></Button>
+        <Tooltip
+          content={t('Components.log-options-buttons.tooltip.show-default-fields', 'Show default fields: {{fields}}', {
+            fields: backendFieldsNames,
+          })}
+        >
+          <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
+            <Trans i18nKey="Components.show-default-fields-button-renderer.show-default-fields">
+              Show default fields
+            </Trans>
+          </Button>
         </Tooltip>
       )}
     </>

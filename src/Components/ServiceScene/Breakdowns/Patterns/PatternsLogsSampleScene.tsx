@@ -164,9 +164,11 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
       logger.error(new Error('Pattern sample query returns no results'), logContext);
 
       this.setWarningMessage(
-        <Alert severity={'error'} title={''}><Trans i18nKey="Components.patterns-logs-sample-scene.this-pattern-returns-no-logs">
-          This pattern returns no logs.
-        </Trans></Alert>
+        <Alert severity={'error'} title={''}>
+          <Trans i18nKey="Components.patterns-logs-sample-scene.this-pattern-returns-no-logs">
+            This pattern returns no logs.
+          </Trans>
+        </Alert>
       );
 
       const panelFlexItem = this.getVizFlexItem();

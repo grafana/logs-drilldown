@@ -26,8 +26,8 @@ export function AddRecord() {
           USER_EVENTS_ACTIONS.default_columns_config.add_record
         );
       }}
-    ><Trans i18nKey="Components.add-record.add">
-      Add
-    </Trans></Button>
+    >
+      <Trans i18nKey="Components.add-record.add">Add</Trans>
+    </Button>
   );
 }
