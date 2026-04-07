@@ -302,12 +302,12 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
           <>
-            <span className={styles.toggleWrapper}>
+            <div className={styles.toggleWrapper}>
               {body.state.fieldsPanelsType !== 'text' && (
                 <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
               )}
               <FieldsAggregatedBreakdownScene.Selector model={body} />
-            </span>
+            </div>
             <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />
           </>
         )}

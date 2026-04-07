@@ -261,7 +261,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
     const styles = useStyles2(getPanelWrapperStyles);
 
     if (body) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+      return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
     return <LoadingPlaceholder text={t('breakdowns.labels-aggregated.loading', 'Loading...')} />;

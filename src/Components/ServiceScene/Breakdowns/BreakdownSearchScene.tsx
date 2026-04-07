@@ -1,5 +1,7 @@
 import React, { ChangeEvent } from 'react';
 
+import { css } from '@emotion/css';
+
 import { BusEventBase } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 
@@ -31,12 +33,14 @@ export class BreakdownSearchScene extends SceneObjectBase<BreakdownSearchSceneSt
   public static Component = ({ model }: SceneComponentProps<BreakdownSearchScene>) => {
     const { filter } = model.useState();
     return (
-      <SearchInput
-        value={filter}
-        onChange={model.onValueFilterChange}
-        onClear={model.clearValueFilter}
-        placeholder="Search for value"
-      />
+      <div className={styles.searchWrapper}>
+        <SearchInput
+          value={filter}
+          onChange={model.onValueFilterChange}
+          onClear={model.clearValueFilter}
+          placeholder="Search for value"
+        />
+      </div>
     );
   };
 
@@ -76,3 +80,9 @@ export class BreakdownSearchScene extends SceneObjectBase<BreakdownSearchSceneSt
     }
   }
 }
+
+const styles = {
+  searchWrapper: css({
+    flex: '1',
+  }),
+};

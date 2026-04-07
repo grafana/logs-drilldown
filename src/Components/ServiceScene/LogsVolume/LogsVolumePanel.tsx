@@ -304,9 +304,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const styles = useStyles2(getPanelWrapperStyles);
 
     return (
-      <span className={styles.panelWrapper}>
+      <div className={styles.panelWrapper}>
         <panel.Component model={panel} />
-      </span>
+      </div>
     );
   };
 }

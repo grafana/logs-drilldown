@@ -84,7 +84,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
 
     if (body) {
       return (
-        <span className={styles.panelWrapper}>
+        <div className={styles.panelWrapper}>
           <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />
           {hasError && errorBody && (
             <div>
@@ -97,7 +97,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
               {!(body instanceof LayoutSwitcher) && body && <body.Component model={body} />}
             </div>
           )}
-        </span>
+        </div>
       );
     }
 
