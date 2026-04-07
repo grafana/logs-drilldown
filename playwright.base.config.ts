@@ -28,7 +28,7 @@ export const baseConfig = {
     //   mode: 'on',
     // },
   },
-  /* Opt out of parallel tests on CI. */
+  /* Limit CI workers to 4. */
   workers: process.env.CI ? 4 : undefined,
 };
 
