@@ -37,7 +37,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
       label: '',
       options: [
         {
-          description: 'Smart ordering of graphs based on the most significant spikes in the data',
+          description: t("Components.sort-by-scene.description.smart-ordering", "Smart ordering of graphs based on the most significant spikes in the data"),
           label: t("Components.sort-by-scene.label.most-relevant", "Most relevant"),
           value: DEFAULT_SORT_BY,
         },

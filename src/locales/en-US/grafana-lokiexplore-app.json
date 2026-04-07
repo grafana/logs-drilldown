@@ -69,6 +69,7 @@
       "description-end-of-the-range-eg-now": "End of the range (e.g. now)",
       "description-start-range": "Start of the range (e.g. now-15m, now-1h, now-24h)",
       "disable-patterns-description": "Disables Logs Drilldown's usage of the <2>Loki Patterns API</2> endpoint, and removes the Patterns tab.",
+      "interval-invalid-error": "Interval is invalid. Please enter an interval longer than \"60m\". For example: 3d, 1w, 1m",
       "interval-placeholder": "7d",
       "label-default-data-source": "Default data source",
       "label-default-time-range": "Default time range",
@@ -247,9 +248,6 @@
       "title-inspect-value": "Inspect value",
       "tooltip-copy-link-to-log-line": "Copy link to log line",
       "tooltip-view-log-line": "View log line"
-    },
-    "line-filter-case-sensitivity-button": {
-      "aa": "Aa"
     },
     "line-filter-editor": {
       "exclude": "Exclude",
@@ -512,7 +510,8 @@
         "graphs-highest-values": "Sort graphs by the highest values (max)",
         "graphs-smallest-values": "Sort graphs by the smallest values (min)",
         "graphs-total-number": "Sort graphs by total number of logs",
-        "order-amount-outlying-values": "Order by the amount of outlying values in the data"
+        "order-amount-outlying-values": "Order by the amount of outlying values in the data",
+        "smart-ordering": "Smart ordering of graphs based on the most significant spikes in the data"
       },
       "label": {
         "asc": "Asc",

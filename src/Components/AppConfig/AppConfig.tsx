@@ -227,7 +227,7 @@ const AppConfig = ({ plugin }: Props) => {
 
         <Field
           invalid={!isValid(state.interval)}
-          error={'Interval is invalid. Please enter an interval longer then "60m". For example: 3d, 1w, 1m'}
+          error={t('Components.app-config.interval-invalid-error', 'Interval is invalid. Please enter an interval longer than "60m". For example: 3d, 1w, 1m')}
           description={
             <span>
               <Trans i18nKey="Components.app-config.max-interval-description">

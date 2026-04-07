@@ -41,7 +41,7 @@ export const PatternControls = ({ onRemove, patterns }: Props) => {
       {includePatterns.length > 0 && (
         <div className={styles.patternsContainer}>
           <Text variant="bodySmall" weight="bold" data-testid={testIds.patterns.buttonIncludedPattern}>
-            {patterns.length > 1
+            {includePatterns.length > 1
               ? t('Components.pattern-controls.included-patterns', 'Included patterns')
               : t('Components.pattern-controls.included-pattern', 'Included pattern')}
           </Text>
