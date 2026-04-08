@@ -51,6 +51,9 @@ jest.mock('../ServiceScene/OnExploreLinkClick');
 jest.mock('services/logql', () => ({
   isLogsQuery: jest.fn(),
 }));
+jest.mock('services/logger', () => ({
+  logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn() },
+}));
 
 // Type the mocked functions
 const mockSceneGraph = {
@@ -308,7 +311,7 @@ describe('PanelMenu', () => {
       menu.activate();
 
       const mockAddItem = menu.state.body
-        ? jest.spyOn(menu.state.body, 'addItem').mockImplementation(() => {})
+        ? jest.spyOn(menu.state.body, 'addItem').mockImplementation(() => { })
         : jest.fn();
       const testItem: PanelMenuItem = { text: 'Test Item', type: 'group' };
 
@@ -322,7 +325,7 @@ describe('PanelMenu', () => {
       menu.activate();
 
       const mockSetItems = menu.state.body
-        ? jest.spyOn(menu.state.body, 'setItems').mockImplementation(() => {})
+        ? jest.spyOn(menu.state.body, 'setItems').mockImplementation(() => { })
         : jest.fn();
       const testItems: PanelMenuItem[] = [{ text: 'Test Item', type: 'group' }];
 
