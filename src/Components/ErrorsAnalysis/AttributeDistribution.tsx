@@ -190,8 +190,12 @@ function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[
     return detected;
   }
   const detectedByField = new Map(detected.map((a) => [a.field, a]));
-  const priorityFirst = priority.filter((p) => detectedByField.has(p.field));
-  const priorityFields = new Set(priorityFirst.map((p) => p.field));
+  // Always include all priority attributes. Use the detected version if present
+  // (it carries the label from the consumer's labelMap); otherwise use the priority
+  // config directly so the section still appears even when the field is absent from
+  // detected_fields for this error group.
+  const priorityFirst = priority.map((p) => detectedByField.get(p.field) ?? p);
+  const priorityFields = new Set(priority.map((p) => p.field));
   const rest = detected.filter((a) => !priorityFields.has(a.field));
   return [...priorityFirst, ...rest];
 }
