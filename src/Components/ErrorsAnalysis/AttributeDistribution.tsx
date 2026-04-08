@@ -292,6 +292,7 @@ export function AttributeDistribution({
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [newFieldInput, setNewFieldInput] = useState('');
+  const [extraFieldsShown, setExtraFieldsShown] = useState(0);
 
   const [state, dispatch] = useReducer(
     reducer,
@@ -416,6 +417,17 @@ export function AttributeDistribution({
     loadDistributions([config], effectiveContext);
   }
 
+  const priorityFieldSet = new Set(priorityAttributes.map((p) => p.field));
+  const nonPriorityAttributes = state.attributes.filter((a) => !priorityFieldSet.has(a.field));
+  // Only split if there are both priority and non-priority fields. If no priority
+  // attributes are configured, all fields are shown without a button.
+  const hasSplit = priorityFieldSet.size > 0 && nonPriorityAttributes.length > 0;
+  const priorityAttributes_ = hasSplit ? state.attributes.filter((a) => priorityFieldSet.has(a.field)) : state.attributes;
+  const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
+  const visibleAttributes = hasSplit ? [...priorityAttributes_, ...visibleNonPriority] : state.attributes;
+  const remainingCount = nonPriorityAttributes.length - extraFieldsShown;
+  const nextBatch = Math.min(10, remainingCount);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -477,7 +489,7 @@ export function AttributeDistribution({
       )}
 
       <div className={styles.sections}>
-        {state.attributes.map((attr) => {
+        {visibleAttributes.map((attr) => {
           const attrState = state.data[attr.field];
           if (!attrState) {
             return null;
@@ -499,6 +511,28 @@ export function AttributeDistribution({
             />
           );
         })}
+        {hasSplit && (extraFieldsShown > 0 || remainingCount > 0) && (
+          <div className={styles.showMoreFields}>
+            <button
+              aria-label={`Show ${nextBatch} more fields`}
+              className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
+              disabled={remainingCount === 0}
+              title={remainingCount === 0 ? 'No more fields' : `Show ${nextBatch} more fields`}
+              onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
+            >
+              <Icon name="angle-down" size="sm" />
+            </button>
+            <button
+              aria-label="Collapse extra fields"
+              className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
+              disabled={extraFieldsShown === 0}
+              title={extraFieldsShown === 0 ? 'No extra fields shown' : 'Collapse extra fields'}
+              onClick={() => setExtraFieldsShown(0)}
+            >
+              <Icon name="angle-up" size="sm" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -823,6 +857,37 @@ const getStyles = (theme: GrafanaTheme2) => ({
     textAlign: 'left',
     '&:hover': {
       textDecoration: 'underline',
+    },
+  }),
+  showMoreFields: css({
+    borderTop: `1px solid ${theme.colors.border.weak}`,
+    display: 'flex',
+    gap: theme.spacing(0.5),
+    padding: theme.spacing(0.5, 0),
+  }),
+  showMoreButton: css({
+    alignItems: 'center',
+    background: 'none',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.text.secondary,
+    cursor: 'pointer',
+    display: 'flex',
+    height: 20,
+    justifyContent: 'center',
+    padding: 0,
+    width: 20,
+    '&:hover': {
+      background: theme.colors.action.hover,
+      color: theme.colors.text.primary,
+    },
+  }),
+  showMoreButtonDisabled: css({
+    cursor: 'not-allowed',
+    opacity: 0.3,
+    '&:hover': {
+      background: 'none',
+      color: theme.colors.text.secondary,
     },
   }),
   title: css({
