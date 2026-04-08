@@ -319,7 +319,7 @@ function getInitialGroupSize(shards: number[]) {
 function isRetriableError(errorResponse: DataQueryResponse) {
   const message = errorResponse.errors
     ? (errorResponse.errors[0].message ?? '').toLowerCase()
-    : (errorResponse.error?.message ?? '');
+    : (errorResponse.error?.message ?? '').toLowerCase();
   if (message.includes('timeout')) {
     return true;
   } else if (message.includes('parse error') || message.match(MaxSeriesRegex)) {

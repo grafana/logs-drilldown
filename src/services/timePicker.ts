@@ -159,7 +159,7 @@ export const getQuickOptions = (): TimeOption[] => [
   {
     from: 'now-6d/d',
     to: 'now-6d/d',
-    display: t('services.grafana-ui.date-time-pickers.quick-options.day-five-days-ago', 'Six days ago'),
+    display: t('services.grafana-ui.date-time-pickers.quick-options.day-six-days-ago', 'Six days ago'),
   },
   {
     from: 'now-7d/d',

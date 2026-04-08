@@ -149,7 +149,10 @@
       "placeholder-search-values": "Search values"
     },
     "fields": {
-      "add-column": "Add column"
+      "add-column": "Add column",
+      "add-column-tooltip": "Add a default column to display in the logs",
+      "invalid-columns": "Invalid columns",
+      "invalid-columns-log-line-only": "Only selecting the log line is probably redundant!"
     },
     "fields-aggregated-breakdown-scene": {
       "label": {
@@ -175,11 +178,6 @@
         "title": {
           "log-count-alert": "Log count alert"
         }
-      }
-    },
-    "get-styles": {
-      "label": {
-        "first-row-wrapper": "first-row-wrapper"
       }
     },
     "get-variable-set": {
@@ -347,6 +345,7 @@
       },
       "log-options": {
         "max-lines-label": "Line limit",
+        "max-lines-placeholder": "{{logs}} logs",
         "max-lines-tooltip": "Number of log lines to request. Depends on the Loki configuration value for max_entries_limit."
       },
       "logs-controls": {
@@ -873,6 +872,7 @@
           "day-before-yesterday": "Day before yesterday",
           "day-five-days-ago": "Five days ago",
           "day-four-days-ago": "Four days ago",
+          "day-six-days-ago": "Six days ago",
           "day-three-days-ago": "Three days ago",
           "four-weeks-ago": "Four weeks ago",
           "last-1-hour": "Last 1 hour",

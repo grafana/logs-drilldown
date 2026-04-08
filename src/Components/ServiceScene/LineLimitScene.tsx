@@ -110,7 +110,7 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
             width="auto"
             minWidth={8}
             onChange={model.onChangeMaxLines}
-            placeholder={t('Components.logs.log-options.max-lines-label', '{{logs}} logs', { logs: maxLines })}
+            placeholder={t('Components.logs.log-options.max-lines-placeholder', '{{logs}} logs', { logs: maxLines })}
             createCustomValue
           />
         </InlineField>

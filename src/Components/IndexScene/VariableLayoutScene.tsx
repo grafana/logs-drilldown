@@ -252,7 +252,8 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
         },
         gap: '16px',
 
-        label: t('Components.get-styles.label.first-row-wrapper', 'first-row-wrapper'),
+        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
+        label: 'first-row-wrapper',
       },
     }),
     stickyControlsContainer: css({
