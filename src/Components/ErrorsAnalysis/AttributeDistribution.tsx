@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
-import { cx } from '@emotion/css';
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
+
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Spinner, useStyles2 } from '@grafana/ui';
-
 
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
@@ -15,9 +14,9 @@ export interface AttributeConfig {
 }
 
 export interface LabelValueCount {
-  value: string;
   count: number;
   percentage: number;
+  value: string;
 }
 
 // The slice of state the component needs to fetch data.
@@ -30,8 +29,8 @@ export interface DatasetContext {
 
 export interface ActiveFilter {
   field: string;
+  operator: '!=' | '=';
   value: string;
-  operator: '=' | '!=';
 }
 
 // A value entry extended with a `retained` flag used for the sticky values pattern.
@@ -61,13 +60,13 @@ interface State {
 
 type Action =
   | { type: 'DETECTING' }
-  | { type: 'SET_ATTRIBUTES'; configs: AttributeConfig[] }
-  | { type: 'LOADING'; field: string }
-  | { type: 'LOADED'; field: string; values: LabelValueCount[] }
-  | { type: 'ERROR'; field: string }
-  | { type: 'TOGGLE_EXPANDED'; field: string }
-  | { type: 'ADD_ATTRIBUTE'; config: AttributeConfig }
-  | { type: 'TOGGLE_FILTER'; field: string; value: string; operator: '=' | '!=' }
+  | { configs: AttributeConfig[]; type: 'SET_ATTRIBUTES' }
+  | { field: string; type: 'LOADING' }
+  | { field: string; type: 'LOADED'; values: LabelValueCount[] }
+  | { field: string; type: 'ERROR' }
+  | { field: string; type: 'TOGGLE_EXPANDED' }
+  | { config: AttributeConfig; type: 'ADD_ATTRIBUTE' }
+  | { field: string; operator: '!=' | '='; type: 'TOGGLE_FILTER'; value: string }
   | { type: 'CLEAR_FILTERS' };
 
 function reducer(state: State, action: Action): State {
@@ -211,7 +210,7 @@ function buildEffectiveQuery(baseQuery: string, filters: ActiveFilter[]): string
   }
 
   // Group by field -- per-field operator is uniform (enforced by the reducer).
-  const byField = new Map<string, { operator: '=' | '!='; values: string[] }>();
+  const byField = new Map<string, { operator: '!=' | '='; values: string[] }>();
   for (const { field, value, operator } of filters) {
     const existing = byField.get(field);
     if (existing) {
@@ -260,6 +259,11 @@ export interface AttributeDistributionProps {
   // Adapter function -- provided by the consumer. Returns value counts for a
   // single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string) => Promise<LabelValueCount[]>;
+  // Seed value for the selectedFilters reducer state, applied only on first mount.
+  // The consumer passes its last-known filter set so that if the component remounts
+  // (e.g. due to React strict mode or Scenes re-activation), chips reappear
+  // immediately without the user needing to re-apply them.
+  initialSelectedFilters?: ActiveFilter[];
   // Called whenever the active filter set changes. The consumer can use this
   // to update other panels on the page. Filter state is owned by this component
   // and is scoped to its lifetime -- no persistent writes are made externally.
@@ -275,11 +279,6 @@ export interface AttributeDistributionProps {
   // its query applies -- the component just renders it.
   // Example values: "Last 1000 logs", "Slowest 1000 traces"
   queryLimitLabel?: string;
-  // Seed value for the selectedFilters reducer state, applied only on first mount.
-  // The consumer passes its last-known filter set so that if the component remounts
-  // (e.g. due to React strict mode or Scenes re-activation), chips reappear
-  // immediately without the user needing to re-apply them.
-  initialSelectedFilters?: ActiveFilter[];
 }
 
 export function AttributeDistribution({
@@ -374,7 +373,7 @@ export function AttributeDistribution({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes]);
 
-  function handleToggleFilter(field: string, value: string, operator: '=' | '!=') {
+  function handleToggleFilter(field: string, value: string, operator: '!=' | '=') {
     // Mirror the reducer logic to compute newFilters synchronously for callbacks.
     const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);
     const existingForField = state.selectedFilters.find((f) => f.field === field);
@@ -508,11 +507,11 @@ export function AttributeDistribution({
 interface AttributeSectionProps {
   attrState: AttributeState;
   config: AttributeConfig;
-  includedValues: Set<string>;
   excludedValues: Set<string>;
-  snapshotValues: LabelValueCount[] | null;
-  onToggleFilter: (value: string, operator: '=' | '!=') => void;
+  includedValues: Set<string>;
   onToggle: () => void;
+  onToggleFilter: (value: string, operator: '!=' | '=') => void;
+  snapshotValues: LabelValueCount[] | null;
 }
 
 function AttributeSection({

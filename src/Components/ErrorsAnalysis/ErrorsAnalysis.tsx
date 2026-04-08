@@ -1,8 +1,9 @@
 import React from 'react';
 
+import { lastValueFrom } from 'rxjs';
+
 import { DataFrame, DataQueryRequest, dateTime, FieldType } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
-import { lastValueFrom } from 'rxjs';
 
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { AttributeConfig, AttributeDistribution, DatasetContext, LabelValueCount } from './AttributeDistribution';
@@ -76,7 +77,7 @@ async function fetchDistribution(context: DatasetContext, field: string): Promis
 
   const response = await lastValueFrom(ds.query(request));
 
-  const counts: Array<{ value: string; count: number }> = [];
+  const counts: Array<{ count: number; value: string }> = [];
 
   response.data.forEach((frame: DataFrame) => {
     // Loki returns numeric-multi frames in wide format: one row per unique label value.
@@ -117,32 +118,32 @@ async function fetchDistribution(context: DatasetContext, field: string): Promis
 
 export interface ErrorsAnalysisProps {
   datasourceUid: string;
-  // The full Loki log query for this error group, including any active filters.
-  // Built and interpolated by the consuming app -- logs-drilldown does not construct
-  // or modify it.
-  query: string;
-  timeRange: { from: number; to: number };
   // Fields to exclude from the distribution sidebar. The consuming app owns this
   // list because it has domain knowledge of which fields are noise for its dataset.
   // If not provided, all detected fields are shown.
   fieldsToExclude?: string[];
+  // See AttributeDistributionProps.initialSelectedFilters.
+  initialSelectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   // Display name overrides for raw field names. The consuming app owns this mapping
   // because it knows what its fields mean to users.
   // Unknown fields fall back to their raw field name.
   // If not provided, all fields display with their raw name.
   labelMap?: Record<string, string>;
-  onFiltersChange?: (filters: Array<{ field: string; value: string; operator: '=' | '!=' }>) => void;
+  onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Optional ordered list of attributes to pin first in the distribution sidebar.
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
   // If not provided, detected fields appear in the order returned by fetchAttributes.
   priorityAttributes?: Array<{ field: string; label: string }>;
+  // The full Loki log query for this error group, including any active filters.
+  // Built and interpolated by the consuming app -- logs-drilldown does not construct
+  // or modify it.
+  query: string;
   // Optional label shown at the top of the sidebar communicating the dataset scope.
   // Set this when the underlying query caps the number of events so users understand
   // the distributions are based on a sample. Example: "Last 1000 logs"
   // The consuming app sets this -- it knows what limit its query applies.
   queryLimitLabel?: string;
-  // See AttributeDistributionProps.initialSelectedFilters.
-  initialSelectedFilters?: Array<{ field: string; value: string; operator: '=' | '!=' }>;
+  timeRange: { from: number; to: number };
 }
 
 export default function ErrorsAnalysis({
