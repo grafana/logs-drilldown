@@ -266,7 +266,7 @@ export interface AttributeDistributionProps {
   // Optional link to view all logs in an external view. The consumer builds and
   // owns this href -- this component renders it verbatim. When using a plugin
   // extension link (e.g. usePluginLinks with ExploreToolbarAction), the query
-  // passed in the extension context must be parseable by the link extension's
+  // passed in the extension context must be parsable by the link extension's
   // contextToLink function. Queries with OR conditions (e.g. LogQL field
   // filters joined by "or") are not supported by contextToLink -- they get
   // flattened to AND in the URL and return no results. Simplify the context
