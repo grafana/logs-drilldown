@@ -57,11 +57,11 @@ export function DefaultLabels() {
       <Box marginBottom={2}>
         <Stack gap={0.5} alignItems="center">
           <Text element="h5">
-            <Trans i18nKey="components.default-labels.landing-page-default-labels">Landing Page default labels</Trans>
+            <Trans i18nKey="components.app-config.service-selection.default-labels.landing-page-default-labels">Landing Page default labels</Trans>
           </Text>
           <Tooltip
             content={t(
-              'components.default-labels.content-configure-default-labels-optional-values-landing',
+              'components.app-config.service-selection.default-labels.content-configure-default-labels-optional-values-landing',
               'Configure the default labels and optional values to show in the landing page of Logs Drilldown'
             )}
           >
@@ -74,7 +74,7 @@ export function DefaultLabels() {
         <Stack>
           <Combobox<string>
             value={selectedLabel}
-            placeholder={t('components.default-labels.placeholder-select-label-name', 'Select label name')}
+            placeholder={t('components.app-config.service-selection.default-labels.placeholder-select-label-name', 'Select label name')}
             width={'auto'}
             minWidth={30}
             maxWidth={90}
@@ -87,7 +87,7 @@ export function DefaultLabels() {
             <MultiCombobox<string>
               key={selectedLabel}
               placeholder={t(
-                'components.default-labels.placeholder-select-values-optional',
+                'components.app-config.service-selection.default-labels.placeholder-select-values-optional',
                 'Select values (optional)'
               )}
               width={'auto'}
@@ -107,7 +107,7 @@ export function DefaultLabels() {
           <Box marginTop={2}>
             <Button
               tooltip={t(
-                'components.default-labels.tooltip-label-match-against-query',
+                'components.app-config.service-selection.default-labels.tooltip-label-match-against-query',
                 'Add new label to match against user query'
               )}
               variant="secondary"
@@ -116,8 +116,8 @@ export function DefaultLabels() {
               onClick={addLabel}
             >
               {selectedValues.length
-                ? t('components.default-labels.add-label-and-values', 'Add label and values')
-                : t('components.default-labels.add-label', 'Add label')}
+                ? t('components.app-config.service-selection.default-labels.add-label-and-values', 'Add label and values')
+                : t('components.app-config.service-selection.default-labels.add-label', 'Add label')}
             </Button>
           </Box>
         )}
@@ -125,7 +125,7 @@ export function DefaultLabels() {
 
       {noLabels ? (
         <Alert title="" severity="info">
-          <Trans i18nKey="components.default-labels.no-labels-selected" values={{ serviceName: SERVICE_NAME }}>
+          <Trans i18nKey="components.app-config.service-selection.default-labels.no-labels-selected" values={{ serviceName: SERVICE_NAME }}>
             No labels selected. Logs Drilldown will default to <strong>{'{{serviceName}}'}</strong>.
           </Trans>
         </Alert>

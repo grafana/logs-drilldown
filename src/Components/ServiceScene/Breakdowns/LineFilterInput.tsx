@@ -75,8 +75,8 @@ export const LineFilterInput = ({ onChange, onClear, placeholder, regex, suffix,
           <span className={styles.suffixWrapper}>
             {onClear && value ? (
               <IconButton
-                aria-label={t('components.line-filter-input.aria-label-clear-line-filter', 'Clear line filter')}
-                tooltip={t('components.line-filter-input.tooltip-clear-line-filter', 'Clear line filter')}
+                aria-label={t('components.service-scene.breakdowns.line-filter-input.aria-label-clear-line-filter', 'Clear line filter')}
+                tooltip={t('components.service-scene.breakdowns.line-filter-input.tooltip-clear-line-filter', 'Clear line filter')}
                 onClick={onClear}
                 name="times"
                 className={styles.clearIcon}

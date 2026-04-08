@@ -7,8 +7,8 @@ describe('loadResources', () => {
 
       expect(result).toMatchObject({
         components: {
-          logs: {
-            'log-line-details': {
+          buttons: {
+            'copy-to-clipboard-button': {
               'copy-to-clipboard': 'Copy to clipboard',
             },
           },
@@ -21,8 +21,8 @@ describe('loadResources', () => {
 
       expect(result).toMatchObject({
         components: {
-          logs: {
-            'log-line-details': {
+          buttons: {
+            'copy-to-clipboard-button': {
               'copy-to-clipboard': 'Copy to clipboard',
             },
           },
@@ -37,8 +37,8 @@ describe('loadResources', () => {
 
       expect(result).toMatchObject({
         components: {
-          logs: {
-            'log-line-details': {
+          buttons: {
+            'copy-to-clipboard-button': {
               'copy-to-clipboard': 'Copy to clipboard',
             },
           },

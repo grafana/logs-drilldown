@@ -69,7 +69,7 @@ export class ShowLogsButtonScene extends SceneObjectBase<ShowLogsButtonSceneStat
         className={styles.button}
         href={link}
       >
-        <Trans i18nKey="components.show-logs-button-scene.show-logs">Show logs</Trans>
+        <Trans i18nKey="components.index-scene.show-logs-button-scene.show-logs">Show logs</Trans>
       </LinkButton>
     );
   };

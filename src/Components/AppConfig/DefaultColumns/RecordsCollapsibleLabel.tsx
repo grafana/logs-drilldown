@@ -19,10 +19,10 @@ export function RecordsCollapsibleLabel({ record, isOpen }: Props) {
   return (
     <div className={styles.label}>
       <h5 className={styles.label__title}>
-        <Trans i18nKey="components.records-collapsible-label.display-fields">Display fields</Trans>
+        <Trans i18nKey="components.app-config.default-columns.records-collapsible-label.display-fields">Display fields</Trans>
         <Tooltip
           content={t(
-            'components.records-collapsible-label.content-default-fields-display-visualizations-these-labels',
+            'components.app-config.default-columns.records-collapsible-label.content-default-fields-display-visualizations-these-labels',
             'Default fields to display in logs visualizations for these labels'
           )}
         >

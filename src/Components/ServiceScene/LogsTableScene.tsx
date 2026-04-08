@@ -311,7 +311,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
             {/* @ts-expect-error todo: fix this when https://github.com/grafana/grafana/issues/103486 is done*/}
             <PanelChrome
               loadingState={data?.state}
-              title={t('components.logs-table-scene.title-logs', 'Logs')}
+              title={t('components.table.logs-table-scene.title-logs', 'Logs')}
               menu={menu ? <menu.Component model={menu} /> : undefined}
               showMenuAlways={true}
               actions={

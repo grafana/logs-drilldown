@@ -142,11 +142,11 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
     return (
       <div data-testid={testIds.variables.levels.inputWrap} className={styles.wrapper}>
-        <ControlsLabel layout="vertical" label={t('components.levels-variable-scene.label-log-levels', 'Log levels')} />
+        <ControlsLabel layout="vertical" label={t('components.index-scene.levels-variable-scene.label-log-levels', 'Log levels')} />
         <MultiSelect
-          aria-label={t('components.levels-variable-scene.aria-label-log-level-filters', 'Log level filters')}
+          aria-label={t('components.index-scene.levels-variable-scene.aria-label-log-level-filters', 'Log level filters')}
           prefix={<Icon size={'lg'} name={'filter'} />}
-          placeholder={t('components.levels-variable-scene.placeholder-all-levels', 'All levels')}
+          placeholder={t('components.index-scene.levels-variable-scene.placeholder-all-levels', 'All levels')}
           className={styles.control}
           onChange={model.onChangeOptions}
           onCloseMenu={() => model.onCloseMenu()}
