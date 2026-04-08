@@ -30,6 +30,8 @@ If you do not see Logs Drilldown under either name, then check to make sure you 
 Your instance needs internet connection in order to download the Logs Drilldown plugin. If you are working in an offline environment, you can download the Logs Drilldown plugin separately and add it to your Grafana `/plugins` repository.
 {{< /admonition >}}
 
+Check with your Grafana administrator.  All the Grafana drilldown apps require the `datasources:explore` permission in Grafana.
+
 ## Ensure Loki is properly configured
 
 To use Grafana Logs Drilldown, you need to have Loki properly configured. You can find full instructions in [Access or install Grafana Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/).
