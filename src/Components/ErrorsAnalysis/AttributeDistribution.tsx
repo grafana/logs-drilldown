@@ -573,7 +573,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(1),
   }),
   bar: css({
-    background: theme.colors.warning.main,
+    background: theme.colors.primary.main,
+    opacity: 0.5,
     borderRadius: theme.shape.radius.default,
     height: '100%',
     transition: 'width 0.3s ease',
