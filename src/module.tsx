@@ -101,9 +101,9 @@ for (const functionConfig of functionConfigs) {
 
 plugin.exposeComponent({
   component: SuspendedOpenInLogsDrilldownButton,
-  description: 'dsfasdfasdga A button that opens a logs view in the Logs Drilldown app.',
+  description: 'A button that opens a logs view in the Logs Drilldown app.',
   id: `grafana-lokiexplore-app/open-in-explore-logs-button/v1`,
-  title: 'gsdfgsdfgsdf Open in Logs Drilldown button',
+  title: 'Open in Logs Drilldown button',
 });
 
 plugin.exposeComponent({
