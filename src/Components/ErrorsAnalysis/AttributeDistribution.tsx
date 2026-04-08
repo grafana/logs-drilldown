@@ -501,12 +501,13 @@ function AttributeSection({
   const allValues = mergeWithSnapshot(values, snapshotValues);
   const visibleValues = expanded ? allValues.slice(0, MAX_VALUES_EXPANDED) : allValues.slice(0, MAX_VALUES_COLLAPSED);
   const hasMore = allValues.length > MAX_VALUES_EXPANDED;
+  const isExpandable = allValues.length > MAX_VALUES_COLLAPSED;
 
   return (
     <div className={styles.section}>
-      <button className={styles.sectionHeader} onClick={onToggle}>
+      <button className={styles.sectionHeader} onClick={isExpandable ? onToggle : undefined}>
         <span className={styles.sectionLabel}>{config.label}</span>
-        <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />
+        {isExpandable && <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />}
       </button>
 
       {loading && (
