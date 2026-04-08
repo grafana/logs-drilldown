@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Text, useStyles2 } from '@grafana/ui';
 
 import { addCurrentUrlToHistory } from '../../services/navigate';
@@ -40,7 +41,9 @@ export const PatternControls = ({ onRemove, patterns }: Props) => {
       {includePatterns.length > 0 && (
         <div className={styles.patternsContainer}>
           <Text variant="bodySmall" weight="bold" data-testid={testIds.patterns.buttonIncludedPattern}>
-            Included pattern{patterns.length > 1 ? 's' : ''}
+            {includePatterns.length > 1
+              ? t('components.pattern-controls.included-patterns', 'Included patterns')
+              : t('components.pattern-controls.included-pattern', 'Included pattern')}
           </Text>
           <div className={styles.patterns}>
             {includePatterns.map((p) => (
@@ -52,7 +55,9 @@ export const PatternControls = ({ onRemove, patterns }: Props) => {
       {excludePatterns.length > 0 && (
         <div className={styles.patternsContainer}>
           <Text variant="bodySmall" weight="bold" data-testid={testIds.patterns.buttonExcludedPattern}>
-            Excluded pattern{excludePatterns.length > 1 ? 's' : ''}:
+            {excludePatterns.length > 1
+              ? t('components.pattern-controls.excluded-patterns', 'Excluded patterns:')
+              : t('components.pattern-controls.excluded-pattern', 'Excluded pattern:')}
           </Text>
           <div className={styles.patterns}>
             {excludePatterns.map((p) => (

@@ -3,7 +3,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { css } from '@emotion/css';
 
 import { AppEvents, GrafanaTheme2 } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t, Trans } from '@grafana/i18n';
 import { getAppEvents, reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { Modal, Button, Box, Field, Input, Stack, useStyles2, Alert } from '@grafana/ui';
@@ -45,7 +45,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         setState('saved');
 
         appEvents.publish({
-          payload: [t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')],
+          payload: [t('components.logs.logs-drilldown.save-search.success', 'Search successfully saved.')],
           type: AppEvents.alertSuccess.name,
         });
 
@@ -57,7 +57,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         setState('error');
 
         appEvents.publish({
-          payload: [t('logs.logs-drilldown.save-search.error', 'Unexpected error saving this search.')],
+          payload: [t('components.logs.logs-drilldown.save-search.error', 'Unexpected error saving this search.')],
           type: AppEvents.alertError.name,
         });
       }
@@ -67,13 +67,13 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
 
   return (
     <Modal
-      title={t('logs.logs-drilldown.save-search.modal-title', 'Save current search')}
+      title={t('components.logs.logs-drilldown.save-search.modal-title', 'Save current search')}
       isOpen={true}
       onDismiss={onClose}
     >
       <Alert title="" severity="info">
         {t(
-          'logs.logs-drilldown.save-search.modal-alert',
+          'components.logs.logs-drilldown.save-search.modal-alert',
           'Saved searches are stored locally in your browser and will only be available on this device.'
         )}
       </Alert>
@@ -87,7 +87,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
               {existingSearch && (
                 <Alert title="" severity="warning">
                   {t(
-                    'logs.logs-drilldown.save-search.already-exists.alert',
+                    'components.logs.logs-drilldown.save-search.already-exists.alert',
                     'There is a previously saved search with the same query: {{title}}',
                     {
                       title: existingSearch.title,
@@ -95,7 +95,11 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
                   )}
                 </Alert>
               )}
-              <Field label={t('logs.logs-drilldown.save-search.title', 'Title')} noMargin htmlFor="save-search-title">
+              <Field
+                label={t('components.logs.logs-drilldown.save-search.title', 'Title')}
+                noMargin
+                htmlFor="save-search-title"
+              >
                 <Input
                   id="save-search-title"
                   required
@@ -107,7 +111,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
             </Box>
             <Box flex={1} marginBottom={2}>
               <Field
-                label={t('logs.logs-drilldown.save-search.description', 'Description')}
+                label={t('components.logs.logs-drilldown.save-search.description', 'Description')}
                 noMargin
                 htmlFor="save-search-description"
               >
@@ -122,21 +126,21 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
           </Stack>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose} disabled={state === 'saving'}>
-              Cancel
+              <Trans i18nKey="components.save-search-modal.cancel">Cancel</Trans>
             </Button>
             <Button type="submit" disabled={!title || state === 'saving'}>
-              Save
+              <Trans i18nKey="components.save-search-modal.save">Save</Trans>
             </Button>
           </Modal.ButtonRow>
         </form>
       ) : (
         <>
-          <Alert title="Success" severity="success">
-            {t('logs.logs-drilldown.save-search.success', 'Search successfully saved.')}
+          <Alert title={t('components.save-search-modal.title-success', 'Success')} severity="success">
+            {t('components.logs.logs-drilldown.save-search.success', 'Search successfully saved.')}
           </Alert>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose}>
-              Close
+              <Trans i18nKey="components.save-search-modal.close">Close</Trans>
             </Button>
           </Modal.ButtonRow>
         </>

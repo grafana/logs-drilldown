@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { css } from '@emotion/css';
 
 import { colorManipulator, FieldType, GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels, SceneComponentProps, sceneGraph } from '@grafana/scenes';
 import { Alert, PanelChrome, useStyles2 } from '@grafana/ui';
 
@@ -146,7 +147,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
             showMenuAlways={true}
             statusMessage={$data.state.data?.errors?.[0].message}
             loadingState={$data.state.data?.state}
-            title={'JSON'}
+            title={t('components.logs-json.title-json', 'JSON')}
             menu={menu ? <menu.Component model={menu} /> : undefined}
             actions={
               <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
@@ -177,14 +178,30 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
               {lineField?.values && lineField?.values.length > 0 && (
                 <div className={styles.JSONTreeWrap} ref={scrollRef}>
                   {showLokiNotSupported && (
-                    <Alert className={styles.alert} severity={'warning'} title={'JSON filtering requires Loki 3.5.0.'}>
-                      This view will be read only until Loki is upgraded to 3.5.0
+                    <Alert
+                      className={styles.alert}
+                      severity={'warning'}
+                      title={t(
+                        'components.logs-json.title-json-filtering-requires-loki',
+                        'JSON filtering requires Loki 3.5.0.'
+                      )}
+                    >
+                      {t(
+                        'components.logs-json-component.alert.loki-upgrade',
+                        'This view will be read only until Loki is upgraded to 3.5.0'
+                      )}
                     </Alert>
                   )}
                   {showNoJSONDetected && (
-                    <Alert className={styles.alert} severity={'info'} title={'No JSON fields detected'}>
-                      This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view
-                      for a better experience.
+                    <Alert
+                      className={styles.alert}
+                      severity={'info'}
+                      title={t('components.logs-json.title-no-json-fields-detected', 'No JSON fields detected')}
+                    >
+                      {t(
+                        'components.logs-json-component.alert.no-json-fields',
+                        'This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a better experience.'
+                      )}
                     </Alert>
                   )}
                   <JSONTree

@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps } from '@grafana/scenes';
 import { IconButton, InlineSwitch, Label, useStyles2 } from '@grafana/ui';
 
@@ -34,11 +35,16 @@ export function ShowErrorPanelToggle({ model }: SceneComponentProps<FieldsAggreg
       <Label className={styles.toggleLabel}>
         <IconButton
           className={styles.toggleIcon}
-          tooltip={'One or more requests could not be processed'}
+          tooltip={t(
+            'components.show-error-panel-toggle.tooltip-requests-could-processed',
+            'One or more requests could not be processed'
+          )}
           name={'exclamation-triangle'}
           variant={'secondary'}
         />
-        <span className={styles.toggleLabelText}>Show panels with errors</span>
+        <span className={styles.toggleLabelText}>
+          <Trans i18nKey="components.show-error-panel-toggle.show-panels-with-errors">Show panels with errors</Trans>
+        </span>
 
         <InlineSwitch
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => model.toggleErrorPanels(event)}

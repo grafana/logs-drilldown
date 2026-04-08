@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
+import { Trans, t } from '@grafana/i18n';
 import { Alert, Box, Button, Combobox, ComboboxOption, Icon, MultiCombobox, Stack, Text, Tooltip } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
@@ -55,9 +56,14 @@ export function DefaultLabels() {
     >
       <Box marginBottom={2}>
         <Stack gap={0.5} alignItems="center">
-          <Text element="h5">Landing Page default labels</Text>
+          <Text element="h5">
+            <Trans i18nKey="components.default-labels.landing-page-default-labels">Landing Page default labels</Trans>
+          </Text>
           <Tooltip
-            content={'Configure the default labels and optional values to show in the landing page of Logs Drilldown'}
+            content={t(
+              'components.default-labels.content-configure-default-labels-optional-values-landing',
+              'Configure the default labels and optional values to show in the landing page of Logs Drilldown'
+            )}
           >
             <Icon name="info-circle" />
           </Tooltip>
@@ -68,7 +74,7 @@ export function DefaultLabels() {
         <Stack>
           <Combobox<string>
             value={selectedLabel}
-            placeholder={'Select label name'}
+            placeholder={t('components.default-labels.placeholder-select-label-name', 'Select label name')}
             width={'auto'}
             minWidth={30}
             maxWidth={90}
@@ -80,7 +86,10 @@ export function DefaultLabels() {
           {selectedLabel && (
             <MultiCombobox<string>
               key={selectedLabel}
-              placeholder={'Select values (optional)'}
+              placeholder={t(
+                'components.default-labels.placeholder-select-values-optional',
+                'Select values (optional)'
+              )}
               width={'auto'}
               minWidth={30}
               value={selectedValues}
@@ -97,13 +106,18 @@ export function DefaultLabels() {
         {selectedLabel && (
           <Box marginTop={2}>
             <Button
-              tooltip="Add new label to match against user query"
+              tooltip={t(
+                'components.default-labels.tooltip-label-match-against-query',
+                'Add new label to match against user query'
+              )}
               variant="secondary"
               fill="outline"
               icon="plus"
               onClick={addLabel}
             >
-              {selectedValues.length ? 'Add label and values' : 'Add label'}
+              {selectedValues.length
+                ? t('components.default-labels.add-label-and-values', 'Add label and values')
+                : t('components.default-labels.add-label', 'Add label')}
             </Button>
           </Box>
         )}
@@ -111,7 +125,9 @@ export function DefaultLabels() {
 
       {noLabels ? (
         <Alert title="" severity="info">
-          No labels selected. Logs Drilldown will default to <strong>{SERVICE_NAME}</strong>.
+          <Trans i18nKey="components.default-labels.no-labels-selected" values={{ serviceName: SERVICE_NAME }}>
+            No labels selected. Logs Drilldown will default to <strong>{'{{serviceName}}'}</strong>.
+          </Trans>
         </Alert>
       ) : (
         <LabelList />

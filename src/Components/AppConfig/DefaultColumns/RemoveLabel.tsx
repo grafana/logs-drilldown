@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -35,7 +36,9 @@ export function RemoveLabel({ recordIndex, labelIndex }: Props) {
     <div className={styles.valueContainer}>
       <IconButton
         variant={'destructive'}
-        tooltip={`Remove ${label?.key ?? ''}${label?.value ? ` = ${label.value}` : ''}`}
+        tooltip={t('components.remove-label.tooltip-remove-label', 'Remove {{label}}', {
+          label: `${label?.key ?? ''}${label?.value ? ` = ${label.value}` : ''}`,
+        })}
         name={'minus'}
         size={'lg'}
         className={styles.valueContainer__remove}

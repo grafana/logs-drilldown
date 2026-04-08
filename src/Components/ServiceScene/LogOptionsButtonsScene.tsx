@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { shallowCompare } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, Tooltip } from '@grafana/ui';
 
@@ -55,16 +56,30 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
   return (
     <>
       {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
-        <Tooltip content={`Clear displayed fields: ${displayedFieldsNames}`}>
+        <Tooltip
+          content={t(
+            'components.log-options-buttons.tooltip.clear-displayed-fields',
+            'Clear displayed fields: {{fields}}',
+            { fields: displayedFieldsNames }
+          )}
+        >
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
-            Show original log line
+            <Trans i18nKey="components.show-default-fields-button-renderer.show-original-log-line">
+              Show original log line
+            </Trans>
           </Button>
         </Tooltip>
       )}
       {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
-        <Tooltip content={`Show default fields: ${backendFieldsNames}`}>
+        <Tooltip
+          content={t('components.log-options-buttons.tooltip.show-default-fields', 'Show default fields: {{fields}}', {
+            fields: backendFieldsNames,
+          })}
+        >
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
-            Show default fields
+            <Trans i18nKey="components.show-default-fields-button-renderer.show-default-fields">
+              Show default fields
+            </Trans>
           </Button>
         </Tooltip>
       )}

@@ -57,7 +57,11 @@ export class AddFilterEvent extends BusEventBase {
 }
 
 export class ClearFilterEvent extends BusEventBase {
-  constructor(public key: string, public value?: string, public operator?: FilterType) {
+  constructor(
+    public key: string,
+    public value?: string,
+    public operator?: FilterType
+  ) {
     super();
   }
   public static type = 'add-filter';

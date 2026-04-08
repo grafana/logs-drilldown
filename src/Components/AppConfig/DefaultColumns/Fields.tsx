@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans, t } from '@grafana/i18n';
 import { Alert, Button, useStyles2 } from '@grafana/ui';
 
 import { ColumnsDragContext } from './ColumnsDragContext';
@@ -14,8 +15,6 @@ import { logger } from 'services/logger';
 interface Props {
   recordIndex: number;
 }
-
-const INVALID_COLUMNS_LOG_LINE_ONLY_TEXT = 'Only selecting the log line is probably redundant!';
 
 export function Fields({ recordIndex }: Props) {
   const { dsUID, records, setRecords } = useDefaultColumnsContext();
@@ -43,9 +42,14 @@ export function Fields({ recordIndex }: Props) {
     }
   };
 
+  const invalidColumnsLogLineOnlyText = t(
+    'components.fields.invalid-columns-log-line-only',
+    'Only selecting the log line is probably redundant!'
+  );
+
   return (
     <div className={styles.fieldsContainer}>
-      {!notOnlyLogLine && <Alert severity={'warning'} title={INVALID_COLUMNS_LOG_LINE_ONLY_TEXT}></Alert>}
+      {!notOnlyLogLine && <Alert severity={'warning'} title={invalidColumnsLogLineOnlyText}></Alert>}
 
       <ColumnsDragContext recordIndex={recordIndex} />
 
@@ -53,10 +57,10 @@ export function Fields({ recordIndex }: Props) {
         disabled={!recordHasValues}
         tooltip={
           !notOnlyLogLine
-            ? INVALID_COLUMNS_LOG_LINE_ONLY_TEXT
+            ? invalidColumnsLogLineOnlyText
             : !recordHasValues
-            ? 'Invalid columns'
-            : 'Add a default column to display in the logs'
+              ? t('components.fields.invalid-columns', 'Invalid columns')
+              : t('components.fields.add-column-tooltip', 'Add a default column to display in the logs')
         }
         variant={'secondary'}
         fill={'outline'}
@@ -64,7 +68,7 @@ export function Fields({ recordIndex }: Props) {
         onClick={() => addDisplayField()}
         className={styles.fieldsContainer__button}
       >
-        Add column
+        <Trans i18nKey="components.fields.add-column">Add column</Trans>
       </Button>
     </div>
   );

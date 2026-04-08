@@ -1,6 +1,7 @@
 import React, { MouseEvent } from 'react';
 
 import { DataFrame, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -345,7 +346,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         .setOption('setDisplayedFields', this.setDisplayedFields)
         .setOption('logLineMenuCustomItems', [
           {
-            label: 'Copy link to log line',
+            label: t('components.logs-panel-scene.label.copy-link-to-log-line', 'Copy link to log line'),
             onClick: this.handleShareLogLine,
           },
         ])
@@ -547,6 +548,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         </span>
       );
     }
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('components.logs-panel-scene.text-loading', 'Loading...')} />;
   };
 }

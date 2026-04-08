@@ -1,3 +1,4 @@
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -33,9 +34,17 @@ export function isKgAnnotationsAvailable(): boolean {
 
 function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string) {
   const severities = [
-    { value: 'critical', color: 'red', label: 'Critical' },
-    { value: 'warning', color: 'yellow', label: 'Warning' },
-    { value: 'info', color: 'blue', label: 'Info' },
+    {
+      value: 'critical',
+      color: 'red',
+      label: t('services.create-annotation-layers.severities.label.critical', 'Critical'),
+    },
+    {
+      value: 'warning',
+      color: 'yellow',
+      label: t('services.create-annotation-layers.severities.label.warning', 'Warning'),
+    },
+    { value: 'info', color: 'blue', label: t('services.create-annotation-layers.severities.label.info', 'Info') },
   ] as const;
 
   return severities.map(

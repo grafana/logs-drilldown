@@ -4,6 +4,7 @@ import { css, cx } from '@emotion/css';
 import { Draggable, DraggableProvided, DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Alert, Box, ControlledCollapse, Icon, IconButton, Stack, Tag, useStyles2 } from '@grafana/ui';
 
 import { useServiceSelectionContext } from './Context';
@@ -45,8 +46,11 @@ export function LabelList() {
                       <Box paddingBottom={1}>
                         <div {...provided.dragHandleProps}>
                           <Icon
-                            aria-label="Drag and drop icon"
-                            title="Drag and drop to reorder"
+                            aria-label={t('components.label-list.aria-label-drag-and-drop-icon', 'Drag and drop icon')}
+                            title={t(
+                              'components.label-list.title-drag-and-drop-to-reorder',
+                              'Drag and drop to reorder'
+                            )}
                             name="draggabledots"
                             size="lg"
                           />
@@ -103,7 +107,7 @@ export function Label({ label, labels }: LabelProps) {
           <div className={styles.label}>{label.label}</div>
           <IconButton
             variant="destructive"
-            tooltip={`Remove ${label.label}`}
+            tooltip={t('components.label-list.tooltip-remove-label', 'Remove {{label}}', { label: label.label })}
             name="trash-alt"
             size="lg"
             onClick={handleRemove}
@@ -113,7 +117,9 @@ export function Label({ label, labels }: LabelProps) {
     >
       {!label.values.length ? (
         <Alert title="" severity="info">
-          No label values selected. It will show the full list of values for this label.
+          <Trans i18nKey="components.label-list.no-label-values-selected">
+            No label values selected. It will show the full list of values for this label.
+          </Trans>
         </Alert>
       ) : (
         <LabelValues label={label} onRemoveValue={handleRemoveValue} />
@@ -136,9 +142,9 @@ function LabelValues({ label, onRemoveValue }: LabelValuesProps) {
             <Stack alignItems="center" justifyContent="space-between">
               <Tag name={value} />
               <IconButton
-                aria-label={`Remove ${value}`}
+                aria-label={t('components.label-list.aria-label-remove-value', 'Remove {{value}}', { value })}
                 variant="destructive"
-                tooltip={`Remove ${value}`}
+                tooltip={t('components.label-list.tooltip-remove-value', 'Remove {{value}}', { value })}
                 name="trash-alt"
                 size="sm"
                 onClick={() => onRemoveValue(value)}

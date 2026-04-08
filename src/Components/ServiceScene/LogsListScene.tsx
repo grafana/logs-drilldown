@@ -493,42 +493,42 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
             }),
           ]
         : this.state.visualizationType === 'json'
-        ? [
-            new SceneFlexLayout({
-              children: [
-                new SceneFlexItem({
-                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                  xSizing: 'fill',
-                }),
-                new SceneFlexItem({
-                  body: new LineLimitScene({ error }),
-                  xSizing: 'content',
-                }),
-              ],
-            }),
-            new SceneFlexItem({
-              body: new JSONLogsScene({ error, canClearFilters }),
-              height: 'calc(100vh - 220px)',
-            }),
-          ]
-        : [
-            new SceneFlexLayout({
-              children: [
-                new SceneFlexItem({
-                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                  xSizing: 'fill',
-                }),
-                new SceneFlexItem({
-                  body: new LineLimitScene({ error }),
-                  xSizing: 'content',
-                }),
-              ],
-            }),
-            new SceneFlexItem({
-              body: new LogsTableScene({ error, canClearFilters }),
-              height: 'calc(100vh - 220px)',
-            }),
-          ];
+          ? [
+              new SceneFlexLayout({
+                children: [
+                  new SceneFlexItem({
+                    body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                    xSizing: 'fill',
+                  }),
+                  new SceneFlexItem({
+                    body: new LineLimitScene({ error }),
+                    xSizing: 'content',
+                  }),
+                ],
+              }),
+              new SceneFlexItem({
+                body: new JSONLogsScene({ error, canClearFilters }),
+                height: 'calc(100vh - 220px)',
+              }),
+            ]
+          : [
+              new SceneFlexLayout({
+                children: [
+                  new SceneFlexItem({
+                    body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
+                    xSizing: 'fill',
+                  }),
+                  new SceneFlexItem({
+                    body: new LineLimitScene({ error }),
+                    xSizing: 'content',
+                  }),
+                ],
+              }),
+              new SceneFlexItem({
+                body: new LogsTableScene({ error, canClearFilters }),
+                height: 'calc(100vh - 220px)',
+              }),
+            ];
 
     return new SceneFlexLayout({
       children,

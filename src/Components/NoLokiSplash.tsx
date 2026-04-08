@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 import SVG from 'react-inlinesvg';
 
 import { GrafanaTheme2, locationUtil } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 
 export const NoLokiSplash = () => {
@@ -21,31 +22,39 @@ export const NoLokiSplash = () => {
         />
       </div>
       <div className={styles.text}>
-        <h3 className={styles.title}>Welcome to Grafana Logs Drilldown</h3>
+        <h3 className={styles.title}>
+          <Trans i18nKey="components.no-loki-splash.welcome-to-grafana-logs-drilldown">
+            Welcome to Grafana Logs Drilldown
+          </Trans>
+        </h3>
 
         <p>
-          We noticed there is no Loki datasource configured.
-          <br />
-          Add a{' '}
-          <a className={'external-link'} href={locationUtil.assureBaseUrl(`/connections/datasources/new`)}>
-            Loki datasource
-          </a>{' '}
-          to view logs.
+          <Trans i18nKey="components.no-loki-splash.no-datasource">
+            We noticed there is no Loki datasource configured.
+            <br />
+            Add a{' '}
+            <a className={'external-link'} href={locationUtil.assureBaseUrl(`/connections/datasources/new`)}>
+              Loki datasource
+            </a>{' '}
+            to view logs.
+          </Trans>
         </p>
 
         <br />
 
         <p>
-          Click{' '}
-          <a
-            href={'https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/'}
-            target={'_blank'}
-            className={'external-link'}
-            rel="noreferrer"
-          >
-            here
-          </a>{' '}
-          to learn more...
+          <Trans i18nKey="components.no-loki-splash.learn-more">
+            Click{' '}
+            <a
+              href={'https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/'}
+              target={'_blank'}
+              className={'external-link'}
+              rel="noreferrer"
+            >
+              here
+            </a>{' '}
+            to learn more...
+          </Trans>
         </p>
       </div>
     </div>

@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: "[FEAT]:"
+title: '[FEAT]:'
 labels: enhancement
 assignees: ''
-
 ---
 
 **Description of the new feature**

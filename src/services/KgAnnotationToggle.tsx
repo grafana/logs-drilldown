@@ -40,11 +40,14 @@ function KgAnnotationToggleRenderer({ model }: { model: KgAnnotationToggle }) {
 
   return (
     <div style={{ display: 'flex', alignSelf: 'flex-end' }}>
-      <ControlsLabel label="Insights" description={KG_INSIGHTS_DESCRIPTION} />
+      <ControlsLabel
+        label={t('services.kg-annotation-toggle-renderer.label-insights', 'Insights')}
+        description={KG_INSIGHTS_DESCRIPTION}
+      />
       <InlineSwitch
         value={isEnabled}
         onChange={model.toggleEnabled}
-        aria-label={t('logs.logs-drilldown.kg-annotation-toggle', 'Insights')}
+        aria-label={t('services.logs.logs-drilldown.kg-annotation-toggle', 'Insights')}
       />
     </div>
   );

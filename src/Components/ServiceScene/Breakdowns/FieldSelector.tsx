@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { VariableValueOption } from '@grafana/scenes';
 import { ActionMeta, Icon, InlineField, InputActionMeta, Select, useStyles2 } from '@grafana/ui';
 
@@ -77,7 +78,7 @@ export function ServiceFieldSelector({
       <Select
         isLoading={isLoading}
         data-testid={testIds.exploreServiceSearch.search}
-        placeholder={`Search values`}
+        placeholder={t('components.field-selector.placeholder-search-values', 'Search values')}
         options={allOptions}
         isClearable={true}
         value={value}

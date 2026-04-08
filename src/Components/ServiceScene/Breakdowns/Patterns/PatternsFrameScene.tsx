@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { ConfigOverrideRule, FieldColor, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   PanelBuilders,
@@ -240,7 +241,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: 'Include',
+          title: t('components.patterns-frame-scene.time-series.title.include', 'Include'),
           url: '#',
         },
         {
@@ -252,7 +253,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: 'Exclude',
+          title: t('components.patterns-frame-scene.time-series.title.exclude', 'Exclude'),
           url: '#',
         },
       ])

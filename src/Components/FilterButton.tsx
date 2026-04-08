@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { testIds } from 'services/testIds';
@@ -36,7 +37,7 @@ export const FilterButton = (props: Props) => {
         data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         title={titles?.include}
       >
-        Include
+        <Trans i18nKey="components.filter-button.include">Include</Trans>
       </Button>
       {!hideExclude && (
         <Button
@@ -49,7 +50,7 @@ export const FilterButton = (props: Props) => {
           title={titles?.exclude}
           data-testid={testIds.exploreServiceDetails.buttonFilterExclude}
         >
-          Exclude
+          <Trans i18nKey="components.filter-button.exclude">Exclude</Trans>
         </Button>
       )}
     </div>

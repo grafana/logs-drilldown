@@ -30,7 +30,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
     const selected = searches.find((search) => search === selectedSearch);
     if (!selected && searches.length) {
       setSelectedSearch(
-        selectedSearch ? searches.find((search) => search.uid === selectedSearch.uid) ?? searches[0] : searches[0]
+        selectedSearch ? (searches.find((search) => search.uid === selectedSearch.uid) ?? searches[0]) : searches[0]
       );
     }
   }, [selectedSearch, searches]);
@@ -86,14 +86,16 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
 
   return (
     <Modal
-      title={t('logs.logs-drilldown.load-search.modal-title', 'Load a previously saved search')}
+      title={t('components.logs.logs-drilldown.load-search.modal-title', 'Load a previously saved search')}
       isOpen={true}
       onDismiss={onClose}
     >
       {!isLoading && searches.length === 0 && (
         <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
           {!searches.length && (
-            <Text variant="body">{t('logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}</Text>
+            <Text variant="body">
+              {t('components.logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}
+            </Text>
           )}
         </Box>
       )}
@@ -140,10 +142,10 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                         size="xl"
                         name="trash-alt"
                         onClick={onDelete}
-                        tooltip={t('logs.logs-drilldown.load-search.remove', 'Remove')}
+                        tooltip={t('components.logs.logs-drilldown.load-search.remove', 'Remove')}
                       />
                       <LinkButton onClick={onLinkClick} href={href} variant="primary">
-                        {t('logs.logs-drilldown.load-search.select', 'Select')}
+                        {t('components.logs.logs-drilldown.load-search.select', 'Select')}
                       </LinkButton>
                     </Stack>
                   </Box>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Button, Icon, Tag, useStyles2 } from '@grafana/ui';
 
 import { testIds } from 'services/testIds';
@@ -38,7 +39,7 @@ export const PatternTag = ({ onRemove, pattern, size = 'lg' }: Props) => {
         className={styles.tag}
       />
       <Button
-        aria-label="Remove pattern"
+        aria-label={t('components.pattern-tag.aria-label-remove-pattern', 'Remove pattern')}
         data-testid={testIds.exploreServiceDetails.buttonRemovePattern}
         variant="secondary"
         size="sm"

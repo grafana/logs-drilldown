@@ -1,5 +1,6 @@
 import React, { lazy, memo, useMemo } from 'react';
 
+import { t } from '@grafana/i18n';
 import { SceneObject } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
@@ -15,13 +16,13 @@ const ReRootJSONButton = memo(({ keyPath, sceneRef }: { keyPath: KeyPath; sceneR
     () => (
       <ImgButton
         className={styles.button}
-        tooltip={`Set ${keyPath[0]} as root node`}
+        tooltip={t('components.re-root-json-button.tooltip', 'Set {{key}} as root node', { key: keyPath[0] })}
         onClick={(e) => {
           e.stopPropagation();
           setNewRootNode(keyPath, sceneRef);
         }}
         name={'eye'}
-        aria-label={`drilldown into ${keyPath[0]}`}
+        aria-label={t('components.re-root-json-button.aria-label', 'drilldown into {{key}}', { key: keyPath[0] })}
       />
     ),
     [keyPath, sceneRef, styles.button]

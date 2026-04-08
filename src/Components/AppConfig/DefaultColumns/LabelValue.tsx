@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 import { isArray, memoize } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
@@ -80,7 +81,7 @@ export function LabelValue({ recordIndex, labelIndex }: Props) {
       <Combobox<string>
         data-testid={testIds.appConfig.defaultColumns.labels.value}
         invalid={!label?.value}
-        placeholder={'Select label value'}
+        placeholder={t('components.label-value.placeholder-select-label-value', 'Select label value')}
         width={'auto'}
         minWidth={30}
         value={label?.value}

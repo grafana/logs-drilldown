@@ -22,7 +22,7 @@ export function LogsTableHeaderMenu({ setHeaderMenuActive, children }: LogsTable
         <IconButton
           ref={ref}
           className={styles.closeButton}
-          aria-label={t('logs.table.header.close', 'Close')}
+          aria-label={t('components.logs.table.header.close', 'Close')}
           name={'times'}
           onClick={() => setHeaderMenuActive(false)}
         />

@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LinkButton, useStyles2 } from '@grafana/ui';
 
@@ -68,7 +69,7 @@ export class ShowLogsButtonScene extends SceneObjectBase<ShowLogsButtonSceneStat
         className={styles.button}
         href={link}
       >
-        Show logs
+        <Trans i18nKey="components.show-logs-button-scene.show-logs">Show logs</Trans>
       </LinkButton>
     );
   };

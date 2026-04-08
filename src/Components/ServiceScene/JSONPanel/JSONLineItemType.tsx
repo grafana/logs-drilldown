@@ -34,7 +34,7 @@ function LineItemType({
     () => (
       <Tooltip
         content={t(
-          'logs.json.line.detectedLevel.toggleButton',
+          'components.logs.json.line.detectedLevel.toggleButton',
           existingFilter ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
         )}
       >

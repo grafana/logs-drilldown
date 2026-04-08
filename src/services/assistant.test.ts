@@ -270,7 +270,8 @@ describe('assistant', () => {
                 datasourceUid: 'loki-uid-123',
                 fieldName: 'metadata1',
                 fieldValue: 'value1',
-                instructions: 'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
+                instructions:
+                  'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
               },
               hidden: true,
               title: 'Structured metadata filters',
@@ -284,7 +285,8 @@ describe('assistant', () => {
                 datasourceUid: 'loki-uid-123',
                 fieldName: 'metadata2',
                 fieldValue: '!=value2',
-                instructions: 'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
+                instructions:
+                  'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
               },
               hidden: true,
               title: 'Structured metadata filters',

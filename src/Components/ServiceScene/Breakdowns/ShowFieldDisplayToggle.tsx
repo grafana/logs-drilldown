@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { SceneComponentProps } from '@grafana/scenes';
 import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
@@ -15,11 +16,11 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
   const styles = useStyles2(getStyles);
   const options: Array<SelectableValue<FieldsPanelsType>> = [
     {
-      label: 'Volume',
+      label: t('components.show-field-display-toggle.options.label.volume', 'Volume'),
       value: 'timeseries',
     },
     {
-      label: 'Names',
+      label: t('components.show-field-display-toggle.options.label.names', 'Names'),
       value: 'text',
     },
   ];
