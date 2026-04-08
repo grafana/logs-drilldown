@@ -3,7 +3,7 @@ const { grafanaESModules, nodeModulesToTransform } = require('./.config/jest/uti
 // force timezone to UTC to allow tests to work regardless of local timezone
 // generally used by snapshots, but can affect specific tests
 process.env.TZ = 'UTC';
-// i18next v25+ logs a Locize promo on first init; suppress in test runs (see I18NEXT_NO_SUPPORT_NOTICE in i18next)
+// i18next v25+ logs a promo on first init; suppress in test runs (see I18NEXT_NO_SUPPORT_NOTICE in i18next)
 process.env.I18NEXT_NO_SUPPORT_NOTICE = '1';
 
 const config = require('./.config/jest.config');
