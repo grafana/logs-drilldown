@@ -26,13 +26,12 @@ function makeFetchAttributes(
   return async function fetchAttributes(context: DatasetContext): Promise<AttributeConfig[]> {
     const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
 
+    const start = dateTime(context.timeRange.from).utc().toISOString();
+    const end = dateTime(context.timeRange.to).utc().toISOString();
+
     const response = (await (ds as any).getResource(
       'detected_fields',
-      {
-        end: dateTime(context.timeRange.to).utc().toISOString(),
-        query: context.query,
-        start: dateTime(context.timeRange.from).utc().toISOString(),
-      },
+      { end, query: context.query, start },
       { requestId: 'errors-detected-fields' }
     )) as { fields?: Array<{ label: string }> };
 
@@ -142,6 +141,8 @@ export interface ErrorsAnalysisProps {
   // the distributions are based on a sample. Example: "Last 1000 logs"
   // The consuming app sets this -- it knows what limit its query applies.
   queryLimitLabel?: string;
+  // See AttributeDistributionProps.initialSelectedFilters.
+  initialSelectedFilters?: Array<{ field: string; value: string }>;
 }
 
 export default function ErrorsAnalysis({
@@ -153,6 +154,7 @@ export default function ErrorsAnalysis({
   onFiltersChange,
   priorityAttributes,
   queryLimitLabel,
+  initialSelectedFilters,
 }: ErrorsAnalysisProps) {
   const context: DatasetContext = { datasourceUid, query, timeRange };
   const fetchAttributes = makeFetchAttributes(fieldsToExclude, labelMap);
@@ -165,6 +167,7 @@ export default function ErrorsAnalysis({
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
       queryLimitLabel={queryLimitLabel}
+      initialSelectedFilters={initialSelectedFilters}
     />
   );
 }

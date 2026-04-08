@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
 import { cx } from '@emotion/css';
 import { css } from '@emotion/css';
@@ -259,6 +259,11 @@ export interface AttributeDistributionProps {
   // its query applies -- the component just renders it.
   // Example values: "Last 1000 logs", "Slowest 1000 traces"
   queryLimitLabel?: string;
+  // Seed value for the selectedFilters reducer state, applied only on first mount.
+  // The consumer passes its last-known filter set so that if the component remounts
+  // (e.g. due to React strict mode or Scenes re-activation), chips reappear
+  // immediately without the user needing to re-apply them.
+  initialSelectedFilters?: ActiveFilter[];
 }
 
 export function AttributeDistribution({
@@ -268,17 +273,28 @@ export function AttributeDistribution({
   onFiltersChange,
   priorityAttributes = [],
   queryLimitLabel,
+  initialSelectedFilters,
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [newFieldInput, setNewFieldInput] = useState('');
 
-  const [state, dispatch] = useReducer(reducer, {
-    attributes: [],
-    data: {},
-    detecting: false,
-    selectedFilters: [],
-    valueSnapshot: null,
-  });
+  const [state, dispatch] = useReducer(
+    reducer,
+    initialSelectedFilters ?? [],
+    (initFilters): State => ({
+      attributes: [],
+      data: {},
+      detecting: false,
+      selectedFilters: initFilters,
+      valueSnapshot: null,
+    })
+  );
+
+  // Always-current ref so that the initial-load effect can build the effective
+  // query without adding selectedFilters to its deps (which would cause
+  // redistribution fetches on every filter toggle, handled separately).
+  const selectedFiltersRef = useRef(state.selectedFilters);
+  selectedFiltersRef.current = state.selectedFilters;
 
   const loadDistributions = useCallback(
     async (attributes: AttributeConfig[], ctx: DatasetContext) => {
@@ -324,7 +340,12 @@ export function AttributeDistribution({
       }
       const ordered = orderByPriority(detected, priorityAttributes);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
-      loadDistributions(ordered, context);
+      const activeFilters = selectedFiltersRef.current;
+      const effectiveContext =
+        activeFilters.length > 0
+          ? { ...context, query: buildEffectiveQuery(context.query, activeFilters) }
+          : context;
+      loadDistributions(ordered, effectiveContext);
     }
 
     run();
