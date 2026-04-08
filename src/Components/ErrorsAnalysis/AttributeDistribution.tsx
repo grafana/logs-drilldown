@@ -263,6 +263,16 @@ export interface AttributeDistributionProps {
   // Adapter function -- provided by the consumer. Returns value counts for a
   // single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string) => Promise<LabelValueCount[]>;
+  // Optional link to view all logs in an external view. The consumer builds and
+  // owns this href -- this component renders it verbatim. When using a plugin
+  // extension link (e.g. usePluginLinks with ExploreToolbarAction), the query
+  // passed in the extension context must be parseable by the link extension's
+  // contextToLink function. Queries with OR conditions (e.g. LogQL field
+  // filters joined by "or") are not supported by contextToLink -- they get
+  // flattened to AND in the URL and return no results. Simplify the context
+  // query to a stream-selector-only expression in that case.
+  // title comes from the extension (e.g. "Open in Grafana Logs Drilldown").
+  showAllLink?: { href: string; title: string };
   // Seed value for the selectedFilters reducer state, applied only on first mount.
   // The consumer passes its last-known filter set so that if the component remounts
   // (e.g. due to React strict mode or Scenes re-activation), chips reappear
@@ -289,10 +299,11 @@ export function AttributeDistribution({
   context,
   fetchAttributes,
   fetchDistribution,
+  initialSelectedFilters,
   onFiltersChange,
   priorityAttributes = [],
   queryLimitLabel,
-  initialSelectedFilters,
+  showAllLink,
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [newFieldInput, setNewFieldInput] = useState('');
@@ -515,28 +526,37 @@ export function AttributeDistribution({
             />
           );
         })}
-        {hasSplit && (extraFieldsShown > 0 || remainingCount > 0) && (
+        {(hasSplit && (extraFieldsShown > 0 || remainingCount > 0)) || showAllLink ? (
           <div className={styles.showMoreFields}>
-            <button
-              aria-label={`Show ${nextBatch} more fields`}
-              className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
-              disabled={remainingCount === 0}
-              title={remainingCount === 0 ? 'No more fields' : `Show ${nextBatch} more fields`}
-              onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
-            >
-              <Icon name="angle-down" size="sm" />
-            </button>
-            <button
-              aria-label="Collapse extra fields"
-              className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
-              disabled={extraFieldsShown === 0}
-              title={extraFieldsShown === 0 ? 'No extra fields shown' : 'Collapse extra fields'}
-              onClick={() => setExtraFieldsShown(0)}
-            >
-              <Icon name="angle-up" size="sm" />
-            </button>
+            {hasSplit && (extraFieldsShown > 0 || remainingCount > 0) && (
+              <>
+                <button
+                  aria-label={`Show ${nextBatch} more fields`}
+                  className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
+                  disabled={remainingCount === 0}
+                  title={remainingCount === 0 ? 'No more fields' : `Show ${nextBatch} more fields`}
+                  onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
+                >
+                  <Icon name="angle-down" size="sm" />
+                </button>
+                <button
+                  aria-label="Collapse extra fields"
+                  className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
+                  disabled={extraFieldsShown === 0}
+                  title={extraFieldsShown === 0 ? 'No extra fields shown' : 'Collapse extra fields'}
+                  onClick={() => setExtraFieldsShown(0)}
+                >
+                  <Icon name="angle-up" size="sm" />
+                </button>
+              </>
+            )}
+            {showAllLink && (
+              <a className={styles.showAllLink} href={showAllLink.href} rel="noreferrer" target="_blank">
+                {showAllLink.title}
+              </a>
+            )}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -892,6 +912,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
     '&:hover': {
       background: 'none',
       color: theme.colors.text.secondary,
+    },
+  }),
+  showAllLink: css({
+    color: theme.colors.text.link,
+    fontSize: theme.typography.bodySmall.fontSize,
+    marginLeft: 'auto',
+    '&:hover': {
+      textDecoration: 'underline',
     },
   }),
   title: css({

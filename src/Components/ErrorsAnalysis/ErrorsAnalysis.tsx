@@ -134,6 +134,8 @@ export interface ErrorsAnalysisProps {
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
   // If not provided, detected fields appear in the order returned by fetchAttributes.
   priorityAttributes?: Array<{ field: string; label: string }>;
+  // See AttributeDistributionProps.showAllLink -- note the OR-query limitation there.
+  showAllLink?: { href: string; title: string };
   // The full Loki log query for this error group, including any active filters.
   // Built and interpolated by the consuming app -- logs-drilldown does not construct
   // or modify it.
@@ -148,14 +150,15 @@ export interface ErrorsAnalysisProps {
 
 export default function ErrorsAnalysis({
   datasourceUid,
-  query,
-  timeRange,
   fieldsToExclude = [],
+  initialSelectedFilters,
   labelMap = {},
   onFiltersChange,
   priorityAttributes,
+  query,
   queryLimitLabel,
-  initialSelectedFilters,
+  showAllLink,
+  timeRange,
 }: ErrorsAnalysisProps) {
   const context: DatasetContext = { datasourceUid, query, timeRange };
   const fetchAttributes = makeFetchAttributes(fieldsToExclude, labelMap);
@@ -165,10 +168,11 @@ export default function ErrorsAnalysis({
       context={context}
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
+      initialSelectedFilters={initialSelectedFilters}
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
       queryLimitLabel={queryLimitLabel}
-      initialSelectedFilters={initialSelectedFilters}
+      showAllLink={showAllLink}
     />
   );
 }
