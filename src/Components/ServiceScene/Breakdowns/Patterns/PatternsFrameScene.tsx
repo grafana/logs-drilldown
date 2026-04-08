@@ -241,7 +241,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: t('Components.patterns-frame-scene.time-series.title.include', 'Include'),
+          title: t('components.patterns-frame-scene.time-series.title.include', 'Include'),
           url: '#',
         },
         {
@@ -253,7 +253,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: t('Components.patterns-frame-scene.time-series.title.exclude', 'Exclude'),
+          title: t('components.patterns-frame-scene.time-series.title.exclude', 'Exclude'),
           url: '#',
         },
       ])

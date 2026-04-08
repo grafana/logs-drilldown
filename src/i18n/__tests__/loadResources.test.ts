@@ -6,7 +6,7 @@ describe('loadResources', () => {
       const result = await loadResources('en-US');
 
       expect(result).toMatchObject({
-        Components: {
+        components: {
           logs: {
             'log-line-details': {
               'copy-to-clipboard': 'Copy to clipboard',
@@ -20,7 +20,7 @@ describe('loadResources', () => {
       const result = await loadResources('');
 
       expect(result).toMatchObject({
-        Components: {
+        components: {
           logs: {
             'log-line-details': {
               'copy-to-clipboard': 'Copy to clipboard',
@@ -36,7 +36,7 @@ describe('loadResources', () => {
       const result = await loadResources('xx-XX');
 
       expect(result).toMatchObject({
-        Components: {
+        components: {
           logs: {
             'log-line-details': {
               'copy-to-clipboard': 'Copy to clipboard',

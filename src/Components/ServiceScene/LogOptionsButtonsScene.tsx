@@ -58,13 +58,13 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
       {!displayedFieldsIsOnlyLogLine && hasDisplayedFields && !shallowCompare(displayedFields, otelDisplayedFields) && (
         <Tooltip
           content={t(
-            'Components.log-options-buttons.tooltip.clear-displayed-fields',
+            'components.log-options-buttons.tooltip.clear-displayed-fields',
             'Clear displayed fields: {{fields}}',
             { fields: displayedFieldsNames }
           )}
         >
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.clearDisplayedFields}>
-            <Trans i18nKey="Components.show-default-fields-button-renderer.show-original-log-line">
+            <Trans i18nKey="components.show-default-fields-button-renderer.show-original-log-line">
               Show original log line
             </Trans>
           </Button>
@@ -72,12 +72,12 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
       )}
       {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
         <Tooltip
-          content={t('Components.log-options-buttons.tooltip.show-default-fields', 'Show default fields: {{fields}}', {
+          content={t('components.log-options-buttons.tooltip.show-default-fields', 'Show default fields: {{fields}}', {
             fields: backendFieldsNames,
           })}
         >
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
-            <Trans i18nKey="Components.show-default-fields-button-renderer.show-default-fields">
+            <Trans i18nKey="components.show-default-fields-button-renderer.show-default-fields">
               Show default fields
             </Trans>
           </Button>

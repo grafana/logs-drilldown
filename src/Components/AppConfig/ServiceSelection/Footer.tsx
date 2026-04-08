@@ -19,15 +19,15 @@ export function Footer() {
           <ConfirmButton
             onConfirm={reset}
             closeOnConfirm={true}
-            confirmText={t('Components.footer.confirmText-reset', 'Reset')}
+            confirmText={t('components.footer.confirmText-reset', 'Reset')}
             confirmVariant={'destructive'}
             aria-disabled={!hasUnsavedChanges}
             disabled={!hasUnsavedChanges}
           >
-            {t('Components.footer.reset', 'Reset')}
+            {t('components.footer.reset', 'Reset')}
           </ConfirmButton>
           <Button variant="primary" disabled={!hasUnsavedChanges} onClick={save}>
-            <Trans i18nKey="Components.footer.save-changes">Save changes</Trans>
+            <Trans i18nKey="components.footer.save-changes">Save changes</Trans>
           </Button>
         </Stack>
       </Stack>

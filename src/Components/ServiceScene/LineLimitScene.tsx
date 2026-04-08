@@ -97,9 +97,9 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
       {maxLines && maxLinesOptions.length > 0 && (
         <InlineField
           className={styles.label}
-          label={t('Components.logs.log-options.max-lines-label', 'Line limit')}
+          label={t('components.logs.log-options.max-lines-label', 'Line limit')}
           tooltip={t(
-            'Components.logs.log-options.max-lines-tooltip',
+            'components.logs.log-options.max-lines-tooltip',
             'Number of log lines to request. Depends on the Loki configuration value for max_entries_limit.'
           )}
           invalid={isInvalid || isMaxEntriesError}
@@ -110,7 +110,7 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
             width="auto"
             minWidth={8}
             onChange={model.onChangeMaxLines}
-            placeholder={t('Components.logs.log-options.max-lines-placeholder', '{{logs}} logs', { logs: maxLines })}
+            placeholder={t('components.logs.log-options.max-lines-placeholder', '{{logs}} logs', { logs: maxLines })}
             createCustomValue
           />
         </InlineField>

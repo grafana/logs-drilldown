@@ -81,7 +81,7 @@ export const PatternFieldLabelStats = (props: PatternFieldLabelStatsProps) => {
     <div className={style.logsStats}>
       <div className={style.logsStatsHeader}>
         <div className={style.logsStatsTitle}>
-          <Trans i18nKey="Components.pattern-field-label-stats.sample-rows" values={{ total }}>
+          <Trans i18nKey="components.pattern-field-label-stats.sample-rows" values={{ total }}>
             From a sample of {'{{total}}'} rows found
           </Trans>
         </div>

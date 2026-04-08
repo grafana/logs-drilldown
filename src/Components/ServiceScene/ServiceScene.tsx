@@ -974,22 +974,22 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         <Alert
           title={
             status.reason === LabelFiltersInvalidReason.Empty
-              ? t('Components.service-scene.alert.no-labels-selected', 'No labels selected')
-              : t('Components.service-scene.alert.invalid-labels-selected', 'Invalid labels selected')
+              ? t('components.service-scene.alert.no-labels-selected', 'No labels selected')
+              : t('components.service-scene.alert.invalid-labels-selected', 'Invalid labels selected')
           }
           severity="info"
         >
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
             {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
               <p>
-                <Trans i18nKey="Components.service-scene.least-label-inclusive-matching">
+                <Trans i18nKey="components.service-scene.least-label-inclusive-matching">
                   You need at least one label with inclusive matching.
                 </Trans>
               </p>
             )}
             {status.reason === LabelFiltersInvalidReason.Empty && (
               <p>
-                <Trans i18nKey="Components.service-scene.alert.select-label">
+                <Trans i18nKey="components.service-scene.alert.select-label">
                   Please select at least one label to see the logs breakdown.
                 </Trans>
               </p>
@@ -1010,7 +1010,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
     }
 
-    return <LoadingPlaceholder text={t('Components.service-scene.text-loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.service-scene.text-loading', 'Loading...')} />;
   };
 }
 

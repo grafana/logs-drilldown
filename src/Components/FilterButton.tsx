@@ -37,7 +37,7 @@ export const FilterButton = (props: Props) => {
         data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         title={titles?.include}
       >
-        <Trans i18nKey="Components.filter-button.include">Include</Trans>
+        <Trans i18nKey="components.filter-button.include">Include</Trans>
       </Button>
       {!hideExclude && (
         <Button
@@ -50,7 +50,7 @@ export const FilterButton = (props: Props) => {
           title={titles?.exclude}
           data-testid={testIds.exploreServiceDetails.buttonFilterExclude}
         >
-          <Trans i18nKey="Components.filter-button.exclude">Exclude</Trans>
+          <Trans i18nKey="components.filter-button.exclude">Exclude</Trans>
         </Button>
       )}
     </div>

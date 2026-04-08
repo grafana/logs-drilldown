@@ -316,7 +316,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
           <FieldSelector
-            label={t('Components.fields-breakdown-scene.label-field', 'Field')}
+            label={t('components.fields-breakdown-scene.label-field', 'Field')}
             options={options}
             value={String(value)}
             onChange={model.onFieldSelectorChange}

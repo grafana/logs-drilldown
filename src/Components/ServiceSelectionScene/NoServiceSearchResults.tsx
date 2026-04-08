@@ -7,7 +7,7 @@ export const NoServiceSearchResults = () => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('Components.logs.logs-drilldown.no-service-search-results.title', 'No service matched your search.')}
+      message={t('components.logs.logs-drilldown.no-service-search-results.title', 'No service matched your search.')}
     />
   );
 };

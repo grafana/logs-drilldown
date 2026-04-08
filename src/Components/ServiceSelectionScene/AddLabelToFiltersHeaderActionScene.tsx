@@ -69,8 +69,8 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
         <Button
           tooltip={
             included === true
-              ? t('Components.add-label-to-filters.tooltip.remove', 'Remove {{value}} from filters', { value })
-              : t('Components.add-label-to-filters.tooltip.add', 'Add {{value}} to filters', { value })
+              ? t('components.add-label-to-filters.tooltip.remove', 'Remove {{value}} from filters', { value })
+              : t('components.add-label-to-filters.tooltip.add', 'Add {{value}} to filters', { value })
           }
           variant={included ? 'destructive' : 'secondary'}
           fill={'outline'}
@@ -80,9 +80,9 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >
           {included ? (
-            <Trans i18nKey="Components.add-label-to-filters.button.remove">Remove</Trans>
+            <Trans i18nKey="components.add-label-to-filters.button.remove">Remove</Trans>
           ) : (
-            <Trans i18nKey="Components.add-label-to-filters.button.include">Include</Trans>
+            <Trans i18nKey="components.add-label-to-filters.button.include">Include</Trans>
           )}
         </Button>
       </span>

@@ -113,8 +113,8 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       onClick={model.toggleCollapsedState}
                       tooltip={
                         collapsed
-                          ? t('Components.logs.logs-drilldown-header.expand', 'Expand filters')
-                          : t('Components.logs.logs-drilldown-header.collapse', 'Collapse filters')
+                          ? t('components.logs.logs-drilldown-header.expand', 'Expand filters')
+                          : t('components.logs.logs-drilldown-header.collapse', 'Collapse filters')
                       }
                     />
                   )}

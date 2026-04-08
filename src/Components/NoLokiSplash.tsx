@@ -23,13 +23,13 @@ export const NoLokiSplash = () => {
       </div>
       <div className={styles.text}>
         <h3 className={styles.title}>
-          <Trans i18nKey="Components.no-loki-splash.welcome-to-grafana-logs-drilldown">
+          <Trans i18nKey="components.no-loki-splash.welcome-to-grafana-logs-drilldown">
             Welcome to Grafana Logs Drilldown
           </Trans>
         </h3>
 
         <p>
-          <Trans i18nKey="Components.no-loki-splash.no-datasource">
+          <Trans i18nKey="components.no-loki-splash.no-datasource">
             We noticed there is no Loki datasource configured.
             <br />
             Add a{' '}
@@ -43,7 +43,7 @@ export const NoLokiSplash = () => {
         <br />
 
         <p>
-          <Trans i18nKey="Components.no-loki-splash.learn-more">
+          <Trans i18nKey="components.no-loki-splash.learn-more">
             Click{' '}
             <a
               href={'https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/'}

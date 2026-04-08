@@ -64,13 +64,13 @@ export const LogListControls = ({
         onClick={onExpandControlsClick}
         label={
           controlsExpanded
-            ? t('Components.logs.logs-controls.label.collapse', 'Expanded')
-            : t('Components.logs.logs-controls.label.expand', 'Collapsed')
+            ? t('components.logs.logs-controls.label.collapse', 'Expanded')
+            : t('components.logs.logs-controls.label.expand', 'Collapsed')
         }
         tooltip={
           controlsExpanded
-            ? t('Components.logs.logs-controls.collapse', 'Collapse')
-            : t('Components.logs.logs-controls.expand', 'Expand')
+            ? t('components.logs.logs-controls.collapse', 'Collapse')
+            : t('components.logs.logs-controls.expand', 'Expand')
         }
         size="lg"
       />
@@ -81,7 +81,7 @@ export const LogListControls = ({
           className={styles.controlButton}
           variant="secondary"
           onClick={onScrollToBottomClick}
-          tooltip={t('Components.logs.logs-controls.scrollToBottom', 'Scroll to bottom')}
+          tooltip={t('components.logs.logs-controls.scrollToBottom', 'Scroll to bottom')}
           size="lg"
         />
       )}
@@ -92,13 +92,13 @@ export const LogListControls = ({
         onClick={toggleSortOrder}
         tooltip={
           sortOrder === LogsSortOrder.Descending
-            ? t('Components.logs.logs-controls.tooltip.sort.oldest-first', 'Set oldest logs first')
-            : t('Components.logs.logs-controls.tooltip.sort.newest-first', 'Set newest logs first')
+            ? t('components.logs.logs-controls.tooltip.sort.oldest-first', 'Set oldest logs first')
+            : t('components.logs.logs-controls.tooltip.sort.newest-first', 'Set newest logs first')
         }
         label={
           sortOrder === LogsSortOrder.Descending
-            ? t('Components.logs.logs-controls.labels.sort.oldest-first', 'Newest logs first')
-            : t('Components.logs.logs-controls.labels.sort.newest-first', 'Oldest logs first')
+            ? t('components.logs.logs-controls.labels.sort.oldest-first', 'Newest logs first')
+            : t('components.logs.logs-controls.labels.sort.newest-first', 'Oldest logs first')
         }
         size="lg"
       />
@@ -111,13 +111,13 @@ export const LogListControls = ({
           onClick={() => onWrapLogMessageClick(!wrapLogMessage)}
           label={
             wrapLogMessage
-              ? t('Components.logs.logs-controls.label.unwrap-lines', 'Wrap lines')
-              : t('Components.logs.logs-controls.label.wrap-lines', 'Unwrap lines')
+              ? t('components.logs.logs-controls.label.unwrap-lines', 'Wrap lines')
+              : t('components.logs.logs-controls.label.wrap-lines', 'Unwrap lines')
           }
           tooltip={
             wrapLogMessage
-              ? t('Components.logs.logs-controls.unwrap-lines', 'Unwrap lines')
-              : t('Components.logs.logs-controls.wrap-lines', 'Wrap lines')
+              ? t('components.logs.logs-controls.unwrap-lines', 'Unwrap lines')
+              : t('components.logs.logs-controls.wrap-lines', 'Wrap lines')
           }
           size="lg"
         />
@@ -131,13 +131,13 @@ export const LogListControls = ({
           onClick={() => onToggleStructuredMetadataClick(!showMetadata)}
           tooltip={
             showMetadata
-              ? t('Components.logs.logs-controls.json.tooltip.metadata.disable', 'Hide structured metadata')
-              : t('Components.logs.logs-controls.json.tooltip.metadata.enable', 'Show structured metadata')
+              ? t('components.logs.logs-controls.json.tooltip.metadata.disable', 'Hide structured metadata')
+              : t('components.logs.logs-controls.json.tooltip.metadata.enable', 'Show structured metadata')
           }
           label={
             showMetadata
-              ? t('Components.logs.logs-controls.json.label.metadata.disable', 'Show metadata')
-              : t('Components.logs.logs-controls.json.label.metadata.enable', 'Hide metadata')
+              ? t('components.logs.logs-controls.json.label.metadata.disable', 'Show metadata')
+              : t('components.logs.logs-controls.json.label.metadata.enable', 'Hide metadata')
           }
           size="lg"
         />
@@ -151,13 +151,13 @@ export const LogListControls = ({
           onClick={() => onToggleLabelsClick(!showLabels)}
           tooltip={
             showLabels
-              ? t('Components.logs.logs-controls.json.tooltip.labels.disable', 'Hide Labels')
-              : t('Components.logs.logs-controls.json.tooltip.labels.enable', 'Show labels')
+              ? t('components.logs.logs-controls.json.tooltip.labels.disable', 'Hide Labels')
+              : t('components.logs.logs-controls.json.tooltip.labels.enable', 'Show labels')
           }
           label={
             showLabels
-              ? t('Components.logs.logs-controls.json.tooltip.labels.enable', 'Show labels')
-              : t('Components.logs.logs-controls.json.tooltip.labels.disable', 'Hide Labels')
+              ? t('components.logs.logs-controls.json.tooltip.labels.enable', 'Show labels')
+              : t('components.logs.logs-controls.json.tooltip.labels.disable', 'Hide Labels')
           }
           size="lg"
         />
@@ -171,13 +171,13 @@ export const LogListControls = ({
           onClick={() => onToggleHighlightClick(!showHighlight)}
           tooltip={
             showHighlight
-              ? t('Components.logs.logs-controls.tooltip.highlight.disable', 'Disable highlighting')
-              : t('Components.logs.logs-controls.tooltip.highlight.enable', 'Enable highlighting')
+              ? t('components.logs.logs-controls.tooltip.highlight.disable', 'Disable highlighting')
+              : t('components.logs.logs-controls.tooltip.highlight.enable', 'Enable highlighting')
           }
           label={
             showHighlight
-              ? t('Components.logs.logs-controls.label.highlight.enable', 'Highlight enabled')
-              : t('Components.logs.logs-controls.label.highlight.disable', 'Highlight disabled')
+              ? t('components.logs.logs-controls.label.highlight.enable', 'Highlight enabled')
+              : t('components.logs.logs-controls.label.highlight.disable', 'Highlight disabled')
           }
           size="lg"
         />
@@ -191,13 +191,13 @@ export const LogListControls = ({
           onClick={onLineStateClick}
           tooltip={
             lineState === LogLineState.text
-              ? t('Components.logs.logs-controls.table.tooltip.show-labels', 'Show labels')
-              : t('Components.logs.logs-controls.table.tooltip.show-text', 'Show log text')
+              ? t('components.logs.logs-controls.table.tooltip.show-labels', 'Show labels')
+              : t('components.logs.logs-controls.table.tooltip.show-text', 'Show log text')
           }
           label={
             lineState === LogLineState.text
-              ? t('Components.logs.logs-controls.table.label.show-labels', 'Log text')
-              : t('Components.logs.logs-controls.table.label.show-text', 'Log labels')
+              ? t('components.logs.logs-controls.table.label.show-labels', 'Log text')
+              : t('components.logs.logs-controls.table.label.show-text', 'Log labels')
           }
           size="lg"
         />
@@ -210,7 +210,7 @@ export const LogListControls = ({
           data-testid="scrollToTop"
           variant="secondary"
           onClick={onScrollToTopClick}
-          tooltip={t('Components.logs.logs-controls.scrollToTop', 'Scroll to top')}
+          tooltip={t('components.logs.logs-controls.scrollToTop', 'Scroll to top')}
           size="lg"
         />
       )}

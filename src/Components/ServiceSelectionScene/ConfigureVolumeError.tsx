@@ -7,12 +7,12 @@ export const ConfigureVolumeError = () => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('Components.logs.logs-drilldown.configure-volume-error.title', 'Log volume has not been configured.')}
+      message={t('components.logs.logs-drilldown.configure-volume-error.title', 'Log volume has not been configured.')}
     >
       <p>
         <TextLink href="https://grafana.com/docs/loki/latest/reference/api/#query-log-volume" external>
           {t(
-            'Components.logs.logs-drilldown.configure-volume-error.docs-link',
+            'components.logs.logs-drilldown.configure-volume-error.docs-link',
             'Instructions to enable volume in the Loki config:'
           )}
         </TextLink>

@@ -261,8 +261,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }),
       ],
       options: [
-        { label: t('Components.fields-aggregated-breakdown-scene.label.grid', 'Grid'), value: 'grid' },
-        { label: t('Components.fields-aggregated-breakdown-scene.label.rows', 'Rows'), value: 'rows' },
+        { label: t('components.fields-aggregated-breakdown-scene.label.grid', 'Grid'), value: 'grid' },
+        { label: t('components.fields-aggregated-breakdown-scene.label.rows', 'Rows'), value: 'rows' },
       ],
     });
   }
@@ -618,6 +618,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('Components.fields-aggregated-breakdown-scene.text-loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.fields-aggregated-breakdown-scene.text-loading', 'Loading...')} />;
   };
 }

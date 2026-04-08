@@ -68,9 +68,9 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
           <IconButton
             data-testid={testIds.table.inspectLine}
             className={styles.inspectButton}
-            tooltip={t('Components.line-action-icons.tooltip-view-log-line', 'View log line')}
+            tooltip={t('components.line-action-icons.tooltip-view-log-line', 'View log line')}
             variant="secondary"
-            aria-label={t('Components.line-action-icons.aria-label-view-log-line', 'View log line')}
+            aria-label={t('components.line-action-icons.aria-label-view-log-line', 'View log line')}
             tooltipPlacement="top"
             size="md"
             name="eye"
@@ -85,7 +85,7 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
             variant="secondary"
             fill="text"
             size="md"
-            tooltip={t('Components.line-action-icons.tooltip-copy-link-to-log-line', 'Copy link to log line')}
+            tooltip={t('components.line-action-icons.tooltip-copy-link-to-log-line', 'Copy link to log line')}
             tooltipPlacement="top"
             tabIndex={0}
             getText={getText}
@@ -97,12 +97,12 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
           <Modal
             onDismiss={() => setIsInspecting(false)}
             isOpen={true}
-            title={t('Components.line-action-icons.title-inspect-value', 'Inspect value')}
+            title={t('components.line-action-icons.title-inspect-value', 'Inspect value')}
           >
             <pre>{lineValue}</pre>
             <Modal.ButtonRow>
               <ClipboardButton icon="copy" getText={() => lineValue}>
-                <Trans i18nKey="Components.line-action-icons.copy-to-clipboard">Copy to Clipboard</Trans>
+                <Trans i18nKey="components.line-action-icons.copy-to-clipboard">Copy to Clipboard</Trans>
               </ClipboardButton>
             </Modal.ButtonRow>
           </Modal>

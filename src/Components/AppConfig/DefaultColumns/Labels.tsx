@@ -25,10 +25,10 @@ export function Labels({ recordIndex }: Props) {
   return (
     <>
       <h5 className={styles.labelTitle}>
-        <Trans i18nKey="Components.labels.labels-match">Labels match</Trans>
+        <Trans i18nKey="components.labels.labels-match">Labels match</Trans>
         <Tooltip
           content={t(
-            'Components.labels.content-queries-containing-these-labels-display-selected',
+            'components.labels.content-queries-containing-these-labels-display-selected',
             'Queries containing these labels will display the selected columns'
           )}
         >

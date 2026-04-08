@@ -43,7 +43,7 @@ export function Fields({ recordIndex }: Props) {
   };
 
   const invalidColumnsLogLineOnlyText = t(
-    'Components.fields.invalid-columns-log-line-only',
+    'components.fields.invalid-columns-log-line-only',
     'Only selecting the log line is probably redundant!'
   );
 
@@ -59,8 +59,8 @@ export function Fields({ recordIndex }: Props) {
           !notOnlyLogLine
             ? invalidColumnsLogLineOnlyText
             : !recordHasValues
-              ? t('Components.fields.invalid-columns', 'Invalid columns')
-              : t('Components.fields.add-column-tooltip', 'Add a default column to display in the logs')
+              ? t('components.fields.invalid-columns', 'Invalid columns')
+              : t('components.fields.add-column-tooltip', 'Add a default column to display in the logs')
         }
         variant={'secondary'}
         fill={'outline'}
@@ -68,7 +68,7 @@ export function Fields({ recordIndex }: Props) {
         onClick={() => addDisplayField()}
         className={styles.fieldsContainer__button}
       >
-        <Trans i18nKey="Components.fields.add-column">Add column</Trans>
+        <Trans i18nKey="components.fields.add-column">Add column</Trans>
       </Button>
     </div>
   );

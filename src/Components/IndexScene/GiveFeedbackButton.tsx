@@ -14,14 +14,14 @@ export const GiveFeedbackButton = () => {
         href="https://forms.gle/1sYWCTPvD72T1dPH9"
         className={styles.feedback}
         title={t(
-          'Components.give-feedback-button.title-share-thoughts-about-grafana',
+          'components.give-feedback-button.title-share-thoughts-about-grafana',
           'Share your thoughts about Logs in Grafana.'
         )}
         target="_blank"
         rel="noreferrer noopener"
       >
         <Icon name="comment-alt-message" />{' '}
-        <Trans i18nKey="Components.give-feedback-button.give-feedback">Give feedback</Trans>
+        <Trans i18nKey="components.give-feedback-button.give-feedback">Give feedback</Trans>
       </a>
     </div>
   );

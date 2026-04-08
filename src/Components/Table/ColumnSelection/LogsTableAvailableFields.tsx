@@ -72,7 +72,7 @@ export const LogsTableAvailableFields = (props: {
             key={labelName}
             className={styles.wrap}
             title={t(
-              'Components.logs-table-available-fields.field.title',
+              'components.logs-table-available-fields.field.title',
               '{{labelName}} appears in {{percent}}% of log lines',
               { labelName, percent: labels[labelName]?.percentOfLinesWithLabel }
             )}

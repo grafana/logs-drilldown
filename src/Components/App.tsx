@@ -32,7 +32,7 @@ const App = (props: AppRootProps) => {
 
   // Show a loading spinner until the feature flags are ready
   if (!isReady) {
-    return <LoadingPlaceholder text={t('Components.app.text-loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.app.text-loading', 'Loading...')} />;
   }
 
   return (

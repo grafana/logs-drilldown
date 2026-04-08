@@ -16,13 +16,13 @@ const ReRootJSONButton = memo(({ keyPath, sceneRef }: { keyPath: KeyPath; sceneR
     () => (
       <ImgButton
         className={styles.button}
-        tooltip={t('Components.re-root-json-button.tooltip', 'Set {{key}} as root node', { key: keyPath[0] })}
+        tooltip={t('components.re-root-json-button.tooltip', 'Set {{key}} as root node', { key: keyPath[0] })}
         onClick={(e) => {
           e.stopPropagation();
           setNewRootNode(keyPath, sceneRef);
         }}
         name={'eye'}
-        aria-label={t('Components.re-root-json-button.aria-label', 'drilldown into {{key}}', { key: keyPath[0] })}
+        aria-label={t('components.re-root-json-button.aria-label', 'drilldown into {{key}}', { key: keyPath[0] })}
       />
     ),
     [keyPath, sceneRef, styles.button]

@@ -42,61 +42,61 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
       options: [
         {
           description: t(
-            'Components.sort-by-scene.description.smart-ordering',
+            'components.sort-by-scene.description.smart-ordering',
             'Smart ordering of graphs based on the most significant spikes in the data'
           ),
-          label: t('Components.sort-by-scene.label.most-relevant', 'Most relevant'),
+          label: t('components.sort-by-scene.label.most-relevant', 'Most relevant'),
           value: DEFAULT_SORT_BY,
         },
         {
           description: t(
-            'Components.sort-by-scene.description.order-amount-outlying-values',
+            'components.sort-by-scene.description.order-amount-outlying-values',
             'Order by the amount of outlying values in the data'
           ),
-          label: t('Components.sort-by-scene.label.outlying-values', 'Outlying values'),
+          label: t('components.sort-by-scene.label.outlying-values', 'Outlying values'),
           value: SORT_BY_OUTLIERS,
         },
         {
           description: t(
-            'Components.sort-by-scene.description.graphs-deviation-average-value',
+            'components.sort-by-scene.description.graphs-deviation-average-value',
             'Sort graphs by deviation from the average value'
           ),
-          label: t('Components.sort-by-scene.label.widest-spread', 'Widest spread'),
+          label: t('components.sort-by-scene.label.widest-spread', 'Widest spread'),
           value: ReducerID.stdDev,
         },
         {
-          description: t('Components.sort-by-scene.description.alphabetical-order', 'Alphabetical order'),
-          label: t('Components.sort-by-scene.label.name', 'Name'),
+          description: t('components.sort-by-scene.description.alphabetical-order', 'Alphabetical order'),
+          label: t('components.sort-by-scene.label.name', 'Name'),
           value: 'alphabetical',
         },
         {
           description: t(
-            'Components.sort-by-scene.description.graphs-total-number',
+            'components.sort-by-scene.description.graphs-total-number',
             'Sort graphs by total number of logs'
           ),
-          label: t('Components.sort-by-scene.label.count', 'Count'),
+          label: t('components.sort-by-scene.label.count', 'Count'),
           value: ReducerID.sum,
         },
         {
           description: t(
-            'Components.sort-by-scene.description.graphs-highest-values',
+            'components.sort-by-scene.description.graphs-highest-values',
             'Sort graphs by the highest values (max)'
           ),
-          label: t('Components.sort-by-scene.label.highest-spike', 'Highest spike'),
+          label: t('components.sort-by-scene.label.highest-spike', 'Highest spike'),
           value: ReducerID.max,
         },
         {
           description: t(
-            'Components.sort-by-scene.description.graphs-smallest-values',
+            'components.sort-by-scene.description.graphs-smallest-values',
             'Sort graphs by the smallest values (min)'
           ),
-          label: t('Components.sort-by-scene.label.lowest-dip', 'Lowest dip'),
+          label: t('components.sort-by-scene.label.lowest-dip', 'Lowest dip'),
           value: ReducerID.min,
         },
       ],
     },
     {
-      label: t('Components.sort-by-scene.label.percentiles', 'Percentiles'),
+      label: t('components.sort-by-scene.label.percentiles', 'Percentiles'),
       options: [...fieldReducers.selectOptions([], filterReducerOptions).options],
     },
   ];
@@ -151,10 +151,10 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
     return (
       <>
         <InlineField
-          label={t('Components.sort-by-scene.label-sort-by', 'Sort by')}
+          label={t('components.sort-by-scene.label-sort-by', 'Sort by')}
           htmlFor="sort-by-criteria"
           tooltip={t(
-            'Components.sort-by-scene.tooltip-sort-by',
+            'components.sort-by-scene.tooltip-sort-by',
             'Calculate a derived quantity from the values in your time series and sort by this criteria. Defaults to standard deviation.'
           )}
         >
@@ -164,7 +164,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
             width={20}
             isSearchable={true}
             options={defaultOptions}
-            placeholder={t('Components.sort-by-scene.placeholder-choose-criteria', 'Choose criteria')}
+            placeholder={t('components.sort-by-scene.placeholder-choose-criteria', 'Choose criteria')}
             onChange={model.onCriteriaChange}
             inputId="sort-by-criteria"
           />
@@ -173,16 +173,16 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
           <Select
             data-testid={testIds.breakdowns.common.sortByDirection}
             onChange={model.onDirectionChange}
-            aria-label={t('Components.sort-by-scene.aria-label-sort-direction', 'Sort direction')}
+            aria-label={t('components.sort-by-scene.aria-label-sort-direction', 'Sort direction')}
             placeholder=""
             value={direction}
             options={[
               {
-                label: t('Components.sort-by-scene.label.asc', 'Asc'),
+                label: t('components.sort-by-scene.label.asc', 'Asc'),
                 value: 'asc',
               },
               {
-                label: t('Components.sort-by-scene.label.desc', 'Desc'),
+                label: t('components.sort-by-scene.label.desc', 'Desc'),
                 value: DEFAULT_SORT_DIRECTION,
               },
             ]}

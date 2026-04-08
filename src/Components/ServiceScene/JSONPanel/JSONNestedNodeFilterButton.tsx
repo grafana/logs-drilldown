@@ -28,10 +28,10 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         className={styles.button}
         tooltip={
           type === 'include'
-            ? t('Components.json-nested-node-filter-button.tooltip.include', 'Include log lines that contain {{key}}', {
+            ? t('components.json-nested-node-filter-button.tooltip.include', 'Include log lines that contain {{key}}', {
                 key: keyPath[0],
               })
-            : t('Components.json-nested-node-filter-button.tooltip.exclude', 'Exclude log lines that contain {{key}}', {
+            : t('components.json-nested-node-filter-button.tooltip.exclude', 'Exclude log lines that contain {{key}}', {
                 key: keyPath[0],
               })
         }
@@ -51,8 +51,8 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         name={type === 'include' ? 'search-plus' : 'search-minus'}
         aria-label={
           type === 'include'
-            ? t('Components.json-nested-node-filter-button.aria-label.include', 'include filter')
-            : t('Components.json-nested-node-filter-button.aria-label.exclude', 'exclude filter')
+            ? t('components.json-nested-node-filter-button.aria-label.include', 'include filter')
+            : t('components.json-nested-node-filter-button.aria-label.exclude', 'exclude filter')
         }
       />
     ),

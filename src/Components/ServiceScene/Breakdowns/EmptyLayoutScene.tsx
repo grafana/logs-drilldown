@@ -36,23 +36,23 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
       <EmptyState
         variant="not-found"
         message={t(
-          'Components.logs.logs-drilldown.empty-layout.title',
+          'components.logs.logs-drilldown.empty-layout.title',
           'We did not find any {{type}} for the given time range.',
           {
             type,
           }
         )}
       >
-        {t('Components.logs.logs-drilldown.empty-layout.prefix', 'Please')}{' '}
+        {t('components.logs.logs-drilldown.empty-layout.prefix', 'Please')}{' '}
         <a
           className={emptyStateStyles.link}
           href="https://forms.gle/1sYWCTPvD72T1dPH9"
           target="_blank"
           rel="noopener noreferrer"
         >
-          {t('Components.logs.logs-drilldown.empty-layout.link', 'let us know')}
+          {t('components.logs.logs-drilldown.empty-layout.link', 'let us know')}
         </a>{' '}
-        {t('Components.logs.logs-drilldown.empty-layout.suffix', 'if you think this is a mistake.')}
+        {t('components.logs.logs-drilldown.empty-layout.suffix', 'if you think this is a mistake.')}
         <Box marginTop={1} justifyContent="center">
           {assistantAvailable && (
             <Button

@@ -81,8 +81,8 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
             className={styles.button}
             tooltip={
               hasSavedSearches
-                ? t('Components.logs.logs-drilldown.load-search.button-tooltip', 'Load saved search')
-                : t('Components.logs.logs-drilldown.load-search.button-no-search-tooltip', 'No saved searches to load')
+                ? t('components.logs.logs-drilldown.load-search.button-tooltip', 'Load saved search')
+                : t('components.logs.logs-drilldown.load-search.button-no-search-tooltip', 'No saved searches to load')
             }
           />
           {isOpen && <LoadSearchModal sceneRef={model} onClose={model.toggleClosed} />}
@@ -97,7 +97,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
 
         if (query.datasource?.type !== 'loki') {
           appEvents.publish({
-            payload: [t('Components.logs.logs-drilldown.save-search.load-type-error', 'Please select a Loki query.')],
+            payload: [t('components.logs.logs-drilldown.save-search.load-type-error', 'Please select a Loki query.')],
             type: AppEvents.alertError.name,
           });
           return;
@@ -124,7 +124,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
           reportInteraction('grafana_logs_app_load_search_saved_query_loaded');
         } else {
           appEvents.publish({
-            payload: [t('Components.logs.logs-drilldown.save-search.load-error', 'Could not generate a link.')],
+            payload: [t('components.logs.logs-drilldown.save-search.load-error', 'Could not generate a link.')],
             type: AppEvents.alertError.name,
           });
         }
@@ -149,7 +149,7 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
         datasourceFilters={[dsName]}
         icon="folder-open"
         onSelectQuery={onSelectQuery}
-        tooltip={t('Components.logs.logs-drilldown.load-search.saved-query-button-tooltip', 'Load saved query')}
+        tooltip={t('components.logs.logs-drilldown.load-search.saved-query-button-tooltip', 'Load saved query')}
       />
     );
   };

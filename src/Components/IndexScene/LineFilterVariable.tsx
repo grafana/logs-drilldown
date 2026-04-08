@@ -33,13 +33,13 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
       <span>
         <div className={styles.titleWrap}>
           <span>
-            <Trans i18nKey="Components.line-filter-variable.line-filter">Line filter</Trans>
+            <Trans i18nKey="components.line-filter-variable.line-filter">Line filter</Trans>
           </span>
           <IconButton
             onClick={onClick}
             name={'times'}
             size={'xs'}
-            aria-label={t('Components.line-filter-variable.aria-label-remove-line-filter', 'Remove line filter')}
+            aria-label={t('components.line-filter-variable.aria-label-remove-line-filter', 'Remove line filter')}
           />
         </div>
         <span className={styles.collapseWrap}>
@@ -47,9 +47,9 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
           {focus && (
             <IconButton
               className={styles.collapseBtn}
-              tooltip={t('Components.line-filter-variable.tooltip-collapse', 'Collapse')}
+              tooltip={t('components.line-filter-variable.tooltip-collapse', 'Collapse')}
               size={'lg'}
-              aria-label={t('Components.line-filter-variable.aria-label-collapse-filter', 'Collapse filter')}
+              aria-label={t('components.line-filter-variable.aria-label-collapse-filter', 'Collapse filter')}
               onClick={() => setFocus(false)}
               name={'table-collapse-all'}
             />

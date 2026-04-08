@@ -1,5 +1,5 @@
 {
-  "Components": {
+  "components": {
     "add-label": {
       "add-label": "Add label",
       "tooltip-label-match-against-query": "Add new label to match against user query"

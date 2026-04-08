@@ -67,7 +67,7 @@ export class EmbeddedLinkScene extends SceneObjectBase {
         variant="secondary"
         icon="arrow-right"
       >
-        <Trans i18nKey="Components.embedded-link-scene.logs-drilldown">Logs Drilldown</Trans>
+        <Trans i18nKey="components.embedded-link-scene.logs-drilldown">Logs Drilldown</Trans>
       </LinkButton>
     );
   };

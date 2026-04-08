@@ -95,7 +95,7 @@ export function LogsTableHeaderWrap(props: {
               fillOpacity="1"
             />
           </svg>
-          <Trans i18nKey="Components.logs-table-header-wrap.menu.remove-column">Remove column</Trans>
+          <Trans i18nKey="components.logs-table-header-wrap.menu.remove-column">Remove column</Trans>
         </button>
       </div>
       {props.slideLeft && (
@@ -111,7 +111,7 @@ export function LogsTableHeaderWrap(props: {
             }}
           >
             <Icon className={cx(styles.icon, styles.reverse)} name={'arrow-from-right'} size={'md'} />
-            <Trans i18nKey="Components.logs-table-header-wrap.menu.move-left">Move left</Trans>
+            <Trans i18nKey="components.logs-table-header-wrap.menu.move-left">Move left</Trans>
           </button>
         </div>
       )}
@@ -128,7 +128,7 @@ export function LogsTableHeaderWrap(props: {
             }}
           >
             <Icon className={styles.icon} name={'arrow-from-right'} size={'md'} />
-            <Trans i18nKey="Components.logs-table-header-wrap.menu.move-right">Move right</Trans>
+            <Trans i18nKey="components.logs-table-header-wrap.menu.move-right">Move right</Trans>
           </button>
         </div>
       )}
@@ -163,8 +163,8 @@ export function LogsTableHeaderWrap(props: {
             )}
 
             {bodyState === LogLineState.text
-              ? t('Components.logs-table-header-wrap.menu.show-labels', 'Show labels')
-              : t('Components.logs-table-header-wrap.menu.show-log-text', 'Show log text')}
+              ? t('components.logs-table-header-wrap.menu.show-labels', 'Show labels')
+              : t('components.logs-table-header-wrap.menu.show-log-text', 'Show log text')}
           </button>
         </div>
       )}
@@ -182,7 +182,7 @@ export function LogsTableHeaderWrap(props: {
             }}
           >
             <Icon className={styles.icon} name={'arrows-h'} size={'md'} />
-            <Trans i18nKey="Components.logs-table-header-wrap.menu.reset-column-widths">Reset column widths</Trans>
+            <Trans i18nKey="components.logs-table-header-wrap.menu.reset-column-widths">Reset column widths</Trans>
           </button>
         </div>
       )}

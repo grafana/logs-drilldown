@@ -263,12 +263,12 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     value={gte !== undefined ? gte.toString() : 'false'}
                     options={[
                       {
-                        label: t('Components.numeric-filter-popover-scene.label.greater-than', 'Greater than'),
+                        label: t('components.numeric-filter-popover-scene.label.greater-than', 'Greater than'),
                         value: 'false',
                       },
                       {
                         label: t(
-                          'Components.numeric-filter-popover-scene.label.greater-than-or-equal',
+                          'components.numeric-filter-popover-scene.label.greater-than-or-equal',
                           'Greater than or equal'
                         ),
                         value: 'true',
@@ -304,7 +304,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       className={popoverStyles.card.field}
                       label={
                         <span className={popoverStyles.card.unitFieldLabel}>
-                          <Trans i18nKey="Components.numeric-filter-popover-scene.unit">Unit</Trans>
+                          <Trans i18nKey="components.numeric-filter-popover-scene.unit">Unit</Trans>
                         </span>
                       }
                     >
@@ -339,12 +339,12 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                     value={lte !== undefined ? lte.toString() : 'false'}
                     options={[
                       {
-                        label: t('Components.numeric-filter-popover-scene.label.less-than', 'Less than'),
+                        label: t('components.numeric-filter-popover-scene.label.less-than', 'Less than'),
                         value: 'false',
                       },
                       {
                         label: t(
-                          'Components.numeric-filter-popover-scene.label.less-than-or-equal',
+                          'components.numeric-filter-popover-scene.label.less-than-or-equal',
                           'Less than or equal'
                         ),
                         value: 'true',
@@ -376,7 +376,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       className={popoverStyles.card.field}
                       label={
                         <span className={popoverStyles.card.unitFieldLabel}>
-                          <Trans i18nKey="Components.numeric-filter-popover-scene.unit">Unit</Trans>
+                          <Trans i18nKey="components.numeric-filter-popover-scene.unit">Unit</Trans>
                         </span>
                       }
                     >
@@ -415,7 +415,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   variant={'destructive'}
                   fill={'outline'}
                 >
-                  <Trans i18nKey="Components.numeric-filter-popover-scene.remove">Remove</Trans>
+                  <Trans i18nKey="components.numeric-filter-popover-scene.remove">Remove</Trans>
                 </Button>
               )}
               <Button
@@ -427,7 +427,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                 fill={'outline'}
                 type={'submit'}
               >
-                <Trans i18nKey="Components.numeric-filter-popover-scene.add">Add</Trans>
+                <Trans i18nKey="components.numeric-filter-popover-scene.add">Add</Trans>
               </Button>
 
               <Button
@@ -437,7 +437,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                 variant={'secondary'}
                 fill={'outline'}
               >
-                <Trans i18nKey="Components.numeric-filter-popover-scene.cancel">Cancel</Trans>
+                <Trans i18nKey="components.numeric-filter-popover-scene.cancel">Cancel</Trans>
               </Button>
             </div>
           </div>

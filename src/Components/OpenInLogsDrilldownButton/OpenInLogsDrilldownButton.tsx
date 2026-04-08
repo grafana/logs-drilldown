@@ -93,7 +93,7 @@ export default function OpenInLogsDrilldownButton({
         setReturnToPrevious(returnToPreviousSource || 'previous');
       }}
     >
-      <Trans i18nKey="Components.open-in-logs-drilldown-button.open-in-logs-drilldown">Open in Logs Drilldown</Trans>
+      <Trans i18nKey="components.open-in-logs-drilldown-button.open-in-logs-drilldown">Open in Logs Drilldown</Trans>
     </LinkButton>
   );
 }
