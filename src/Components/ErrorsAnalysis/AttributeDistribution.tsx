@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Icon, Spinner, useStyles2 } from '@grafana/ui';
 
 const MAX_VALUES_COLLAPSED = 1;
@@ -263,6 +264,28 @@ export interface AttributeDistributionProps {
   // Adapter function -- provided by the consumer. Returns value counts for a
   // single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string) => Promise<LabelValueCount[]>;
+  // Seed value for the selectedFilters reducer state, applied only on first mount.
+  // The consumer passes its last-known filter set so that if the component remounts
+  // (e.g. due to React strict mode or Scenes re-activation), chips reappear
+  // immediately without the user needing to re-apply them.
+  initialSelectedFilters?: ActiveFilter[];
+  // Called whenever the active filter set changes. The consumer can use this
+  // to update other panels on the page. Filter state is owned by this component.
+  // Persistence is consumer-controlled: in app-o11y-kwl this writes to ${Filters}
+  // so filters persist across navigation. Consumers that want ephemeral filters
+  // simply do not wire this to any persistent store.
+  onFiltersChange?: (filters: ActiveFilter[]) => void;
+  // Priority attributes are pinned to the top of the list, in the order given,
+  // before dynamically detected fields. Priority attributes not present in the
+  // detected set are still shown -- absence is itself informative.
+  // If not provided, detected fields appear in the order returned by fetchAttributes.
+  // The list and its ordering should be defined by the consumer, not this component.
+  priorityAttributes?: AttributeConfig[];
+  // Optional label displayed at the top of the sidebar to communicate the scope
+  // of the dataset to the user. The consumer sets this because it knows what limit
+  // its query applies -- the component just renders it.
+  // Example values: "Last 1000 logs", "Slowest 1000 traces"
+  queryLimitLabel?: string;
   // Optional link to view all logs in an external view. The consumer builds and
   // owns this href -- this component renders it verbatim. When using a plugin
   // extension link (e.g. usePluginLinks with ExploreToolbarAction), the query
@@ -273,26 +296,6 @@ export interface AttributeDistributionProps {
   // query to a stream-selector-only expression in that case.
   // title comes from the extension (e.g. "Open in Grafana Logs Drilldown").
   showAllLink?: { href: string; title: string };
-  // Seed value for the selectedFilters reducer state, applied only on first mount.
-  // The consumer passes its last-known filter set so that if the component remounts
-  // (e.g. due to React strict mode or Scenes re-activation), chips reappear
-  // immediately without the user needing to re-apply them.
-  initialSelectedFilters?: ActiveFilter[];
-  // Called whenever the active filter set changes. The consumer can use this
-  // to update other panels on the page. Filter state is owned by this component
-  // and is scoped to its lifetime -- no persistent writes are made externally.
-  onFiltersChange?: (filters: ActiveFilter[]) => void;
-  // Priority attributes are pinned to the top of the list, in the order given,
-  // before dynamically detected fields. Only priority attributes that are also
-  // present in the detected set are shown -- undetected ones are silently dropped.
-  // If not provided, detected fields appear in the order returned by fetchAttributes.
-  // The list and its ordering should be defined by the consumer, not this component.
-  priorityAttributes?: AttributeConfig[];
-  // Optional label displayed at the top of the sidebar to communicate the scope
-  // of the dataset to the user. The consumer sets this because it knows what limit
-  // its query applies -- the component just renders it.
-  // Example values: "Last 1000 logs", "Slowest 1000 traces"
-  queryLimitLabel?: string;
 }
 
 export function AttributeDistribution({
