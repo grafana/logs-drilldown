@@ -561,7 +561,10 @@
           }
         },
         "json-line-item-type": {
-          "detected-level-toggle-button": ""
+          "detected-level-toggle-button": {
+            "include": "Include logs with {{detectedLevel}} level",
+            "remove": "Remove {{detectedLevel}} filter"
+          }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
