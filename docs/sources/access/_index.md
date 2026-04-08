@@ -82,7 +82,7 @@ grafana cli plugins install --pluginUrl=https://storage.googleapis.com/integrati
 
 ## Permissions
 
-All the Grafana drilldown apps require the `datasources:explore` permission in Grafana.
+All the Grafana Drilldown apps require the `datasources:explore` permission in Grafana.
 
 ## Test with Docker Compose
 
