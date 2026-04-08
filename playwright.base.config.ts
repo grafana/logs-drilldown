@@ -1,7 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
+import { devices } from '@playwright/test';
 import { dirname } from 'node:path';
-
-import type { PluginOptions } from '@grafana/plugin-e2e';
 
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
@@ -28,8 +26,8 @@ export const baseConfig = {
     //   mode: 'on',
     // },
   },
-  /* Limit CI workers to 4. */
-  workers: process.env.CI ? 4 : undefined,
+  /* Limit CI workers to 2. */
+  workers: process.env.CI ? 2 : 4,
 };
 
 /**
