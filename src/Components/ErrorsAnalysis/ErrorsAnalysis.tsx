@@ -131,7 +131,7 @@ export interface ErrorsAnalysisProps {
   // Unknown fields fall back to their raw field name.
   // If not provided, all fields display with their raw name.
   labelMap?: Record<string, string>;
-  onFiltersChange?: (filters: Array<{ field: string; value: string }>) => void;
+  onFiltersChange?: (filters: Array<{ field: string; value: string; operator: '=' | '!=' }>) => void;
   // Optional ordered list of attributes to pin first in the distribution sidebar.
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
   // If not provided, detected fields appear in the order returned by fetchAttributes.
@@ -142,7 +142,7 @@ export interface ErrorsAnalysisProps {
   // The consuming app sets this -- it knows what limit its query applies.
   queryLimitLabel?: string;
   // See AttributeDistributionProps.initialSelectedFilters.
-  initialSelectedFilters?: Array<{ field: string; value: string }>;
+  initialSelectedFilters?: Array<{ field: string; value: string; operator: '=' | '!=' }>;
 }
 
 export default function ErrorsAnalysis({

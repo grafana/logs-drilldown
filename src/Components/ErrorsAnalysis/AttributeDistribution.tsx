@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Spinner, useStyles2 } from '@grafana/ui';
 
+
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
 
@@ -30,6 +31,7 @@ export interface DatasetContext {
 export interface ActiveFilter {
   field: string;
   value: string;
+  operator: '=' | '!=';
 }
 
 // A value entry extended with a `retained` flag used for the sticky values pattern.
@@ -65,7 +67,7 @@ type Action =
   | { type: 'ERROR'; field: string }
   | { type: 'TOGGLE_EXPANDED'; field: string }
   | { type: 'ADD_ATTRIBUTE'; config: AttributeConfig }
-  | { type: 'TOGGLE_FILTER'; field: string; value: string }
+  | { type: 'TOGGLE_FILTER'; field: string; value: string; operator: '=' | '!=' }
   | { type: 'CLEAR_FILTERS' };
 
 function reducer(state: State, action: Action): State {
@@ -145,23 +147,33 @@ function reducer(state: State, action: Action): State {
         },
       };
     case 'TOGGLE_FILTER': {
-      const { field, value } = action;
-      const isRemoving = state.selectedFilters.some((f) => f.field === field && f.value === value);
-      const newFilters = isRemoving
-        ? state.selectedFilters.filter((f) => !(f.field === field && f.value === value))
-        : [...state.selectedFilters, { field, value }];
+      const { field, value, operator } = action;
+      const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);
+      const existingForField = state.selectedFilters.find((f) => f.field === field);
+
+      let newFilters: ActiveFilter[];
+      if (existingIndex >= 0 && state.selectedFilters[existingIndex].operator === operator) {
+        // Same operator -- deselect
+        newFilters = state.selectedFilters.filter((_, i) => i !== existingIndex);
+      } else if (existingIndex >= 0) {
+        // Operator switch for this value -- replace in place
+        newFilters = state.selectedFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
+      } else if (existingForField && existingForField.operator !== operator) {
+        // Different operator already active for this field -- clear field and add new
+        newFilters = [...state.selectedFilters.filter((f) => f.field !== field), { field, value, operator }];
+      } else {
+        newFilters = [...state.selectedFilters, { field, value, operator }];
+      }
 
       // Take a snapshot of current values when the first filter is added.
-      // This snapshot is used to retain values that drop to 0% after filtering.
       let { valueSnapshot } = state;
-      if (!isRemoving && state.selectedFilters.length === 0) {
+      if (state.selectedFilters.length === 0 && newFilters.length > 0) {
         valueSnapshot = {};
         for (const [f, attrState] of Object.entries(state.data)) {
           valueSnapshot[f] = attrState.values;
         }
       }
-      // Release the snapshot when the last filter is removed.
-      if (isRemoving && newFilters.length === 0) {
+      if (newFilters.length === 0) {
         valueSnapshot = null;
       }
 
@@ -191,28 +203,32 @@ function escapeRegex(value: string): string {
 }
 
 // Appends LogQL filter pipeline stages for active filters to the base query.
-// Multiple values for the same field are combined as OR using regex match.
+// Multiple values for the same field and operator are combined via regex (=~ / !~).
 // Filters across different fields stack as AND (separate pipeline stages).
 function buildEffectiveQuery(baseQuery: string, filters: ActiveFilter[]): string {
   if (!filters.length) {
     return baseQuery;
   }
 
-  const byField = new Map<string, string[]>();
-  for (const { field, value } of filters) {
-    if (!byField.has(field)) {
-      byField.set(field, []);
+  // Group by field -- per-field operator is uniform (enforced by the reducer).
+  const byField = new Map<string, { operator: '=' | '!='; values: string[] }>();
+  for (const { field, value, operator } of filters) {
+    const existing = byField.get(field);
+    if (existing) {
+      existing.values.push(value);
+    } else {
+      byField.set(field, { operator, values: [value] });
     }
-    byField.get(field)!.push(value);
   }
 
   let q = baseQuery;
-  for (const [field, values] of byField) {
+  for (const [field, { operator, values }] of byField) {
     if (values.length === 1) {
-      q += ` | ${field}="${values[0]}"`;
+      q += ` | ${field}${operator}"${values[0]}"`;
     } else {
+      const regexOp = operator === '=' ? '=~' : '!~';
       const pattern = values.map(escapeRegex).join('|');
-      q += ` | ${field}=~"${pattern}"`;
+      q += ` | ${field}${regexOp}"${pattern}"`;
     }
   }
   return q;
@@ -358,13 +374,23 @@ export function AttributeDistribution({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes]);
 
-  function handleToggleFilter(field: string, value: string) {
-    const isRemoving = state.selectedFilters.some((f) => f.field === field && f.value === value);
-    const newFilters = isRemoving
-      ? state.selectedFilters.filter((f) => !(f.field === field && f.value === value))
-      : [...state.selectedFilters, { field, value }];
+  function handleToggleFilter(field: string, value: string, operator: '=' | '!=') {
+    // Mirror the reducer logic to compute newFilters synchronously for callbacks.
+    const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);
+    const existingForField = state.selectedFilters.find((f) => f.field === field);
 
-    dispatch({ type: 'TOGGLE_FILTER', field, value });
+    let newFilters: ActiveFilter[];
+    if (existingIndex >= 0 && state.selectedFilters[existingIndex].operator === operator) {
+      newFilters = state.selectedFilters.filter((_, i) => i !== existingIndex);
+    } else if (existingIndex >= 0) {
+      newFilters = state.selectedFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
+    } else if (existingForField && existingForField.operator !== operator) {
+      newFilters = [...state.selectedFilters.filter((f) => f.field !== field), { field, value, operator }];
+    } else {
+      newFilters = [...state.selectedFilters, { field, value, operator }];
+    }
+
+    dispatch({ type: 'TOGGLE_FILTER', field, value, operator });
 
     const effectiveContext = { ...context, query: buildEffectiveQuery(context.query, newFilters) };
     loadDistributions(state.attributes, effectiveContext);
@@ -407,15 +433,15 @@ export function AttributeDistribution({
 
       {state.selectedFilters.length > 0 && (
         <div className={styles.filterChips}>
-          {state.selectedFilters.map(({ field, value }) => (
-            <div key={`${field}=${value}`} className={styles.chip}>
+          {state.selectedFilters.map(({ field, value, operator }) => (
+            <div key={`${field}${operator}${value}`} className={styles.chip}>
               <span className={styles.chipText}>
-                {field} = {value}
+                {field} {operator} {value}
               </span>
               <button
-                aria-label={`Remove filter ${field} = ${value}`}
+                aria-label={`Remove filter ${field} ${operator} ${value}`}
                 className={styles.chipRemove}
-                onClick={() => handleToggleFilter(field, value)}
+                onClick={() => handleToggleFilter(field, value, operator)}
               >
                 <Icon name="times" size="xs" />
               </button>
@@ -457,18 +483,19 @@ export function AttributeDistribution({
           if (!attrState) {
             return null;
           }
-          const selectedValues = new Set(
-            state.selectedFilters.filter((f) => f.field === attr.field).map((f) => f.value)
-          );
+          const fieldFilters = state.selectedFilters.filter((f) => f.field === attr.field);
+          const includedValues = new Set(fieldFilters.filter((f) => f.operator === '=').map((f) => f.value));
+          const excludedValues = new Set(fieldFilters.filter((f) => f.operator === '!=').map((f) => f.value));
           const snapshotValues = state.valueSnapshot?.[attr.field] ?? null;
           return (
             <AttributeSection
               key={attr.field}
               attrState={attrState}
               config={attr}
-              selectedValues={selectedValues}
+              includedValues={includedValues}
+              excludedValues={excludedValues}
               snapshotValues={snapshotValues}
-              onToggleFilter={(value) => handleToggleFilter(attr.field, value)}
+              onToggleFilter={(value, operator) => handleToggleFilter(attr.field, value, operator)}
               onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.field })}
             />
           );
@@ -481,16 +508,18 @@ export function AttributeDistribution({
 interface AttributeSectionProps {
   attrState: AttributeState;
   config: AttributeConfig;
-  selectedValues: Set<string>;
+  includedValues: Set<string>;
+  excludedValues: Set<string>;
   snapshotValues: LabelValueCount[] | null;
-  onToggleFilter: (value: string) => void;
+  onToggleFilter: (value: string, operator: '=' | '!=') => void;
   onToggle: () => void;
 }
 
 function AttributeSection({
   attrState,
   config,
-  selectedValues,
+  includedValues,
+  excludedValues,
   snapshotValues,
   onToggleFilter,
   onToggle,
@@ -521,16 +550,17 @@ function AttributeSection({
       {!loading &&
         !error &&
         visibleValues.map((item) => {
-          const isSelected = selectedValues.has(item.value);
+          const isIncluded = includedValues.has(item.value);
+          const isExcluded = excludedValues.has(item.value);
+          const isSelected = isIncluded || isExcluded;
           return (
-            <button
+            <div
               key={item.value}
               className={cx(
                 styles.valueRow,
                 isSelected && styles.valueRowSelected,
                 item.retained && styles.valueRowRetained
               )}
-              onClick={() => onToggleFilter(item.value)}
             >
               <span className={styles.valueLabel} title={item.value}>
                 {item.value}
@@ -539,8 +569,23 @@ function AttributeSection({
                 <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
               </div>
               <span className={styles.percentage}>{item.percentage}%</span>
-              {isSelected && <Icon name="check" size="xs" />}
-            </button>
+              <div className={styles.filterButtons}>
+                <button
+                  aria-label={`Include ${item.value}`}
+                  className={cx(styles.filterButton, isIncluded && styles.filterButtonActive)}
+                  onClick={() => onToggleFilter(item.value, '=')}
+                >
+                  +
+                </button>
+                <button
+                  aria-label={`Exclude ${item.value}`}
+                  className={cx(styles.filterButton, isExcluded && styles.filterButtonActive)}
+                  onClick={() => onToggleFilter(item.value, '!=')}
+                >
+                  &minus;
+                </button>
+              </div>
+            </div>
           );
         })}
 
@@ -673,6 +718,38 @@ const getStyles = (theme: GrafanaTheme2) => ({
     },
     '&:focus': {
       borderColor: theme.colors.primary.border,
+    },
+  }),
+  filterButtons: css({
+    display: 'flex',
+    flexShrink: 0,
+    gap: 2,
+  }),
+  filterButton: css({
+    alignItems: 'center',
+    background: 'none',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.text.secondary,
+    cursor: 'pointer',
+    display: 'flex',
+    fontSize: theme.typography.bodySmall.fontSize,
+    height: 18,
+    justifyContent: 'center',
+    lineHeight: 1,
+    padding: 0,
+    width: 18,
+    '&:hover': {
+      background: theme.colors.action.hover,
+      color: theme.colors.text.primary,
+    },
+  }),
+  filterButtonActive: css({
+    background: theme.colors.primary.transparent,
+    borderColor: theme.colors.primary.border,
+    color: theme.colors.primary.text,
+    '&:hover': {
+      background: theme.colors.primary.transparent,
     },
   }),
   filterChips: css({
