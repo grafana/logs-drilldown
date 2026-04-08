@@ -28,9 +28,9 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={t('components.config.text-beta', 'Beta')} />
+        <Badge color={'blue'} text={t('components.app-config.default-columns.config.text-beta', 'Beta')} />
         <span>
-          <Trans i18nKey="components.config.default-columns-description">
+          <Trans i18nKey="components.app-config.default-columns.config.default-columns-description">
             Configure the fields to show by default. These can replace the full log line or be displayed next to it.
           </Trans>
         </span>

@@ -82,18 +82,18 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
               options={[
                 {
                   description: t(
-                    'components.log-options-renderer.description.show-results-newest-to-oldest',
+                    'components.service-scene.log-options-scene.description.show-results-newest-to-oldest',
                     'Show results newest to oldest'
                   ),
-                  label: t('components.log-options-renderer.label.newest-first', 'Newest first'),
+                  label: t('components.service-scene.log-options-scene.label.newest-first', 'Newest first'),
                   value: LogsSortOrder.Descending,
                 },
                 {
                   description: t(
-                    'components.log-options-renderer.description.show-results-oldest-to-newest',
+                    'components.service-scene.log-options-scene.description.show-results-oldest-to-newest',
                     'Show results oldest to newest'
                   ),
-                  label: t('components.log-options-renderer.label.oldest-first', 'Oldest first'),
+                  label: t('components.service-scene.log-options-scene.label.oldest-first', 'Oldest first'),
                   value: LogsSortOrder.Ascending,
                 },
               ]}
@@ -109,18 +109,18 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
               options={[
                 {
                   description: t(
-                    'components.log-options-renderer.description.enable-wrapping-of-long-log-lines',
+                    'components.service-scene.log-options-scene.description.enable-wrapping-of-long-log-lines',
                     'Enable wrapping of long log lines'
                   ),
-                  label: t('components.log-options-renderer.label.wrap', 'Wrap'),
+                  label: t('components.service-scene.log-options-scene.label.wrap', 'Wrap'),
                   value: true,
                 },
                 {
                   description: t(
-                    'components.log-options-renderer.description.disable-wrapping-of-long-log-lines',
+                    'components.service-scene.log-options-scene.description.disable-wrapping-of-long-log-lines',
                     'Disable wrapping of long log lines'
                   ),
-                  label: t('components.log-options-renderer.label.no-wrap', 'No wrap'),
+                  label: t('components.service-scene.log-options-scene.label.no-wrap', 'No wrap'),
                   value: false,
                 },
               ]}

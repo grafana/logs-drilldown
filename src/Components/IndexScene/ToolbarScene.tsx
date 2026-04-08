@@ -89,27 +89,27 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
           className={styles.popover}
           role="dialog"
           aria-modal="true"
-          aria-label={t('components.toolbar-scene.render-popover.aria-label-query-options', 'Query options')}
+          aria-label={t('components.index-scene.toolbar-scene.render-popover.aria-label-query-options', 'Query options')}
           onClick={(evt) => evt.stopPropagation()}
         >
           <div className={styles.heading}>
-            <Trans i18nKey="components.toolbar-scene.render-popover.query-options">Query options</Trans>
+            <Trans i18nKey="components.index-scene.toolbar-scene.render-popover.query-options">Query options</Trans>
           </div>
           <div className={styles.options}>
             {exploreLogsAggregatedMetrics && (
               <>
                 <div>
-                  <Trans i18nKey="components.toolbar-scene.aggregated-metrics">Aggregated metrics</Trans>{' '}
+                  <Trans i18nKey="components.index-scene.toolbar-scene.aggregated-metrics">Aggregated metrics</Trans>{' '}
                   <Tooltip
                     content={
                       options.aggregatedMetrics.disabled
                         ? t(
-                            'components.toolbar-scene.aggregated-metrics-disabled-tooltip',
+                            'components.index-scene.toolbar-scene.aggregated-metrics-disabled-tooltip',
                             'Aggregated metrics can only be enabled for queries starting after {{date}}',
                             { date: AGGREGATED_METRIC_START_DATE.toLocaleString() }
                           )
                         : t(
-                            'components.toolbar-scene.aggregated-metrics-tooltip',
+                            'components.index-scene.toolbar-scene.aggregated-metrics-tooltip',
                             'Aggregated metrics will return service queries results much more quickly, but with lower resolution'
                           )
                     }
@@ -120,7 +120,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
                 <span>
                   <Switch
                     label={t(
-                      'components.toolbar-scene.render-popover.label-toggle-aggregated-metrics',
+                      'components.index-scene.toolbar-scene.render-popover.label-toggle-aggregated-metrics',
                       'Toggle aggregated metrics'
                     )}
                     data-testid={testIds.index.aggregatedMetricsToggle}
@@ -134,7 +134,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
             {kgAnnotationToggle && (
               <>
                 <div>
-                  <Trans i18nKey="components.toolbar-scene.insights">Insights</Trans>{' '}
+                  <Trans i18nKey="components.index-scene.toolbar-scene.insights">Insights</Trans>{' '}
                   <Tooltip content={KG_INSIGHTS_DESCRIPTION}>
                     <Icon name="info-circle" />
                   </Tooltip>
@@ -142,7 +142,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
                 <span>
                   <Switch
                     label={t(
-                      'components.toolbar-scene.render-popover.label-toggle-insights-annotations',
+                      'components.index-scene.toolbar-scene.render-popover.label-toggle-insights-annotations',
                       'Toggle insights annotations'
                     )}
                     value={kgToggleState?.isEnabled ?? false}
@@ -163,7 +163,7 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
             icon="cog"
             variant="canvas"
             isOpen={isOpen}
-            aria-label={t('components.toolbar-scene.aria-label-query-options', 'Query options')}
+            aria-label={t('components.index-scene.toolbar-scene.aria-label-query-options', 'Query options')}
             data-testid={testIds.index.aggregatedMetricsMenu}
           />
         </Dropdown>

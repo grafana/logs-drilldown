@@ -22,8 +22,8 @@ export const SearchInput = ({ onChange, onClear, placeholder, suffix, value, ...
         <span className={styles.suffixWrapper}>
           {onClear && value ? (
             <IconButton
-              aria-label={t('components.search-input.aria-label-clear-search', 'Clear search')}
-              tooltip={t('components.search-input.tooltip-clear-search', 'Clear search')}
+              aria-label={t('components.service-scene.breakdowns.search-input.aria-label-clear-search', 'Clear search')}
+              tooltip={t('components.service-scene.breakdowns.search-input.tooltip-clear-search', 'Clear search')}
               onClick={onClear}
               name="times"
               className={styles.clearIcon}

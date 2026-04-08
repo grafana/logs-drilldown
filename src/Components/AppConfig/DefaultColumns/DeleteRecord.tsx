@@ -32,7 +32,7 @@ export function DeleteRecord({ recordIndex }: Props) {
   return (
     <div className={styles.close}>
       <IconButton
-        tooltip={t('components.delete-record.tooltip-delete-record', 'Delete record')}
+        tooltip={t('components.app-config.default-columns.delete-record.tooltip-delete-record', 'Delete record')}
         size={'xl'}
         name={'times'}
         aria-labelledby={'Delete record'}

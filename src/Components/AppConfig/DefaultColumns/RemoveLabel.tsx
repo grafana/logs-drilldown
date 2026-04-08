@@ -36,7 +36,7 @@ export function RemoveLabel({ recordIndex, labelIndex }: Props) {
     <div className={styles.valueContainer}>
       <IconButton
         variant={'destructive'}
-        tooltip={t('components.remove-label.tooltip-remove-label', 'Remove {{label}}', {
+        tooltip={t('components.app-config.default-columns.remove-label.tooltip-remove-label', 'Remove {{label}}', {
           label: `${label?.key ?? ''}${label?.value ? ` = ${label.value}` : ''}`,
         })}
         name={'minus'}

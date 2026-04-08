@@ -100,8 +100,8 @@ export function Submit() {
       }}
     >
       {createNewRecord
-        ? t('components.submit.create-default-columns', 'Create default columns')
-        : t('components.submit.update-default-columns', 'Update default columns')}
+        ? t('components.app-config.default-columns.submit.create-default-columns', 'Create default columns')
+        : t('components.app-config.default-columns.submit.update-default-columns', 'Update default columns')}
     </Button>
   );
 }
