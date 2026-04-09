@@ -13,7 +13,6 @@ jest.mock('@grafana/runtime', () => ({
       exploreLogsAggregatedMetrics: false,
       exploreLogsShardSplitting: false,
       kubernetesLogsDrilldown: false,
-      logsPanelControls: false,
       otelLogsFormatting: false,
       queryLibrary: false,
     },

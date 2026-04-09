@@ -16,7 +16,7 @@ class MockSceneObject extends SceneObjectBase<SceneObjectState> {
 
 describe('LayoutSwitcher', () => {
   let layoutSwitcher: LayoutSwitcher;
-  const mockLayouts: SceneObject[] = [new MockSceneObject({}), new MockSceneObject({}), new MockSceneObject({})];
+  let mockLayouts: SceneObject[];
 
   const mockOptions = [
     { label: 'Grid', value: LayoutTypeEnum.grid },
@@ -25,6 +25,7 @@ describe('LayoutSwitcher', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLayouts = [new MockSceneObject({}), new MockSceneObject({}), new MockSceneObject({})];
     layoutSwitcher = new LayoutSwitcher({
       active: 'grid',
       layouts: mockLayouts,

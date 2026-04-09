@@ -12,10 +12,19 @@ import { DefaultColumns } from './DefaultColumns';
 import { Footer } from './Footer';
 import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
+import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 const Config = () => {
+  return (
+    <FeatureFlagContext>
+      <DefaultColumnsConfig />
+    </FeatureFlagContext>
+  );
+};
+
+const DefaultColumnsConfig = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
