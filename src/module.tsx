@@ -71,7 +71,7 @@ const ServiceSelectionConfig = lazy(async () => {
 
 export const plugin = new AppPlugin<JsonData>()
   .setRootPage(App)
-  // For new config pages, specially if they require feature flags, make sure they are wrapped in a <FeatureFlagContext> component.
+  // For new config pages, especially if they require feature flags, make sure they are wrapped in a <FeatureFlagContext> component.
   .addConfigPage({
     body: AppConfig,
     icon: 'cog',
