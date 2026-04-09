@@ -394,7 +394,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                   new SceneFlexItem({
                     body: new SceneReactObject({
                       reactNode: (
-                        <LoadingPlaceholder text={t('components.breakdowns.label-values.loading', 'Loading...')} />
+                        <LoadingPlaceholder text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')} />
                       ),
                     }),
                   }),
@@ -428,7 +428,7 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                   new SceneFlexItem({
                     body: new SceneReactObject({
                       reactNode: (
-                        <LoadingPlaceholder text={t('components.breakdowns.label-values.loading', 'Loading...')} />
+                        <LoadingPlaceholder text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')} />
                       ),
                     }),
                   }),
@@ -451,8 +451,8 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
         }),
       ],
       options: [
-        { label: t('components.breakdowns.label-values.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('components.breakdowns.label-values.layout.rows', 'Rows'), value: 'rows' },
+        { label: t('components.service-scene.breakdowns.label-values-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('components.service-scene.breakdowns.label-values-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }
@@ -489,17 +489,17 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       <div key={key}>
         {err.status && (
           <>
-            <strong>{t('components.breakdowns.label-values.error.status', 'Status')}</strong>: {err.status} <br />
+            <strong>{t('components.service-scene.breakdowns.label-values-breakdown-scene.error.status', 'Status')}</strong>: {err.status} <br />
           </>
         )}
         {err.message && (
           <>
-            <strong>{t('components.breakdowns.label-values.error.message', 'Message')}</strong>: {err.message} <br />
+            <strong>{t('components.service-scene.breakdowns.label-values-breakdown-scene.error.message', 'Message')}</strong>: {err.message} <br />
           </>
         )}
         {err.traceId && (
           <>
-            <strong>{t('components.breakdowns.label-values.error.trace-id', 'TraceId')}</strong>: {err.traceId}
+            <strong>{t('components.service-scene.breakdowns.label-values-breakdown-scene.error.trace-id', 'TraceId')}</strong>: {err.traceId}
           </>
         )}
       </div>
@@ -518,6 +518,6 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('components.breakdowns.label-values.loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')} />;
   };
 }

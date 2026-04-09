@@ -1,11 +1,12 @@
 {
   "name": "grafana-lokiexplore-app",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Query less exploration of log data stored in Loki",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
     "dev": "webpack -w -c ./webpack.config.ts --env development",
-    "test": "jest --watch --onlyChanged",
+    "test": "jest --onlyChanged",
+    "test:watch": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --cache",

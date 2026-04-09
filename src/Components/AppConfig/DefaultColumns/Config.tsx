@@ -12,10 +12,19 @@ import { DefaultColumns } from './DefaultColumns';
 import { Footer } from './Footer';
 import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
+import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 const Config = () => {
+  return (
+    <FeatureFlagContext>
+      <DefaultColumnsConfig />
+    </FeatureFlagContext>
+  );
+};
+
+const DefaultColumnsConfig = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
@@ -28,9 +37,9 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={t('components.config.text-beta', 'Beta')} />
+        <Badge color={'blue'} text={t('components.app-config.default-columns.config.text-beta', 'Beta')} />
         <span>
-          <Trans i18nKey="components.config.default-columns-description">
+          <Trans i18nKey="components.app-config.default-columns.config.default-columns-description">
             Configure the fields to show by default. These can replace the full log line or be displayed next to it.
           </Trans>
         </span>

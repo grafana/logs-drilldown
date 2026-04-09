@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { of } from 'rxjs';
@@ -8,6 +8,10 @@ import { getBackendSrv, locationService } from '@grafana/runtime';
 
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 import AppConfig, { updatePlugin, type JsonData } from './AppConfig';
+
+jest.mock('Components/FeatureFlagContext', () => ({
+  FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
+}));
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),

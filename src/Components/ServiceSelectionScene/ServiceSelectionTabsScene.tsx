@@ -93,7 +93,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
                       return (
                         <>
                           <Tooltip
-                            content={t('components.service-selection-tabs-scene.tab.content-remove-tab', 'Remove tab')}
+                            content={t('components.service-selection-scene.service-selection-tabs-scene.tab.content-remove-tab', 'Remove tab')}
                           >
                             <Icon
                               onKeyDownCapture={(e) => {
@@ -130,7 +130,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
         })}
         {data?.state === LoadingState.Loading && (
           <Tab
-            label={t('components.service-selection-tabs-scene.label-loading-tabs', 'Loading tabs')}
+            label={t('components.service-selection-scene.service-selection-tabs-scene.label-loading-tabs', 'Loading tabs')}
             icon={'spinner'}
           />
         )}
@@ -140,7 +140,7 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
           <span className={styles.addTab}>
             <Tab
               onChangeTab={model.toggleShowPopover}
-              label={t('components.service-selection-tabs-scene.label-add-label', 'Add label')}
+              label={t('components.service-selection-scene.service-selection-tabs-scene.label-add-label', 'Add label')}
               ref={popoverRef}
               icon={'plus-circle'}
             />

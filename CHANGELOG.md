@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.0.3
+
+##### Chores
+
+* **i18n:**
+  *  update translation keys to represent usage (#1837) (528e86e7)
+  *  enable eslint rules and translate all user-facing strings (#1833) (59041da0)
+
+##### Documentation Changes
+
+*  Add permissions info (#1838) (d2ecb3e8)
+
+##### Bug Fixes
+
+* **Feature Flags:**  remove logsPanelControls (#1844) (47ad21e9)
+* **Config:**  initialize feature flags in the configuration page (#1843) (a7942b72)
+
+##### Performance Improvements
+
+* **i18n:**  prevent loading en-US translations at runtime (#1841) (c7579309)
+
+
 ## 2.0.2
 
 ##### Chores

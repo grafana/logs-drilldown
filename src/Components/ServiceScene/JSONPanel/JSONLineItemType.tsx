@@ -33,10 +33,11 @@ function LineItemType({
   return useMemo(
     () => (
       <Tooltip
-        content={t(
-          'components.logs.json.line.detectedLevel.toggleButton',
-          existingFilter ? `Remove ${detectedLevel} filter` : `Include logs with ${detectedLevel} level`
-        )}
+        content={
+          existingFilter
+            ? t('components.service-scene.json-panel.json-line-item-type.detected-level-toggle-button.remove', 'Remove {{detectedLevel}} filter', { detectedLevel })
+            : t('components.service-scene.json-panel.json-line-item-type.detected-level-toggle-button.include', 'Include logs with {{detectedLevel}} level', { detectedLevel })
+        }
       >
         <button
           onClick={(e) => {

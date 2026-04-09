@@ -39,7 +39,7 @@ export const PatternTag = ({ onRemove, pattern, size = 'lg' }: Props) => {
         className={styles.tag}
       />
       <Button
-        aria-label={t('components.pattern-tag.aria-label-remove-pattern', 'Remove pattern')}
+        aria-label={t('components.index-scene.pattern-tag.aria-label-remove-pattern', 'Remove pattern')}
         data-testid={testIds.exploreServiceDetails.buttonRemovePattern}
         variant="secondary"
         size="sm"

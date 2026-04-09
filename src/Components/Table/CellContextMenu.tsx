@@ -76,7 +76,7 @@ export const CellContextMenu = (props: Props) => {
               }}
             >
               <Icon
-                title={t('components.cell-context-menu.title-add-to-search', 'Add to search')}
+                title={t('components.table.cell-context-menu.title-add-to-search', 'Add to search')}
                 size={'md'}
                 name={'plus-circle'}
               />
@@ -103,7 +103,7 @@ export const CellContextMenu = (props: Props) => {
               }}
             >
               <Icon
-                title={t('components.cell-context-menu.title-exclude-from-search', 'Exclude from search')}
+                title={t('components.table.cell-context-menu.title-exclude-from-search', 'Exclude from search')}
                 size={'md'}
                 name={'minus-circle'}
               />
@@ -113,7 +113,7 @@ export const CellContextMenu = (props: Props) => {
 
         {props.showColumn && (
           <div
-            title={t('components.cell-context-menu.title-add-column', 'Add column')}
+            title={t('components.table.cell-context-menu.title-add-column', 'Add column')}
             role="button"
             tabIndex={0}
             className={styles.menuItem}

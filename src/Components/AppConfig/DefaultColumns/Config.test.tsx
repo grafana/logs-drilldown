@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -18,6 +18,10 @@ import { DataSourceWithBackend, getDataSourceSrv, locationService, LocationServi
 import Config from './Config';
 import { DefaultColumnsContextProvider } from './Context';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
+
+jest.mock('Components/FeatureFlagContext', () => ({
+  FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
+}));
 
 // Constants
 const DEBUG = false;

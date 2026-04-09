@@ -23,26 +23,26 @@ export function LogsPanelHeaderActions(props: {
         options={[
           {
             description: t(
-              'components.logs-panel-header-actions.description.show-results-in-logs-visualisation',
+              'components.table.logs-header-actions.description.show-results-in-logs-visualisation',
               'Show results in logs visualisation'
             ),
-            label: t('components.logs-panel-header-actions.label.logs', 'Logs'),
+            label: t('components.table.logs-header-actions.label.logs', 'Logs'),
             value: 'logs',
           },
           {
             description: t(
-              'components.logs-panel-header-actions.description.show-results-in-table-visualisation',
+              'components.table.logs-header-actions.description.show-results-in-table-visualisation',
               'Show results in table visualisation'
             ),
-            label: t('components.logs-panel-header-actions.label.table', 'Table'),
+            label: t('components.table.logs-header-actions.label.table', 'Table'),
             value: 'table',
           },
           {
             description: t(
-              'components.logs-panel-header-actions.description.show-results-in-json-visualisation',
+              'components.table.logs-header-actions.description.show-results-in-json-visualisation',
               'Show results in json visualisation'
             ),
-            label: t('components.logs-panel-header-actions.label.json', 'JSON'),
+            label: t('components.table.logs-header-actions.label.json', 'JSON'),
             value: 'json',
           },
         ]}

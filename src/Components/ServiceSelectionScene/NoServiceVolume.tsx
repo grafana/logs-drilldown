@@ -7,11 +7,11 @@ export const NoServiceVolume = (props: { labelName: string }) => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('components.logs.logs-drilldown.no-service-volume.title', 'No logs found in {{labelName}}.', {
+      message={t('components.service-selection-scene.no-service-volume.title', 'No logs found in {{labelName}}.', {
         labelName: props.labelName,
       })}
     >
-      {t('components.logs.logs-drilldown.no-service-volume.help', 'Please adjust time range or select another label.')}
+      {t('components.service-selection-scene.no-service-volume.help', 'Please adjust time range or select another label.')}
     </EmptyState>
   );
 };

@@ -82,8 +82,8 @@ export function LogsColumnSearch({
         name="arrow-from-right"
         tooltip={
           isTableSidebarCollapsed
-            ? t('components.logs-column-search.tooltip.expand-sidebar', 'Expand sidebar')
-            : t('components.logs-column-search.tooltip.collapse-sidebar', 'Collapse sidebar')
+            ? t('components.table.column-selection.logs-column-search.tooltip.expand-sidebar', 'Expand sidebar')
+            : t('components.table.column-selection.logs-column-search.tooltip.collapse-sidebar', 'Collapse sidebar')
         }
         size="sm"
       />
@@ -92,7 +92,7 @@ export function LogsColumnSearch({
           <Input
             value={searchValue}
             type={'text'}
-            placeholder={t('components.logs-column-search.placeholder-search-fields-by-name', 'Search fields by name')}
+            placeholder={t('components.table.column-selection.logs-column-search.placeholder-search-fields-by-name', 'Search fields by name')}
             onChange={onSearchInputChange}
           />
         </Field>

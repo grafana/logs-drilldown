@@ -27,7 +27,7 @@ export function AddRecord() {
         );
       }}
     >
-      <Trans i18nKey="components.add-record.add">Add</Trans>
+      <Trans i18nKey="components.app-config.default-columns.add-record.add">Add</Trans>
     </Button>
   );
 }

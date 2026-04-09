@@ -12,10 +12,19 @@ import { DefaultLabels } from './DefaultLabels';
 import { Footer } from './Footer';
 import { isDefaultLabelsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
+import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 const Config = () => {
+  return (
+    <FeatureFlagContext>
+      <ServiceSelectionConfig />
+    </FeatureFlagContext>
+  );
+};
+
+const ServiceSelectionConfig = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
@@ -28,9 +37,9 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={t('components.config.text-beta', 'Beta')} />
+        <Badge color={'blue'} text={t('components.app-config.service-selection.config.text-beta', 'Beta')} />
         <span>
-          <Trans i18nKey="components.config.service-selection-description">
+          <Trans i18nKey="components.app-config.service-selection.config.service-selection-description">
             Configure which labels and label values appear by default on the Logs Drilldown landing page.
           </Trans>
         </span>

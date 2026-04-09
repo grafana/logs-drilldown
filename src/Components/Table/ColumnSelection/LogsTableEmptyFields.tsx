@@ -21,7 +21,7 @@ export function LogsTableEmptyFields() {
   const styles = getStyles(theme);
   return (
     <div className={styles.empty}>
-      <Trans i18nKey="components.logs-table-empty-fields.no-fields">No fields</Trans>
+      <Trans i18nKey="components.table.column-selection.logs-table-empty-fields.no-fields">No fields</Trans>
     </div>
   );
 }

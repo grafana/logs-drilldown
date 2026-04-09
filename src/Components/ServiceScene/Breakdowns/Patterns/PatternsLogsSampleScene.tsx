@@ -165,7 +165,7 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
 
       this.setWarningMessage(
         <Alert severity={'error'} title={''}>
-          <Trans i18nKey="components.patterns-logs-sample-scene.this-pattern-returns-no-logs">
+          <Trans i18nKey="components.service-scene.breakdowns.patterns.patterns-logs-sample-scene.this-pattern-returns-no-logs">
             This pattern returns no logs.
           </Trans>
         </Alert>
@@ -239,11 +239,11 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
           body: new SceneReactObject({
             reactNode: (
               <Alert severity={'warning'} title={''}>
-                <Trans i18nKey="components.patterns-logs-sample-scene.no-match-filters">
+                <Trans i18nKey="components.service-scene.breakdowns.patterns.patterns-logs-sample-scene.no-match-filters">
                   The logs returned by this pattern do not match the current query filters.
                 </Trans>
                 <Button className={emptyStateStyles.button} onClick={() => this.clearFilters()}>
-                  {t('components.patterns-logs-sample-scene.clear-filters', 'Clear filters')}
+                  {t('components.service-scene.breakdowns.patterns.patterns-logs-sample-scene.clear-filters', 'Clear filters')}
                 </Button>
               </Alert>
             ),
