@@ -37,7 +37,7 @@ describe('EmptyLayoutScene', () => {
 
       render(<scene.Component model={scene} />);
 
-      expect(screen.getByText(new RegExp(`We did not find any ${type} for the given timerange`))).toBeInTheDocument();
+      expect(screen.getByText(new RegExp(`We did not find any ${type} for the given time range`))).toBeInTheDocument();
     });
 
     test('does not show assistant button when assistant is not available', () => {

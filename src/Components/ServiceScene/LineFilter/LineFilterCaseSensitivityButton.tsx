@@ -31,6 +31,7 @@ export const LineFilterCaseSensitivityButton = (props: Props) => {
         aria-label={description}
       >
         <svg fill={fill} width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- "Aa" is iconographic, not translatable text */}
           <text fontSize="13" width="16" height="16" x="50%" y="50%" dominantBaseline="central" textAnchor="middle">
             Aa
           </text>

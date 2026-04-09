@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -31,7 +32,7 @@ export function DeleteRecord({ recordIndex }: Props) {
   return (
     <div className={styles.close}>
       <IconButton
-        tooltip={'Delete record'}
+        tooltip={t('components.app-config.default-columns.delete-record.tooltip-delete-record', 'Delete record')}
         size={'xl'}
         name={'times'}
         aria-labelledby={'Delete record'}

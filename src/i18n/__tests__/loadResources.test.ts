@@ -1,43 +1,25 @@
 import { loadResources } from '../loadResources';
 
 describe('loadResources', () => {
-  describe('successful resource loading', () => {
-    it('should load en-US resources when language is en-US', async () => {
+  describe('default language short-circuit', () => {
+    it('should return an empty object when language is en-US', async () => {
       const result = await loadResources('en-US');
 
-      expect(result).toMatchObject({
-        logs: {
-          'log-line-details': {
-            'copy-to-clipboard': 'Copy to clipboard',
-          },
-        },
-      });
+      expect(result).toEqual({});
     });
 
-    it('should load en-US resources when language is empty string', async () => {
+    it('should return an empty object when language is empty string', async () => {
       const result = await loadResources('');
 
-      expect(result).toMatchObject({
-        logs: {
-          'log-line-details': {
-            'copy-to-clipboard': 'Copy to clipboard',
-          },
-        },
-      });
+      expect(result).toEqual({});
     });
   });
 
   describe('fallback behavior', () => {
-    it('should fallback to en-US when requested language is not found', async () => {
+    it('should return an empty object when requested language is not supported', async () => {
       const result = await loadResources('xx-XX');
 
-      expect(result).toMatchObject({
-        logs: {
-          'log-line-details': {
-            'copy-to-clipboard': 'Copy to clipboard',
-          },
-        },
-      });
+      expect(result).toEqual({});
     });
   });
 });

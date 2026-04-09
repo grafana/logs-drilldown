@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
+import { Trans, t } from '@grafana/i18n';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -65,7 +66,12 @@ import { CreateAlertModal } from './CreateAlertModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import { AddToDashboardData, AddToDashboardEvent, CreateAlertData, CreateAlertEvent } from 'Components/Panels/PanelMenu';
+import {
+  AddToDashboardData,
+  AddToDashboardEvent,
+  CreateAlertData,
+  CreateAlertEvent,
+} from 'Components/Panels/PanelMenu';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
@@ -966,15 +972,27 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (!status.isValid && !status.newPrimaryLabel) {
       return (
         <Alert
-          title={status.reason === LabelFiltersInvalidReason.Empty ? 'No labels selected' : 'Invalid labels selected'}
+          title={
+            status.reason === LabelFiltersInvalidReason.Empty
+              ? t('components.service-scene.alert.no-labels-selected', 'No labels selected')
+              : t('components.service-scene.alert.invalid-labels-selected', 'Invalid labels selected')
+          }
           severity="info"
         >
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
             {status.reason === LabelFiltersInvalidReason.PrimaryLabelRemoved && (
-              <p>You need at least one label with inclusive matching.</p>
+              <p>
+                <Trans i18nKey="components.service-scene.least-label-inclusive-matching">
+                  You need at least one label with inclusive matching.
+                </Trans>
+              </p>
             )}
             {status.reason === LabelFiltersInvalidReason.Empty && (
-              <p>Please select at least one label to see the logs breakdown.</p>
+              <p>
+                <Trans i18nKey="components.service-scene.alert.select-label">
+                  Please select at least one label to see the logs breakdown.
+                </Trans>
+              </p>
             )}
             <ResetFiltersButton indexScene={indexScene} />
           </div>
@@ -992,7 +1010,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       );
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('components.service-scene.text-loading', 'Loading...')} />;
   };
 }
 

@@ -24,7 +24,7 @@ export const AddToDashboardModal = ({ data, onClose }: { data: AddToDashboardDat
 
   return (
     <Modal
-      title={t('logs.logs-drilldown.add-to-dashboard.title', 'Add to Dashboard')}
+      title={t('components.service-scene.add-to-dashboard-modal.title', 'Add to Dashboard')}
       isOpen={true}
       onDismiss={onClose}
     >

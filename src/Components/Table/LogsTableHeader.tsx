@@ -3,6 +3,7 @@ import React, { PropsWithChildren, useRef } from 'react';
 import { css } from '@emotion/css';
 
 import { Field, GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { IconButton, Popover, useTheme2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
@@ -99,10 +100,10 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
         <span className={styles.defaultContentWrapper}>{props.defaultContent}</span>
         {columnWidthMap && setColumnWidthMap && columnWidthMap?.[props.field.name] !== undefined && (
           <IconButton
-            tooltip={'Reset column width'}
+            tooltip={t('components.table.logs-table-header.tooltip-reset-column-width', 'Reset column width')}
             tooltipPlacement={'top'}
             className={styles.clearButton}
-            aria-label={'Reset column width'}
+            aria-label={t('components.table.logs-table-header.aria-label-reset-column-width', 'Reset column width')}
             name={'x'}
             onClick={() => {
               const { [props.field.name]: omit, ...map } = { ...columnWidthMap };
@@ -119,8 +120,8 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
             {bodyState === LogLineState.text ? (
               <IconButton
                 tooltipPlacement={'top'}
-                tooltip={'Show log labels'}
-                aria-label={'Show log labels'}
+                tooltip={t('components.table.logs-table-header.tooltip-show-log-labels', 'Show log labels')}
+                aria-label={t('components.table.logs-table-header.aria-label-show-log-labels', 'Show log labels')}
                 onClick={() => {
                   onLogTextToggle();
                   reportAppInteraction(
@@ -135,8 +136,8 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
             ) : (
               <IconButton
                 tooltipPlacement={'top'}
-                tooltip={'Show log text'}
-                aria-label={'Show log text'}
+                tooltip={t('components.table.logs-table-header.tooltip-show-log-text', 'Show log text')}
+                aria-label={t('components.table.logs-table-header.aria-label-show-log-text', 'Show log text')}
                 onClick={() => {
                   onLogTextToggle();
                   reportAppInteraction(
@@ -154,10 +155,14 @@ export const LogsTableHeader = (props: LogsTableHeaderProps) => {
       </span>
       <span className={styles.rightAlign}>
         <IconButton
-          tooltip={`Show ${props.field.name} menu`}
+          tooltip={t('components.table.logs-table-header.tooltip.show-menu', 'Show {{name}} menu', {
+            name: props.field.name,
+          })}
           tooltipPlacement={'top'}
           ref={referenceElement}
-          aria-label={`Show ${props.field.name} menu`}
+          aria-label={t('components.table.logs-table-header.aria-label.show-menu', 'Show {{name}} menu', {
+            name: props.field.name,
+          })}
           onClick={(e) => {
             setHeaderMenuActive(!isHeaderMenuActive);
             reportAppInteraction(

@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 import { rest } from 'lodash';
 
 import { AdHocVariableFilter, Field, GrafanaTheme2, Labels, LoadingState, SelectableValue } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
@@ -128,17 +129,38 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
 
     const sparseIncludeOption: SelectableValue<string> = {
       component: () => (
-        <SelectableValueComponent selected={includeSelected} text={`Include all log lines with ${labelName}`} />
+        <SelectableValueComponent
+          selected={includeSelected}
+          text={t(
+            'components.service-scene.breakdowns.select-label-action-scene.include-all-log-lines',
+            'Include all log lines with {{labelName}}',
+            { labelName }
+          )}
+        />
       ),
       value: INCLUDE_VALUE,
     };
     const sparseExcludeOption: SelectableValue<string> = {
-      component: () => <SelectableValueComponent selected={false} text={`Exclude all log lines with ${labelName}`} />,
+      component: () => (
+        <SelectableValueComponent
+          selected={false}
+          text={t(
+            'components.service-scene.breakdowns.select-label-action-scene.exclude-all-log-lines',
+            'Exclude all log lines with {{labelName}}',
+            { labelName }
+          )}
+        />
+      ),
       value: EXCLUDE_VALUE,
     };
     const numericFilterOption: SelectableValue<string> = {
       component: () => (
-        <SelectableValueComponent selected={numericSelected} text={`Add an expression, i.e. ${labelName} > 30`} />
+        <SelectableValueComponent
+          selected={numericSelected}
+          text={t('components.service-scene.breakdowns.select-label-action-scene.add-expression', 'Add an expression, i.e. {{labelName}} > 30', {
+            labelName,
+          })}
+        />
       ),
       value: NUMERIC_FILTER_VALUE,
     };
@@ -159,8 +181,8 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
     const defaultOption = isIncluded
       ? sparseIncludeOption
       : hasNumericFilters
-      ? numericFilterOption
-      : sparseIncludeOption;
+        ? numericFilterOption
+        : sparseIncludeOption;
 
     const panel = sceneGraph.getAncestor(model, VizPanel);
     const $panelData = sceneGraph.getData(panel);
@@ -176,7 +198,9 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
           <IconButton
             disabled={filterButtonDisabled}
             name={'filter'}
-            tooltip={`Clear ${labelName} filters`}
+            tooltip={t('components.service-scene.breakdowns.select-label-action-scene.clear-filters-tooltip', 'Clear {{labelName}} filters', {
+              labelName,
+            })}
             onClick={() => model.clearFilters(variableName)}
           />
         )}
@@ -209,14 +233,18 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
         {hideValueDrilldown !== true && (
           <LinkButton
             disabled={disabled}
-            title={`View breakdown of values for ${labelName}`}
+            title={t(
+              'components.service-scene.breakdowns.select-label-action-scene.view-breakdown-title',
+              'View breakdown of values for {{labelName}}',
+              { labelName }
+            )}
             variant="primary"
             fill="outline"
             size="sm"
-            aria-label={`Select ${labelName}`}
+            aria-label={t('components.service-scene.breakdowns.select-label-action-scene.select-label', 'Select {{labelName}}', { labelName })}
             href={model.getViewValuesLink()}
           >
-            Select
+            <Trans i18nKey="components.service-scene.breakdowns.select-label-action-scene.select">Select</Trans>
           </LinkButton>
         )}
 

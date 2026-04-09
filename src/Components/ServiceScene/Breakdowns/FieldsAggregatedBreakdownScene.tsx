@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { DataFrame, FieldConfig, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   PanelBuilders,
   QueryRunnerState,
@@ -260,8 +261,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }),
       ],
       options: [
-        { label: 'Grid', value: 'grid' },
-        { label: 'Rows', value: 'rows' },
+        { label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.grid', 'Grid'), value: 'grid' },
+        { label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.rows', 'Rows'), value: 'rows' },
       ],
     });
   }
@@ -484,6 +485,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     let headerActions = [];
     if (queryType === TimeSeriesQueryType.count) {
       body = PanelBuilders.timeseries()
+        .setOption('annotations', { multiLane: true })
         .setTitle(labelName)
         .setData(dataTransformer)
         .setMenu(
@@ -510,7 +512,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       if (panelType === TimeSeriesPanelType.histogram) {
         body = PanelBuilders.histogram();
       } else {
-        body = PanelBuilders.timeseries();
+        body = PanelBuilders.timeseries().setOption('annotations', { multiLane: true });
       }
       body
         .setTitle(labelName)
@@ -613,9 +615,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const { body } = model.useState();
     const styles = useStyles2(getPanelWrapperStyles);
     if (body) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+      return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.text-loading', 'Loading...')} />;
   };
 }

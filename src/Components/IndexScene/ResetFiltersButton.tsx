@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { t, Trans } from '@grafana/i18n';
 import { Button } from '@grafana/ui';
 
 import { IndexScene } from './IndexScene';
@@ -17,9 +18,12 @@ export function ResetFiltersButton({ indexScene }: Props) {
         icon="repeat"
         variant="secondary"
         onClick={() => indexScene.resetToReferenceQuery()}
-        tooltip="Reset label filters to initial values."
+        tooltip={t(
+          'components.index-scene.reset-filters-button.tooltip-reset-label-filters-to-initial-values',
+          'Reset label filters to initial values.'
+        )}
       >
-        Reset
+        <Trans i18nKey="components.index-scene.reset-filters-button.reset">Reset</Trans>
       </Button>
     )
   );

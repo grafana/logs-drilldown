@@ -194,8 +194,8 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
         }),
       ],
       options: [
-        { label: t('breakdowns.labels-aggregated.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('breakdowns.labels-aggregated.layout.rows', 'Rows'), value: 'rows' },
+        { label: t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }
@@ -214,6 +214,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
       children.push(
         new SceneCSSGridItem({
           body: PanelBuilders.timeseries()
+            .setOption('annotations', { multiLane: true })
             .setTitle(optionValue)
             .setData(queryRunner)
             .setHeaderActions([new SelectLabelActionScene({ fieldType: ValueSlugs.label, labelName: optionValue })])
@@ -260,9 +261,9 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
     const styles = useStyles2(getPanelWrapperStyles);
 
     if (body) {
-      return <span className={styles.panelWrapper}>{body && <body.Component model={body} />}</span>;
+      return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('breakdowns.labels-aggregated.loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.loading', 'Loading...')} />;
   };
 }

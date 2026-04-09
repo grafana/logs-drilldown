@@ -84,7 +84,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
 
     if (body) {
       return (
-        <span className={styles.panelWrapper}>
+        <div className={styles.panelWrapper}>
           <FieldsBreakdownScene.LabelsMenu model={fieldsBreakdownScene} />
           {hasError && errorBody && (
             <div>
@@ -97,11 +97,11 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
               {!(body instanceof LayoutSwitcher) && body && <body.Component model={body} />}
             </div>
           )}
-        </span>
+        </div>
       );
     }
 
-    return <LoadingPlaceholder text={t('breakdowns.field-values.loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.field-values-breakdown-scene.loading', 'Loading...')} />;
   };
 
   private getTagKey() {
@@ -458,8 +458,8 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         }),
       ],
       options: [
-        { label: t('breakdowns.field-values.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('breakdowns.field-values.layout.rows', 'Rows'), value: 'rows' },
+        { label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }

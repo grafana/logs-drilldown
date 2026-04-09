@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Checkbox, Icon, useTheme2 } from '@grafana/ui';
 
 import { FieldNameMeta } from '../TableTypes';
@@ -34,15 +35,17 @@ export function LogsTableNavField(props: {
               <div>{props.labels[props.label]?.percentOfLinesWithLabel}%</div>
               <div className={styles.valueCount}>
                 {props.labels[props.label]?.cardinality}{' '}
-                {props.labels[props.label]?.cardinality === 1 ? 'value' : 'values'}
+                {props.labels[props.label]?.cardinality === 1
+                  ? t('components.table.column-selection.logs-table-nav-field.cardinality.value', 'value')
+                  : t('components.table.column-selection.logs-table-nav-field.cardinality.values', 'values')}
               </div>
             </div>
           )}
         </div>
         {props.draggable && (
           <Icon
-            aria-label="Drag and drop icon"
-            title="Drag and drop to reorder"
+            aria-label={t('components.table.column-selection.logs-table-nav-field.aria-label-drag-and-drop-icon', 'Drag and drop icon')}
+            title={t('components.table.column-selection.logs-table-nav-field.title-drag-and-drop-to-reorder', 'Drag and drop to reorder')}
             name="draggabledots"
             size="lg"
             className={styles.dragIcon}

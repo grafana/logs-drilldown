@@ -7,6 +7,10 @@ export const loadResources: ResourceLoader = async (language: string) => {
   const locale = language || FALLBACK_LANGUAGE;
   const resolvedLocale = SUPPORTED_LANGUAGES.has(locale) ? locale : FALLBACK_LANGUAGE;
 
+  if (resolvedLocale === FALLBACK_LANGUAGE) {
+    return {};
+  }
+
   try {
     return await import(`../locales/${resolvedLocale}/grafana-lokiexplore-app.json`);
   } catch (error) {

@@ -1,14 +1,17 @@
 import React from 'react';
 
-import { GrotError } from 'Components/GrotError';
+import { t } from '@grafana/i18n';
+import { EmptyState } from '@grafana/ui';
 
 export const NoServiceVolume = (props: { labelName: string }) => {
   return (
-    <GrotError>
-      <p>
-        No logs found in <strong>{props.labelName}</strong>.<br />
-        Please adjust time range or select another label.
-      </p>
-    </GrotError>
+    <EmptyState
+      variant="not-found"
+      message={t('components.service-selection-scene.no-service-volume.title', 'No logs found in {{labelName}}.', {
+        labelName: props.labelName,
+      })}
+    >
+      {t('components.service-selection-scene.no-service-volume.help', 'Please adjust time range or select another label.')}
+    </EmptyState>
   );
 };

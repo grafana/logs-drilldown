@@ -9,10 +9,6 @@ import { InlineToast, useStyles2 } from '@grafana/ui';
 import ImgButton from '../UI/ImgButton';
 
 const SHOW_SUCCESS_DURATION = 2 * 1000;
-const COPY_TO_CLIPBOARD_TEXT = t('logs.log-line-details.copy-to-clipboard', 'Copy to clipboard');
-const COPY_LINK_TO_LINE_TEXT = t('logs.log-line-menu.copy-link', 'Copy link to log line');
-const COPY_LINK_ERROR_TEXT = t('logs.log-line-details.copy-to-clipboard-error', 'Error copying link!');
-const COPY_SUCCESS = t('clipboard-button.inline-toast.success', 'Copied');
 
 export default function CopyToClipboardButton({
   onClick,
@@ -23,6 +19,10 @@ export default function CopyToClipboardButton({
   stopPropagation?: boolean;
   type?: 'copy' | 'share-alt';
 }) {
+  const COPY_TO_CLIPBOARD_TEXT = t('components.buttons.copy-to-clipboard-button.copy-to-clipboard', 'Copy to clipboard');
+  const COPY_LINK_TO_LINE_TEXT = t('components.buttons.copy-to-clipboard-button.copy-link', 'Copy link to log line');
+  const COPY_LINK_ERROR_TEXT = t('components.buttons.copy-to-clipboard-button.copy-to-clipboard-error', 'Error copying link!');
+  const COPY_SUCCESS = t('components.buttons.copy-to-clipboard-button.copy-success', 'Copied');
   const defaultText = type === 'copy' ? COPY_TO_CLIPBOARD_TEXT : COPY_LINK_TO_LINE_TEXT;
   const [copied, setCopied] = React.useState(false);
   const [copiedText, setCopiedText] = React.useState(COPY_SUCCESS);

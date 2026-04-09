@@ -3,6 +3,7 @@ import React from 'react';
 import { css, cx } from '@emotion/css';
 
 import { DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   QueryRunnerState,
   SceneComponentProps,
@@ -302,19 +303,24 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
           <>
-            <span className={styles.toggleWrapper}>
+            <div className={styles.toggleWrapper}>
               {body.state.fieldsPanelsType !== 'text' && (
                 <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
               )}
               <FieldsAggregatedBreakdownScene.Selector model={body} />
-            </span>
+            </div>
             <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />
           </>
         )}
         {body instanceof FieldValuesBreakdownScene && <FieldValuesBreakdownScene.Selector model={body} />}
         {hideSearch !== true && body instanceof FieldValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 1 && (
-          <FieldSelector label="Field" options={options} value={String(value)} onChange={model.onFieldSelectorChange} />
+          <FieldSelector
+            label={t('components.service-scene.breakdowns.fields-breakdown-scene.label-field', 'Field')}
+            options={options}
+            value={String(value)}
+            onChange={model.onFieldSelectorChange}
+          />
         )}
       </div>
     );

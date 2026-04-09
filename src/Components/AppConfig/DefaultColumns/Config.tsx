@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
 
 import { DefaultColumnsContextProvider } from './Context';
@@ -11,10 +12,19 @@ import { DefaultColumns } from './DefaultColumns';
 import { Footer } from './Footer';
 import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
+import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 const Config = () => {
+  return (
+    <FeatureFlagContext>
+      <DefaultColumnsConfig />
+    </FeatureFlagContext>
+  );
+};
+
+const DefaultColumnsConfig = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {
@@ -27,9 +37,11 @@ const Config = () => {
   return (
     <main className={styles.main}>
       <div className={styles.introText}>
-        <Badge color={'blue'} text={'Beta'} />
+        <Badge color={'blue'} text={t('components.app-config.default-columns.config.text-beta', 'Beta')} />
         <span>
-          Configure the fields to show by default. These can replace the full log line or be displayed next to it.
+          <Trans i18nKey="components.app-config.default-columns.config.default-columns-description">
+            Configure the fields to show by default. These can replace the full log line or be displayed next to it.
+          </Trans>
         </span>
       </div>
 

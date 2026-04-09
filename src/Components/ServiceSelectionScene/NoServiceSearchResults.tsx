@@ -1,11 +1,13 @@
 import React from 'react';
 
-import { GrotError } from 'Components/GrotError';
+import { t } from '@grafana/i18n';
+import { EmptyState } from '@grafana/ui';
 
 export const NoServiceSearchResults = () => {
   return (
-    <GrotError>
-      <p>No service matched your search.</p>
-    </GrotError>
+    <EmptyState
+      variant="not-found"
+      message={t('components.service-selection-scene.no-service-search-results.title', 'No service matched your search.')}
+    />
   );
 };

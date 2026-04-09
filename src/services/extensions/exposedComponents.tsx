@@ -41,7 +41,9 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
     <Suspense
       fallback={
         <LinkButton variant="secondary" disabled>
-          Open in Logs Drilldown
+          <Trans i18nKey="services.suspended-open-in-logs-drilldown-button.open-in-logs-drilldown">
+            Open in Logs Drilldown
+          </Trans>
         </LinkButton>
       }
     >

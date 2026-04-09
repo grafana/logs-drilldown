@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { ConfigOverrideRule, FieldColor, LoadingState } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
   PanelBuilders,
@@ -220,6 +221,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
     const timeSeries = PanelBuilders.timeseries()
       .setData(this.getTimeseriesDataNode(patternFrames))
+      .setOption('annotations', { multiLane: true })
       .setOption('legend', {
         asTable: true,
         displayMode: LegendDisplayMode.Table,
@@ -239,7 +241,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: 'Include',
+          title: t('components.service-scene.breakdowns.patterns.patterns-frame-scene.time-series.title.include', 'Include'),
           url: '#',
         },
         {
@@ -251,7 +253,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: 'Exclude',
+          title: t('components.service-scene.breakdowns.patterns.patterns-frame-scene.time-series.title.exclude', 'Exclude'),
           url: '#',
         },
       ])

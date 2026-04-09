@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { IconButton, Pagination, Select, useStyles2 } from '@grafana/ui';
 
@@ -29,7 +30,7 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
     return (
       <span className={styles.searchPageCountWrap}>
         <span className={styles.searchFieldPlaceholderText}>
-          Showing{' '}
+          {t('components.service-selection-scene.service-selection-pagination-scene.showing', 'Showing')}{' '}
           <Select
             className={styles.select}
             onChange={(value) => {
@@ -43,12 +44,16 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
             options={options}
             value={countPerPage.toString()}
           />{' '}
-          of {totalCount}{' '}
+          {t('components.service-selection-scene.service-selection-pagination-scene.of-total', 'of {{totalCount}}', { totalCount })}{' '}
           <IconButton
             className={styles.icon}
-            aria-label="Count info"
+            aria-label={t('components.service-selection-scene.service-selection-pagination-scene.aria-label-count-info', 'Count info')}
             name={'info-circle'}
-            tooltip={`${totalCount} labels have values for the selected time range. Total label count may differ`}
+            tooltip={t(
+              'components.service-selection-scene.service-selection-pagination-scene.tooltip.count-info',
+              '{{totalCount}} labels have values for the selected time range. Total label count may differ',
+              { totalCount }
+            )}
           />
         </span>
       </span>

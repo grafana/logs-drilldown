@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2, LogLabelStatsModel } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { useStyles2 } from '@grafana/ui';
 
 //Components
@@ -79,7 +80,11 @@ export const PatternFieldLabelStats = (props: PatternFieldLabelStatsProps) => {
   return (
     <div className={style.logsStats}>
       <div className={style.logsStatsHeader}>
-        <div className={style.logsStatsTitle}>From a sample of {total} rows found</div>
+        <div className={style.logsStatsTitle}>
+          <Trans i18nKey="components.service-scene.breakdowns.patterns.pattern-field-label-stats.sample-rows" values={{ total }}>
+            From a sample of {'{{total}}'} rows found
+          </Trans>
+        </div>
       </div>
       <div className={style.logsStatsBody}>
         {combinedRows.map((stat) => (

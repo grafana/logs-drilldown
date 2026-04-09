@@ -3,6 +3,7 @@ import React, { useMemo, useRef } from 'react';
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2, LoadingState, SelectableValue } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 import { Icon, Popover, PopoverController, Tab, TabsBar, Tooltip, useStyles2 } from '@grafana/ui';
 
@@ -91,7 +92,9 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
                   ? (props) => {
                       return (
                         <>
-                          <Tooltip content={'Remove tab'}>
+                          <Tooltip
+                            content={t('components.service-selection-scene.service-selection-tabs-scene.tab.content-remove-tab', 'Remove tab')}
+                          >
                             <Icon
                               onKeyDownCapture={(e) => {
                                 if (e.key === 'Enter') {
@@ -125,12 +128,22 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
             return tab;
           }
         })}
-        {data?.state === LoadingState.Loading && <Tab label={'Loading tabs'} icon={'spinner'} />}
+        {data?.state === LoadingState.Loading && (
+          <Tab
+            label={t('components.service-selection-scene.service-selection-tabs-scene.label-loading-tabs', 'Loading tabs')}
+            icon={'spinner'}
+          />
+        )}
 
         {/* Add more tabs tab */}
         {data?.state === LoadingState.Done && (
           <span className={styles.addTab}>
-            <Tab onChangeTab={model.toggleShowPopover} label={'Add label'} ref={popoverRef} icon={'plus-circle'} />
+            <Tab
+              onChangeTab={model.toggleShowPopover}
+              label={t('components.service-selection-scene.service-selection-tabs-scene.label-add-label', 'Add label')}
+              ref={popoverRef}
+              icon={'plus-circle'}
+            />
           </span>
         )}
 

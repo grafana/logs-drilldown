@@ -136,14 +136,13 @@ export default defineConfig([
     },
     rules: {
       '@grafana/i18n/no-untranslated-strings': [
-        'warn',
+        'error',
         {
           basePaths: ['src'],
-          namespace: 'grafana-lokiexplore-app',
           calleesToIgnore: ['^css$', 'use[A-Z].*', '^get.*Styles$'],
         },
       ],
-      '@grafana/i18n/no-translation-top-level': 'warn',
+      '@grafana/i18n/no-translation-top-level': 'error',
     },
   },
 ]);

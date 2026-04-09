@@ -1,6 +1,7 @@
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import { LogRowModel } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { IconButton } from '@grafana/ui';
 
 interface Props {
@@ -34,8 +35,16 @@ export const CopyLinkButton = ({ onClick }: Props) => {
 
   return (
     <IconButton
-      aria-label={copied ? 'Copied' : 'Copy link to log line'}
-      tooltip={copied ? 'Copied' : 'Copy link to log line'}
+      aria-label={
+        copied
+          ? t('components.service-scene.copy-link-button.aria-label.copied', 'Copied')
+          : t('components.service-scene.copy-link-button.aria-label.copy-link', 'Copy link to log line')
+      }
+      tooltip={
+        copied
+          ? t('components.service-scene.copy-link-button.tooltip.copied', 'Copied')
+          : t('components.service-scene.copy-link-button.tooltip.copy-link', 'Copy link to log line')
+      }
       tooltipPlacement="top"
       variant={copied ? 'primary' : 'secondary'}
       size="md"

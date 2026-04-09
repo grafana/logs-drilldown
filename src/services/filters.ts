@@ -1,5 +1,6 @@
 import { isNumber } from 'lodash';
 
+import { t } from '@grafana/i18n';
 import { SceneObject, VariableValueOption } from '@grafana/scenes';
 
 import { DetectedLabel, getJsonPathArraySyntax, isLogLineField } from './fields';
@@ -44,7 +45,7 @@ export function getLabelOptions(labels: string[]) {
     value: String(label),
   }));
 
-  return [{ label: 'All', value: ALL_VARIABLE_VALUE }, ...labelOptions];
+  return [{ label: t('services.get-label-options.label.all', 'All'), value: ALL_VARIABLE_VALUE }, ...labelOptions];
 }
 
 export const LABELS_TO_REMOVE = ['__aggregated_metric__', '__stream_shard__'];
@@ -55,7 +56,7 @@ export function getFieldOptions(labels: string[]) {
     value: String(label),
   }));
 
-  return [{ label: 'All', value: ALL_VARIABLE_VALUE }, ...labelOptions];
+  return [{ label: t('services.get-field-options.label.all', 'All'), value: ALL_VARIABLE_VALUE }, ...labelOptions];
 }
 
 // Since "meta" is not saved in the URL state, it's ephemeral and can only be used for wip keys, but we can differentiate fields from metadata if the value is not encoded (and therefore different then the label)

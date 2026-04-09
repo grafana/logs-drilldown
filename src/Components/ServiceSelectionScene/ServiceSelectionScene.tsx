@@ -11,6 +11,7 @@ import {
   GrafanaTheme2,
   LoadingState,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -148,7 +149,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           // Service search variable
           new CustomConstantVariable({
             hide: VariableHide.hideVariable,
-            label: 'Service',
+            label: t('components.service-selection-scene.label.service', 'Service'),
             name: VAR_PRIMARY_LABEL_SEARCH,
             skipUrlSync: true,
             value: '.+',
@@ -481,6 +482,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       headerActions.push(new SelectServiceButton({ labelName: primaryLabelName, labelValue: primaryLabelValue }));
     }
     const panel = PanelBuilders.timeseries()
+      .setOption('annotations', { multiLane: true })
       // If service was previously selected, we show it in the title
       .setTitle(primaryLabelValue)
       .setData(

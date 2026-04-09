@@ -7,6 +7,7 @@ import {
 } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { isAssistantAvailable, providePageContext } from '@grafana/assistant';
 import { AdHocVariableFilter, AppEvents, AppPluginMeta, LoadingState, rangeUtil, urlUtil } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { getAppEvents, locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -52,7 +53,7 @@ import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
-import { filterInvalidTimeOptions, quickOptions } from '../../services/timePicker';
+import { filterInvalidTimeOptions, getQuickOptions } from '../../services/timePicker';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -210,7 +211,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       new SceneTimePicker({
         hidePicker: state.hideTimePicker,
         key: CONTROLS_VARS_TIMEPICKER,
-        quickRanges: filterInvalidTimeOptions(quickOptions),
+        quickRanges: filterInvalidTimeOptions(getQuickOptions()),
       }),
     ];
 
@@ -222,7 +223,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       );
     }
 
-    if (getDrilldownSlug() === 'explore' && getFeatureFlag('exploreLogsAggregatedMetrics')) {
+    if (
+      getDrilldownSlug() === 'explore' &&
+      (getFeatureFlag('exploreLogsAggregatedMetrics') || getFeatureFlag('drilldown.logs.kgAnnotationsInLokiExplore'))
+    ) {
       controls.push(
         new ToolbarScene({
           isOpen: false,
@@ -263,7 +267,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       return <body.Component model={body} />;
     }
 
-    return <LoadingPlaceholder text={'Loading...'} />;
+    return <LoadingPlaceholder text={t('components.index-scene.text-loading', 'Loading...')} />;
   };
 
   public onActivate() {
@@ -294,7 +298,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         if (configChanged) {
           const timePicker = sceneGraph.findByKeyAndType(this, CONTROLS_VARS_TIMEPICKER, SceneTimePicker);
           timePicker.setState({
-            quickRanges: filterInvalidTimeOptions(quickOptions, lokiConfig),
+            quickRanges: filterInvalidTimeOptions(getQuickOptions(), lokiConfig),
           });
         }
       })
@@ -833,7 +837,7 @@ function getVariableSet(
     expressionBuilder: renderLogQLLabelFilters,
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
-    label: 'Labels',
+    label: t('components.index-scene.get-variable-set.label-variable.label.labels', 'Labels'),
     layout: 'combobox',
     name: VAR_LABELS,
     onAddCustomValue: onAddCustomAdHocValue,
@@ -850,7 +854,7 @@ function getVariableSet(
     applyMode: 'manual',
     expressionBuilder: renderLogQLFieldFilters,
     hide: VariableHide.hideVariable,
-    label: 'Detected fields',
+    label: t('components.index-scene.get-variable-set.fields-variable.label.detected-fields', 'Detected fields'),
     layout: 'combobox',
 
     name: VAR_FIELDS,
@@ -866,7 +870,7 @@ function getVariableSet(
     applyMode: 'manual',
     expressionBuilder: (filters: AdHocFilterWithLabels[]) => renderLogQLMetadataFilters(filters),
     hide: VariableHide.hideVariable,
-    label: 'Metadata',
+    label: t('components.index-scene.get-variable-set.metadata-variable.label.metadata', 'Metadata'),
     layout: 'combobox',
     name: VAR_METADATA,
     filters: initialMetadataFilters ?? [],
@@ -886,7 +890,7 @@ function getVariableSet(
     allowCustomValue: true,
     applyMode: 'manual',
     hide: VariableHide.hideVariable,
-    label: 'Fields',
+    label: t('components.index-scene.get-variable-set.fields-and-metadata-variable.label.fields', 'Fields'),
     layout: 'combobox',
     name: VAR_FIELDS_AND_METADATA,
     onAddCustomValue: onAddCustomFieldValue,
@@ -898,7 +902,7 @@ function getVariableSet(
     applyMode: 'manual',
     expressionBuilder: renderLevelsFilter,
     hide: VariableHide.hideVariable,
-    label: 'Error levels',
+    label: t('components.index-scene.get-variable-set.levels-variable.label.error-levels', 'Error levels'),
     layout: 'vertical',
     name: VAR_LEVELS,
     supportsMultiValueOperators: true,
@@ -924,7 +928,7 @@ function getVariableSet(
 
   const dsVariable = new DataSourceVariable({
     hide: embedded ? VariableHide.hideVariable : VariableHide.dontHide,
-    label: 'Data source',
+    label: t('components.index-scene.get-variable-set.ds-variable.label.data-source', 'Data source'),
     name: VAR_DATASOURCE,
     pluginId: 'loki',
     value: initialDatasourceUid,

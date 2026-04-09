@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { AdHocVariableFilter, DataFrame, GrafanaTheme2, LoadingState } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import {
   QueryRunnerState,
   SceneComponentProps,
@@ -302,7 +303,12 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
         {body instanceof LabelsAggregatedBreakdownScene && <LabelsAggregatedBreakdownScene.Selector model={body} />}
         {body instanceof LabelValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 0 && (
-          <FieldSelector label="Label" options={options} value={String(value)} onChange={model.onChange} />
+          <FieldSelector
+            label={t('components.service-scene.breakdowns.label-breakdown-scene.label-label', 'Label')}
+            options={options}
+            value={String(value)}
+            onChange={model.onChange}
+          />
         )}
       </div>
     );
@@ -334,7 +340,9 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
         <StatusWrapper {...{ blockingMessage, isLoading: loading }}>
           {error && (
             <Alert title="" severity="warning">
-              The labels are not available at this moment. Try using a different time range or check again later.
+              <Trans i18nKey="components.service-scene.breakdowns.label-breakdown-scene.labels-not-available">
+                The labels are not available at this moment. Try using a different time range or check again later.
+              </Trans>
             </Alert>
           )}
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { useTheme2 } from '@grafana/ui';
 
 import { FieldNameMeta } from '../TableTypes';
@@ -70,7 +71,11 @@ export const LogsTableAvailableFields = (props: {
           <div
             key={labelName}
             className={styles.wrap}
-            title={`${labelName} appears in ${labels[labelName]?.percentOfLinesWithLabel}% of log lines`}
+            title={t(
+              'components.table.column-selection.logs-table-available-fields.field.title',
+              '{{labelName}} appears in {{percent}}% of log lines',
+              { labelName, percent: labels[labelName]?.percentOfLinesWithLabel }
+            )}
           >
             <LogsTableNavField
               showCount={true}

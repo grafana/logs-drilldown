@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { AbstractLabelOperator } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { useReturnToPrevious } from '@grafana/runtime';
 import { LinkButton } from '@grafana/ui';
 
@@ -92,7 +93,7 @@ export default function OpenInLogsDrilldownButton({
         setReturnToPrevious(returnToPreviousSource || 'previous');
       }}
     >
-      Open in Logs Drilldown
+      <Trans i18nKey="components.open-in-logs-drilldown-button.open-in-logs-drilldown">Open in Logs Drilldown</Trans>
     </LinkButton>
   );
 }

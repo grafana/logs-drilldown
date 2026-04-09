@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Trans } from '@grafana/i18n';
 import { Button } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
@@ -26,7 +27,7 @@ export function AddRecord() {
         );
       }}
     >
-      Add
+      <Trans i18nKey="components.app-config.default-columns.add-record.add">Add</Trans>
     </Button>
   );
 }

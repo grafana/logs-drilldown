@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { urlUtil } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, sceneUtils } from '@grafana/scenes';
 import { LinkButton } from '@grafana/ui';
 
@@ -66,7 +67,7 @@ export class EmbeddedLinkScene extends SceneObjectBase {
         variant="secondary"
         icon="arrow-right"
       >
-        Logs Drilldown
+        <Trans i18nKey="components.embedded-logs-exploration.embedded-link-scene.logs-drilldown">Logs Drilldown</Trans>
       </LinkButton>
     );
   };

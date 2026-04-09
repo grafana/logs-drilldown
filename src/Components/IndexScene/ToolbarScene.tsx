@@ -3,13 +3,16 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Dropdown, Switch, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { t, Trans } from '@grafana/i18n';
+import { SceneComponentProps, SceneObjectBase, SceneObjectState, sceneGraph } from '@grafana/scenes';
+import { Dropdown, Icon, Switch, ToolbarButton, Tooltip, useStyles2 } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { KG_INSIGHTS_DESCRIPTION } from '../../services/KgAnnotationToggle';
 import { testIds } from '../../services/testIds';
 import { AGGREGATED_METRIC_START_DATE } from '../ServiceSelectionScene/ServiceSelectionScene';
+import { IndexScene } from './IndexScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 const AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY = `${pluginJson.id}.serviceSelection.aggregatedMetrics`;
 
@@ -73,6 +76,11 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
     const { isOpen, options } = model.useState();
     const styles = useStyles2(getStyles);
 
+    const indexScene = sceneGraph.getAncestor(model, IndexScene);
+    const { kgAnnotationToggle } = indexScene.useState();
+    const kgToggleState = kgAnnotationToggle?.useState();
+    const exploreLogsAggregatedMetrics = getFeatureFlag('exploreLogsAggregatedMetrics');
+
     const renderPopover = () => {
       return (
         // This is already keyboard accessible, and removing the onClick stopPropagation will break click interactions. Telling eslint to sit down.
@@ -81,46 +89,81 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
           className={styles.popover}
           role="dialog"
           aria-modal="true"
-          aria-label="Query options"
+          aria-label={t('components.index-scene.toolbar-scene.render-popover.aria-label-query-options', 'Query options')}
           onClick={(evt) => evt.stopPropagation()}
         >
-          <div className={styles.heading}>Query options</div>
+          <div className={styles.heading}>
+            <Trans i18nKey="components.index-scene.toolbar-scene.render-popover.query-options">Query options</Trans>
+          </div>
           <div className={styles.options}>
-            <div
-              title={
-                'Aggregated metrics will return service queries results much more quickly, but with lower resolution'
-              }
-            >
-              Aggregated metrics
-            </div>
-            <span
-              title={
-                options.aggregatedMetrics.disabled
-                  ? `Aggregated metrics can only be enabled for queries starting after ${AGGREGATED_METRIC_START_DATE.toLocaleString()}`
-                  : ''
-              }
-            >
-              <Switch
-                label={'Toggle aggregated metrics'}
-                data-testid={testIds.index.aggregatedMetricsToggle}
-                value={options.aggregatedMetrics.active}
-                disabled={options.aggregatedMetrics.disabled}
-                onChange={model.toggleAggregatedMetricsOverride}
-              />
-            </span>
+            {exploreLogsAggregatedMetrics && (
+              <>
+                <div>
+                  <Trans i18nKey="components.index-scene.toolbar-scene.aggregated-metrics">Aggregated metrics</Trans>{' '}
+                  <Tooltip
+                    content={
+                      options.aggregatedMetrics.disabled
+                        ? t(
+                            'components.index-scene.toolbar-scene.aggregated-metrics-disabled-tooltip',
+                            'Aggregated metrics can only be enabled for queries starting after {{date}}',
+                            { date: AGGREGATED_METRIC_START_DATE.toLocaleString() }
+                          )
+                        : t(
+                            'components.index-scene.toolbar-scene.aggregated-metrics-tooltip',
+                            'Aggregated metrics will return service queries results much more quickly, but with lower resolution'
+                          )
+                    }
+                  >
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </div>
+                <span>
+                  <Switch
+                    label={t(
+                      'components.index-scene.toolbar-scene.render-popover.label-toggle-aggregated-metrics',
+                      'Toggle aggregated metrics'
+                    )}
+                    data-testid={testIds.index.aggregatedMetricsToggle}
+                    value={options.aggregatedMetrics.active}
+                    disabled={options.aggregatedMetrics.disabled}
+                    onChange={model.toggleAggregatedMetricsOverride}
+                  />
+                </span>
+              </>
+            )}
+            {kgAnnotationToggle && (
+              <>
+                <div>
+                  <Trans i18nKey="components.index-scene.toolbar-scene.insights">Insights</Trans>{' '}
+                  <Tooltip content={KG_INSIGHTS_DESCRIPTION}>
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </div>
+                <span>
+                  <Switch
+                    label={t(
+                      'components.index-scene.toolbar-scene.render-popover.label-toggle-insights-annotations',
+                      'Toggle insights annotations'
+                    )}
+                    value={kgToggleState?.isEnabled ?? false}
+                    onChange={kgAnnotationToggle.toggleEnabled}
+                  />
+                </span>
+              </>
+            )}
           </div>
         </div>
       );
     };
 
-    if (options.aggregatedMetrics) {
+    if (options.aggregatedMetrics || kgAnnotationToggle) {
       return (
         <Dropdown overlay={renderPopover} placement="bottom" onVisibleChange={model.onToggleOpen}>
           <ToolbarButton
             icon="cog"
             variant="canvas"
             isOpen={isOpen}
-            aria-label="Aggregated metrics options"
+            aria-label={t('components.index-scene.toolbar-scene.aria-label-query-options', 'Query options')}
             data-testid={testIds.index.aggregatedMetricsMenu}
           />
         </Dropdown>

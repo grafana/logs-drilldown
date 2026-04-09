@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { BusEventBase, DataFrame, FieldReducerInfo, fieldReducers, ReducerID, SelectableValue } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { InlineField, Select } from '@grafana/ui';
 
@@ -24,7 +25,11 @@ export interface SortBySceneState extends SceneObjectState {
 }
 
 export class SortCriteriaChanged extends BusEventBase {
-  constructor(public target: 'fields' | 'labels', public sortBy: string, public direction: string) {
+  constructor(
+    public target: 'fields' | 'labels',
+    public sortBy: string,
+    public direction: string
+  ) {
     super();
   }
   public static type = 'sort-criteria-changed';
@@ -36,44 +41,62 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
       label: '',
       options: [
         {
-          description: 'Smart ordering of graphs based on the most significant spikes in the data',
-          label: 'Most relevant',
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.smart-ordering',
+            'Smart ordering of graphs based on the most significant spikes in the data'
+          ),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.most-relevant', 'Most relevant'),
           value: DEFAULT_SORT_BY,
         },
         {
-          description: 'Order by the amount of outlying values in the data',
-          label: 'Outlying values',
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.order-amount-outlying-values',
+            'Order by the amount of outlying values in the data'
+          ),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.outlying-values', 'Outlying values'),
           value: SORT_BY_OUTLIERS,
         },
         {
-          description: 'Sort graphs by deviation from the average value',
-          label: 'Widest spread',
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.graphs-deviation-average-value',
+            'Sort graphs by deviation from the average value'
+          ),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.widest-spread', 'Widest spread'),
           value: ReducerID.stdDev,
         },
         {
-          description: 'Alphabetical order',
-          label: 'Name',
+          description: t('components.service-scene.breakdowns.sort-by-scene.description.alphabetical-order', 'Alphabetical order'),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.name', 'Name'),
           value: 'alphabetical',
         },
         {
-          description: 'Sort graphs by total number of logs',
-          label: 'Count',
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.graphs-total-number',
+            'Sort graphs by total number of logs'
+          ),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.count', 'Count'),
           value: ReducerID.sum,
         },
         {
-          description: 'Sort graphs by the highest values (max)',
-          label: 'Highest spike',
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.graphs-highest-values',
+            'Sort graphs by the highest values (max)'
+          ),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.highest-spike', 'Highest spike'),
           value: ReducerID.max,
         },
         {
-          description: 'Sort graphs by the smallest values (min)',
-          label: 'Lowest dip',
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.graphs-smallest-values',
+            'Sort graphs by the smallest values (min)'
+          ),
+          label: t('components.service-scene.breakdowns.sort-by-scene.label.lowest-dip', 'Lowest dip'),
           value: ReducerID.min,
         },
       ],
     },
     {
-      label: 'Percentiles',
+      label: t('components.service-scene.breakdowns.sort-by-scene.label.percentiles', 'Percentiles'),
       options: [...fieldReducers.selectOptions([], filterReducerOptions).options],
     },
   ];
@@ -128,9 +151,12 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
     return (
       <>
         <InlineField
-          label="Sort by"
+          label={t('components.service-scene.breakdowns.sort-by-scene.label-sort-by', 'Sort by')}
           htmlFor="sort-by-criteria"
-          tooltip="Calculate a derived quantity from the values in your time series and sort by this criteria. Defaults to standard deviation."
+          tooltip={t(
+            'components.service-scene.breakdowns.sort-by-scene.tooltip-sort-by',
+            'Calculate a derived quantity from the values in your time series and sort by this criteria. Defaults to standard deviation.'
+          )}
         >
           <Select
             data-testid={testIds.breakdowns.common.sortByFunction}
@@ -138,7 +164,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
             width={20}
             isSearchable={true}
             options={defaultOptions}
-            placeholder={'Choose criteria'}
+            placeholder={t('components.service-scene.breakdowns.sort-by-scene.placeholder-choose-criteria', 'Choose criteria')}
             onChange={model.onCriteriaChange}
             inputId="sort-by-criteria"
           />
@@ -147,16 +173,16 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
           <Select
             data-testid={testIds.breakdowns.common.sortByDirection}
             onChange={model.onDirectionChange}
-            aria-label="Sort direction"
+            aria-label={t('components.service-scene.breakdowns.sort-by-scene.aria-label-sort-direction', 'Sort direction')}
             placeholder=""
             value={direction}
             options={[
               {
-                label: 'Asc',
+                label: t('components.service-scene.breakdowns.sort-by-scene.label.asc', 'Asc'),
                 value: 'asc',
               },
               {
-                label: 'Desc',
+                label: t('components.service-scene.breakdowns.sort-by-scene.label.desc', 'Desc'),
                 value: DEFAULT_SORT_DIRECTION,
               },
             ]}

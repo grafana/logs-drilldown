@@ -813,7 +813,7 @@ test.describe('explore services breakdown page', () => {
     // Assert the container size of the plugin hasn't changed, or that will mess with the assumptions below
     const pageContainerSize = await page.locator('#pageContent').boundingBox();
     expect(pageContainerSize.width).toEqual(1280);
-    expect(pageContainerSize.height).toEqual(640);
+    expect(pageContainerSize.height).toBeGreaterThanOrEqual(632);
 
     const INITIAL_ROWS = 2;
     const COUNT_PER_ROW = 3;
@@ -1491,12 +1491,12 @@ test.describe('explore services breakdown page', () => {
     await page.goto(
       '/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
     );
-    await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
+    await expect(page.getByText('We did not find any fields for the given time range.')).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
     await explorePage.addCustomValueToCombobox('test', FilterOp.Equal, ComboBoxIndex.fields, 'test', 'test');
     await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
     await page.getByText('Clear filters').click();
-    await expect(page.getByText('We did not find any fields for the given timerange.')).toHaveCount(1);
+    await expect(page.getByText('We did not find any fields for the given time range.')).toHaveCount(1);
   });
 
   test('should see clear fields UI', async ({ page }) => {

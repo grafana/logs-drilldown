@@ -228,7 +228,7 @@ export const Table = (props: Props) => {
       for (const [index, field] of frameWithOverrides.fields.entries()) {
         // If it's a string, then try to guess for a better type for numeric support in viz
         field.type =
-          field.type === FieldType.string ? guessLogsFieldTypeForField(field) ?? FieldType.string : field.type;
+          field.type === FieldType.string ? (guessLogsFieldTypeForField(field) ?? FieldType.string) : field.type;
 
         field.config = {
           ...field.config,

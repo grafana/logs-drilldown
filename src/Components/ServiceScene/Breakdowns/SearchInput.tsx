@@ -3,6 +3,7 @@ import React, { HTMLProps } from 'react';
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Icon, IconButton, Input, useStyles2 } from '@grafana/ui';
 
 interface Props extends Omit<HTMLProps<HTMLInputElement>, 'prefix' | 'width'> {
@@ -21,8 +22,8 @@ export const SearchInput = ({ onChange, onClear, placeholder, suffix, value, ...
         <span className={styles.suffixWrapper}>
           {onClear && value ? (
             <IconButton
-              aria-label={'Clear search'}
-              tooltip={'Clear search'}
+              aria-label={t('components.service-scene.breakdowns.search-input.aria-label-clear-search', 'Clear search')}
+              tooltip={t('components.service-scene.breakdowns.search-input.tooltip-clear-search', 'Clear search')}
               onClick={onClear}
               name="times"
               className={styles.clearIcon}

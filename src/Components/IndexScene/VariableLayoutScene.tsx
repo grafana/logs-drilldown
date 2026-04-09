@@ -73,7 +73,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns, embedded } = indexScene.useState();
+    const { controls, patterns, embedded, kgAnnotationToggle } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
@@ -113,8 +113,8 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       onClick={model.toggleCollapsedState}
                       tooltip={
                         collapsed
-                          ? t('logs.logs-drilldown-header.expand', 'Expand filters')
-                          : t('logs.logs-drilldown-header.collapse', 'Collapse filters')
+                          ? t('components.index-scene.variable-layout-scene.expand', 'Expand filters')
+                          : t('components.index-scene.variable-layout-scene.collapse', 'Collapse filters')
                       }
                     />
                   )}
@@ -140,7 +140,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             </div>
           )}
 
-          {/* 2nd row - Combined fields (fields + metadata) + Levels - custom renderer */}
+          {/* 2nd row - Combined fields (fields + metadata) + Levels + KG Insights toggle - custom renderer */}
           <div className={styles.controlsRowContainer}>
             {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
             {controls && (
@@ -154,6 +154,9 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                   })}
                 </div>
               </div>
+            )}
+            {kgAnnotationToggle && slug !== PageSlugs.explore && (
+              <kgAnnotationToggle.Component model={kgAnnotationToggle} />
             )}
           </div>
 
@@ -249,6 +252,7 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
         },
         gap: '16px',
 
+        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
         label: 'first-row-wrapper',
       },
     }),

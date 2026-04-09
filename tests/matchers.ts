@@ -36,8 +36,8 @@ function forceObservableCompletion(
           `${matcherHint('.toEmitValues')}
   
       Expected ${printReceived('Observable')} to be ${printExpected(
-            `completed within ${OBSERVABLE_TEST_TIMEOUT_IN_MS}ms`
-          )} but it did not.`,
+        `completed within ${OBSERVABLE_TEST_TIMEOUT_IN_MS}ms`
+      )} but it did not.`,
         pass: false,
       });
     })
