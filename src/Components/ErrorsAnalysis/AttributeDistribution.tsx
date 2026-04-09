@@ -473,7 +473,7 @@ export function AttributeDistribution({
                 {field} {operator} {value}
               </span>
               <button
-                aria-label={`Remove filter ${field} ${operator} ${value}`}
+                aria-label={t('errors-analysis.remove-filter-aria', 'Remove filter {{field}} {{operator}} {{value}}', { field, operator, value })}
                 className={styles.chipRemove}
                 onClick={() => handleToggleFilter(field, value, operator)}
               >
@@ -636,14 +636,14 @@ function AttributeSection({
               <span className={styles.percentage}>{`${item.percentage}%`}</span>
               <div className={styles.filterButtons}>
                 <button
-                  aria-label={`Include ${item.value}`}
+                  aria-label={t('errors-analysis.include-filter-aria', 'Include {{value}}', { value: item.value })}
                   className={cx(styles.filterButton, isIncluded && styles.filterButtonActive)}
                   onClick={() => onToggleFilter(item.value, '=')}
                 >
                   {t('errors-analysis.include-filter-button', '+')}
                 </button>
                 <button
-                  aria-label={`Exclude ${item.value}`}
+                  aria-label={t('errors-analysis.exclude-filter-aria', 'Exclude {{value}}', { value: item.value })}
                   className={cx(styles.filterButton, isExcluded && styles.filterButtonActive)}
                   onClick={() => onToggleFilter(item.value, '!=')}
                 >
