@@ -4,7 +4,6 @@ import importPlugin from 'eslint-plugin-import';
 import jsxa11y from 'eslint-plugin-jsx-a11y';
 import sortPlugin from 'eslint-plugin-sort';
 
-// eslint-disable-next-line import/no-unresolved -- package.json exports field not recognized by import plugin
 import grafanaI18nPlugin from '@grafana/i18n/eslint-plugin';
 
 import baseConfig from './.config/eslint.config.mjs';

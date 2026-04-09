@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Button, ClickOutsideWrapper, Field, FieldSet, Input, Label, Select, Stack, useStyles2 } from '@grafana/ui';
+import {
+  Button,
+  ClickOutsideWrapper,
+  Combobox,
+  ComboboxOption,
+  Field,
+  FieldSet,
+  Input,
+  Label,
+  Stack,
+  useStyles2,
+} from '@grafana/ui';
 
 import { FilterOp } from '../../../services/filterTypes';
 import { logger } from '../../../services/logger';
@@ -239,11 +250,15 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
 
     const selectLabelActionScene = sceneGraph.getAncestor(model, SelectLabelActionScene);
     const formDisabled = gt === undefined && lt === undefined;
+    // Combobox menus render in a Portal; mount them inside this node so ClickOutsideWrapper
+    // still contains the menu DOM and choosing an option does not close the popover.
+    const [comboboxMenuContainer, setComboboxMenuContainer] = useState<HTMLDivElement | null>(null);
+    const comboboxPortalProps = { portalContainer: comboboxMenuContainer ?? undefined };
 
     return (
       <ClickOutsideWrapper useCapture={true} onClick={() => selectLabelActionScene.togglePopover()}>
         <Stack direction="column" gap={0} role="tooltip">
-          <div className={popoverStyles.card.body}>
+          <div ref={setComboboxMenuContainer} className={popoverStyles.card.body}>
             <div className={popoverStyles.card.title}>
               {labelName} {subTitle}
             </div>
@@ -256,14 +271,15 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   horizontal={true}
                   className={cx(popoverStyles.card.field, popoverStyles.card.inclusiveField)}
                 >
-                  <Select<string>
-                    className={popoverStyles.card.inclusiveInput}
-                    menuShouldPortal={false}
-                    menuPosition={'absolute'}
+                  <Combobox<string>
+                    {...comboboxPortalProps}
                     value={gte !== undefined ? gte.toString() : 'false'}
                     options={[
                       {
-                        label: t('components.service-scene.breakdowns.numeric-filter-popover-scene.label.greater-than', 'Greater than'),
+                        label: t(
+                          'components.service-scene.breakdowns.numeric-filter-popover-scene.label.greater-than',
+                          'Greater than'
+                        ),
                         value: 'false',
                       },
                       {
@@ -275,6 +291,8 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       },
                     ]}
                     onChange={(value) => model.setState({ gte: value.value === 'true' })}
+                    width="auto"
+                    minWidth={17}
                   />
                 </Field>
                 <Field
@@ -304,21 +322,23 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       className={popoverStyles.card.field}
                       label={
                         <span className={popoverStyles.card.unitFieldLabel}>
-                          <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">Unit</Trans>
+                          <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">
+                            Unit
+                          </Trans>
                         </span>
                       }
                     >
-                      <Select
+                      <Combobox<DisplayDurationUnits | DisplayByteUnits>
+                        {...comboboxPortalProps}
                         onChange={(e) => {
                           model.setState({
                             gtu: e.value,
                           });
                         }}
-                        menuShouldPortal={false}
-                        menuPosition={'absolute'}
                         options={getUnitOptions(fieldType)}
-                        className={popoverStyles.card.selectInput}
                         value={gtu}
+                        width="auto"
+                        minWidth={8}
                       />
                     </Field>
                   </Label>
@@ -332,14 +352,15 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   horizontal={true}
                   className={cx(popoverStyles.card.field, popoverStyles.card.inclusiveField)}
                 >
-                  <Select<string>
-                    className={popoverStyles.card.inclusiveInput}
-                    menuShouldPortal={false}
-                    menuPosition={'absolute'}
+                  <Combobox<string>
+                    {...comboboxPortalProps}
                     value={lte !== undefined ? lte.toString() : 'false'}
                     options={[
                       {
-                        label: t('components.service-scene.breakdowns.numeric-filter-popover-scene.label.less-than', 'Less than'),
+                        label: t(
+                          'components.service-scene.breakdowns.numeric-filter-popover-scene.label.less-than',
+                          'Less than'
+                        ),
                         value: 'false',
                       },
                       {
@@ -351,6 +372,8 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       },
                     ]}
                     onChange={(value) => model.setState({ lte: value.value === 'true' })}
+                    width="auto"
+                    minWidth={17}
                   />
                 </Field>
                 <Field
@@ -376,21 +399,23 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                       className={popoverStyles.card.field}
                       label={
                         <span className={popoverStyles.card.unitFieldLabel}>
-                          <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">Unit</Trans>
+                          <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">
+                            Unit
+                          </Trans>
                         </span>
                       }
                     >
-                      <Select
+                      <Combobox<DisplayDurationUnits | DisplayByteUnits>
+                        {...comboboxPortalProps}
                         onChange={(e) => {
                           model.setState({
                             ltu: e.value,
                           });
                         }}
-                        menuShouldPortal={false}
-                        menuPosition={'absolute'}
                         options={getUnitOptions(fieldType)}
-                        className={popoverStyles.card.selectInput}
                         value={ltu}
+                        width="auto"
+                        minWidth={8}
                       />
                     </Field>
                   </Label>
@@ -415,7 +440,9 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
                   variant={'destructive'}
                   fill={'outline'}
                 >
-                  <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.remove">Remove</Trans>
+                  <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.remove">
+                    Remove
+                  </Trans>
                 </Button>
               )}
               <Button
@@ -498,13 +525,12 @@ export function extractValueFromString(
 
 function getUnitOptions(
   fieldType: 'bytes' | 'duration'
-): Array<SelectableValue<DisplayDurationUnits | DisplayByteUnits>> {
+): Array<ComboboxOption<DisplayDurationUnits | DisplayByteUnits>> {
   if (fieldType === 'duration') {
     const keys = Object.keys(DisplayDurationUnits) as Array<keyof typeof DisplayDurationUnits>;
     return keys.map((key) => {
       return {
         label: key,
-        text: key,
         value: DisplayDurationUnits[key],
       };
     });
@@ -515,7 +541,6 @@ function getUnitOptions(
     return keys.map((key) => {
       return {
         label: key,
-        text: key,
         value: DisplayByteUnits[key],
       };
     });

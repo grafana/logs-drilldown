@@ -4,7 +4,7 @@ import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Button, Field, Select, useStyles2 } from '@grafana/ui';
+import { Button, Combobox, Field, useStyles2 } from '@grafana/ui';
 
 import { testIds } from '../../../services/testIds';
 import { LineFilterProps } from '../../IndexScene/LineFilterVariable';
@@ -54,22 +54,24 @@ export function LineFilterEditor({
   return (
     <div className={styles.wrapper}>
       {!onSubmitLineFilter && (
-        <Select
-          prefix={null}
-          className={styles.select}
-          value={exclusive ? 'exclusive' : 'inclusive'}
-          options={[
-            {
-              label: t('components.service-scene.line-filter.line-filter-editor.label.exclude', 'Exclude'),
-              value: 'exclusive',
-            },
-            {
-              label: t('components.service-scene.line-filter.line-filter-editor.label.include', 'Include'),
-              value: 'inclusive',
-            },
-          ]}
-          onChange={() => setExclusive(!exclusive)}
-        />
+        <div className={styles.operatorComboboxWrap}>
+          <Combobox<string>
+            value={exclusive ? 'exclusive' : 'inclusive'}
+            options={[
+              {
+                label: t('components.service-scene.line-filter.line-filter-editor.label.exclude', 'Exclude'),
+                value: 'exclusive',
+              },
+              {
+                label: t('components.service-scene.line-filter.line-filter-editor.label.include', 'Include'),
+                value: 'inclusive',
+              },
+            ]}
+            onChange={(option) => setExclusive(option.value === 'exclusive')}
+            width="auto"
+            minWidth={12}
+          />
+        </div>
       )}
       <Field className={styles.field}>
         <LineFilterInput
@@ -91,7 +93,10 @@ export function LineFilterEditor({
             </span>
           }
           prefix={null}
-          placeholder={t('components.service-scene.line-filter.line-filter-editor.placeholder-filter-logs-by-string', 'Filter logs by string')}
+          placeholder={t(
+            'components.service-scene.line-filter.line-filter-editor.placeholder-filter-logs-by-string',
+            'Filter logs by string'
+          )}
           onClear={onClearLineFilter}
           onKeyUp={(e) => {
             handleEnter(e, lineFilter);
@@ -132,6 +137,18 @@ export function LineFilterEditor({
 }
 
 const getStyles = (theme: GrafanaTheme2, type: 'editor' | 'variable') => ({
+  /** Join Include/Exclude combobox flush with line filter input (square right edge, like legacy Select). */
+  operatorComboboxWrap: css({
+    '& div[data-testid="input-wrapper"]': {
+      borderBottomRightRadius: 0,
+      borderTopRightRadius: 0,
+    },
+    '& div[data-testid="input-wrapper"] input': {
+      borderBottomRightRadius: 0,
+      borderRight: 'none',
+      borderTopRightRadius: 0,
+    },
+  }),
   buttonWrap: css({
     display: 'flex',
     justifyContent: 'center',

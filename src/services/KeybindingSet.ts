@@ -23,7 +23,6 @@ export class KeybindingSet {
       (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
-        evt.returnValue = false;
         item.onTrigger();
       },
       'keydown'

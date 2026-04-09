@@ -302,6 +302,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 
   handleLogsError(data: PanelData) {
+    /* eslint-disable-next-line @typescript-eslint/no-deprecated */
     const error = data.errors?.length ? data.errors[0] : data.error;
     const errorResponse = error?.message;
     if (errorResponse) {

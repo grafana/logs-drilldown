@@ -1,7 +1,9 @@
 // Jest setup provided by Grafana scaffolding
 import { TextDecoder, TextEncoder } from 'util';
 
+// After .config/jest-setup (which stubs HTMLCanvasElement.getContext) so Combobox measureText works in tests
 import './.config/jest-setup';
+import 'jest-canvas-mock';
 
 import { toEmitValuesWith } from './tests/matchers';
 

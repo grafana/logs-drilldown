@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
-import { select } from 'react-select-event';
+import { render, screen } from '@testing-library/react';
+
+import { ReducerID } from '@grafana/data';
 
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { DEFAULT_SORT_BY, setWasmSortInit } from 'services/sorting';
@@ -18,8 +19,8 @@ describe('SortByScene', () => {
   test('Shows changepoint as default when WASM init succeeded', () => {
     render(<scene.Component model={scene} />);
 
-    expect(screen.getByText('Most relevant')).toBeInTheDocument();
-    expect(screen.getByText('Desc')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Most relevant')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Desc')).toBeInTheDocument();
   });
 
   test('Hides changepoint and outliers when WASM init failed', () => {
@@ -27,10 +28,10 @@ describe('SortByScene', () => {
     scene = new SortByScene({ target: 'fields' });
     render(<scene.Component model={scene} />);
 
-    expect(screen.queryByText('Most relevant')).not.toBeInTheDocument();
-    expect(screen.queryByText('Outlying values')).not.toBeInTheDocument();
-    expect(screen.getByText('Widest spread')).toBeInTheDocument();
-    expect(screen.getByText('Desc')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Most relevant')).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Outlying values')).not.toBeInTheDocument();
+    expect(screen.getByDisplayValue('Widest spread')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Desc')).toBeInTheDocument();
   });
 
   test('Retrieves stored sorting preferences', () => {
@@ -39,26 +40,22 @@ describe('SortByScene', () => {
     scene = new SortByScene({ target: 'fields' });
     render(<scene.Component model={scene} />);
 
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Asc')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Name')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Asc')).toBeInTheDocument();
   });
 
-  test('Reports sort-by criteria changes', async () => {
+  test('Reports sort-by criteria changes', () => {
     const eventSpy = jest.spyOn(scene, 'publishEvent');
 
-    render(<scene.Component model={scene} />);
-
-    await waitFor(() => select(screen.getByLabelText('Sort by'), 'Highest spike', { container: document.body }));
+    scene.onCriteriaChange({ label: 'Highest spike', value: ReducerID.max });
 
     expect(eventSpy).toHaveBeenCalledWith(new SortCriteriaChanged('fields', 'max', 'desc'), true);
   });
 
-  test('Reports sort-direction criteria changes', async () => {
+  test('Reports sort-direction criteria changes', () => {
     const eventSpy = jest.spyOn(scene, 'publishEvent');
 
-    render(<scene.Component model={scene} />);
-
-    await waitFor(() => select(screen.getByLabelText('Sort direction'), 'Asc', { container: document.body }));
+    scene.onDirectionChange({ label: 'Asc', value: 'asc' });
 
     expect(eventSpy).toHaveBeenCalledWith(new SortCriteriaChanged('fields', DEFAULT_SORT_BY, 'asc'), true);
   });
@@ -69,7 +66,7 @@ describe('SortByScene', () => {
     scene = new SortByScene({ target: 'fields' });
     render(<scene.Component model={scene} />);
 
-    expect(screen.getByText('Widest spread')).toBeInTheDocument();
-    expect(screen.queryByText('Most relevant')).not.toBeInTheDocument();
+    expect(screen.getByDisplayValue('Widest spread')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Most relevant')).not.toBeInTheDocument();
   });
 });

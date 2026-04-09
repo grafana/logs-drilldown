@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key -- expected JSX in toEqual() assertions */
 import React from 'react';
 
 import {

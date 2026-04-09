@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { VariableValueOption } from '@grafana/scenes';
-import { ActionMeta, Icon, InlineField, InputActionMeta, Select, useStyles2 } from '@grafana/ui';
+import { Combobox, ComboboxOption, InlineField, useStyles2 } from '@grafana/ui';
 
 import { wrapWildcardSearch } from '../../../services/query';
 import { testIds } from '../../../services/testIds';
@@ -23,25 +23,26 @@ export type AsyncFieldSelectorProps = {
   selectOption: (value: string) => void;
 } & Props<string>;
 
-export function FieldSelector<T>({ label, onChange, options, value }: Props<T>) {
+export function FieldSelector<T extends string | number>({ label, onChange, options, value }: Props<T>) {
   const styles = useStyles2(getStyles);
-  const [selected, setSelected] = useState(false);
 
-  const selectableOptions: SelectableValue[] = options.map((option) => {
+  const selectableOptions: Array<ComboboxOption<T>> = options.map((option) => {
     return {
       label: option.label,
-      value: option.value,
+      value: option.value as T,
     };
   });
+
   return (
     <InlineField className={styles.selectWrapper} label={label}>
-      <Select
-        {...{ options: selectableOptions, value }}
-        onOpenMenu={() => setSelected(true)}
-        onCloseMenu={() => setSelected(false)}
-        onChange={(selected: SelectableValue<T>) => onChange(selected.value)}
-        className={styles.select}
-        prefix={selected ? undefined : <Icon name={'search'} />}
+      <Combobox<T>
+        options={selectableOptions}
+        value={value}
+        onChange={(selected) => onChange(selected?.value)}
+        prefixIcon="search"
+        isClearable
+        width="auto"
+        minWidth={20}
       />
     </InlineField>
   );
@@ -57,71 +58,42 @@ export function ServiceFieldSelector({
   value,
 }: AsyncFieldSelectorProps) {
   const styles = useStyles2(getStyles);
-  const [selected, setSelected] = useState(false);
   const [customOption, setCustomOption] = useState<SelectableValue<string>>(initialFilter);
 
-  const selectableOptions: SelectableValue[] = options.map((option) => {
+  const selectableOptions: Array<ComboboxOption<string>> = options.map((option) => {
     return {
       label: option.label,
-      value: option.value,
+      value: String(option.value),
     };
   });
   const allOptions =
     customOption && value && customOption.value?.includes(value)
-      ? [customOption, ...selectableOptions]
+      ? [{ label: customOption.label, value: String(customOption.value) }, ...selectableOptions]
       : selectableOptions;
-
-  const selectedOption = allOptions?.find((opt) => opt.value === value);
+  const selectableValueSet = new Set(selectableOptions.map((option) => option.value));
 
   return (
     <InlineField className={styles.serviceSceneSelectWrapper} label={label}>
-      <Select
-        isLoading={isLoading}
+      <Combobox<string>
+        loading={isLoading}
         data-testid={testIds.exploreServiceSearch.search}
         placeholder={t('components.service-scene.breakdowns.field-selector.placeholder-search-values', 'Search values')}
         options={allOptions}
-        isClearable={true}
+        createCustomValue
         value={value}
-        onOpenMenu={() => setSelected(true)}
-        onCloseMenu={() => setSelected(false)}
-        allowCustomValue={true}
-        prefix={selected || selectedOption?.__isNew__ ? undefined : <Icon name={'search'} />}
-        onChange={(value: SelectableValue<string>, actionMeta: ActionMeta) => {
-          // Custom added value
-          if (value?.__isNew__ || value?.icon) {
-            setCustomOption({ ...value, icon: 'filter' });
-            return onChange(value.value);
-          }
-
-          // If the user clears the search
-          if (actionMeta.action === 'clear') {
+        isClearable
+        prefixIcon="search"
+        onChange={(value) => {
+          if (!value?.value) {
             return onChange('');
           }
 
-          // Select the service is the value is not a custom filter
-          if (actionMeta.action === 'select-option' && value.value && !value.__isNew__) {
-            selectOption(value.value);
-          }
-        }}
-        onInputChange={(value: string | undefined, actionMeta: InputActionMeta) => {
-          // Grafana/grafana doesn't have types from react-select, but we need the prevInput to add custom value when user clicks off with active search string
-          const meta = actionMeta as InputActionMeta & { prevInputValue: string };
-
-          // The user is typing
-          if (meta.action === 'input-change') {
-            return onChange(value);
+          if (!selectableValueSet.has(value.value)) {
+            setCustomOption({ label: value.label ?? value.value, value: value.value, icon: 'filter' });
+            return onChange(wrapWildcardSearch(value.value));
           }
 
-          // the user closed the menu, with text in search box
-          if (meta.action === 'menu-close' && meta.prevInputValue) {
-            setCustomOption({
-              __isNew__: true,
-              icon: 'filter',
-              label: meta.prevInputValue,
-              value: wrapWildcardSearch(meta.prevInputValue),
-            });
-            return onChange(meta.prevInputValue);
-          }
+          selectOption(value.value);
         }}
       />
     </InlineField>

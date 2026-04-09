@@ -152,7 +152,7 @@ let SHIFT_MAP: Record<string, string> = {
 let SPECIAL_ALIASES: Record<string, string> = {
   command: 'meta',
   escape: 'esc',
-  mod: /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'meta' : 'ctrl',
+  mod: /Mac|iPod|iPhone|iPad/.test(navigator.userAgent) ? 'meta' : 'ctrl',
   option: 'alt',
   plus: '+',
   return: 'enter',
@@ -189,9 +189,17 @@ for (let i = 0; i <= 9; ++i) {
  * takes the event and returns the key character
  */
 function characterFromEvent(event: KeyboardEvent): string {
+  const eventRecord = event as unknown as Record<string, unknown>;
+  const keyCode =
+    typeof eventRecord.which === 'number'
+      ? eventRecord.which
+      : typeof eventRecord.keyCode === 'number'
+        ? eventRecord.keyCode
+        : undefined;
+
   // for keypress events we should return the character as is
   if (event.type === 'keypress') {
-    let character = String.fromCharCode(event.which);
+    let character = String.fromCharCode(keyCode ?? 0);
 
     // if the shift key is not pressed then it is safe to assume
     // that we want the character to be lowercase.  this means if
@@ -210,12 +218,12 @@ function characterFromEvent(event: KeyboardEvent): string {
   }
 
   // for non keypress events the special maps are needed
-  if (MAP[event.which]) {
-    return MAP[event.which];
+  if (keyCode !== undefined && MAP[keyCode]) {
+    return MAP[keyCode];
   }
 
-  if (KEYCODE_MAP[event.which]) {
-    return KEYCODE_MAP[event.which];
+  if (keyCode !== undefined && KEYCODE_MAP[keyCode]) {
+    return KEYCODE_MAP[keyCode];
   }
 
   // if it is not in the special map
@@ -223,7 +231,7 @@ function characterFromEvent(event: KeyboardEvent): string {
   // with keydown and keyup events the character seems to always
   // come in as an uppercase character whether you are pressing shift
   // or not.  we should make sure it is always lowercase for comparisons
-  return String.fromCharCode(event.which).toLowerCase();
+  return String.fromCharCode(keyCode ?? 0).toLowerCase();
 }
 
 /**
@@ -264,10 +272,7 @@ function eventModifiers(event: KeyboardEvent): string[] {
 function preventDefault(event: KeyboardEvent): void {
   if (event.preventDefault) {
     event.preventDefault();
-    return;
   }
-
-  event.returnValue = false;
 }
 
 /**
@@ -276,10 +281,7 @@ function preventDefault(event: KeyboardEvent): void {
 function stopPropagation(event: KeyboardEvent): void {
   if (event.stopPropagation) {
     event.stopPropagation();
-    return;
   }
-
-  event.cancelBubble = true;
 }
 
 /**
@@ -573,7 +575,8 @@ export class Mousetrap {
    */
   private _fireCallback = (callback: Function, e: KeyboardEvent, combo: string, sequence?: string) => {
     // if this event should not happen stop here
-    const target = e.target || e.srcElement;
+    const legacyTarget = (e as unknown as { srcElement?: EventTarget | null }).srcElement;
+    const target = e.target ?? legacyTarget;
     if (target && target instanceof HTMLElement && this.stopCallback(e, target, combo, sequence)) {
       return;
     }
@@ -698,13 +701,6 @@ export class Mousetrap {
     // Don't trigger shortcuts when a key is just held down
     if (event.repeat) {
       return;
-    }
-
-    // normalize e.which for key events
-    // @see http://stackoverflow.com/questions/4285627/javascript-keycode-vs-charcode-utter-confusion
-    if (typeof event.which !== 'number') {
-      // @ts-expect-error - TODO: determine what to do with this compat
-      event.which = event.keyCode;
     }
 
     let character = characterFromEvent(event);
