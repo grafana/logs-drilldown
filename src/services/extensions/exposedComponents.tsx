@@ -3,8 +3,8 @@ import React, { lazy, Suspense } from 'react';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
-import { ErrorsAnalysisProps } from 'Components/ErrorsAnalysis/ErrorsAnalysis';
 import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
+import { ErrorsAnalysisProps } from 'Components/ErrorsAnalysis/ErrorsAnalysis';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
 const initI18n = async () => {

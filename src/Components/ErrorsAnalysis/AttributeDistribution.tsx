@@ -449,14 +449,19 @@ export function AttributeDistribution({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.title}>Attribute Distribution</div>
+        <div className={styles.title}>{t('errors-analysis.title', 'Attribute Distribution')}</div>
         {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
         <div className={styles.description}>
-          Distributions highlight which fields differ most between this error group and all other logs. High-delta
-          fields may indicate causal factors. Click a value to narrow the error subset.
+          {t(
+            'errors-analysis.description-distributions',
+            'Distributions highlight which fields differ most between this error group and all other logs. High-delta fields may indicate causal factors. Click a value to narrow the error subset.'
+          )}
         </div>
         <div className={styles.description}>
-          Add additional fields to explore distributions or correlations, including custom labels.
+          {t(
+            'errors-analysis.description-add-fields',
+            'Add additional fields to explore distributions or correlations, including custom labels.'
+          )}
         </div>
       </div>
 
@@ -477,7 +482,7 @@ export function AttributeDistribution({
             </div>
           ))}
           <button className={styles.clearAll} onClick={handleClearFilters}>
-            Clear all
+            {t('errors-analysis.clear-all', 'Clear all')}
           </button>
         </div>
       )}
@@ -485,25 +490,25 @@ export function AttributeDistribution({
       <div className={styles.addField}>
         <input
           className={styles.fieldInput}
-          placeholder="Search or select a field"
+          placeholder={t('errors-analysis.field-input-placeholder', 'Search or select a field')}
           value={newFieldInput}
           onChange={(e) => setNewFieldInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddField()}
         />
         <button className={styles.addButton} onClick={handleAddField}>
-          + Add
+          {t('errors-analysis.add-field-button', '+ Add')}
         </button>
       </div>
 
       {state.detecting && (
         <div className={styles.detectingRow}>
           <Spinner size="sm" />
-          <span>Discovering fields&hellip;</span>
+          <span>{t('errors-analysis.discovering-fields', 'Discovering fields\u2026')}</span>
         </div>
       )}
 
       {!state.detecting && state.attributes.length === 0 && (
-        <div className={styles.emptyState}>No fields detected for this error group.</div>
+        <div className={styles.emptyState}>{t('errors-analysis.no-fields-detected', 'No fields detected for this error group.')}</div>
       )}
 
       <div className={styles.sections}>
@@ -534,19 +539,19 @@ export function AttributeDistribution({
             {hasSplit && (extraFieldsShown > 0 || remainingCount > 0) && (
               <>
                 <button
-                  aria-label={`Show ${nextBatch} more fields`}
+                  aria-label={t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })}
                   className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
                   disabled={remainingCount === 0}
-                  title={remainingCount === 0 ? 'No more fields' : `Show ${nextBatch} more fields`}
+                  title={remainingCount === 0 ? t('errors-analysis.no-more-fields', 'No more fields') : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })}
                   onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
                 >
                   <Icon name="angle-down" size="sm" />
                 </button>
                 <button
-                  aria-label="Collapse extra fields"
+                  aria-label={t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
                   className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
                   disabled={extraFieldsShown === 0}
-                  title={extraFieldsShown === 0 ? 'No extra fields shown' : 'Collapse extra fields'}
+                  title={extraFieldsShown === 0 ? t('errors-analysis.no-extra-fields-shown', 'No extra fields shown') : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
                   onClick={() => setExtraFieldsShown(0)}
                 >
                   <Icon name="angle-up" size="sm" />
@@ -605,7 +610,7 @@ function AttributeSection({
         </div>
       )}
 
-      {!loading && error && <div className={styles.emptyRow}>No data</div>}
+      {!loading && error && <div className={styles.emptyRow}>{t('errors-analysis.no-data', 'No data')}</div>}
 
       {!loading &&
         !error &&
@@ -628,32 +633,32 @@ function AttributeSection({
               <div className={styles.barWrapper}>
                 <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
               </div>
-              <span className={styles.percentage}>{item.percentage}%</span>
+              <span className={styles.percentage}>{`${item.percentage}%`}</span>
               <div className={styles.filterButtons}>
                 <button
                   aria-label={`Include ${item.value}`}
                   className={cx(styles.filterButton, isIncluded && styles.filterButtonActive)}
                   onClick={() => onToggleFilter(item.value, '=')}
                 >
-                  +
+                  {t('errors-analysis.include-filter-button', '+')}
                 </button>
                 <button
                   aria-label={`Exclude ${item.value}`}
                   className={cx(styles.filterButton, isExcluded && styles.filterButtonActive)}
                   onClick={() => onToggleFilter(item.value, '!=')}
                 >
-                  &minus;
+                  {'\u2212'}
                 </button>
               </div>
             </div>
           );
         })}
 
-      {!loading && !error && allValues.length === 0 && <div className={styles.emptyRow}>No values found</div>}
+      {!loading && !error && allValues.length === 0 && <div className={styles.emptyRow}>{t('errors-analysis.no-values-found', 'No values found')}</div>}
 
       {expanded && hasMore && (
         <button className={styles.showAllButton} onClick={(e) => e.stopPropagation()}>
-          Show all
+          {t('errors-analysis.show-all-button', 'Show all')}
         </button>
       )}
     </div>

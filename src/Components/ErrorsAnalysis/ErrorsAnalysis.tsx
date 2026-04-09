@@ -134,8 +134,6 @@ export interface ErrorsAnalysisProps {
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
   // If not provided, detected fields appear in the order returned by fetchAttributes.
   priorityAttributes?: Array<{ field: string; label: string }>;
-  // See AttributeDistributionProps.showAllLink -- note the OR-query limitation there.
-  showAllLink?: { href: string; title: string };
   // The full Loki log query for this error group, including any active filters.
   // Built and interpolated by the consuming app -- logs-drilldown does not construct
   // or modify it.
@@ -145,6 +143,8 @@ export interface ErrorsAnalysisProps {
   // the distributions are based on a sample. Example: "Last 1000 logs"
   // The consuming app sets this -- it knows what limit its query applies.
   queryLimitLabel?: string;
+  // See AttributeDistributionProps.showAllLink -- note the OR-query limitation there.
+  showAllLink?: { href: string; title: string };
   timeRange: { from: number; to: number };
 }
 
