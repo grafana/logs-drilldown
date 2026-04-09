@@ -35,30 +35,28 @@ const ServiceSelectionConfig = () => {
   }
 
   return (
-    <FeatureFlagContext>
-      <main className={styles.main}>
-        <div className={styles.introText}>
-          <Badge color={'blue'} text={t('components.app-config.service-selection.config.text-beta', 'Beta')} />
-          <span>
-            <Trans i18nKey="components.app-config.service-selection.config.service-selection-description">
-              Configure which labels and label values appear by default on the Logs Drilldown landing page.
-            </Trans>
-          </span>
-        </div>
+    <main className={styles.main}>
+      <div className={styles.introText}>
+        <Badge color={'blue'} text={t('components.app-config.service-selection.config.text-beta', 'Beta')} />
+        <span>
+          <Trans i18nKey="components.app-config.service-selection.config.service-selection-description">
+            Configure which labels and label values appear by default on the Logs Drilldown landing page.
+          </Trans>
+        </span>
+      </div>
 
-        <ErrorBoundaryAlert>
-          <ServiceSelectionContextProvider initialDSUID={dsUID}>
-            <header>
-              <DataSource />
-            </header>
+      <ErrorBoundaryAlert>
+        <ServiceSelectionContextProvider initialDSUID={dsUID}>
+          <header>
+            <DataSource />
+          </header>
 
-            <DefaultLabels />
+          <DefaultLabels />
 
-            <Footer />
-          </ServiceSelectionContextProvider>
-        </ErrorBoundaryAlert>
-      </main>
-    </FeatureFlagContext>
+          <Footer />
+        </ServiceSelectionContextProvider>
+      </ErrorBoundaryAlert>
+    </main>
   );
 };
 
