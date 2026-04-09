@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 
+import { Trans } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
@@ -50,11 +51,31 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
 }
 
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
-  // eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- rendered before i18n is initialized
-  return <Suspense fallback={<div>Loading Logs Drilldown...</div>}><EmbeddedLogsExploration {...props} /></Suspense>;
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-embedded-logs-exploration.loading-logs-drilldown">
+            Loading Logs Drilldown...
+          </Trans>
+        </div>
+      }
+    >
+      <EmbeddedLogsExploration {...props} />
+    </Suspense>
+  );
 }
 
 export function SuspendedErrorsAnalysis(props: ErrorsAnalysisProps) {
-  // eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- rendered before i18n is initialized
-  return <Suspense fallback={<div>Loading...</div>}><ErrorsAnalysis {...props} /></Suspense>;
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-errors-analysis.loading">Loading...</Trans>
+        </div>
+      }
+    >
+      <ErrorsAnalysis {...props} />
+    </Suspense>
+  );
 }
