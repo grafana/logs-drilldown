@@ -22,8 +22,6 @@ export const FeatureFlagContext = ({ children }: { children: ReactNode }) => {
         logger.error(err, { msg: 'Feature flags failed to load' });
         setIsReady(true);
       });
-    // Log plugin loading success for SLO monitoring
-    logger.info('Plugin loaded successfully');
   }, []);
 
   // Show a loading spinner until the feature flags are ready
