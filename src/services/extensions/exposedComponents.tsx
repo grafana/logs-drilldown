@@ -30,7 +30,10 @@ const EmbeddedLogsExploration = lazy(async () => {
   return import('Components/EmbeddedLogsExploration/EmbeddedLogs');
 });
 
-const ErrorsAnalysis = lazy(() => import('Components/ErrorsAnalysis/ErrorsAnalysis'));
+const ErrorsAnalysis = lazy(async () => {
+  await initI18n();
+  return import('Components/ErrorsAnalysis/ErrorsAnalysis');
+});
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
   return (
@@ -47,17 +50,11 @@ export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownBut
 }
 
 export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
-  return (
-    <Suspense fallback={<div>Loading Logs Drilldown...</div>}>
-      <EmbeddedLogsExploration {...props} />
-    </Suspense>
-  );
+  // eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- rendered before i18n is initialized
+  return <Suspense fallback={<div>Loading Logs Drilldown...</div>}><EmbeddedLogsExploration {...props} /></Suspense>;
 }
 
 export function SuspendedErrorsAnalysis(props: ErrorsAnalysisProps) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ErrorsAnalysis {...props} />
-    </Suspense>
-  );
+  // eslint-disable-next-line @grafana/i18n/no-untranslated-strings -- rendered before i18n is initialized
+  return <Suspense fallback={<div>Loading...</div>}><ErrorsAnalysis {...props} /></Suspense>;
 }
