@@ -186,7 +186,7 @@ describe('Config', () => {
       // No changes have been made, so we can't submit (note, the classic button doesn't set the disabled attribute, but it does set the aria-disabled, the ConfirmButton has the opposite behavior
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'true');
       expect(getResetButton()).toBeDisabled();
-      fireEvent.click(getDeleteRecordButton());
+      await userEvent.click(getDeleteRecordButton());
       expect(queryDeleteRecordButton()).not.toBeInTheDocument();
       expect(queryDisplayColumns()).not.toBeInTheDocument();
       // Now we have pending changes, so the submit button should be enabled
@@ -277,8 +277,8 @@ describe('Config', () => {
       expect(getSubmitButton()).toHaveAttribute('aria-disabled', 'false');
       expect(screen.getByDisplayValue(/bar/i)).toBeInTheDocument();
 
-      fireEvent.click(getResetButton());
-      fireEvent.click(getResetButton());
+      await userEvent.click(getResetButton());
+      await userEvent.click(getResetButton());
       fireEvent.click(getResetButtons()[1]);
 
       expect(screen.queryByDisplayValue(/foo/i)).not.toBeInTheDocument();
@@ -343,7 +343,7 @@ function getColumnInputs() {
   return screen.getAllByPlaceholderText<HTMLInputElement>(SELECT_COLUMNS_INPUT_PLACEHOLDER);
 }
 async function addCustomValueToCombobox(comboBox: HTMLInputElement, value = 'foo') {
-  fireEvent.click(comboBox);
+  await userEvent.click(comboBox);
   await userEvent.type(comboBox, value);
   await userEvent.keyboard('{Enter}');
 }

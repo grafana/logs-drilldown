@@ -26,3 +26,12 @@ jest.mock('semver/preload', () => ({
   ...jest.requireActual('semver/preload'),
   ltr: () => false,
 }));
+
+// @grafana/scenes patchGetAdhocFilters logs via console.log when the Jest env lacks full Grafana APIs.
+const nativeConsoleLog = console.log.bind(console);
+jest.spyOn(console, 'log').mockImplementation((first, ...rest) => {
+  if (typeof first === 'string' && first.includes('Failed to patch getAdhocFilters')) {
+    return;
+  }
+  return nativeConsoleLog(first, ...rest);
+});

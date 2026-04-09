@@ -26,6 +26,9 @@ jest.mock('services/favorites', () => {
     rerenderFavorites: () => {},
   };
 });
+jest.mock('services/logger', () => ({
+  logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn() },
+}));
 
 const scene = { publishEvent(event: BusEvent, bubble?: boolean) {} } as SceneObject;
 
@@ -54,7 +57,7 @@ describe('AddToFiltersButton', () => {
     });
     const lookup = jest.spyOn(sceneGraph, 'lookupVariable').mockReturnValue(new AdHocFiltersVariable({}));
     render(<button.Component model={button} />);
-    userEvent.click(screen.getByRole('button', { name: 'Include' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Include' }));
     await waitFor(async () => expect(lookup).toHaveBeenCalledWith('filters', expect.anything()));
   });
 
@@ -82,7 +85,7 @@ describe('AddToFiltersButton', () => {
     });
     const lookup = jest.spyOn(sceneGraph, 'lookupVariable').mockReturnValue(new AdHocFiltersVariable({}));
     render(<button.Component model={button} />);
-    userEvent.click(screen.getByRole('button', { name: 'Include' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Include' }));
     await waitFor(async () => expect(lookup).toHaveBeenCalledWith(VAR_LEVELS, expect.anything()));
   });
 });

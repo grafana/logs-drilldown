@@ -73,7 +73,7 @@ describe('PatternNameLabel', () => {
     render(<PatternNameLabel exploration={explorationMock} pattern="test <_> pattern" maxLines={1000} />);
 
     const patternElement = screen.getByText('<_>');
-    userEvent.click(patternElement);
+    await userEvent.click(patternElement);
 
     await waitFor(() => {
       expect(mockQuery).toHaveBeenCalledWith(
@@ -92,7 +92,7 @@ describe('PatternNameLabel', () => {
     render(<PatternNameLabel exploration={explorationMock} pattern="test <_> pattern" maxLines={1000} />);
 
     const patternElement = screen.getByText('<_>');
-    userEvent.click(patternElement);
+    await userEvent.click(patternElement);
 
     // Wait for the data fetching to complete
     await waitFor(() => {
@@ -104,13 +104,13 @@ describe('PatternNameLabel', () => {
     render(<PatternNameLabel exploration={explorationMock} pattern="test <_> pattern" maxLines={1000} />);
 
     const patternElement = screen.getByText('<_>');
-    userEvent.click(patternElement);
+    await userEvent.click(patternElement);
 
     await waitFor(() => {
       expect(mockQuery).toHaveBeenCalledTimes(1);
     });
 
-    userEvent.click(patternElement);
+    await userEvent.click(patternElement);
     expect(mockQuery).toHaveBeenCalledTimes(1); // still 1 because no new query is fired
   });
 });
