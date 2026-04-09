@@ -362,5 +362,4 @@ export function setPanelNotices(result: SceneDataProviderResult, panel: VizPanel
 }
 
 export const logsControlsSupported = () =>
-  getFeatureFlag('logsPanelControls') &&
-  (config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1'));
+  config.buildInfo.version > '12.1' || config.buildInfo.version.includes('12.1');
