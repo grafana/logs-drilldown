@@ -12,10 +12,19 @@ import { DefaultLabels } from './DefaultLabels';
 import { Footer } from './Footer';
 import { isDefaultLabelsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
+import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 const Config = () => {
+  return (
+    <FeatureFlagContext>
+      <ServiceSelectionConfig />
+    </FeatureFlagContext>
+  );
+};
+
+const ServiceSelectionConfig = () => {
   const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
   const styles = useStyles2(getStyles);
   if (!dsUID) {

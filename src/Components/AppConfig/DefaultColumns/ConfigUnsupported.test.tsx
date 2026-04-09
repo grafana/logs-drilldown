@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { render, RenderResult, screen } from '@testing-library/react';
 
@@ -6,6 +6,10 @@ import { DataSourceInstanceSettings } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import Config from './Config';
+
+jest.mock('Components/FeatureFlagContext', () => ({
+  FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
+}));
 
 const debug = false;
 

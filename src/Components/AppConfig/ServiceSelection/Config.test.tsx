@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +8,10 @@ import 'jest-canvas-mock';
 
 import Config from './Config';
 import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
+
+jest.mock('Components/FeatureFlagContext', () => ({
+  FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
+}));
 
 const MOCK_DS_UID = 'test-datasource-uid';
 const DEBUG = false;
