@@ -80,6 +80,10 @@ Run the following command:
 grafana cli plugins install --pluginUrl=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/release/main/any/grafana-lokiexplore-app-main.zip grafana-lokiexplore-app
 ```
 
+## Permissions
+
+All the Grafana Drilldown apps require the `datasources:explore` permission in Grafana.
+
 ## Test with Docker Compose
 
 You can test the app using the following command to spin up Grafana, Loki, and the Grafana Logs Drilldown App:
