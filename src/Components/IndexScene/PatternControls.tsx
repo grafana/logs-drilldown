@@ -42,8 +42,8 @@ export const PatternControls = ({ onRemove, patterns }: Props) => {
         <div className={styles.patternsContainer}>
           <Text variant="bodySmall" weight="bold" data-testid={testIds.patterns.buttonIncludedPattern}>
             {includePatterns.length > 1
-              ? t('components.pattern-controls.included-patterns', 'Included patterns')
-              : t('components.pattern-controls.included-pattern', 'Included pattern')}
+              ? t('components.index-scene.pattern-controls.included-patterns', 'Included patterns')
+              : t('components.index-scene.pattern-controls.included-pattern', 'Included pattern')}
           </Text>
           <div className={styles.patterns}>
             {includePatterns.map((p) => (
@@ -56,8 +56,8 @@ export const PatternControls = ({ onRemove, patterns }: Props) => {
         <div className={styles.patternsContainer}>
           <Text variant="bodySmall" weight="bold" data-testid={testIds.patterns.buttonExcludedPattern}>
             {excludePatterns.length > 1
-              ? t('components.pattern-controls.excluded-patterns', 'Excluded patterns:')
-              : t('components.pattern-controls.excluded-pattern', 'Excluded pattern:')}
+              ? t('components.index-scene.pattern-controls.excluded-patterns', 'Excluded patterns:')
+              : t('components.index-scene.pattern-controls.excluded-pattern', 'Excluded pattern:')}
           </Text>
           <div className={styles.patterns}>
             {excludePatterns.map((p) => (

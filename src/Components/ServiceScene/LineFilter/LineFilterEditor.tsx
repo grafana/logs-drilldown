@@ -60,11 +60,11 @@ export function LineFilterEditor({
           value={exclusive ? 'exclusive' : 'inclusive'}
           options={[
             {
-              label: t('components.line-filter-editor.label.exclude', 'Exclude'),
+              label: t('components.service-scene.line-filter.line-filter-editor.label.exclude', 'Exclude'),
               value: 'exclusive',
             },
             {
-              label: t('components.line-filter-editor.label.include', 'Include'),
+              label: t('components.service-scene.line-filter.line-filter-editor.label.include', 'Include'),
               value: 'inclusive',
             },
           ]}
@@ -91,7 +91,7 @@ export function LineFilterEditor({
             </span>
           }
           prefix={null}
-          placeholder={t('components.line-filter-editor.placeholder-filter-logs-by-string', 'Filter logs by string')}
+          placeholder={t('components.service-scene.line-filter.line-filter-editor.placeholder-filter-logs-by-string', 'Filter logs by string')}
           onClear={onClearLineFilter}
           onKeyUp={(e) => {
             handleEnter(e, lineFilter);
@@ -111,7 +111,7 @@ export function LineFilterEditor({
             fill={'outline'}
             disabled={!lineFilter}
           >
-            <Trans i18nKey="components.line-filter-editor.include">Include</Trans>
+            <Trans i18nKey="components.service-scene.line-filter.line-filter-editor.include">Include</Trans>
           </Button>
           <Button
             onClick={() => {
@@ -123,7 +123,7 @@ export function LineFilterEditor({
             fill={'outline'}
             disabled={!lineFilter}
           >
-            <Trans i18nKey="components.line-filter-editor.exclude">Exclude</Trans>
+            <Trans i18nKey="components.service-scene.line-filter.line-filter-editor.exclude">Exclude</Trans>
           </Button>
         </span>
       )}

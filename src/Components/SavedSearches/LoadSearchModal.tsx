@@ -86,7 +86,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
 
   return (
     <Modal
-      title={t('components.logs.logs-drilldown.load-search.modal-title', 'Load a previously saved search')}
+      title={t('components.saved-searches.load-search-modal.modal-title', 'Load a previously saved search')}
       isOpen={true}
       onDismiss={onClose}
     >
@@ -94,7 +94,7 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
         <Box backgroundColor="secondary" padding={1.5} marginBottom={2}>
           {!searches.length && (
             <Text variant="body">
-              {t('components.logs.logs-drilldown.load-search.empty', 'No saved searches to display.')}
+              {t('components.saved-searches.load-search-modal.empty', 'No saved searches to display.')}
             </Text>
           )}
         </Box>
@@ -142,10 +142,10 @@ export function LoadSearchModal({ onClose, sceneRef }: Props) {
                         size="xl"
                         name="trash-alt"
                         onClick={onDelete}
-                        tooltip={t('components.logs.logs-drilldown.load-search.remove', 'Remove')}
+                        tooltip={t('components.saved-searches.load-search-modal.remove', 'Remove')}
                       />
                       <LinkButton onClick={onLinkClick} href={href} variant="primary">
-                        {t('components.logs.logs-drilldown.load-search.select', 'Select')}
+                        {t('components.saved-searches.load-search-modal.select', 'Select')}
                       </LinkButton>
                     </Stack>
                   </Box>

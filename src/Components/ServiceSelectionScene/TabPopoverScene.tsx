@@ -40,7 +40,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
             isOpen={showPopover}
-            placeholder={t('components.tab-popover-scene.placeholder-search-labels', 'Search labels')}
+            placeholder={t('components.service-selection-scene.tab-popover-scene.placeholder-search-labels', 'Search labels')}
             options={tabOptionsWithIcon}
             isSearchable={true}
             openMenuOnFocus={true}

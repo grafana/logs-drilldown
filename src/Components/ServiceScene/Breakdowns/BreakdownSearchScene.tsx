@@ -39,7 +39,7 @@ export class BreakdownSearchScene extends SceneObjectBase<BreakdownSearchSceneSt
           value={filter}
           onChange={model.onValueFilterChange}
           onClear={model.clearValueFilter}
-          placeholder={t('components.breakdown-search-scene.placeholder-search-for-value', 'Search for value')}
+          placeholder={t('components.service-scene.breakdowns.breakdown-search-scene.placeholder-search-for-value', 'Search for value')}
         />
       </div>
     );

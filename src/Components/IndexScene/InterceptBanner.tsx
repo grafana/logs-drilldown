@@ -14,13 +14,13 @@ export function InterceptBanner(props: { onRemove: () => void }) {
         className={styles.alert}
         severity={'info'}
         title={t(
-          'components.intercept-banner.title-welcome-to-grafana-logs-drilldown',
+          'components.index-scene.intercept-banner.title-welcome-to-grafana-logs-drilldown',
           'Welcome to Grafana Logs Drilldown!'
         )}
         onRemove={props.onRemove}
       >
         <div>
-          <Trans i18nKey="components.intercept-banner.body">
+          <Trans i18nKey="components.index-scene.intercept-banner.body">
             Check out our{' '}
             <a
               className="external-link"

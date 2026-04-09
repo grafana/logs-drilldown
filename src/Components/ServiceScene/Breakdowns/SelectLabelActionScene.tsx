@@ -132,7 +132,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
         <SelectableValueComponent
           selected={includeSelected}
           text={t(
-            'components.select-label-action-scene.include-all-log-lines',
+            'components.service-scene.breakdowns.select-label-action-scene.include-all-log-lines',
             'Include all log lines with {{labelName}}',
             { labelName }
           )}
@@ -145,7 +145,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
         <SelectableValueComponent
           selected={false}
           text={t(
-            'components.select-label-action-scene.exclude-all-log-lines',
+            'components.service-scene.breakdowns.select-label-action-scene.exclude-all-log-lines',
             'Exclude all log lines with {{labelName}}',
             { labelName }
           )}
@@ -157,7 +157,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
       component: () => (
         <SelectableValueComponent
           selected={numericSelected}
-          text={t('components.select-label-action-scene.add-expression', 'Add an expression, i.e. {{labelName}} > 30', {
+          text={t('components.service-scene.breakdowns.select-label-action-scene.add-expression', 'Add an expression, i.e. {{labelName}} > 30', {
             labelName,
           })}
         />
@@ -198,7 +198,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
           <IconButton
             disabled={filterButtonDisabled}
             name={'filter'}
-            tooltip={t('components.select-label-action-scene.clear-filters-tooltip', 'Clear {{labelName}} filters', {
+            tooltip={t('components.service-scene.breakdowns.select-label-action-scene.clear-filters-tooltip', 'Clear {{labelName}} filters', {
               labelName,
             })}
             onClick={() => model.clearFilters(variableName)}
@@ -234,17 +234,17 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
           <LinkButton
             disabled={disabled}
             title={t(
-              'components.select-label-action-scene.view-breakdown-title',
+              'components.service-scene.breakdowns.select-label-action-scene.view-breakdown-title',
               'View breakdown of values for {{labelName}}',
               { labelName }
             )}
             variant="primary"
             fill="outline"
             size="sm"
-            aria-label={t('components.select-label-action-scene.select-label', 'Select {{labelName}}', { labelName })}
+            aria-label={t('components.service-scene.breakdowns.select-label-action-scene.select-label', 'Select {{labelName}}', { labelName })}
             href={model.getViewValuesLink()}
           >
-            <Trans i18nKey="components.select-label-action-scene.select">Select</Trans>
+            <Trans i18nKey="components.service-scene.breakdowns.select-label-action-scene.select">Select</Trans>
           </LinkButton>
         )}
 

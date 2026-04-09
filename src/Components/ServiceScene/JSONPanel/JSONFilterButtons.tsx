@@ -38,12 +38,12 @@ export const JSONFieldValueButton = memo(
           tooltip={
             type === 'include'
               ? t(
-                  'components.json-filter-buttons.field-value.tooltip.include',
+                  'components.service-scene.json-panel.json-filter-buttons.field-value.tooltip.include',
                   'Include log lines containing {{label}}="{{value}}"',
                   { label, value }
                 )
               : t(
-                  'components.json-filter-buttons.field-value.tooltip.exclude',
+                  'components.service-scene.json-panel.json-filter-buttons.field-value.tooltip.exclude',
                   'Exclude log lines containing {{label}}="{{value}}"',
                   { label, value }
                 )
@@ -64,8 +64,8 @@ export const JSONFieldValueButton = memo(
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={
             type === 'include'
-              ? t('components.json-filter-buttons.field-value.aria-label.include', 'include filter')
-              : t('components.json-filter-buttons.field-value.aria-label.exclude', 'exclude filter')
+              ? t('components.service-scene.json-panel.json-filter-buttons.field-value.aria-label.include', 'include filter')
+              : t('components.service-scene.json-panel.json-filter-buttons.field-value.aria-label.exclude', 'exclude filter')
           }
         />
       ),
@@ -98,12 +98,12 @@ export const JSONMetadataButton = memo(
           tooltip={
             type === 'include'
               ? t(
-                  'components.json-filter-buttons.metadata.tooltip.include',
+                  'components.service-scene.json-panel.json-filter-buttons.metadata.tooltip.include',
                   'Include log lines containing {{label}}="{{value}}"',
                   { label, value }
                 )
               : t(
-                  'components.json-filter-buttons.metadata.tooltip.exclude',
+                  'components.service-scene.json-panel.json-filter-buttons.metadata.tooltip.exclude',
                   'Exclude log lines containing {{label}}="{{value}}"',
                   { label, value }
                 )
@@ -124,8 +124,8 @@ export const JSONMetadataButton = memo(
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={
             type === 'include'
-              ? t('components.json-filter-buttons.metadata.aria-label.include', 'include filter')
-              : t('components.json-filter-buttons.metadata.aria-label.exclude', 'exclude filter')
+              ? t('components.service-scene.json-panel.json-filter-buttons.metadata.aria-label.include', 'include filter')
+              : t('components.service-scene.json-panel.json-filter-buttons.metadata.aria-label.exclude', 'exclude filter')
           }
         />
       ),

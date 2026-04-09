@@ -31,7 +31,7 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
   }, [errorType]);
 
   const embeddedOptions = getEmptyStateOptions('logs', sceneRef);
-  const message = error || t('components.logs.logs-drilldown.logs-panel-error.default', 'An error occurred');
+  const message = error || t('components.service-scene.logs-panel-error.default', 'An error occurred');
 
   return (
     <div className={sharedStyles.emptyStateWrap}>
@@ -39,7 +39,7 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
         <Stack justifyContent="center">
           {clearFilters && (
             <Button variant="secondary" onClick={clearFilters}>
-              {t('components.logs.logs-drilldown.logs-panel-error.clear-filters', 'Clear filters')}
+              {t('components.service-scene.logs-panel-error.clear-filters', 'Clear filters')}
             </Button>
           )}
           {errorType === 'no-logs' && assistantAvailable && (

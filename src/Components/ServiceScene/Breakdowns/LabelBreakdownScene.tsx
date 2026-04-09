@@ -304,7 +304,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
         {body instanceof LabelValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 0 && (
           <FieldSelector
-            label={t('components.label-breakdown-scene.label-label', 'Label')}
+            label={t('components.service-scene.breakdowns.label-breakdown-scene.label-label', 'Label')}
             options={options}
             value={String(value)}
             onChange={model.onChange}
@@ -340,7 +340,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
         <StatusWrapper {...{ blockingMessage, isLoading: loading }}>
           {error && (
             <Alert title="" severity="warning">
-              <Trans i18nKey="components.label-breakdown-scene.labels-not-available">
+              <Trans i18nKey="components.service-scene.breakdowns.label-breakdown-scene.labels-not-available">
                 The labels are not available at this moment. Try using a different time range or check again later.
               </Trans>
             </Alert>

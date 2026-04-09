@@ -101,7 +101,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
       );
     }
 
-    return <LoadingPlaceholder text={t('components.breakdowns.field-values.loading', 'Loading...')} />;
+    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.field-values-breakdown-scene.loading', 'Loading...')} />;
   };
 
   private getTagKey() {
@@ -458,8 +458,8 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         }),
       ],
       options: [
-        { label: t('components.breakdowns.field-values.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('components.breakdowns.field-values.layout.rows', 'Rows'), value: 'rows' },
+        { label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
+        { label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
       ],
     });
   }

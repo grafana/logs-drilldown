@@ -147,7 +147,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
             showMenuAlways={true}
             statusMessage={$data.state.data?.errors?.[0].message}
             loadingState={$data.state.data?.state}
-            title={t('components.logs-json.title-json', 'JSON')}
+            title={t('components.service-scene.json-panel.logs-json-component.title-json', 'JSON')}
             menu={menu ? <menu.Component model={menu} /> : undefined}
             actions={
               <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
@@ -182,12 +182,12 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
                       className={styles.alert}
                       severity={'warning'}
                       title={t(
-                        'components.logs-json.title-json-filtering-requires-loki',
+                        'components.service-scene.json-panel.logs-json-component.title-json-filtering-requires-loki',
                         'JSON filtering requires Loki 3.5.0.'
                       )}
                     >
                       {t(
-                        'components.logs-json-component.alert.loki-upgrade',
+                        'components.service-scene.json-panel.logs-json-component.alert.loki-upgrade',
                         'This view will be read only until Loki is upgraded to 3.5.0'
                       )}
                     </Alert>
@@ -196,10 +196,10 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
                     <Alert
                       className={styles.alert}
                       severity={'info'}
-                      title={t('components.logs-json.title-no-json-fields-detected', 'No JSON fields detected')}
+                      title={t('components.service-scene.json-panel.logs-json-component.title-no-json-fields-detected', 'No JSON fields detected')}
                     >
                       {t(
-                        'components.logs-json-component.alert.no-json-fields',
+                        'components.service-scene.json-panel.logs-json-component.alert.no-json-fields',
                         'This view is built for JSON log lines, but none were detected. Switch to the Logs or Table view for a better experience.'
                       )}
                     </Alert>
