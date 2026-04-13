@@ -184,8 +184,7 @@ test.describe('explore services page', () => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-distributor');
-      await expect(page.getByRole('listbox')).toBeVisible();
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+
       // Volume can differ, scroll down so all of the panels are loaded
       await explorePage.scrollToBottom();
       await expect(page.getByText('of 1')).toBeVisible();
@@ -249,17 +248,24 @@ test.describe('explore services page', () => {
 
       // Filter results for tempo-ingester
       await explorePage.servicesSearch.click();
-      await explorePage.servicesSearch.pressSequentially('tempo-ingester');
+      await explorePage.servicesSearch.pressSequentially('tempo-i');
+      await page.getByRole('option', { name: /Use custom value/ }).click();
 
-      const tempoIngesterPanelHeader = explorePage.getPanelHeaderLocator();
-      const tempoIngesterIncludeBtn = tempoIngesterPanelHeader.getByTestId('data-testid button-filter-include');
+      const tempoIngesterPanelHeader = explorePage.getPanelHeaderLocator().filter({
+        has: page.getByRole('heading', { name: 'tempo-ingester' }),
+      });
+      const tempoIngesterIncludeBtn = tempoIngesterPanelHeader.getByTestId(
+        testIds.exploreServiceDetails.buttonFilterInclude
+      );
       await expect(tempoIngesterIncludeBtn).toHaveCount(1);
+      // Show logs button should be disabled until a filter is added
+      await expect(showLogsHeaderBtn).toBeDisabled();
       await page.keyboard.press('Escape');
 
       // Assert the portal closed
       await expect(page.getByRole('listbox')).not.toBeVisible();
 
-      // Assert the button is disabled
+      // Assert heading is visible
       await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
 
       // add positive include filter without navigating
@@ -276,8 +282,12 @@ test.describe('explore services page', () => {
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option', { name: /Use custom value/ }).click();
 
-      const tempoDistributorPanelHeader = explorePage.getPanelHeaderLocator();
-      const tempoDistributorIncludeBtn = tempoDistributorPanelHeader.getByTestId('data-testid button-filter-include');
+      const tempoDistributorPanelHeader = explorePage.getPanelHeaderLocator().filter({
+        has: page.getByRole('heading', { name: 'tempo-distributor' }),
+      });
+      const tempoDistributorIncludeBtn = tempoDistributorPanelHeader.getByTestId(
+        testIds.exploreServiceDetails.buttonFilterInclude
+      );
       await expect(tempoDistributorIncludeBtn).toHaveCount(1);
       await page.keyboard.press('Escape');
 
@@ -463,7 +473,10 @@ test.describe('explore services page', () => {
       test.describe('navigation', () => {
         test('user can use browser history to navigate through tabs', async ({ page }) => {
           const addNewTab = page.getByTestId(testIds.index.addNewLabelTab);
-          const selectNewLabelSelect = page.locator('[role="tooltip"]');
+          // TabPopoverScene: popover is role="tooltip" with an input placeholder "Search labels"
+          const addLabelPopover = page.getByRole('tooltip').filter({
+            has: page.getByPlaceholder('Search labels'),
+          });
           const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
           const newLevelTabLoc = page.getByTestId('data-testid Tab level');
           const serviceTabLoc = page.getByTestId('data-testid Tab service');
@@ -478,7 +491,7 @@ test.describe('explore services page', () => {
           await addNewTab.click();
 
           // Dropdown should be open
-          await expect(selectNewLabelSelect).toContainText('Search labels');
+          await expect(addLabelPopover).toBeVisible();
 
           // Add "namespace" as a new tab
           await page.getByText('namespace', { exact: true }).click();
@@ -488,7 +501,7 @@ test.describe('explore services page', () => {
           await addNewTab.click();
 
           // Dropdown should be open
-          await expect(selectNewLabelSelect).toContainText('Search labels');
+          await expect(addLabelPopover).toBeVisible();
           await page.getByRole('option', { name: 'level' }).click();
           // await page.getByText(/level/, { exact: true }).click();
 
@@ -652,9 +665,11 @@ test.describe('explore services page', () => {
         await expect(addNewTab).toHaveCount(1);
         await addNewTab.click();
 
-        // Dropdown should be open
-        const selectNewLabelSelect = page.locator('[role="tooltip"]');
-        await expect(selectNewLabelSelect).toContainText('Search labels');
+        // Dropdown should be open (TabPopoverScene: tooltip + Search labels placeholder)
+        const addLabelPopover = page.getByRole('tooltip').filter({
+          has: page.getByPlaceholder('Search labels'),
+        });
+        await expect(addLabelPopover).toBeVisible();
 
         // Add "namespace" as a new tab
         await page.getByText('namespace', { exact: true }).click();

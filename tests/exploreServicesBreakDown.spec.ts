@@ -538,10 +538,10 @@ test.describe('explore services breakdown page', () => {
     });
     await explorePage.goToFieldsTab();
 
-    // Use the dropdown since the tenant field might not be visible
-    await page.getByText('FieldAll').click();
-    await page.keyboard.type('tenan');
-    await page.keyboard.press('Enter');
+    // Fields tab field search combobox search for tenant since it might not be visible
+    await page.getByTestId('input-wrapper').getByRole('combobox').click();
+    await page.getByTestId('input-wrapper').getByRole('combobox', { name: 'All' }).fill('tenan');
+    await page.getByTestId('input-wrapper').getByRole('combobox', { name: 'All' }).press('Enter');
     await explorePage.assertNotLoading();
 
     // Assert loading is done and panels are showing
@@ -1148,24 +1148,29 @@ test.describe('explore services breakdown page', () => {
 
     // Show the popover
     await bytesIncludeButton.click();
-    const popover = page.getByRole('tooltip');
-    await expect(popover).toHaveCount(1);
+    // Popover content is portaled; match the numeric filter tooltip by a unique child (not the first tooltip on the page).
+    const popover = page.getByRole('tooltip').filter({
+      has: page.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton),
+    });
+    await expect(popover).toBeVisible();
 
-    // Popover copy assertions
+    // Popover copy assertions (Combobox selected label is the input value, not text content)
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-    ).toHaveText('Greater than');
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)).toHaveText(
-      'Less than'
-    );
+      popover
+        .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+        .getByRole('combobox')
+    ).toHaveValue('Greater than');
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).getByRole('combobox')
+    ).toHaveValue('Less than');
 
-    // Bytes should be default unit
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit)).toHaveText(
-      'UnitB'
-    );
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)).toHaveText(
-      'UnitB'
-    );
+    // Bytes should be default unit (B) on the unit Combobox inputs
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit).getByRole('combobox')
+    ).toHaveValue('B');
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit).getByRole('combobox')
+    ).toHaveValue('B');
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
@@ -1188,14 +1193,13 @@ test.describe('explore services breakdown page', () => {
     await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThan).pressSequentially('2');
 
     // Open unit "select"
-    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit).locator('svg').click();
-
-    // select kilobytes
     await popover
       .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)
-      .getByRole('listbox')
-      .getByText('KB', { exact: true })
+      .getByRole('combobox')
       .click();
+
+    // select kilobytes (unit menu is portaled; not under the Field test id subtree)
+    await page.getByRole('option', { name: 'KB', exact: true }).click();
 
     // Make inclusive
     await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).click();
@@ -1257,16 +1261,21 @@ test.describe('explore services breakdown page', () => {
 
     // Show the popover
     await bytesIncludeButton.click();
-    const popover = page.getByRole('tooltip');
-    await expect(popover).toHaveCount(1);
+    // Popover content is portaled; match the numeric filter tooltip by a unique child (not the first tooltip on the page).
+    const popover = page.getByRole('tooltip').filter({
+      has: page.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton),
+    });
+    await expect(popover).toBeVisible();
 
-    // Popover copy assertions
+    // Popover copy assertions (Combobox selected label is the input value, not text content)
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-    ).toHaveText('Greater than');
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)).toHaveText(
-      'Less than'
-    );
+      popover
+        .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+        .getByRole('combobox')
+    ).toHaveValue('Greater than');
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).getByRole('combobox')
+    ).toHaveValue('Less than');
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
@@ -1920,10 +1929,10 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.goToFieldsTab();
 
-    // Use the dropdown since the tenant field might not be visible
-    await page.getByText('FieldAll').click();
-    await page.keyboard.type('caller');
-    await page.keyboard.press('Enter');
+    // Use the dropdown since the caller field might not be visible
+    await page.getByTestId('input-wrapper').getByRole('combobox').click();
+    await page.getByTestId('input-wrapper').getByRole('combobox', { name: 'All' }).fill('caller');
+    await page.getByTestId('input-wrapper').getByRole('combobox', { name: 'All' }).press('Enter');
     await explorePage.assertNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(9);
@@ -1944,9 +1953,9 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToLabelsTab();
 
     // Use the dropdown since the tenant field might not be visible
-    await page.getByText('LabelAll').click();
-    await page.keyboard.type('detected');
-    await page.keyboard.press('Enter');
+    await page.getByTestId('input-wrapper').getByRole('combobox').click();
+    await page.getByTestId('input-wrapper').getByRole('combobox', { name: 'All' }).fill('detected');
+    await page.getByTestId('input-wrapper').getByRole('combobox', { name: 'All' }).press('Enter');
     await explorePage.assertNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(5);
