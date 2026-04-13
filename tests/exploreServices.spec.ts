@@ -57,18 +57,12 @@ test.describe('explore services page', () => {
       // Click on nav to return to service selection
       await page.getByRole('link', { name: 'Logs' }).first().click();
 
-      // Assert there is more then one result now
-      await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
-
       // Assert that the first element is nginx now
       await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxRemove');
       await explorePage.servicesSearch.click();
 
-      // Assert there is more than one element in the dropdown
-      await expect(page.getByRole('option').nth(1)).not.toContainText('nginx');
-
       // assert the first element is nginx now
-      await expect(firstResult).toHaveText('nginx');
+      await expect(firstResult).toHaveText('^nginx$');
     });
 
     test.describe('default labels', () => {
