@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
-import { config, locationService } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
