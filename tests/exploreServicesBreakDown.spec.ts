@@ -21,6 +21,12 @@ const fieldName = 'caller';
 const levelName = 'detected_level';
 const metadataName = 'pod';
 const labelName = 'cluster';
+
+/** Field breakdown panels use the detected field name as Loki query refId (see FieldsAggregatedBreakdownScene). */
+function getFieldBreakdownQuery(queries: LokiQuery[], field: string): LokiQuery | undefined {
+  return queries.find((q) => q.refId === field);
+}
+
 test.describe('explore services breakdown page', () => {
   let explorePage: ExplorePage;
 
@@ -1340,7 +1346,7 @@ test.describe('explore services breakdown page', () => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
-      if (queries[0].refId === 'logsPanelQuery') {
+      if (queries.some((q) => q.refId === 'logsPanelQuery')) {
         await route.continue();
       } else {
         await route.fulfill({ json: [] });
@@ -1356,19 +1362,21 @@ test.describe('explore services breakdown page', () => {
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
 
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
-
-      await expect.poll(() => queries[0].expr).toContain('bytes!=""');
+      const bytesQuery = getFieldBreakdownQuery(queries, 'bytes');
+      if (!bytesQuery?.expr.includes('bytes!=""')) {
+        await route.fulfill({ json: [] });
+        return;
+      }
       numberOfQueries++;
 
       await route.fulfill({ json: [] });
     });
-
-    // assert the filter select is in the document
-    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Include
     await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
@@ -1392,7 +1400,7 @@ test.describe('explore services breakdown page', () => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
-      if (queries[0].refId === 'logsPanelQuery') {
+      if (queries.some((q) => q.refId === 'logsPanelQuery')) {
         await route.continue();
       } else {
         await route.fulfill({ json: [] });
@@ -1407,19 +1415,22 @@ test.describe('explore services breakdown page', () => {
 
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
+
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
-
-      await expect.poll(() => queries[0].expr).toContain('bytes=""');
+      const bytesQuery = getFieldBreakdownQuery(queries, 'bytes');
+      if (!bytesQuery?.expr.includes('bytes=""')) {
+        await route.fulfill({ json: [] });
+        return;
+      }
       numberOfQueries++;
 
       await route.fulfill({ json: [] });
     });
-
-    // assert the filter select is in the document
-    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Open the dropdown and change from include to exclude
     await expect

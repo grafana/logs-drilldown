@@ -183,7 +183,8 @@ test.describe('explore services page', () => {
     test('should filter logs by clicking on the chart levels', async ({ page }) => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
-      await explorePage.servicesSearch.pressSequentially('tempo-distributor');
+      await explorePage.servicesSearch.pressSequentially('tempo-d');
+      await page.getByRole('option', { name: /Use custom value/ }).click();
 
       // Volume can differ, scroll down so all of the panels are loaded
       await explorePage.scrollToBottom();
