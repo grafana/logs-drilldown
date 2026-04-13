@@ -27,6 +27,11 @@ function getFieldBreakdownQuery(queries: LokiQuery[], field: string): LokiQuery 
   return queries.find((q) => q.refId === field);
 }
 
+/** Sparse empty-field filter rendered as `| bytes=""` (see ExpressionBuilder.test / renderLogQLFieldFilters). */
+function queriesContainBytesEqualEmptyFilter(queries: LokiQuery[]): boolean {
+  return queries.some((q) => q.expr.includes('bytes=""'));
+}
+
 test.describe('explore services breakdown page', () => {
   let explorePage: ExplorePage;
 
@@ -1422,8 +1427,9 @@ test.describe('explore services breakdown page', () => {
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
-      const bytesQuery = getFieldBreakdownQuery(queries, 'bytes');
-      if (!bytesQuery?.expr.includes('bytes=""')) {
+      // After Exclude, the bytes breakdown panel is removed — batches often no longer include refId `bytes`.
+      // The sparse filter still appears on other queries (e.g. logs) that share VAR_FIELDS_EXPR.
+      if (!queriesContainBytesEqualEmptyFilter(queries)) {
         await route.fulfill({ json: [] });
         return;
       }
