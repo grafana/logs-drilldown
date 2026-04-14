@@ -2,10 +2,11 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2, LogsSortOrder } from '@grafana/data';
+import { FieldConfig, FieldConfigSource, GrafanaTheme2, LogsSortOrder } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   DeepPartial,
+  FieldConfigOverridesBuilder,
   SceneComponentProps,
   sceneGraph,
   SceneObjectBase,
@@ -40,6 +41,7 @@ import { getVariableForLabel } from 'services/fields';
 import { FilterOp } from 'services/filterTypes';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
+import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTable';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 
 interface LogsTableSceneState extends SceneObjectState {
@@ -118,10 +120,17 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
       wrapText: getBooleanLogOption('wrapText', true),
     }));
 
-    // @todo set field defaults
-    // panelBuilder.setOverrides();
+    panelBuilder.setOverrides((builder: FieldConfigOverridesBuilder<FieldConfig>) => {
+      setTableFieldOverrides(builder, this);
+    });
 
     const panel = new VizPanel({ ...panelBuilder.build() });
+    const defaultOnFieldConfigChange = panel.onFieldConfigChange.bind(panel);
+    panel.onFieldConfigChange = (fieldConfigUpdate: FieldConfigSource, replace?: boolean) => {
+      storeTableFieldConfig(fieldConfigUpdate, this);
+      defaultOnFieldConfigChange(fieldConfigUpdate, replace);
+    };
+
     panel.setState({
       extendPanelContext: (_, context) => this.extendLogsTableContext(context),
     });
