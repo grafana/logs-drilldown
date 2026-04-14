@@ -1,0 +1,15 @@
+name: Crowdin Upload Action
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/locales/en-US/grafana-lokiexplore-app.json'
+    branches:
+      - main
+
+jobs:
+  upload-sources-to-crowdin:
+    uses: grafana/grafana-github-actions/.github/workflows/crowdin-upload.yml@main
+    with:
+      crowdin_project_id: 40
