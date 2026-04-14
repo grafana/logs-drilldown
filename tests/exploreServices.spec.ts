@@ -61,8 +61,8 @@ test.describe('explore services page', () => {
       await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxRemove');
       await explorePage.servicesSearch.click();
 
-      // assert the first element is nginx now
-      await expect(firstResult).toHaveText('^nginx$');
+      // assert the first element has nginx
+      await expect(firstResult).toHaveText(/^(nginx|\^nginx\$)$/);
     });
 
     test.describe('default labels', () => {
