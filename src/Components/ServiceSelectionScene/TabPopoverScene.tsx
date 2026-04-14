@@ -62,6 +62,8 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
       return null;
     }
 
+    const selectedTabKey = serviceSelectionScene.getSelectedTab();
+
     return (
       <Stack direction="column" gap={0} role="tooltip">
         <div ref={popoverBodyRef} className={popoverStyles.card.body}>
@@ -81,8 +83,8 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
                   <div
                     key={opt.value}
                     role="option"
-                    aria-selected={false}
-                    tabIndex={0}
+                    tabIndex={selectedTabKey === opt.value ? 0 : -1}
+                    aria-selected={selectedTabKey === opt.value}
                     className={popoverStyles.list.option}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => selectTab(opt.value)}

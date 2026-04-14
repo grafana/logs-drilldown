@@ -168,6 +168,7 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
           )}
         >
           <Combobox<SortBy>
+            id="sort-by-criteria"
             data-testid={testIds.breakdowns.common.sortByFunction}
             value={sortByValue}
             width="auto"
