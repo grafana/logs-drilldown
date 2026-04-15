@@ -10,11 +10,11 @@ const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
 
 export interface AttributeConfig {
-  field: string;
-  label: string;
+  attribute: string;
+  attribute_name: string; // or display_name
 }
 
-export interface LabelValueCount {
+export interface AttributeValueCount {
   count: number;
   percentage: number;
   value: string;
