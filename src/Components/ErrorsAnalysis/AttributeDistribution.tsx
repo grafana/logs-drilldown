@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
+import { logger } from '../../services/logger';
+
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -127,7 +129,8 @@ export function AttributeDistribution({
             if (generationRef.current === generation) {
               dispatch({ type: 'LOADED', field: attr.attribute, values });
             }
-          } catch {
+          } catch (e) {
+            logger.error(e);
             if (generationRef.current === generation) {
               dispatch({ type: 'ERROR', field: attr.attribute });
             }
