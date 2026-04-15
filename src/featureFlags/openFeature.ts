@@ -101,12 +101,6 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
-  logsPanelControls: {
-    valueType: 'boolean',
-    value: false,
-    reason: 'static provider evaluation result',
-    variant: 'default',
-  },
   otelLogsFormatting: {
     valueType: 'boolean',
     value: false,
@@ -291,9 +285,6 @@ function getFlagDefaultValue(flagDef: FeatureFlag): boolean | number | string | 
 function getConfigToggleFallback(flagName: string): boolean | undefined {
   if (flagName === 'kubernetesLogsDrilldown') {
     return config.featureToggles.kubernetesLogsDrilldown;
-  }
-  if (flagName === 'logsPanelControls') {
-    return config.featureToggles.logsPanelControls;
   }
   if (flagName === 'otelLogsFormatting') {
     return config.featureToggles.otelLogsFormatting;
