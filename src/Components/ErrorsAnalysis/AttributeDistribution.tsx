@@ -606,7 +606,7 @@ function AttributeSection({
         </div>
       )}
 
-      {!loading && error && <div className={styles.emptyRow}>{t('errors-analysis.no-data', 'No data')}</div>}
+      {!loading && error && <div className={styles.emptyRow}>{t('errors-analysis.error', 'Failed to load')}</div>}
 
       {!loading &&
         !error &&
