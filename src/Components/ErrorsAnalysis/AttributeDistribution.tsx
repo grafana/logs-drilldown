@@ -638,7 +638,6 @@ function AttributeSection({
                   onClick={openMenu}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && openMenu(e as unknown as React.MouseEvent<HTMLElement>)}
                 >
                   <div className={styles.valueRowHeader}>
                     <span className={styles.valueLabel} title={item.value}>
