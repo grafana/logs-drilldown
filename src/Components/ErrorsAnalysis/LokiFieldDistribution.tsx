@@ -8,6 +8,21 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { getFeatureFlag } from '../../featureFlags/openFeature';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
+import { isRecord } from '../../services/narrowing';
+
+interface LokiLike {
+  getResource(path: string, params: Record<string, string>, options: Record<string, string>): Promise<unknown>;
+}
+
+function narrowDetectedFields(response: unknown): Array<{ label: string }> {
+  if (!isRecord(response)) {
+    return [];
+  }
+  if (!Array.isArray(response['fields'])) {
+    return [];
+  }
+  return response['fields'].filter((f): f is { label: string } => isRecord(f) && typeof f['label'] === 'string');
+}
 import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
 
 // Appends a per-field metric aggregation around the base log query.
@@ -32,13 +47,13 @@ function makeFetchAttributes(
     const start = dateTime(context.timeRange.from).utc().toISOString();
     const end = dateTime(context.timeRange.to).utc().toISOString();
 
-    const response = (await (ds as any).getResource(
+    const response = await (ds as unknown as LokiLike).getResource(
       'detected_fields',
       { end, query: context.query, start },
       { requestId: 'errors-detected-fields' }
-    )) as { fields?: Array<{ label: string }> };
+    );
 
-    return (response.fields ?? [])
+    return narrowDetectedFields(response)
       .filter((f) => !excludeSet.has(f.label))
       .map((f) => ({
         attribute: f.label,
