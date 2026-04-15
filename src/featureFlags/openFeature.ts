@@ -87,6 +87,8 @@ type GetFlagDefault<F> = F extends { value: infer V }
     ? WidenPrimitive<D>
     : never;
 
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 /**
  * All Logs Drilldown feature flags that we intend to use from the GoFF service are defined here.
  * {@link https://github.com/grafana/deployment_tools/blob/master/ksonnet/environments/hosted-grafana/waves/feature-toggles/goff/drilldown/logs/flag-definitions.libsonnet} for the source of truth.
@@ -131,7 +133,7 @@ const goffFeatureFlags = {
   },
   'drilldown.logs.attributeExplorer': {
     valueType: 'boolean',
-    value: process.env.NODE_ENV === 'development',
+    value: IS_DEV,
     reason: 'static provider evaluation result',
     variant: 'default',
   },
