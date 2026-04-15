@@ -129,6 +129,12 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
+  'drilldown.logs.attributeExplorer': {
+    valueType: 'boolean',
+    value: process.env.NODE_ENV === 'development',
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
   'drilldown.logs.kgAnnotationsInLokiExplore': {
     valueType: 'boolean',
     value: false,

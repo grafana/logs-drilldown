@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { DataFrame, DataQueryRequest, dateTime, FieldType } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
+import { getFeatureFlag } from '../../featureFlags/openFeature';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { AttributeConfig, AttributeDistribution, DatasetContext, LabelValueCount } from './AttributeDistribution';
 
@@ -160,6 +161,10 @@ export default function ErrorsAnalysis({
   showAllLink,
   timeRange,
 }: ErrorsAnalysisProps) {
+  if (!getFeatureFlag('drilldown.logs.attributeExplorer')) {
+    return null;
+  }
+
   const context: DatasetContext = { datasourceUid, query, timeRange };
   const fetchAttributes = makeFetchAttributes(fieldsToExclude, labelMap);
 
