@@ -35,7 +35,7 @@ export interface ActiveFilter {
 }
 
 // A value entry extended with a `retained` flag used for the sticky values pattern.
-interface DisplayValue extends LabelValueCount {
+interface DisplayValue extends AttributeValueCount {
   // True for values from the pre-filter snapshot that are absent from the current
   // filtered distribution. Shown at 0% and dimmed so the user can still see and
   // filtered distribution.
@@ -46,7 +46,7 @@ interface AttributeState {
   error: boolean;
   expanded: boolean;
   loading: boolean;
-  values: LabelValueCount[];
+  values: AttributeValueCount[];
 }
 
 interface State {
@@ -56,14 +56,14 @@ interface State {
   selectedFilters: ActiveFilter[];
   // Snapshot of value lists per field, taken the moment the first filter is applied.
   // Retained until all filters are cleared. null when no filters are active.
-  valueSnapshot: Record<string, LabelValueCount[]> | null;
+  valueSnapshot: Record<string, AttributeValueCount[]> | null;
 }
 
 type Action =
   | { type: 'DETECTING' }
   | { configs: AttributeConfig[]; type: 'SET_ATTRIBUTES' }
   | { field: string; type: 'LOADING' }
-  | { field: string; type: 'LOADED'; values: LabelValueCount[] }
+  | { field: string; type: 'LOADED'; values: AttributeValueCount[] }
   | { field: string; type: 'ERROR' }
   | { field: string; type: 'TOGGLE_EXPANDED' }
   | { config: AttributeConfig; type: 'ADD_ATTRIBUTE' }
@@ -75,12 +75,12 @@ function reducer(state: State, action: Action): State {
     case 'DETECTING':
       return { ...state, detecting: true };
     case 'SET_ATTRIBUTES': {
-      const detectedFields = new Set(action.configs.map((c) => c.field));
-      const userAdded = state.attributes.filter((a) => !detectedFields.has(a.field));
+      const detectedFields = new Set(action.configs.map((c) => c.attribute));
+      const userAdded = state.attributes.filter((a) => !detectedFields.has(a.attribute));
       const merged = [...action.configs, ...userAdded];
       const data: Record<string, AttributeState> = {};
       for (const c of merged) {
-        data[c.field] = state.data[c.field] ?? { error: false, expanded: false, loading: true, values: [] };
+        data[c.attribute] = state.data[c.attribute] ?? { error: false, expanded: false, loading: true, values: [] };
       }
       return { ...state, attributes: merged, data, detecting: false };
     }
@@ -135,7 +135,7 @@ function reducer(state: State, action: Action): State {
         },
       };
     case 'ADD_ATTRIBUTE':
-      if (state.attributes.some((a) => a.field === action.config.field)) {
+      if (state.attributes.some((a) => a.attribute === action.config.attribute)) {
         return state;
       }
       return {
@@ -143,7 +143,7 @@ function reducer(state: State, action: Action): State {
         attributes: [...state.attributes, action.config],
         data: {
           ...state.data,
-          [action.config.field]: { error: false, expanded: false, loading: true, values: [] },
+          [action.config.attribute]: { error: false, expanded: false, loading: true, values: [] },
         },
       };
     case 'TOGGLE_FILTER': {
@@ -190,14 +190,14 @@ function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[
   if (!priority.length) {
     return detected;
   }
-  const detectedByField = new Map(detected.map((a) => [a.field, a]));
+  const detectedByField = new Map(detected.map((a) => [a.attribute, a]));
   // Always include all priority attributes. Use the detected version if present
-  // (it carries the label from the consumer's labelMap); otherwise use the priority
+  // (it carries the attribute_name from the consumer's attributeMap); otherwise use the priority
   // config directly so the section still appears even when the field is absent from
   // detected_fields for this error group.
-  const priorityFirst = priority.map((p) => detectedByField.get(p.field) ?? p);
-  const priorityFields = new Set(priority.map((p) => p.field));
-  const rest = detected.filter((a) => !priorityFields.has(a.field));
+  const priorityFirst = priority.map((p) => detectedByField.get(p.attribute) ?? p);
+  const priorityFields = new Set(priority.map((p) => p.attribute));
+  const rest = detected.filter((a) => !priorityFields.has(a.attribute));
   return [...priorityFirst, ...rest];
 }
 
@@ -241,7 +241,7 @@ function buildEffectiveQuery(baseQuery: string, filters: ActiveFilter[]): string
 // Merges current distribution values with snapshot values.
 // Values in the snapshot but absent from current results are appended at 0%
 // and marked retained -- they remain visible and selectable after filtering.
-function mergeWithSnapshot(current: LabelValueCount[], snapshot: LabelValueCount[] | null): DisplayValue[] {
+function mergeWithSnapshot(current: AttributeValueCount[], snapshot: AttributeValueCount[] | null): DisplayValue[] {
   if (!snapshot) {
     return current.map((v) => ({ ...v, retained: false }));
   }
@@ -263,7 +263,7 @@ export interface AttributeDistributionProps {
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
   // Adapter function -- provided by the consumer. Returns value counts for a
   // single field within the dataset described by context.
-  fetchDistribution: (context: DatasetContext, field: string) => Promise<LabelValueCount[]>;
+  fetchDistribution: (context: DatasetContext, field: string) => Promise<AttributeValueCount[]>;
   // Seed value for the selectedFilters reducer state, applied only on first mount.
   // The consumer passes its last-known filter set so that if the component remounts
   // (e.g. due to React strict mode or Scenes re-activation), chips reappear
@@ -336,15 +336,15 @@ export function AttributeDistribution({
         return;
       }
       attributes.forEach((attr) => {
-        dispatch({ type: 'LOADING', field: attr.field });
+        dispatch({ type: 'LOADING', field: attr.attribute });
       });
       await Promise.allSettled(
         attributes.map(async (attr) => {
           try {
-            const values = await fetchDistribution(ctx, attr.field);
-            dispatch({ type: 'LOADED', field: attr.field, values });
+            const values = await fetchDistribution(ctx, attr.attribute);
+            dispatch({ type: 'LOADED', field: attr.attribute, values });
           } catch {
-            dispatch({ type: 'ERROR', field: attr.field });
+            dispatch({ type: 'ERROR', field: attr.attribute });
           }
         })
       );
@@ -428,19 +428,19 @@ export function AttributeDistribution({
     }
     // Use the raw field name as the label -- the consumer's label mapping only
     // applies to the detected field list returned by fetchAttributes.
-    const config: AttributeConfig = { field, label: field };
+    const config: AttributeConfig = { attribute: field, attribute_name: field };
     dispatch({ type: 'ADD_ATTRIBUTE', config });
     setNewFieldInput('');
     const effectiveContext = { ...context, query: buildEffectiveQuery(context.query, state.selectedFilters) };
     loadDistributions([config], effectiveContext);
   }
 
-  const priorityFieldSet = new Set(priorityAttributes.map((p) => p.field));
-  const nonPriorityAttributes = state.attributes.filter((a) => !priorityFieldSet.has(a.field));
+  const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
+  const nonPriorityAttributes = state.attributes.filter((a) => !priorityFieldSet.has(a.attribute));
   // Only split if there are both priority and non-priority fields. If no priority
   // attributes are configured, all fields are shown without a button.
   const hasSplit = priorityFieldSet.size > 0 && nonPriorityAttributes.length > 0;
-  const priorityAttributes_ = hasSplit ? state.attributes.filter((a) => priorityFieldSet.has(a.field)) : state.attributes;
+  const priorityAttributes_ = hasSplit ? state.attributes.filter((a) => priorityFieldSet.has(a.attribute)) : state.attributes;
   const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
   const visibleAttributes = hasSplit ? [...priorityAttributes_, ...visibleNonPriority] : state.attributes;
   const remainingCount = nonPriorityAttributes.length - extraFieldsShown;
@@ -508,24 +508,24 @@ export function AttributeDistribution({
 
       <div className={styles.sections}>
         {visibleAttributes.map((attr) => {
-          const attrState = state.data[attr.field];
+          const attrState = state.data[attr.attribute];
           if (!attrState) {
             return null;
           }
-          const fieldFilters = state.selectedFilters.filter((f) => f.field === attr.field);
+          const fieldFilters = state.selectedFilters.filter((f) => f.field === attr.attribute);
           const includedValues = new Set(fieldFilters.filter((f) => f.operator === '=').map((f) => f.value));
           const excludedValues = new Set(fieldFilters.filter((f) => f.operator === '!=').map((f) => f.value));
-          const snapshotValues = state.valueSnapshot?.[attr.field] ?? null;
+          const snapshotValues = state.valueSnapshot?.[attr.attribute] ?? null;
           return (
             <AttributeSection
-              key={attr.field}
+              key={attr.attribute}
               attrState={attrState}
               config={attr}
               includedValues={includedValues}
               excludedValues={excludedValues}
               snapshotValues={snapshotValues}
-              onToggleFilter={(value, operator) => handleToggleFilter(attr.field, value, operator)}
-              onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.field })}
+              onToggleFilter={(value, operator) => handleToggleFilter(attr.attribute, value, operator)}
+              onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.attribute })}
             />
           );
         })}
@@ -574,7 +574,7 @@ interface AttributeSectionProps {
   includedValues: Set<string>;
   onToggle: () => void;
   onToggleFilter: (value: string, operator: '!=' | '=') => void;
-  snapshotValues: LabelValueCount[] | null;
+  snapshotValues: AttributeValueCount[] | null;
 }
 
 function AttributeSection({
@@ -596,7 +596,7 @@ function AttributeSection({
   return (
     <div className={styles.section}>
       <button className={styles.sectionHeader} type="button" onClick={isExpandable ? onToggle : undefined}>
-        <span className={styles.sectionLabel}>{config.label}</span>
+        <span className={styles.sectionLabel}>{config.attribute_name}</span>
         {isExpandable && <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />}
       </button>
 

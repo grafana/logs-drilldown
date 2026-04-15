@@ -7,7 +7,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 
 import { getFeatureFlag } from '../../featureFlags/openFeature';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
-import { AttributeConfig, AttributeDistribution, DatasetContext, LabelValueCount } from './AttributeDistribution';
+import { AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
 
 // Appends a per-field metric aggregation around the base log query.
 // The base query must already include logfmt and any hash filters so that
@@ -40,13 +40,13 @@ function makeFetchAttributes(
     return (response.fields ?? [])
       .filter((f) => !excludeSet.has(f.label))
       .map((f) => ({
-        field: f.label,
-        label: labelMap[f.label] ?? f.label,
+        attribute: f.label,
+        attribute_name: labelMap[f.label] ?? f.label,
       }));
   };
 }
 
-async function fetchDistribution(context: DatasetContext, field: string): Promise<LabelValueCount[]> {
+async function fetchDistribution(context: DatasetContext, field: string): Promise<AttributeValueCount[]> {
   const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
   const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
 
@@ -134,7 +134,7 @@ export interface ErrorsAnalysisProps {
   // Optional ordered list of attributes to pin first in the distribution sidebar.
   // Defined by the consuming app -- logs-drilldown imposes no default ordering.
   // If not provided, detected fields appear in the order returned by fetchAttributes.
-  priorityAttributes?: Array<{ field: string; label: string }>;
+  priorityAttributes?: AttributeConfig[];
   // The full Loki log query for this error group, including any active filters.
   // Built and interpolated by the consuming app -- logs-drilldown does not construct
   // or modify it.
