@@ -115,6 +115,23 @@ export function AttributeDistribution({
     [fetchDistribution]
   );
 
+  // Sync internal filter state when initialSelectedFilters changes externally (e.g. user
+  // removes a filter from the page-level filter bar). Skips the initial mount since the
+  // reducer lazy initializer already seeds from initialSelectedFilters on first render.
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
+    const filters = initialSelectedFilters ?? [];
+    dispatch({ type: 'SET_FILTERS', filters });
+    if (state.attributes.length > 0) {
+      loadDistributions(state.attributes, context, filters);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(initialSelectedFilters)]);
+
   useEffect(() => {
     if (!context.datasourceUid || !context.query) {
       return;

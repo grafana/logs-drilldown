@@ -1,5 +1,4 @@
 import {
-  ActiveFilter,
   AttributeConfig,
   AttributeValueCount,
   State,
@@ -241,6 +240,41 @@ describe('reducer', () => {
       const state = reducer(initial, { field: 'browser', operator: '=', type: 'TOGGLE_FILTER', value: 'Chrome' });
       expect(state.valueSnapshot).toBeNull();
       expect(state.selectedFilters).toEqual([]);
+    });
+  });
+
+  describe('SET_FILTERS', () => {
+    it('replaces selectedFilters with the provided list', () => {
+      const initial: State = {
+        ...emptyState(),
+        selectedFilters: [{ field: 'browser', operator: '=', value: 'Chrome' }],
+      };
+      const filters = [{ field: 'os', operator: '=' as const, value: 'macOS' }];
+      const state = reducer(initial, { filters, type: 'SET_FILTERS' });
+      expect(state.selectedFilters).toEqual(filters);
+    });
+
+    it('preserves valueSnapshot when new filters are non-empty', () => {
+      const snapshot = { browser: [val('Chrome', 10, 100)] };
+      const initial: State = {
+        ...emptyState(),
+        selectedFilters: [{ field: 'browser', operator: '=', value: 'Chrome' }],
+        valueSnapshot: snapshot,
+      };
+      const filters = [{ field: 'os', operator: '=' as const, value: 'macOS' }];
+      const state = reducer(initial, { filters, type: 'SET_FILTERS' });
+      expect(state.valueSnapshot).toBe(snapshot);
+    });
+
+    it('clears valueSnapshot when new filters are empty', () => {
+      const initial: State = {
+        ...emptyState(),
+        selectedFilters: [{ field: 'browser', operator: '=', value: 'Chrome' }],
+        valueSnapshot: { browser: [val('Chrome', 10, 100)] },
+      };
+      const state = reducer(initial, { filters: [], type: 'SET_FILTERS' });
+      expect(state.selectedFilters).toEqual([]);
+      expect(state.valueSnapshot).toBeNull();
     });
   });
 

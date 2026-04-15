@@ -50,7 +50,8 @@ export type Action =
   | { field: string; type: 'TOGGLE_EXPANDED' }
   | { attribute: string; type: 'PIN_ATTRIBUTE' }
   | { field: string; operator: '!=' | '='; type: 'TOGGLE_FILTER'; value: string }
-  | { type: 'CLEAR_FILTERS' };
+  | { type: 'CLEAR_FILTERS' }
+  | { filters: ActiveFilter[]; type: 'SET_FILTERS' };
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -156,6 +157,8 @@ export function reducer(state: State, action: Action): State {
     }
     case 'CLEAR_FILTERS':
       return { ...state, selectedFilters: [], valueSnapshot: null };
+    case 'SET_FILTERS':
+      return { ...state, selectedFilters: action.filters, valueSnapshot: action.filters.length === 0 ? null : state.valueSnapshot };
     default:
       return state;
   }
