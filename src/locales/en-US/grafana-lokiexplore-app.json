@@ -734,7 +734,7 @@
       },
       "service-selection-pagination-scene": {
         "aria-label-count-info": "Count info",
-        "of-total": " of {{totalCount}}",
+        "of-total": "of {{totalCount}}",
         "showing": "Showing",
         "tooltip": {
           "count-info": "{{totalCount}} labels have values for the selected time range. Total label count may differ"

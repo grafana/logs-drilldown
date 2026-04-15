@@ -72,7 +72,7 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
         <span className={styles.searchFieldPlaceholderText}>
           {t('components.service-selection-scene.service-selection-pagination-scene.showing', 'Showing')}
           {countSelect}
-          {t('components.service-selection-scene.service-selection-pagination-scene.of-total', ' of {{totalCount}}', {
+          {t('components.service-selection-scene.service-selection-pagination-scene.of-total', 'of {{totalCount}}', {
             totalCount,
           })}
           {infoButton}
