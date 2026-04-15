@@ -33,6 +33,9 @@ export interface State {
   data: Record<string, AttributeState>;
   detecting: boolean;
   selectedFilters: ActiveFilter[];
+  // Attributes the user explicitly pinned via the search combobox.
+  // Rendered between priority and non-priority fields, always visible.
+  userPinnedAttributes: string[];
   // Snapshot of value lists per field, taken the moment the first filter is applied.
   // Retained until all filters are cleared. null when no filters are active.
   valueSnapshot: Record<string, AttributeValueCount[]> | null;
@@ -45,7 +48,7 @@ export type Action =
   | { field: string; type: 'LOADED'; values: AttributeValueCount[] }
   | { field: string; type: 'ERROR' }
   | { field: string; type: 'TOGGLE_EXPANDED' }
-  | { config: AttributeConfig; type: 'ADD_ATTRIBUTE' }
+  | { attribute: string; type: 'PIN_ATTRIBUTE' }
   | { field: string; operator: '!=' | '='; type: 'TOGGLE_FILTER'; value: string }
   | { type: 'CLEAR_FILTERS' };
 
@@ -113,18 +116,11 @@ export function reducer(state: State, action: Action): State {
           },
         },
       };
-    case 'ADD_ATTRIBUTE':
-      if (state.attributes.some((a) => a.attribute === action.config.attribute)) {
+    case 'PIN_ATTRIBUTE':
+      if (state.userPinnedAttributes.includes(action.attribute)) {
         return state;
       }
-      return {
-        ...state,
-        attributes: [...state.attributes, action.config],
-        data: {
-          ...state.data,
-          [action.config.attribute]: { error: false, expanded: false, loading: true, values: [] },
-        },
-      };
+      return { ...state, userPinnedAttributes: [...state.userPinnedAttributes, action.attribute] };
     case 'TOGGLE_FILTER': {
       const { field, value, operator } = action;
       const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);

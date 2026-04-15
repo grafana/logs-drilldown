@@ -6,7 +6,7 @@ import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
+import { Combobox, Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
 
 import {
   ActiveFilter,
@@ -60,7 +60,6 @@ export function AttributeDistribution({
   showAllLink,
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
-  const [newFieldInput, setNewFieldInput] = useState('');
   const [extraFieldsShown, setExtraFieldsShown] = useState(0);
 
   const [state, dispatch] = useReducer(
@@ -71,6 +70,7 @@ export function AttributeDistribution({
       data: {},
       detecting: false,
       selectedFilters: initFilters,
+      userPinnedAttributes: [],
       valueSnapshot: null,
     })
   );
@@ -174,29 +174,25 @@ export function AttributeDistribution({
     onFiltersChange?.([]);
   }
 
-  function handleAddField() {
-    const field = newFieldInput.trim();
-    if (!field) {
-      return;
-    }
-    // Use the raw field name as the label; the consumer's label mapping only
-    // applies to the detected field list returned by fetchAttributes.
-    const config: AttributeConfig = { attribute: field, attribute_name: field };
-    dispatch({ type: 'ADD_ATTRIBUTE', config });
-    setNewFieldInput('');
-    loadDistributions([config], context, state.selectedFilters);
+  function handlePinAttribute(attribute: string) {
+    dispatch({ type: 'PIN_ATTRIBUTE', attribute });
   }
 
   const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
-  const nonPriorityAttributes = state.attributes.filter((a) => !priorityFieldSet.has(a.attribute));
-  // Only split if there are both priority and non-priority fields. If no priority
-  // attributes are configured, all fields are shown without a button.
-  const hasSplit = priorityFieldSet.size > 0 && nonPriorityAttributes.length > 0;
-  const priorityAttributes_ = hasSplit ? state.attributes.filter((a) => priorityFieldSet.has(a.attribute)) : state.attributes;
+  const pinnedSet = new Set(state.userPinnedAttributes);
+  const nonPriorityAttributes = state.attributes.filter(
+    (a) => !priorityFieldSet.has(a.attribute) && !pinnedSet.has(a.attribute)
+  );
+  // Only split if there are both priority/pinned and non-priority fields.
+  const hasSplit = (priorityFieldSet.size > 0 || pinnedSet.size > 0) && nonPriorityAttributes.length > 0;
+  const priorityAndPinned = hasSplit
+    ? state.attributes.filter((a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute))
+    : state.attributes;
   const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
-  const visibleAttributes = hasSplit ? [...priorityAttributes_, ...visibleNonPriority] : state.attributes;
+  const visibleAttributes = hasSplit ? [...priorityAndPinned, ...visibleNonPriority] : state.attributes;
   const remainingCount = nonPriorityAttributes.length - extraFieldsShown;
   const nextBatch = Math.min(10, remainingCount);
+  const comboboxOptions = nonPriorityAttributes.map((a) => ({ label: a.attribute_name, value: a.attribute }));
 
   return (
     <div className={styles.container}>
@@ -234,18 +230,14 @@ export function AttributeDistribution({
         </div>
       )}
 
-      <div className={styles.addField}>
-        <input
-          className={styles.fieldInput}
+      {comboboxOptions.length > 0 && (
+        <Combobox
+          options={comboboxOptions}
+          value={null}
           placeholder={t('errors-analysis.field-input-placeholder', 'Search to add more attributes')}
-          value={newFieldInput}
-          onChange={(e) => setNewFieldInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAddField()}
+          onChange={(option) => option && handlePinAttribute(option.value)}
         />
-        <button className={styles.addButton} type="button" onClick={handleAddField}>
-          {t('errors-analysis.add-field-button', '+ Add')}
-        </button>
-      </div>
+      )}
 
       {state.detecting && (
         <div className={styles.detectingRow}>
@@ -424,23 +416,6 @@ function AttributeSection({
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  addButton: css({
-    background: 'none',
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-    color: theme.colors.text.primary,
-    cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: theme.spacing(0.5, 1),
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      background: theme.colors.action.hover,
-    },
-  }),
-  addField: css({
-    display: 'flex',
-    gap: theme.spacing(1),
-  }),
   bar: css({
     background: theme.colors.primary.main,
     opacity: 0.5,
@@ -526,22 +501,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.bodySmall.fontSize,
     fontStyle: 'italic',
     padding: theme.spacing(1, 0),
-  }),
-  fieldInput: css({
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-    color: theme.colors.text.primary,
-    flex: 1,
-    fontSize: theme.typography.bodySmall.fontSize,
-    outline: 'none',
-    padding: theme.spacing(0.5, 1),
-    '&::placeholder': {
-      color: theme.colors.text.disabled,
-    },
-    '&:focus': {
-      borderColor: theme.colors.primary.border,
-    },
   }),
   filterChips: css({
     alignItems: 'center',
