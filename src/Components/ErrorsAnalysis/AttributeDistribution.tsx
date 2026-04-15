@@ -449,18 +449,12 @@ export function AttributeDistribution({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.title}>{t('errors-analysis.title', 'Attribute Distribution')}</div>
+        <div className={styles.title}>{t('errors-analysis.title', 'Attribute Explorer')}</div>
         {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
         <div className={styles.description}>
           {t(
-            'errors-analysis.description-distributions',
-            'Distributions highlight which fields differ most between this error group and all other logs. High-delta fields may indicate causal factors. Click a value to narrow the error subset.'
-          )}
-        </div>
-        <div className={styles.description}>
-          {t(
-            'errors-analysis.description-add-fields',
-            'Add additional fields to explore distributions or correlations, including custom labels.'
+            'errors-analysis.description',
+            'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
           )}
         </div>
       </div>
@@ -490,7 +484,7 @@ export function AttributeDistribution({
       <div className={styles.addField}>
         <input
           className={styles.fieldInput}
-          placeholder={t('errors-analysis.field-input-placeholder', 'Search or select a field')}
+          placeholder={t('errors-analysis.field-input-placeholder', 'Search to add more attributes')}
           value={newFieldInput}
           onChange={(e) => setNewFieldInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddField()}
