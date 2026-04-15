@@ -588,7 +588,6 @@ function AttributeSection({
 
   const allValues = mergeWithSnapshot(values, snapshotValues);
   const visibleValues = expanded ? allValues.slice(0, MAX_VALUES_EXPANDED) : allValues.slice(0, MAX_VALUES_COLLAPSED);
-  const hasMore = allValues.length > MAX_VALUES_EXPANDED;
   const isExpandable = allValues.length > MAX_VALUES_COLLAPSED;
 
   return (
@@ -659,11 +658,6 @@ function AttributeSection({
 
       {!loading && !error && allValues.length === 0 && <div className={styles.emptyRow}>{t('errors-analysis.no-values-found', 'No values found')}</div>}
 
-      {expanded && hasMore && (
-        <button className={styles.showAllButton} onClick={(e) => e.stopPropagation()}>
-          {t('errors-analysis.show-all-button', 'Show all')}
-        </button>
-      )}
     </div>
   );
 }
@@ -858,18 +852,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
   sections: css({
     display: 'flex',
     flexDirection: 'column',
-  }),
-  showAllButton: css({
-    background: 'none',
-    border: 'none',
-    color: theme.colors.text.link,
-    cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: theme.spacing(0.5, 0.5),
-    textAlign: 'left',
-    '&:hover': {
-      textDecoration: 'underline',
-    },
   }),
   showMoreFields: css({
     borderTop: `1px solid ${theme.colors.border.weak}`,
