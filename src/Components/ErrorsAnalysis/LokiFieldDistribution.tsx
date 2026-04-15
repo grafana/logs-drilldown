@@ -117,7 +117,7 @@ async function fetchDistribution(context: DatasetContext, field: string): Promis
     .sort((a, b) => b.percentage - a.percentage);
 }
 
-export interface ErrorsAnalysisProps {
+export interface LokiFieldDistributionProps {
   datasourceUid: string;
   // Fields to exclude from the distribution sidebar. The consuming app owns this
   // list because it has domain knowledge of which fields are noise for its dataset.
@@ -149,7 +149,7 @@ export interface ErrorsAnalysisProps {
   timeRange: { from: number; to: number };
 }
 
-export default function ErrorsAnalysis({
+export default function LokiFieldDistribution({
   datasourceUid,
   fieldsToExclude = [],
   initialSelectedFilters,
@@ -160,7 +160,7 @@ export default function ErrorsAnalysis({
   queryLimitLabel,
   showAllLink,
   timeRange,
-}: ErrorsAnalysisProps) {
+}: LokiFieldDistributionProps) {
   const fetchAttributes = useMemo(
     () => makeFetchAttributes(fieldsToExclude, labelMap),
     // eslint-disable-next-line react-hooks/exhaustive-deps

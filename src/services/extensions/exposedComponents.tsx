@@ -5,7 +5,7 @@ import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
 import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
-import { ErrorsAnalysisProps } from 'Components/ErrorsAnalysis/ErrorsAnalysis';
+import { LokiFieldDistributionProps } from 'Components/ErrorsAnalysis/LokiFieldDistribution';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
 const initI18n = async () => {
@@ -31,9 +31,9 @@ const EmbeddedLogsExploration = lazy(async () => {
   return import('Components/EmbeddedLogsExploration/EmbeddedLogs');
 });
 
-const ErrorsAnalysis = lazy(async () => {
+const LokiFieldDistribution = lazy(async () => {
   await initI18n();
-  return import('Components/ErrorsAnalysis/ErrorsAnalysis');
+  return import('Components/ErrorsAnalysis/LokiFieldDistribution');
 });
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
@@ -68,16 +68,16 @@ export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationP
   );
 }
 
-export function SuspendedErrorsAnalysis(props: ErrorsAnalysisProps) {
+export function SuspendedLokiFieldDistribution(props: LokiFieldDistributionProps) {
   return (
     <Suspense
       fallback={
         <div>
-          <Trans i18nKey="services.suspended-errors-analysis.loading">Loading...</Trans>
+          <Trans i18nKey="services.suspended-loki-field-distribution.loading">Loading...</Trans>
         </div>
       }
     >
-      <ErrorsAnalysis {...props} />
+      <LokiFieldDistribution {...props} />
     </Suspense>
   );
 }

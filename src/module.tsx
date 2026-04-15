@@ -6,7 +6,7 @@ import type { JsonData } from './Components/AppConfig/AppConfig';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
-  SuspendedErrorsAnalysis,
+  SuspendedLokiFieldDistribution,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
 import { functionConfigs, linkConfigs } from 'services/extensions/links';
@@ -115,7 +115,7 @@ plugin.exposeComponent({
 });
 
 plugin.exposeComponent({
-  component: SuspendedErrorsAnalysis,
+  component: SuspendedLokiFieldDistribution,
   description: 'An errors analysis view for a given Faro app.',
   id: `grafana-lokiexplore-app/errors-analysis/v1`,
   title: 'Errors Analysis',
