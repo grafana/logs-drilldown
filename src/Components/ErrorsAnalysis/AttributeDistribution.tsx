@@ -646,13 +646,15 @@ function AttributeSection({
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && openMenu(e as unknown as React.MouseEvent<HTMLElement>)}
                 >
-                  <span className={styles.valueLabel} title={item.value}>
-                    {item.value}
-                  </span>
+                  <div className={styles.valueRowHeader}>
+                    <span className={styles.valueLabel} title={item.value}>
+                      {item.value}
+                    </span>
+                    <span className={styles.percentage}>{`${item.percentage}%`}</span>
+                  </div>
                   <div className={styles.barWrapper}>
                     <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
                   </div>
-                  <span className={styles.percentage}>{`${item.percentage}%`}</span>
                 </div>
               )}
             </WithContextMenu>
@@ -698,9 +700,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
   barWrapper: css({
     background: theme.colors.background.primary,
     borderRadius: theme.shape.radius.default,
-    flex: 1,
-    height: '6px',
+    height: '3px',
     overflow: 'hidden',
+    width: '100%',
   }),
   chip: css({
     alignItems: 'center',
@@ -808,10 +810,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
   percentage: css({
     color: theme.colors.text.secondary,
-    flex: '0 0 auto',
+    flexShrink: 0,
     fontSize: theme.typography.bodySmall.fontSize,
-    minWidth: '32px',
-    textAlign: 'right',
   }),
   queryLimit: css({
     backgroundColor: theme.colors.background.primary,
@@ -916,21 +916,28 @@ const getStyles = (theme: GrafanaTheme2) => ({
     whiteSpace: 'nowrap',
   }),
   valueRow: css({
-    alignItems: 'center',
     background: 'none',
     border: 'none',
     borderRadius: theme.shape.radius.default,
     color: theme.colors.text.primary,
     cursor: 'pointer',
     display: 'flex',
+    flexDirection: 'column',
     fontSize: theme.typography.bodySmall.fontSize,
-    gap: theme.spacing(1),
+    gap: theme.spacing(0.5),
     padding: theme.spacing(0.5, 0.5),
     textAlign: 'left',
     width: '100%',
     '&:hover': {
       background: theme.colors.action.hover,
     },
+  }),
+  valueRowHeader: css({
+    alignItems: 'center',
+    display: 'flex',
+    gap: theme.spacing(1),
+    justifyContent: 'space-between',
+    width: '100%',
   }),
   valueRowRetained: css({
     opacity: 0.45,
