@@ -38,7 +38,7 @@ export interface ActiveFilter {
 interface DisplayValue extends LabelValueCount {
   // True for values from the pre-filter snapshot that are absent from the current
   // filtered distribution. Shown at 0% and dimmed so the user can still see and
-  // interact with them after filtering narrows the result set.
+  // filtered distribution.
   retained: boolean;
 }
 
