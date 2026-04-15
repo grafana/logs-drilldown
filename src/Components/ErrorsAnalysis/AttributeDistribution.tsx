@@ -650,7 +650,10 @@ function AttributeSection({
                     <span className={styles.valueLabel} title={item.value}>
                       {item.value}
                     </span>
-                    <span className={styles.percentage}>{`${item.percentage}%`}</span>
+                    <span className={styles.stats}>
+                      <span className={styles.count}>{item.count}</span>
+                      <span className={styles.percentage}>{`${item.percentage}%`}</span>
+                    </span>
                   </div>
                   <div className={styles.barWrapper}>
                     <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
@@ -808,10 +811,21 @@ const getStyles = (theme: GrafanaTheme2) => ({
     justifyContent: 'center',
     padding: theme.spacing(1, 0),
   }),
+  count: css({
+    color: theme.colors.text.secondary,
+    minWidth: '32px',
+    textAlign: 'right',
+  }),
   percentage: css({
     color: theme.colors.text.secondary,
-    flexShrink: 0,
     fontSize: theme.typography.bodySmall.fontSize,
+    minWidth: '36px',
+    textAlign: 'right',
+  }),
+  stats: css({
+    display: 'flex',
+    flexShrink: 0,
+    gap: theme.spacing(1),
   }),
   queryLimit: css({
     backgroundColor: theme.colors.background.primary,
