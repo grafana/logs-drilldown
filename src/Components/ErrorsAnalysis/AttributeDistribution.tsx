@@ -124,9 +124,7 @@ export function AttributeDistribution({
         })
       );
     },
-    // fetchDistribution is a stable module-level function passed from the adapter.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [fetchDistribution]
   );
 
   useEffect(() => {
