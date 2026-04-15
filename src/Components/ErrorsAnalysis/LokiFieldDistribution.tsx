@@ -34,7 +34,7 @@ function buildDistributionQuery(baseQuery: string, field: string): string {
 
 function makeFetchAttributes(
   fieldsToExclude: string[],
-  labelMap: Record<string, string>
+  attributeMap: Record<string, string>
 ): (context: DatasetContext) => Promise<AttributeConfig[]> {
   // Build the Set here, inside logs-drilldown's module, so Set.prototype methods
   // operate on a Set from this bundle's realm. Passing a Set across plugin
@@ -57,7 +57,7 @@ function makeFetchAttributes(
       .filter((f) => !excludeSet.has(f.label))
       .map((f) => ({
         attribute: f.label,
-        attribute_name: labelMap[f.label] ?? f.label,
+        attribute_name: attributeMap[f.label] ?? f.label,
       }));
   };
 }
@@ -153,7 +153,7 @@ export interface LokiFieldDistributionProps {
   // See AttributeDistributionProps.initialSelectedFilters.
   initialSelectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   // Display name overrides for raw field names. Unknown fields fall back to their raw name.
-  labelMap?: Record<string, string>;
+  attributeMap?: Record<string, string>;
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Attributes pinned to the top of the list.
   priorityAttributes?: AttributeConfig[];
@@ -169,7 +169,7 @@ export default function LokiFieldDistribution({
   datasourceUid,
   fieldsToExclude = [],
   initialSelectedFilters,
-  labelMap = {},
+  attributeMap = {},
   onFiltersChange,
   priorityAttributes,
   query,
@@ -178,9 +178,9 @@ export default function LokiFieldDistribution({
   timeRange,
 }: LokiFieldDistributionProps) {
   const fetchAttributes = useMemo(
-    () => makeFetchAttributes(fieldsToExclude, labelMap),
+    () => makeFetchAttributes(fieldsToExclude, attributeMap),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(fieldsToExclude), JSON.stringify(labelMap)]
+    [JSON.stringify(fieldsToExclude), JSON.stringify(attributeMap)]
   );
 
   if (!getFeatureFlag('drilldown.logs.attributeExplorer')) {
