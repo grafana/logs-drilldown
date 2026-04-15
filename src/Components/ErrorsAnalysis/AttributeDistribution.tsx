@@ -279,7 +279,7 @@ export function AttributeDistribution({
       {state.detecting && (
         <div className={styles.detectingRow}>
           <Spinner size="sm" />
-          <span>{t('errors-analysis.discovering-fields', 'Discovering fields\u2026')}</span>
+          <span>{t('errors-analysis.discovering-fields', 'Discovering attributes\u2026')}</span>
         </div>
       )}
 
