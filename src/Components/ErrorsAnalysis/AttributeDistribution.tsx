@@ -469,13 +469,14 @@ export function AttributeDistribution({
               <button
                 aria-label={t('errors-analysis.remove-filter-aria', 'Remove filter {{field}} {{operator}} {{value}}', { field, operator, value })}
                 className={styles.chipRemove}
+                type="button"
                 onClick={() => handleToggleFilter(field, value, operator)}
               >
                 <Icon name="times" size="xs" />
               </button>
             </div>
           ))}
-          <button className={styles.clearAll} onClick={handleClearFilters}>
+          <button className={styles.clearAll} type="button" onClick={handleClearFilters}>
             {t('errors-analysis.clear-all', 'Clear all')}
           </button>
         </div>
@@ -489,7 +490,7 @@ export function AttributeDistribution({
           onChange={(e) => setNewFieldInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddField()}
         />
-        <button className={styles.addButton} onClick={handleAddField}>
+        <button className={styles.addButton} type="button" onClick={handleAddField}>
           {t('errors-analysis.add-field-button', '+ Add')}
         </button>
       </div>
@@ -537,6 +538,7 @@ export function AttributeDistribution({
                   className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
                   disabled={remainingCount === 0}
                   title={remainingCount === 0 ? t('errors-analysis.no-more-fields', 'No more fields') : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })}
+                  type="button"
                   onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
                 >
                   <Icon name="angle-down" size="sm" />
@@ -546,6 +548,7 @@ export function AttributeDistribution({
                   className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
                   disabled={extraFieldsShown === 0}
                   title={extraFieldsShown === 0 ? t('errors-analysis.no-extra-fields-shown', 'No extra fields shown') : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
+                  type="button"
                   onClick={() => setExtraFieldsShown(0)}
                 >
                   <Icon name="angle-up" size="sm" />
@@ -592,7 +595,7 @@ function AttributeSection({
 
   return (
     <div className={styles.section}>
-      <button className={styles.sectionHeader} onClick={isExpandable ? onToggle : undefined}>
+      <button className={styles.sectionHeader} type="button" onClick={isExpandable ? onToggle : undefined}>
         <span className={styles.sectionLabel}>{config.label}</span>
         {isExpandable && <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />}
       </button>
