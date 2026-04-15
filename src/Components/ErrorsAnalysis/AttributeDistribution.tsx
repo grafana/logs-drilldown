@@ -34,44 +34,18 @@ export interface DatasetContext {
 
 export interface AttributeDistributionProps {
   context: DatasetContext;
-  // Adapter function -- provided by the consumer. Returns detected fields for
-  // the given context. The consumer is responsible for filtering, label mapping,
-  // and any dataset-specific field discovery logic.
+  // Returns detected fields for the given context.
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
-  // Adapter function -- provided by the consumer. Returns value counts for a
-  // single field within the dataset described by context.
+  // Returns value counts for a single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Promise<AttributeValueCount[]>;
-  // Seed value for the selectedFilters reducer state, applied only on first mount.
-  // The consumer passes its last-known filter set so that if the component remounts
-  // (e.g. due to React strict mode or Scenes re-activation), chips reappear
-  // immediately without the user needing to re-apply them.
+  // Seed filter state on first mount so chips reappear after remount without user re-applying them.
   initialSelectedFilters?: ActiveFilter[];
-  // Called whenever the active filter set changes. The consumer can use this
-  // to update other panels on the page. Filter state is owned by this component.
-  // Persistence is consumer-controlled: in app-o11y-kwl this writes to ${Filters}
-  // so filters persist across navigation. Consumers that want ephemeral filters
-  // simply do not wire this to any persistent store.
+  // Called whenever the active filter set changes.
   onFiltersChange?: (filters: ActiveFilter[]) => void;
-  // Priority attributes are pinned to the top of the list, in the order given,
-  // before dynamically detected fields. Priority attributes not present in the
-  // detected set are still shown -- absence is itself informative.
-  // If not provided, detected fields appear in the order returned by fetchAttributes.
-  // The list and its ordering should be defined by the consumer, not this component.
+  // Attributes pinned to the top of the list. Absent priority attributes are still shown.
   priorityAttributes?: AttributeConfig[];
-  // Optional label displayed at the top of the sidebar to communicate the scope
-  // of the dataset to the user. The consumer sets this because it knows what limit
-  // its query applies -- the component just renders it.
-  // Example values: "Last 1000 logs", "Slowest 1000 traces"
+  // Label shown at the top of the sidebar communicating the dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
-  // Optional link to view all logs in an external view. The consumer builds and
-  // owns this href -- this component renders it verbatim. When using a plugin
-  // extension link (e.g. usePluginLinks with ExploreToolbarAction), the query
-  // passed in the extension context must be parsable by the link extension's
-  // contextToLink function. Queries with OR conditions (e.g. LogQL field
-  // filters joined by "or") are not supported by contextToLink -- they get
-  // flattened to AND in the URL and return no results. Simplify the context
-  // query to a stream-selector-only expression in that case.
-  // title comes from the extension (e.g. "Open in Grafana Logs Drilldown").
   showAllLink?: { href: string; title: string };
 }
 
@@ -154,7 +128,7 @@ export function AttributeDistribution({
       try {
         detected = await fetchAttributes(context);
       } catch {
-        // fall through with empty list -- user can still add fields manually
+        // fall through with empty list; user can still add fields manually
       }
       if (cancelled) {
         return;
@@ -208,7 +182,7 @@ export function AttributeDistribution({
     if (!field) {
       return;
     }
-    // Use the raw field name as the label -- the consumer's label mapping only
+    // Use the raw field name as the label; the consumer's label mapping only
     // applies to the detected field list returned by fetchAttributes.
     const config: AttributeConfig = { attribute: field, attribute_name: field };
     dispatch({ type: 'ADD_ATTRIBUTE', config });

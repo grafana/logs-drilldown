@@ -17,9 +17,7 @@ export interface ActiveFilter {
 
 // A value entry extended with a `retained` flag used for the sticky values pattern.
 export interface DisplayValue extends AttributeValueCount {
-  // True for values from the pre-filter snapshot that are absent from the current
-  // filtered distribution. Shown at 0% and dimmed so the user can still see and
-  // filtered distribution.
+  // Values absent from the current filtered result, shown at 0% and dimmed.
   retained: boolean;
 }
 
@@ -134,13 +132,13 @@ export function reducer(state: State, action: Action): State {
 
       let newFilters: ActiveFilter[];
       if (existingIndex >= 0 && state.selectedFilters[existingIndex].operator === operator) {
-        // Same operator -- deselect
+        // Same operator: deselect
         newFilters = state.selectedFilters.filter((_, i) => i !== existingIndex);
       } else if (existingIndex >= 0) {
-        // Operator switch for this value -- replace in place
+        // Operator switch for this value: replace in place
         newFilters = state.selectedFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
       } else if (existingForField && existingForField.operator !== operator) {
-        // Different operator already active for this field -- clear field and add new
+        // Different operator already active for this field: clear and add new
         newFilters = [...state.selectedFilters.filter((f) => f.field !== field), { field, value, operator }];
       } else {
         newFilters = [...state.selectedFilters, { field, value, operator }];
@@ -184,7 +182,7 @@ export function orderByPriority(detected: AttributeConfig[], priority: Attribute
 
 // Merges current distribution values with snapshot values.
 // Values in the snapshot but absent from current results are appended at 0%
-// and marked retained -- they remain visible and selectable after filtering.
+// and marked retained; they remain visible and selectable after filtering.
 export function mergeWithSnapshot(
   current: AttributeValueCount[],
   snapshot: AttributeValueCount[] | null

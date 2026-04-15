@@ -148,32 +148,19 @@ async function fetchDistribution(
 
 export interface LokiFieldDistributionProps {
   datasourceUid: string;
-  // Fields to exclude from the distribution sidebar. The consuming app owns this
-  // list because it has domain knowledge of which fields are noise for its dataset.
-  // If not provided, all detected fields are shown.
+  // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
   // See AttributeDistributionProps.initialSelectedFilters.
   initialSelectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
-  // Display name overrides for raw field names. The consuming app owns this mapping
-  // because it knows what its fields mean to users.
-  // Unknown fields fall back to their raw field name.
-  // If not provided, all fields display with their raw name.
+  // Display name overrides for raw field names. Unknown fields fall back to their raw name.
   labelMap?: Record<string, string>;
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
-  // Optional ordered list of attributes to pin first in the distribution sidebar.
-  // Defined by the consuming app -- logs-drilldown imposes no default ordering.
-  // If not provided, detected fields appear in the order returned by fetchAttributes.
+  // Attributes pinned to the top of the list.
   priorityAttributes?: AttributeConfig[];
-  // The full Loki log query for this error group, including any active filters.
-  // Built and interpolated by the consuming app -- logs-drilldown does not construct
-  // or modify it.
+  // The full Loki log query for this error group.
   query: string;
-  // Optional label shown at the top of the sidebar communicating the dataset scope.
-  // Set this when the underlying query caps the number of events so users understand
-  // the distributions are based on a sample. Example: "Last 1000 logs"
-  // The consuming app sets this -- it knows what limit its query applies.
+  // Label communicating dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
-  // See AttributeDistributionProps.showAllLink -- note the OR-query limitation there.
   showAllLink?: { href: string; title: string };
   timeRange: { from: number; to: number };
 }
