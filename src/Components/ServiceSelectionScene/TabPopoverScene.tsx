@@ -27,10 +27,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
       'Search labels'
     );
 
-    const savedTabIconTitle = t(
-      'components.service-selection-scene.tab-popover-scene.icon-saved-tab',
-      'Previously selected label'
-    );
+    const savedTabIconTitle = t('components.service-selection-scene.tab-popover-scene.icon-saved-tab', 'Saved label');
 
     const comboboxOptions: Array<ComboboxOption<string>> = useMemo(
       () =>
