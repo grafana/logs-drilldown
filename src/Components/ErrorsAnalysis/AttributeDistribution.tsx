@@ -105,11 +105,18 @@ export function AttributeDistribution({
   const selectedFiltersRef = useRef(state.selectedFilters);
   selectedFiltersRef.current = state.selectedFilters;
 
+  // Incremented on every loadDistributions call. Each async fetch captures the
+  // generation at the time it starts and drops its result if the counter has
+  // advanced, preventing stale results from a previous context from dispatching
+  // LOADED into the current view.
+  const generationRef = useRef(0);
+
   const loadDistributions = useCallback(
     async (attributes: AttributeConfig[], ctx: DatasetContext, filters: ActiveFilter[]) => {
       if (!attributes.length) {
         return;
       }
+      const generation = ++generationRef.current;
       attributes.forEach((attr) => {
         dispatch({ type: 'LOADING', field: attr.attribute });
       });
@@ -117,9 +124,13 @@ export function AttributeDistribution({
         attributes.map(async (attr) => {
           try {
             const values = await fetchDistribution(ctx, attr.attribute, filters);
-            dispatch({ type: 'LOADED', field: attr.attribute, values });
+            if (generationRef.current === generation) {
+              dispatch({ type: 'LOADED', field: attr.attribute, values });
+            }
           } catch {
-            dispatch({ type: 'ERROR', field: attr.attribute });
+            if (generationRef.current === generation) {
+              dispatch({ type: 'ERROR', field: attr.attribute });
+            }
           }
         })
       );
