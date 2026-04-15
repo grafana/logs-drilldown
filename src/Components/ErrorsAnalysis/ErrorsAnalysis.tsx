@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { lastValueFrom } from 'rxjs';
 
@@ -161,12 +161,17 @@ export default function ErrorsAnalysis({
   showAllLink,
   timeRange,
 }: ErrorsAnalysisProps) {
+  const fetchAttributes = useMemo(
+    () => makeFetchAttributes(fieldsToExclude, labelMap),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(fieldsToExclude), JSON.stringify(labelMap)]
+  );
+
   if (!getFeatureFlag('drilldown.logs.attributeExplorer')) {
     return null;
   }
 
   const context: DatasetContext = { datasourceUid, query, timeRange };
-  const fetchAttributes = makeFetchAttributes(fieldsToExclude, labelMap);
 
   return (
     <AttributeDistribution
