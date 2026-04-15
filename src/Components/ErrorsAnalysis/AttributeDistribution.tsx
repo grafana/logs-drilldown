@@ -144,10 +144,7 @@ export function AttributeDistribution({
     return () => {
       cancelled = true;
     };
-    // fetchAttributes is a stable module-level function; context fields and
-    // priorityAttributes are the true dependencies.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes]);
+  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes, fetchAttributes, loadDistributions]);
 
   function handleToggleFilter(field: string, value: string, operator: '!=' | '=') {
     // Mirror the reducer logic to compute newFilters synchronously for callbacks.
