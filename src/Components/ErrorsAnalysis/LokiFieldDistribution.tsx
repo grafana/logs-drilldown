@@ -7,7 +7,8 @@ import { getDataSourceSrv } from '@grafana/runtime';
 
 import { getFeatureFlag } from '../../featureFlags/openFeature';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
-import { AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
+import { ExpressionBuilder } from '../../services/ExpressionBuilder';
+import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
 
 // Appends a per-field metric aggregation around the base log query.
 // The base query must already include logfmt and any hash filters so that
@@ -46,13 +47,25 @@ function makeFetchAttributes(
   };
 }
 
-async function fetchDistribution(context: DatasetContext, field: string): Promise<AttributeValueCount[]> {
+async function fetchDistribution(
+  context: DatasetContext,
+  field: string,
+  filters: ActiveFilter[]
+): Promise<AttributeValueCount[]> {
   const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
   const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
 
+  const effectiveQuery =
+    filters.length > 0
+      ? context.query +
+        new ExpressionBuilder(filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))).getFieldsExpr(
+          { decodeFilters: false, joinMatchFilters: true }
+        )
+      : context.query;
+
   const target: LokiQuery = {
     datasource: { type: 'loki', uid: context.datasourceUid },
-    expr: buildDistributionQuery(context.query, field),
+    expr: buildDistributionQuery(effectiveQuery, field),
     queryType: 'instant',
     refId: field,
   };

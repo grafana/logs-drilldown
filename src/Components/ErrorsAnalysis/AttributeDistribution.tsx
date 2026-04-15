@@ -30,43 +30,6 @@ export interface DatasetContext {
   timeRange: { from: number; to: number };
 }
 
-// Escapes special RE2 regex characters in a literal value string.
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-// Appends LogQL filter pipeline stages for active filters to the base query.
-// Multiple values for the same field and operator are combined via regex (=~ / !~).
-// Filters across different fields stack as AND (separate pipeline stages).
-function buildEffectiveQuery(baseQuery: string, filters: ActiveFilter[]): string {
-  if (!filters.length) {
-    return baseQuery;
-  }
-
-  // Group by field -- per-field operator is uniform (enforced by the reducer).
-  const byField = new Map<string, { operator: '!=' | '='; values: string[] }>();
-  for (const { field, value, operator } of filters) {
-    const existing = byField.get(field);
-    if (existing) {
-      existing.values.push(value);
-    } else {
-      byField.set(field, { operator, values: [value] });
-    }
-  }
-
-  let q = baseQuery;
-  for (const [field, { operator, values }] of byField) {
-    if (values.length === 1) {
-      q += ` | ${field}${operator}"${values[0]}"`;
-    } else {
-      const regexOp = operator === '=' ? '=~' : '!~';
-      const pattern = values.map(escapeRegex).join('|');
-      q += ` | ${field}${regexOp}"${pattern}"`;
-    }
-  }
-  return q;
-}
-
 export interface AttributeDistributionProps {
   context: DatasetContext;
   // Adapter function -- provided by the consumer. Returns detected fields for
@@ -75,7 +38,7 @@ export interface AttributeDistributionProps {
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
   // Adapter function -- provided by the consumer. Returns value counts for a
   // single field within the dataset described by context.
-  fetchDistribution: (context: DatasetContext, field: string) => Promise<AttributeValueCount[]>;
+  fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Promise<AttributeValueCount[]>;
   // Seed value for the selectedFilters reducer state, applied only on first mount.
   // The consumer passes its last-known filter set so that if the component remounts
   // (e.g. due to React strict mode or Scenes re-activation), chips reappear
@@ -143,7 +106,7 @@ export function AttributeDistribution({
   selectedFiltersRef.current = state.selectedFilters;
 
   const loadDistributions = useCallback(
-    async (attributes: AttributeConfig[], ctx: DatasetContext) => {
+    async (attributes: AttributeConfig[], ctx: DatasetContext, filters: ActiveFilter[]) => {
       if (!attributes.length) {
         return;
       }
@@ -153,7 +116,7 @@ export function AttributeDistribution({
       await Promise.allSettled(
         attributes.map(async (attr) => {
           try {
-            const values = await fetchDistribution(ctx, attr.attribute);
+            const values = await fetchDistribution(ctx, attr.attribute, filters);
             dispatch({ type: 'LOADED', field: attr.attribute, values });
           } catch {
             dispatch({ type: 'ERROR', field: attr.attribute });
@@ -187,11 +150,7 @@ export function AttributeDistribution({
       const ordered = orderByPriority(detected, priorityAttributes);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
       const activeFilters = selectedFiltersRef.current;
-      const effectiveContext =
-        activeFilters.length > 0
-          ? { ...context, query: buildEffectiveQuery(context.query, activeFilters) }
-          : context;
-      loadDistributions(ordered, effectiveContext);
+      loadDistributions(ordered, context, activeFilters);
     }
 
     run();
@@ -222,14 +181,13 @@ export function AttributeDistribution({
 
     dispatch({ type: 'TOGGLE_FILTER', field, value, operator });
 
-    const effectiveContext = { ...context, query: buildEffectiveQuery(context.query, newFilters) };
-    loadDistributions(state.attributes, effectiveContext);
+    loadDistributions(state.attributes, context, newFilters);
     onFiltersChange?.(newFilters);
   }
 
   function handleClearFilters() {
     dispatch({ type: 'CLEAR_FILTERS' });
-    loadDistributions(state.attributes, context);
+    loadDistributions(state.attributes, context, []);
     onFiltersChange?.([]);
   }
 
@@ -243,8 +201,7 @@ export function AttributeDistribution({
     const config: AttributeConfig = { attribute: field, attribute_name: field };
     dispatch({ type: 'ADD_ATTRIBUTE', config });
     setNewFieldInput('');
-    const effectiveContext = { ...context, query: buildEffectiveQuery(context.query, state.selectedFilters) };
-    loadDistributions([config], effectiveContext);
+    loadDistributions([config], context, state.selectedFilters);
   }
 
   const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
