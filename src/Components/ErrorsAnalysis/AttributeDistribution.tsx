@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
-import { logger } from '../../services/logger';
-
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Combobox, Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
+
+import { logger } from '../../services/logger';
 
 import {
   ActiveFilter,
@@ -119,6 +119,7 @@ export function AttributeDistribution({
   // removes a filter from the page-level filter bar). Skips the initial mount since the
   // reducer lazy initializer already seeds from initialSelectedFilters on first render.
   const isMountedRef = useRef(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!isMountedRef.current) {
       isMountedRef.current = true;
@@ -129,7 +130,6 @@ export function AttributeDistribution({
     if (state.attributes.length > 0) {
       loadDistributions(state.attributes, context, filters);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(initialSelectedFilters)]);
 
   useEffect(() => {

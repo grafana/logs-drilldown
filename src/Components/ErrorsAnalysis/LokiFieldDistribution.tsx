@@ -6,9 +6,11 @@ import { DataFrame, DataQueryRequest, dateTime, FieldType } from '@grafana/data'
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { getFeatureFlag } from '../../featureFlags/openFeature';
-import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
+import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
+
+import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
 
 interface LokiLike {
   getResource(path: string, params: Record<string, string>, options: Record<string, string>): Promise<unknown>;
@@ -23,7 +25,6 @@ function narrowDetectedFields(response: unknown): Array<{ label: string }> {
   }
   return response['fields'].filter((f): f is { label: string } => isRecord(f) && typeof f['label'] === 'string');
 }
-import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
 
 // Appends a per-field metric aggregation around the base log query.
 // The base query must already include logfmt and any hash filters so that
@@ -147,13 +148,13 @@ async function fetchDistribution(
 }
 
 export interface LokiFieldDistributionProps {
+  // Display name overrides for raw field names. Unknown fields fall back to their raw name.
+  attributeMap?: Record<string, string>;
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
   // See AttributeDistributionProps.initialSelectedFilters.
   initialSelectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
-  // Display name overrides for raw field names. Unknown fields fall back to their raw name.
-  attributeMap?: Record<string, string>;
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Attributes pinned to the top of the list.
   priorityAttributes?: AttributeConfig[];
