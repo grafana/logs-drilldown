@@ -6,19 +6,21 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
 
+import {
+  ActiveFilter,
+  AttributeConfig,
+  AttributeState,
+  AttributeValueCount,
+  State,
+  mergeWithSnapshot,
+  orderByPriority,
+  reducer,
+} from './attributeDistributionState';
+
+export type { ActiveFilter, AttributeConfig, AttributeValueCount } from './attributeDistributionState';
+
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
-
-export interface AttributeConfig {
-  attribute: string;
-  attribute_name: string; // or display_name
-}
-
-export interface AttributeValueCount {
-  count: number;
-  percentage: number;
-  value: string;
-}
 
 // The slice of state the component needs to fetch data.
 // The consumer builds this from its own datasource + query knowledge.
@@ -26,179 +28,6 @@ export interface DatasetContext {
   datasourceUid: string;
   query: string;
   timeRange: { from: number; to: number };
-}
-
-export interface ActiveFilter {
-  field: string;
-  operator: '!=' | '=';
-  value: string;
-}
-
-// A value entry extended with a `retained` flag used for the sticky values pattern.
-interface DisplayValue extends AttributeValueCount {
-  // True for values from the pre-filter snapshot that are absent from the current
-  // filtered distribution. Shown at 0% and dimmed so the user can still see and
-  // filtered distribution.
-  retained: boolean;
-}
-
-interface AttributeState {
-  error: boolean;
-  expanded: boolean;
-  loading: boolean;
-  values: AttributeValueCount[];
-}
-
-interface State {
-  attributes: AttributeConfig[];
-  data: Record<string, AttributeState>;
-  detecting: boolean;
-  selectedFilters: ActiveFilter[];
-  // Snapshot of value lists per field, taken the moment the first filter is applied.
-  // Retained until all filters are cleared. null when no filters are active.
-  valueSnapshot: Record<string, AttributeValueCount[]> | null;
-}
-
-type Action =
-  | { type: 'DETECTING' }
-  | { configs: AttributeConfig[]; type: 'SET_ATTRIBUTES' }
-  | { field: string; type: 'LOADING' }
-  | { field: string; type: 'LOADED'; values: AttributeValueCount[] }
-  | { field: string; type: 'ERROR' }
-  | { field: string; type: 'TOGGLE_EXPANDED' }
-  | { config: AttributeConfig; type: 'ADD_ATTRIBUTE' }
-  | { field: string; operator: '!=' | '='; type: 'TOGGLE_FILTER'; value: string }
-  | { type: 'CLEAR_FILTERS' };
-
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'DETECTING':
-      return { ...state, detecting: true };
-    case 'SET_ATTRIBUTES': {
-      const detectedFields = new Set(action.configs.map((c) => c.attribute));
-      const userAdded = state.attributes.filter((a) => !detectedFields.has(a.attribute));
-      const merged = [...action.configs, ...userAdded];
-      const data: Record<string, AttributeState> = {};
-      for (const c of merged) {
-        data[c.attribute] = state.data[c.attribute] ?? { error: false, expanded: false, loading: true, values: [] };
-      }
-      return { ...state, attributes: merged, data, detecting: false };
-    }
-    case 'LOADING':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          [action.field]: {
-            error: false,
-            expanded: state.data[action.field]?.expanded ?? false,
-            loading: true,
-            values: [],
-          },
-        },
-      };
-    case 'LOADED':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          [action.field]: {
-            error: false,
-            expanded: state.data[action.field]?.expanded ?? false,
-            loading: false,
-            values: action.values,
-          },
-        },
-      };
-    case 'ERROR':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          [action.field]: {
-            error: true,
-            expanded: state.data[action.field]?.expanded ?? false,
-            loading: false,
-            values: [],
-          },
-        },
-      };
-    case 'TOGGLE_EXPANDED':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          [action.field]: {
-            ...state.data[action.field],
-            expanded: !state.data[action.field]?.expanded,
-          },
-        },
-      };
-    case 'ADD_ATTRIBUTE':
-      if (state.attributes.some((a) => a.attribute === action.config.attribute)) {
-        return state;
-      }
-      return {
-        ...state,
-        attributes: [...state.attributes, action.config],
-        data: {
-          ...state.data,
-          [action.config.attribute]: { error: false, expanded: false, loading: true, values: [] },
-        },
-      };
-    case 'TOGGLE_FILTER': {
-      const { field, value, operator } = action;
-      const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);
-      const existingForField = state.selectedFilters.find((f) => f.field === field);
-
-      let newFilters: ActiveFilter[];
-      if (existingIndex >= 0 && state.selectedFilters[existingIndex].operator === operator) {
-        // Same operator -- deselect
-        newFilters = state.selectedFilters.filter((_, i) => i !== existingIndex);
-      } else if (existingIndex >= 0) {
-        // Operator switch for this value -- replace in place
-        newFilters = state.selectedFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
-      } else if (existingForField && existingForField.operator !== operator) {
-        // Different operator already active for this field -- clear field and add new
-        newFilters = [...state.selectedFilters.filter((f) => f.field !== field), { field, value, operator }];
-      } else {
-        newFilters = [...state.selectedFilters, { field, value, operator }];
-      }
-
-      // Take a snapshot of current values when the first filter is added.
-      let { valueSnapshot } = state;
-      if (state.selectedFilters.length === 0 && newFilters.length > 0) {
-        valueSnapshot = {};
-        for (const [f, attrState] of Object.entries(state.data)) {
-          valueSnapshot[f] = attrState.values;
-        }
-      }
-      if (newFilters.length === 0) {
-        valueSnapshot = null;
-      }
-
-      return { ...state, selectedFilters: newFilters, valueSnapshot };
-    }
-    case 'CLEAR_FILTERS':
-      return { ...state, selectedFilters: [], valueSnapshot: null };
-    default:
-      return state;
-  }
-}
-
-function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[]): AttributeConfig[] {
-  if (!priority.length) {
-    return detected;
-  }
-  const detectedByField = new Map(detected.map((a) => [a.attribute, a]));
-  // Always include all priority attributes. Use the detected version if present
-  // (it carries the attribute_name from the consumer's attributeMap); otherwise use the priority
-  // config directly so the section still appears even when the field is absent from
-  // detected_fields for this error group.
-  const priorityFirst = priority.map((p) => detectedByField.get(p.attribute) ?? p);
-  const priorityFields = new Set(priority.map((p) => p.attribute));
-  const rest = detected.filter((a) => !priorityFields.has(a.attribute));
-  return [...priorityFirst, ...rest];
 }
 
 // Escapes special RE2 regex characters in a literal value string.
@@ -236,23 +65,6 @@ function buildEffectiveQuery(baseQuery: string, filters: ActiveFilter[]): string
     }
   }
   return q;
-}
-
-// Merges current distribution values with snapshot values.
-// Values in the snapshot but absent from current results are appended at 0%
-// and marked retained -- they remain visible and selectable after filtering.
-function mergeWithSnapshot(current: AttributeValueCount[], snapshot: AttributeValueCount[] | null): DisplayValue[] {
-  if (!snapshot) {
-    return current.map((v) => ({ ...v, retained: false }));
-  }
-  const currentByValue = new Map(current.map((v) => [v.value, v]));
-  const result: DisplayValue[] = current.map((v) => ({ ...v, retained: false }));
-  for (const snap of snapshot) {
-    if (!currentByValue.has(snap.value)) {
-      result.push({ value: snap.value, count: 0, percentage: 0, retained: true });
-    }
-  }
-  return result;
 }
 
 export interface AttributeDistributionProps {
