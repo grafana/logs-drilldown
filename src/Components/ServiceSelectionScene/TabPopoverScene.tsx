@@ -20,6 +20,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
     const popoverStyles = useStyles2(getPopoverStyles);
     // Combobox menus render in a portal; mount them inside this node so focus and click handling
     const [comboboxMenuContainer, setComboboxMenuContainer] = useState<HTMLDivElement | null>(null);
+    const comboboxPortalProps = { portalContainer: comboboxMenuContainer ?? undefined };
 
     const searchLabelsPlaceholder = t(
       'components.service-selection-scene.tab-popover-scene.placeholder-search-labels',
@@ -42,7 +43,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
     );
 
     const selectTab = (value: string) => {
-      serviceSelectionTabsScene.toggleShowPopover();
+      serviceSelectionTabsScene.setState({ showPopover: false });
       serviceSelectionScene.setSelectedTab(value);
     };
 
@@ -91,6 +92,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
       <Stack direction="column" gap={0} role="tooltip">
         <div ref={setComboboxMenuContainer} className={popoverStyles.card.body}>
           <Combobox<string>
+            {...comboboxPortalProps}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
             placeholder={searchLabelsPlaceholder}
