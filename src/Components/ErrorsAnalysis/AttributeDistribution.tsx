@@ -4,7 +4,7 @@ import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Icon, Spinner, useStyles2 } from '@grafana/ui';
+import { Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
 
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
@@ -619,38 +619,43 @@ function AttributeSection({
           const isExcluded = excludedValues.has(item.value);
           const isSelected = isIncluded || isExcluded;
           return (
-            <div
+            <WithContextMenu
               key={item.value}
-              className={cx(
-                styles.valueRow,
-                isSelected && styles.valueRowSelected,
-                item.retained && styles.valueRowRetained
+              renderMenuItems={() => (
+                <>
+                  <MenuItem
+                    label={t('errors-analysis.filter-for-value', 'Filter for value')}
+                    onClick={() => onToggleFilter(item.value, '=')}
+                  />
+                  <MenuItem
+                    label={t('errors-analysis.filter-out-value', 'Filter out value')}
+                    onClick={() => onToggleFilter(item.value, '!=')}
+                  />
+                </>
               )}
             >
-              <span className={styles.valueLabel} title={item.value}>
-                {item.value}
-              </span>
-              <div className={styles.barWrapper}>
-                <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
-              </div>
-              <span className={styles.percentage}>{`${item.percentage}%`}</span>
-              <div className={styles.filterButtons}>
-                <button
-                  aria-label={t('errors-analysis.include-filter-aria', 'Include {{value}}', { value: item.value })}
-                  className={cx(styles.filterButton, isIncluded && styles.filterButtonActive)}
-                  onClick={() => onToggleFilter(item.value, '=')}
+              {({ openMenu }) => (
+                <div
+                  className={cx(
+                    styles.valueRow,
+                    isSelected && styles.valueRowSelected,
+                    item.retained && styles.valueRowRetained
+                  )}
+                  onClick={openMenu}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && openMenu(e as unknown as React.MouseEvent<HTMLElement>)}
                 >
-                  {t('errors-analysis.include-filter-button', '+')}
-                </button>
-                <button
-                  aria-label={t('errors-analysis.exclude-filter-aria', 'Exclude {{value}}', { value: item.value })}
-                  className={cx(styles.filterButton, isExcluded && styles.filterButtonActive)}
-                  onClick={() => onToggleFilter(item.value, '!=')}
-                >
-                  {'\u2212'}
-                </button>
-              </div>
-            </div>
+                  <span className={styles.valueLabel} title={item.value}>
+                    {item.value}
+                  </span>
+                  <div className={styles.barWrapper}>
+                    <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
+                  </div>
+                  <span className={styles.percentage}>{`${item.percentage}%`}</span>
+                </div>
+              )}
+            </WithContextMenu>
           );
         })}
 
@@ -783,38 +788,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     },
     '&:focus': {
       borderColor: theme.colors.primary.border,
-    },
-  }),
-  filterButtons: css({
-    display: 'flex',
-    flexShrink: 0,
-    gap: 2,
-  }),
-  filterButton: css({
-    alignItems: 'center',
-    background: 'none',
-    border: `1px solid ${theme.colors.border.medium}`,
-    borderRadius: theme.shape.radius.default,
-    color: theme.colors.text.secondary,
-    cursor: 'pointer',
-    display: 'flex',
-    fontSize: theme.typography.bodySmall.fontSize,
-    height: 18,
-    justifyContent: 'center',
-    lineHeight: 1,
-    padding: 0,
-    width: 18,
-    '&:hover': {
-      background: theme.colors.action.hover,
-      color: theme.colors.text.primary,
-    },
-  }),
-  filterButtonActive: css({
-    background: theme.colors.primary.transparent,
-    borderColor: theme.colors.primary.border,
-    color: theme.colors.primary.text,
-    '&:hover': {
-      background: theme.colors.primary.transparent,
     },
   }),
   filterChips: css({
