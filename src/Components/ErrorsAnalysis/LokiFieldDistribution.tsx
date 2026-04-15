@@ -119,16 +119,17 @@ async function fetchDistribution(
       return;
     }
 
-    function getValue(values: unknown, i: number): unknown {
-      if (typeof (values as any)?.get === 'function') {
-        return (values as any).get(i);
-      }
-      return (values as any)[i];
+    function getStringValue(values: string[], i: number): string {
+      return String(values[i]);
+    }
+
+    function getNumberValue(values: number[], i: number): number {
+      return Number(values[i]);
     }
 
     for (let i = 0; i < frame.length; i++) {
-      const labelValue = String(getValue(labelField.values, i) ?? '');
-      const count = Number(getValue(valueField.values, i));
+      const labelValue = getStringValue(labelField.values as string[], i);
+      const count = getNumberValue(valueField.values as number[], i);
       if (labelValue && !isNaN(count) && count > 0) {
         counts.push({ count, value: labelValue });
       }
