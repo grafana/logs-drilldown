@@ -230,7 +230,8 @@ export function AttributeDistribution({
 
   const { visibleAttributes, remainingCount, nextBatch } = useMemo(() => {
     const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
-    const remaining = nonPriorityAttributes.length - extraFieldsShown;
+    // Clamp to 0: extraFieldsShown can exceed length after a context change reduces detected fields.
+    const remaining = Math.max(0, nonPriorityAttributes.length - extraFieldsShown);
     return {
       nextBatch: Math.min(10, remaining),
       remainingCount: remaining,

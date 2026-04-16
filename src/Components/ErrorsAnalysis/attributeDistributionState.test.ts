@@ -276,6 +276,37 @@ describe('reducer', () => {
       expect(state.selectedFilters).toEqual([]);
       expect(state.valueSnapshot).toBeNull();
     });
+
+    it('takes a snapshot when transitioning from no filters to some', () => {
+      const initial: State = {
+        ...emptyState(),
+        data: {
+          browser: { error: false, expanded: false, loading: false, values: [val('Chrome', 10, 100)] },
+          os: { error: false, expanded: false, loading: false, values: [val('macOS', 5, 100)] },
+        },
+      };
+      const filters = [{ field: 'browser', operator: '=' as const, value: 'Chrome' }];
+      const state = reducer(initial, { filters, type: 'SET_FILTERS' });
+      expect(state.valueSnapshot).toEqual({
+        browser: [val('Chrome', 10, 100)],
+        os: [val('macOS', 5, 100)],
+      });
+    });
+
+    it('does not overwrite an existing snapshot when filters change', () => {
+      const snapshot = { browser: [val('Chrome', 10, 100)] };
+      const initial: State = {
+        ...emptyState(),
+        data: {
+          browser: { error: false, expanded: false, loading: false, values: [val('Chrome', 5, 100)] },
+        },
+        selectedFilters: [{ field: 'browser', operator: '=', value: 'Chrome' }],
+        valueSnapshot: snapshot,
+      };
+      const filters = [{ field: 'os', operator: '=' as const, value: 'macOS' }];
+      const state = reducer(initial, { filters, type: 'SET_FILTERS' });
+      expect(state.valueSnapshot).toBe(snapshot);
+    });
   });
 
   describe('CLEAR_FILTERS', () => {

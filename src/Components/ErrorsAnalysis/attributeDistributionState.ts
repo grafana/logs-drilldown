@@ -157,8 +157,19 @@ export function reducer(state: State, action: Action): State {
     }
     case 'CLEAR_FILTERS':
       return { ...state, selectedFilters: [], valueSnapshot: null };
-    case 'SET_FILTERS':
-      return { ...state, selectedFilters: action.filters, valueSnapshot: action.filters.length === 0 ? null : state.valueSnapshot };
+    case 'SET_FILTERS': {
+      let { valueSnapshot } = state;
+      if (action.filters.length === 0) {
+        valueSnapshot = null;
+      } else if (state.selectedFilters.length === 0 && valueSnapshot === null) {
+        // Going from no filters to some: take a snapshot so retained values appear.
+        valueSnapshot = {};
+        for (const [f, attrState] of Object.entries(state.data)) {
+          valueSnapshot[f] = attrState.values;
+        }
+      }
+      return { ...state, selectedFilters: action.filters, valueSnapshot };
+    }
     default:
       return state;
   }
