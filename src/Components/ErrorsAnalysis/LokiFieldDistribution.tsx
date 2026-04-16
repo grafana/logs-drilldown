@@ -9,7 +9,6 @@ import { getFeatureFlag } from '../../featureFlags/openFeature';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
-
 import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
 
 interface LokiLike {

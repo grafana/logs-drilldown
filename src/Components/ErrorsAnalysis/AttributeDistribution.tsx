@@ -7,7 +7,6 @@ import { t } from '@grafana/i18n';
 import { Combobox, Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
-
 import {
   ActiveFilter,
   AttributeConfig,
@@ -81,6 +80,16 @@ export function AttributeDistribution({
   const selectedFiltersRef = useRef(state.selectedFilters);
   selectedFiltersRef.current = state.selectedFilters;
 
+  // Always-current refs used inside effects that should not re-run when these
+  // values change (either because re-running is handled elsewhere, or because
+  // the value changes on every render and would cause infinite loops).
+  const contextRef = useRef(context);
+  contextRef.current = context;
+  const attributesRef = useRef(state.attributes);
+  attributesRef.current = state.attributes;
+  const loadDistributionsRef = useRef(loadDistributions);
+  loadDistributionsRef.current = loadDistributions;
+
   // Incremented on every loadDistributions call. Each async fetch captures the
   // generation at the time it starts and drops its result if the counter has
   // advanced, preventing stale results from a previous context from dispatching
@@ -118,8 +127,9 @@ export function AttributeDistribution({
   // Sync internal filter state when initialSelectedFilters changes externally (e.g. user
   // removes a filter from the page-level filter bar). Skips the initial mount since the
   // reducer lazy initializer already seeds from initialSelectedFilters on first render.
+  // context, state.attributes, and loadDistributions are read via always-current refs so
+  // they do not need to be deps (re-running on those changes is handled by the main effect).
   const isMountedRef = useRef(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!isMountedRef.current) {
       isMountedRef.current = true;
@@ -127,10 +137,10 @@ export function AttributeDistribution({
     }
     const filters = initialSelectedFilters ?? [];
     dispatch({ type: 'SET_FILTERS', filters });
-    if (state.attributes.length > 0) {
-      loadDistributions(state.attributes, context, filters);
+    if (attributesRef.current.length > 0) {
+      loadDistributionsRef.current(attributesRef.current, contextRef.current, filters);
     }
-  }, [JSON.stringify(initialSelectedFilters)]);
+  }, [initialSelectedFilters]);
 
   useEffect(() => {
     if (!context.datasourceUid || !context.query) {
@@ -143,7 +153,7 @@ export function AttributeDistribution({
       dispatch({ type: 'DETECTING' });
       let detected: AttributeConfig[] = [];
       try {
-        detected = await fetchAttributes(context);
+        detected = await fetchAttributes(contextRef.current);
       } catch {
         // fall through with empty list; user can still add fields manually
       }
@@ -153,7 +163,7 @@ export function AttributeDistribution({
       const ordered = orderByPriority(detected, priorityAttributes);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
       const activeFilters = selectedFiltersRef.current;
-      loadDistributions(ordered, context, activeFilters);
+      loadDistributions(ordered, contextRef.current, activeFilters);
     }
 
     run();
