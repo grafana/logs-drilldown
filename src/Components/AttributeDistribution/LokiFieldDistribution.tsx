@@ -145,6 +145,9 @@ async function fetchDistribution(
     .sort((a, b) => b.percentage - a.percentage);
 }
 
+const EMPTY_FIELDS_TO_EXCLUDE: string[] = [];
+const EMPTY_ATTRIBUTE_MAP: Record<string, string> = {};
+
 export interface LokiFieldDistributionProps {
   // Display name overrides for raw field names. Unknown fields fall back to their raw name.
   attributeMap?: Record<string, string>;
@@ -166,9 +169,9 @@ export interface LokiFieldDistributionProps {
 
 export default function LokiFieldDistribution({
   datasourceUid,
-  fieldsToExclude = [],
+  fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
   initialSelectedFilters,
-  attributeMap = {},
+  attributeMap = EMPTY_ATTRIBUTE_MAP,
   onFiltersChange,
   priorityAttributes,
   query,

@@ -22,6 +22,7 @@ export type { ActiveFilter, AttributeConfig, AttributeValueCount } from './attri
 
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
+const EMPTY_PRIORITY_ATTRIBUTES: AttributeConfig[] = [];
 
 // The slice of state the component needs to fetch data.
 // The consumer builds this from its own datasource + query knowledge.
@@ -57,7 +58,7 @@ export function AttributeDistribution({
   header,
   initialSelectedFilters,
   onFiltersChange,
-  priorityAttributes = [],
+  priorityAttributes = EMPTY_PRIORITY_ATTRIBUTES,
   queryLimitLabel,
   showAllLink,
 }: AttributeDistributionProps) {
@@ -209,35 +210,38 @@ export function AttributeDistribution({
     dispatch({ type: 'PIN_ATTRIBUTE', attribute });
   }
 
-  const { nonPriorityAttributes, hasSplit, priorityAndPinned, comboboxOptions } = useMemo(() => {
+  const { nonPriorityAttributes, priorityAndPinned, comboboxOptions } = useMemo(() => {
     const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
     const pinnedSet = new Set(state.userPinnedAttributes);
     const nonPriority = state.attributes.filter(
       (a) => !priorityFieldSet.has(a.attribute) && !pinnedSet.has(a.attribute)
     );
-    // Only split if there are both priority/pinned and non-priority fields.
-    const split = (priorityFieldSet.size > 0 || pinnedSet.size > 0) && nonPriority.length > 0;
-    const pinned = split
-      ? state.attributes.filter((a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute))
-      : state.attributes;
+    const pinned = state.attributes.filter(
+      (a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute)
+    );
     return {
       comboboxOptions: nonPriority.map((a) => ({ label: a.attribute_name, value: a.attribute })),
-      hasSplit: split,
       nonPriorityAttributes: nonPriority,
       priorityAndPinned: pinned,
     };
   }, [priorityAttributes, state.attributes, state.userPinnedAttributes]);
 
   const { visibleAttributes, remainingCount, nextBatch } = useMemo(() => {
-    const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
+    // When no priority attributes were provided, auto-show the first 10 so users see
+    // something immediately without having to click "show more".
+    // Use priorityAttributes.length (the prop) not priorityAndPinned.length so that
+    // user-pinning a field does not collapse the initial batch.
+    const initialVisible = priorityAttributes.length === 0 ? 10 : 0;
+    const totalShown = initialVisible + extraFieldsShown;
+    const visibleNonPriority = nonPriorityAttributes.slice(0, totalShown);
     // Clamp to 0: extraFieldsShown can exceed length after a context change reduces detected fields.
-    const remaining = Math.max(0, nonPriorityAttributes.length - extraFieldsShown);
+    const remaining = Math.max(0, nonPriorityAttributes.length - totalShown);
     return {
       nextBatch: Math.min(10, remaining),
       remainingCount: remaining,
-      visibleAttributes: hasSplit ? [...priorityAndPinned, ...visibleNonPriority] : state.attributes,
+      visibleAttributes: [...priorityAndPinned, ...visibleNonPriority],
     };
-  }, [nonPriorityAttributes, extraFieldsShown, hasSplit, priorityAndPinned, state.attributes]);
+  }, [nonPriorityAttributes, extraFieldsShown, priorityAndPinned, priorityAttributes]);
 
   return (
     <div className={styles.container}>
@@ -320,9 +324,9 @@ export function AttributeDistribution({
             />
           );
         })}
-        {(hasSplit && (extraFieldsShown > 0 || remainingCount > 0)) || showAllLink ? (
+        {(nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0)) || showAllLink ? (
           <div className={styles.showMoreFields}>
-            {hasSplit && (extraFieldsShown > 0 || remainingCount > 0) && (
+            {nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0) && (
               <>
                 <button
                   aria-label={t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })}
