@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { lastValueFrom } from 'rxjs';
 
-import { DataFrame, DataQueryRequest, dateTime, FieldType } from '@grafana/data';
+import { DataFrame, DataQueryRequest, TimeRange, dateTime, FieldType } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
@@ -164,7 +164,7 @@ export interface LokiFieldDistributionProps {
   // Label communicating dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
   showAllLink?: { href: string; title: string };
-  timeRange: { from: number; to: number };
+  timeRange: TimeRange;
 }
 
 export default function LokiFieldDistribution({
@@ -184,7 +184,12 @@ export default function LokiFieldDistribution({
     [fieldsToExclude, attributeMap]
   );
 
-  const context: DatasetContext = { datasourceUid, query, timeRange };
+  const numericTimeRange = useMemo(
+    () => ({ from: timeRange.from.valueOf(), to: timeRange.to.valueOf() }),
+    [timeRange]
+  );
+
+  const context: DatasetContext = { datasourceUid, query, timeRange: numericTimeRange };
 
   return (
     <AttributeDistribution
