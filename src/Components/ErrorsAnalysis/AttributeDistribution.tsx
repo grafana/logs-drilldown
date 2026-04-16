@@ -87,8 +87,6 @@ export function AttributeDistribution({
   contextRef.current = context;
   const attributesRef = useRef(state.attributes);
   attributesRef.current = state.attributes;
-  const loadDistributionsRef = useRef(loadDistributions);
-  loadDistributionsRef.current = loadDistributions;
 
   // Incremented on every loadDistributions call. Each async fetch captures the
   // generation at the time it starts and drops its result if the counter has
@@ -123,6 +121,9 @@ export function AttributeDistribution({
     },
     [fetchDistribution]
   );
+
+  const loadDistributionsRef = useRef(loadDistributions);
+  loadDistributionsRef.current = loadDistributions;
 
   // Sync internal filter state when initialSelectedFilters changes externally (e.g. user
   // removes a filter from the page-level filter bar). Skips the initial mount since the
