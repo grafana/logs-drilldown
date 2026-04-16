@@ -5,7 +5,7 @@ import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
 import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
-import { LokiFieldDistributionProps } from 'Components/ErrorsAnalysis/LokiFieldDistribution';
+import { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
 const initI18n = async () => {
@@ -33,7 +33,7 @@ const EmbeddedLogsExploration = lazy(async () => {
 
 const LokiFieldDistribution = lazy(async () => {
   await initI18n();
-  return import('Components/ErrorsAnalysis/LokiFieldDistribution');
+  return import('Components/AttributeDistribution/LokiFieldDistribution');
 });
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
