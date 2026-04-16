@@ -33,6 +33,12 @@ Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. N
 
 - **Frontend security** — Follow workspace rules for HTML sanitization (DOMPurify), URLs (`textUtil.sanitizeUrl`), and avoiding unsafe DOM APIs.
 
+### TypeScript and DOM events
+
+- **No `unknown` double-casts for events** — Do not recover legacy fields with `(e as unknown as { srcElement?: … }).srcElement`. Prefer `event.currentTarget`, typed handlers, `instanceof` checks, or a small well-named helper with a real type guard.
+- **No non-null assertions (`!`) to silence indexing** — Do not use `arr[arr.length - 1]!.value` or similar. After checking length, bind the last element to a variable (`const last = options[options.length - 1]`) and narrow with an explicit guard (`if (last == null) return;`) so TypeScript and readers see the same contract.
+- **Avoid redundant or contradictory guards** — Do not repeat the same emptiness check or stack unrelated conditions in one `if` (e.g. `options.length === 0` twice, or mixing length checks with a redundant `=== undefined` on the same path). Prefer one early return and a single, clear invariant for “last option exists.”
+
 ### Grafana Scenes
 
 Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) for app structure, routing, and interactive UI. When working on scenes-related code, follow the [Grafana Scenes documentation](https://grafana.com/developers/scenes/) and [demos](https://github.com/grafana/scenes/tree/main/packages/scenes-app/src/demos)

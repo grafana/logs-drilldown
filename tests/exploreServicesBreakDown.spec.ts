@@ -549,8 +549,8 @@ test.describe('explore services breakdown page', () => {
     });
     await explorePage.goToFieldsTab();
 
-    // Use the dropdown since the tenant field might not be visible
-    await page.getByText('FieldAll').click();
+    // Use the dropdown since the tenant field might not be visible (label + value no longer one "FieldAll" text node)
+    await page.getByLabel('Field', { exact: true }).click();
     await page.keyboard.type('tenan');
     await page.keyboard.press('Enter');
     await explorePage.assertNotLoading();
@@ -1946,8 +1946,8 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.goToFieldsTab();
 
-    // Use the dropdown since the tenant field might not be visible
-    await page.getByText('FieldAll').click();
+    // Use the dropdown since the tenant field might not be visible (label + value no longer one "FieldAll" text node)
+    await page.getByLabel('Field', { exact: true }).click();
     await page.keyboard.type('caller');
     await page.keyboard.press('Enter');
     await explorePage.assertNotLoading();
@@ -1969,8 +1969,8 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.goToLabelsTab();
 
-    // Use the dropdown since the tenant field might not be visible
-    await page.getByText('LabelAll').click();
+    // Use the dropdown since the tenant field might not be visible (label + value no longer one "LabelAll" text node)
+    await page.getByLabel('Label', { exact: true }).click();
     await page.keyboard.type('detected');
     await page.keyboard.press('Enter');
     await explorePage.assertNotLoading();

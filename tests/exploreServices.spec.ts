@@ -462,10 +462,7 @@ test.describe('explore services page', () => {
       test.describe('navigation', () => {
         test('user can use browser history to navigate through tabs', async ({ page }) => {
           const addNewTab = page.getByTestId(testIds.index.addNewLabelTab);
-          // TabPopoverScene: Grafana Popover content uses role="tooltip"; Combobox input has placeholder "Search labels"
-          const addLabelPopover = page.getByRole('tooltip').filter({
-            has: page.getByPlaceholder('Search labels'),
-          });
+          const selectNewLabelSelect = page.locator('[role="tooltip"]');
           const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
           const newLevelTabLoc = page.getByTestId('data-testid Tab level');
           const serviceTabLoc = page.getByTestId('data-testid Tab service');
@@ -480,17 +477,17 @@ test.describe('explore services page', () => {
           await addNewTab.click();
 
           // Dropdown should be open
-          await expect(addLabelPopover).toBeVisible();
+          await expect(selectNewLabelSelect).toContainText('Search labels');
 
           // Add "namespace" as a new tab
-          await page.getByRole('option', { name: 'namespace', exact: true }).click();
+          await page.getByText('namespace', { exact: true }).click();
           await expect(newNamespaceTabLoc).toHaveCount(1);
 
           // Click "New" tab
           await addNewTab.click();
 
           // Dropdown should be open
-          await expect(addLabelPopover).toBeVisible();
+          await expect(selectNewLabelSelect).toContainText('Search labels');
           await page.getByRole('option', { name: 'level' }).click();
           // await page.getByText(/level/, { exact: true }).click();
 
@@ -654,14 +651,12 @@ test.describe('explore services page', () => {
         await expect(addNewTab).toHaveCount(1);
         await addNewTab.click();
 
-        // Dropdown should be open (TabPopoverScene: tooltip + Combobox placeholder "Search labels")
-        const addLabelPopover = page.getByRole('tooltip').filter({
-          has: page.getByPlaceholder('Search labels'),
-        });
-        await expect(addLabelPopover).toBeVisible();
+        // Dropdown should be open
+        const selectNewLabelSelect = page.locator('[role="tooltip"]');
+        await expect(selectNewLabelSelect).toContainText('Search labels');
 
         // Add "namespace" as a new tab
-        await page.getByRole('option', { name: 'namespace', exact: true }).click();
+        await page.getByText('namespace', { exact: true }).click();
         const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
         await expect(newNamespaceTabLoc).toHaveCount(1);
 
