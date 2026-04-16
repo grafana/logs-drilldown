@@ -52,3 +52,11 @@ Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) fo
 - **Data and time range** — Use `$data` (e.g. `SceneQueryRunner`) and `$timeRange` (e.g. `SceneTimeRange`) on scene objects. These propagate to descendants in the object tree.
 
 - **Layout** — Use `SceneFlexLayout`, `SceneFlexItem`, `EmbeddedScene`, and `SceneAppPage` for structure. For app pages, use `SceneAppPage` for drill-downs, tabs, breadcrumbs, and routing.
+
+### Playwright E2E
+
+- **Centralize selectors** — Define stable `data-testid` values in **`src/services/testIds.ts`** (nested object grouped by feature area). Do not scatter raw `'data-testid …'` strings across components or tests.
+- **Wire in components** — For any **new** interactive control that E2E tests need to target (primary buttons, tabs, comboboxes, filters, drilldown affordances), add `data-testid={testIds…}` on the focusable control or its root (follow existing patterns in the repo; Grafana `@grafana/ui` components usually accept `data-testid` on inputs and comboboxes).
+- **Write tests against `testIds`** — In Playwright specs, use `page.getByTestId(testIds.some.path)` (or the project’s equivalent) instead of brittle locators such as concatenated visible text (`FieldAll`), placeholder-only queries, or `getByText` for strings that depend on layout or i18n.
+- **When to add IDs** — Add or extend `testIds` when you introduce new UI that should be covered by E2E, or when a test would otherwise rely on implementation details of `@grafana/ui` (e.g. tooltip vs dialog, label + value split across nodes).
+- **Naming** — Keep the same string style as existing entries (e.g. `'data-testid search-fields'`). Prefer descriptive, stable slugs over feature-coupled names that will churn on every copy change.

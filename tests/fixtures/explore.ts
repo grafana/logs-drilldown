@@ -276,10 +276,12 @@ export class ExplorePage {
 
   async assertFieldsIndex() {
     // Assert the fields tab is active
-    expect(await this.page.getByTestId('data-testid tab-fields').getAttribute('aria-selected')).toEqual('true');
-    // Assert the field group-by combobox is present (label "Field"; value "All" is not a single "FieldAll" text node)
-    await expect(this.page.getByLabel('Field', { exact: true })).toHaveCount(1);
-    await expect(this.page.getByLabel('Field', { exact: true })).toBeVisible();
+    expect(await this.page.getByTestId(testIds.exploreServiceDetails.tabFields).getAttribute('aria-selected')).toEqual(
+      'true'
+    );
+    // Assert the field group-by combobox is present (see FieldSelector + testIds.breakdowns.labelFieldSearch)
+    await expect(this.page.getByTestId(testIds.breakdowns.labelFieldSearch)).toHaveCount(1);
+    await expect(this.page.getByTestId(testIds.breakdowns.labelFieldSearch)).toBeVisible();
   }
 
   async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {

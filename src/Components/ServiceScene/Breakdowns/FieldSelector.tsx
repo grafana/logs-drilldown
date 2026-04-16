@@ -7,8 +7,8 @@ import { t } from '@grafana/i18n';
 import { VariableValueOption } from '@grafana/scenes';
 import { Combobox, ComboboxOption, InlineField, useStyles2 } from '@grafana/ui';
 
-import { wrapWildcardSearch } from '../../../services/query';
-import { testIds } from '../../../services/testIds';
+import { wrapWildcardSearch } from 'services/query';
+import { testIds } from 'services/testIds';
 
 type Props<T> = {
   label: string;
@@ -43,6 +43,7 @@ export function FieldSelector<T extends string | number>({ label, onChange, opti
         isClearable
         width="auto"
         minWidth={20}
+        data-testid={testIds.breakdowns.labelFieldSearch}
       />
     </InlineField>
   );
