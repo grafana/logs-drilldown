@@ -4,8 +4,8 @@ import { Trans } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
-import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
+import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
 const initI18n = async () => {
