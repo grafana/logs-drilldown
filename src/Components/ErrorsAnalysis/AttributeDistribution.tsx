@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
 import { css, cx } from '@emotion/css';
 
@@ -37,6 +37,8 @@ export interface AttributeDistributionProps {
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
   // Returns value counts for a single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Promise<AttributeValueCount[]>;
+  // Replaces the default header. Pass null to hide the header entirely.
+  header?: React.ReactNode;
   // Seed filter state on first mount so chips reappear after remount without user re-applying them.
   initialSelectedFilters?: ActiveFilter[];
   // Called whenever the active filter set changes.
@@ -52,6 +54,7 @@ export function AttributeDistribution({
   context,
   fetchAttributes,
   fetchDistribution,
+  header,
   initialSelectedFilters,
   onFiltersChange,
   priorityAttributes = [],
@@ -206,34 +209,49 @@ export function AttributeDistribution({
     dispatch({ type: 'PIN_ATTRIBUTE', attribute });
   }
 
-  const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
-  const pinnedSet = new Set(state.userPinnedAttributes);
-  const nonPriorityAttributes = state.attributes.filter(
-    (a) => !priorityFieldSet.has(a.attribute) && !pinnedSet.has(a.attribute)
-  );
-  // Only split if there are both priority/pinned and non-priority fields.
-  const hasSplit = (priorityFieldSet.size > 0 || pinnedSet.size > 0) && nonPriorityAttributes.length > 0;
-  const priorityAndPinned = hasSplit
-    ? state.attributes.filter((a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute))
-    : state.attributes;
-  const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
-  const visibleAttributes = hasSplit ? [...priorityAndPinned, ...visibleNonPriority] : state.attributes;
-  const remainingCount = nonPriorityAttributes.length - extraFieldsShown;
-  const nextBatch = Math.min(10, remainingCount);
-  const comboboxOptions = nonPriorityAttributes.map((a) => ({ label: a.attribute_name, value: a.attribute }));
+  const { nonPriorityAttributes, hasSplit, priorityAndPinned, comboboxOptions } = useMemo(() => {
+    const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
+    const pinnedSet = new Set(state.userPinnedAttributes);
+    const nonPriority = state.attributes.filter(
+      (a) => !priorityFieldSet.has(a.attribute) && !pinnedSet.has(a.attribute)
+    );
+    // Only split if there are both priority/pinned and non-priority fields.
+    const split = (priorityFieldSet.size > 0 || pinnedSet.size > 0) && nonPriority.length > 0;
+    const pinned = split
+      ? state.attributes.filter((a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute))
+      : state.attributes;
+    return {
+      comboboxOptions: nonPriority.map((a) => ({ label: a.attribute_name, value: a.attribute })),
+      hasSplit: split,
+      nonPriorityAttributes: nonPriority,
+      priorityAndPinned: pinned,
+    };
+  }, [priorityAttributes, state.attributes, state.userPinnedAttributes]);
+
+  const { visibleAttributes, remainingCount, nextBatch } = useMemo(() => {
+    const visibleNonPriority = nonPriorityAttributes.slice(0, extraFieldsShown);
+    const remaining = nonPriorityAttributes.length - extraFieldsShown;
+    return {
+      nextBatch: Math.min(10, remaining),
+      remainingCount: remaining,
+      visibleAttributes: hasSplit ? [...priorityAndPinned, ...visibleNonPriority] : state.attributes,
+    };
+  }, [nonPriorityAttributes, extraFieldsShown, hasSplit, priorityAndPinned, state.attributes]);
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.title}>{t('errors-analysis.title', 'Attribute Explorer')}</div>
-        {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
-        <div className={styles.description}>
-          {t(
-            'errors-analysis.description',
-            'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
-          )}
+      {header !== undefined ? header : (
+        <div className={styles.header}>
+          <div className={styles.title}>{t('errors-analysis.title', 'Attribute Explorer')}</div>
+          {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
+          <div className={styles.description}>
+            {t(
+              'errors-analysis.description',
+              'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {state.selectedFilters.length > 0 && (
         <div className={styles.filterChips}>
