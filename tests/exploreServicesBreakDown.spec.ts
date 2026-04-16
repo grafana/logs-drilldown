@@ -509,7 +509,7 @@ test.describe('explore services breakdown page', () => {
 
     expect(panelTitles.length).toBeGreaterThan(0);
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Desc is the default option, this should be a noop
     await page.getByRole('option', { name: 'Desc' }).click();
 
@@ -519,7 +519,7 @@ test.describe('explore services breakdown page', () => {
       expect(await panels.nth(i).getByRole('heading').textContent()).toEqual(panelTitles[i]);
     }
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Now change the sort order
     await page.getByRole('option', { name: 'Asc' }).click();
 
@@ -567,7 +567,7 @@ test.describe('explore services breakdown page', () => {
 
     expect(panelTitles.length).toBeGreaterThan(0);
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Desc is the default option, this should be a noop
     await page.getByRole('option', { name: 'Desc' }).click();
 
@@ -577,7 +577,7 @@ test.describe('explore services breakdown page', () => {
       expect(await panels.nth(i).getByRole('heading').textContent()).toEqual(panelTitles[i]);
     }
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Now change the sort order
     await page.getByRole('option', { name: 'Asc' }).click();
 
