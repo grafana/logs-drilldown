@@ -67,13 +67,13 @@ describe('reducer', () => {
   });
 
   describe('LOADING', () => {
-    it('sets loading true and clears values', () => {
+    it('sets loading true and preserves existing values', () => {
       const initial: State = {
         ...emptyState(),
         data: { browser: { error: true, expanded: true, loading: false, values: [val('Chrome', 5, 100)] } },
       };
       const state = reducer(initial, { field: 'browser', type: 'LOADING' });
-      expect(state.data['browser']).toEqual({ error: false, expanded: true, loading: true, values: [] });
+      expect(state.data['browser']).toEqual({ error: false, expanded: true, loading: true, values: [val('Chrome', 5, 100)] });
     });
 
     it('preserves expanded state from existing data', () => {

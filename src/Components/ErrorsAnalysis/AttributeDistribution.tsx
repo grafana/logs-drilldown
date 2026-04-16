@@ -391,7 +391,7 @@ function AttributeSection({
         {isExpandable && <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />}
       </button>
 
-      {loading && (
+      {loading && values.length === 0 && (
         <div className={styles.loadingRow}>
           <Spinner size="sm" />
         </div>
@@ -399,62 +399,64 @@ function AttributeSection({
 
       {!loading && error && <div className={styles.emptyRow}>{t('errors-analysis.error', 'Failed to load')}</div>}
 
-      {!loading &&
-        !error &&
-        visibleValues.map((item) => {
-          const isIncluded = includedValues.has(item.value);
-          const isExcluded = excludedValues.has(item.value);
-          const isSelected = isIncluded || isExcluded;
-          return (
-            <WithContextMenu
-              key={item.value}
-              renderMenuItems={() => (
-                <>
-                  <MenuItem
-                    label={t('errors-analysis.filter-for-value', 'Filter for value')}
-                    onClick={() => onToggleFilter(item.value, '=')}
-                  />
-                  <MenuItem
-                    label={t('errors-analysis.filter-out-value', 'Filter out value')}
-                    onClick={() => onToggleFilter(item.value, '!=')}
-                  />
-                </>
-              )}
-            >
-              {({ openMenu }) => (
-                <div
-                  className={cx(
-                    styles.valueRow,
-                    isSelected && styles.valueRowSelected,
-                    item.retained && styles.valueRowRetained
-                  )}
-                  onClick={openMenu}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      e.currentTarget.click();
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className={styles.valueRowHeader}>
-                    <span className={styles.valueLabel} title={item.value}>
-                      {item.value}
-                    </span>
-                    <span className={styles.stats}>
-                      <span className={styles.count}>{item.count}</span>
-                      <span className={styles.percentage}>{`${item.percentage}%`}</span>
-                    </span>
+      {!error && visibleValues.length > 0 && (
+        <div style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s ease' }}>
+          {visibleValues.map((item) => {
+            const isIncluded = includedValues.has(item.value);
+            const isExcluded = excludedValues.has(item.value);
+            const isSelected = isIncluded || isExcluded;
+            return (
+              <WithContextMenu
+                key={item.value}
+                renderMenuItems={() => (
+                  <>
+                    <MenuItem
+                      label={t('errors-analysis.filter-for-value', 'Filter for value')}
+                      onClick={() => onToggleFilter(item.value, '=')}
+                    />
+                    <MenuItem
+                      label={t('errors-analysis.filter-out-value', 'Filter out value')}
+                      onClick={() => onToggleFilter(item.value, '!=')}
+                    />
+                  </>
+                )}
+              >
+                {({ openMenu }) => (
+                  <div
+                    className={cx(
+                      styles.valueRow,
+                      isSelected && styles.valueRowSelected,
+                      item.retained && styles.valueRowRetained
+                    )}
+                    onClick={openMenu}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.currentTarget.click();
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <div className={styles.valueRowHeader}>
+                      <span className={styles.valueLabel} title={item.value}>
+                        {item.value}
+                      </span>
+                      <span className={styles.stats}>
+                        <span className={styles.count}>{item.count}</span>
+                        <span className={styles.percentage}>{`${item.percentage}%`}</span>
+                      </span>
+                    </div>
+                    <div className={styles.barWrapper}>
+                      <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
+                    </div>
                   </div>
-                  <div className={styles.barWrapper}>
-                    <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
-                  </div>
-                </div>
-              )}
-            </WithContextMenu>
-          );
-        })}
+                )}
+              </WithContextMenu>
+            );
+          })}
+        </div>
+      )}
 
       {!loading && !error && allValues.length === 0 && <div className={styles.emptyRow}>{t('errors-analysis.no-values-found', 'No values found')}</div>}
 

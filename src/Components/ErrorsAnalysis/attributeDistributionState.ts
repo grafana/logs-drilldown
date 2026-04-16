@@ -67,19 +67,17 @@ export function reducer(state: State, action: Action): State {
       }
       return { ...state, attributes: merged, data, detecting: false };
     }
-    case 'LOADING':
+    case 'LOADING': {
+      const existing = state.data[action.field];
       return {
         ...state,
         data: {
           ...state.data,
-          [action.field]: {
-            error: false,
-            expanded: state.data[action.field]?.expanded ?? false,
-            loading: true,
-            values: [],
-          },
+          // Keep existing values so bars remain visible during reload instead of collapsing.
+          [action.field]: { error: false, expanded: existing?.expanded ?? false, loading: true, values: existing?.values ?? [] },
         },
       };
+    }
     case 'LOADED':
       return {
         ...state,
