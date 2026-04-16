@@ -25,7 +25,10 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
       if (options.length === 0) {
         return;
       }
-      const maxPageSize = parseInt(options[options.length - 1]!.value, 10);
+      if (options.length === 0 || options[options.length - 1] === undefined) {
+        return;
+      }
+      const maxPageSize = parseInt(options[options.length - 1].value, 10);
       if (countPerPage > maxPageSize) {
         serviceSelectionScene.setState({ countPerPage: maxPageSize });
       }

@@ -575,7 +575,8 @@ export class Mousetrap {
    */
   private _fireCallback = (callback: Function, e: KeyboardEvent, combo: string, sequence?: string) => {
     // if this event should not happen stop here
-    const legacyTarget = (e as unknown as { srcElement?: EventTarget | null }).srcElement;
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    const legacyTarget = 'srcElement' in e ? e.srcElement : null;
     const target = e.target ?? legacyTarget;
     if (target && target instanceof HTMLElement && this.stopCallback(e, target, combo, sequence)) {
       return;
