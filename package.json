@@ -153,7 +153,7 @@
     "brace-expansion@^5.0.2": "5.0.5",
     "undici": "^7.24.0",
     "immutable": "5.1.5",
-    "dompurify": "3.3.2",
+    "dompurify": "3.4.0",
     "serialize-javascript": "7.0.5",
     "qs": "6.14.2",
     "strip-ansi": "6.0.1",
