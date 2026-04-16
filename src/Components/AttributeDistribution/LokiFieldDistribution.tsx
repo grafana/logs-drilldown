@@ -5,7 +5,6 @@ import { lastValueFrom } from 'rxjs';
 import { DataFrame, DataQueryRequest, dateTime, FieldType } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
-import { getFeatureFlag } from '../../featureFlags/openFeature';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
@@ -181,10 +180,6 @@ export default function LokiFieldDistribution({
     () => makeFetchAttributes(fieldsToExclude, attributeMap),
     [fieldsToExclude, attributeMap]
   );
-
-  if (!getFeatureFlag('drilldown.logs.attributeExplorer')) {
-    return null;
-  }
 
   const context: DatasetContext = { datasourceUid, query, timeRange };
 

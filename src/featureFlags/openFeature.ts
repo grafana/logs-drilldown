@@ -125,12 +125,6 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
-  'drilldown.logs.attributeExplorer': {
-    valueType: 'boolean',
-    value: IS_DEV,
-    reason: 'static provider evaluation result',
-    variant: 'default',
-  },
   'drilldown.logs.kgAnnotationsInLokiExplore': {
     valueType: 'boolean',
     value: false,
