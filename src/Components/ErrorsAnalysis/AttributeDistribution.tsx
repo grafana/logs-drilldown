@@ -158,8 +158,8 @@ export function AttributeDistribution({
       let detected: AttributeConfig[] = [];
       try {
         detected = await fetchAttributes(contextRef.current);
-      } catch {
-        // fall through with empty list; user can still add fields manually
+      } catch (e) {
+        logger.error(e);
       }
       if (cancelled) {
         return;
