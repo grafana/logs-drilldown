@@ -179,8 +179,7 @@ export default function LokiFieldDistribution({
 }: LokiFieldDistributionProps) {
   const fetchAttributes = useMemo(
     () => makeFetchAttributes(fieldsToExclude, attributeMap),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(fieldsToExclude), JSON.stringify(attributeMap)]
+    [fieldsToExclude, attributeMap]
   );
 
   if (!getFeatureFlag('drilldown.logs.attributeExplorer')) {
