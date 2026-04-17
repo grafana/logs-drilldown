@@ -145,7 +145,13 @@ function fetchDistribution(
 
   return from(getDataSourceSrv().get(context.datasourceUid)).pipe(
     switchMap((ds) => (ds as LokiDatasource).query(request)),
-    map((response) => processDistributionResponse(response, field))
+    map((response) => {
+      const errMsg = response.error?.message ?? response.errors?.[0]?.message ?? '';
+      if (errMsg) {
+        throw new Error(errMsg);
+      }
+      return processDistributionResponse(response, field);
+    })
   );
 }
 

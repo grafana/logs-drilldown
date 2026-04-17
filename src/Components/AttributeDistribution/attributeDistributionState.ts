@@ -22,7 +22,7 @@ export interface DisplayValue extends AttributeValueCount {
 }
 
 export interface AttributeState {
-  error: boolean;
+  error: string | false;
   expanded: boolean;
   loading: boolean;
   values: AttributeValueCount[];
@@ -46,7 +46,7 @@ export type Action =
   | { configs: AttributeConfig[]; type: 'SET_ATTRIBUTES' }
   | { field: string; type: 'LOADING' }
   | { field: string; type: 'LOADED'; values: AttributeValueCount[] }
-  | { field: string; type: 'ERROR' }
+  | { field: string; message: string; type: 'ERROR' }
   | { field: string; type: 'TOGGLE_EXPANDED' }
   | { attribute: string; type: 'PIN_ATTRIBUTE' }
   | { field: string; operator: '!=' | '='; type: 'TOGGLE_FILTER'; value: string }
@@ -102,7 +102,7 @@ export function reducer(state: State, action: Action): State {
         data: {
           ...state.data,
           [action.field]: {
-            error: true,
+            error: action.message,
             expanded: state.data[action.field]?.expanded ?? false,
             loading: false,
             values: [],

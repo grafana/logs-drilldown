@@ -70,7 +70,7 @@ describe('reducer', () => {
     it('sets loading true and preserves existing values', () => {
       const initial: State = {
         ...emptyState(),
-        data: { browser: { error: true, expanded: true, loading: false, values: [val('Chrome', 5, 100)] } },
+        data: { browser: { error: 'Failed to load', expanded: true, loading: false, values: [val('Chrome', 5, 100)] } },
       };
       const state = reducer(initial, { field: 'browser', type: 'LOADING' });
       expect(state.data['browser']).toEqual({ error: false, expanded: true, loading: true, values: [val('Chrome', 5, 100)] });
@@ -91,7 +91,7 @@ describe('reducer', () => {
       const values = [val('Chrome', 10, 80), val('Firefox', 2, 20)];
       const initial: State = {
         ...emptyState(),
-        data: { browser: { error: true, expanded: false, loading: true, values: [] } },
+        data: { browser: { error: 'Failed to load', expanded: false, loading: true, values: [] } },
       };
       const state = reducer(initial, { field: 'browser', type: 'LOADED', values });
       expect(state.data['browser']).toEqual({ error: false, expanded: false, loading: false, values });
@@ -99,14 +99,16 @@ describe('reducer', () => {
   });
 
   describe('ERROR', () => {
-    it('sets error flag and clears loading and values', () => {
+    it('stores the error message and clears loading and values', () => {
       const initial: State = {
         ...emptyState(),
         data: { browser: { error: false, expanded: true, loading: true, values: [] } },
       };
-      const state = reducer(initial, { field: 'browser', type: 'ERROR' });
-      expect(state.data['browser']).toEqual({ error: true, expanded: true, loading: false, values: [] });
+      const state = reducer(initial, { field: 'browser', message: 'Failed to load', type: 'ERROR' });
+      expect(state.data['browser']).toEqual({ error: 'Failed to load', expanded: true, loading: false, values: [] });
     });
+
+
   });
 
   describe('TOGGLE_EXPANDED', () => {

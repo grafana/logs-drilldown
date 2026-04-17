@@ -124,7 +124,11 @@ export function AttributeDistribution({
           error: (e) => {
             logger.error(e);
             if (generationRef.current === generation) {
-              dispatch({ type: 'ERROR', field: attr.attribute });
+              dispatch({
+                type: 'ERROR',
+                field: attr.attribute,
+                message: e instanceof Error && e.message ? e.message : t('errors-analysis.error', 'Failed to load'),
+              });
             }
           },
         });
@@ -410,7 +414,11 @@ function AttributeSection({
         </div>
       )}
 
-      {!loading && error && <div className={styles.emptyRow}>{t('errors-analysis.error', 'Failed to load')}</div>}
+      {!loading && error && (
+        <div className={styles.emptyRow} title={error}>
+          {error.length > 100 ? `${error.slice(0, 40)}\u2026` : error}
+        </div>
+      )}
 
       {!error && visibleValues.length > 0 && (
         <div style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s ease' }}>
