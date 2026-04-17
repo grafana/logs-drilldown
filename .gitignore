@@ -7,12 +7,13 @@ yarn-error.log*
 
 # Package manager
 node_modules/
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+
+# yarn (legacy transition artifacts, safe to keep ignored)
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
 # Runtime data
 pids
@@ -56,3 +57,6 @@ generator/generator
 
 # Claude
 .claude/
+
+# AI workflow artifacts (Claude Code / superpowers)
+docs/superpowers/

@@ -1,43 +1,27 @@
 name: Latest Grafana API compatibility check
 on: [pull_request]
+permissions:
+  contents: 'read'
+  actions: 'write'
 
 jobs:
   compatibilitycheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
       - name: Setup Node.js environment
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: '24'
-          # Do not use cache: 'yarn' here - it runs `yarn cache dir` and fails with packageManager/yarn@4 before Corepack is enabled
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Restore npm cache
-        id: restore-npm-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: |
-            node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/yarn.lock',
-            '!node_modules/**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-npm-
-
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install --immutable
-
-      - name: Save npm cache
-        id: save-npm-cache
-        if: steps.restore-npm-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: |
-            node_modules
-          key: ${{ steps.restore-npm-cache.outputs.cache-primary-key }}
+        run: pnpm install --frozen-lockfile
       - name: Build plugin
-        run: npm run build
+        run: pnpm run build
       - name: Find module.ts or module.tsx
         id: find-module-ts
         run: >-
@@ -46,7 +30,7 @@ jobs:
 
           echo "modulets=${MODULETS}" >> $GITHUB_OUTPUT
       - name: Compatibility check
-        uses: grafana/plugin-actions/is-compatible@main
+        uses: grafana/plugin-actions/is-compatible@4698961fa64137fcac207108397ebe8a738a33d1 # main
         with:
           module: ${{ steps.find-module-ts.outputs.modulets }}
           comment-pr: no
