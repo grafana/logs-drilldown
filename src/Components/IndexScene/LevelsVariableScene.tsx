@@ -24,14 +24,13 @@ import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
 type ChipOption = MetricFindValue & { selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
   isLoading: boolean;
-  isOpen: boolean;
   options?: ChipOption[];
   visible: boolean;
 }
 export const LEVELS_VARIABLE_SCENE_KEY = 'levels-var-custom-renderer';
 export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneState> {
   constructor(state: Partial<LevelsVariableSceneState>) {
-    super({ ...state, isLoading: false, isOpen: false, key: LEVELS_VARIABLE_SCENE_KEY, visible: false });
+    super({ ...state, isLoading: false, key: LEVELS_VARIABLE_SCENE_KEY, visible: false });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -57,38 +56,39 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     });
   }
 
-  getTagValues = async (typeAhead: string) => {
+  getTagValues = async (typeAhead: string): Promise<Array<ComboboxOption<string>>> => {
     this.setState({ isLoading: true });
     const levelsVar = getLevelsVariable(this);
     const levelsKeys = levelsVar?.state?.getTagValuesProvider?.(
       levelsVar,
       levelsVar.state.filters[0] ?? { key: LEVEL_VARIABLE_VALUE }
     );
-    const response = await levelsKeys;
-    if (!response || !Array.isArray(response.values)) {
-      this.setState({ isLoading: false });
-      return [];
-    }
 
-    const newOptions = response.values.map((value) => {
-      return {
+    try {
+      const response = await levelsKeys;
+      if (!response || !Array.isArray(response.values)) {
+        return [];
+      }
+
+      const newOptions = response.values.map((value) => ({
         selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
         text: value.text,
         value: value.value ?? value.text,
-      };
-    });
-    const existingSelectedOptions = this.state.options?.filter(
-      (existingOption) =>
-        existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
-    );
-    const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
-    this.setState({
-      isLoading: false,
-      options,
-    });
-    return options
-      .map((option) => ({ label: option.text, value: String(option.value ?? option.text) }))
-      .filter((option) => option.label?.includes(typeAhead));
+      }));
+      const existingSelectedOptions = this.state.options?.filter(
+        (existingOption) =>
+          existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
+      );
+      const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
+      this.setState({ options });
+      return options
+        .map((option) => ({ label: option.text, value: String(option.value ?? option.text) }))
+        .filter((option) => option.label?.includes(typeAhead));
+    } catch (err) {
+      return [];
+    } finally {
+      this.setState({ isLoading: false });
+    }
   };
 
   updateFilters = (skipPublish: boolean, forcePublish?: boolean) => {
@@ -127,19 +127,12 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
       }),
     });
 
-    if (!this.state.isOpen) {
-      this.updateFilters(false);
-    } else {
-      this.updateFilters(true);
-    }
-  };
-
-  openSelect = (isOpen: boolean) => {
-    this.setState({ isOpen });
+    // Updates filters on selection not on dropdown close
+    // Combobox does not provide a way to know if the menu is open or closed
+    this.updateFilters(false);
   };
 
   onCloseMenu = () => {
-    this.openSelect(false);
     // Update filters and run queries on close
     this.updateFilters(false, true);
   };
