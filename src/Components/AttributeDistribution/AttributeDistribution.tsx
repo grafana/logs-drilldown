@@ -4,7 +4,7 @@ import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Combobox, Icon, MenuItem, Spinner, WithContextMenu, useStyles2 } from '@grafana/ui';
+import { Combobox, Icon, MenuItem, Spinner, Tooltip, WithContextMenu, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import {
@@ -247,14 +247,13 @@ export function AttributeDistribution({
     <div className={styles.container}>
       {header !== undefined ? header : (
         <div className={styles.header}>
-          <div className={styles.title}>{t('errors-analysis.title', 'Attribute Explorer')}</div>
-          {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
-          <div className={styles.description}>
-            {t(
-              'errors-analysis.description',
-              'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
-            )}
+          <div className={styles.title}>
+            {t('errors-analysis.title', 'Attribute Explorer')}
+            <Tooltip content={t('errors-analysis.description', 'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.')}>
+              <Icon name="info-circle" size="sm" />
+            </Tooltip>
           </div>
+          {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
         </div>
       )}
 
@@ -530,11 +529,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     overflowY: 'auto',
     padding: theme.spacing(2),
   }),
-  description: css({
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.bodySmall.fontSize,
-    lineHeight: 1.4,
-  }),
   detectingRow: css({
     alignItems: 'center',
     color: theme.colors.text.secondary,
@@ -666,9 +660,12 @@ const getStyles = (theme: GrafanaTheme2) => ({
     },
   }),
   title: css({
+    alignItems: 'center',
     color: theme.colors.text.primary,
+    display: 'flex',
     fontSize: theme.typography.h6.fontSize,
     fontWeight: theme.typography.fontWeightMedium,
+    gap: theme.spacing(0.5),
   }),
   valueLabel: css({
     flex: '0 0 auto',
