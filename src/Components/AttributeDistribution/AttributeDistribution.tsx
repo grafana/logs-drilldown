@@ -274,12 +274,6 @@ export function AttributeDistribution({
     onFiltersChange?.(newFilters);
   }
 
-  function handleClearFilters() {
-    dispatch({ type: 'CLEAR_FILTERS' });
-    loadDistributions(visibleAttributes, context, []);
-    onFiltersChange?.([]);
-  }
-
   function handlePinAttribute(attribute: string) {
     dispatch({ type: 'PIN_ATTRIBUTE', attribute });
   }
@@ -343,28 +337,6 @@ export function AttributeDistribution({
         </div>
       )}
 
-      {state.selectedFilters.length > 0 && (
-        <div className={styles.filterChips}>
-          {state.selectedFilters.map(({ field, value, operator }) => (
-            <div key={`${field}${operator}${value}`} className={styles.chip}>
-              <span className={styles.chipText}>
-                {field} {operator} {value}
-              </span>
-              <button
-                aria-label={t('errors-analysis.remove-filter-aria', 'Remove filter {{field}} {{operator}} {{value}}', { field, operator, value })}
-                className={styles.chipRemove}
-                type="button"
-                onClick={() => handleToggleFilter(field, value, operator)}
-              >
-                <Icon name="times" size="xs" />
-              </button>
-            </div>
-          ))}
-          <button className={styles.clearAll} type="button" onClick={handleClearFilters}>
-            {t('errors-analysis.clear-all', 'Clear all')}
-          </button>
-        </div>
-      )}
 
       {comboboxOptions.length > 0 && (
         <Combobox
@@ -401,6 +373,7 @@ export function AttributeDistribution({
               key={attr.attribute}
               attrState={attrState}
               config={attr}
+              hasActiveFilter={fieldFilters.length > 0}
               includedValues={includedValues}
               excludedValues={excludedValues}
               snapshotValues={snapshotValues}
@@ -451,6 +424,7 @@ interface AttributeSectionProps {
   attrState: AttributeState;
   config: AttributeConfig;
   excludedValues: Set<string>;
+  hasActiveFilter: boolean;
   includedValues: Set<string>;
   onToggle: () => void;
   onToggleFilter: (value: string, operator: '!=' | '=') => void;
@@ -460,6 +434,7 @@ interface AttributeSectionProps {
 function AttributeSection({
   attrState,
   config,
+  hasActiveFilter,
   includedValues,
   excludedValues,
   snapshotValues,
@@ -475,7 +450,11 @@ function AttributeSection({
 
   return (
     <div className={styles.section}>
-      <button className={styles.sectionHeader} type="button" onClick={isExpandable ? onToggle : undefined}>
+      <button
+        className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
+        type="button"
+        onClick={isExpandable ? onToggle : undefined}
+      >
         <span className={styles.sectionLabel}>{config.attribute_name}</span>
         {isExpandable && <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />}
       </button>
@@ -497,7 +476,6 @@ function AttributeSection({
           {visibleValues.map((item) => {
             const isIncluded = includedValues.has(item.value);
             const isExcluded = excludedValues.has(item.value);
-            const isSelected = isIncluded || isExcluded;
             return (
               <WithContextMenu
                 key={item.value}
@@ -518,7 +496,8 @@ function AttributeSection({
                   <div
                     className={cx(
                       styles.valueRow,
-                      isSelected && styles.valueRowSelected,
+                      isIncluded && styles.valueRowIncluded,
+                      isExcluded && styles.valueRowExcluded,
                       item.retained && styles.valueRowRetained
                     )}
                     onClick={openMenu}
@@ -572,43 +551,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     overflow: 'hidden',
     width: '100%',
   }),
-  chip: css({
-    alignItems: 'center',
-    background: theme.colors.background.primary,
-    border: `1px solid ${theme.colors.primary.border}`,
-    borderRadius: theme.shape.radius.default,
-    color: theme.colors.text.primary,
-    display: 'flex',
-    fontSize: theme.typography.bodySmall.fontSize,
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(0.25, 0.5),
-  }),
-  chipRemove: css({
-    alignItems: 'center',
-    background: 'none',
-    border: 'none',
-    color: theme.colors.text.secondary,
-    cursor: 'pointer',
-    display: 'flex',
-    padding: 0,
-    '&:hover': {
-      color: theme.colors.text.primary,
-    },
-  }),
-  chipText: css({
-    fontSize: theme.typography.bodySmall.fontSize,
-  }),
-  clearAll: css({
-    background: 'none',
-    border: 'none',
-    color: theme.colors.text.link,
-    cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
-    padding: theme.spacing(0.25, 0),
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  }),
   container: css({
     backgroundColor: theme.colors.background.secondary,
     borderRight: `1px solid ${theme.colors.border.weak}`,
@@ -638,12 +580,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.bodySmall.fontSize,
     fontStyle: 'italic',
     padding: theme.spacing(1, 0),
-  }),
-  filterChips: css({
-    alignItems: 'center',
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: theme.spacing(0.5),
   }),
   header: css({
     display: 'flex',
@@ -792,10 +728,19 @@ const getStyles = (theme: GrafanaTheme2) => ({
   valueRowRetained: css({
     opacity: 0.45,
   }),
-  valueRowSelected: css({
-    background: theme.colors.action.selected,
+  valueRowIncluded: css({
+    background: `rgba(${theme.colors.success.rgb}, 0.15)`,
     '&:hover': {
-      background: theme.colors.action.selected,
+      background: `rgba(${theme.colors.success.rgb}, 0.25)`,
     },
+  }),
+  valueRowExcluded: css({
+    background: `rgba(${theme.colors.error.rgb}, 0.15)`,
+    '&:hover': {
+      background: `rgba(${theme.colors.error.rgb}, 0.25)`,
+    },
+  }),
+  sectionHeaderActive: css({
+    color: theme.colors.text.maxContrast,
   }),
 });
