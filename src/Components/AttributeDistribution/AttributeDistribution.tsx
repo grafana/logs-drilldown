@@ -631,7 +631,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     color: theme.colors.text.secondary,
     fontSize: theme.typography.bodySmall.fontSize,
     fontStyle: 'italic',
-    padding: theme.spacing(0.5, 0.5),
+    padding: theme.spacing(0.5, 2),
   }),
   emptyState: css({
     color: theme.colors.text.secondary,
@@ -682,6 +682,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   section: css({
     display: 'flex',
     flexDirection: 'column',
+    paddingBottom: theme.spacing(1),
   }),
   sectionHeader: css({
     alignItems: 'center',
@@ -774,7 +775,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flexDirection: 'column',
     fontSize: theme.typography.bodySmall.fontSize,
     gap: theme.spacing(0.5),
-    padding: theme.spacing(0.5, 0.5),
+    padding: theme.spacing(0.5, 2),
     textAlign: 'left',
     width: '100%',
     '&:hover': {
