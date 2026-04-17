@@ -93,6 +93,8 @@ export function AttributeDistribution({
   contextRef.current = context;
   const attributesRef = useRef(state.attributes);
   attributesRef.current = state.attributes;
+  const userPinnedRef = useRef(state.userPinnedAttributes);
+  userPinnedRef.current = state.userPinnedAttributes;
 
   // Incremented on every loadDistributions call. Each async fetch captures the
   // generation at the time it starts and drops its result if the counter has
@@ -100,6 +102,12 @@ export function AttributeDistribution({
   // LOADED into the current view.
   const generationRef = useRef(0);
   const subscriptionsRef = useRef<Subscription[]>([]);
+  // Tracks which fields have had a fetch started. Cleared on full reload so the
+  // lazy-load effect can detect newly visible fields that still need fetching.
+  const fetchedFieldsRef = useRef<Set<string>>(new Set());
+  // Always-current ref to visibleAttributes. Declared early so effects above the
+  // useMemo can read it; assigned after the useMemo below.
+  const visibleAttributesRef = useRef<AttributeConfig[]>([]);
 
   const loadDistributions = useCallback(
     (attributes: AttributeConfig[], ctx: DatasetContext, filters: ActiveFilter[]) => {
@@ -108,9 +116,11 @@ export function AttributeDistribution({
       }
       subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
       subscriptionsRef.current = [];
+      fetchedFieldsRef.current.clear();
 
       const generation = ++generationRef.current;
       attributes.forEach((attr) => {
+        fetchedFieldsRef.current.add(attr.attribute);
         dispatch({ type: 'LOADING', field: attr.attribute });
       });
 
@@ -141,6 +151,46 @@ export function AttributeDistribution({
   const loadDistributionsRef = useRef(loadDistributions);
   loadDistributionsRef.current = loadDistributions;
 
+  // Fetches distributions for additional fields without cancelling existing in-flight requests.
+  // Used when new fields become visible (show more, pin attribute) so already-loading fields
+  // are not disrupted. Uses the current generation so stale results are still dropped on reload.
+  const loadAdditional = useCallback(
+    (attributes: AttributeConfig[], ctx: DatasetContext, filters: ActiveFilter[]) => {
+      if (!attributes.length) {
+        return;
+      }
+      const generation = generationRef.current;
+      attributes.forEach((attr) => {
+        fetchedFieldsRef.current.add(attr.attribute);
+        dispatch({ type: 'LOADING', field: attr.attribute });
+      });
+      attributes.forEach((attr) => {
+        const sub = fetchDistribution(ctx, attr.attribute, filters).subscribe({
+          next: (values) => {
+            if (generationRef.current === generation) {
+              dispatch({ type: 'LOADED', field: attr.attribute, values });
+            }
+          },
+          error: (e) => {
+            logger.error(e);
+            if (generationRef.current === generation) {
+              dispatch({
+                type: 'ERROR',
+                field: attr.attribute,
+                message: e instanceof Error && e.message ? e.message : t('errors-analysis.error', 'Failed to load'),
+              });
+            }
+          },
+        });
+        subscriptionsRef.current.push(sub);
+      });
+    },
+    [fetchDistribution]
+  );
+
+  const loadAdditionalRef = useRef(loadAdditional);
+  loadAdditionalRef.current = loadAdditional;
+
   // Sync internal filter state when initialSelectedFilters changes externally (e.g. user
   // removes a filter from the page-level filter bar). Skips the initial mount since the
   // reducer lazy initializer already seeds from initialSelectedFilters on first render.
@@ -155,7 +205,7 @@ export function AttributeDistribution({
     const filters = initialSelectedFilters ?? [];
     dispatch({ type: 'SET_FILTERS', filters });
     if (attributesRef.current.length > 0) {
-      loadDistributionsRef.current(attributesRef.current, contextRef.current, filters);
+      loadDistributionsRef.current(visibleAttributesRef.current, contextRef.current, filters);
     }
   }, [initialSelectedFilters]);
 
@@ -167,6 +217,7 @@ export function AttributeDistribution({
     let cancelled = false;
 
     async function run() {
+      setExtraFieldsShown(0);
       dispatch({ type: 'DETECTING' });
       let detected: AttributeConfig[] = [];
       try {
@@ -180,7 +231,16 @@ export function AttributeDistribution({
       const ordered = orderByPriority(detected, priorityAttributes);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
       const activeFilters = selectedFiltersRef.current;
-      loadDistributions(ordered, contextRef.current, activeFilters);
+
+      // Only fetch distributions for initially visible fields. Fields that become
+      // visible later (show more, pin) are fetched by the visibleAttributes effect.
+      const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
+      const userPinned = new Set(userPinnedRef.current);
+      const pAndP = ordered.filter((a) => priorityFieldSet.has(a.attribute) || userPinned.has(a.attribute));
+      const nonP = ordered.filter((a) => !priorityFieldSet.has(a.attribute) && !userPinned.has(a.attribute));
+      const initialBatch = priorityAttributes.length === 0 ? 10 : 0;
+      const initialVisible = [...pAndP, ...nonP.slice(0, initialBatch)];
+      loadDistributions(initialVisible, contextRef.current, activeFilters);
     }
 
     run();
@@ -210,13 +270,13 @@ export function AttributeDistribution({
 
     dispatch({ type: 'TOGGLE_FILTER', field, value, operator });
 
-    loadDistributions(state.attributes, context, newFilters);
+    loadDistributions(visibleAttributes, context, newFilters);
     onFiltersChange?.(newFilters);
   }
 
   function handleClearFilters() {
     dispatch({ type: 'CLEAR_FILTERS' });
-    loadDistributions(state.attributes, context, []);
+    loadDistributions(visibleAttributes, context, []);
     onFiltersChange?.([]);
   }
 
@@ -256,6 +316,18 @@ export function AttributeDistribution({
       visibleAttributes: [...priorityAndPinned, ...visibleNonPriority],
     };
   }, [nonPriorityAttributes, extraFieldsShown, priorityAndPinned, priorityAttributes]);
+
+  visibleAttributesRef.current = visibleAttributes;
+
+  // Fetch distributions for any visible field that hasn't been fetched yet.
+  // Fires when visibleAttributes grows (show more, pin attribute) without
+  // disrupting in-flight requests for already-visible fields.
+  useEffect(() => {
+    const unfetched = visibleAttributes.filter((a) => !fetchedFieldsRef.current.has(a.attribute));
+    if (unfetched.length > 0) {
+      loadAdditionalRef.current(unfetched, contextRef.current, selectedFiltersRef.current);
+    }
+  }, [visibleAttributes]);
 
   return (
     <div className={styles.container}>
