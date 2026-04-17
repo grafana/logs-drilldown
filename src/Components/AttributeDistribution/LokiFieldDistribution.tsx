@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 
-import { lastValueFrom } from 'rxjs';
+import { Observable, from, map, switchMap } from 'rxjs';
 
-import { DataFrame, DataQueryRequest, TimeRange, dateTime, FieldType } from '@grafana/data';
+import { DataQueryResponse, DataFrame, DataQueryRequest, TimeRange, dateTime, FieldType } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
@@ -61,50 +61,7 @@ function makeFetchAttributes(
   };
 }
 
-async function fetchDistribution(
-  context: DatasetContext,
-  field: string,
-  filters: ActiveFilter[]
-): Promise<AttributeValueCount[]> {
-  const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
-  const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
-
-  const effectiveQuery =
-    filters.length > 0
-      ? context.query +
-        new ExpressionBuilder(filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))).getFieldsExpr(
-          { decodeFilters: false, joinMatchFilters: true }
-        )
-      : context.query;
-
-  const target: LokiQuery = {
-    datasource: { type: 'loki', uid: context.datasourceUid },
-    expr: buildDistributionQuery(effectiveQuery, field),
-    queryType: 'instant',
-    refId: field,
-  };
-
-  const request: DataQueryRequest<LokiQuery> = {
-    app: 'explore',
-    interval: `${rangeSec}s`,
-    intervalMs: rangeSec * 1000,
-    range: {
-      from: dateTime(context.timeRange.from),
-      raw: {
-        from: dateTime(context.timeRange.from).utc().toISOString(),
-        to: dateTime(context.timeRange.to).utc().toISOString(),
-      },
-      to: dateTime(context.timeRange.to),
-    },
-    requestId: `errors-breakdown-${field}`,
-    scopedVars: {},
-    startTime: Date.now(),
-    targets: [target],
-    timezone: 'browser',
-  };
-
-  const response = await lastValueFrom(ds.query(request));
-
+function processDistributionResponse(response: DataQueryResponse, field: string): AttributeValueCount[] {
   const counts: Array<{ count: number; value: string }> = [];
 
   response.data.forEach((frame: DataFrame) => {
@@ -143,6 +100,53 @@ async function fetchDistribution(
   return counts
     .map((c) => ({ ...c, percentage: Math.round((c.count / total) * 100) }))
     .sort((a, b) => b.percentage - a.percentage);
+}
+
+function fetchDistribution(
+  context: DatasetContext,
+  field: string,
+  filters: ActiveFilter[]
+): Observable<AttributeValueCount[]> {
+  const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
+
+  const effectiveQuery =
+    filters.length > 0
+      ? context.query +
+        new ExpressionBuilder(filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))).getFieldsExpr(
+          { decodeFilters: false, joinMatchFilters: true }
+        )
+      : context.query;
+
+  const target: LokiQuery = {
+    datasource: { type: 'loki', uid: context.datasourceUid },
+    expr: buildDistributionQuery(effectiveQuery, field),
+    queryType: 'instant',
+    refId: field,
+  };
+
+  const request: DataQueryRequest<LokiQuery> = {
+    app: 'explore',
+    interval: `${rangeSec}s`,
+    intervalMs: rangeSec * 1000,
+    range: {
+      from: dateTime(context.timeRange.from),
+      raw: {
+        from: dateTime(context.timeRange.from).utc().toISOString(),
+        to: dateTime(context.timeRange.to).utc().toISOString(),
+      },
+      to: dateTime(context.timeRange.to),
+    },
+    requestId: `errors-breakdown-${field}`,
+    scopedVars: {},
+    startTime: Date.now(),
+    targets: [target],
+    timezone: 'browser',
+  };
+
+  return from(getDataSourceSrv().get(context.datasourceUid)).pipe(
+    switchMap((ds) => (ds as LokiDatasource).query(request)),
+    map((response) => processDistributionResponse(response, field))
+  );
 }
 
 const EMPTY_FIELDS_TO_EXCLUDE: string[] = [];

@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
+import { Observable, Subscription } from 'rxjs';
+
 import { css, cx } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -37,7 +39,7 @@ export interface AttributeDistributionProps {
   // Returns detected fields for the given context.
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
   // Returns value counts for a single field within the dataset described by context.
-  fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Promise<AttributeValueCount[]>;
+  fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Observable<AttributeValueCount[]>;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
   // Seed filter state on first mount so chips reappear after remount without user re-applying them.
@@ -97,31 +99,37 @@ export function AttributeDistribution({
   // advanced, preventing stale results from a previous context from dispatching
   // LOADED into the current view.
   const generationRef = useRef(0);
+  const subscriptionsRef = useRef<Subscription[]>([]);
 
   const loadDistributions = useCallback(
-    async (attributes: AttributeConfig[], ctx: DatasetContext, filters: ActiveFilter[]) => {
+    (attributes: AttributeConfig[], ctx: DatasetContext, filters: ActiveFilter[]) => {
       if (!attributes.length) {
         return;
       }
+      subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
+      subscriptionsRef.current = [];
+
       const generation = ++generationRef.current;
       attributes.forEach((attr) => {
         dispatch({ type: 'LOADING', field: attr.attribute });
       });
-      await Promise.allSettled(
-        attributes.map(async (attr) => {
-          try {
-            const values = await fetchDistribution(ctx, attr.attribute, filters);
+
+      attributes.forEach((attr) => {
+        const sub = fetchDistribution(ctx, attr.attribute, filters).subscribe({
+          next: (values) => {
             if (generationRef.current === generation) {
               dispatch({ type: 'LOADED', field: attr.attribute, values });
             }
-          } catch (e) {
+          },
+          error: (e) => {
             logger.error(e);
             if (generationRef.current === generation) {
               dispatch({ type: 'ERROR', field: attr.attribute });
             }
-          }
-        })
-      );
+          },
+        });
+        subscriptionsRef.current.push(sub);
+      });
     },
     [fetchDistribution]
   );
@@ -175,6 +183,8 @@ export function AttributeDistribution({
 
     return () => {
       cancelled = true;
+      subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
+      subscriptionsRef.current = [];
     };
   }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes, fetchAttributes, loadDistributions]);
 

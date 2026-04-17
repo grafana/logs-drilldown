@@ -55,8 +55,13 @@ export type Action =
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'DETECTING':
-      return { ...state, detecting: true };
+    case 'DETECTING': {
+      const resetData: Record<string, AttributeState> = {};
+      for (const [field, attrState] of Object.entries(state.data)) {
+        resetData[field] = { error: false, expanded: attrState.expanded, loading: true, values: [] };
+      }
+      return { ...state, data: resetData, detecting: true, valueSnapshot: null };
+    }
     case 'SET_ATTRIBUTES': {
       const detectedFields = new Set(action.configs.map((c) => c.attribute));
       const userAdded = state.attributes.filter((a) => !detectedFields.has(a.attribute));
