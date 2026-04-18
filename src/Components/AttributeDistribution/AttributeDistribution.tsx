@@ -5,7 +5,7 @@ import { Observable, Subscription } from 'rxjs';
 
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Combobox, Icon, MenuItem, Spinner, TextLink, Tooltip, WithContextMenu, useStyles2 } from '@grafana/ui';
+import { Combobox, Icon, MenuItem, Spinner, Tooltip, WithContextMenu, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import {
@@ -303,15 +303,19 @@ export function AttributeDistribution({
     // user-pinning a field does not collapse the initial batch.
     const initialVisible = priorityAttributes.length === 0 ? 10 : 0;
     const totalShown = initialVisible + extraFieldsShown;
-    const visibleNonPriority = nonPriorityAttributes.slice(0, totalShown);
+    const activeFilterFields = new Set(state.selectedFilters.map((f) => f.field));
+    // Always include non-priority fields with active filters so a selected value is never hidden.
+    const visibleNonPriority = nonPriorityAttributes.filter(
+      (a, i) => i < totalShown || activeFilterFields.has(a.attribute)
+    );
     // Clamp to 0: extraFieldsShown can exceed length after a context change reduces detected fields.
-    const remaining = Math.max(0, nonPriorityAttributes.length - totalShown);
+    const remaining = Math.max(0, nonPriorityAttributes.length - visibleNonPriority.length);
     return {
       nextBatch: Math.min(10, remaining),
       remainingCount: remaining,
       visibleAttributes: [...priorityAndPinned, ...visibleNonPriority],
     };
-  }, [nonPriorityAttributes, extraFieldsShown, priorityAndPinned, priorityAttributes]);
+  }, [nonPriorityAttributes, extraFieldsShown, priorityAndPinned, priorityAttributes, state.selectedFilters]);
 
   visibleAttributesRef.current = visibleAttributes;
 
@@ -456,32 +460,24 @@ function AttributeSection({
   return (
     <div className={styles.section}>
       <div className={styles.sectionHeaderRow}>
-        {fieldLink ? (
-          <Tooltip
-            interactive
-            placement="top-end"
-            content={
-              <TextLink href={fieldLink} external>
-                {t('errors-analysis.field-link-tooltip', 'View {{name}} in Logs Drilldown field tab', { name: config.attribute_name })}
-              </TextLink>
-            }
+        <button
+          className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
+          type="button"
+          onClick={isExpandable ? onToggle : undefined}
+        >
+          <span className={styles.sectionLabel}>{config.attribute_name}</span>
+        </button>
+        {fieldLink && (
+          <a
+            aria-label={t('errors-analysis.field-link-label', 'View {{name}} in Logs Drilldown field tab', { name: config.attribute_name })}
+            className={styles.fieldLinkIcon}
+            data-field-link-icon
+            href={fieldLink}
+            rel="noreferrer"
+            target="_blank"
           >
-            <button
-              className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
-              type="button"
-              onClick={isExpandable ? onToggle : undefined}
-            >
-              <span className={styles.sectionLabel}>{config.attribute_name}</span>
-            </button>
-          </Tooltip>
-        ) : (
-          <button
-            className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
-            type="button"
-            onClick={isExpandable ? onToggle : undefined}
-          >
-            <span className={styles.sectionLabel}>{config.attribute_name}</span>
-          </button>
+            <Icon name="external-link-alt" size="sm" />
+          </a>
         )}
         {isExpandable && (
           <button
@@ -660,6 +656,22 @@ const getStyles = (theme: GrafanaTheme2) => ({
     alignItems: 'center',
     borderTop: `1px solid ${theme.colors.border.weak}`,
     display: 'flex',
+    '&:hover [data-field-link-icon]': {
+      opacity: 1,
+    },
+  }),
+  fieldLinkIcon: css({
+    alignItems: 'center',
+    color: theme.colors.text.link,
+    display: 'flex',
+    flexShrink: 0,
+    opacity: 0,
+    padding: theme.spacing(0, 0.5),
+    transition: 'opacity 0.1s',
+    '&:hover': {
+      color: theme.colors.text.link,
+      opacity: 1,
+    },
   }),
   sectionHeader: css({
     alignItems: 'center',
