@@ -24,7 +24,8 @@ export type { ActiveFilter, AttributeConfig, AttributeValueCount } from './attri
 
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
-const EMPTY_PRIORITY_ATTRIBUTES: AttributeConfig[] = [];
+const EMPTY_PRIORITY_ATTRIBUTES: string[] = [];
+const EMPTY_ATTRIBUTE_LABELS: Record<string, string> = {};
 
 // The slice of state the component needs to fetch data.
 // The consumer builds this from its own datasource + query knowledge.
@@ -44,10 +45,12 @@ export interface AttributeDistributionProps {
   getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
+  // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
+  attributeLabels?: Record<string, string>;
   // Called whenever the active filter set changes.
   onFiltersChange?: (filters: ActiveFilter[]) => void;
   // Attributes pinned to the top of the list. Absent priority attributes are still shown.
-  priorityAttributes?: AttributeConfig[];
+  priorityAttributes?: string[];
   // Label shown at the top of the sidebar communicating the dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
   // Active filter set. Updated by the consumer when external filters change.
@@ -56,6 +59,7 @@ export interface AttributeDistributionProps {
 }
 
 export function AttributeDistribution({
+  attributeLabels = EMPTY_ATTRIBUTE_LABELS,
   context,
   fetchAttributes,
   fetchDistribution,
@@ -231,13 +235,13 @@ export function AttributeDistribution({
       if (cancelled) {
         return;
       }
-      const ordered = orderByPriority(detected, priorityAttributes);
+      const ordered = orderByPriority(detected, priorityAttributes, attributeLabels);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
       const activeFilters = selectedFiltersRef.current;
 
       // Only fetch distributions for initially visible fields. Fields that become
       // visible later (show more, pin) are fetched by the visibleAttributes effect.
-      const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
+      const priorityFieldSet = new Set(priorityAttributes);
       const userPinned = new Set(userPinnedRef.current);
       const pAndP = ordered.filter((a) => priorityFieldSet.has(a.attribute) || userPinned.has(a.attribute));
       const nonP = ordered.filter((a) => !priorityFieldSet.has(a.attribute) && !userPinned.has(a.attribute));
@@ -267,7 +271,7 @@ export function AttributeDistribution({
   }
 
   const { nonPriorityAttributes, priorityAndPinned, comboboxOptions } = useMemo(() => {
-    const priorityFieldSet = new Set(priorityAttributes.map((p) => p.attribute));
+    const priorityFieldSet = new Set(priorityAttributes);
     const pinnedSet = new Set(state.userPinnedAttributes);
     const nonPriority = state.attributes.filter(
       (a) => !priorityFieldSet.has(a.attribute) && !pinnedSet.has(a.attribute)

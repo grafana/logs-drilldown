@@ -332,36 +332,39 @@ describe('reducer', () => {
 describe('orderByPriority', () => {
   it('returns detected as-is when priority is empty', () => {
     const detected = [attr('browser'), attr('os')];
-    expect(orderByPriority(detected, [])).toEqual(detected);
+    expect(orderByPriority(detected, [], {})).toEqual(detected);
   });
 
   it('puts priority fields first', () => {
     const detected = [attr('browser'), attr('os'), attr('country')];
-    const priority = [attr('country'), attr('os')];
-    const result = orderByPriority(detected, priority);
+    const result = orderByPriority(detected, ['country', 'os'], {});
     expect(result[0].attribute).toBe('country');
     expect(result[1].attribute).toBe('os');
     expect(result[2].attribute).toBe('browser');
   });
 
-  it('uses the detected version of a priority field (carries attribute_name from attributeMap)', () => {
+  it('uses the detected version of a priority field (carries attribute_name from attributeLabels)', () => {
     const detected = [attr('browser', 'Browser Name')];
-    const priority = [attr('browser', 'Default Label')];
-    const result = orderByPriority(detected, priority);
+    const result = orderByPriority(detected, ['browser'], { browser: 'Default Label' });
     expect(result[0].attribute_name).toBe('Browser Name');
   });
 
-  it('includes a priority field absent from detected (falls back to priority config)', () => {
+  it('includes a priority field absent from detected using attributeLabels for the name', () => {
     const detected = [attr('os')];
-    const priority = [attr('browser', 'Browser'), attr('os')];
-    const result = orderByPriority(detected, priority);
+    const result = orderByPriority(detected, ['browser', 'os'], { browser: 'Browser' });
     expect(result.map((a) => a.attribute)).toEqual(['browser', 'os']);
+    expect(result[0].attribute_name).toBe('Browser');
+  });
+
+  it('falls back to raw attribute name when absent from detected and not in attributeLabels', () => {
+    const detected = [attr('os')];
+    const result = orderByPriority(detected, ['browser', 'os'], {});
+    expect(result[0].attribute_name).toBe('browser');
   });
 
   it('does not duplicate priority fields in the rest list', () => {
     const detected = [attr('browser'), attr('os')];
-    const priority = [attr('browser')];
-    const result = orderByPriority(detected, priority);
+    const result = orderByPriority(detected, ['browser'], {});
     expect(result.filter((a) => a.attribute === 'browser')).toHaveLength(1);
   });
 });

@@ -35,7 +35,7 @@ function buildDistributionQuery(baseQuery: string, field: string): string {
 
 function makeFetchAttributes(
   fieldsToExclude: string[],
-  attributeMap: Record<string, string>
+  attributeLabels: Record<string, string>
 ): (context: DatasetContext) => Promise<AttributeConfig[]> {
   // Build the Set here, inside logs-drilldown's module, so Set.prototype methods
   // operate on a Set from this bundle's realm. Passing a Set across plugin
@@ -58,7 +58,7 @@ function makeFetchAttributes(
       .filter((f) => !excludeSet.has(f.label))
       .map((f) => ({
         attribute: f.label,
-        attribute_name: attributeMap[f.label] ?? f.label,
+        attribute_name: attributeLabels[f.label] ?? f.label,
       }));
   };
 }
@@ -158,17 +158,17 @@ function fetchDistribution(
 }
 
 const EMPTY_FIELDS_TO_EXCLUDE: string[] = [];
-const EMPTY_ATTRIBUTE_MAP: Record<string, string> = {};
+const EMPTY_ATTRIBUTE_LABELS: Record<string, string> = {};
 
 export interface LokiFieldDistributionProps {
-  // Display name overrides for raw field names. Unknown fields fall back to their raw name.
-  attributeMap?: Record<string, string>;
+  // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
+  attributeLabels?: Record<string, string>;
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Attributes pinned to the top of the list.
-  priorityAttributes?: AttributeConfig[];
+  priorityAttributes?: string[];
   // The full Loki log query for this error group.
   query: string;
   // Label communicating dataset scope. Example: "Last 1000 logs".
@@ -181,10 +181,10 @@ export interface LokiFieldDistributionProps {
 }
 
 export default function LokiFieldDistribution({
+  attributeLabels = EMPTY_ATTRIBUTE_LABELS,
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
   selectedFilters,
-  attributeMap = EMPTY_ATTRIBUTE_MAP,
   onFiltersChange,
   priorityAttributes,
   query,
@@ -193,8 +193,8 @@ export default function LokiFieldDistribution({
   timeRange,
 }: LokiFieldDistributionProps) {
   const fetchAttributes = useMemo(
-    () => makeFetchAttributes(fieldsToExclude, attributeMap),
-    [fieldsToExclude, attributeMap]
+    () => makeFetchAttributes(fieldsToExclude, attributeLabels),
+    [fieldsToExclude, attributeLabels]
   );
 
   const numericTimeRange = useMemo(
@@ -222,6 +222,7 @@ export default function LokiFieldDistribution({
 
   return (
     <AttributeDistribution
+      attributeLabels={attributeLabels}
       context={context}
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}

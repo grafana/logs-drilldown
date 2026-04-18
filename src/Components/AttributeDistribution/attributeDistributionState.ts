@@ -188,17 +188,23 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-export function orderByPriority(detected: AttributeConfig[], priority: AttributeConfig[]): AttributeConfig[] {
+export function orderByPriority(
+  detected: AttributeConfig[],
+  priority: string[],
+  attributeLabels: Record<string, string>
+): AttributeConfig[] {
   if (!priority.length) {
     return detected;
   }
   const detectedByField = new Map(detected.map((a) => [a.attribute, a]));
   // Always include all priority attributes. Use the detected version if present
-  // (it carries the attribute_name from the consumer's attributeMap); otherwise use the priority
-  // config directly so the section still appears even when the field is absent from
+  // (it already has attribute_name set from attributeLabels); otherwise build a
+  // fallback config so the section still appears even when the field is absent from
   // detected_fields for this error group.
-  const priorityFirst = priority.map((p) => detectedByField.get(p.attribute) ?? p);
-  const priorityFields = new Set(priority.map((p) => p.attribute));
+  const priorityFirst = priority.map(
+    (p) => detectedByField.get(p) ?? { attribute: p, attribute_name: attributeLabels[p] ?? p }
+  );
+  const priorityFields = new Set(priority);
   const rest = detected.filter((a) => !priorityFields.has(a.attribute));
   return [...priorityFirst, ...rest];
 }
