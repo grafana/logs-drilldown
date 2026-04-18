@@ -43,8 +43,8 @@ export interface AttributeDistributionProps {
   getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
-  // Seed filter state on first mount so chips reappear after remount without user re-applying them.
-  initialSelectedFilters?: ActiveFilter[];
+  // Active filter set. Updated by the consumer when external filters change.
+  selectedFilters?: ActiveFilter[];
   // Called whenever the active filter set changes.
   onFiltersChange?: (filters: ActiveFilter[]) => void;
   // Attributes pinned to the top of the list. Absent priority attributes are still shown.
@@ -60,7 +60,7 @@ export function AttributeDistribution({
   fetchDistribution,
   getFieldLink,
   header,
-  initialSelectedFilters,
+  selectedFilters: selectedFiltersProp,
   onFiltersChange,
   priorityAttributes = EMPTY_PRIORITY_ATTRIBUTES,
   queryLimitLabel,
@@ -71,7 +71,7 @@ export function AttributeDistribution({
 
   const [state, dispatch] = useReducer(
     reducer,
-    initialSelectedFilters ?? [],
+    selectedFiltersProp ?? [],
     (initFilters): State => ({
       attributes: [],
       data: {},
@@ -193,9 +193,9 @@ export function AttributeDistribution({
   const loadAdditionalRef = useRef(loadAdditional);
   loadAdditionalRef.current = loadAdditional;
 
-  // Sync internal filter state when initialSelectedFilters changes externally (e.g. user
+  // Sync internal filter state when selectedFilters prop changes externally (e.g. user
   // removes a filter from the page-level filter bar). Skips the initial mount since the
-  // reducer lazy initializer already seeds from initialSelectedFilters on first render.
+  // reducer lazy initializer already seeds from selectedFiltersProp on first render.
   // context, state.attributes, and loadDistributions are read via always-current refs so
   // they do not need to be deps (re-running on those changes is handled by the main effect).
   const isMountedRef = useRef(false);
@@ -204,12 +204,12 @@ export function AttributeDistribution({
       isMountedRef.current = true;
       return;
     }
-    const filters = initialSelectedFilters ?? [];
+    const filters = selectedFiltersProp ?? [];
     dispatch({ type: 'SET_FILTERS', filters });
     if (attributesRef.current.length > 0) {
       loadDistributionsRef.current(visibleAttributesRef.current, contextRef.current, filters);
     }
-  }, [initialSelectedFilters]);
+  }, [selectedFiltersProp]);
 
   useEffect(() => {
     if (!context.datasourceUid || !context.query) {

@@ -165,8 +165,8 @@ export interface LokiFieldDistributionProps {
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
-  // See AttributeDistributionProps.initialSelectedFilters.
-  initialSelectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
+  // Active filter set. Updated by the consumer when external filters change.
+  selectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Attributes pinned to the top of the list.
   priorityAttributes?: AttributeConfig[];
@@ -182,7 +182,7 @@ export interface LokiFieldDistributionProps {
 export default function LokiFieldDistribution({
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
-  initialSelectedFilters,
+  selectedFilters,
   attributeMap = EMPTY_ATTRIBUTE_MAP,
   onFiltersChange,
   priorityAttributes,
@@ -225,7 +225,7 @@ export default function LokiFieldDistribution({
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
       getFieldLink={getFieldLink}
-      initialSelectedFilters={initialSelectedFilters}
+      selectedFilters={selectedFilters}
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
       queryLimitLabel={queryLimitLabel}
