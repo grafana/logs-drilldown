@@ -320,9 +320,9 @@ export function AttributeDistribution({
   // Fires when visibleAttributes grows (show more, pin attribute) without
   // disrupting in-flight requests for already-visible fields.
   useEffect(() => {
-    const unfetched = visibleAttributes.filter((a) => !fetchedFieldsRef.current.has(a.attribute));
-    if (unfetched.length > 0) {
-      loadAdditionalRef.current(unfetched, contextRef.current, selectedFiltersRef.current);
+    const notYetFetched = visibleAttributes.filter((a) => !fetchedFieldsRef.current.has(a.attribute));
+    if (notYetFetched.length > 0) {
+      loadAdditionalRef.current(notYetFetched, contextRef.current, selectedFiltersRef.current);
     }
   }, [visibleAttributes]);
 
