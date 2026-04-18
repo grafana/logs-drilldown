@@ -36,6 +36,8 @@ export interface DatasetContext {
 }
 
 export interface AttributeDistributionProps {
+  // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
+  attributeLabels?: Record<string, string>;
   context: DatasetContext;
   // Returns detected fields for the given context.
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
@@ -45,8 +47,6 @@ export interface AttributeDistributionProps {
   getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
-  // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
-  attributeLabels?: Record<string, string>;
   // Called whenever the active filter set changes.
   onFiltersChange?: (filters: ActiveFilter[]) => void;
   // Attributes pinned to the top of the list. Absent priority attributes are still shown.
@@ -257,7 +257,7 @@ export function AttributeDistribution({
       subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
       subscriptionsRef.current = [];
     };
-  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes, fetchAttributes, loadDistributions]);
+  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, attributeLabels, priorityAttributes, fetchAttributes, loadDistributions]);
 
   function handleToggleFilter(field: string, value: string, operator: '!=' | '=') {
     const newFilters = computeNextFilters(state.selectedFilters, field, value, operator);
