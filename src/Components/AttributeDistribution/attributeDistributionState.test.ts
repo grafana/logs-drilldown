@@ -195,6 +195,20 @@ describe('reducer', () => {
       expect(state.selectedFilters).toEqual([{ field: 'browser', operator: '!=', value: 'Firefox' }]);
     });
 
+    it('clears sibling values when switching operator for an existing value', () => {
+      // Chrome and Firefox both included. Switching Chrome to exclude must remove Firefox too
+      // so the field never holds mixed operators.
+      const initial: State = {
+        ...emptyState(),
+        selectedFilters: [
+          { field: 'browser', operator: '=', value: 'Chrome' },
+          { field: 'browser', operator: '=', value: 'Firefox' },
+        ],
+      };
+      const state = reducer(initial, { field: 'browser', operator: '!=', type: 'TOGGLE_FILTER', value: 'Chrome' });
+      expect(state.selectedFilters).toEqual([{ field: 'browser', operator: '!=', value: 'Chrome' }]);
+    });
+
     it('allows multiple values for the same field with the same operator', () => {
       const initial: State = {
         ...emptyState(),

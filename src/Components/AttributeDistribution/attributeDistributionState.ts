@@ -68,8 +68,8 @@ export function computeNextFilters(
     // Same operator: deselect
     return currentFilters.filter((_, i) => i !== existingIndex);
   } else if (existingIndex >= 0) {
-    // Operator switch for this value: replace in place
-    return currentFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
+    // Operator switch for this value: clear all other values for the field to keep a single operator per field.
+    return [...currentFilters.filter((f) => f.field !== field), { field, value, operator }];
   } else if (existingForField && existingForField.operator !== operator) {
     // Different operator already active for this field: clear and add new
     return [...currentFilters.filter((f) => f.field !== field), { field, value, operator }];
