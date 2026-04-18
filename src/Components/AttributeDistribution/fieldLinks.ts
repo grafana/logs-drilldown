@@ -5,9 +5,6 @@
 // already-interpolated query string. If the input types are ever aligned, the shared
 // base logic could be extracted to links.ts and reused by both.
 
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { ensureValidTimeRangeForLink } from '../../services/text';
-import { SERVICE_NAME } from '../../services/variables';
 import {
   createAppUrl,
   escapePrimaryLabel,
@@ -16,6 +13,9 @@ import {
   UrlParameters,
 } from '../../services/extensions/links';
 import { getMatcherFromQuery } from '../../services/logqlMatchers';
+import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { ensureValidTimeRangeForLink } from '../../services/text';
+import { SERVICE_NAME } from '../../services/variables';
 
 // Resolves the service slug and base URL params from a fully-interpolated Loki query.
 // Returns undefined when the query has no inclusive label selector (cannot determine service).
