@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
-import { Observable, Subscription } from 'rxjs';
-
 import { css, cx } from '@emotion/css';
+import { Observable, Subscription } from 'rxjs';
 
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -486,7 +485,7 @@ function AttributeSection({
         )}
         {isExpandable && (
           <button
-            aria-label={expanded ? 'Collapse' : 'Expand'}
+            aria-label={expanded ? t('errors-analysis.collapse', 'Collapse') : t('errors-analysis.expand', 'Expand')}
             className={styles.expandToggle}
             type="button"
             onClick={onToggle}
