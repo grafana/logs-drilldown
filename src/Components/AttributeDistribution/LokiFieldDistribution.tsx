@@ -51,7 +51,7 @@ function makeFetchAttributes(
     const response = await (ds as unknown as LokiLike).getResource(
       'detected_fields',
       { end, query: context.query, start },
-      { requestId: 'errors-detected-fields' }
+      { requestId: `errors-detected-fields-${context.datasourceUid}-${context.query.slice(0, 40)}` }
     );
 
     return narrowDetectedFields(response)

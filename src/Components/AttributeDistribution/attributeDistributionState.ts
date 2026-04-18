@@ -53,6 +53,31 @@ export type Action =
   | { type: 'CLEAR_FILTERS' }
   | { filters: ActiveFilter[]; type: 'SET_FILTERS' };
 
+// Computes the next filter list after a toggle action, shared by the reducer and
+// handleToggleFilter (which needs the result synchronously before dispatch settles).
+export function computeNextFilters(
+  currentFilters: ActiveFilter[],
+  field: string,
+  value: string,
+  operator: '!=' | '='
+): ActiveFilter[] {
+  const existingIndex = currentFilters.findIndex((f) => f.field === field && f.value === value);
+  const existingForField = currentFilters.find((f) => f.field === field);
+
+  if (existingIndex >= 0 && currentFilters[existingIndex].operator === operator) {
+    // Same operator: deselect
+    return currentFilters.filter((_, i) => i !== existingIndex);
+  } else if (existingIndex >= 0) {
+    // Operator switch for this value: replace in place
+    return currentFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
+  } else if (existingForField && existingForField.operator !== operator) {
+    // Different operator already active for this field: clear and add new
+    return [...currentFilters.filter((f) => f.field !== field), { field, value, operator }];
+  } else {
+    return [...currentFilters, { field, value, operator }];
+  }
+}
+
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'DETECTING': {
@@ -127,22 +152,7 @@ export function reducer(state: State, action: Action): State {
       return { ...state, userPinnedAttributes: [...state.userPinnedAttributes, action.attribute] };
     case 'TOGGLE_FILTER': {
       const { field, value, operator } = action;
-      const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);
-      const existingForField = state.selectedFilters.find((f) => f.field === field);
-
-      let newFilters: ActiveFilter[];
-      if (existingIndex >= 0 && state.selectedFilters[existingIndex].operator === operator) {
-        // Same operator: deselect
-        newFilters = state.selectedFilters.filter((_, i) => i !== existingIndex);
-      } else if (existingIndex >= 0) {
-        // Operator switch for this value: replace in place
-        newFilters = state.selectedFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
-      } else if (existingForField && existingForField.operator !== operator) {
-        // Different operator already active for this field: clear and add new
-        newFilters = [...state.selectedFilters.filter((f) => f.field !== field), { field, value, operator }];
-      } else {
-        newFilters = [...state.selectedFilters, { field, value, operator }];
-      }
+      const newFilters = computeNextFilters(state.selectedFilters, field, value, operator);
 
       // Take a snapshot of current values when the first filter is added.
       let { valueSnapshot } = state;

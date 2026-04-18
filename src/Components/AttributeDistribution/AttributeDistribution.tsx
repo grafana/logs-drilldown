@@ -14,6 +14,7 @@ import {
   AttributeState,
   AttributeValueCount,
   State,
+  computeNextFilters,
   mergeWithSnapshot,
   orderByPriority,
   reducer,
@@ -255,23 +256,8 @@ export function AttributeDistribution({
   }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, priorityAttributes, fetchAttributes, loadDistributions]);
 
   function handleToggleFilter(field: string, value: string, operator: '!=' | '=') {
-    // Mirror the reducer logic to compute newFilters synchronously for callbacks.
-    const existingIndex = state.selectedFilters.findIndex((f) => f.field === field && f.value === value);
-    const existingForField = state.selectedFilters.find((f) => f.field === field);
-
-    let newFilters: ActiveFilter[];
-    if (existingIndex >= 0 && state.selectedFilters[existingIndex].operator === operator) {
-      newFilters = state.selectedFilters.filter((_, i) => i !== existingIndex);
-    } else if (existingIndex >= 0) {
-      newFilters = state.selectedFilters.map((f, i) => (i === existingIndex ? { ...f, operator } : f));
-    } else if (existingForField && existingForField.operator !== operator) {
-      newFilters = [...state.selectedFilters.filter((f) => f.field !== field), { field, value, operator }];
-    } else {
-      newFilters = [...state.selectedFilters, { field, value, operator }];
-    }
-
+    const newFilters = computeNextFilters(state.selectedFilters, field, value, operator);
     dispatch({ type: 'TOGGLE_FILTER', field, value, operator });
-
     loadDistributions(visibleAttributes, context, newFilters);
     onFiltersChange?.(newFilters);
   }
