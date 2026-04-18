@@ -43,14 +43,14 @@ export interface AttributeDistributionProps {
   getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
-  // Active filter set. Updated by the consumer when external filters change.
-  selectedFilters?: ActiveFilter[];
   // Called whenever the active filter set changes.
   onFiltersChange?: (filters: ActiveFilter[]) => void;
   // Attributes pinned to the top of the list. Absent priority attributes are still shown.
   priorityAttributes?: AttributeConfig[];
   // Label shown at the top of the sidebar communicating the dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
+  // Active filter set. Updated by the consumer when external filters change.
+  selectedFilters?: ActiveFilter[];
   showAllLink?: { href: string; title: string };
 }
 

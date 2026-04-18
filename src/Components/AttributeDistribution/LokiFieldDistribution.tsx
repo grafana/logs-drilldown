@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { Observable, from, map, switchMap } from 'rxjs';
 
 import { DataQueryResponse, DataFrame, DataQueryRequest, TimeRange, dateTime, FieldType } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
@@ -165,8 +166,6 @@ export interface LokiFieldDistributionProps {
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
-  // Active filter set. Updated by the consumer when external filters change.
-  selectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Attributes pinned to the top of the list.
   priorityAttributes?: AttributeConfig[];
@@ -174,6 +173,8 @@ export interface LokiFieldDistributionProps {
   query: string;
   // Label communicating dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
+  // Active filter set. Updated by the consumer when external filters change.
+  selectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   // When true, shows a link to the full service log view in Logs Drilldown.
   showAllLink?: boolean;
   timeRange: TimeRange;
@@ -214,7 +215,7 @@ export default function LokiFieldDistribution({
     if (!href) {
       return undefined;
     }
-    return { href, title: 'Open in Logs Drilldown' };
+    return { href, title: t('errors-analysis.show-all-link-title', 'Open in Logs Drilldown') };
   }, [showAllLink, query, datasourceUid, numericTimeRange]);
 
   const context: DatasetContext = { datasourceUid, query, timeRange: numericTimeRange };
