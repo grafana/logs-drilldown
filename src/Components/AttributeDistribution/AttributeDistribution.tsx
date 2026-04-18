@@ -4,9 +4,9 @@ import { Observable, Subscription } from 'rxjs';
 
 import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Combobox, Icon, MenuItem, Spinner, Tooltip, WithContextMenu, useStyles2 } from '@grafana/ui';
+import { Combobox, Icon, MenuItem, Spinner, TextLink, Tooltip, WithContextMenu, useStyles2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import {
@@ -40,6 +40,8 @@ export interface AttributeDistributionProps {
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
   // Returns value counts for a single field within the dataset described by context.
   fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Observable<AttributeValueCount[]>;
+  // Returns a URL to view full distribution for a field in Logs Drilldown. Return undefined to hide the link.
+  getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
   // Seed filter state on first mount so chips reappear after remount without user re-applying them.
@@ -57,6 +59,7 @@ export function AttributeDistribution({
   context,
   fetchAttributes,
   fetchDistribution,
+  getFieldLink,
   header,
   initialSelectedFilters,
   onFiltersChange,
@@ -373,6 +376,7 @@ export function AttributeDistribution({
               key={attr.attribute}
               attrState={attrState}
               config={attr}
+              fieldLink={getFieldLink?.(attr.attribute)}
               hasActiveFilter={fieldFilters.length > 0}
               includedValues={includedValues}
               excludedValues={excludedValues}
@@ -424,6 +428,7 @@ interface AttributeSectionProps {
   attrState: AttributeState;
   config: AttributeConfig;
   excludedValues: Set<string>;
+  fieldLink?: string;
   hasActiveFilter: boolean;
   includedValues: Set<string>;
   onToggle: () => void;
@@ -434,6 +439,7 @@ interface AttributeSectionProps {
 function AttributeSection({
   attrState,
   config,
+  fieldLink,
   hasActiveFilter,
   includedValues,
   excludedValues,
@@ -450,14 +456,45 @@ function AttributeSection({
 
   return (
     <div className={styles.section}>
-      <button
-        className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
-        type="button"
-        onClick={isExpandable ? onToggle : undefined}
-      >
-        <span className={styles.sectionLabel}>{config.attribute_name}</span>
-        {isExpandable && <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />}
-      </button>
+      <div className={styles.sectionHeaderRow}>
+        {fieldLink ? (
+          <Tooltip
+            interactive
+            placement="top-end"
+            content={
+              <TextLink href={fieldLink} external>
+                {t('errors-analysis.field-link-tooltip', 'View {{name}} in Logs Drilldown field tab', { name: config.attribute_name })}
+              </TextLink>
+            }
+          >
+            <button
+              className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
+              type="button"
+              onClick={isExpandable ? onToggle : undefined}
+            >
+              <span className={styles.sectionLabel}>{config.attribute_name}</span>
+            </button>
+          </Tooltip>
+        ) : (
+          <button
+            className={cx(styles.sectionHeader, hasActiveFilter && styles.sectionHeaderActive)}
+            type="button"
+            onClick={isExpandable ? onToggle : undefined}
+          >
+            <span className={styles.sectionLabel}>{config.attribute_name}</span>
+          </button>
+        )}
+        {isExpandable && (
+          <button
+            aria-label={expanded ? 'Collapse' : 'Expand'}
+            className={styles.expandToggle}
+            type="button"
+            onClick={onToggle}
+          >
+            <Icon name={expanded ? 'angle-up' : 'angle-down'} size="sm" />
+          </button>
+        )}
+      </div>
 
       {loading && values.length === 0 && (
         <div className={styles.loadingRow}>
@@ -620,22 +657,40 @@ const getStyles = (theme: GrafanaTheme2) => ({
     flexDirection: 'column',
     paddingBottom: theme.spacing(1),
   }),
+  sectionHeaderRow: css({
+    alignItems: 'center',
+    borderTop: `1px solid ${theme.colors.border.weak}`,
+    display: 'flex',
+  }),
   sectionHeader: css({
     alignItems: 'center',
     background: 'none',
     border: 'none',
-    borderTop: `1px solid ${theme.colors.border.weak}`,
     color: theme.colors.text.primary,
     cursor: 'pointer',
     display: 'flex',
+    flex: 1,
     fontSize: theme.typography.bodySmall.fontSize,
     fontWeight: theme.typography.fontWeightMedium,
-    justifyContent: 'space-between',
+    minWidth: 0,
     padding: theme.spacing(0.75, 0),
     textAlign: 'left',
-    width: '100%',
     '&:hover': {
       color: theme.colors.text.maxContrast,
+    },
+  }),
+  expandToggle: css({
+    alignItems: 'center',
+    background: 'none',
+    border: 'none',
+    color: theme.colors.text.secondary,
+    cursor: 'pointer',
+    display: 'flex',
+    flexShrink: 0,
+    marginLeft: 'auto',
+    padding: theme.spacing(0, 0.5),
+    '&:hover': {
+      color: theme.colors.text.primary,
     },
   }),
   sectionLabel: css({
@@ -729,15 +784,15 @@ const getStyles = (theme: GrafanaTheme2) => ({
     opacity: 0.45,
   }),
   valueRowIncluded: css({
-    background: `rgba(${theme.colors.success.rgb}, 0.15)`,
+    background: colorManipulator.alpha(theme.colors.success.main, 0.15),
     '&:hover': {
-      background: `rgba(${theme.colors.success.rgb}, 0.25)`,
+      background: colorManipulator.alpha(theme.colors.success.main, 0.25),
     },
   }),
   valueRowExcluded: css({
-    background: `rgba(${theme.colors.error.rgb}, 0.15)`,
+    background: colorManipulator.alpha(theme.colors.error.main, 0.15),
     '&:hover': {
-      background: `rgba(${theme.colors.error.rgb}, 0.25)`,
+      background: colorManipulator.alpha(theme.colors.error.main, 0.25),
     },
   }),
   sectionHeaderActive: css({

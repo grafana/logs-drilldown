@@ -6,6 +6,7 @@ import { DataQueryResponse, DataFrame, DataQueryRequest, TimeRange, dateTime, Fi
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
+import { buildFieldLinkFromQuery, buildServiceLinkFromQuery } from '../../services/extensions/links';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
 import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
@@ -173,7 +174,8 @@ export interface LokiFieldDistributionProps {
   query: string;
   // Label communicating dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
-  showAllLink?: { href: string; title: string };
+  // When true, shows a link to the full service log view in Logs Drilldown.
+  showAllLink?: boolean;
   timeRange: TimeRange;
 }
 
@@ -199,6 +201,22 @@ export default function LokiFieldDistribution({
     [timeRange]
   );
 
+  const getFieldLink = useMemo(
+    () => (attribute: string) => buildFieldLinkFromQuery(query, datasourceUid, numericTimeRange, attribute),
+    [query, datasourceUid, numericTimeRange]
+  );
+
+  const showAllLinkObj = useMemo(() => {
+    if (!showAllLink) {
+      return undefined;
+    }
+    const href = buildServiceLinkFromQuery(query, datasourceUid, numericTimeRange);
+    if (!href) {
+      return undefined;
+    }
+    return { href, title: 'Open in Logs Drilldown' };
+  }, [showAllLink, query, datasourceUid, numericTimeRange]);
+
   const context: DatasetContext = { datasourceUid, query, timeRange: numericTimeRange };
 
   return (
@@ -206,11 +224,12 @@ export default function LokiFieldDistribution({
       context={context}
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
+      getFieldLink={getFieldLink}
       initialSelectedFilters={initialSelectedFilters}
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
       queryLimitLabel={queryLimitLabel}
-      showAllLink={showAllLink}
+      showAllLink={showAllLinkObj}
     />
   );
 }

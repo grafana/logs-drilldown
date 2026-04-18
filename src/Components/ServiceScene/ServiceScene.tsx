@@ -72,6 +72,7 @@ import {
   CreateAlertData,
   CreateAlertEvent,
 } from 'Components/Panels/PanelMenu';
+import LokiFieldDistribution from 'Components/AttributeDistribution/LokiFieldDistribution';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
@@ -965,6 +966,9 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
     const { body, addToDashboardData, createAlertData } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
+    const { value: datasourceUid } = getDataSourceVariable(model).useState();
+    const query = sceneGraph.interpolate(model, LOG_STREAM_SELECTOR_EXPR);
+    const timeRange = sceneGraph.getTimeRange(model).state.value;
 
     const { filters } = getLabelsVariable(model).useState();
     const status = useMemo(() => model.getLabelFiltersStatus(filters), [filters, model]);
@@ -1005,7 +1009,16 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         <>
           {addToDashboardData && <AddToDashboardModal data={addToDashboardData} onClose={model.hideAddToDashboard} />}
           {createAlertData && <CreateAlertModal data={createAlertData} onDismiss={model.hideCreateAlert} />}
-          <body.Component model={body} />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <body.Component model={body} />
+            </div>
+            <div style={{ flexShrink: 0, width: '320px' }}>
+              <LokiFieldDistribution 
+              showAllLink={true}
+              datasourceUid={String(datasourceUid)} query={query} timeRange={timeRange} />
+            </div>
+          </div>
         </>
       );
     }
