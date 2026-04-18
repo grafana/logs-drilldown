@@ -7,7 +7,7 @@ import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
-import { buildFieldLinkFromQuery, buildServiceLinkFromQuery } from '../../services/extensions/links';
+import { buildFieldLinkFromQuery, buildServiceLinkFromQuery } from './fieldLinks';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
 import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';

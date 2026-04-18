@@ -1110,3 +1110,4 @@ describe('restoreLabelValueFromUrlParam', () => {
     expect(restoreLabelValueFromUrlParam(encoded)).toBe('user?input');
   });
 });
+
