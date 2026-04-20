@@ -654,6 +654,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'flex',
     flexDirection: 'column',
     paddingBottom: theme.spacing(1),
+    width: '100%',
   }),
   sectionHeaderRow: css({
     alignItems: 'center',
@@ -715,6 +716,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   sections: css({
     display: 'flex',
     flexDirection: 'column',
+    width: '100%',
   }),
   showMoreFields: css({
     borderTop: `1px solid ${theme.colors.border.weak}`,
