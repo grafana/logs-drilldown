@@ -102,6 +102,14 @@ export function AttributeDistribution({
   attributesRef.current = state.attributes;
   const userPinnedRef = useRef(state.userPinnedAttributes);
   userPinnedRef.current = state.userPinnedAttributes;
+  // Read via refs so unstable consumer references don't trigger re-detection.
+  // Only genuine dataset changes (query, datasource, time range) should re-detect.
+  const attributeLabelsRef = useRef(attributeLabels);
+  attributeLabelsRef.current = attributeLabels;
+  const priorityAttributesRef = useRef(priorityAttributes);
+  priorityAttributesRef.current = priorityAttributes;
+  const fetchAttributesRef = useRef(fetchAttributes);
+  fetchAttributesRef.current = fetchAttributes;
 
   // Incremented on every loadDistributions call. Each async fetch captures the
   // generation at the time it starts and drops its result if the counter has
@@ -228,24 +236,24 @@ export function AttributeDistribution({
       dispatch({ type: 'DETECTING' });
       let detected: AttributeConfig[] = [];
       try {
-        detected = await fetchAttributes(contextRef.current);
+        detected = await fetchAttributesRef.current(contextRef.current);
       } catch (e) {
         logger.error(e);
       }
       if (cancelled) {
         return;
       }
-      const ordered = orderByPriority(detected, priorityAttributes, attributeLabels);
+      const ordered = orderByPriority(detected, priorityAttributesRef.current, attributeLabelsRef.current);
       dispatch({ type: 'SET_ATTRIBUTES', configs: ordered });
       const activeFilters = selectedFiltersRef.current;
 
       // Only fetch distributions for initially visible fields. Fields that become
       // visible later (show more, pin) are fetched by the visibleAttributes effect.
-      const priorityFieldSet = new Set(priorityAttributes);
+      const priorityFieldSet = new Set(priorityAttributesRef.current);
       const userPinned = new Set(userPinnedRef.current);
       const pAndP = ordered.filter((a) => priorityFieldSet.has(a.attribute) || userPinned.has(a.attribute));
       const nonP = ordered.filter((a) => !priorityFieldSet.has(a.attribute) && !userPinned.has(a.attribute));
-      const initialBatch = priorityAttributes.length === 0 ? 10 : 0;
+      const initialBatch = priorityAttributesRef.current.length === 0 ? 10 : 0;
       const initialVisible = [...pAndP, ...nonP.slice(0, initialBatch)];
       loadDistributions(initialVisible, contextRef.current, activeFilters);
     }
@@ -257,7 +265,7 @@ export function AttributeDistribution({
       subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
       subscriptionsRef.current = [];
     };
-  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, attributeLabels, priorityAttributes, fetchAttributes, loadDistributions]);
+  }, [context.query, context.datasourceUid, context.timeRange.from, context.timeRange.to, loadDistributions]);
 
   function handleToggleFilter(field: string, value: string, operator: '!=' | '=') {
     const newFilters = computeNextFilters(state.selectedFilters, field, value, operator);
