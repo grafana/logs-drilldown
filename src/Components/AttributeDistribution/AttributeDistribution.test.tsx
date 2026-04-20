@@ -1,12 +1,11 @@
 import React from 'react';
 
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { of } from 'rxjs';
 
 import {
   ActiveFilter,
   AttributeDistribution,
-  AttributeValueCount,
   DatasetContext,
 } from './AttributeDistribution';
 
