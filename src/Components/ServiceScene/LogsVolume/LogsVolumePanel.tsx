@@ -281,18 +281,24 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       })
     );
 
-    context.onToggleSeriesVisibility = (label: string, mode: SeriesVisibilityChangeMode) => {
-      const action = toggleLevelFromFilter(label, this);
-      this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, label), true);
+    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
+      if (label == null) {
+        return;
+      }
+      const levels = Array.isArray(label) ? label : [label];
+      for (const level of levels) {
+        const action = toggleLevelFromFilter(level, this);
+        this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, level), true);
 
-      reportAppInteraction(
-        USER_EVENTS_PAGES.service_details,
-        USER_EVENTS_ACTIONS.service_details.level_in_logs_volume_clicked,
-        {
-          action,
-          level: label,
-        }
-      );
+        reportAppInteraction(
+          USER_EVENTS_PAGES.service_details,
+          USER_EVENTS_ACTIONS.service_details.level_in_logs_volume_clicked,
+          {
+            action,
+            level,
+          }
+        );
+      }
     };
   };
 

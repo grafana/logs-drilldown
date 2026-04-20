@@ -112,16 +112,16 @@
   "dependencies": {
     "@bsull/augurs": "^0.10.2",
     "@emotion/css": "11.10.6",
-    "@grafana/api-clients": "^13.0.0-22766927077",
+    "@grafana/api-clients": "13.0.1",
     "@grafana/assistant": "0.1.13",
-    "@grafana/data": "^13.0.0",
-    "@grafana/i18n": "^13.0.0",
+    "@grafana/data": "13.0.1",
+    "@grafana/i18n": "13.0.1",
     "@grafana/lezer-logql": "^0.3.0",
-    "@grafana/runtime": "12.4.2",
-    "@grafana/scenes": "^6.57.0",
-    "@grafana/scenes-react": "^6.52.12",
-    "@grafana/schema": "12.4.2",
-    "@grafana/ui": "12.4.2",
+    "@grafana/runtime": "13.0.1",
+    "@grafana/scenes": "7.4.0",
+    "@grafana/scenes-react": "7.4.0",
+    "@grafana/schema": "13.0.1",
+    "@grafana/ui": "13.1.0-24676120663",
     "@gtk-grafana/react-json-tree": "^0.0.13",
     "@hello-pangea/dnd": "^16.6.0",
     "@lezer/common": "^1.2.1",
@@ -159,8 +159,9 @@
     "strip-ansi": "6.0.1",
     "tar": "7.5.11",
     "js-yaml": "4.1.1",
-    "@grafana/data": "13.0.0",
-    "@grafana/schema": "12.4.2"
+    "@grafana/data": "13.0.1",
+    "@grafana/schema": "13.0.1",
+    "@grafana/ui": "13.1.0-24676120663"
   },
   "packageManager": "yarn@4.5.0"
 }

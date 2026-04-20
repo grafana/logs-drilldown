@@ -1108,12 +1108,19 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   ) => {
     const originalOnToggleSeriesVisibility = context.onToggleSeriesVisibility;
 
-    context.onToggleSeriesVisibility = (level: string, mode: SeriesVisibilityChangeMode) => {
+    context.onToggleSeriesVisibility = (level: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
       originalOnToggleSeriesVisibility?.(level, mode);
 
+      if (level == null) {
+        return;
+      }
+      const levelsToToggle = Array.isArray(level) ? level : [level];
       const allLevels = getLevelLabelsFromSeries(panel.state.$data?.state.data?.series ?? []);
-      const levels = toggleLevelVisibility(level, this.state.serviceLevel.get(labelValue), mode, allLevels);
-      this.state.serviceLevel.set(labelValue, levels);
+      let nextLevels: string[] = this.state.serviceLevel.get(labelValue) ?? [];
+      for (const lv of levelsToToggle) {
+        nextLevels = toggleLevelVisibility(lv, nextLevels, mode, allLevels);
+      }
+      this.state.serviceLevel.set(labelValue, nextLevels);
 
       this.updateServiceLogs(labelName, labelValue);
     };
