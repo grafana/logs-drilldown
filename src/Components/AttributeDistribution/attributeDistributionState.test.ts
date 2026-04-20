@@ -60,6 +60,7 @@ describe('reducer', () => {
         ...emptyState(),
         attributes: [attr('custom_field')],
         data: { custom_field: { error: false, expanded: false, loading: false, values: [] } },
+        userPinnedAttributes: ['custom_field'],
       };
       const state = reducer(initial, { configs: [attr('browser')], type: 'SET_ATTRIBUTES' });
       expect(state.attributes.map((a) => a.attribute)).toContain('custom_field');

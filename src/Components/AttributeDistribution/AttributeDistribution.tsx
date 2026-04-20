@@ -355,6 +355,18 @@ export function AttributeDistribution({
       )}
 
       <div className={styles.sections}>
+        {state.detecting && state.attributes.length === 0 && priorityAttributes.map((attr) => (
+          <div key={attr} className={styles.section}>
+            <div className={styles.sectionHeaderRow}>
+              <div className={styles.sectionHeader}>
+                <span className={styles.sectionLabel}>{attributeLabels[attr] ?? attr}</span>
+              </div>
+            </div>
+            <div className={styles.loadingRow}>
+              <Spinner size="sm" />
+            </div>
+          </div>
+        ))}
         {visibleAttributes.map((attr) => {
           const attrState = state.data[attr.attribute];
           if (!attrState) {
@@ -582,6 +594,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     height: '100%',
     overflowY: 'auto',
     padding: theme.spacing(2),
+    width: '100%',
   }),
   detectingRow: css({
     alignItems: 'center',
@@ -785,16 +798,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
     opacity: 0.45,
   }),
   valueRowIncluded: css({
-    background: colorManipulator.alpha(theme.colors.success.main, 0.15),
+    background: colorManipulator.alpha(theme.colors.primary.main, 0.15),
     '&:hover': {
-      background: colorManipulator.alpha(theme.colors.success.main, 0.25),
+      background: colorManipulator.alpha(theme.colors.primary.main, 0.25),
     },
   }),
   valueRowExcluded: css({
-    background: colorManipulator.alpha(theme.colors.error.main, 0.15),
-    '&:hover': {
-      background: colorManipulator.alpha(theme.colors.error.main, 0.25),
-    },
+    opacity: 0.6,
+    textDecoration: 'line-through',
   }),
   sectionHeaderActive: css({
     color: theme.colors.text.maxContrast,
