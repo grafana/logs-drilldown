@@ -89,8 +89,13 @@ export function reducer(state: State, action: Action): State {
     }
     case 'SET_ATTRIBUTES': {
       const detectedFields = new Set(action.configs.map((c) => c.attribute));
-      const userAdded = state.attributes.filter((a) => !detectedFields.has(a.attribute));
-      const merged = [...action.configs, ...userAdded];
+      // Only preserve attributes the user explicitly pinned via the combobox.
+      // Preserving all prior state.attributes would leak detected-only fields
+      // from a previous context (different query or datasource) into the new one.
+      const userPinned = state.userPinnedAttributes
+        .filter((attr) => !detectedFields.has(attr))
+        .map((attr) => state.attributes.find((a) => a.attribute === attr) ?? { attribute: attr, attribute_name: attr });
+      const merged = [...action.configs, ...userPinned];
       const data: Record<string, AttributeState> = {};
       for (const c of merged) {
         data[c.attribute] = state.data[c.attribute] ?? { error: false, expanded: false, loading: true, values: [] };

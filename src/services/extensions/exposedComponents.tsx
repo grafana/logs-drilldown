@@ -4,9 +4,9 @@ import { Trans } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
-import { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
-import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
-import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
+import type { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
+import type { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
+import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
 const initI18n = async () => {
   const { lt } = await import('semver');

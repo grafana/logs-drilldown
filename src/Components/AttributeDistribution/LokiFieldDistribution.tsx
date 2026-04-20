@@ -138,7 +138,7 @@ function fetchDistribution(
       },
       to: dateTime(context.timeRange.to),
     },
-    requestId: `errors-breakdown-${field}`,
+    requestId: `errors-breakdown-${context.datasourceUid}-${context.query.slice(0, 40)}-${field}`,
     scopedVars: {},
     startTime: Date.now(),
     targets: [target],
