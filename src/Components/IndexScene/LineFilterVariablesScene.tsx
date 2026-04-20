@@ -1,63 +1,123 @@
-import React, { ChangeEvent, KeyboardEvent } from 'react';
+import React, { ChangeEvent, KeyboardEvent, useEffect } from 'react';
 
 import { css } from '@emotion/css';
 import { debounce } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels, SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { Button, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
-import { addCurrentUrlToHistory } from '../../services/navigate';
-import { getLineFiltersVariable } from '../../services/variableGetters';
 import { LineFilterProps, LineFilterVariable } from './LineFilterVariable';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
+import { addCurrentUrlToHistory } from 'services/navigate';
+import { getLineFilterCase, getLineFilterExclusive, getLineFilterRegex } from 'services/store';
+import { testIds } from 'services/testIds';
+import { getLineFiltersVariable } from 'services/variableGetters';
 
-interface LineFilterRendererState extends SceneObjectState {}
+export const LINE_FILTER_VARIABLES_SCENE_KEY = 'line-filters-var-custom-renderer';
+
+interface LineFilterRendererState extends SceneObjectState {
+  visible: boolean;
+}
 
 /**
- * The scene for the submitted line filter that is rendered up top with the other variables.
- * @todo refactor into new directory with other custom variable renderers and/or layout scenes
+ * Renders line filters in the control strip with the other variables.
+ * Hidden until the service drilldown scene activates.
  */
 export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRendererState> {
+  constructor(state?: Partial<LineFilterRendererState>) {
+    super({ ...state, visible: false, key: LINE_FILTER_VARIABLES_SCENE_KEY });
+  }
+
   static Component = ({ model }: SceneComponentProps<LineFilterVariablesScene>) => {
     const lineFilterVar = getLineFiltersVariable(model);
     const { filters } = lineFilterVar.useState();
+    const { visible } = model.useState();
     const styles = useStyles2(getStyles);
     sortLineFilters(filters);
 
-    if (!filters.length) {
+    useEffect(() => {
+      if (visible && filters.length === 0) {
+        model.ensureAtLeastOneEmptyLineFilter();
+      }
+    }, [visible, filters.length, model]);
+
+    const lastFilter = filters.length > 0 ? filters[filters.length - 1] : undefined;
+    const lastLineFilterFilled = lastFilter !== undefined && (lastFilter.value?.trim() ?? '').length > 0;
+    const showAddLineFilterButton = lastLineFilterFilled;
+
+    if (!visible) {
       return null;
     }
 
     return (
       <div className={styles.lineFiltersWrap}>
-        {filters.map((filter) => {
-          const props: LineFilterProps = {
-            caseSensitive: filter.key === LineFilterCaseSensitive.caseSensitive,
-            exclusive: model.isFilterExclusive(filter),
-            handleEnter: (e, lineFilter) => model.handleEnter(e, filter.value, filter),
-            lineFilter: filter.value,
-            onCaseSensitiveToggle: () => model.onCaseSensitiveToggle(filter),
-            onInputChange: (e) => model.onInputChange(e, filter),
-            onRegexToggle: () => model.onRegexToggle(filter),
-            regex: filter.operator === LineFilterOp.regex || filter.operator === LineFilterOp.negativeRegex,
-            setExclusive: () => model.onToggleExclusive(filter),
-            updateFilter: (lineFilter, debounced) =>
-              model.updateFilter(
-                filter,
-                {
-                  ...filter,
-                  value: lineFilter,
-                },
-                debounced
-              ),
-          };
-          return <LineFilterVariable key={filter.keyLabel} onClick={() => model.removeFilter(filter)} props={props} />;
-        })}
+        {filters.map((filter) => (
+          <LineFilterVariable
+            key={filter.keyLabel}
+            onClick={() => model.removeFilter(filter)}
+            props={getLineFilterPropsForRow(model, filter)}
+          />
+        ))}
+        {showAddLineFilterButton && (
+          <Button
+            data-testid={testIds.variables.lineFilters.addButton}
+            icon="plus"
+            variant="secondary"
+            onClick={() => model.addLineFilter()}
+            tooltip={t(
+              'components.index-scene.line-filter-variables-scene.aria-label-add-line-filter',
+              'Add line filter'
+            )}
+            aria-label={t(
+              'components.index-scene.line-filter-variables-scene.aria-label-add-line-filter',
+              'Add line filter'
+            )}
+          />
+        )}
       </div>
     );
   };
+
+  /**
+   * Append a new empty line filter.
+   */
+  addLineFilter = () => {
+    addCurrentUrlToHistory();
+    const variable = getLineFiltersVariable(this);
+    const { key, operator } = this.getDefaultsForNewLineFilter();
+    const keyLabel = String(variable.state.filters.length);
+    variable.setState({
+      filters: [...variable.state.filters, { key, keyLabel, operator, value: '' }],
+    });
+  };
+
+  /**
+   * Ensures the variable has one empty row so the UI always maps over `filters` (no orphan local state).
+   */
+  ensureAtLeastOneEmptyLineFilter = () => {
+    const variable = getLineFiltersVariable(this);
+    if (variable.state.filters.length > 0) {
+      return;
+    }
+    addCurrentUrlToHistory();
+    const { key, operator } = this.getDefaultsForNewLineFilter();
+    variable.setState({
+      filters: [{ key, keyLabel: '0', operator, value: '' }],
+    });
+  };
+
+  private getDefaultsForNewLineFilter = (): Pick<AdHocFilterWithLabels, 'key' | 'operator'> => {
+    const caseSensitivePref = getLineFilterCase(false);
+    const exclusive = getLineFilterExclusive(false);
+    const regex = getLineFilterRegex(false);
+    const key = caseSensitivePref ? LineFilterCaseSensitive.caseSensitive : LineFilterCaseSensitive.caseInsensitive;
+    const operator = operatorFromFlags(regex, exclusive);
+    return { key, operator };
+  };
+
   /**
    * Submit on enter
    */
@@ -69,9 +129,8 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     }
   };
 
-  isFilterExclusive({ operator }: AdHocFilterWithLabels): boolean {
-    return operator === LineFilterOp.negativeMatch || operator === LineFilterOp.negativeRegex;
-  }
+  isFilterExclusive = ({ operator }: AdHocFilterWithLabels): boolean =>
+    operator === LineFilterOp.negativeMatch || operator === LineFilterOp.negativeRegex;
 
   /**
    * Updates filter operator when user toggles regex
@@ -148,7 +207,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
   /**
    * Updates existing line filter ad-hoc variable filter
    */
-  updateFilter(existingFilter: AdHocFilterWithLabels, filterUpdate: AdHocFilterWithLabels, debounced = true) {
+  updateFilter = (existingFilter: AdHocFilterWithLabels, filterUpdate: AdHocFilterWithLabels, debounced = true) => {
     if (debounced) {
       // We want to update the UI right away, which uses the filter state as the UI state, but we don't want to execute the query immediately
       this.updateVariableLineFilter(existingFilter, filterUpdate, true);
@@ -157,7 +216,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     } else {
       this.updateVariableLineFilter(existingFilter, filterUpdate);
     }
-  }
+  };
 
   /**
    * Line filter input onChange helper method
@@ -176,9 +235,16 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
       (f) => f.keyLabel !== undefined && f.keyLabel !== filter.keyLabel
     );
 
-    variable.setState({
-      filters: otherFilters,
-    });
+    if (otherFilters.length === 0) {
+      const { key, operator } = this.getDefaultsForNewLineFilter();
+      variable.setState({
+        filters: [{ key, keyLabel: '0', operator, value: '' }],
+      });
+    } else {
+      variable.setState({
+        filters: otherFilters,
+      });
+    }
   };
 
   /**
@@ -213,7 +279,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
       USER_EVENTS_ACTIONS.service_details.search_string_in_variables_changed,
       {
         caseSensitive: filterUpdate.key,
-        containsLevel: existingFilter.value.toLowerCase().includes('level'),
+        containsLevel: (existingFilter.value ?? '').toLowerCase().includes('level'),
         operator: filterUpdate.operator,
         searchQueryLength: existingFilter.value.length,
       }
@@ -239,17 +305,58 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
 /**
  * Sort line filters by keyLabel, i.e. the order the line filter was added
  */
-export function sortLineFilters(filters: AdHocFilterWithLabels[]) {
+export const sortLineFilters = (filters: AdHocFilterWithLabels[]) => {
   filters.sort((a, b) => parseInt(a.keyLabel ?? '0', 10) - parseInt(b.keyLabel ?? '0', 10));
-}
+};
 
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    lineFiltersWrap: css({
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: `${theme.spacing(0.25)} ${theme.spacing(2)}`,
-      label: 'lineFiltersWrap',
-    }),
-  };
-}
+/**
+ * Map regex and exclude toggles to the corresponding LineFilter operator.
+ * Used for defaults and when bootstrapping an empty row.
+ */
+const operatorFromFlags = (regex: boolean, exclusive: boolean): LineFilterOp => {
+  if (regex && exclusive) {
+    return LineFilterOp.negativeRegex;
+  }
+  if (regex && !exclusive) {
+    return LineFilterOp.regex;
+  }
+  if (!regex && exclusive) {
+    return LineFilterOp.negativeMatch;
+  }
+  return LineFilterOp.match;
+};
+
+/**
+ * Build LineFilterVariable props for one row in the control strip.
+ * Wires the scene model and this filter from VAR_LINE_FILTERS.
+ */
+const getLineFilterPropsForRow = (model: LineFilterVariablesScene, filter: AdHocFilterWithLabels): LineFilterProps => ({
+  caseSensitive: filter.key === LineFilterCaseSensitive.caseSensitive,
+  exclusive: model.isFilterExclusive(filter),
+  handleEnter: (e, lineFilter) => model.handleEnter(e, lineFilter, filter),
+  lineFilter: filter.value,
+  onCaseSensitiveToggle: () => model.onCaseSensitiveToggle(filter),
+  onInputChange: (e) => model.onInputChange(e, filter),
+  onRegexToggle: () => model.onRegexToggle(filter),
+  regex: filter.operator === LineFilterOp.regex || filter.operator === LineFilterOp.negativeRegex,
+  setExclusive: () => model.onToggleExclusive(filter),
+  updateFilter: (lineFilterValue, debounced) =>
+    model.updateFilter(
+      filter,
+      {
+        ...filter,
+        value: lineFilterValue,
+      },
+      debounced
+    ),
+});
+
+const getStyles = (theme: GrafanaTheme2) => ({
+  lineFiltersWrap: css({
+    alignItems: 'flex-end',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: `${theme.spacing(0.25)} ${theme.spacing(2)}`,
+    label: 'lineFiltersWrap',
+  }),
+});

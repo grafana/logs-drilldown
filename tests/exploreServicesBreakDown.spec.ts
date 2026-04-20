@@ -73,7 +73,7 @@ test.describe('explore services breakdown page', () => {
     await explorePage.serviceBreakdownSearch.click();
     await explorePage.serviceBreakdownSearch.fill('broadcast');
     // Submit filter
-    await page.getByRole('button', { name: 'Include' }).click();
+    await explorePage.serviceBreakdownSearch.press('Enter');
     await expect(page.locator('.unwrapped-log-line').first().getByText('broadcast').first()).toBeVisible();
     await expect(page).toHaveURL(/broadcast/);
   });
@@ -987,7 +987,7 @@ test.describe('explore services breakdown page', () => {
     //Flake (M)
     await firstIncludeButton.click();
     // Should not open logs panel and should stay in patterns tab as we allow multiple  patterns
-    await expect(page.getByTestId(testIds.exploreServiceDetails.searchLogs)).not.toBeVisible();
+    await expect(page.getByTestId(/data-testid Panel header Logs/)).not.toBeVisible();
     await expect(page.getByTestId(testIds.patterns.tableWrapper)).toBeVisible();
     // Pattern filter should be added
     await expect(page.getByTestId(testIds.patterns.buttonIncludedPattern)).toBeVisible();
@@ -2108,7 +2108,7 @@ test.describe('explore services breakdown page', () => {
 
       await lastLineFilterLoc.click();
       await page.keyboard.type('Debug');
-      await page.getByRole('button', { name: 'Include' }).click();
+      await lastLineFilterLoc.press('Enter');
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toBeGreaterThanOrEqual(1);
 
       // Now 2 queries should have fired
@@ -2139,7 +2139,7 @@ test.describe('explore services breakdown page', () => {
       // Add regex string
       await lastLineFilterLoc.click();
       await page.keyboard.type('[dD]ebug');
-      await page.getByRole('button', { name: 'Include' }).click();
+      await lastLineFilterLoc.press('Enter');
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toBe(1);
       expect(logsCountQueryCount).toEqual(5);
       expect(logsPanelQueryCount).toEqual(5);
@@ -2158,13 +2158,9 @@ test.describe('explore services breakdown page', () => {
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
 
-      // Re-enable regex - results should show
+      // Re-enable regex - results should show (one regex toggle per line filter row)
       await page.getByLabel('Enable regex').click();
-      await expect
-        .poll(() => page.getByLabel('Disable regex').count(), {
-          intervals: [1_001, 50, 100, 250],
-        })
-        .toBe(2);
+      await expect(page.getByLabel('Disable regex')).toBeVisible();
       await expect.poll(() => highlightedMatchesInFirstRow.count()).toEqual(1);
       expect(logsCountQueryCount).toEqual(7);
       expect(logsPanelQueryCount).toEqual(7);
@@ -2203,7 +2199,7 @@ test.describe('explore services breakdown page', () => {
 
       await expect(firstLineFilterLoc).toHaveCount(1);
       await expect(page.getByLabel('Disable case match')).toHaveCount(1);
-      await expect(page.getByLabel('Enable case match')).toHaveCount(1);
+      await expect(page.getByLabel('Enable regex')).toHaveCount(1);
       await expect(firstLineFilterLoc).toHaveValue(decodedAndUnescaped);
     });
     test('line filter links', async ({ page }) => {
@@ -2249,7 +2245,7 @@ test.describe('explore services breakdown page', () => {
       const lineFilters = page.getByTestId(testIds.exploreServiceDetails.searchLogs);
 
       // Assert the line filters have escaped the values correctly and are in the right order
-      await expect(lineFilters).toHaveCount(5);
+      await expect(lineFilters).toHaveCount(4);
       await expect(lineFilters.nth(0)).toHaveValue('\\\\n');
       await expect(lineFilters.nth(1)).toHaveValue('\\n');
       await expect(lineFilters.nth(2)).toHaveValue('getBookTitles(Author.java:25)\\n');

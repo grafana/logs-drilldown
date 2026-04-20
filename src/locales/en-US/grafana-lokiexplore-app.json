@@ -198,6 +198,9 @@
         "line-filter": "Line filter",
         "tooltip-collapse": "Collapse"
       },
+      "line-filter-variables-scene": {
+        "aria-label-add-line-filter": "Add line filter"
+      },
       "pattern-controls": {
         "excluded-pattern": "Excluded pattern:",
         "excluded-patterns": "Excluded patterns:",

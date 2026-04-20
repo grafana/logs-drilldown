@@ -121,9 +121,11 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
 
 const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
+    alignItems: 'flex-end',
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(0.5),
+    width: '100%',
   }),
   label: css({
     marginRight: 0,

@@ -25,7 +25,7 @@ export interface LineFilterProps {
   updateFilter: (lineFilter: string, debounced: boolean) => void;
 }
 
-export function LineFilterVariable({ onClick, props }: { onClick: () => void; props: LineFilterProps }) {
+export function LineFilterVariable({ onClick, props }: { onClick?: () => void; props: LineFilterProps }) {
   const [focus, setFocus] = useState(false);
   const styles = useStyles2(getLineFilterStyles);
   return (
@@ -35,25 +35,20 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
           <span>
             <Trans i18nKey="components.index-scene.line-filter-variable.line-filter">Line filter</Trans>
           </span>
-          <IconButton
-            onClick={onClick}
-            name={'times'}
-            size={'xs'}
-            aria-label={t('components.index-scene.line-filter-variable.aria-label-remove-line-filter', 'Remove line filter')}
-          />
-        </div>
-        <span className={styles.collapseWrap}>
-          <LineFilterEditor {...props} focus={focus} setFocus={setFocus} type={'variable'} />
-          {focus && (
+          {onClick != null && (
             <IconButton
-              className={styles.collapseBtn}
-              tooltip={t('components.index-scene.line-filter-variable.tooltip-collapse', 'Collapse')}
-              size={'lg'}
-              aria-label={t('components.index-scene.line-filter-variable.aria-label-collapse-filter', 'Collapse filter')}
-              onClick={() => setFocus(false)}
-              name={'table-collapse-all'}
+              onClick={onClick}
+              name={'times'}
+              size={'xs'}
+              aria-label={t(
+                'components.index-scene.line-filter-variable.aria-label-remove-line-filter',
+                'Remove line filter'
+              )}
             />
           )}
+        </div>
+        <span className={styles.editorWrap}>
+          <LineFilterEditor {...props} focus={focus} setFocus={setFocus} type={'variable'} />
         </span>
       </span>
     </>
@@ -61,10 +56,7 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
 }
 
 const getLineFilterStyles = (theme: GrafanaTheme2) => ({
-  collapseBtn: css({
-    marginLeft: theme.spacing(1),
-  }),
-  collapseWrap: css({
+  editorWrap: css({
     display: 'flex',
   }),
   titleWrap: css({

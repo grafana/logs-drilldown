@@ -84,6 +84,9 @@ export const testIds = {
     datasource: {
       label: 'data-testid Dashboard template variables submenu Label Data source',
     },
+    lineFilters: {
+      addButton: 'data-testid line-filter-add',
+    },
     levels: {
       inputWrap: 'data-testid detected_level filter variable',
     },

@@ -30,7 +30,6 @@ import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
-import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
@@ -57,7 +56,6 @@ export interface LogsListSceneState extends SceneObjectState {
   displayedFields: string[];
   error?: string;
   errorType?: ErrorType;
-  lineFilter?: string;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
   // Displayed fields set by the otelLogsFormatting feature
@@ -422,22 +420,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.setState({
       panel: this.getVizPanel(),
     });
-    // Subscribe to line filter state so we can pass the current filter between different viz
-    if (this.state.panel) {
-      const lineFilterScenes = sceneGraph.findDescendents(this.state.panel, LineFilterScene);
-      if (lineFilterScenes.length) {
-        const lineFilterScene = lineFilterScenes[0];
-        this._subs.add(
-          lineFilterScene.subscribeToState((newState, prevState) => {
-            if (newState.lineFilter !== prevState.lineFilter) {
-              this.setState({
-                lineFilter: newState.lineFilter,
-              });
-            }
-          })
-        );
-      }
-    }
   };
 
   public setVisualizationType = (type: LogsVisualizationType) => {
@@ -476,18 +458,11 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const children =
       this.state.visualizationType === 'logs'
         ? [
-            new SceneFlexLayout({
-              children: [
-                new SceneFlexItem({
-                  body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                  xSizing: 'fill',
-                }),
-                new SceneFlexItem({
-                  body: new LineLimitScene({ error }),
-                  xSizing: 'content',
-                }),
-              ],
+            new SceneFlexItem({
+              body: new LineLimitScene({ error }),
+              xSizing: 'fill',
             }),
+
             new SceneFlexItem({
               body: this.logsPanelScene,
               height: 'calc(100vh - 220px)',
@@ -495,17 +470,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
           ]
         : this.state.visualizationType === 'json'
           ? [
-              new SceneFlexLayout({
-                children: [
-                  new SceneFlexItem({
-                    body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                    xSizing: 'fill',
-                  }),
-                  new SceneFlexItem({
-                    body: new LineLimitScene({ error }),
-                    xSizing: 'content',
-                  }),
-                ],
+              new SceneFlexItem({
+                body: new LineLimitScene({ error }),
+                xSizing: 'fill',
               }),
               new SceneFlexItem({
                 body: new JSONLogsScene({ error, canClearFilters }),
@@ -513,17 +480,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
               }),
             ]
           : [
-              new SceneFlexLayout({
-                children: [
-                  new SceneFlexItem({
-                    body: new LineFilterScene({ lineFilter: this.state.lineFilter }),
-                    xSizing: 'fill',
-                  }),
-                  new SceneFlexItem({
-                    body: new LineLimitScene({ error }),
-                    xSizing: 'content',
-                  }),
-                ],
+              new SceneFlexItem({
+                body: new LineLimitScene({ error }),
+                xSizing: 'fill',
               }),
               new SceneFlexItem({
                 body: new LogsTableScene({ error, canClearFilters }),
