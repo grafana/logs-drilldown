@@ -1,0 +1,12 @@
+name: Crowdin automatic task management
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  create-tasks-in-crowdin:
+    uses: grafana/grafana-github-actions/.github/workflows/crowdin-create-tasks.yml@main
+    with:
+      crowdin_project_id: 40
