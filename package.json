@@ -34,8 +34,8 @@
     "prepare": "husky",
     "docs": "cd docs && make docs",
     "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\"",
-    "i18n:extract": "i18next-cli extract -c i18next.config.ts",
-    "i18n:extract:check": "i18next-cli extract -c i18next.config.ts --ci"
+    "i18n-extract": "i18next-cli extract -c i18next.config.ts",
+    "i18n-extract-check": "i18next-cli extract -c i18next.config.ts --ci"
   },
   "author": "Grafana",
   "license": "AGPL-3.0-only",
