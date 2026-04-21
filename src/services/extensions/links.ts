@@ -131,7 +131,7 @@ function setUrlParamsFromFieldFilters(fields: FieldFilter[], params: URLSearchPa
   return params;
 }
 
-function setUrlParamsFromLabelFilters(labelFilters: IndexedLabelFilter[], params: URLSearchParams) {
+export function setUrlParamsFromLabelFilters(labelFilters: IndexedLabelFilter[], params: URLSearchParams) {
   for (const labelFilter of labelFilters) {
     // skip non-indexed filters for now
     if (labelFilter.type !== LabelType.Indexed) {
@@ -350,3 +350,4 @@ export function interpolateQueryExpr(value: string | unknown[], variable: QueryV
   const escapedValues = lodashMap(value, lokiSpecialRegexEscape);
   return escapedValues.join('|');
 }
+
