@@ -842,6 +842,27 @@
       }
     }
   },
+  "errors-analysis": {
+    "collapse": "Collapse",
+    "collapse-extra-fields": "Collapse extra fields",
+    "description": "Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.",
+    "discovering-fields": "Discovering attributes…",
+    "error": "Failed to load",
+    "expand": "Expand",
+    "field-input-placeholder": "Search to add more attributes",
+    "field-link-label": "View {{name}} in Logs Drilldown field tab",
+    "filter-for-value": "Filter for value",
+    "filter-out-value": "Filter out value",
+    "no-extra-fields-shown": "No extra fields shown",
+    "no-fields-detected": "No fields detected for this error group.",
+    "no-more-fields": "No more fields",
+    "no-values-found": "No values found",
+    "show-all-link-title": "Open in Logs Drilldown",
+    "show-more-fields_one": "Show {{count}} more fields",
+    "show-more-fields_other": "Show {{count}} more fields",
+    "title": "Attribute Explorer",
+    "too-many-values": "Too many values to display"
+  },
   "services": {
     "create-annotation-layers": {
       "severities": {
@@ -929,6 +950,9 @@
     },
     "suspended-embedded-logs-exploration": {
       "loading-logs-drilldown": "Loading Logs Drilldown..."
+    },
+    "suspended-loki-field-distribution": {
+      "loading": "Loading..."
     },
     "suspended-open-in-logs-drilldown-button": {
       "open-in-logs-drilldown": "Open in Logs Drilldown"
