@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
@@ -20,15 +20,16 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
     const styles = useStyles2(getPageCountStyles);
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const { countPerPage } = serviceSelectionScene.useState();
-    const options = getCountOptionsFromTotal(totalCount);
+    const options = useMemo(() => getCountOptionsFromTotal(totalCount), [totalCount]);
     useEffect(() => {
       if (options.length === 0) {
         return;
       }
-      if (options.length === 0 || options[options.length - 1] === undefined) {
+      const lastOption = options[options.length - 1];
+      if (lastOption === undefined) {
         return;
       }
-      const maxPageSize = parseInt(options[options.length - 1].value, 10);
+      const maxPageSize = parseInt(lastOption.value, 10);
       if (countPerPage > maxPageSize) {
         serviceSelectionScene.setState({ countPerPage: maxPageSize });
       }

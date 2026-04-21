@@ -357,6 +357,7 @@
           "title": "We did not find any {{type}} for the given time range."
         },
         "field-selector": {
+          "custom-value-search-or-filter": "Filter values by",
           "placeholder-search-values": "Search values"
         },
         "field-values-breakdown-scene": {

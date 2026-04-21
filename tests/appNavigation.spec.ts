@@ -40,11 +40,11 @@ test.describe('navigating app', () => {
   test('mega menu click should persist url params', async ({ page }) => {
     await page.goto(`/a/${pluginJson.id}/explore`);
 
-    // Primary label search uses regex; type a substring then confirm via "Use custom value" (see wrapWildcardSearch in query.ts).
+    // Primary label search uses regex; type a substring then confirm via the custom-value row (see wrapWildcardSearch in query.ts).
     await explorePage.servicesSearch.click();
     await explorePage.servicesSearch.pressSequentially('tempo-i');
     await expect(page.getByRole('listbox')).toBeVisible();
-    await page.getByRole('option', { name: /Use custom value/ }).click();
+    await page.getByRole('option', { name: /Filter values by/ }).click();
     await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'tempo-distributor' })).not.toBeVisible();
 

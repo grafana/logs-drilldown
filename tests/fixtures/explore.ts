@@ -443,7 +443,7 @@ export class ExplorePage {
     // Need to scroll to the bottom of the list
     await this.page.keyboard.press('ArrowUp');
     // Select custom value
-    await this.page.getByRole('option', { name: /Use custom value/ }).click();
+    await this.page.getByRole('option', { name: /Filter values by/ }).click();
     // Close the label name dropdown that opens after adding a value
     await this.page.keyboard.press('Escape');
   }

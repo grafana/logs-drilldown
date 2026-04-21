@@ -189,17 +189,10 @@ for (let i = 0; i <= 9; ++i) {
  * takes the event and returns the key character
  */
 function characterFromEvent(event: KeyboardEvent): string {
-  const eventRecord = event as unknown as Record<string, unknown>;
-  const keyCode =
-    typeof eventRecord.which === 'number'
-      ? eventRecord.which
-      : typeof eventRecord.keyCode === 'number'
-        ? eventRecord.keyCode
-        : undefined;
-
   // for keypress events we should return the character as is
   if (event.type === 'keypress') {
-    let character = String.fromCharCode(keyCode ?? 0);
+    /* eslint-disable @typescript-eslint/no-deprecated -- vendored mousetrap reads legacy key codes */
+    let character = String.fromCharCode(event.which);
 
     // if the shift key is not pressed then it is safe to assume
     // that we want the character to be lowercase.  this means if
@@ -218,12 +211,12 @@ function characterFromEvent(event: KeyboardEvent): string {
   }
 
   // for non keypress events the special maps are needed
-  if (keyCode !== undefined && MAP[keyCode]) {
-    return MAP[keyCode];
+  if (MAP[event.which]) {
+    return MAP[event.which];
   }
 
-  if (keyCode !== undefined && KEYCODE_MAP[keyCode]) {
-    return KEYCODE_MAP[keyCode];
+  if (KEYCODE_MAP[event.which]) {
+    return KEYCODE_MAP[event.which];
   }
 
   // if it is not in the special map
@@ -231,7 +224,7 @@ function characterFromEvent(event: KeyboardEvent): string {
   // with keydown and keyup events the character seems to always
   // come in as an uppercase character whether you are pressing shift
   // or not.  we should make sure it is always lowercase for comparisons
-  return String.fromCharCode(keyCode ?? 0).toLowerCase();
+  return String.fromCharCode(event.which).toLowerCase();
 }
 
 /**
@@ -575,7 +568,7 @@ export class Mousetrap {
    */
   private _fireCallback = (callback: Function, e: KeyboardEvent, combo: string, sequence?: string) => {
     // if this event should not happen stop here
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    /* eslint-disable @typescript-eslint/no-deprecated -- vendored mousetrap reads legacy target */
     const legacyTarget = 'srcElement' in e ? e.srcElement : null;
     const target = e.target ?? legacyTarget;
     if (target && target instanceof HTMLElement && this.stopCallback(e, target, combo, sequence)) {

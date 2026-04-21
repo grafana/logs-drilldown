@@ -40,7 +40,6 @@ export function FieldSelector<T extends string | number>({ label, onChange, opti
         value={value}
         onChange={(selected) => onChange(selected?.value)}
         prefixIcon="search"
-        isClearable
         width="auto"
         minWidth={20}
         data-testid={testIds.breakdowns.labelFieldSearch}
@@ -73,6 +72,14 @@ export function ServiceFieldSelector({
       : selectableOptions;
   const selectableValueSet = new Set(selectableOptions.map((option) => option.value));
 
+  const applyServiceSelection = (selected: ComboboxOption<string>) => {
+    if (!selectableValueSet.has(selected.value)) {
+      setCustomOption({ label: selected.label ?? selected.value, value: selected.value, icon: 'filter' });
+      return onChange(wrapWildcardSearch(selected.value));
+    }
+    selectOption(selected.value);
+  };
+
   return (
     <InlineField className={styles.serviceSceneSelectWrapper} label={label}>
       <Combobox<string>
@@ -81,21 +88,13 @@ export function ServiceFieldSelector({
         placeholder={t('components.service-scene.breakdowns.field-selector.placeholder-search-values', 'Search values')}
         options={allOptions}
         createCustomValue
+        customValueDescription={t(
+          'components.service-scene.breakdowns.field-selector.custom-value-search-or-filter',
+          'Filter values by'
+        )}
         value={value}
-        isClearable
+        onChange={applyServiceSelection}
         prefixIcon="search"
-        onChange={(value) => {
-          if (!value?.value) {
-            return onChange('');
-          }
-
-          if (!selectableValueSet.has(value.value)) {
-            setCustomOption({ label: value.label ?? value.value, value: value.value, icon: 'filter' });
-            return onChange(wrapWildcardSearch(value.value));
-          }
-
-          selectOption(value.value);
-        }}
       />
     </InlineField>
   );

@@ -44,7 +44,7 @@ test.describe('explore services page', () => {
       // Select nginx, as it has the lowest volume, and should otherwise show up last
       await explorePage.servicesSearch.pressSequentially('^nginx$');
       await expect(page.getByRole('listbox')).toBeVisible();
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
 
       // Assert the first is nginx, or we might click before it's done loading
       await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxIncludeShow logs');
@@ -112,7 +112,7 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('mimir');
       await expect(page.getByRole('listbox')).toBeVisible();
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
       // Volume can differ, scroll down so all of the panels are loaded
       await explorePage.scrollToBottom();
 
@@ -134,7 +134,7 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('mimir-i');
       await expect(page.getByRole('listbox')).toBeVisible();
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
 
       // service name should be in time series panel
       await expect(page.getByTestId('data-testid Panel header mimir-ingester').nth(0)).toBeVisible();
@@ -148,7 +148,7 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('imi');
       await expect(page.getByRole('listbox')).toBeVisible();
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
       // service name should be in time series panel
       await expect(page.getByTestId('data-testid Panel header mimir-ingester').nth(0)).toBeVisible();
       // service name should also be in logs panel, just not visible to the user
@@ -172,7 +172,7 @@ test.describe('explore services page', () => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-d');
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
 
       // Volume can differ, scroll down so all of the panels are loaded
       await explorePage.scrollToBottom();
@@ -238,7 +238,7 @@ test.describe('explore services page', () => {
       // Filter results for tempo-ingester
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-i');
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
 
       const tempoIngesterPanelHeader = explorePage.getPanelHeaderLocator().filter({
         has: page.getByRole('heading', { name: 'tempo-ingester' }),
@@ -269,7 +269,7 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-d');
       await expect(page.getByRole('listbox')).toBeVisible();
-      await page.getByRole('option', { name: /Use custom value/ }).click();
+      await page.getByRole('option', { name: /Filter values by/ }).click();
 
       const tempoDistributorPanelHeader = explorePage.getPanelHeaderLocator().filter({
         has: page.getByRole('heading', { name: 'tempo-distributor' }),
@@ -666,7 +666,7 @@ test.describe('explore services page', () => {
         await explorePage.servicesSearch.click();
         await explorePage.servicesSearch.fill('Gate');
         await expect(page.getByRole('listbox')).toBeVisible();
-        await page.getByRole('option', { name: /Use custom value/ }).click();
+        await page.getByRole('option', { name: /Filter values by/ }).click();
 
         // Asser this filters down to only one result
         await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(1);
