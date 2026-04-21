@@ -719,9 +719,6 @@
         "docs-link": "Instructions to enable volume in the Loki config:",
         "title": "Log volume has not been configured."
       },
-      "label": {
-        "service": "Service"
-      },
       "no-service-search-results": {
         "title": "No service matched your search."
       },
