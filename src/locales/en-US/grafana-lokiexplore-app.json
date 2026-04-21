@@ -860,7 +860,8 @@
     "show-all-link-title": "Open in Logs Drilldown",
     "show-more-fields_one": "Show {{count}} more fields",
     "show-more-fields_other": "Show {{count}} more fields",
-    "title": "Attribute Explorer"
+    "title": "Attribute Explorer",
+    "too-many-values": "Too many values to display"
   },
   "services": {
     "create-annotation-layers": {
