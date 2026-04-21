@@ -22,6 +22,14 @@ import {
 
 export type { ActiveFilter, AttributeConfig, AttributeValueCount } from './attributeDistributionState';
 
+function normalizeErrorMessage(e: unknown): string {
+  const raw = e instanceof Error && e.message ? e.message : '';
+  if (raw.toLowerCase().includes('max series')) {
+    return t('errors-analysis.too-many-values', 'Too many values to display');
+  }
+  return raw || t('errors-analysis.error', 'Failed to load');
+}
+
 const MAX_VALUES_COLLAPSED = 1;
 const MAX_VALUES_EXPANDED = 10;
 const EMPTY_PRIORITY_ATTRIBUTES: string[] = [];
@@ -152,7 +160,7 @@ export function AttributeDistribution({
               dispatch({
                 type: 'ERROR',
                 field: attr.attribute,
-                message: e instanceof Error && e.message ? e.message : t('errors-analysis.error', 'Failed to load'),
+                message: normalizeErrorMessage(e),
               });
             }
           },
@@ -192,7 +200,7 @@ export function AttributeDistribution({
               dispatch({
                 type: 'ERROR',
                 field: attr.attribute,
-                message: e instanceof Error && e.message ? e.message : t('errors-analysis.error', 'Failed to load'),
+                message: normalizeErrorMessage(e),
               });
             }
           },
@@ -485,6 +493,7 @@ function AttributeSection({
             href={fieldLink}
             rel="noreferrer"
             target="_blank"
+            title={t('errors-analysis.field-link-label', 'View {{name}} in Logs Drilldown field tab', { name: config.attribute_name })}
           >
             <Icon name="external-link-alt" size="sm" />
           </a>
