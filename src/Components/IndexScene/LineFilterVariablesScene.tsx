@@ -18,6 +18,18 @@ import { getLineFiltersVariable } from 'services/variableGetters';
 
 export const LINE_FILTER_VARIABLES_SCENE_KEY = 'line-filters-var-custom-renderer';
 
+/**
+ * Next unique numeric keyLabel: max existing + 1, so new rows never collide after deletes
+ * (e.g. filters 0 and 2 ⇒ next is 3, not `String(length)` which could be "2").
+ */
+export function nextLineFilterKeyLabel(filters: AdHocFilterWithLabels[]): string {
+  const max = filters.reduce((acc, f) => {
+    const n = parseInt(f.keyLabel ?? '0', 10);
+    return Number.isNaN(n) ? acc : Math.max(acc, n);
+  }, -1);
+  return String(max + 1);
+}
+
 interface LineFilterRendererState extends SceneObjectState {
   visible: boolean;
 }
@@ -88,7 +100,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     addCurrentUrlToHistory();
     const variable = getLineFiltersVariable(this);
     const { key, operator } = this.getDefaultsForNewLineFilter();
-    const keyLabel = String(variable.state.filters.length);
+    const keyLabel = nextLineFilterKeyLabel(variable.state.filters);
     variable.setState({
       filters: [...variable.state.filters, { key, keyLabel, operator, value: '' }],
     });
@@ -105,7 +117,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     addCurrentUrlToHistory();
     const { key, operator } = this.getDefaultsForNewLineFilter();
     variable.setState({
-      filters: [{ key, keyLabel: '0', operator, value: '' }],
+      filters: [{ key, keyLabel: nextLineFilterKeyLabel([]), operator, value: '' }],
     });
   };
 
@@ -238,7 +250,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     if (otherFilters.length === 0) {
       const { key, operator } = this.getDefaultsForNewLineFilter();
       variable.setState({
-        filters: [{ key, keyLabel: '0', operator, value: '' }],
+        filters: [{ key, keyLabel: nextLineFilterKeyLabel([]), operator, value: '' }],
       });
     } else {
       variable.setState({
@@ -281,7 +293,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
         caseSensitive: filterUpdate.key,
         containsLevel: (existingFilter.value ?? '').toLowerCase().includes('level'),
         operator: filterUpdate.operator,
-        searchQueryLength: existingFilter.value.length,
+        searchQueryLength: (existingFilter.value ?? '').length,
       }
     );
   };

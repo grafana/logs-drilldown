@@ -56,7 +56,7 @@ export class ExplorePage {
   }
 
   getLogsToggleLocator() {
-    return this.page.getByTestId(/data-testid Panel header Logs/).getByLabel('Logs', { exact: true });
+    return this.page.getByTestId(testIds.logsPanelHeader.header).getByLabel('Logs', { exact: true });
   }
 
   getPanelContentLocator() {
@@ -64,7 +64,7 @@ export class ExplorePage {
   }
 
   getLogsPanelLocator() {
-    return this.page.getByTestId(/data-testid Panel header Logs/);
+    return this.page.getByTestId(testIds.logsPanelHeader.header);
   }
 
   getLogsVolumePanelLocator() {

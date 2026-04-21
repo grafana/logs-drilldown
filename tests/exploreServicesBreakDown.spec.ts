@@ -987,7 +987,7 @@ test.describe('explore services breakdown page', () => {
     //Flake (M)
     await firstIncludeButton.click();
     // Should not open logs panel and should stay in patterns tab as we allow multiple  patterns
-    await expect(page.getByTestId(/data-testid Panel header Logs/)).not.toBeVisible();
+    await expect(page.getByTestId(testIds.logsPanelHeader.header)).not.toBeVisible();
     await expect(page.getByTestId(testIds.patterns.tableWrapper)).toBeVisible();
     // Pattern filter should be added
     await expect(page.getByTestId(testIds.patterns.buttonIncludedPattern)).toBeVisible();
@@ -2235,7 +2235,7 @@ test.describe('explore services breakdown page', () => {
 
       // Assert query returned results after nav
       const firstExploreLogsRow = page
-        .getByTestId(/data-testid Panel header Logs/)
+        .getByTestId(testIds.logsPanelHeader.header)
         .getByTestId('data-testid panel content')
         .locator('.unwrapped-log-line')
         .first();
