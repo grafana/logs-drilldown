@@ -193,10 +193,8 @@
         "placeholder-all-levels": "All levels"
       },
       "line-filter-variable": {
-        "aria-label-collapse-filter": "Collapse filter",
         "aria-label-remove-line-filter": "Remove line filter",
-        "line-filter": "Line filter",
-        "tooltip-collapse": "Collapse"
+        "line-filter": "Line filter"
       },
       "line-filter-variables-scene": {
         "aria-label-add-line-filter": "Add line filter"
