@@ -174,7 +174,7 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
   private extendTimeSeriesLegendBus(vizPanel: VizPanel, context: PanelContext) {
     const originalOnToggleSeriesVisibility = context.onToggleSeriesVisibility;
 
-    context.onToggleSeriesVisibility = (label: string, mode: SeriesVisibilityChangeMode) => {
+    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
       originalOnToggleSeriesVisibility?.(label, mode);
 
       const override: ConfigOverrideRule | undefined = vizPanel.state.fieldConfig.overrides?.[0];
@@ -241,7 +241,10 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: t('components.service-scene.breakdowns.patterns.patterns-frame-scene.time-series.title.include', 'Include'),
+          title: t(
+            'components.service-scene.breakdowns.patterns.patterns-frame-scene.time-series.title.include',
+            'Include'
+          ),
           url: '#',
         },
         {
@@ -253,7 +256,10 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
             });
           },
           targetBlank: false,
-          title: t('components.service-scene.breakdowns.patterns.patterns-frame-scene.time-series.title.exclude', 'Exclude'),
+          title: t(
+            'components.service-scene.breakdowns.patterns.patterns-frame-scene.time-series.title.exclude',
+            'Exclude'
+          ),
           url: '#',
         },
       ])
