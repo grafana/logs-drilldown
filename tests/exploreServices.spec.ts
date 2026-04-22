@@ -567,7 +567,7 @@ test.describe('explore services page', () => {
           );
 
           // Go back to the logs tab
-          await page.goBack();
+          await explorePage.goToLogsTab();
 
           // Logs tab should be visible and selected
           await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toHaveCount(1);
@@ -575,7 +575,8 @@ test.describe('explore services page', () => {
             'true'
           );
 
-          await page.goBack();
+          // Remove the label filter
+          removeVariableBtn.click();
 
           // assert navigated back to index page
           await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
