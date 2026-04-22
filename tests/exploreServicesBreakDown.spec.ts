@@ -2235,11 +2235,10 @@ test.describe('explore services breakdown page', () => {
 
       // Assert query returned results after nav
       const firstExploreLogsRow = page
-        .getByTestId(testIds.logsPanelHeader.header)
+        .getByTestId(new RegExp(testIds.logsPanelHeader.header))
         .getByTestId('data-testid panel content')
         .locator('.unwrapped-log-line')
         .first();
-      await expect(firstExploreLogsRow).toHaveCount(1);
       await expect(firstExploreLogsRow).toBeVisible();
 
       const lineFilters = page.getByTestId(testIds.exploreServiceDetails.searchLogs);
