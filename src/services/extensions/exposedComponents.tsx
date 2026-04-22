@@ -4,8 +4,9 @@ import { Trans } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
 import pluginJson from '../../plugin.json';
-import { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
-import { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
+import type { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
+import type { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
+import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 
 const initI18n = async () => {
   const { lt } = await import('semver');
@@ -28,6 +29,11 @@ const OpenInLogsDrilldownButton = lazy(async () => {
 const EmbeddedLogsExploration = lazy(async () => {
   await initI18n();
   return import('Components/EmbeddedLogsExploration/EmbeddedLogs');
+});
+
+const LokiFieldDistribution = lazy(async () => {
+  await initI18n();
+  return import('Components/AttributeDistribution/LokiFieldDistribution');
 });
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
@@ -58,6 +64,20 @@ export function SuspendedEmbeddedLogsExploration(props: EmbeddedLogsExplorationP
       }
     >
       <EmbeddedLogsExploration {...props} />
+    </Suspense>
+  );
+}
+
+export function SuspendedLokiFieldDistribution(props: LokiFieldDistributionProps) {
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-loki-field-distribution.loading">Loading...</Trans>
+        </div>
+      }
+    >
+      <LokiFieldDistribution {...props} />
     </Suspense>
   );
 }
