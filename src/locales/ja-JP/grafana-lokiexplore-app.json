@@ -1,0 +1,974 @@
+{
+  "components": {
+    "app": {
+      "text-loading": ""
+    },
+    "app-config": {
+      "active-users-reload-reflect-configuration-changes": "",
+      "default-columns": {
+        "add-label": {
+          "add-label": "",
+          "tooltip-label-match-against-query": ""
+        },
+        "add-record": {
+          "add": ""
+        },
+        "columns": {
+          "aria-label-drag-and-drop-icon": "",
+          "placeholder-select-column": "",
+          "title-drag-and-drop-to-reorder": "",
+          "tooltip-remove-column": ""
+        },
+        "config": {
+          "default-columns-description": "",
+          "text-beta": ""
+        },
+        "default-columns": {
+          "text-loading": ""
+        },
+        "delete-record": {
+          "tooltip-delete-record": ""
+        },
+        "fields": {
+          "add-column": "",
+          "add-column-tooltip": "",
+          "invalid-columns": "",
+          "invalid-columns-log-line-only": ""
+        },
+        "label-name": {
+          "placeholder-select-label-name": ""
+        },
+        "label-value": {
+          "placeholder-select-label-value": ""
+        },
+        "labels": {
+          "content-queries-containing-these-labels-display-selected": "",
+          "labels-match": ""
+        },
+        "records-collapsible-label": {
+          "content-default-fields-display-visualizations-these-labels": "",
+          "display-fields": ""
+        },
+        "remove-label": {
+          "tooltip-remove-label": ""
+        },
+        "submit": {
+          "create-default-columns": "",
+          "update-default-columns": ""
+        },
+        "undo": {
+          "confirmText-reset": "",
+          "reset": ""
+        },
+        "unsupported": {
+          "default-columns": "",
+          "default-columns-requires-feature-flag": "",
+          "default-columns-requires-grafana-or-greater": ""
+        }
+      },
+      "default-data-source-description": "",
+      "default-time-range-description": "",
+      "default-time-range-enabled-label-use-custom-default-time-range": "",
+      "default-time-range-from-placeholder-now-15m": "",
+      "default-time-range-to-placeholder-now": "",
+      "description-end-of-the-range-eg-now": "",
+      "description-start-range": "",
+      "disable-patterns-description": "",
+      "interval-invalid-error": "",
+      "interval-placeholder": "",
+      "label-default-data-source": "",
+      "label-default-time-range": "",
+      "label-disable-loki-patterns": "",
+      "label-disable-patterns": "",
+      "label-from": "",
+      "label-max-interval": "",
+      "label-maximum-time-picker-interval": "",
+      "label-settings": "",
+      "label-to": "",
+      "max-interval-description": "",
+      "patterns-placeholder": "",
+      "save-settings": "",
+      "service-selection": {
+        "config": {
+          "service-selection-description": "",
+          "text-beta": ""
+        },
+        "context": {
+          "text-loading": ""
+        },
+        "default-labels": {
+          "add-label": "",
+          "add-label-and-values": "",
+          "content-configure-default-labels-optional-values-landing": "",
+          "landing-page-default-labels": "",
+          "no-labels-selected": "",
+          "placeholder-select-label-name": "",
+          "placeholder-select-values-optional": "",
+          "tooltip-label-match-against-query": ""
+        },
+        "footer": {
+          "confirmText-reset": "",
+          "reset": "",
+          "save-changes": ""
+        },
+        "label-list": {
+          "aria-label-drag-and-drop-icon": "",
+          "aria-label-remove-value": "",
+          "no-label-values-selected": "",
+          "title-drag-and-drop-to-reorder": "",
+          "tooltip-remove-label": "",
+          "tooltip-remove-value": ""
+        },
+        "unsupported": {
+          "landing-page": "",
+          "landing-requires-feature-flag": "",
+          "landing-settings-requires-grafana-greater": ""
+        }
+      }
+    },
+    "buttons": {
+      "copy-to-clipboard-button": {
+        "copy-link": "",
+        "copy-success": "",
+        "copy-to-clipboard": "",
+        "copy-to-clipboard-error": ""
+      }
+    },
+    "embedded-logs-exploration": {
+      "embedded-link-scene": {
+        "logs-drilldown": ""
+      }
+    },
+    "embedded-scene-wrapper": {
+      "text-loading": ""
+    },
+    "filter-button": {
+      "exclude": "",
+      "include": ""
+    },
+    "index-scene": {
+      "get-variable-set": {
+        "ds-variable": {
+          "label": {
+            "data-source": ""
+          }
+        },
+        "fields-and-metadata-variable": {
+          "label": {
+            "fields": ""
+          }
+        },
+        "fields-variable": {
+          "label": {
+            "detected-fields": ""
+          }
+        },
+        "label-variable": {
+          "label": {
+            "labels": ""
+          }
+        },
+        "levels-variable": {
+          "label": {
+            "error-levels": ""
+          }
+        },
+        "metadata-variable": {
+          "label": {
+            "metadata": ""
+          }
+        }
+      },
+      "give-feedback-button": {
+        "give-feedback": "",
+        "title-share-thoughts-about-grafana": ""
+      },
+      "intercept-banner": {
+        "body": "",
+        "title-welcome-to-grafana-logs-drilldown": ""
+      },
+      "levels-variable-scene": {
+        "aria-label-log-level-filters": "",
+        "label-log-levels": "",
+        "placeholder-all-levels": ""
+      },
+      "line-filter-variable": {
+        "aria-label-collapse-filter": "",
+        "aria-label-remove-line-filter": "",
+        "line-filter": "",
+        "tooltip-collapse": ""
+      },
+      "pattern-controls": {
+        "excluded-pattern": "",
+        "excluded-patterns": "",
+        "included-pattern": "",
+        "included-patterns": ""
+      },
+      "pattern-tag": {
+        "aria-label-remove-pattern": ""
+      },
+      "reset-filters-button": {
+        "reset": "",
+        "tooltip-reset-label-filters-to-initial-values": ""
+      },
+      "share-button-scene": {
+        "aria-label-copy-shortened-url": "",
+        "aria-label-open-copy-link-options": "",
+        "menu-options": {
+          "label": {
+            "copy-absolute-shortened-url": "",
+            "copy-absolute-url": "",
+            "copy-shortened-url": "",
+            "copy-url": "",
+            "normal-url-links": "",
+            "timesync-links-share-range-intact": ""
+          }
+        },
+        "share": ""
+      },
+      "show-logs-button-scene": {
+        "show-logs": ""
+      },
+      "text-loading": "",
+      "toolbar-scene": {
+        "aggregated-metrics": "",
+        "aggregated-metrics-disabled-tooltip": "",
+        "aggregated-metrics-tooltip": "",
+        "aria-label-query-options": "",
+        "insights": "",
+        "render-popover": {
+          "aria-label-query-options": "",
+          "label-toggle-aggregated-metrics": "",
+          "label-toggle-insights-annotations": "",
+          "query-options": ""
+        }
+      },
+      "variable-layout-scene": {
+        "collapse": "",
+        "expand": ""
+      }
+    },
+    "make-embedded-page": {
+      "title": {
+        "grafana-logs-drilldown-embedded": ""
+      }
+    },
+    "make-index-page": {
+      "title": {
+        "grafana-logs-drilldown": ""
+      }
+    },
+    "no-loki-splash": {
+      "learn-more": "",
+      "no-datasource": "",
+      "welcome-to-grafana-logs-drilldown": ""
+    },
+    "open-in-logs-drilldown-button": {
+      "open-in-logs-drilldown": ""
+    },
+    "panels": {
+      "panel-menu": {
+        "add-visualization-header": {
+          "text": {
+            "visualization": "",
+            "visualization-divider": ""
+          }
+        },
+        "get-create-alert-payload": {
+          "panel": {
+            "title": {
+              "log-count-alert": ""
+            }
+          }
+        },
+        "items": {
+          "text": {
+            "explore": "",
+            "navigation": ""
+          }
+        },
+        "text": {
+          "add-to-dashboard": "",
+          "ai": "",
+          "ai-divider": "",
+          "create-alert": "",
+          "explain-in-assistant": ""
+        },
+        "title": {
+          "logs-drilldown-query": ""
+        }
+      }
+    },
+    "saved-searches": {
+      "load-search-button": {
+        "button-no-search-tooltip": "",
+        "button-tooltip": "",
+        "saved-query-button-tooltip": ""
+      },
+      "load-search-modal": {
+        "empty": "",
+        "modal-title": "",
+        "remove": "",
+        "select": ""
+      },
+      "load-search-scene": {
+        "load-error": "",
+        "load-type-error": ""
+      },
+      "save-search-button": {
+        "button-tooltip": "",
+        "button-tooltip-saved-queries": ""
+      },
+      "save-search-modal": {
+        "already-exists-alert": "",
+        "cancel": "",
+        "close": "",
+        "description": "",
+        "error": "",
+        "modal-alert": "",
+        "modal-title": "",
+        "save": "",
+        "success": "",
+        "title": "",
+        "title-success": ""
+      }
+    },
+    "service-scene": {
+      "add-to-dashboard-modal": {
+        "title": ""
+      },
+      "alert": {
+        "invalid-labels-selected": "",
+        "no-labels-selected": "",
+        "select-label": ""
+      },
+      "breakdowns": {
+        "breakdown-search-scene": {
+          "placeholder-search-for-value": ""
+        },
+        "by-frame-repeater": {
+          "clear-filter": "",
+          "no-values-found": ""
+        },
+        "empty-layout-scene": {
+          "link": "",
+          "prefix": "",
+          "suffix": "",
+          "title": ""
+        },
+        "field-selector": {
+          "placeholder-search-values": ""
+        },
+        "field-values-breakdown-scene": {
+          "layout": {
+            "grid": "",
+            "rows": ""
+          },
+          "loading": ""
+        },
+        "fields-aggregated-breakdown-scene": {
+          "label": {
+            "grid": "",
+            "rows": ""
+          },
+          "text-loading": ""
+        },
+        "fields-breakdown-scene": {
+          "label-field": ""
+        },
+        "label-breakdown-scene": {
+          "label-label": "",
+          "labels-not-available": ""
+        },
+        "label-values-breakdown-scene": {
+          "error": {
+            "message": "",
+            "status": "",
+            "trace-id": ""
+          },
+          "layout": {
+            "grid": "",
+            "rows": ""
+          },
+          "loading": ""
+        },
+        "labels-aggregated-breakdown-scene": {
+          "layout": {
+            "grid": "",
+            "rows": ""
+          },
+          "loading": ""
+        },
+        "line-filter-input": {
+          "aria-label-clear-line-filter": "",
+          "tooltip-clear-line-filter": ""
+        },
+        "no-matching-labels-scene": {
+          "clear-filters": "",
+          "title": ""
+        },
+        "numeric-filter-popover-scene": {
+          "add": "",
+          "cancel": "",
+          "label": {
+            "greater-than": "",
+            "greater-than-or-equal": "",
+            "less-than": "",
+            "less-than-or-equal": ""
+          },
+          "remove": "",
+          "unit": ""
+        },
+        "patterns": {
+          "pattern-field-label-stats": {
+            "sample-rows": ""
+          },
+          "pattern-name-label": {
+            "available-stats-field-current-timestamp": "",
+            "could-stats-pattern": ""
+          },
+          "patterns-frame-scene": {
+            "time-series": {
+              "title": {
+                "exclude": "",
+                "include": ""
+              }
+            }
+          },
+          "patterns-logs-sample-scene": {
+            "clear-filters": "",
+            "no-match-filters": "",
+            "this-pattern-returns-no-logs": ""
+          },
+          "patterns-not-detected": {
+            "error-message": "",
+            "error-title": "",
+            "no-match-filters-title": "",
+            "not-detected-description": "",
+            "not-detected-help-link": "",
+            "not-detected-help-prefix": "",
+            "not-detected-title": "",
+            "too-old-docs-link": "",
+            "too-old-docs-prefix": "",
+            "too-old-docs-suffix": "",
+            "too-old-title": ""
+          },
+          "patterns-view-table-scene": {
+            "no-filtered-patterns-message": "",
+            "no-patterns-message": "",
+            "no-patterns-title": ""
+          },
+          "patterns-view-text-search": {
+            "indexed-labels-only": "",
+            "placeholder-search-patterns": ""
+          }
+        },
+        "query-error-alert": {
+          "fetch": "",
+          "increase-limit": "",
+          "max-series-limit-exceeded": "",
+          "message": "",
+          "partial": "",
+          "return-fields": "",
+          "tip-reduce-range": "",
+          "trace-id": "",
+          "trace-ids": ""
+        },
+        "search-input": {
+          "aria-label-clear-search": "",
+          "tooltip-clear-search": ""
+        },
+        "select-label-action-scene": {
+          "add-expression": "",
+          "clear-filters-tooltip": "",
+          "exclude-all-log-lines": "",
+          "include-all-log-lines": "",
+          "select": "",
+          "select-label": "",
+          "view-breakdown-title": ""
+        },
+        "show-error-panel-toggle": {
+          "show-panels-with-errors": "",
+          "tooltip-requests-could-processed": ""
+        },
+        "show-field-display-toggle": {
+          "options": {
+            "label": {
+              "names": "",
+              "volume": ""
+            }
+          }
+        },
+        "sort-by-scene": {
+          "aria-label-sort-direction": "",
+          "description": {
+            "alphabetical-order": "",
+            "graphs-deviation-average-value": "",
+            "graphs-highest-values": "",
+            "graphs-smallest-values": "",
+            "graphs-total-number": "",
+            "order-amount-outlying-values": "",
+            "smart-ordering": ""
+          },
+          "label": {
+            "asc": "",
+            "count": "",
+            "desc": "",
+            "highest-spike": "",
+            "lowest-dip": "",
+            "most-relevant": "",
+            "name": "",
+            "outlying-values": "",
+            "percentiles": "",
+            "widest-spread": ""
+          },
+          "label-sort-by": "",
+          "placeholder-choose-criteria": "",
+          "tooltip-sort-by": ""
+        }
+      },
+      "copy-link-button": {
+        "aria-label": {
+          "copied": "",
+          "copy-link": ""
+        },
+        "tooltip": {
+          "copied": "",
+          "copy-link": ""
+        }
+      },
+      "json-panel": {
+        "json-filter-buttons": {
+          "field-value": {
+            "aria-label": {
+              "exclude": "",
+              "include": ""
+            },
+            "tooltip": {
+              "exclude": "",
+              "include": ""
+            }
+          },
+          "metadata": {
+            "aria-label": {
+              "exclude": "",
+              "include": ""
+            },
+            "tooltip": {
+              "exclude": "",
+              "include": ""
+            }
+          }
+        },
+        "json-line-item-type": {
+          "detected-level-toggle-button": {
+            "include": "",
+            "remove": ""
+          }
+        },
+        "json-nested-node-filter-button": {
+          "aria-label": {
+            "exclude": "",
+            "include": ""
+          },
+          "tooltip": {
+            "exclude": "",
+            "include": ""
+          }
+        },
+        "logs-json-component": {
+          "alert": {
+            "loki-upgrade": "",
+            "no-json-fields": ""
+          },
+          "title-json": "",
+          "title-json-filtering-requires-loki": "",
+          "title-no-json-fields-detected": ""
+        },
+        "re-root-json-button": {
+          "aria-label": "",
+          "tooltip": ""
+        }
+      },
+      "least-label-inclusive-matching": "",
+      "line-filter": {
+        "line-filter-editor": {
+          "exclude": "",
+          "include": "",
+          "label": {
+            "exclude": "",
+            "include": ""
+          },
+          "placeholder-filter-logs-by-string": ""
+        }
+      },
+      "line-limit-scene": {
+        "max-lines-label": "",
+        "max-lines-placeholder": "",
+        "max-lines-tooltip": ""
+      },
+      "log-list-controls": {
+        "collapse": "",
+        "expand": "",
+        "json": {
+          "label": {
+            "metadata": {
+              "disable": "",
+              "enable": ""
+            }
+          },
+          "tooltip": {
+            "labels": {
+              "disable": "",
+              "enable": ""
+            },
+            "metadata": {
+              "disable": "",
+              "enable": ""
+            }
+          }
+        },
+        "label": {
+          "collapse": "",
+          "expand": "",
+          "highlight": {
+            "disable": "",
+            "enable": ""
+          },
+          "unwrap-lines": "",
+          "wrap-lines": ""
+        },
+        "labels": {
+          "sort": {
+            "newest-first": "",
+            "oldest-first": ""
+          }
+        },
+        "scrollToBottom": "",
+        "scrollToTop": "",
+        "table": {
+          "label": {
+            "show-labels": "",
+            "show-text": ""
+          },
+          "tooltip": {
+            "show-labels": "",
+            "show-text": ""
+          }
+        },
+        "tooltip": {
+          "highlight": {
+            "disable": "",
+            "enable": ""
+          },
+          "sort": {
+            "newest-first": "",
+            "oldest-first": ""
+          }
+        },
+        "unwrap-lines": "",
+        "wrap-lines": ""
+      },
+      "log-options-buttons-scene": {
+        "show-default-fields": "",
+        "show-original-log-line": "",
+        "tooltip": {
+          "clear-displayed-fields": "",
+          "show-default-fields": ""
+        }
+      },
+      "log-options-scene": {
+        "description": {
+          "disable-wrapping-of-long-log-lines": "",
+          "enable-wrapping-of-long-log-lines": "",
+          "show-results-newest-to-oldest": "",
+          "show-results-oldest-to-newest": ""
+        },
+        "label": {
+          "newest-first": "",
+          "no-wrap": "",
+          "oldest-first": "",
+          "wrap": ""
+        }
+      },
+      "logs-panel-error": {
+        "clear-filters": "",
+        "default": ""
+      },
+      "logs-panel-scene": {
+        "label": {
+          "copy-link-to-log-line": ""
+        },
+        "text-loading": ""
+      },
+      "text-loading": ""
+    },
+    "service-selection-scene": {
+      "add-label-to-filters-header-action-scene": {
+        "button": {
+          "include": "",
+          "remove": ""
+        },
+        "tooltip": {
+          "add": "",
+          "remove": ""
+        }
+      },
+      "configure-volume-error": {
+        "docs-link": "",
+        "title": ""
+      },
+      "label": {
+        "service": ""
+      },
+      "no-service-search-results": {
+        "title": ""
+      },
+      "no-service-volume": {
+        "help": "",
+        "title": ""
+      },
+      "select-service-button": {
+        "show-logs": "",
+        "tooltip": ""
+      },
+      "service-selection-pagination-scene": {
+        "aria-label-count-info": "",
+        "of-total": "",
+        "showing": "",
+        "tooltip": {
+          "count-info": ""
+        }
+      },
+      "service-selection-tabs-scene": {
+        "label-add-label": "",
+        "label-loading-tabs": "",
+        "tab": {
+          "content-remove-tab": ""
+        }
+      },
+      "tab-popover-scene": {
+        "placeholder-search-labels": ""
+      }
+    },
+    "table": {
+      "cell-context-menu": {
+        "title-add-column": "",
+        "title-add-to-search": "",
+        "title-exclude-from-search": ""
+      },
+      "column-selection": {
+        "logs-column-search": {
+          "placeholder-search-fields-by-name": "",
+          "tooltip": {
+            "collapse-sidebar": "",
+            "expand-sidebar": ""
+          }
+        },
+        "logs-table-available-fields": {
+          "field": {
+            "title": ""
+          }
+        },
+        "logs-table-empty-fields": {
+          "no-fields": ""
+        },
+        "logs-table-multi-select": {
+          "button": {
+            "reset": ""
+          },
+          "fields": "",
+          "header": {
+            "selected-fields": ""
+          }
+        },
+        "logs-table-nav-field": {
+          "aria-label-drag-and-drop-icon": "",
+          "cardinality": {
+            "value": "",
+            "values": ""
+          },
+          "title-drag-and-drop-to-reorder": ""
+        }
+      },
+      "line-action-icons": {
+        "aria-label-view-log-line": "",
+        "copy-to-clipboard": "",
+        "title-inspect-value": "",
+        "tooltip-copy-link-to-log-line": "",
+        "tooltip-view-log-line": ""
+      },
+      "logs-header-actions": {
+        "description": {
+          "show-results-in-json-visualisation": "",
+          "show-results-in-logs-visualisation": "",
+          "show-results-in-table-visualisation": ""
+        },
+        "label": {
+          "json": "",
+          "logs": "",
+          "table": ""
+        }
+      },
+      "logs-table-header": {
+        "aria-label": {
+          "show-menu": ""
+        },
+        "aria-label-reset-column-width": "",
+        "aria-label-show-log-labels": "",
+        "aria-label-show-log-text": "",
+        "tooltip": {
+          "show-menu": ""
+        },
+        "tooltip-reset-column-width": "",
+        "tooltip-show-log-labels": "",
+        "tooltip-show-log-text": ""
+      },
+      "logs-table-header-menu": {
+        "close": ""
+      },
+      "logs-table-header-wrap": {
+        "menu": {
+          "move-left": "",
+          "move-right": "",
+          "remove-column": "",
+          "reset-column-widths": "",
+          "show-labels": "",
+          "show-log-text": ""
+        }
+      },
+      "logs-table-scene": {
+        "title-logs": ""
+      }
+    }
+  },
+  "errors-analysis": {
+    "collapse": "",
+    "collapse-extra-fields": "",
+    "description": "",
+    "discovering-fields": "",
+    "error": "",
+    "expand": "",
+    "field-input-placeholder": "",
+    "field-link-label": "",
+    "filter-for-value": "",
+    "filter-out-value": "",
+    "no-extra-fields-shown": "",
+    "no-fields-detected": "",
+    "no-more-fields": "",
+    "no-values-found": "",
+    "show-all-link-title": "",
+    "title": "",
+    "too-many-values": "",
+    "show-more-fields_other": ""
+  },
+  "services": {
+    "create-annotation-layers": {
+      "severities": {
+        "label": {
+          "critical": "",
+          "info": "",
+          "warning": ""
+        }
+      }
+    },
+    "drilldown-logs": {
+      "notices": {
+        "max-series-reached": ""
+      }
+    },
+    "get-field-options": {
+      "label": {
+        "all": ""
+      }
+    },
+    "get-label-options": {
+      "label": {
+        "all": ""
+      }
+    },
+    "get-visible-range-frame": {
+      "frame": {
+        "text": {
+          "range-oldest-newest-display": ""
+        }
+      }
+    },
+    "grafana-ui": {
+      "date-time-pickers": {
+        "quick-options": {
+          "day-before-yesterday": "",
+          "day-five-days-ago": "",
+          "day-four-days-ago": "",
+          "day-six-days-ago": "",
+          "day-three-days-ago": "",
+          "four-weeks-ago": "",
+          "last-1-hour": "",
+          "last-1-mins": "",
+          "last-12-hours": "",
+          "last-15-mins": "",
+          "last-2-days": "",
+          "last-24-hours": "",
+          "last-3-hours": "",
+          "last-30-days": "",
+          "last-30-mins": "",
+          "last-5-mins": "",
+          "last-6-hours": "",
+          "last-6-months": "",
+          "last-60-days": "",
+          "last-7-days": "",
+          "last-90-days": "",
+          "previous-month": "",
+          "previous-week": "",
+          "this-day-last-week": "",
+          "this-month": "",
+          "this-month-so-far": "",
+          "this-week": "",
+          "this-week-so-far": "",
+          "three-months-ago": "",
+          "three-weeks-ago": "",
+          "today": "",
+          "today-so-far": "",
+          "two-months-ago": "",
+          "two-weeks-ago": "",
+          "yesterday": ""
+        }
+      }
+    },
+    "kg-annotation-toggle-renderer": {
+      "label-insights": ""
+    },
+    "logs": {
+      "logs-drilldown": {
+        "fields": {
+          "log-attributes-field": "",
+          "log-line-field": ""
+        },
+        "kg-annotation-toggle": ""
+      }
+    },
+    "suspended-embedded-logs-exploration": {
+      "loading-logs-drilldown": ""
+    },
+    "suspended-loki-field-distribution": {
+      "loading": ""
+    },
+    "suspended-open-in-logs-drilldown-button": {
+      "open-in-logs-drilldown": ""
+    },
+    "update-assistant-context": {
+      "title": {
+        "parsed-fields-filters": "",
+        "structured-metadata-filters": ""
+      }
+    },
+    "wrapped-loki-datasource": {
+      "message": {
+        "data-source-is-working": ""
+      },
+      "title": {
+        "success": ""
+      }
+    }
+  }
+}
