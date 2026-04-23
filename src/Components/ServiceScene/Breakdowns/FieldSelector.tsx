@@ -72,7 +72,12 @@ export function ServiceFieldSelector({
       : selectableOptions;
   const selectableValueSet = new Set(selectableOptions.map((option) => option.value));
 
-  const applyServiceSelection = (selected: ComboboxOption<string>) => {
+  const applyServiceSelection = (selected: ComboboxOption<string> | null) => {
+    if (selected == null || selected.value === '') {
+      setCustomOption(initialFilter);
+      onChange('');
+      return;
+    }
     if (!selectableValueSet.has(selected.value)) {
       setCustomOption({ label: selected.label ?? selected.value, value: selected.value, icon: 'filter' });
       return onChange(wrapWildcardSearch(selected.value));
@@ -93,6 +98,7 @@ export function ServiceFieldSelector({
           'Filter values by'
         )}
         value={value}
+        isClearable={true}
         onChange={applyServiceSelection}
         prefixIcon="search"
       />
