@@ -56,17 +56,19 @@ test.describe('explore services page', () => {
       // Click on nav to return to service selection
       await page.getByRole('link', { name: 'Logs' }).first().click();
 
-      // Conditional needed as the behavior is different depending on the Grafana version
-      if ((await explorePage.getPanelHeaderLocator().first().textContent()) !== 'nginxRemove') {
-        // Clear the existing search filter added above
-        await page.getByLabel('Clear value').click();
-      }
+      // Assert nginx is showing as a favorite
+      await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
 
-      // Assert there is more then one result now
+      // Clear the search filter so all services are visible
+      await page.getByLabel('Clear value').first().click();
+
+      // Assert there is more than one result now
       await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
 
-      // Assert that the first element is nginx now
-      await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxRemove');
+      // Assert that the first element is nginx with the Remove filter action
+      await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
+      await expect(explorePage.getPanelHeaderLocator().first().getByText('Remove', { exact: true })).toBeVisible();
+
       await explorePage.servicesSearch.click();
 
       // Assert there is more than one element in the dropdown
@@ -490,8 +492,9 @@ test.describe('explore services page', () => {
           // Dropdown should be open
           await expect(selectNewLabelSelect).toContainText('Search labels');
 
-          // Add "namespace" as a new tab
-          await page.getByText('namespace', { exact: true }).click();
+          // Add "namespace" as a new tab — type to filter the dropdown so the option is in viewport
+          await page.keyboard.type('namespace');
+          await page.getByRole('option', { name: 'namespace', exact: true }).click();
           await expect(newNamespaceTabLoc).toHaveCount(1);
 
           // Click "New" tab
