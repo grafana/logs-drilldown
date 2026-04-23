@@ -7,8 +7,6 @@ settings:
 overrides:
   react-router-dom: ^7.12.0
   uuid: ^10.0.0
-  '@grafana/data': ~13.0.0
-  '@grafana/schema': ~12.4.2
   immutable: ~5.1.5
   dompurify: ~3.4.0
   serialize-javascript: ~7.0.5
@@ -29,16 +27,16 @@ importers:
         version: 13.0.1(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@reduxjs/toolkit@2.10.1(react-redux@9.2.0(@types/react@18.3.0)(react@18.3.1)(redux@5.0.1))(react@18.3.1))(rxjs@7.8.2)
       '@grafana/assistant':
         specifier: 0.1.13
-        version: 0.1.13(3858bcb50accba213d3350d39f68e59b)
+        version: 0.1.13(7bfc462f4f9825839610305bdb8add60)
       '@grafana/data':
-        specifier: ~13.0.0
-        version: 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+        specifier: 12.4.2
+        version: 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/faro-web-sdk':
         specifier: ^1.19.0
         version: 1.19.0
       '@grafana/i18n':
-        specifier: ^13.0.0
-        version: 13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+        specifier: 12.4.2
+        version: 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/lezer-logql':
         specifier: ^0.3.0
         version: 0.3.0(@lezer/lr@1.4.9)
@@ -47,12 +45,12 @@ importers:
         version: 12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/scenes':
         specifier: ^6.57.0
-        version: 6.57.2(@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 6.57.2(@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@grafana/scenes-react':
         specifier: ^6.52.12
-        version: 6.57.2(@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 6.57.2(@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@grafana/schema':
-        specifier: ~12.4.2
+        specifier: 12.4.2
         version: 12.4.2
       '@grafana/ui':
         specifier: 12.4.2
@@ -1296,16 +1294,16 @@ packages:
     resolution:
       { integrity: sha512-vdIHj6bEk/spCdhatNSgt6yrsmRNFoqB0rb+RhIbDRr7SCh6VrlL64zAELJ1bCiIxQDwuEyHeWa24HUnVyT7rw== }
     peerDependencies:
-      '@grafana/data': ~13.0.0
+      '@grafana/data': '>=12.1.0'
       '@grafana/runtime': '>=12.1.0'
       '@grafana/scenes': '>=5.41.0'
       '@grafana/ui': '>=12.1.0'
       react: '>=18.0.0'
       rxjs: '>=7.0.0'
 
-  '@grafana/data@13.0.0':
+  '@grafana/data@12.4.2':
     resolution:
-      { integrity: sha512-4pzZGhpjjCo0ac3CuLKyzOJIm4ZNXANqlWw4lI2GMz/dUbArCgrjrbEjQkroXocfM1dzd3Q6POsxnl7nd2/+IA== }
+      { integrity: sha512-VjvxJFYnENiuYlSDSzfh5AqB5foET+MUq4HQMZQmCa3Svm+anECzsN0rRF8Yn/uA8Lx+9z5d77hESgEUpyBKcQ== }
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
@@ -1346,18 +1344,6 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@grafana/i18n@13.0.0':
-    resolution:
-      { integrity: sha512-b1LoDVMRE/GuH+Y2dXqBf7s+Dor246nDvsWwQE5EDF/V1ZEhLwZwEWNFDKQau5AGmURz0SdmZoBuKU55nSACKQ== }
-    peerDependencies:
-      react: '>=18'
-
-  '@grafana/i18n@13.0.1':
-    resolution:
-      { integrity: sha512-XYJO0efh0comm2JhjZCfKv8vQB1BQstfXZkI0CVXtURngpimYHB4TFmc3CikwXsH/wQcf5KQ5yHUnk/3WLhyEg== }
-    peerDependencies:
-      react: '>=18'
-
   '@grafana/levitate@0.17.2':
     resolution:
       { integrity: sha512-huJVnbOZUeh1huR3Qpr3h8cP06vsbZHeAR9nZbpbgP1KhSeigdsWbHma20kdeWVVFkjogKMewqLy+SbHB3pBzg== }
@@ -1393,10 +1379,10 @@ packages:
     resolution:
       { integrity: sha512-UYTqxdQxwXwoHccImEmXSKhwcxLe1zrJUiL/MHlvvQUWopnO1/mj09FqpFyR77sYI0bKW/c+m6rozsFgFf5JDQ== }
     peerDependencies:
-      '@grafana/data': ~13.0.0
+      '@grafana/data': '>=11.6'
       '@grafana/e2e-selectors': '>=11.6'
       '@grafana/runtime': '>=11.6'
-      '@grafana/schema': ~12.4.2
+      '@grafana/schema': '>=11.6'
       '@grafana/ui': '>=11.6'
       react: ^18.0.0
       react-dom: ^18.0.0
@@ -1406,11 +1392,11 @@ packages:
     resolution:
       { integrity: sha512-U4wSGcn1ez7RvygXrik+LP5SwCAaOnnlF1X6uaqoGZy1OJfUQgOQR7wDwtKGOIFL79wZrV9WE3wBD2m3MUJcag== }
     peerDependencies:
-      '@grafana/data': ~13.0.0
+      '@grafana/data': '>=11.6'
       '@grafana/e2e-selectors': '>=11.6'
       '@grafana/i18n': '*'
       '@grafana/runtime': '>=11.6'
-      '@grafana/schema': ~12.4.2
+      '@grafana/schema': '>=11.6'
       '@grafana/ui': '>=11.6'
       react: ^18.0.0
       react-dom: ^18.0.0
@@ -9698,19 +9684,19 @@ snapshots:
       '@reduxjs/toolkit': 2.10.1(react-redux@9.2.0(@types/react@18.3.0)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       rxjs: 7.8.2
 
-  '@grafana/assistant@0.1.13(3858bcb50accba213d3350d39f68e59b)':
+  '@grafana/assistant@0.1.13(7bfc462f4f9825839610305bdb8add60)':
     dependencies:
-      '@grafana/data': 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/data': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/runtime': 12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
-      '@grafana/scenes': 6.57.2(@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      '@grafana/scenes': 6.57.2(@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@grafana/ui': 12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       react: 18.3.1
       rxjs: 7.8.2
 
-  '@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
+  '@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
     dependencies:
       '@braintree/sanitize-url': 7.0.1
-      '@grafana/i18n': 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/i18n': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/schema': 12.4.2
       '@leeoniya/ufuzzy': 1.0.19
       '@types/d3-interpolate': 3.0.4
@@ -9799,42 +9785,6 @@ snapshots:
       - supports-color
       - typescript
 
-  '@grafana/i18n@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
-    dependencies:
-      '@formatjs/intl-durationformat': 0.7.6
-      '@typescript-eslint/utils': 8.58.2(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
-      fast-deep-equal: 3.1.3
-      i18next: 25.10.10(typescript@5.9.2)
-      i18next-browser-languagedetector: 8.2.1
-      i18next-pseudo: 2.2.1
-      micro-memoize: 4.2.0
-      react: 18.3.1
-      react-i18next: 15.7.4(i18next@25.10.10(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
-    transitivePeerDependencies:
-      - eslint
-      - react-dom
-      - react-native
-      - supports-color
-      - typescript
-
-  '@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
-    dependencies:
-      '@formatjs/intl-durationformat': 0.7.6
-      '@typescript-eslint/utils': 8.58.2(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
-      fast-deep-equal: 3.1.3
-      i18next: 25.10.10(typescript@5.9.2)
-      i18next-browser-languagedetector: 8.2.1
-      i18next-pseudo: 2.2.1
-      micro-memoize: 4.2.0
-      react: 18.3.1
-      react-i18next: 15.7.4(i18next@25.10.10(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
-    transitivePeerDependencies:
-      - eslint
-      - react-dom
-      - react-native
-      - supports-color
-      - typescript
-
   '@grafana/levitate@0.17.2(eslint@9.32.0(jiti@2.6.1))':
     dependencies:
       '@stylistic/eslint-plugin-ts': 4.4.1(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.3)
@@ -9881,7 +9831,7 @@ snapshots:
 
   '@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
     dependencies:
-      '@grafana/data': 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/data': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/e2e-selectors': 12.4.2
       '@grafana/faro-web-sdk': 1.19.0
       '@grafana/schema': 12.4.2
@@ -9909,12 +9859,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@grafana/scenes-react@6.57.2(@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+  '@grafana/scenes-react@6.57.2(@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@grafana/data': 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/data': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/e2e-selectors': 12.4.2
       '@grafana/runtime': 12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
-      '@grafana/scenes': 6.57.2(@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      '@grafana/scenes': 6.57.2(@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@grafana/schema': 12.4.2
       '@grafana/ui': 12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       lru-cache: 10.4.3
@@ -9928,12 +9878,12 @@ snapshots:
       - react-native-b4a
       - supports-color
 
-  '@grafana/scenes@6.57.2(@grafana/data@13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+  '@grafana/scenes@6.57.2(@grafana/data@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@12.4.2)(@grafana/i18n@12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@12.4.2)(@grafana/ui@12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/react': 0.26.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@grafana/data': 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/data': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/e2e-selectors': 12.4.2
-      '@grafana/i18n': 13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/i18n': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/runtime': 12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/schema': 12.4.2
       '@grafana/ui': 12.4.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
@@ -9964,7 +9914,7 @@ snapshots:
       '@emotion/react': 11.14.0(@types/react@18.3.0)(react@18.3.1)
       '@emotion/serialize': 1.3.3
       '@floating-ui/react': 0.27.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@grafana/data': 13.0.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/data': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/e2e-selectors': 12.4.2
       '@grafana/faro-web-sdk': 1.19.0
       '@grafana/i18n': 12.4.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
