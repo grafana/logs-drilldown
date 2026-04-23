@@ -274,16 +274,6 @@ export class ExplorePage {
     await main.evaluate((main) => main.scrollTo(0, 0));
   }
 
-  async assertFieldsIndex() {
-    // Assert the fields tab is active
-    expect(await this.page.getByTestId(testIds.exploreServiceDetails.tabFields).getAttribute('aria-selected')).toEqual(
-      'true'
-    );
-    // Assert the field group-by combobox is present (see FieldSelector + testIds.breakdowns.labelFieldSearch)
-    await expect(this.page.getByTestId(testIds.breakdowns.labelFieldSearch)).toHaveCount(1);
-    await expect(this.page.getByTestId(testIds.breakdowns.labelFieldSearch)).toBeVisible();
-  }
-
   async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
     await this.page.goto(
       `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
@@ -440,10 +430,12 @@ export class ExplorePage {
     await this.page.keyboard.type(text);
     // Wait for loading to go away
     await expect(this.page.getByText('Loading options...')).toHaveCount(0);
-    // Need to scroll to the bottom of the list
-    await this.page.keyboard.press('ArrowUp');
-    // Select custom value
-    await this.page.getByRole('option', { name: /Filter values by/ }).click();
+    // Custom row is prepended by Combobox; use visible text (default "Use custom value" or i18n "Filter values by")
+    const customValueRow = this.page
+      .getByRole('option')
+      .filter({ hasText: E2EComboboxStrings.customValueOptionHasText });
+    await expect(customValueRow.first()).toBeVisible();
+    await customValueRow.first().click();
     // Close the label name dropdown that opens after adding a value
     await this.page.keyboard.press('Escape');
   }
@@ -558,6 +550,8 @@ export class ExplorePage {
 }
 
 export const E2EComboboxStrings = {
+  /** Substring on the Combobox "create custom value" row (Grafana default vs FieldSelector i18n). */
+  customValueOptionHasText: /Use custom value|Filter values by/i,
   editByKey: (keyName: string) => `Edit filter with key ${keyName}`,
   labels: {
     removeServiceLabel: 'Remove filter with key service_name',

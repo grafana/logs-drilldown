@@ -2,7 +2,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 import pluginJson from '../src/plugin.json';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
-import { ExplorePage } from './fixtures/explore';
+import { E2EComboboxStrings, ExplorePage } from './fixtures/explore';
 
 test.describe('navigating app', () => {
   let explorePage: ExplorePage;
@@ -44,7 +44,7 @@ test.describe('navigating app', () => {
     await explorePage.servicesSearch.click();
     await explorePage.servicesSearch.pressSequentially('tempo-i');
     await expect(page.getByRole('listbox')).toBeVisible();
-    await page.getByRole('option', { name: /Filter values by/ }).click();
+    await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
     await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'tempo-distributor' })).not.toBeVisible();
 

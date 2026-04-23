@@ -1213,8 +1213,12 @@ test.describe('explore services breakdown page', () => {
     await page.getByRole('option', { name: 'KB', exact: true }).click();
 
     // Make inclusive
-    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).click();
-    await popover.getByText('Less than or equal').click();
+    await popover
+      .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
+      .getByRole('combobox')
+      .click();
+    // Inclusive operator menu is portaled like the unit menu; options are not under the tooltip subtree.
+    await page.getByRole('option', { name: 'Less than or equal', exact: true }).click();
 
     // Wait for pod query to execute
     const expressionsAfterNumericFilter: string[] = [];
@@ -1309,8 +1313,12 @@ test.describe('explore services breakdown page', () => {
     await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThan).pressSequentially('5');
 
     // Make inclusive
-    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).click();
-    await popover.getByText('Less than or equal').click();
+    await popover
+      .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
+      .getByRole('combobox')
+      .click();
+    // Inclusive operator menu is portaled
+    await page.getByRole('option', { name: 'Less than or equal', exact: true }).click();
 
     // Wait for pod query to execute
     const expressionsAfterNumericFilter: string[] = [];

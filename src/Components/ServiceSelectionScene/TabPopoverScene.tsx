@@ -31,6 +31,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
     return (
       <Stack direction="column" gap={0} role="tooltip">
         <div className={popoverStyles.card.body}>
+          {/* eslint-disable-next-line @typescript-eslint/no-deprecated -- TODO: Combobox when grafana/ui supports open-on-focus in this popover */}
           <Select<string, { options: TabOption[] }>
             menuShouldPortal={false}
             menuPosition={'absolute'}
