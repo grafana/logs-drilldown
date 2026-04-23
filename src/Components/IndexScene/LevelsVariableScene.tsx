@@ -161,7 +161,6 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           prefixIcon="filter"
           placeholder={t('components.index-scene.levels-variable-scene.placeholder-all-levels', 'All levels')}
           onChange={model.onChangeOptions}
-          onBlur={() => model.onCloseMenu()}
           options={model.getTagValues}
           createCustomValue={true}
           loading={isLoading}

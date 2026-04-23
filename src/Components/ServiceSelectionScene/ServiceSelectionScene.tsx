@@ -219,8 +219,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const selectedTab = model.getSelectedTab();
 
     const serviceStringVariable = getServiceSelectionSearchVariable(model);
-    const { label: searchLabel, value: searchValue } = serviceStringVariable.useState();
-    const hasSearch = Boolean(searchLabel?.length) || (Boolean(searchValue) && String(searchValue) !== '.+');
+    const { label: searchLabel } = serviceStringVariable.useState();
+    const hasSearch = Boolean(searchLabel?.length);
 
     const { labelsByVolume, labelsToQuery } = model.getLabels(data?.series);
     const isLogVolumeLoading =
