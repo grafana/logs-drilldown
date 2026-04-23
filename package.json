@@ -140,12 +140,12 @@
     "rxjs": "7.8.2",
     "semver": "7.7.0",
     "tslib": "2.5.3",
-    "uuid": "^10.0.0"
+    "uuid": "^14.0.0"
   },
   "resolutions": {
     "react-router-dom": "^7.12.0",
     "@remix-run/router": "1.23.2",
-    "uuid": "^10.0.0",
+    "uuid": "^14.0.0",
     "lodash": "4.18.0",
     "brace-expansion@^1.1.7": "1.1.13",
     "brace-expansion@^2.0.1": "2.0.3",
