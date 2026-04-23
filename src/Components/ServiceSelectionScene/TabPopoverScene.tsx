@@ -12,6 +12,7 @@ import { ServiceSelectionTabsScene, TabOption } from './ServiceSelectionTabsScen
 
 export interface TabPopoverSceneState extends SceneObjectState {}
 
+// TODO: update combobox to auto open in grafana/ui the update the select here to combobox
 export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
   public static Component = ({ model }: SceneComponentProps<TabPopoverScene>) => {
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
@@ -30,6 +31,7 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
     return (
       <Stack direction="column" gap={0} role="tooltip">
         <div className={popoverStyles.card.body}>
+          {/* eslint-disable-next-line @typescript-eslint/no-deprecated -- TODO: Combobox when grafana/ui supports open-on-focus in this popover */}
           <Select<string, { options: TabOption[] }>
             menuShouldPortal={false}
             menuPosition={'absolute'}
@@ -40,7 +42,10 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
             isOpen={showPopover}
-            placeholder={t('components.service-selection-scene.tab-popover-scene.placeholder-search-labels', 'Search labels')}
+            placeholder={t(
+              'components.service-selection-scene.tab-popover-scene.placeholder-search-labels',
+              'Search labels'
+            )}
             options={tabOptionsWithIcon}
             isSearchable={true}
             openMenuOnFocus={true}

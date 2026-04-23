@@ -31,6 +31,7 @@ export const testIds = {
       sortByDirection: 'data-testid SortBy direction',
       sortByFunction: 'data-testid SortBy function',
     },
+    labelFieldSearch: 'data-testid search-label-field',
     fields: {},
     labels: {},
   },

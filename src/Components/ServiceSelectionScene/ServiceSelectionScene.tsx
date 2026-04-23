@@ -11,7 +11,6 @@ import {
   GrafanaTheme2,
   LoadingState,
 } from '@grafana/data';
-import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -146,10 +145,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       }),
       $variables: new SceneVariableSet({
         variables: [
-          // Service search variable
+          // Service search variable — `label` is the draft search string for the combobox (must start empty).
           new CustomConstantVariable({
             hide: VariableHide.hideVariable,
-            label: t('components.service-selection-scene.label.service', 'Service'),
+            label: '',
             name: VAR_PRIMARY_LABEL_SEARCH,
             skipUrlSync: true,
             value: '.+',
@@ -220,8 +219,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const selectedTab = model.getSelectedTab();
 
     const serviceStringVariable = getServiceSelectionSearchVariable(model);
-    const { label, value: searchValue } = serviceStringVariable.useState();
-    const hasSearch = searchValue && searchValue !== '.+';
+    const { label: searchLabel } = serviceStringVariable.useState();
+    const hasSearch = Boolean(searchLabel?.length);
 
     const { labelsByVolume, labelsToQuery } = model.getLabels(data?.series);
     const isLogVolumeLoading =
@@ -229,6 +228,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const volumeApiError = $data.state.data?.state === LoadingState.Error;
 
     const onSearchChange = (serviceName?: string) => {
+      // Keep label in sync on every keystroke so the controlled Combobox matches typing; debounced handler updates value/query.
+      getServiceSelectionSearchVariable(model).setState({ label: serviceName ?? '' });
       model.onSearchServicesChange(serviceName);
     };
 
@@ -259,7 +260,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
                   value: customValue,
                 }}
                 isLoading={isLogVolumeLoading}
-                value={customValue ? customValue : label}
+                value={hasSearch ? searchLabel || customLabel : undefined}
                 onChange={(serviceName) => onSearchChange(serviceName)}
                 selectOption={(value: string) => {
                   goToLabelDrillDownLink(selectedTab, value, model);

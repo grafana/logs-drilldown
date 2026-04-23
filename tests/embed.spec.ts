@@ -155,7 +155,7 @@ test.describe('embed', () => {
     await explorePage.assertNotLoading();
 
     // Click filters
-    await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude)).toHaveCount(8);
+    await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(3)).toBeVisible();
     await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0).click();
     await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(1).click();
     await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(2).click();

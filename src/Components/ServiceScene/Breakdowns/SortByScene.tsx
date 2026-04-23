@@ -3,7 +3,7 @@ import React from 'react';
 import { BusEventBase, DataFrame, FieldReducerInfo, fieldReducers, ReducerID, SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { InlineField, Select } from '@grafana/ui';
+import { Combobox, InlineField } from '@grafana/ui';
 
 import { getLabelValueFromDataFrame } from 'services/levels';
 import {
@@ -65,7 +65,10 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
           value: ReducerID.stdDev,
         },
         {
-          description: t('components.service-scene.breakdowns.sort-by-scene.description.alphabetical-order', 'Alphabetical order'),
+          description: t(
+            'components.service-scene.breakdowns.sort-by-scene.description.alphabetical-order',
+            'Alphabetical order'
+          ),
           label: t('components.service-scene.breakdowns.sort-by-scene.label.name', 'Name'),
           value: 'alphabetical',
         },
@@ -142,12 +145,18 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
             (opt: SelectableValue<SortBy>) => opt.value !== DEFAULT_SORT_BY && opt.value !== SORT_BY_OUTLIERS
           ),
         }));
-    const group = defaultOptions.find((g) =>
-      g.options.find((option: SelectableValue<SortBy>) => option.value === sortBy)
+    const sortByOptions = defaultOptions.flatMap((group) =>
+      group.options
+        .filter(
+          (option: SelectableValue<SortBy>): option is SelectableValue<SortBy> & { value: SortBy } =>
+            option.value !== undefined
+        )
+        .map((option: SelectableValue<SortBy> & { value: SortBy }) => ({
+          ...option,
+          group: group.label || undefined,
+        }))
     );
-    const sortByValue: SelectableValue<SortBy> | undefined = group?.options.find(
-      (option: SelectableValue<SortBy>) => option.value === sortBy
-    );
+    const sortByValue = sortByOptions.find((option) => option.value === sortBy);
     return (
       <>
         <InlineField
@@ -158,22 +167,28 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
             'Calculate a derived quantity from the values in your time series and sort by this criteria. Defaults to standard deviation.'
           )}
         >
-          <Select
+          <Combobox<SortBy>
+            id="sort-by-criteria"
             data-testid={testIds.breakdowns.common.sortByFunction}
             value={sortByValue}
-            width={20}
-            isSearchable={true}
-            options={defaultOptions}
-            placeholder={t('components.service-scene.breakdowns.sort-by-scene.placeholder-choose-criteria', 'Choose criteria')}
+            width="auto"
+            minWidth={20}
+            options={sortByOptions}
+            placeholder={t(
+              'components.service-scene.breakdowns.sort-by-scene.placeholder-choose-criteria',
+              'Choose criteria'
+            )}
             onChange={model.onCriteriaChange}
-            inputId="sort-by-criteria"
           />
         </InlineField>
         <InlineField>
-          <Select
+          <Combobox<SortDirection>
             data-testid={testIds.breakdowns.common.sortByDirection}
             onChange={model.onDirectionChange}
-            aria-label={t('components.service-scene.breakdowns.sort-by-scene.aria-label-sort-direction', 'Sort direction')}
+            aria-label={t(
+              'components.service-scene.breakdowns.sort-by-scene.aria-label-sort-direction',
+              'Sort direction'
+            )}
             placeholder=""
             value={direction}
             options={[
@@ -186,7 +201,9 @@ export class SortByScene extends SceneObjectBase<SortBySceneState> {
                 value: DEFAULT_SORT_DIRECTION,
               },
             ]}
-          ></Select>
+            width="auto"
+            minWidth={10}
+          />
         </InlineField>
       </>
     );

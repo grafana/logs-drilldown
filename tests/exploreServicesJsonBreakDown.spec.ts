@@ -295,13 +295,17 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // Show metadata node
       await page.getByRole('button', { name: 'Show structured metadata' }).click();
       await expect(page.getByText('Metadata', { exact: true }).first()).toBeVisible();
-      await expect(page.getByText('All levels')).toHaveCount(1);
+      // "All levels" is the MultiCombobox placeholder (not text content); use placeholder, not getByText
+      const levelsFilterPlaceholder = page
+        .getByTestId(testIds.variables.levels.inputWrap)
+        .getByPlaceholder('All levels');
+      await expect(levelsFilterPlaceholder).toHaveCount(1);
       await page
         .getByLabel(/Include log lines containing detected_level=".+"/)
         .first()
         .click();
 
-      await expect(page.getByText('All levels')).toHaveCount(0);
+      await expect(levelsFilterPlaceholder).toHaveCount(0);
       await expect(
         page.getByTestId('data-testid detected_level filter variable').getByText(/debug|error|info|warn/)
       ).toHaveCount(1);
@@ -352,7 +356,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
       await expect(
-        page.getByTestId('data-testid detected_level filter variable').getByText('All levels')
+        page.getByTestId(testIds.variables.levels.inputWrap).getByPlaceholder('All levels')
       ).toBeVisible();
       await page
         .getByRole('treeitem')
@@ -360,9 +364,9 @@ test.describe('explore nginx-json breakdown pages ', () => {
         .getByRole('button', { name: /INFO|DEBUG|WARN|ERROR/ })
         .first()
         .click();
-      await expect(page.getByTestId('data-testid detected_level filter variable').getByText('All levels')).toHaveCount(
-        0
-      );
+      await expect(
+        page.getByTestId(testIds.variables.levels.inputWrap).getByPlaceholder('All levels')
+      ).toHaveCount(0);
       // Verify something has been added to detected_level variable
       await expect(
         page.getByTestId('data-testid detected_level filter variable').getByRole('button', { name: 'Remove' })
