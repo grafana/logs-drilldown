@@ -1,16 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Button, ClickOutsideWrapper, Field, FieldSet, Input, Label, Select, Stack, useStyles2 } from '@grafana/ui';
+import { Button, Combobox, ComboboxOption, Field, FieldSet, Input, Label, Stack, useStyles2 } from '@grafana/ui';
 
-import { FilterOp } from '../../../services/filterTypes';
-import { logger } from '../../../services/logger';
-import { testIds } from '../../../services/testIds';
-import { getAdHocFiltersVariable, getValueFromFieldsFilter } from '../../../services/variableGetters';
 import {
   addNumericFilter,
   InterpolatedFilterType,
@@ -18,6 +14,10 @@ import {
   validateVariableNameForField,
 } from './AddToFiltersButton';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
+import { FilterOp } from 'services/filterTypes';
+import { logger } from 'services/logger';
+import { testIds } from 'services/testIds';
+import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';
 
 type ComparisonOperatorTypes = 'bytes' | 'duration' | 'float' | 'int';
 
@@ -108,6 +108,21 @@ interface ByteUnitTypes {
 
 interface ByteTypes extends ByteUnitTypes {
   fieldType: 'bytes';
+}
+
+/**
+ * Combobox option menus from @grafana/ui often portal to document.body / #grafana-portal-container.
+ * Those clicks are outside our card body for contains(), but must not close the numeric popover.
+ */
+function isEventTargetInsideGrafanaComboboxMenu(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  return (
+    target.closest('[role="listbox"]') != null ||
+    target.closest('[role="option"]') != null ||
+    target.closest('[data-testid="combobox-option-group"]') != null
+  );
 }
 
 export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopoverSceneStateTotal> {
@@ -239,210 +254,243 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
 
     const selectLabelActionScene = sceneGraph.getAncestor(model, SelectLabelActionScene);
     const formDisabled = gt === undefined && lt === undefined;
+    // Combobox menus render in a Portal
+    const [comboboxMenuContainer, setComboboxMenuContainer] = useState<HTMLDivElement | null>(null);
+
+    // Close the parent popover on document clicks
+    useEffect(() => {
+      if (!comboboxMenuContainer) {
+        return;
+      }
+      const onDocumentClick = (event: MouseEvent) => {
+        if (!(event.target instanceof Node)) {
+          return;
+        }
+        // Skip close when the click is on Grafana Combobox
+        if (isEventTargetInsideGrafanaComboboxMenu(event.target)) {
+          return;
+        }
+        if (!comboboxMenuContainer.contains(event.target)) {
+          selectLabelActionScene.togglePopover();
+        }
+      };
+      document.addEventListener('click', onDocumentClick, false);
+      return () => document.removeEventListener('click', onDocumentClick, false);
+    }, [comboboxMenuContainer, selectLabelActionScene]);
+
+    const comboboxPortalProps = { portalContainer: comboboxMenuContainer ?? undefined };
 
     return (
-      <ClickOutsideWrapper useCapture={true} onClick={() => selectLabelActionScene.togglePopover()}>
-        <Stack direction="column" gap={0} role="tooltip">
-          <div className={popoverStyles.card.body}>
-            <div className={popoverStyles.card.title}>
-              {labelName} {subTitle}
-            </div>
-
-            <div className={popoverStyles.card.fieldWrap}>
-              {/* greater than */}
-              <FieldSet className={popoverStyles.card.fieldset}>
-                <Field
-                  data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive}
-                  horizontal={true}
-                  className={cx(popoverStyles.card.field, popoverStyles.card.inclusiveField)}
-                >
-                  <Select<string>
-                    className={popoverStyles.card.inclusiveInput}
-                    menuShouldPortal={false}
-                    menuPosition={'absolute'}
-                    value={gte !== undefined ? gte.toString() : 'false'}
-                    options={[
-                      {
-                        label: t('components.service-scene.breakdowns.numeric-filter-popover-scene.label.greater-than', 'Greater than'),
-                        value: 'false',
-                      },
-                      {
-                        label: t(
-                          'components.service-scene.breakdowns.numeric-filter-popover-scene.label.greater-than-or-equal',
-                          'Greater than or equal'
-                        ),
-                        value: 'true',
-                      },
-                    ]}
-                    onChange={(value) => model.setState({ gte: value.value === 'true' })}
-                  />
-                </Field>
-                <Field
-                  data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThan}
-                  horizontal={true}
-                  className={popoverStyles.card.field}
-                >
-                  <Input
-                    onKeyDownCapture={model.onInputKeydown}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus={true}
-                    onChange={(e) => {
-                      model.setState({
-                        gt: e.currentTarget.value !== '' ? Number(e.currentTarget.value) : undefined,
-                      });
-                    }}
-                    className={popoverStyles.card.numberInput}
-                    value={gt}
-                    type={'number'}
-                  />
-                </Field>
-                {fieldType !== 'float' && fieldType !== 'int' && (
-                  <Label>
-                    <Field
-                      data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit}
-                      horizontal={true}
-                      className={popoverStyles.card.field}
-                      label={
-                        <span className={popoverStyles.card.unitFieldLabel}>
-                          <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">Unit</Trans>
-                        </span>
-                      }
-                    >
-                      <Select
-                        onChange={(e) => {
-                          model.setState({
-                            gtu: e.value,
-                          });
-                        }}
-                        menuShouldPortal={false}
-                        menuPosition={'absolute'}
-                        options={getUnitOptions(fieldType)}
-                        className={popoverStyles.card.selectInput}
-                        value={gtu}
-                      />
-                    </Field>
-                  </Label>
-                )}
-              </FieldSet>
-
-              {/* less than */}
-              <FieldSet className={popoverStyles.card.fieldset}>
-                <Field
-                  data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive}
-                  horizontal={true}
-                  className={cx(popoverStyles.card.field, popoverStyles.card.inclusiveField)}
-                >
-                  <Select<string>
-                    className={popoverStyles.card.inclusiveInput}
-                    menuShouldPortal={false}
-                    menuPosition={'absolute'}
-                    value={lte !== undefined ? lte.toString() : 'false'}
-                    options={[
-                      {
-                        label: t('components.service-scene.breakdowns.numeric-filter-popover-scene.label.less-than', 'Less than'),
-                        value: 'false',
-                      },
-                      {
-                        label: t(
-                          'components.service-scene.breakdowns.numeric-filter-popover-scene.label.less-than-or-equal',
-                          'Less than or equal'
-                        ),
-                        value: 'true',
-                      },
-                    ]}
-                    onChange={(value) => model.setState({ lte: value.value === 'true' })}
-                  />
-                </Field>
-                <Field
-                  data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThan}
-                  horizontal={true}
-                  className={popoverStyles.card.field}
-                >
-                  <Input
-                    onKeyDownCapture={model.onInputKeydown}
-                    onChange={(e) =>
-                      model.setState({ lt: e.currentTarget.value !== '' ? Number(e.currentTarget.value) : undefined })
-                    }
-                    className={popoverStyles.card.numberInput}
-                    value={lt}
-                    type={'number'}
-                  />
-                </Field>
-                {fieldType !== 'float' && fieldType !== 'int' && (
-                  <Label>
-                    <Field
-                      data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit}
-                      horizontal={true}
-                      className={popoverStyles.card.field}
-                      label={
-                        <span className={popoverStyles.card.unitFieldLabel}>
-                          <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">Unit</Trans>
-                        </span>
-                      }
-                    >
-                      <Select
-                        onChange={(e) => {
-                          model.setState({
-                            ltu: e.value,
-                          });
-                        }}
-                        menuShouldPortal={false}
-                        menuPosition={'absolute'}
-                        options={getUnitOptions(fieldType)}
-                        className={popoverStyles.card.selectInput}
-                        value={ltu}
-                      />
-                    </Field>
-                  </Label>
-                )}
-              </FieldSet>
-            </div>
-
-            {/* buttons */}
-            <div className={popoverStyles.card.buttons}>
-              {hasExistingFilter && (
-                <Button
-                  data-testid={testIds.breakdowns.common.filterNumericPopover.removeButton}
-                  disabled={!hasExistingFilter}
-                  onClick={() => {
-                    model.setState({
-                      gt: undefined,
-                      lt: undefined,
-                    });
-                    model.onSubmit();
-                  }}
-                  size={'sm'}
-                  variant={'destructive'}
-                  fill={'outline'}
-                >
-                  <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.remove">Remove</Trans>
-                </Button>
-              )}
-              <Button
-                data-testid={testIds.breakdowns.common.filterNumericPopover.submitButton}
-                disabled={formDisabled}
-                onClick={() => model.onSubmit()}
-                size={'sm'}
-                variant={'primary'}
-                fill={'outline'}
-                type={'submit'}
-              >
-                <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.add">Add</Trans>
-              </Button>
-
-              <Button
-                data-testid={testIds.breakdowns.common.filterNumericPopover.cancelButton}
-                onClick={() => selectLabelActionScene.togglePopover()}
-                size={'sm'}
-                variant={'secondary'}
-                fill={'outline'}
-              >
-                <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.cancel">Cancel</Trans>
-              </Button>
-            </div>
+      <Stack direction="column" gap={0} role="tooltip">
+        <div ref={setComboboxMenuContainer} className={popoverStyles.card.body}>
+          <div className={popoverStyles.card.title}>
+            {labelName} {subTitle}
           </div>
-        </Stack>
-      </ClickOutsideWrapper>
+
+          <div className={popoverStyles.card.fieldWrap}>
+            {/* greater than */}
+            <FieldSet className={popoverStyles.card.fieldset}>
+              <Field
+                data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive}
+                horizontal={true}
+                className={cx(popoverStyles.card.field, popoverStyles.card.inclusiveField)}
+              >
+                <Combobox<string>
+                  {...comboboxPortalProps}
+                  value={gte !== undefined ? gte.toString() : 'false'}
+                  options={[
+                    {
+                      label: t(
+                        'components.service-scene.breakdowns.numeric-filter-popover-scene.label.greater-than',
+                        'Greater than'
+                      ),
+                      value: 'false',
+                    },
+                    {
+                      label: t(
+                        'components.service-scene.breakdowns.numeric-filter-popover-scene.label.greater-than-or-equal',
+                        'Greater than or equal'
+                      ),
+                      value: 'true',
+                    },
+                  ]}
+                  onChange={(value) => model.setState({ gte: value.value === 'true' })}
+                  width="auto"
+                  minWidth={17}
+                />
+              </Field>
+              <Field
+                data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThan}
+                horizontal={true}
+                className={popoverStyles.card.field}
+              >
+                <Input
+                  onKeyDownCapture={model.onInputKeydown}
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus={true}
+                  onChange={(e) => {
+                    model.setState({
+                      gt: e.currentTarget.value !== '' ? Number(e.currentTarget.value) : undefined,
+                    });
+                  }}
+                  className={popoverStyles.card.numberInput}
+                  value={gt}
+                  type={'number'}
+                />
+              </Field>
+              {fieldType !== 'float' && fieldType !== 'int' && (
+                <Label>
+                  <Field
+                    data-testid={testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit}
+                    horizontal={true}
+                    className={popoverStyles.card.field}
+                    label={
+                      <span className={popoverStyles.card.unitFieldLabel}>
+                        <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">
+                          Unit
+                        </Trans>
+                      </span>
+                    }
+                  >
+                    <Combobox<DisplayDurationUnits | DisplayByteUnits>
+                      {...comboboxPortalProps}
+                      onChange={(e) => {
+                        model.setState({
+                          gtu: e.value,
+                        });
+                      }}
+                      options={getUnitOptions(fieldType)}
+                      value={gtu}
+                      width="auto"
+                      minWidth={8}
+                    />
+                  </Field>
+                </Label>
+              )}
+            </FieldSet>
+
+            {/* less than */}
+            <FieldSet className={popoverStyles.card.fieldset}>
+              <Field
+                data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive}
+                horizontal={true}
+                className={cx(popoverStyles.card.field, popoverStyles.card.inclusiveField)}
+              >
+                <Combobox<string>
+                  {...comboboxPortalProps}
+                  value={lte !== undefined ? lte.toString() : 'false'}
+                  options={[
+                    {
+                      label: t(
+                        'components.service-scene.breakdowns.numeric-filter-popover-scene.label.less-than',
+                        'Less than'
+                      ),
+                      value: 'false',
+                    },
+                    {
+                      label: t(
+                        'components.service-scene.breakdowns.numeric-filter-popover-scene.label.less-than-or-equal',
+                        'Less than or equal'
+                      ),
+                      value: 'true',
+                    },
+                  ]}
+                  onChange={(value) => model.setState({ lte: value.value === 'true' })}
+                  width="auto"
+                  minWidth={17}
+                />
+              </Field>
+              <Field
+                data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThan}
+                horizontal={true}
+                className={popoverStyles.card.field}
+              >
+                <Input
+                  onKeyDownCapture={model.onInputKeydown}
+                  onChange={(e) =>
+                    model.setState({ lt: e.currentTarget.value !== '' ? Number(e.currentTarget.value) : undefined })
+                  }
+                  className={popoverStyles.card.numberInput}
+                  value={lt}
+                  type={'number'}
+                />
+              </Field>
+              {fieldType !== 'float' && fieldType !== 'int' && (
+                <Label>
+                  <Field
+                    data-testid={testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit}
+                    horizontal={true}
+                    className={popoverStyles.card.field}
+                    label={
+                      <span className={popoverStyles.card.unitFieldLabel}>
+                        <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.unit">
+                          Unit
+                        </Trans>
+                      </span>
+                    }
+                  >
+                    <Combobox<DisplayDurationUnits | DisplayByteUnits>
+                      {...comboboxPortalProps}
+                      onChange={(e) => {
+                        model.setState({
+                          ltu: e.value,
+                        });
+                      }}
+                      options={getUnitOptions(fieldType)}
+                      value={ltu}
+                      width="auto"
+                      minWidth={8}
+                    />
+                  </Field>
+                </Label>
+              )}
+            </FieldSet>
+          </div>
+
+          {/* buttons */}
+          <div className={popoverStyles.card.buttons}>
+            {hasExistingFilter && (
+              <Button
+                data-testid={testIds.breakdowns.common.filterNumericPopover.removeButton}
+                disabled={!hasExistingFilter}
+                onClick={() => {
+                  model.setState({
+                    gt: undefined,
+                    lt: undefined,
+                  });
+                  model.onSubmit();
+                }}
+                size={'sm'}
+                variant={'destructive'}
+                fill={'outline'}
+              >
+                <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.remove">Remove</Trans>
+              </Button>
+            )}
+            <Button
+              data-testid={testIds.breakdowns.common.filterNumericPopover.submitButton}
+              disabled={formDisabled}
+              onClick={() => model.onSubmit()}
+              size={'sm'}
+              variant={'primary'}
+              fill={'outline'}
+              type={'submit'}
+            >
+              <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.add">Add</Trans>
+            </Button>
+
+            <Button
+              data-testid={testIds.breakdowns.common.filterNumericPopover.cancelButton}
+              onClick={() => selectLabelActionScene.togglePopover()}
+              size={'sm'}
+              variant={'secondary'}
+              fill={'outline'}
+            >
+              <Trans i18nKey="components.service-scene.breakdowns.numeric-filter-popover-scene.cancel">Cancel</Trans>
+            </Button>
+          </div>
+        </div>
+      </Stack>
     );
   };
 }
@@ -498,13 +546,12 @@ export function extractValueFromString(
 
 function getUnitOptions(
   fieldType: 'bytes' | 'duration'
-): Array<SelectableValue<DisplayDurationUnits | DisplayByteUnits>> {
+): Array<ComboboxOption<DisplayDurationUnits | DisplayByteUnits>> {
   if (fieldType === 'duration') {
     const keys = Object.keys(DisplayDurationUnits) as Array<keyof typeof DisplayDurationUnits>;
     return keys.map((key) => {
       return {
         label: key,
-        text: key,
         value: DisplayDurationUnits[key],
       };
     });
@@ -515,7 +562,6 @@ function getUnitOptions(
     return keys.map((key) => {
       return {
         label: key,
-        text: key,
         value: DisplayByteUnits[key],
       };
     });

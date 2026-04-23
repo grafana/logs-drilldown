@@ -109,6 +109,7 @@ function splitQueriesByStreamShard(
         }
       } catch (e) {
         logger.error(e, {
+          /* eslint-disable-next-line @typescript-eslint/no-deprecated */
           error: errorResponse?.error?.message ?? '',
           errors: errorResponse?.errors?.map((e) => e.message).join(' | ') ?? '',
           msg: 'sharding retry error',
@@ -181,6 +182,7 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       next: (partialResponse: DataQueryResponse) => {
+        /* eslint-disable-next-line @typescript-eslint/no-deprecated */
         if ((partialResponse.errors ?? []).length > 0 || partialResponse.error != null) {
           if (retry(partialResponse)) {
             return;
@@ -319,7 +321,8 @@ function getInitialGroupSize(shards: number[]) {
 function isRetriableError(errorResponse: DataQueryResponse) {
   const message = errorResponse.errors
     ? (errorResponse.errors[0].message ?? '').toLowerCase()
-    : (errorResponse.error?.message ?? '').toLowerCase();
+    : /* eslint-disable-next-line @typescript-eslint/no-deprecated */
+      (errorResponse.error?.message ?? '').toLowerCase();
   if (message.includes('timeout')) {
     return true;
   } else if (message.includes('parse error') || message.match(MaxSeriesRegex)) {

@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { IconButton, Pagination, Select, useStyles2 } from '@grafana/ui';
+import { Combobox, ComboboxOption, IconButton, Pagination, useStyles2 } from '@grafana/ui';
 
 import { setServiceSelectionPageCount } from '../../services/store';
 import { ServiceSelectionScene } from './ServiceSelectionScene';
@@ -20,41 +20,66 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
     const styles = useStyles2(getPageCountStyles);
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
     const { countPerPage } = serviceSelectionScene.useState();
-    const options = getCountOptionsFromTotal(totalCount);
+    const options = useMemo(() => getCountOptionsFromTotal(totalCount), [totalCount]);
     useEffect(() => {
-      const lastOptionValue = options[options.length - 1]?.value ?? countPerPage.toString();
-      if (countPerPage.toString() > lastOptionValue) {
-        serviceSelectionScene.setState({ countPerPage: parseInt(lastOptionValue, 10) });
+      if (options.length === 0) {
+        return;
+      }
+      const lastOption = options[options.length - 1];
+      if (lastOption === undefined) {
+        return;
+      }
+      const maxPageSize = parseInt(lastOption.value, 10);
+      if (countPerPage > maxPageSize) {
+        serviceSelectionScene.setState({ countPerPage: maxPageSize });
       }
     }, [countPerPage, options, serviceSelectionScene]);
+    const countSelect = (
+      <span className={styles.countSelect}>
+        <Combobox<string>
+          onChange={(value) => {
+            const countValue = value?.value;
+            if (!countValue) {
+              return;
+            }
+            const nextCountPerPage = parseInt(countValue, 10);
+            serviceSelectionScene.setState({ countPerPage: nextCountPerPage, currentPage: 1 });
+            serviceSelectionScene.updateBody();
+            setServiceSelectionPageCount(nextCountPerPage);
+          }}
+          options={options}
+          value={countPerPage.toString()}
+          width="auto"
+          minWidth={4}
+        />
+      </span>
+    );
+
+    const infoButton = (
+      <IconButton
+        className={styles.icon}
+        aria-label={t(
+          'components.service-selection-scene.service-selection-pagination-scene.aria-label-count-info',
+          'Count info'
+        )}
+        name="info-circle"
+        tooltip={t(
+          'components.service-selection-scene.service-selection-pagination-scene.tooltip.count-info',
+          '{{totalCount}} labels have values for the selected time range. Total label count may differ',
+          { totalCount }
+        )}
+      />
+    );
+
     return (
       <span className={styles.searchPageCountWrap}>
         <span className={styles.searchFieldPlaceholderText}>
-          {t('components.service-selection-scene.service-selection-pagination-scene.showing', 'Showing')}{' '}
-          <Select
-            className={styles.select}
-            onChange={(value) => {
-              if (value.value) {
-                const countPerPage = parseInt(value.value, 10);
-                serviceSelectionScene.setState({ countPerPage, currentPage: 1 });
-                serviceSelectionScene.updateBody();
-                setServiceSelectionPageCount(countPerPage);
-              }
-            }}
-            options={options}
-            value={countPerPage.toString()}
-          />{' '}
-          {t('components.service-selection-scene.service-selection-pagination-scene.of-total', 'of {{totalCount}}', { totalCount })}{' '}
-          <IconButton
-            className={styles.icon}
-            aria-label={t('components.service-selection-scene.service-selection-pagination-scene.aria-label-count-info', 'Count info')}
-            name={'info-circle'}
-            tooltip={t(
-              'components.service-selection-scene.service-selection-pagination-scene.tooltip.count-info',
-              '{{totalCount}} labels have values for the selected time range. Total label count may differ',
-              { totalCount }
-            )}
-          />
+          {t('components.service-selection-scene.service-selection-pagination-scene.showing', 'Showing')}
+          {countSelect}
+          {t('components.service-selection-scene.service-selection-pagination-scene.of-total', 'of {{totalCount}}', {
+            totalCount,
+          })}
+          {infoButton}
         </span>
       </span>
     );
@@ -129,6 +154,12 @@ export class ServiceSelectionPaginationScene extends SceneObjectBase<ServiceSele
 
 function getPageCountStyles(theme: GrafanaTheme2) {
   return {
+    countSelect: css({
+      display: 'inline-flex',
+      alignItems: 'center',
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+    }),
     icon: css({
       color: theme.colors.text.disabled,
       marginLeft: theme.spacing.x1,
@@ -145,11 +176,6 @@ function getPageCountStyles(theme: GrafanaTheme2) {
       alignItems: 'center',
       display: 'flex',
     }),
-    select: css({
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-      maxWidth: '65px',
-    }),
   };
 }
 
@@ -158,7 +184,7 @@ export function getCountOptionsFromTotal(totalCount: number) {
   const end = 60;
   const roundedTotalCount = Math.ceil(totalCount / delta) * delta;
 
-  const options: Array<SelectableValue<string>> = [];
+  const options: Array<ComboboxOption<string>> = [];
   for (let count = delta; count <= end && count <= roundedTotalCount; count += delta) {
     let label = count.toString();
     if (count < delta) {

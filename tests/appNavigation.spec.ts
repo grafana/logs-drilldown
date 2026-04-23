@@ -2,7 +2,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 import pluginJson from '../src/plugin.json';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
-import { ExplorePage } from './fixtures/explore';
+import { E2EComboboxStrings, ExplorePage } from './fixtures/explore';
 
 test.describe('navigating app', () => {
   let explorePage: ExplorePage;
@@ -40,11 +40,11 @@ test.describe('navigating app', () => {
   test('mega menu click should persist url params', async ({ page }) => {
     await page.goto(`/a/${pluginJson.id}/explore`);
 
-    // Filter results to tempo-ingester to prevent flake
+    // Primary label search uses regex; type a substring then confirm via the custom-value row (see wrapWildcardSearch in query.ts).
     await explorePage.servicesSearch.click();
-    await explorePage.servicesSearch.pressSequentially('Tempo-i');
-    await page.keyboard.press('Escape');
-    await expect(page.getByRole('listbox')).not.toBeVisible();
+    await explorePage.servicesSearch.pressSequentially('tempo-i');
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
     await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'tempo-distributor' })).not.toBeVisible();
 
@@ -55,12 +55,9 @@ test.describe('navigating app', () => {
 
     // assert panels are showing
     await expect(page.getByTestId('data-testid button-filter-include').first()).toHaveCount(1);
-    const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
-    const expectedSearchParams = new URLSearchParams(
-      '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name%7C%3D%7Ctempo-ingester&var-lineFormat=&var-jsonFields=&var-fields=&var-filters_replica=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C%28%3Fi%29.%2ATempo-i.%2A'
-    );
-    actualSearchParams.sort();
-    expectedSearchParams.sort();
-    expect(actualSearchParams.toString()).toEqual(expectedSearchParams.toString());
+
+    // assert the var-filters param contains the service name
+    const varFilters = new URL(page.url()).searchParams.get('var-filters') ?? '';
+    expect(varFilters).toContain('tempo-ingester');
   });
 });

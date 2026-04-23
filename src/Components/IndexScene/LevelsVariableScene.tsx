@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { MetricFindValue, SelectableValue } from '@grafana/data';
+import { MetricFindValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   ControlsLabel,
@@ -13,7 +13,7 @@ import {
   SceneObjectState,
   SceneVariableValueChangedEvent,
 } from '@grafana/scenes';
-import { Icon, MultiSelect, useStyles2 } from '@grafana/ui';
+import { ComboboxOption, MultiCombobox, useStyles2 } from '@grafana/ui';
 
 import { FilterOp } from '../../services/filterTypes';
 import { addCurrentUrlToHistory } from '../../services/navigate';
@@ -24,14 +24,13 @@ import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
 type ChipOption = MetricFindValue & { selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
   isLoading: boolean;
-  isOpen: boolean;
   options?: ChipOption[];
   visible: boolean;
 }
 export const LEVELS_VARIABLE_SCENE_KEY = 'levels-var-custom-renderer';
 export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneState> {
   constructor(state: Partial<LevelsVariableSceneState>) {
-    super({ ...state, isLoading: false, isOpen: false, key: LEVELS_VARIABLE_SCENE_KEY, visible: false });
+    super({ ...state, isLoading: false, key: LEVELS_VARIABLE_SCENE_KEY, visible: false });
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -57,33 +56,39 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     });
   }
 
-  getTagValues = () => {
+  getTagValues = async (typeAhead: string): Promise<Array<ComboboxOption<string>>> => {
     this.setState({ isLoading: true });
     const levelsVar = getLevelsVariable(this);
     const levelsKeys = levelsVar?.state?.getTagValuesProvider?.(
       levelsVar,
       levelsVar.state.filters[0] ?? { key: LEVEL_VARIABLE_VALUE }
     );
-    levelsKeys?.then((response) => {
-      if (Array.isArray(response.values)) {
-        const newOptions = response.values.map((value) => {
-          return {
-            selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
-            text: value.text,
-            value: value.value ?? value.text,
-          };
-        });
-        const existingSelectedOptions = this.state.options?.filter(
-          (existingOption) =>
-            existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
-        );
-        const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
-        this.setState({
-          isLoading: false,
-          options,
-        });
+
+    try {
+      const response = await levelsKeys;
+      if (!response || !Array.isArray(response.values)) {
+        return [];
       }
-    });
+
+      const newOptions = response.values.map((value) => ({
+        selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
+        text: value.text,
+        value: value.value ?? value.text,
+      }));
+      const existingSelectedOptions = this.state.options?.filter(
+        (existingOption) =>
+          existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
+      );
+      const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
+      this.setState({ options });
+      return options
+        .map((option) => ({ label: option.text, value: String(option.value ?? option.text) }))
+        .filter((option) => option.label?.includes(typeAhead));
+    } catch (err) {
+      return [];
+    } finally {
+      this.setState({ isLoading: false });
+    }
   };
 
   updateFilters = (skipPublish: boolean, forcePublish?: boolean) => {
@@ -100,38 +105,40 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     );
   };
 
-  onChangeOptions = (options: SelectableValue[]) => {
+  onChangeOptions = (options: Array<ComboboxOption<string>>) => {
     // Save current url to history before the filter change
     addCurrentUrlToHistory();
+    const selectedValues = new Set(options.map((option) => option.value));
+    const optionValues = new Set((this.state.options ?? []).map((option) => String(option.value)));
+    const customOptions = options
+      .filter((option) => !optionValues.has(option.value))
+      .map((option) => ({
+        selected: true,
+        text: option.label ?? option.value,
+        value: option.value,
+      }));
 
     this.setState({
-      options: this.state.options?.map((value) => {
-        if (options.some((opt) => opt.value === value.value)) {
+      options: [...(this.state.options ?? []), ...customOptions].map((value) => {
+        if (selectedValues.has(String(value.value))) {
           return { ...value, selected: true };
         }
         return { ...value, selected: false };
       }),
     });
 
-    if (!this.state.isOpen) {
-      this.updateFilters(false);
-    } else {
-      this.updateFilters(true);
-    }
-  };
-
-  openSelect = (isOpen: boolean) => {
-    this.setState({ isOpen });
+    // Updates filters on selection not on dropdown close
+    // Combobox does not provide a way to know if the menu is open or closed
+    this.updateFilters(false);
   };
 
   onCloseMenu = () => {
-    this.openSelect(false);
     // Update filters and run queries on close
     this.updateFilters(false, true);
   };
 
   static Component = ({ model }: SceneComponentProps<LevelsVariableScene>) => {
-    const { isLoading, isOpen, options, visible } = model.useState();
+    const { isLoading, options, visible } = model.useState();
     const styles = useStyles2(getStyles);
     const levelsVar = getLevelsVariable(model);
     levelsVar.useState();
@@ -142,42 +149,27 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
     return (
       <div data-testid={testIds.variables.levels.inputWrap} className={styles.wrapper}>
-        <ControlsLabel layout="vertical" label={t('components.index-scene.levels-variable-scene.label-log-levels', 'Log levels')} />
-        <MultiSelect
-          aria-label={t('components.index-scene.levels-variable-scene.aria-label-log-level-filters', 'Log level filters')}
-          prefix={<Icon size={'lg'} name={'filter'} />}
+        <ControlsLabel
+          layout="vertical"
+          label={t('components.index-scene.levels-variable-scene.label-log-levels', 'Log levels')}
+        />
+        <MultiCombobox<string>
+          aria-label={t(
+            'components.index-scene.levels-variable-scene.aria-label-log-level-filters',
+            'Log level filters'
+          )}
+          prefixIcon="filter"
           placeholder={t('components.index-scene.levels-variable-scene.placeholder-all-levels', 'All levels')}
-          className={styles.control}
           onChange={model.onChangeOptions}
-          onCloseMenu={() => model.onCloseMenu()}
-          onOpenMenu={model.getTagValues}
-          onFocus={() => model.openSelect(true)}
-          menuShouldPortal={true}
-          allowCustomValue={true}
-          onCreateOption={model.onCreateCustomOption}
-          isOpen={isOpen}
-          isLoading={isLoading}
-          isClearable={true}
-          blurInputOnSelect={false}
-          closeMenuOnSelect={false}
-          openMenuOnFocus={true}
-          showAllSelectedWhenOpen={true}
-          hideSelectedOptions={false}
-          value={options?.filter((v) => v.selected)}
-          options={options?.map((val) => ({
-            label: val.text,
-            value: val.value,
-          }))}
+          options={model.getTagValues}
+          createCustomValue={true}
+          loading={isLoading}
+          value={options?.filter((v) => v.selected).map((v) => String(v.value))}
+          width="auto"
+          minWidth={20}
         />
       </div>
     );
-  };
-
-  private onCreateCustomOption = (value: string) => {
-    const newOption: ChipOption = { selected: true, text: value, value };
-    this.setState({
-      options: this.state.options ? [...this.state.options, newOption] : [newOption],
-    });
   };
 }
 export function syncLevelsVariable(sceneRef: SceneObject) {
@@ -188,9 +180,6 @@ export function syncLevelsVariable(sceneRef: SceneObject) {
 }
 
 const getStyles = () => ({
-  control: css({
-    flex: '1',
-  }),
   wrapper: css({
     flex: '0 0 auto',
     whiteSpace: 'nowrap',

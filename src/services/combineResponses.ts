@@ -71,8 +71,10 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
   // some grafana parts do not behave well.
   // we just choose the old error, if it exists,
   // otherwise the new error, if it exists.
+  /* eslint-disable-next-line @typescript-eslint/no-deprecated */
   const mergedError = currentResult.error ?? newResult.error;
   if (mergedError != null) {
+    /* eslint-disable-next-line @typescript-eslint/no-deprecated */
     currentResult.error = mergedError;
   }
 

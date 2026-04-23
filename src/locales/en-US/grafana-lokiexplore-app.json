@@ -357,6 +357,7 @@
           "title": "We did not find any {{type}} for the given time range."
         },
         "field-selector": {
+          "custom-value-search-or-filter": "Filter values by",
           "placeholder-search-values": "Search values"
         },
         "field-values-breakdown-scene": {
@@ -717,9 +718,6 @@
       "configure-volume-error": {
         "docs-link": "Instructions to enable volume in the Loki config:",
         "title": "Log volume has not been configured."
-      },
-      "label": {
-        "service": "Service"
       },
       "no-service-search-results": {
         "title": "No service matched your search."

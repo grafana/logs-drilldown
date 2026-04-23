@@ -15,6 +15,7 @@ export const copyText = (string: string) => {
     el.value = string;
     document.body.appendChild(el);
     el.select();
+    /* eslint-disable-next-line @typescript-eslint/no-deprecated -- execCommand is the standard pre-Clipboard fallback */
     document.execCommand('copy');
     document.body.removeChild(el);
   }

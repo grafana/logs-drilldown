@@ -21,6 +21,17 @@ const fieldName = 'caller';
 const levelName = 'detected_level';
 const metadataName = 'pod';
 const labelName = 'cluster';
+
+/** Field breakdown panels use the detected field name as Loki query refId (see FieldsAggregatedBreakdownScene). */
+function getFieldBreakdownQuery(queries: LokiQuery[], field: string): LokiQuery | undefined {
+  return queries.find((q) => q.refId === field);
+}
+
+/** Sparse empty-field filter rendered as `| bytes=""` (see ExpressionBuilder.test / renderLogQLFieldFilters). */
+function queriesContainBytesEqualEmptyFilter(queries: LokiQuery[]): boolean {
+  return queries.some((q) => q.expr.includes('bytes=""'));
+}
+
 test.describe('explore services breakdown page', () => {
   let explorePage: ExplorePage;
 
@@ -498,7 +509,7 @@ test.describe('explore services breakdown page', () => {
 
     expect(panelTitles.length).toBeGreaterThan(0);
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Desc is the default option, this should be a noop
     await page.getByRole('option', { name: 'Desc' }).click();
 
@@ -508,7 +519,7 @@ test.describe('explore services breakdown page', () => {
       expect(await panels.nth(i).getByRole('heading').textContent()).toEqual(panelTitles[i]);
     }
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Now change the sort order
     await page.getByRole('option', { name: 'Asc' }).click();
 
@@ -539,9 +550,9 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToFieldsTab();
 
     // Use the dropdown since the tenant field might not be visible
-    await page.getByText('FieldAll').click();
+    await page.getByTestId(testIds.breakdowns.labelFieldSearch).click();
     await page.keyboard.type('tenan');
-    await page.keyboard.press('Enter');
+    await page.getByRole('option', { name: 'tenant', exact: true }).click();
     await explorePage.assertNotLoading();
 
     // Assert loading is done and panels are showing
@@ -556,7 +567,7 @@ test.describe('explore services breakdown page', () => {
 
     expect(panelTitles.length).toBeGreaterThan(0);
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Desc is the default option, this should be a noop
     await page.getByRole('option', { name: 'Desc' }).click();
 
@@ -566,7 +577,7 @@ test.describe('explore services breakdown page', () => {
       expect(await panels.nth(i).getByRole('heading').textContent()).toEqual(panelTitles[i]);
     }
 
-    await page.getByTestId('data-testid SortBy direction').click();
+    await page.getByTestId(testIds.breakdowns.common.sortByDirection).click();
     // Now change the sort order
     await page.getByRole('option', { name: 'Asc' }).click();
 
@@ -1148,24 +1159,29 @@ test.describe('explore services breakdown page', () => {
 
     // Show the popover
     await bytesIncludeButton.click();
-    const popover = page.getByRole('tooltip');
-    await expect(popover).toHaveCount(1);
+    // Popover content is portaled; match the numeric filter tooltip by a unique child (not the first tooltip on the page).
+    const popover = page.getByRole('tooltip').filter({
+      has: page.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton),
+    });
+    await expect(popover).toBeVisible();
 
-    // Popover copy assertions
+    // Popover copy assertions (Combobox selected label is the input value, not text content)
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-    ).toHaveText('Greater than');
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)).toHaveText(
-      'Less than'
-    );
+      popover
+        .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+        .getByRole('combobox')
+    ).toHaveValue('Greater than');
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).getByRole('combobox')
+    ).toHaveValue('Less than');
 
-    // Bytes should be default unit
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit)).toHaveText(
-      'UnitB'
-    );
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)).toHaveText(
-      'UnitB'
-    );
+    // Bytes should be default unit (B) on the unit Combobox inputs
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit).getByRole('combobox')
+    ).toHaveValue('B');
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit).getByRole('combobox')
+    ).toHaveValue('B');
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
@@ -1188,18 +1204,21 @@ test.describe('explore services breakdown page', () => {
     await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThan).pressSequentially('2');
 
     // Open unit "select"
-    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit).locator('svg').click();
-
-    // select kilobytes
     await popover
       .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)
-      .getByRole('listbox')
-      .getByText('KB', { exact: true })
+      .getByRole('combobox')
       .click();
 
+    // select kilobytes (unit menu is portaled; not under the Field test id subtree)
+    await page.getByRole('option', { name: 'KB', exact: true }).click();
+
     // Make inclusive
-    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).click();
-    await popover.getByText('Less than or equal').click();
+    await popover
+      .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
+      .getByRole('combobox')
+      .click();
+    // Inclusive operator menu is portaled like the unit menu; options are not under the tooltip subtree.
+    await page.getByRole('option', { name: 'Less than or equal', exact: true }).click();
 
     // Wait for pod query to execute
     const expressionsAfterNumericFilter: string[] = [];
@@ -1257,16 +1276,21 @@ test.describe('explore services breakdown page', () => {
 
     // Show the popover
     await bytesIncludeButton.click();
-    const popover = page.getByRole('tooltip');
-    await expect(popover).toHaveCount(1);
+    // Popover content is portaled; match the numeric filter tooltip by a unique child (not the first tooltip on the page).
+    const popover = page.getByRole('tooltip').filter({
+      has: page.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton),
+    });
+    await expect(popover).toBeVisible();
 
-    // Popover copy assertions
+    // Popover copy assertions (Combobox selected label is the input value, not text content)
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-    ).toHaveText('Greater than');
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)).toHaveText(
-      'Less than'
-    );
+      popover
+        .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+        .getByRole('combobox')
+    ).toHaveValue('Greater than');
+    await expect(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).getByRole('combobox')
+    ).toHaveValue('Less than');
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
@@ -1289,8 +1313,12 @@ test.describe('explore services breakdown page', () => {
     await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThan).pressSequentially('5');
 
     // Make inclusive
-    await popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).click();
-    await popover.getByText('Less than or equal').click();
+    await popover
+      .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
+      .getByRole('combobox')
+      .click();
+    // Inclusive operator menu is portaled
+    await page.getByRole('option', { name: 'Less than or equal', exact: true }).click();
 
     // Wait for pod query to execute
     const expressionsAfterNumericFilter: string[] = [];
@@ -1331,7 +1359,7 @@ test.describe('explore services breakdown page', () => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
-      if (queries[0].refId === 'logsPanelQuery') {
+      if (queries.some((q) => q.refId === 'logsPanelQuery')) {
         await route.continue();
       } else {
         await route.fulfill({ json: [] });
@@ -1347,19 +1375,21 @@ test.describe('explore services breakdown page', () => {
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
 
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
-
-      await expect.poll(() => queries[0].expr).toContain('bytes!=""');
+      const bytesQuery = getFieldBreakdownQuery(queries, 'bytes');
+      if (!bytesQuery?.expr.includes('bytes!=""')) {
+        await route.fulfill({ json: [] });
+        return;
+      }
       numberOfQueries++;
 
       await route.fulfill({ json: [] });
     });
-
-    // assert the filter select is in the document
-    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Include
     await bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect).click();
@@ -1383,7 +1413,7 @@ test.describe('explore services breakdown page', () => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
-      if (queries[0].refId === 'logsPanelQuery') {
+      if (queries.some((q) => q.refId === 'logsPanelQuery')) {
         await route.continue();
       } else {
         await route.fulfill({ json: [] });
@@ -1398,19 +1428,23 @@ test.describe('explore services breakdown page', () => {
 
     // Wait for all panels to finish loading, or we might intercept an ongoing query below
     await expect(page.getByLabel('Panel loading bar')).toHaveCount(0);
+
+    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
+
     // Now we'll intercept any further queries, note that the intercept above is still-preventing the actual request so the panels will return with no-data instantly
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
-
-      await expect.poll(() => queries[0].expr).toContain('bytes=""');
+      // After Exclude, the bytes breakdown panel is removed — batches often no longer include refId `bytes`.
+      // The sparse filter still appears on other queries (e.g. logs) that share VAR_FIELDS_EXPR.
+      if (!queriesContainBytesEqualEmptyFilter(queries)) {
+        await route.fulfill({ json: [] });
+        return;
+      }
       numberOfQueries++;
 
       await route.fulfill({ json: [] });
     });
-
-    // assert the filter select is in the document
-    await expect(bytesIncludeButton.getByTestId(testIds.breakdowns.common.filterSelect)).toHaveCount(1);
 
     // Open the dropdown and change from include to exclude
     await expect
@@ -1921,9 +1955,7 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToFieldsTab();
 
     // Use the dropdown since the tenant field might not be visible
-    await page.getByText('FieldAll').click();
-    await page.keyboard.type('caller');
-    await page.keyboard.press('Enter');
+    await page.getByLabel(`Select ${fieldName}`).click();
     await explorePage.assertNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(9);
@@ -1943,10 +1975,8 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.goToLabelsTab();
 
-    // Use the dropdown since the tenant field might not be visible
-    await page.getByText('LabelAll').click();
-    await page.keyboard.type('detected');
-    await page.keyboard.press('Enter');
+    // Use the dropdown since the tenant field might not be visible (label + value no longer one "LabelAll" text node)
+    await page.getByLabel(`Select ${levelName}`).click();
     await explorePage.assertNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(5);

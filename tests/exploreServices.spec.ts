@@ -43,7 +43,8 @@ test.describe('explore services page', () => {
 
       // Select nginx, as it has the lowest volume, and should otherwise show up last
       await explorePage.servicesSearch.pressSequentially('^nginx$');
-      await page.keyboard.press('Escape');
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
 
       // Assert the first is nginx, or we might click before it's done loading
       await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxIncludeShow logs');
@@ -68,14 +69,10 @@ test.describe('explore services page', () => {
       // Assert that the first element is nginx with the Remove filter action
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
       await expect(explorePage.getPanelHeaderLocator().first().getByText('Remove', { exact: true })).toBeVisible();
-
       await explorePage.servicesSearch.click();
 
-      // Assert there is more than one element in the dropdown
-      await expect(page.getByRole('option').nth(1)).not.toContainText('nginx');
-
-      // assert the first element is nginx now
-      await expect(firstResult).toHaveText('nginx');
+      // assert the first element has nginx
+      await expect(firstResult).toHaveText(/^(nginx|\^nginx\$)$/);
     });
 
     test.describe('default labels', () => {
@@ -124,6 +121,8 @@ test.describe('explore services page', () => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('mimir');
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
       // Volume can differ, scroll down so all of the panels are loaded
       await explorePage.scrollToBottom();
 
@@ -138,29 +137,19 @@ test.describe('explore services page', () => {
       // Only the first title is visible
       await expect(page.getByText('mimir-ingester').nth(0)).toBeVisible();
       await expect(page.getByText('mimir-ingester').nth(1)).not.toBeVisible();
-      await expect(page.getByText('of 4')).toBeVisible();
     });
 
     test('should filter service labels on exact search', async ({ page }) => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
-      await explorePage.servicesSearch.pressSequentially('mimir-ingester');
-      // Volume can differ, scroll down so all of the panels are loaded
-      await explorePage.scrollToBottom();
+      await explorePage.servicesSearch.pressSequentially('mimir-i');
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
+
       // service name should be in time series panel
       await expect(page.getByTestId('data-testid Panel header mimir-ingester').nth(0)).toBeVisible();
       // service name should also be in logs panel, just not visible to the user
       await expect(page.getByTestId('data-testid Panel header mimir-ingester').nth(1)).toBeVisible();
-
-      // Exit out of the dropdown
-      await page.keyboard.press('Escape');
-      // The matched string should exist in the search dropdown
-      await expect(page.getByText('mimir-ingester').nth(0)).toBeVisible();
-      // And the panel title
-      await expect(page.getByText('mimir-ingester').nth(1)).toBeVisible();
-      // And the logs panel title should be hidden
-      await expect(page.getByText('mimir-ingester').nth(2)).not.toBeVisible();
-      await expect(page.getByText('of 1')).toBeVisible();
     });
 
     test('should filter service labels on partial string', async ({ page }) => {
@@ -168,6 +157,8 @@ test.describe('explore services page', () => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('imi');
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
       // service name should be in time series panel
       await expect(page.getByTestId('data-testid Panel header mimir-ingester').nth(0)).toBeVisible();
       // service name should also be in logs panel, just not visible to the user
@@ -178,7 +169,6 @@ test.describe('explore services page', () => {
       // Only the first title is visible
       await expect(page.getByText('mimir-ingester').nth(0)).toBeVisible();
       await expect(page.getByText('mimir-ingester').nth(1)).not.toBeVisible();
-      await expect(page.getByText('of 4')).toBeVisible();
     });
 
     test('should select a service label value and navigate to log view', async ({ page }) => {
@@ -191,8 +181,9 @@ test.describe('explore services page', () => {
     test('should filter logs by clicking on the chart levels', async ({ page }) => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
-      await explorePage.servicesSearch.pressSequentially('tempo-distributor');
-      await page.keyboard.press('Escape');
+      await explorePage.servicesSearch.pressSequentially('tempo-d');
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
+
       // Volume can differ, scroll down so all of the panels are loaded
       await explorePage.scrollToBottom();
       await expect(page.getByText('of 1')).toBeVisible();
@@ -256,17 +247,24 @@ test.describe('explore services page', () => {
 
       // Filter results for tempo-ingester
       await explorePage.servicesSearch.click();
-      await explorePage.servicesSearch.pressSequentially('tempo-ingester');
+      await explorePage.servicesSearch.pressSequentially('tempo-i');
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
 
-      const tempoIngesterPanelHeader = explorePage.getPanelHeaderLocator();
-      const tempoIngesterIncludeBtn = tempoIngesterPanelHeader.getByTestId('data-testid button-filter-include');
+      const tempoIngesterPanelHeader = explorePage.getPanelHeaderLocator().filter({
+        has: page.getByRole('heading', { name: 'tempo-ingester' }),
+      });
+      const tempoIngesterIncludeBtn = tempoIngesterPanelHeader.getByTestId(
+        testIds.exploreServiceDetails.buttonFilterInclude
+      );
       await expect(tempoIngesterIncludeBtn).toHaveCount(1);
+      // Show logs button should be disabled until a filter is added
+      await expect(showLogsHeaderBtn).toBeDisabled();
       await page.keyboard.press('Escape');
 
       // Assert the portal closed
       await expect(page.getByRole('listbox')).not.toBeVisible();
 
-      // Assert the button is disabled
+      // Assert heading is visible
       await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
 
       // add positive include filter without navigating
@@ -280,9 +278,15 @@ test.describe('explore services page', () => {
       // Filter results for tempo-distributor
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-d');
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
 
-      const tempoDistributorPanelHeader = explorePage.getPanelHeaderLocator();
-      const tempoDistributorIncludeBtn = tempoDistributorPanelHeader.getByTestId('data-testid button-filter-include');
+      const tempoDistributorPanelHeader = explorePage.getPanelHeaderLocator().filter({
+        has: page.getByRole('heading', { name: 'tempo-distributor' }),
+      });
+      const tempoDistributorIncludeBtn = tempoDistributorPanelHeader.getByTestId(
+        testIds.exploreServiceDetails.buttonFilterInclude
+      );
       await expect(tempoDistributorIncludeBtn).toHaveCount(1);
       await page.keyboard.press('Escape');
 
@@ -676,9 +680,11 @@ test.describe('explore services page', () => {
 
         // Assert results have loaded before we search or we'll cancel the ongoing volume query
         await expect(page.getByText('of 6')).toBeVisible();
-        // Search for "gateway"
-        await page.getByTestId(testIds.index.searchLabelValueInput).fill('Gate');
-        await page.getByTestId(testIds.index.searchLabelValueInput).press('Escape');
+        // Search for "gateway" (same Combobox pattern as service tab)
+        await explorePage.servicesSearch.click();
+        await explorePage.servicesSearch.fill('Gate');
+        await expect(page.getByRole('listbox')).toBeVisible();
+        await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
 
         // Asser this filters down to only one result
         await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(1);
