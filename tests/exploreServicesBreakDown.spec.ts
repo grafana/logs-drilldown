@@ -1174,11 +1174,11 @@ test.describe('explore services breakdown page', () => {
     ).toContainText('Less than');
 
     // Bytes should be default unit (B) on the unit Combobox inputs
-    await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit)
-    ).toContainText('B');
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)).toContainText(
-      'B'
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit)).toHaveText(
+      'UnitB'
+    );
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)).toHaveText(
+      'UnitB'
     );
 
     // Add button should be disabled
