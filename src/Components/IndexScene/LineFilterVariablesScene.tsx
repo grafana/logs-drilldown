@@ -10,7 +10,7 @@ import { Button, useStyles2 } from '@grafana/ui';
 
 import { LineFilterProps, LineFilterVariable } from './LineFilterVariable';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
+import { LINE_FILTER_INPUT_DEBOUNCE_MS, LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { addCurrentUrlToHistory } from 'services/navigate';
 import { getLineFilterCase, getLineFilterExclusive, getLineFilterRegex } from 'services/store';
 import { testIds } from 'services/testIds';
@@ -311,7 +311,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     ) => {
       this.updateVariableLineFilter(existingFilter, filterUpdate, skipPublish, forcePublish);
     },
-    1000
+    LINE_FILTER_INPUT_DEBOUNCE_MS
   );
 }
 

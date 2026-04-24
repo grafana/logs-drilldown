@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 
-import { LineFilterCaseSensitive, LineFilterOp } from '../../../services/filterTypes';
+import { LINE_FILTER_INPUT_DEBOUNCE_MS, LineFilterCaseSensitive, LineFilterOp } from '../../../services/filterTypes';
 import { addCurrentUrlToHistory } from '../../../services/navigate';
 import {
   getLineFilterCase,
@@ -232,7 +232,7 @@ export class LineFilterScene extends SceneObjectBase<LineFilterState> {
    */
   updateVariableDebounced = debounce((search: string) => {
     this.updateVariable(search);
-  }, 1000);
+  }, LINE_FILTER_INPUT_DEBOUNCE_MS);
 
   /**
    * Updates the ad-hoc variable from local state and triggers a query.

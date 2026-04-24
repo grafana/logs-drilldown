@@ -2150,7 +2150,7 @@ test.describe('explore services breakdown page', () => {
       // This is debounced, wait for the state to change
       await expect
         .poll(() => page.getByLabel('Enable regex').count(), {
-          intervals: [1_001, 50, 100, 250],
+          intervals: [2_001, 50, 100, 250],
         })
         .toBe(1);
       await explorePage.assertTabsNotLoading();
