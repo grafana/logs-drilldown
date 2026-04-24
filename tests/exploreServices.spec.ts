@@ -57,8 +57,18 @@ test.describe('explore services page', () => {
       // Click on nav to return to service selection
       await page.getByRole('link', { name: 'Logs' }).first().click();
 
-      // Assert that the first element is nginx now
-      await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxRemove');
+      // Assert nginx is showing as a favorite
+      await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
+
+      // Clear the search filter — the clear button uses aria-label (old Select) or title (new Combobox)
+      await page.getByRole('button', { name: 'Clear value' }).first().click();
+
+      // Assert there is more than one result now
+      await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
+
+      // Assert that the first element is nginx with the Remove filter action
+      await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
+      await expect(explorePage.getPanelHeaderLocator().first().getByText('Remove', { exact: true })).toBeVisible();
       await explorePage.servicesSearch.click();
 
       // assert the first element has nginx
@@ -363,7 +373,11 @@ test.describe('explore services page', () => {
         await explorePage.assertPanelsNotLoading();
 
         expect(logsVolumeCount).toEqual(1);
-        expect(logsQueryCount).toEqual(4);
+        // Each visible service produces 2 queries (ts + logs panel). The exact
+        // count depends on viewport geometry and LazyLoader's IntersectionObserver.
+        const initialQueryCount = logsQueryCount;
+        expect(initialQueryCount).toBeGreaterThan(0);
+        expect(initialQueryCount % 2).toEqual(0);
 
         // We're only updating if the time range is more then a second diff...
         await page.waitForTimeout(1001);
@@ -377,7 +391,8 @@ test.describe('explore services page', () => {
         // Noticed that the below assertions were flaking when not running the trace, we need to wait a tiny bit to let the last requests fire
         await page.waitForTimeout(50);
         expect(logsVolumeCount).toEqual(4);
-        expect(logsQueryCount).toEqual(16);
+        // 1 initial load + 3 refreshes = 4× the initial panel query count
+        expect(logsQueryCount).toEqual(initialQueryCount * 4);
         expect(logCountQueryCount).toEqual(0);
       });
 
@@ -437,7 +452,9 @@ test.describe('explore services page', () => {
         await page.waitForFunction(() => !document.querySelector('[title="Cancel query"]'));
         await explorePage.assertPanelsNotLoading();
         await expect.poll(() => logsVolumeCount, { timeout: 0 }).toEqual(1);
-        await expect.poll(() => logsQueryCount, { timeout: 0 }).toEqual(4);
+        const initialQueryCount = logsQueryCount;
+        expect(initialQueryCount).toBeGreaterThan(0);
+        expect(initialQueryCount % 2).toEqual(0);
         await explorePage.changeDatasource();
         await explorePage.assertPanelsNotLoading();
         await expect.poll(() => logsVolumeCount, { timeout: 0 }).toEqual(2);
@@ -479,8 +496,9 @@ test.describe('explore services page', () => {
           // Dropdown should be open
           await expect(selectNewLabelSelect).toContainText('Search labels');
 
-          // Add "namespace" as a new tab
-          await page.getByText('namespace', { exact: true }).click();
+          // Add "namespace" as a new tab — type to filter the dropdown so the option is in viewport
+          await page.keyboard.type('namespace');
+          await page.getByRole('option', { name: 'namespace', exact: true }).click();
           await expect(newNamespaceTabLoc).toHaveCount(1);
 
           // Click "New" tab

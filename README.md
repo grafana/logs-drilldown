@@ -65,9 +65,9 @@ If you want to [install the app in a docker container](https://grafana.com/docs/
 
 In order to run the setup locally and build the plugin by your own, follow these steps:
 
-1. `yarn install`
-2. `yarn dev` this builds the plugin continuously
-3. `yarn server` this spins up the docker setup, including a Loki instance and the fake data generator
+1. `pnpm install`
+2. `pnpm run dev` this builds the plugin continuously
+3. `pnpm run server` this spins up the docker setup, including a Loki instance and the fake data generator
 
 ## Supported Features
 
