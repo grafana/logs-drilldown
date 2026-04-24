@@ -18,6 +18,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Skip check when the PR has the i18n label
           ignoreLabels: |
-            i18n:
+            i18n
