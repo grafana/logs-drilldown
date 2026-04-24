@@ -17,7 +17,21 @@ import {
 } from './fixtures/explore';
 import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
 
+import { type Locator } from '@playwright/test';
+
 const fieldName = 'caller';
+
+/**
+ * Older @grafana/ui Select renders the selected label as the combobox input value;
+ * newer Combobox renders it as visible text.  This helper accepts either representation.
+ */
+async function expectComboboxLabel(container: Locator, expected: string) {
+  await expect(async () => {
+    const text = (await container.textContent()) ?? '';
+    const value = await container.getByRole('combobox').inputValue();
+    expect(text + value).toContain(expected);
+  }).toPass();
+}
 const levelName = 'detected_level';
 const metadataName = 'pod';
 const labelName = 'cluster';
@@ -1166,19 +1180,23 @@ test.describe('explore services breakdown page', () => {
     await expect(popover).toBeVisible();
 
     // Popover copy assertions
-    await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-    ).toContainText('Greater than');
-    await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
-    ).toContainText('Less than');
+    await expectComboboxLabel(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive),
+      'Greater than'
+    );
+    await expectComboboxLabel(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive),
+      'Less than'
+    );
 
     // Bytes should be default unit (B) on the unit Combobox inputs
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit)).toHaveText(
-      'UnitB'
+    await expectComboboxLabel(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit),
+      'B'
     );
-    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)).toHaveText(
-      'UnitB'
+    await expectComboboxLabel(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit),
+      'B'
     );
 
     // Add button should be disabled
@@ -1281,12 +1299,14 @@ test.describe('explore services breakdown page', () => {
     await expect(popover).toBeVisible();
 
     // Popover copy assertions
-    await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-    ).toContainText('Greater than');
-    await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
-    ).toContainText('Less than');
+    await expectComboboxLabel(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive),
+      'Greater than'
+    );
+    await expectComboboxLabel(
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive),
+      'Less than'
+    );
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
