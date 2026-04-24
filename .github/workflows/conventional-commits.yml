@@ -20,3 +20,4 @@ jobs:
         with:
           ignoreLabels: |
             i18n
+            I18n
