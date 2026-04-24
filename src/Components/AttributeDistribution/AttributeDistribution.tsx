@@ -561,8 +561,7 @@ function AttributeSection({
   const isExpandable = allValues.length > MAX_VALUES_COLLAPSED;
 
   // Assign palette colors by allValues index so colors are stable on expand/collapse.
-  const fallbackPalette = ['#5794F2', '#FF9830', '#73BF69', '#F2495C', '#B877D9', '#6ED0E0'];
-  const palette = theme?.visualization?.palette?.length ? theme.visualization.palette : fallbackPalette;
+  const palette = theme.visualization.palette;
   const valueColorMap = new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]]));
 
   return (

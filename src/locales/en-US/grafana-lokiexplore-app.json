@@ -1,4 +1,7 @@
 {
+  "attribute-distribution": {
+    "resize-sidebar": "Resize sidebar"
+  },
   "components": {
     "app": {
       "text-loading": "Loading..."
