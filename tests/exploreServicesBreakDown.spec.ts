@@ -1154,7 +1154,7 @@ test.describe('explore services breakdown page', () => {
 
     const bytesIncludeButton = page
       .getByTestId('data-testid Panel header bytes')
-      .getByTestId(testIds.breakdowns.common.filterButtonGroup);
+      .getByTestId(testIds.breakdowns.common.filterButton);
     await expect(bytesIncludeButton).toHaveText('Add to filter');
 
     // Show the popover
@@ -1165,23 +1165,21 @@ test.describe('explore services breakdown page', () => {
     });
     await expect(popover).toBeVisible();
 
-    // Popover copy assertions (Combobox selected label is the input value, not text content)
+    // Popover copy assertions
     await expect(
-      popover
-        .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-        .getByRole('combobox')
-    ).toHaveValue('Greater than');
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+    ).toContainText('Greater than');
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).getByRole('combobox')
-    ).toHaveValue('Less than');
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
+    ).toContainText('Less than');
 
     // Bytes should be default unit (B) on the unit Combobox inputs
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit).getByRole('combobox')
-    ).toHaveValue('B');
-    await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit).getByRole('combobox')
-    ).toHaveValue('B');
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanUnit)
+    ).toContainText('B');
+    await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanUnit)).toContainText(
+      'B'
+    );
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
@@ -1271,7 +1269,7 @@ test.describe('explore services breakdown page', () => {
 
     const bytesIncludeButton = page
       .getByTestId('data-testid Panel header oldVersion')
-      .getByTestId(testIds.breakdowns.common.filterButtonGroup);
+      .getByTestId(testIds.breakdowns.common.filterButton);
     await expect(bytesIncludeButton).toHaveText('Add to filter');
 
     // Show the popover
@@ -1282,15 +1280,13 @@ test.describe('explore services breakdown page', () => {
     });
     await expect(popover).toBeVisible();
 
-    // Popover copy assertions (Combobox selected label is the input value, not text content)
+    // Popover copy assertions
     await expect(
-      popover
-        .getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
-        .getByRole('combobox')
-    ).toHaveValue('Greater than');
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputGreaterThanInclusive)
+    ).toContainText('Greater than');
     await expect(
-      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive).getByRole('combobox')
-    ).toHaveValue('Less than');
+      popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.inputLessThanInclusive)
+    ).toContainText('Less than');
 
     // Add button should be disabled
     await expect(popover.getByTestId(testIds.breakdowns.common.filterNumericPopover.submitButton)).toBeDisabled();
