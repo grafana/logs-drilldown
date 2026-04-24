@@ -9,7 +9,13 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
-import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
+import {
+  ActiveFilter,
+  AttributeConfig,
+  AttributeDistribution,
+  AttributeValueCount,
+  DatasetContext,
+} from './AttributeDistribution';
 import { buildFieldLinkFromQuery, buildServiceLinkFromQuery } from './fieldLinks';
 
 interface LokiLike {
@@ -114,9 +120,9 @@ function fetchDistribution(
   const effectiveQuery =
     filters.length > 0
       ? context.query +
-        new ExpressionBuilder(filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))).getFieldsExpr(
-          { decodeFilters: false, joinMatchFilters: true }
-        )
+        new ExpressionBuilder(
+          filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))
+        ).getFieldsExpr({ decodeFilters: false, joinMatchFilters: true })
       : context.query;
 
   const target: LokiQuery = {
@@ -173,6 +179,8 @@ export interface LokiFieldDistributionProps {
   query: string;
   // Label communicating dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
+  // When true, renders a drag handle so the sidebar width can be adjusted.
+  resizable?: boolean;
   // Active filter set. Updated by the consumer when external filters change.
   selectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   // When true, shows a link to the full service log view in Logs Drilldown.
@@ -184,6 +192,7 @@ export default function LokiFieldDistribution({
   attributeLabels = EMPTY_ATTRIBUTE_LABELS,
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
+  resizable,
   selectedFilters,
   onFiltersChange,
   priorityAttributes,
@@ -197,10 +206,7 @@ export default function LokiFieldDistribution({
     [fieldsToExclude, attributeLabels]
   );
 
-  const numericTimeRange = useMemo(
-    () => ({ from: timeRange.from.valueOf(), to: timeRange.to.valueOf() }),
-    [timeRange]
-  );
+  const numericTimeRange = useMemo(() => ({ from: timeRange.from.valueOf(), to: timeRange.to.valueOf() }), [timeRange]);
 
   const getFieldLink = useMemo(
     () => (attribute: string) => buildFieldLinkFromQuery(query, datasourceUid, numericTimeRange, attribute),
@@ -227,6 +233,7 @@ export default function LokiFieldDistribution({
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
       getFieldLink={getFieldLink}
+      resizable={resizable}
       selectedFilters={selectedFilters}
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}

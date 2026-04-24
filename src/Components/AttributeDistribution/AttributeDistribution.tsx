@@ -65,6 +65,8 @@ export interface AttributeDistributionProps {
   priorityAttributes?: string[];
   // Label shown at the top of the sidebar communicating the dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
+  // When true, renders a drag handle on the right edge so the sidebar can be resized.
+  resizable?: boolean;
   // Active filter set. Updated by the consumer when external filters change.
   selectedFilters?: ActiveFilter[];
   showAllLink?: { href: string; title: string };
@@ -77,6 +79,7 @@ export function AttributeDistribution({
   fetchDistribution,
   getFieldLink,
   header,
+  resizable = false,
   selectedFilters: selectedFiltersProp,
   onFiltersChange,
   priorityAttributes = EMPTY_PRIORITY_ATTRIBUTES,
@@ -379,134 +382,142 @@ export function AttributeDistribution({
     }
   }, [visibleAttributes]);
 
-  return (
-    <div className={styles.resizeWrapper} style={{ width: sidebarWidth }}>
-      <div className={styles.container}>
-        {header !== undefined ? (
-          header
-        ) : (
-          <div className={styles.header}>
-            <div className={styles.title}>
-              {t('errors-analysis.title', 'Attribute Explorer')}
-              <Tooltip
-                content={t(
-                  'errors-analysis.description',
-                  'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
-                )}
-              >
-                <Icon name="info-circle" size="sm" />
-              </Tooltip>
-            </div>
-            {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
+  const sidebarContent = (
+    <div className={styles.container}>
+      {header !== undefined ? (
+        header
+      ) : (
+        <div className={styles.header}>
+          <div className={styles.title}>
+            {t('errors-analysis.title', 'Attribute Explorer')}
+            <Tooltip
+              content={t(
+                'errors-analysis.description',
+                'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
+              )}
+            >
+              <Icon name="info-circle" size="sm" />
+            </Tooltip>
           </div>
-        )}
+          {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
+        </div>
+      )}
 
-        {comboboxOptions.length > 0 && (
-          <Combobox
-            options={comboboxOptions}
-            value={null}
-            placeholder={t('errors-analysis.field-input-placeholder', 'Search to add more attributes')}
-            onChange={(option) => option && handlePinAttribute(option.value)}
-          />
-        )}
+      {comboboxOptions.length > 0 && (
+        <Combobox
+          options={comboboxOptions}
+          value={null}
+          placeholder={t('errors-analysis.field-input-placeholder', 'Search to add more attributes')}
+          onChange={(option) => option && handlePinAttribute(option.value)}
+        />
+      )}
 
-        {state.detecting && (
-          <div className={styles.detectingRow}>
-            <Spinner size="sm" />
-            <span>{t('errors-analysis.discovering-fields', 'Discovering attributes\u2026')}</span>
-          </div>
-        )}
+      {state.detecting && (
+        <div className={styles.detectingRow}>
+          <Spinner size="sm" />
+          <span>{t('errors-analysis.discovering-fields', 'Discovering attributes\u2026')}</span>
+        </div>
+      )}
 
-        {!state.detecting && state.attributes.length === 0 && (
-          <div className={styles.emptyState}>
-            {t('errors-analysis.no-fields-detected', 'No fields detected for this error group.')}
-          </div>
-        )}
+      {!state.detecting && state.attributes.length === 0 && (
+        <div className={styles.emptyState}>
+          {t('errors-analysis.no-fields-detected', 'No fields detected for this error group.')}
+        </div>
+      )}
 
-        <div className={styles.sections}>
-          {state.detecting &&
-            state.attributes.length === 0 &&
-            priorityAttributes.map((attr) => (
-              <div key={attr} className={styles.section}>
-                <div className={styles.sectionHeaderRow}>
-                  <div className={styles.sectionHeader}>
-                    <span className={styles.sectionLabel}>{attributeLabels[attr] ?? attr}</span>
-                  </div>
-                </div>
-                <div className={styles.loadingRow}>
-                  <Spinner size="sm" />
+      <div className={styles.sections}>
+        {state.detecting &&
+          state.attributes.length === 0 &&
+          priorityAttributes.map((attr) => (
+            <div key={attr} className={styles.section}>
+              <div className={styles.sectionHeaderRow}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionLabel}>{attributeLabels[attr] ?? attr}</span>
                 </div>
               </div>
-            ))}
-          {visibleAttributes.map((attr) => {
-            const attrState = state.data[attr.attribute];
-            if (!attrState) {
-              return null;
-            }
-            const fieldFilters = state.selectedFilters.filter((f) => f.field === attr.attribute);
-            const includedValues = new Set(fieldFilters.filter((f) => f.operator === '=').map((f) => f.value));
-            const excludedValues = new Set(fieldFilters.filter((f) => f.operator === '!=').map((f) => f.value));
-            const snapshotValues = state.valueSnapshot?.[attr.attribute] ?? null;
-            return (
-              <AttributeSection
-                key={attr.attribute}
-                attrState={attrState}
-                config={attr}
-                fieldLink={getFieldLink?.(attr.attribute)}
-                hasActiveFilter={fieldFilters.length > 0}
-                includedValues={includedValues}
-                excludedValues={excludedValues}
-                snapshotValues={snapshotValues}
-                onToggleFilter={(value, operator) => handleToggleFilter(attr.attribute, value, operator)}
-                onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.attribute })}
-              />
-            );
-          })}
-          {(nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0)) || showAllLink ? (
-            <div className={styles.showMoreFields}>
-              {nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0) && (
-                <>
-                  <button
-                    aria-label={t('errors-analysis.show-more-fields', 'Show {{count}} more fields', {
-                      count: nextBatch,
-                    })}
-                    className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
-                    disabled={remainingCount === 0}
-                    title={
-                      remainingCount === 0
-                        ? t('errors-analysis.no-more-fields', 'No more fields')
-                        : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })
-                    }
-                    type="button"
-                    onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
-                  >
-                    <Icon name="angle-down" size="sm" />
-                  </button>
-                  <button
-                    aria-label={t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
-                    className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
-                    disabled={extraFieldsShown === 0}
-                    title={
-                      extraFieldsShown === 0
-                        ? t('errors-analysis.no-extra-fields-shown', 'No extra fields shown')
-                        : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')
-                    }
-                    type="button"
-                    onClick={() => setExtraFieldsShown(0)}
-                  >
-                    <Icon name="angle-up" size="sm" />
-                  </button>
-                </>
-              )}
-              {showAllLink && (
-                <a className={styles.showAllLink} href={showAllLink.href} rel="noreferrer" target="_blank">
-                  {showAllLink.title}
-                </a>
-              )}
+              <div className={styles.loadingRow}>
+                <Spinner size="sm" />
+              </div>
             </div>
-          ) : null}
-        </div>
+          ))}
+        {visibleAttributes.map((attr) => {
+          const attrState = state.data[attr.attribute];
+          if (!attrState) {
+            return null;
+          }
+          const fieldFilters = state.selectedFilters.filter((f) => f.field === attr.attribute);
+          const includedValues = new Set(fieldFilters.filter((f) => f.operator === '=').map((f) => f.value));
+          const excludedValues = new Set(fieldFilters.filter((f) => f.operator === '!=').map((f) => f.value));
+          const snapshotValues = state.valueSnapshot?.[attr.attribute] ?? null;
+          return (
+            <AttributeSection
+              key={attr.attribute}
+              attrState={attrState}
+              config={attr}
+              fieldLink={getFieldLink?.(attr.attribute)}
+              hasActiveFilter={fieldFilters.length > 0}
+              includedValues={includedValues}
+              excludedValues={excludedValues}
+              snapshotValues={snapshotValues}
+              onToggleFilter={(value, operator) => handleToggleFilter(attr.attribute, value, operator)}
+              onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.attribute })}
+            />
+          );
+        })}
+        {(nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0)) || showAllLink ? (
+          <div className={styles.showMoreFields}>
+            {nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0) && (
+              <>
+                <button
+                  aria-label={t('errors-analysis.show-more-fields', 'Show {{count}} more fields', {
+                    count: nextBatch,
+                  })}
+                  className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
+                  disabled={remainingCount === 0}
+                  title={
+                    remainingCount === 0
+                      ? t('errors-analysis.no-more-fields', 'No more fields')
+                      : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })
+                  }
+                  type="button"
+                  onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
+                >
+                  <Icon name="angle-down" size="sm" />
+                </button>
+                <button
+                  aria-label={t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
+                  className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
+                  disabled={extraFieldsShown === 0}
+                  title={
+                    extraFieldsShown === 0
+                      ? t('errors-analysis.no-extra-fields-shown', 'No extra fields shown')
+                      : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')
+                  }
+                  type="button"
+                  onClick={() => setExtraFieldsShown(0)}
+                >
+                  <Icon name="angle-up" size="sm" />
+                </button>
+              </>
+            )}
+            {showAllLink && (
+              <a className={styles.showAllLink} href={showAllLink.href} rel="noreferrer" target="_blank">
+                {showAllLink.title}
+              </a>
+            )}
+          </div>
+        ) : null}
       </div>
+    </div>
+  );
+
+  if (!resizable) {
+    return sidebarContent;
+  }
+
+  return (
+    <div className={styles.resizeWrapper} style={{ width: sidebarWidth }}>
+      {sidebarContent}
       <button
         type="button"
         className={styles.resizeHandle}
@@ -644,10 +655,6 @@ function AttributeSection({
                     tabIndex={0}
                   >
                     <div className={styles.valueRowHeader}>
-                      <span
-                        className={styles.valueDot}
-                        style={{ background: valueColorMap.get(item.value) ?? theme.colors.primary.main }}
-                      />
                       <span className={styles.valueLabel} title={item.value}>
                         {item.value}
                       </span>
@@ -915,8 +922,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(0.5),
   }),
   valueLabel: css({
-    flex: '0 0 auto',
-    maxWidth: '40%',
+    flex: 1,
+    minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
