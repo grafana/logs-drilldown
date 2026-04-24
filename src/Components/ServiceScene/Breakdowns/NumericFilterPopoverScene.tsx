@@ -262,15 +262,13 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
       if (!comboboxMenuContainer) {
         return;
       }
-      let onDocumentClick: ((event: MouseEvent) => void) | undefined;
-
-      onDocumentClick = (event: MouseEvent) => {
+      const onDocumentClick = (event: MouseEvent) => {
         if (!(event.target instanceof Node)) {
           return;
         }
         // Skip close when the click is on the filter button group
         if (event.target instanceof Element) {
-          if (event.target.closest(`[data-testid*="${'filter-button-group'}"]`)) {
+          if (event.target.closest(`[data-testid="${testIds.breakdowns.common.filterButtonGroup}"]`)) {
             return;
           }
         }
@@ -285,9 +283,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
       document.addEventListener('click', onDocumentClick, false);
 
       return () => {
-        if (onDocumentClick) {
-          document.removeEventListener('click', onDocumentClick, false);
-        }
+        document.removeEventListener('click', onDocumentClick, false);
       };
     }, [comboboxMenuContainer, selectLabelActionScene]);
 
