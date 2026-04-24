@@ -12,6 +12,7 @@ import {
   useGetLogsDrilldownDefaultLabelsQuery,
   useReplaceLogsDrilldownDefaultLabelsMutation,
 } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 
 type ServiceSelectionContextType = {
   currentDefaultLabels: DefaultLabel[];
@@ -106,6 +107,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
           },
         },
       });
+      reportAppInteraction(USER_EVENTS_PAGES.landing_page, USER_EVENTS_ACTIONS.landing_page.create);
     } else {
       if (!data) {
         throw new Error('DefaultLabelsSave: Failed to fetch');
@@ -125,6 +127,7 @@ export const ServiceSelectionContextProvider = ({ children, initialDSUID }: Prop
           },
         },
       });
+      reportAppInteraction(USER_EVENTS_PAGES.landing_page, USER_EVENTS_ACTIONS.landing_page.update);
     }
     reset();
   }, [create, createNewRecord, data, dsUID, newDefaultLabels, reset, update]);
