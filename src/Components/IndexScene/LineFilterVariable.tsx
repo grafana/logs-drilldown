@@ -10,6 +10,10 @@ import { LineFilterCaseSensitive } from '../../services/filterTypes';
 import { LineFilterEditor } from '../ServiceScene/LineFilter/LineFilterEditor';
 import { RegexInputValue } from '../ServiceScene/LineFilter/RegexIconButton';
 
+/** First filter only shows remove (×) when this is true. */
+export const lineFilterHasValueToClear = (lineFilter: string | undefined): boolean =>
+  (lineFilter?.trim() ?? '').length > 0;
+
 export interface LineFilterProps {
   caseSensitive: boolean;
   exclusive: boolean;
@@ -25,9 +29,19 @@ export interface LineFilterProps {
   updateFilter: (lineFilter: string, debounced: boolean) => void;
 }
 
-export function LineFilterVariable({ onClick, props }: { onClick?: () => void; props: LineFilterProps }) {
+export function LineFilterVariable({
+  isFirstLineFilterRow,
+  onClick,
+  props,
+}: {
+  isFirstLineFilterRow: boolean;
+  onClick?: () => void;
+  props: LineFilterProps;
+}) {
   const [focus, setFocus] = useState(false);
   const styles = useStyles2(getLineFilterStyles);
+  const showRemove = onClick != null && (isFirstLineFilterRow ? lineFilterHasValueToClear(props.lineFilter) : true);
+
   return (
     <>
       <span>
@@ -35,7 +49,7 @@ export function LineFilterVariable({ onClick, props }: { onClick?: () => void; p
           <span>
             <Trans i18nKey="components.index-scene.line-filter-variable.line-filter">Line filter</Trans>
           </span>
-          {onClick != null && (
+          {showRemove && (
             <IconButton
               onClick={onClick}
               name={'times'}

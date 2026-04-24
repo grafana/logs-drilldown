@@ -66,9 +66,10 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
 
     return (
       <div className={styles.lineFiltersWrap}>
-        {filters.map((filter) => (
+        {filters.map((filter, index) => (
           <LineFilterVariable
             key={filter.keyLabel}
+            isFirstLineFilterRow={index === 0}
             onClick={() => model.removeFilter(filter)}
             props={getLineFilterPropsForRow(model, filter)}
           />
