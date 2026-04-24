@@ -60,8 +60,8 @@ test.describe('explore services page', () => {
       // Assert nginx is showing as a favorite
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
 
-      // Clear the search filter so all services are visible
-      await page.getByLabel('Clear value').first().click();
+      // Clear the search filter — the clear button uses aria-label (old Select) or title (new Combobox)
+      await page.getByRole('button', { name: 'Clear value' }).first().click();
 
       // Assert there is more than one result now
       await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
