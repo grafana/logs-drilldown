@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
 
-import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from '../../../services/mixins';
+import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from 'services/mixins';
 
 export type RegexInputValue = 'match' | 'regex';
 interface Props {
@@ -76,11 +76,8 @@ const getStyles = (theme: GrafanaTheme2, variant: IconButtonVariant = 'secondary
       color: theme.colors.text.primary,
       display: 'inline-flex',
       justifyContent: 'center',
-
       margin: `0 ${theme.spacing.x0_5} 0 ${theme.spacing.x0_5}`,
-
       padding: 0,
-
       position: 'relative',
       zIndex: 0,
     }),

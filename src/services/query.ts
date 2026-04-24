@@ -1,7 +1,7 @@
 import { AdHocVariableFilter, SelectableValue } from '@grafana/data';
 import { AdHocFilterWithLabels, sceneGraph, SceneObject, SceneQueryRunner, sceneUtils } from '@grafana/scenes';
 
-import { sortLineFilters } from '../Components/IndexScene/LineFilterVariablesScene';
+import { sortLineFilters } from '../Components/IndexScene/LineFilter/LineFilterVariablesScene';
 import { SceneDataQueryResourceRequest, SceneDataQueryResourceRequestOptions } from './datasourceTypes';
 import { ExpressionBuilder } from './ExpressionBuilder';
 import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';

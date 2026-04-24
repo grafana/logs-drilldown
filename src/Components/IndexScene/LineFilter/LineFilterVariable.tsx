@@ -6,9 +6,9 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { LineFilterCaseSensitive } from '../../services/filterTypes';
-import { LineFilterEditor } from '../ServiceScene/LineFilter/LineFilterEditor';
-import { RegexInputValue } from '../ServiceScene/LineFilter/RegexIconButton';
+import { LineFilterEditor } from './LineFilterEditor';
+import { RegexInputValue } from './RegexIconButton';
+import { LineFilterCaseSensitive } from 'services/filterTypes';
 
 /** First filter only shows remove (×) when this is true. */
 export const lineFilterHasValueToClear = (lineFilter: string | undefined): boolean =>

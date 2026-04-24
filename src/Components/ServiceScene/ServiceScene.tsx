@@ -60,7 +60,7 @@ import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/Le
 import {
   LINE_FILTER_VARIABLES_SCENE_KEY,
   LineFilterVariablesScene,
-} from '../IndexScene/LineFilterVariablesScene';
+} from '../IndexScene/LineFilter/LineFilterVariablesScene';
 import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
