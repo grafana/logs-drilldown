@@ -15,7 +15,6 @@ export const reportAppInteraction = (
   once = false
 ) => {
   const interactionName = createInteractionName(page, action);
-  console.log(interactionName);
   if (once) {
     if (sessionStorage.getItem(interactionName)) {
       return;
