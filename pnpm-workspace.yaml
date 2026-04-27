@@ -1,0 +1,9 @@
+packages:
+  - '.'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - esbuild
+  - protobufjs
+  - unrs-resolver
