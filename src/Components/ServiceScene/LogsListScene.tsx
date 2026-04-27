@@ -34,6 +34,7 @@ import { LineFilterScene } from './LineFilter/LineFilterScene';
 import { LineLimitScene } from './LineLimitScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
@@ -472,6 +473,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const { error, errorType, canClearFilters } = this.state;
 
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
+    const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
     const children =
       this.state.visualizationType === 'logs'
@@ -526,7 +528,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                 ],
               }),
               new SceneFlexItem({
-                body: new LogsTableScene({ error, canClearFilters }),
+                body: logsTablePanelNG
+                  ? new LogsTablePanelScene({ error, canClearFilters })
+                  : new LogsTableScene({ error, canClearFilters }),
                 height: 'calc(100vh - 220px)',
               }),
             ];

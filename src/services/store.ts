@@ -268,6 +268,37 @@ export function getDisplayedFieldsInStorage(
   return [];
 }
 
+export type TableColumnWidth = { field: string; width: number };
+
+export function saveTableColumnWidths(sceneRef: SceneObject, columnWidths: TableColumnWidth[]) {
+  const key = `${pluginJson.id}.${getExplorationPrefix(sceneRef)}.table.columnWidths`;
+  localStorage.setItem(key, JSON.stringify(columnWidths));
+}
+
+export function getTableColumnWidths(sceneRef: SceneObject): TableColumnWidth[] {
+  const key = `${pluginJson.id}.${getExplorationPrefix(sceneRef)}.table.columnWidths`;
+  let stored: unknown;
+  try {
+    stored = JSON.parse(localStorage.getItem(key) ?? '[]');
+  } catch (e) {
+    logger.error(e);
+  }
+
+  let columnWidths = Array.isArray(stored)
+    ? stored.filter(
+        (columnWidth: unknown): columnWidth is TableColumnWidth =>
+          typeof columnWidth === 'object' &&
+          columnWidth !== null &&
+          'field' in columnWidth &&
+          'width' in columnWidth &&
+          typeof columnWidth.width === 'number' &&
+          typeof columnWidth.field === 'string'
+      )
+    : [];
+
+  return columnWidths;
+}
+
 export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[] | null, userAdded = false) {
   const key = getDisplayedFieldsKey(sceneRef, userAdded);
   localStorage.setItem(key, JSON.stringify(fields));
@@ -296,7 +327,10 @@ export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   return localStorageResult ? (localStorageResult as T) : defaultValue;
 }
 
-export function getBooleanLogOption(option: keyof Options | 'controlsExpanded', defaultValue: boolean): boolean {
+export function getBooleanLogOption(
+  option: keyof Options | 'controlsExpanded' | 'wrapText',
+  defaultValue: boolean
+): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
     return defaultValue;
@@ -305,7 +339,7 @@ export function getBooleanLogOption(option: keyof Options | 'controlsExpanded', 
 }
 
 export function setLogOption(
-  option: keyof Options | 'maxLines' | 'controlsExpanded',
+  option: keyof Options | 'maxLines' | 'controlsExpanded' | 'wrapText',
   value: string | number | boolean
 ) {
   let storedValue = value.toString();
