@@ -2,7 +2,7 @@ import { isArray } from 'lodash';
 
 import { DataSourceGetTagValuesOptions, GetTagResponse, MetricFindValue, ScopedVars, TimeRange } from '@grafana/data';
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
@@ -181,7 +181,8 @@ export const getLabelValues = async (
   adHocFilters: AdHocFilterWithLabels[],
   filter: AdHocFilterWithLabels,
   datasource: LokiDatasource,
-  dsUID: string
+  dsUID: string,
+  timeRange?: TimeRange
 ) => {
   const filterTransformer = new ExpressionBuilder(adHocFilters);
   const filters = filterTransformer.getJoinedLabelsFilters();
@@ -190,6 +191,7 @@ export const getLabelValues = async (
   const options: DataSourceGetTagValuesOptions<LokiQuery> = {
     filters: filtersFiltered,
     key: filter.key,
+    timeRange,
   };
 
   let results = await datasource.getTagValues(options);
@@ -237,8 +239,9 @@ export async function getLabelsTagValuesProvider(
   const adHocFilters = variable.state.filters;
 
   if (datasource) {
+    const timeRange = sceneGraph.getTimeRange(variable).state.value;
     // Filter out other values for this key so users can include other values for this label
-    let results = await getLabelValues(adHocFilters, filter, datasource, dsUID);
+    let results = await getLabelValues(adHocFilters, filter, datasource, dsUID, timeRange);
 
     return { replace: true, values: results };
   } else {
