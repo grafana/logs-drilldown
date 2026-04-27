@@ -65,8 +65,6 @@ export interface AttributeDistributionProps {
   priorityAttributes?: string[];
   // Label shown at the top of the sidebar communicating the dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
-  // When true, renders a drag handle on the right edge so the sidebar can be resized.
-  resizable?: boolean;
   // Active filter set. Updated by the consumer when external filters change.
   selectedFilters?: ActiveFilter[];
   showAllLink?: { href: string; title: string };
@@ -79,7 +77,6 @@ export function AttributeDistribution({
   fetchDistribution,
   getFieldLink,
   header,
-  resizable = false,
   selectedFilters: selectedFiltersProp,
   onFiltersChange,
   priorityAttributes = EMPTY_PRIORITY_ATTRIBUTES,
@@ -88,49 +85,6 @@ export function AttributeDistribution({
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [extraFieldsShown, setExtraFieldsShown] = useState(0);
-  const [sidebarWidth, setSidebarWidth] = useState(280);
-  const resizeStartX = useRef(0);
-  const resizeStartWidth = useRef(0);
-
-  const onResizeStart = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      resizeStartX.current = e.clientX;
-      resizeStartWidth.current = sidebarWidth;
-
-      const onMouseMove = (moveEvent: MouseEvent) => {
-        const delta = moveEvent.clientX - resizeStartX.current;
-        setSidebarWidth(Math.max(160, Math.min(600, resizeStartWidth.current + delta)));
-      };
-
-      const onMouseUp = () => {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      };
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    },
-    [sidebarWidth]
-  );
-
-  const onResizeKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const STEP = 10;
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      setSidebarWidth((w) => Math.max(160, w - STEP));
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      setSidebarWidth((w) => Math.min(600, w + STEP));
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      setSidebarWidth(160);
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      setSidebarWidth(600);
-    }
-  }, []);
-
   const [state, dispatch] = useReducer(
     reducer,
     selectedFiltersProp ?? [],
@@ -382,7 +336,7 @@ export function AttributeDistribution({
     }
   }, [visibleAttributes]);
 
-  const sidebarContent = (
+  return (
     <div className={styles.container}>
       {header !== undefined ? (
         header
@@ -508,23 +462,6 @@ export function AttributeDistribution({
           </div>
         ) : null}
       </div>
-    </div>
-  );
-
-  if (!resizable) {
-    return sidebarContent;
-  }
-
-  return (
-    <div className={styles.resizeWrapper} style={{ width: sidebarWidth }}>
-      {sidebarContent}
-      <button
-        type="button"
-        className={styles.resizeHandle}
-        aria-label={t('attribute-distribution.resize-sidebar', 'Resize sidebar')}
-        onMouseDown={onResizeStart}
-        onKeyDown={onResizeKeyDown}
-      />
     </div>
   );
 }
@@ -713,37 +650,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     overflowY: 'auto',
     padding: theme.spacing(2),
     width: '100%',
-  }),
-  resizeWrapper: css({
-    flexShrink: 0,
-    height: '100%',
-    position: 'relative',
-  }),
-  resizeHandle: css({
-    appearance: 'none',
-    background: 'none',
-    border: 'none',
-    bottom: 0,
-    cursor: 'col-resize',
-    padding: 0,
-    position: 'absolute',
-    right: -3,
-    top: 0,
-    width: 6,
-    zIndex: 1,
-    '&:hover, &:active': {
-      '&::after': {
-        background: theme.colors.primary.main,
-        borderRadius: 2,
-        bottom: 0,
-        content: '""',
-        left: '50%',
-        position: 'absolute',
-        top: 0,
-        transform: 'translateX(-50%)',
-        width: 2,
-      },
-    },
   }),
   detectingRow: css({
     alignItems: 'center',

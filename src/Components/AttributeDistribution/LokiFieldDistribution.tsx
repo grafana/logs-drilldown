@@ -179,8 +179,6 @@ export interface LokiFieldDistributionProps {
   query: string;
   // Label communicating dataset scope. Example: "Last 1000 logs".
   queryLimitLabel?: string;
-  // When true, renders a drag handle so the sidebar width can be adjusted.
-  resizable?: boolean;
   // Active filter set. Updated by the consumer when external filters change.
   selectedFilters?: Array<{ field: string; operator: '!=' | '='; value: string }>;
   // When true, shows a link to the full service log view in Logs Drilldown.
@@ -192,7 +190,6 @@ export default function LokiFieldDistribution({
   attributeLabels = EMPTY_ATTRIBUTE_LABELS,
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
-  resizable,
   selectedFilters,
   onFiltersChange,
   priorityAttributes,
@@ -233,7 +230,6 @@ export default function LokiFieldDistribution({
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
       getFieldLink={getFieldLink}
-      resizable={resizable}
       selectedFilters={selectedFilters}
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
