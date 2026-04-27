@@ -29,6 +29,7 @@ export const USER_EVENTS_PAGES = {
   service_details: 'service_details',
   service_selection: 'service_selection',
   default_columns_config: 'default_columns_config',
+  landing_page: 'landing_page',
 } as const;
 
 type UserEventPagesType = keyof typeof USER_EVENTS_PAGES;
@@ -36,6 +37,7 @@ type UserEventActionType =
   | keyof (typeof USER_EVENTS_ACTIONS)['service_selection']
   | keyof (typeof USER_EVENTS_ACTIONS)['service_details']
   | keyof (typeof USER_EVENTS_ACTIONS)['default_columns_config']
+  | keyof (typeof USER_EVENTS_ACTIONS)['landing_page']
   | keyof (typeof USER_EVENTS_ACTIONS)['all'];
 
 export const USER_EVENTS_ACTIONS = {
@@ -142,5 +144,14 @@ export const USER_EVENTS_ACTIONS = {
 
     undo: 'undo',
     save: 'save',
+  },
+  [USER_EVENTS_PAGES.landing_page]: {
+    visit: 'visit',
+
+    add_label: 'add_label',
+    add_label_and_values: 'add_label_and_values',
+
+    create: 'create',
+    update: 'update',
   },
 } as const;
