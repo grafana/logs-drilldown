@@ -576,7 +576,7 @@ test.describe('explore services page', () => {
           );
 
           // Remove the label filter
-          removeVariableBtn.click();
+          await removeVariableBtn.click();
 
           // assert navigated back to index page
           await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();

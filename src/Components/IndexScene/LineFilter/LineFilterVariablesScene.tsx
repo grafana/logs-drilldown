@@ -8,7 +8,7 @@ import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels, SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { LineFilterProps, LineFilterVariable } from './LineFilterVariable';
+import { LineFilterProps, LineFilterVariable, lineFilterHasValueToClear } from './LineFilterVariable';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { LINE_FILTER_INPUT_DEBOUNCE_MS, LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { addCurrentUrlToHistory } from 'services/navigate';
@@ -167,6 +167,9 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
    */
   handleEnter = (e: KeyboardEvent<HTMLInputElement>, lineFilter: string, filter: AdHocFilterWithLabels) => {
     if (e.key === 'Enter') {
+      if (!lineFilterHasValueToClear(lineFilter)) {
+        return;
+      }
       // Add the current url to browser history before the state is changed so the user can revert their change.
       addCurrentUrlToHistory();
       this.updateVariableLineFilter(filter, { ...filter, value: lineFilter });
