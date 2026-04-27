@@ -30,6 +30,37 @@ export function nextLineFilterKeyLabel(filters: AdHocFilterWithLabels[]): string
   return String(max + 1);
 }
 
+export function lineFilterRowIsEmpty(filter: AdHocFilterWithLabels): boolean {
+  return (filter.value?.trim() ?? '').length === 0;
+}
+
+/**
+ * Apply text from the logs panel "line contains / does not contain" menu.
+ * Reuses the first empty row; appends only when every row has a value.
+ */
+export function applyLogSelectionToLineFilters(
+  filters: AdHocFilterWithLabels[],
+  value: string,
+  operator: LineFilterOp,
+  key: LineFilterCaseSensitive = LineFilterCaseSensitive.caseSensitive
+): AdHocFilterWithLabels[] {
+  const emptyIdx = filters.findIndex(lineFilterRowIsEmpty);
+  if (emptyIdx !== -1) {
+    const next = [...filters];
+    next[emptyIdx] = { ...next[emptyIdx], value, operator };
+    return next;
+  }
+  return [
+    ...filters,
+    {
+      key,
+      keyLabel: nextLineFilterKeyLabel(filters),
+      operator,
+      value,
+    },
+  ];
+}
+
 interface LineFilterRendererState extends SceneObjectState {
   visible: boolean;
 }
