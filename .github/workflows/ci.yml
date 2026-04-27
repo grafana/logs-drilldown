@@ -11,11 +11,12 @@ permissions: {}
 jobs:
   cd:
     name: CI / CD
-    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@ci-cd-workflows/v4.0.0 # v4: Setup does not pass cache to setup-node, so no "yarn cache dir" → no packageManager error in Setup
+    uses: grafana/plugin-ci-workflows/.github/workflows/cd.yml@ci-cd-workflows/v7.0.0
     permissions:
       contents: write
       id-token: write
       attestations: write
+      pull-requests: read
     with:
       # Checkout/build PR or main branch, depending on event
       branch: ${{ github.event_name == 'push' && github.ref_name || github.ref }}
@@ -34,6 +35,8 @@ jobs:
       # Same settings as publish
       run-playwright: ${{ github.event_name == 'pull_request' }} # Run playwright tests for PRs only
       run-playwright-with-grafana-dependency: '>=11.6 <13.0.0 || >13.0.0'
+      # v7 added the React 19 preview image to the matrix; v4 doesn't have it
+      run-playwright-with-skip-grafana-react-19-preview-image: true
       upload-playwright-artifacts: true
       playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001/grafana
