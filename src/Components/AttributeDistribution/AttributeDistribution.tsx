@@ -46,6 +46,8 @@ export interface DatasetContext {
 export interface AttributeDistributionProps {
   // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
   attributeLabels?: Record<string, string>;
+  // Whether or not to apply unique colors to each value in the attribute explorer.
+  colorBars?: boolean;
   context: DatasetContext;
   // Returns detected fields for the given context.
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
@@ -72,6 +74,7 @@ export interface AttributeDistributionProps {
 
 export function AttributeDistribution({
   attributeLabels = EMPTY_ATTRIBUTE_LABELS,
+  colorBars,
   context,
   fetchAttributes,
   fetchDistribution,
@@ -408,6 +411,7 @@ export function AttributeDistribution({
               key={attr.attribute}
               attrState={attrState}
               config={attr}
+              colorBars={!!colorBars}
               fieldLink={getFieldLink?.(attr.attribute)}
               hasActiveFilter={fieldFilters.length > 0}
               includedValues={includedValues}
@@ -468,6 +472,7 @@ export function AttributeDistribution({
 
 interface AttributeSectionProps {
   attrState: AttributeState;
+  colorBars: boolean;
   config: AttributeConfig;
   excludedValues: Set<string>;
   fieldLink?: string;
@@ -481,6 +486,7 @@ interface AttributeSectionProps {
 function AttributeSection({
   attrState,
   config,
+  colorBars,
   fieldLink,
   hasActiveFilter,
   includedValues,
@@ -499,7 +505,9 @@ function AttributeSection({
 
   // Assign palette colors by allValues index so colors are stable on expand/collapse.
   const palette = theme.visualization.palette;
-  const valueColorMap = new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]]));
+  const valueColorMap = colorBars
+    ? new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]]))
+    : undefined;
 
   return (
     <div className={styles.section}>
@@ -604,7 +612,7 @@ function AttributeSection({
                       <div
                         className={styles.bar}
                         style={{
-                          background: valueColorMap.get(item.value) ?? theme.colors.primary.main,
+                          background: valueColorMap?.get(item.value) ?? theme.colors.primary.main,
                           width: `${item.percentage}%`,
                         }}
                       />

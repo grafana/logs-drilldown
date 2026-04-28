@@ -169,6 +169,8 @@ const EMPTY_ATTRIBUTE_LABELS: Record<string, string> = {};
 export interface LokiFieldDistributionProps {
   // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
   attributeLabels?: Record<string, string>;
+  // Whether or not to apply unique colors to each value in the attribute explorer.
+  colorBars?: boolean;
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
@@ -188,6 +190,7 @@ export interface LokiFieldDistributionProps {
 
 export default function LokiFieldDistribution({
   attributeLabels = EMPTY_ATTRIBUTE_LABELS,
+  colorBars,
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
   selectedFilters,
@@ -227,6 +230,7 @@ export default function LokiFieldDistribution({
     <AttributeDistribution
       attributeLabels={attributeLabels}
       context={context}
+      colorBars={colorBars}
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
       getFieldLink={getFieldLink}
