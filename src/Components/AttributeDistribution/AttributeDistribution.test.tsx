@@ -70,6 +70,9 @@ jest.mock('@grafana/ui', () => ({
     visualization: {
       palette: ['#5794F2', '#FF9830', '#73BF69', '#F2495C', '#B877D9', '#6ED0E0'],
     },
+    colors: {
+      primary: { main: '#5794F2' },
+    },
   }),
 }));
 
