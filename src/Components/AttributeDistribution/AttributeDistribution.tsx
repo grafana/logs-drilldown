@@ -499,15 +499,16 @@ function AttributeSection({
   const theme = useTheme2();
   const { error, expanded, loading, values } = attrState;
 
-  const allValues = mergeWithSnapshot(values, snapshotValues);
+  const allValues = useMemo(() => mergeWithSnapshot(values, snapshotValues), [values, snapshotValues]);
   const visibleValues = expanded ? allValues.slice(0, MAX_VALUES_EXPANDED) : allValues.slice(0, MAX_VALUES_COLLAPSED);
   const isExpandable = allValues.length > MAX_VALUES_COLLAPSED;
 
   // Assign palette colors by allValues index so colors are stable on expand/collapse.
   const palette = theme.visualization.palette;
-  const valueColorMap = colorBars
-    ? new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]]))
-    : undefined;
+  const valueColorMap = useMemo(
+    () => (colorBars ? new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]])) : undefined),
+    [colorBars, allValues, palette]
+  );
 
   return (
     <div className={styles.section}>
