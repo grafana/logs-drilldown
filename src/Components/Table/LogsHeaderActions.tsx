@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { LineLimitScene } from '../ServiceScene/LineLimitScene';
-import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType } from 'services/store';
 
 export interface LogsPanelHeaderActionsProps {
@@ -23,7 +22,7 @@ export function LogsPanelHeaderActions({ lineLimitScene, onChange, vizType }: Lo
   const styles = useStyles2(getStyles);
 
   return (
-    <div className={cx(styles.toolbar, logsControlsSupported() && styles.toolbarPadded)}>
+    <div className={styles.toolbar}>
       <RadioButtonGroup
         options={[
           {
@@ -71,8 +70,5 @@ const getStyles = (theme: GrafanaTheme2) => ({
     [theme.breakpoints.down(theme.breakpoints.values.md)]: {
       flexWrap: 'nowrap',
     },
-  }),
-  toolbarPadded: css({
-    paddingRight: 6,
   }),
 });

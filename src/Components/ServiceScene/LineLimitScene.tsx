@@ -131,8 +131,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     width: 'auto',
   }),
   label: css({
-    marginBottom: 0,
-    marginRight: 0,
+    marginTop: theme.spacing(0.5),
   }),
 });
 
