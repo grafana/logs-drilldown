@@ -8,7 +8,7 @@ import {
   TimeRange,
 } from '@grafana/data';
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
@@ -19,12 +19,17 @@ import { getDataSource } from './scenes';
 import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
 
-export const getLabelsKeys = async (labelFilters: AdHocFilterWithLabels[], datasource: LokiDatasource) => {
+export const getLabelsKeys = async (
+  labelFilters: AdHocFilterWithLabels[],
+  datasource: LokiDatasource,
+  timeRange?: TimeRange
+) => {
   const filtersTransformer = new ExpressionBuilder(labelFilters);
   const filters = filtersTransformer.getJoinedLabelsFilters();
 
   const options: DataSourceGetTagKeysOptions<LokiQuery> = {
     filters,
+    timeRange,
   };
 
   const tagKeys = await datasource.getTagKeys(options);
@@ -46,7 +51,8 @@ export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): 
   const labelFilters = variable.state.filters;
 
   if (datasource) {
-    const filteredResult = await getLabelsKeys(labelFilters, datasource);
+    const timeRange = sceneGraph.getTimeRange(variable).state.value;
+    const filteredResult = await getLabelsKeys(labelFilters, datasource, timeRange);
 
     return { replace: true, values: filteredResult };
   } else {

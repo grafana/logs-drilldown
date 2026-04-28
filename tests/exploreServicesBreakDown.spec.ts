@@ -715,8 +715,8 @@ test.describe('explore services breakdown page', () => {
     // Go to caller values breakdown
     await page.getByLabel(`Select ${levelName}`).click();
 
-    // Open fields combobox
-    const comboboxLocator = page.getByTestId(testIds.variables.levels.inputWrap);
+    // Open levels combobox
+    const comboboxLocator = page.getByTestId(testIds.variables.levels.inputWrap).getByRole('combobox');
     await comboboxLocator.click();
 
     // Select debug|error

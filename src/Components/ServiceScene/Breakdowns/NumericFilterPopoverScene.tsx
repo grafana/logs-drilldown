@@ -257,7 +257,7 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
     // Combobox menus render in a Portal
     const [comboboxMenuContainer, setComboboxMenuContainer] = useState<HTMLDivElement | null>(null);
 
-    // Close the parent popover on document clicks
+    // Close the parent popover on document clicks replaces ClickOutsideWrapper
     useEffect(() => {
       if (!comboboxMenuContainer) {
         return;
@@ -265,6 +265,12 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
       const onDocumentClick = (event: MouseEvent) => {
         if (!(event.target instanceof Node)) {
           return;
+        }
+        // Skip close when the click is on the filter button group
+        if (event.target instanceof Element) {
+          if (event.target.closest(`[data-testid="${testIds.breakdowns.common.filterButtonGroup}"]`)) {
+            return;
+          }
         }
         // Skip close when the click is on Grafana Combobox
         if (isEventTargetInsideGrafanaComboboxMenu(event.target)) {
@@ -275,7 +281,10 @@ export class NumericFilterPopoverScene extends SceneObjectBase<NumericFilterPopo
         }
       };
       document.addEventListener('click', onDocumentClick, false);
-      return () => document.removeEventListener('click', onDocumentClick, false);
+
+      return () => {
+        document.removeEventListener('click', onDocumentClick, false);
+      };
     }, [comboboxMenuContainer, selectLabelActionScene]);
 
     const comboboxPortalProps = { portalContainer: comboboxMenuContainer ?? undefined };
