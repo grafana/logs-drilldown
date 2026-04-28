@@ -65,8 +65,12 @@ const getStyles = (theme: GrafanaTheme2) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
+    flexShrink: 0,
     flexWrap: 'wrap',
     gap: theme.spacing(1),
+    [theme.breakpoints.down(theme.breakpoints.values.md)]: {
+      flexWrap: 'nowrap',
+    },
   }),
   toolbarPadded: css({
     paddingRight: 6,

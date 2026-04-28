@@ -167,6 +167,7 @@ export function getLogsPanelSortOrderFromURL() {
 const getStyles = (theme: GrafanaTheme2) => ({
   buttonGroupWrapper: css({
     alignItems: 'center',
+    flexShrink: 0,
     margin: 0,
   }),
   container: css({
@@ -174,6 +175,13 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'flex',
     flexWrap: 'wrap',
     gap: theme.spacing(1),
+    minWidth: 0,
+    [theme.breakpoints.down(theme.breakpoints.values.md)]: {
+      flexWrap: 'nowrap',
+      maxWidth: '100%',
+      overflowX: 'auto',
+      WebkitOverflowScrolling: 'touch',
+    },
   }),
 });
 
