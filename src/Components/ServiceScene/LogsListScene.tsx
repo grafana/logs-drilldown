@@ -30,7 +30,6 @@ import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
-import { LineLimitScene } from './LineLimitScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTableScene } from './LogsTableScene';
@@ -455,38 +454,26 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
 
+    const panelHeight = 'calc(100vh - 180px)';
     const children =
       this.state.visualizationType === 'logs'
         ? [
             new SceneFlexItem({
-              body: new LineLimitScene({ error }),
-              xSizing: 'fill',
-            }),
-
-            new SceneFlexItem({
               body: this.logsPanelScene,
-              height: 'calc(100vh - 220px)',
+              height: panelHeight,
             }),
           ]
         : this.state.visualizationType === 'json'
           ? [
               new SceneFlexItem({
-                body: new LineLimitScene({ error }),
-                xSizing: 'fill',
-              }),
-              new SceneFlexItem({
                 body: new JSONLogsScene({ error, canClearFilters }),
-                height: 'calc(100vh - 220px)',
+                height: panelHeight,
               }),
             ]
           : [
               new SceneFlexItem({
-                body: new LineLimitScene({ error }),
-                xSizing: 'fill',
-              }),
-              new SceneFlexItem({
                 body: new LogsTableScene({ error, canClearFilters }),
-                height: 'calc(100vh - 220px)',
+                height: panelHeight,
               }),
             ];
 

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { SceneComponentProps, SceneFlexLayout, SceneObjectBase } from '@grafana/scenes';
 
+import { LineLimitScene } from '../LineLimitScene';
 import { LogOptionsButtonsScene } from '../LogOptionsButtonsScene';
 import { LogOptionsScene } from '../LogOptionsScene';
 import { LogsListSceneState } from '../LogsListScene';
@@ -17,9 +18,10 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       panel: new SceneFlexLayout({
         children: [
           new LogOptionsScene({
+            buttonRendererScene: new LogOptionsButtonsScene({}),
+            lineLimitScene: new LineLimitScene({}),
             onChangeVisualizationType: () => {},
             visualizationType: 'logs',
-            buttonRendererScene: new LogOptionsButtonsScene({}),
           }),
         ],
       }),

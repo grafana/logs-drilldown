@@ -22,6 +22,7 @@ import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes'
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { LineLimitScene } from './LineLimitScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType } from './LogsPanelError';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
@@ -52,6 +53,7 @@ interface JSONLogsSceneState extends SceneObjectState {
   // While we still support loki versions that don't have https://github.com/grafana/loki/pull/16861, we need to disable filters for folks with older loki
   // If undefined, we haven't detected the loki version yet; if false, jsonPath (loki 3.5.0) is not supported
   JSONFiltersSupported: boolean | null;
+  lineLimitScene: LineLimitScene;
   menu?: PanelMenu;
   rawFrame?: DataFrame;
   sortOrder: LogsSortOrder;
@@ -82,9 +84,10 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       hasHighlight: getJSONHighlightState(),
       hasLabels: getJSONLabelsState(),
       hasMetadata: getJSONMetadataState(),
+      JSONFiltersSupported: null,
+      lineLimitScene: state.lineLimitScene ?? new LineLimitScene({}),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', true),
-      JSONFiltersSupported: null,
     });
 
     this.addActivationHandler(this.onActivate.bind(this));

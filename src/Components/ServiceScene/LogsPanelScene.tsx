@@ -40,6 +40,7 @@ import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
+import { LineLimitScene } from './LineLimitScene';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
@@ -329,7 +330,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onNewLogsReceived', this.updateVisibleRange)
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
       .setHeaderActions(
-        new LogOptionsScene({ onChangeVisualizationType: parentModel.setVisualizationType, visualizationType })
+        new LogOptionsScene({
+          lineLimitScene: new LineLimitScene({ error: this.state.error }),
+          onChangeVisualizationType: parentModel.setVisualizationType,
+          visualizationType,
+        })
       )
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
