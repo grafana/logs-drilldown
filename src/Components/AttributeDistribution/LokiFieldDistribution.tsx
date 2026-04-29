@@ -9,7 +9,13 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { ExpressionBuilder } from '../../services/ExpressionBuilder';
 import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
 import { isRecord } from '../../services/narrowing';
-import { ActiveFilter, AttributeConfig, AttributeDistribution, AttributeValueCount, DatasetContext } from './AttributeDistribution';
+import {
+  ActiveFilter,
+  AttributeConfig,
+  AttributeDistribution,
+  AttributeValueCount,
+  DatasetContext,
+} from './AttributeDistribution';
 import { buildFieldLinkFromQuery, buildServiceLinkFromQuery } from './fieldLinks';
 
 interface LokiLike {
@@ -114,9 +120,9 @@ function fetchDistribution(
   const effectiveQuery =
     filters.length > 0
       ? context.query +
-        new ExpressionBuilder(filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))).getFieldsExpr(
-          { decodeFilters: false, joinMatchFilters: true }
-        )
+        new ExpressionBuilder(
+          filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))
+        ).getFieldsExpr({ decodeFilters: false, joinMatchFilters: true })
       : context.query;
 
   const target: LokiQuery = {
@@ -163,6 +169,8 @@ const EMPTY_ATTRIBUTE_LABELS: Record<string, string> = {};
 export interface LokiFieldDistributionProps {
   // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
   attributeLabels?: Record<string, string>;
+  // Whether or not to apply unique colors to each value in the attribute explorer.
+  colorBars?: boolean;
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
@@ -182,6 +190,7 @@ export interface LokiFieldDistributionProps {
 
 export default function LokiFieldDistribution({
   attributeLabels = EMPTY_ATTRIBUTE_LABELS,
+  colorBars,
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
   selectedFilters,
@@ -197,10 +206,7 @@ export default function LokiFieldDistribution({
     [fieldsToExclude, attributeLabels]
   );
 
-  const numericTimeRange = useMemo(
-    () => ({ from: timeRange.from.valueOf(), to: timeRange.to.valueOf() }),
-    [timeRange]
-  );
+  const numericTimeRange = useMemo(() => ({ from: timeRange.from.valueOf(), to: timeRange.to.valueOf() }), [timeRange]);
 
   const getFieldLink = useMemo(
     () => (attribute: string) => buildFieldLinkFromQuery(query, datasourceUid, numericTimeRange, attribute),
@@ -224,6 +230,7 @@ export default function LokiFieldDistribution({
     <AttributeDistribution
       attributeLabels={attributeLabels}
       context={context}
+      colorBars={colorBars}
       fetchAttributes={fetchAttributes}
       fetchDistribution={fetchDistribution}
       getFieldLink={getFieldLink}
