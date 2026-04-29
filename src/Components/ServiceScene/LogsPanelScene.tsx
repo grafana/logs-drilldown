@@ -20,7 +20,6 @@ import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { getVariableForLabel } from '../../services/fields';
-import { LineFilterCaseSensitive, LineFilterOp } from '../../services/filterTypes';
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import {
@@ -36,21 +35,24 @@ import {
   getLineFiltersVariable,
   getValueFromFieldsFilter,
 } from '../../services/variableGetters';
-import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from '../../services/variables';
+import { applyLogSelectionToLineFilters } from '../IndexScene/LineFilter/LineFilterVariablesScene';
 import { getPanelWrapperStyles, PanelMenu } from '../Panels/PanelMenu';
 import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
+import { LineLimitScene } from './LineLimitScene';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
+import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
 import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
 import { clearVariables } from 'services/variableHelpers';
+import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from 'services/variables';
 
 interface LogsPanelSceneState extends SceneObjectState {
   body?: VizPanel<Options>;
@@ -328,7 +330,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('onNewLogsReceived', this.updateVisibleRange)
       .setOption('logRowMenuIconsAfter', [<CopyLinkButton onClick={this.handleShareLogLineClick} key={0} />])
       .setHeaderActions(
-        new LogOptionsScene({ onChangeVisualizationType: parentModel.setVisualizationType, visualizationType })
+        new LogOptionsScene({
+          lineLimitScene: new LineLimitScene({ error: this.state.error }),
+          onChangeVisualizationType: parentModel.setVisualizationType,
+          visualizationType,
+        })
       )
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
@@ -470,15 +476,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const lineFiltersVar = getLineFiltersVariable(this);
     if (lineFiltersVar) {
       lineFiltersVar.setState({
-        filters: [
-          ...lineFiltersVar.state.filters,
-          {
-            key: LineFilterCaseSensitive.caseSensitive,
-            keyLabel: lineFiltersVar.state.filters.length.toString(),
-            operator: LineFilterOp.negativeMatch,
-            value,
-          },
-        ],
+        filters: applyLogSelectionToLineFilters(
+          lineFiltersVar.state.filters,
+          value,
+          LineFilterOp.negativeMatch,
+          LineFilterCaseSensitive.caseSensitive
+        ),
       });
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
@@ -494,15 +497,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     const lineFiltersVar = getLineFiltersVariable(this);
     if (lineFiltersVar) {
       lineFiltersVar.setState({
-        filters: [
-          ...lineFiltersVar.state.filters,
-          {
-            key: LineFilterCaseSensitive.caseSensitive,
-            keyLabel: lineFiltersVar.state.filters.length.toString(),
-            operator: LineFilterOp.match,
-            value,
-          },
-        ],
+        filters: applyLogSelectionToLineFilters(
+          lineFiltersVar.state.filters,
+          value,
+          LineFilterOp.match,
+          LineFilterCaseSensitive.caseSensitive
+        ),
       });
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,

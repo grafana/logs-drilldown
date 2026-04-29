@@ -35,6 +35,7 @@ import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
+import { LineLimitScene } from './LineLimitScene';
 import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
@@ -53,6 +54,7 @@ interface LogsTableSceneState extends SceneObjectState {
   error?: string;
   errorType?: ErrorType;
   isDisabledLineState: boolean;
+  lineLimitScene: LineLimitScene;
   menu?: PanelMenu;
   sortOrder: LogsSortOrder;
 }
@@ -64,8 +66,9 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
   constructor(state: Partial<LogsTableSceneState>) {
     super({
       ...state,
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       isDisabledLineState: false,
+      lineLimitScene: state.lineLimitScene ?? new LineLimitScene({}),
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -263,7 +266,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
     const styles = useStyles2(getStyles);
     // Get state from parent model
     const parentModel = sceneGraph.getAncestor(model, LogsListScene);
-    const { error, errorType, canClearFilters } = model.useState();
+    const { error, errorType, canClearFilters, lineLimitScene } = model.useState();
     const { data } = sceneGraph.getData(model).useState();
     const { selectedLine, tableLogLineState, urlColumns, visualizationType } = parentModel.useState();
     const { emptyScene, menu, sortOrder } = model.useState();
@@ -315,10 +318,11 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
               menu={menu ? <menu.Component model={menu} /> : undefined}
               showMenuAlways={true}
               actions={
-                <>
-                  {/*// @todo add scene*/}
-                  <LogsPanelHeaderActions vizType={visualizationType} onChange={parentModel.setVisualizationType} />
-                </>
+                <LogsPanelHeaderActions
+                  lineLimitScene={lineLimitScene}
+                  vizType={visualizationType}
+                  onChange={parentModel.setVisualizationType}
+                />
               }
             >
               <div className={styles.container}>

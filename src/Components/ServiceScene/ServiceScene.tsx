@@ -57,6 +57,10 @@ import {
 import { JsonData } from '../AppConfig/AppConfig';
 import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
 import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
+import {
+  LINE_FILTER_VARIABLES_SCENE_KEY,
+  LineFilterVariablesScene,
+} from '../IndexScene/LineFilter/LineFilterVariablesScene';
 import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
 import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
 import { ActionBarScene } from './ActionBarScene';
@@ -451,6 +455,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   private showVariables() {
     const levelsVar = sceneGraph.findByKeyAndType(this, LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene);
     levelsVar.setState({ visible: true });
+    const lineFilterVariablesScene = sceneGraph.findByKeyAndType(
+      this,
+      LINE_FILTER_VARIABLES_SCENE_KEY,
+      LineFilterVariablesScene
+    );
+    lineFilterVariablesScene.setState({ visible: true });
     getFieldsAndMetadataVariable(this).setState({ hide: VariableHide.dontHide });
   }
 

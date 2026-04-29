@@ -45,6 +45,7 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
     errorType,
     hasJSONFields,
     JSONFiltersSupported,
+    lineLimitScene,
     menu,
     hasHighlight,
     hasLabels,
@@ -150,7 +151,11 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
             title={t('components.service-scene.json-panel.logs-json-component.title-json', 'JSON')}
             menu={menu ? <menu.Component model={menu} /> : undefined}
             actions={
-              <LogsPanelHeaderActions vizType={visualizationType} onChange={logsListScene.setVisualizationType} />
+              <LogsPanelHeaderActions
+                lineLimitScene={lineLimitScene}
+                vizType={visualizationType}
+                onChange={logsListScene.setVisualizationType}
+              />
             }
           >
             <div className={styles.container}>
@@ -196,7 +201,10 @@ export default function LogsJSONComponent({ model }: SceneComponentProps<JSONLog
                     <Alert
                       className={styles.alert}
                       severity={'info'}
-                      title={t('components.service-scene.json-panel.logs-json-component.title-no-json-fields-detected', 'No JSON fields detected')}
+                      title={t(
+                        'components.service-scene.json-panel.logs-json-component.title-no-json-fields-detected',
+                        'No JSON fields detected'
+                      )}
                     >
                       {t(
                         'components.service-scene.json-panel.logs-json-component.alert.no-json-fields',

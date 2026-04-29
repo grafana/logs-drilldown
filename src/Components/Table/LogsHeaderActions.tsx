@@ -2,23 +2,27 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { RadioButtonGroup } from '@grafana/ui';
+import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
-import { logsControlsSupported } from 'services/panel';
+import { LineLimitScene } from '../ServiceScene/LineLimitScene';
 import { LogsVisualizationType } from 'services/store';
 
-/**
- * The options shared between logs and table panels
- * @param props
- * @constructor
- */
-export function LogsPanelHeaderActions(props: {
+export interface LogsPanelHeaderActionsProps {
+  lineLimitScene: LineLimitScene;
   onChange: (type: LogsVisualizationType) => void;
   vizType: LogsVisualizationType;
-}) {
+}
+
+/**
+ * Viz toggle and line limit for the logs panel header row.
+ */
+export function LogsPanelHeaderActions({ lineLimitScene, onChange, vizType }: LogsPanelHeaderActionsProps) {
+  const styles = useStyles2(getStyles);
+
   return (
-    <div className={logsControlsSupported() ? styles.container : undefined}>
+    <div className={styles.toolbar}>
       <RadioButtonGroup
         options={[
           {
@@ -47,15 +51,24 @@ export function LogsPanelHeaderActions(props: {
           },
         ]}
         size="sm"
-        value={props.vizType}
-        onChange={props.onChange}
+        value={vizType}
+        onChange={onChange}
       />
+      <lineLimitScene.Component model={lineLimitScene} />
     </div>
   );
 }
 
-const styles = {
-  container: css({
-    paddingRight: 6,
+const getStyles = (theme: GrafanaTheme2) => ({
+  toolbar: css({
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    flexShrink: 0,
+    flexWrap: 'wrap',
+    gap: theme.spacing(1),
+    [theme.breakpoints.down(theme.breakpoints.values.md)]: {
+      flexWrap: 'nowrap',
+    },
   }),
-};
+});

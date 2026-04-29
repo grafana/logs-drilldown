@@ -56,7 +56,7 @@ export class ExplorePage {
   }
 
   getLogsToggleLocator() {
-    return this.page.getByTestId(/data-testid Panel header Logs/).getByLabel('Logs', { exact: true });
+    return this.page.getByTestId(testIds.logsPanelHeader.header).getByLabel('Logs', { exact: true });
   }
 
   getPanelContentLocator() {
@@ -64,7 +64,7 @@ export class ExplorePage {
   }
 
   getLogsPanelLocator() {
-    return this.page.getByTestId(/data-testid Panel header Logs/);
+    return this.page.getByTestId(new RegExp(testIds.logsPanelHeader.header));
   }
 
   getLogsVolumePanelLocator() {
@@ -455,7 +455,7 @@ export class ExplorePage {
     }
   }
 
-  async assertTwoPanelMenus() {
+  async assertPanelMenu() {
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
     const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
 
@@ -465,12 +465,6 @@ export class ExplorePage {
     await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(0).click();
     await expect(panelMenuExploreItem).not.toBeVisible();
-
-    // Check second panel
-    await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).toBeVisible();
-    await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).not.toBeVisible();
   }
 
   /**
@@ -479,7 +473,7 @@ export class ExplorePage {
    * this test asserts that fatal errors are not being triggered when the menu is rendered
    */
   async assertBreakdownPanelMenus() {
-    await this.assertTwoPanelMenus();
+    await this.assertPanelMenu();
 
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
     const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
@@ -491,12 +485,6 @@ export class ExplorePage {
     await labelsPanelMenu.nth(0).click();
     await expect(panelMenuExploreItem).toBeVisible();
     await labelsPanelMenu.nth(0).click();
-    await expect(panelMenuExploreItem).not.toBeVisible();
-
-    // Check second (value) panel
-    await labelsPanelMenu.nth(1).click();
-    await expect(panelMenuExploreItem).toBeVisible();
-    await labelsPanelMenu.nth(1).click();
     await expect(panelMenuExploreItem).not.toBeVisible();
   }
 

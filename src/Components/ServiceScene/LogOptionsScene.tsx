@@ -11,6 +11,7 @@ import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 import { logger } from '../../services/logger';
 import { narrowLogsSortOrder } from '../../services/narrowing';
 import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
+import { LineLimitScene } from './LineLimitScene';
 import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
@@ -19,9 +20,12 @@ import { LogsVisualizationType, setLogOption } from 'services/store';
 
 interface LogOptionsState extends SceneObjectState {
   buttonRendererScene?: LogOptionsButtonsScene;
+  lineLimitScene: LineLimitScene;
   onChangeVisualizationType: (type: LogsVisualizationType) => void;
   visualizationType: LogsVisualizationType;
 }
+
+type LogOptionsSceneInput = Omit<LogOptionsState, 'lineLimitScene'> & { lineLimitScene?: LineLimitScene };
 
 /**
  * The options rendered in the logs panel header
@@ -29,9 +33,10 @@ interface LogOptionsState extends SceneObjectState {
 export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   static Component = LogOptionsRenderer;
 
-  constructor(state: LogOptionsState) {
+  constructor(state: LogOptionsSceneInput) {
     super({
       ...state,
+      lineLimitScene: state.lineLimitScene ?? new LineLimitScene({}),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -66,7 +71,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
 }
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
-  const { onChangeVisualizationType, visualizationType, buttonRendererScene } = model.useState();
+  const { buttonRendererScene, lineLimitScene, onChangeVisualizationType, visualizationType } = model.useState();
   const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
   const styles = useStyles2(getStyles);
   const wrapLines = wrapLogMessage ?? false;
@@ -128,7 +133,11 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
           </InlineField>
         </>
       )}
-      <LogsPanelHeaderActions vizType={visualizationType} onChange={onChangeVisualizationType} />
+      <LogsPanelHeaderActions
+        lineLimitScene={lineLimitScene}
+        vizType={visualizationType}
+        onChange={onChangeVisualizationType}
+      />
     </div>
   );
 }
@@ -158,12 +167,21 @@ export function getLogsPanelSortOrderFromURL() {
 const getStyles = (theme: GrafanaTheme2) => ({
   buttonGroupWrapper: css({
     alignItems: 'center',
+    flexShrink: 0,
     margin: 0,
   }),
   container: css({
     alignItems: 'center',
     display: 'flex',
+    flexWrap: 'wrap',
     gap: theme.spacing(1),
+    minWidth: 0,
+    [theme.breakpoints.down(theme.breakpoints.values.md)]: {
+      flexWrap: 'nowrap',
+      maxWidth: '100%',
+      overflowX: 'auto',
+      WebkitOverflowScrolling: 'touch',
+    },
   }),
 });
 
