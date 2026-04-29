@@ -1,9 +1,10 @@
 import { of, throwError } from 'rxjs';
 
-import { dateTime, FieldType, TimeRange, toDataFrame } from '@grafana/data';
+import { dateTime, FieldType, LoadingState, TimeRange, toDataFrame } from '@grafana/data';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
+import { LogsVolumePanel } from '../Components/ServiceScene/LogsVolume/LogsVolumePanel';
 import { buildLevelsInstantVolumeQueryExpr } from './expressions';
 import { LabelFilterOp } from './filterTypes';
 import { logger } from './logger';
@@ -286,39 +287,31 @@ describe('getLevelsTagValuesFromInstantVolumeQuery', () => {
   });
 
   it('returns distinct detected_level values from instant query frames', async () => {
-    const series = [
+    jest.spyOn(sceneGraph, 'findObject').mockReturnValue(null);
+
+    const instantSeries = [
       toDataFrame({
         fields: [
-          { name: 'Time', type: FieldType.time, values: [0] },
-          {
-            labels: { detected_level: 'error' },
-            name: 'Value',
-            type: FieldType.number,
-            values: [42],
-          },
+          { name: 'detected_level', type: FieldType.string, values: ['error'] },
+          { name: 'Value', type: FieldType.number, values: [42] },
         ],
       }),
       toDataFrame({
         fields: [
-          { name: 'Time', type: FieldType.time, values: [0] },
-          {
-            labels: { detected_level: 'warn' },
-            name: 'Value',
-            type: FieldType.number,
-            values: [7],
-          },
+          { name: 'detected_level', type: FieldType.string, values: ['warn'] },
+          { name: 'Value', type: FieldType.number, values: [7] },
         ],
       }),
     ];
 
-    const query = jest.fn().mockReturnValue(of({ data: series }));
+    const query = jest.fn().mockReturnValue(of({ data: instantSeries }));
     const datasource = mockDsMethod({ query });
     jest.mocked(getDataSource).mockReturnValue('loki-uid');
     jest.mocked(getDataSourceSrv).mockReturnValue({
       get: jest.fn().mockResolvedValue(datasource),
     } as unknown as ReturnType<typeof getDataSourceSrv>);
 
-    const result = await getLevelsTagValuesFromInstantVolumeQuery(sceneRef, '{job="x"} | logfmt', timeRange);
+    const result = await getLevelsTagValuesFromInstantVolumeQuery(sceneRef, '{job="x"} | logfmt', timeRange, '');
 
     expect(result.replace).toBe(true);
     expect(result.values).toEqual([{ text: 'error' }, { text: 'warn' }]);
@@ -335,6 +328,7 @@ describe('getLevelsTagValuesFromInstantVolumeQuery', () => {
   });
 
   it('returns empty values when the query fails', async () => {
+    jest.spyOn(sceneGraph, 'findObject').mockReturnValue(null);
     const logSpy = jest.spyOn(logger, 'error').mockImplementation(() => {});
     const query = jest.fn().mockReturnValue(throwError(() => new Error('network')));
     const datasource = mockDsMethod({ query });
@@ -343,10 +337,107 @@ describe('getLevelsTagValuesFromInstantVolumeQuery', () => {
       get: jest.fn().mockResolvedValue(datasource),
     } as unknown as ReturnType<typeof getDataSourceSrv>);
 
-    const result = await getLevelsTagValuesFromInstantVolumeQuery(sceneRef, '{job="x"}', timeRange);
+    const result = await getLevelsTagValuesFromInstantVolumeQuery(sceneRef, '{job="x"}', timeRange, '');
 
     expect(result.values).toEqual([]);
     expect(logSpy).toHaveBeenCalled();
+  });
+
+  it('reuses logs volume series and does not call Loki when reuse succeeds', async () => {
+    const series = [
+      toDataFrame({
+        fields: [
+          { name: 'Time', type: FieldType.time, values: [0, 1] },
+          {
+            labels: { detected_level: 'error' },
+            name: 'Value',
+            type: FieldType.number,
+            values: [1, 2],
+          },
+        ],
+      }),
+    ];
+    const volume = new LogsVolumePanel({});
+    volume.setState({
+      panel: {
+        state: {
+          collapsed: false,
+          $data: {
+            state: {
+              data: { state: LoadingState.Done, series },
+            },
+          },
+        },
+      } as unknown as LogsVolumePanel['state']['panel'],
+    });
+    jest.spyOn(sceneGraph, 'findObject').mockReturnValue(volume);
+
+    const query = jest.fn().mockReturnValue(of({ data: [] }));
+    const datasource = mockDsMethod({ query });
+    jest.mocked(getDataSource).mockReturnValue('loki-uid');
+    jest.mocked(getDataSourceSrv).mockReturnValue({
+      get: jest.fn().mockResolvedValue(datasource),
+    } as unknown as ReturnType<typeof getDataSourceSrv>);
+
+    const result = await getLevelsTagValuesFromInstantVolumeQuery(sceneRef, '{job="x"}', timeRange, '');
+
+    expect(result.values).toEqual([{ text: 'error' }]);
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('runs Loki query when other pending level filters prevent reuse', async () => {
+    const series = [
+      toDataFrame({
+        fields: [
+          { name: 'Time', type: FieldType.time, values: [0] },
+          {
+            labels: { detected_level: 'error' },
+            name: 'Value',
+            type: FieldType.number,
+            values: [1],
+          },
+        ],
+      }),
+    ];
+    const volume = new LogsVolumePanel({});
+    volume.setState({
+      panel: {
+        state: {
+          collapsed: false,
+          $data: {
+            state: {
+              data: { state: LoadingState.Done, series },
+            },
+          },
+        },
+      } as unknown as LogsVolumePanel['state']['panel'],
+    });
+    jest.spyOn(sceneGraph, 'findObject').mockReturnValue(volume);
+
+    const instantSeries = [
+      toDataFrame({
+        fields: [
+          { name: 'detected_level', type: FieldType.string, values: ['warn'] },
+          { name: 'Value', type: FieldType.number, values: [9] },
+        ],
+      }),
+    ];
+    const query = jest.fn().mockReturnValue(of({ data: instantSeries }));
+    const datasource = mockDsMethod({ query });
+    jest.mocked(getDataSource).mockReturnValue('loki-uid');
+    jest.mocked(getDataSourceSrv).mockReturnValue({
+      get: jest.fn().mockResolvedValue(datasource),
+    } as unknown as ReturnType<typeof getDataSourceSrv>);
+
+    const result = await getLevelsTagValuesFromInstantVolumeQuery(
+      sceneRef,
+      '{job="x"}',
+      timeRange,
+      '| detected_level="error"'
+    );
+
+    expect(result.values).toEqual([{ text: 'warn' }]);
+    expect(query).toHaveBeenCalled();
   });
 });
 

@@ -754,7 +754,12 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
       const interpolated = interpolateExpression(this, expr);
 
-      return getLevelsTagValuesFromInstantVolumeQuery(this, interpolated, sceneGraph.getTimeRange(this).state.value);
+      return getLevelsTagValuesFromInstantVolumeQuery(
+        this,
+        interpolated,
+        sceneGraph.getTimeRange(this).state.value,
+        otherFiltersString
+      );
     };
   }
 

@@ -20,6 +20,7 @@ import { buildLevelsInstantVolumeQueryExpr } from './expressions';
 import { FilterOp } from './filterTypes';
 import { getLevelLabelsFromInstantSeries } from './levels';
 import { logger } from './logger';
+import { getLevelsFromLogsVolume } from './logsVolume';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { isOperatorInclusive, isOperatorRegex } from './operatorHelpers';
 import { sanitizeStreamSelector } from './query';
@@ -81,11 +82,17 @@ function getFramesFromLokiQueryResponse(response: { data?: unknown }): DataFrame
 export async function getLevelsTagValuesFromInstantVolumeQuery(
   sceneRef: SceneObject,
   interpolatedLogPipelineExpr: string,
-  timeRange: TimeRange
+  timeRange: TimeRange,
+  otherPendingLevelFiltersPipeline = ''
 ): Promise<{
   replace?: boolean;
   values: MetricFindValue[];
 }> {
+  const reusedLevels = getLevelsFromLogsVolume(sceneRef, otherPendingLevelFiltersPipeline);
+  if (reusedLevels) {
+    return { replace: true, values: reusedLevels.map((text) => ({ text })) };
+  }
+
   const datasourceUnknownType = await getDataSourceSrv().get(getDataSource(sceneRef));
   if (!(datasourceUnknownType instanceof DataSourceWithBackend)) {
     logger.error(new Error('getLevelsTagValuesFromInstantVolumeQuery: Invalid datasource!'));
