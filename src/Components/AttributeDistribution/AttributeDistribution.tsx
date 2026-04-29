@@ -506,8 +506,13 @@ function AttributeSection({
   // Assign palette colors by allValues index so colors are stable on expand/collapse.
   const palette = theme.visualization.palette;
   const valueColorMap = useMemo(
-    () => (colorBars ? new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]])) : undefined),
-    [colorBars, allValues, palette]
+    () =>
+      colorBars
+        ? new Map(
+            allValues.map((item, i) => [item.value, theme.visualization.getColorByName(palette[i % palette.length])])
+          )
+        : undefined,
+    [colorBars, allValues, palette, theme.visualization]
   );
 
   return (
