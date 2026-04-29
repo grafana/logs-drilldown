@@ -1,5 +1,41 @@
 # Changelog
 
+## 2.0.4
+
+##### Build System / Dependencies
+
+*  migrate to pnpm (#1859) (d28540f5)
+
+##### Chores
+
+* **e2e:**  combobox selecter getByRole (#1872) (74f20560)
+* **ci:**
+  *  update conventional commits check for i18n prs (#1868) (b1933342)
+  *  update grafana deps for compatibility (#1850) (ff6622ed)
+* **lint:**  upgrade to combobox, silence warnings (#1845) (743db798)
+* **deps:**
+  *  downgrade data and i18n for compaotibility (#1863) (24a0f393)
+  *  update dependency dompurify to v3.4.0 [security] (#1853) (7f3bf9cf)
+* **i18n:**  add Crowdin GitHub Actions (#1849) (1049c517)
+* **tests:**  cleanup loggin output, warnings, act (#1840) (c109ca59)
+
+##### New Features
+
+* **line filters:**  move to the top, update tests (#1860) (6579d444)
+* **attribute-distribution:**  per-value colored bars and label layout improvements (#1870) (12286eda)
+* **LandingPage:**  add analytics (#1866) (f953cced)
+* **errors:**  expose AttributeDistribution component via UI extension (#1830) (afa65bfe)
+
+##### Bug Fixes
+
+* **attribute-distribution:**  adjust color palette for attribute distribution component (#1874) (6b3fe990)
+* **combobox:**  open numeric popover react19, run against react19 dev image (#1869) (daf6d230)
+* **TagProviders:**  add missing time range to keys and values providers (#1867) (2edec579)
+* **deps:**
+  *  update dependency uuid to v14 [security] (#1864) (26b5c8fe)
+  *  update module go.opentelemetry.io/otel/sdk to v1.43.0 [security] (#1842) (00b0aaba)
+
+
 ## 2.0.3
 
 ##### Chores
