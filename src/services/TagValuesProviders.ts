@@ -18,7 +18,7 @@ import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddT
 import { ExpressionBuilder } from './ExpressionBuilder';
 import { buildLevelsInstantVolumeQueryExpr } from './expressions';
 import { FilterOp } from './filterTypes';
-import { getLevelLabelsFromInstantSeries, getLevelLabelsFromSeries } from './levels';
+import { getLevelLabelsFromInstantSeries } from './levels';
 import { logger } from './logger';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { isOperatorInclusive, isOperatorRegex } from './operatorHelpers';
