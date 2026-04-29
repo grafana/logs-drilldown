@@ -69,6 +69,10 @@ jest.mock('@grafana/ui', () => ({
   useTheme2: () => ({
     visualization: {
       palette: ['#5794F2', '#FF9830', '#73BF69', '#F2495C', '#B877D9', '#6ED0E0'],
+      getColorByName: (name: string) => {
+        const colorMap: Record<string, string> = {};
+        return colorMap[name] || '#000000';
+      },
     },
     colors: {
       primary: { main: '#5794F2' },
