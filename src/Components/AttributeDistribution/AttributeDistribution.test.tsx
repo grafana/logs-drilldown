@@ -3,11 +3,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { of } from 'rxjs';
 
-import {
-  ActiveFilter,
-  AttributeDistribution,
-  DatasetContext,
-} from './AttributeDistribution';
+import { ActiveFilter, AttributeDistribution, DatasetContext } from './AttributeDistribution';
 
 jest.mock('services/logger', () => ({
   logger: { error: jest.fn(), warn: jest.fn() },
@@ -70,6 +66,14 @@ jest.mock('@grafana/ui', () => ({
     valueRowIncluded: '',
     valueRowRetained: '',
   }),
+  useTheme2: () => ({
+    visualization: {
+      palette: ['#5794F2', '#FF9830', '#73BF69', '#F2495C', '#B877D9', '#6ED0E0'],
+    },
+    colors: {
+      primary: { main: '#5794F2' },
+    },
+  }),
 }));
 
 const context: DatasetContext = {
@@ -85,12 +89,11 @@ const context: DatasetContext = {
 describe('AttributeDistribution snapshot stability', () => {
   it('retains pre-filter values after a filter is applied and display props get new references', async () => {
     // The underlying jest.fn() tracks actual detection calls.
-    const fetchAttributesMock = jest.fn().mockResolvedValue([
-      { attribute: 'browser', attribute_name: 'Browser' },
-    ]);
+    const fetchAttributesMock = jest.fn().mockResolvedValue([{ attribute: 'browser', attribute_name: 'Browser' }]);
 
-    const fetchDistribution = jest.fn().mockImplementation(
-      (_ctx: DatasetContext, _field: string, filters: ActiveFilter[]) =>
+    const fetchDistribution = jest
+      .fn()
+      .mockImplementation((_ctx: DatasetContext, _field: string, filters: ActiveFilter[]) =>
         of(
           filters.length === 0
             ? [
@@ -99,7 +102,7 @@ describe('AttributeDistribution snapshot stability', () => {
               ]
             : [{ count: 100, percentage: 100, value: 'Chrome' }]
         )
-    );
+      );
 
     // Wrapper creates new object/function references on every render, reproducing the
     // unstable-prop pattern that caused spurious re-detection before the fix.

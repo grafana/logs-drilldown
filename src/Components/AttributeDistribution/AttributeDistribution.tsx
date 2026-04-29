@@ -5,7 +5,7 @@ import { Observable, Subscription } from 'rxjs';
 
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Combobox, Icon, MenuItem, Spinner, Tooltip, WithContextMenu, useStyles2 } from '@grafana/ui';
+import { Combobox, Icon, MenuItem, Spinner, Tooltip, WithContextMenu, useStyles2, useTheme2 } from '@grafana/ui';
 
 import { logger } from '../../services/logger';
 import {
@@ -46,11 +46,17 @@ export interface DatasetContext {
 export interface AttributeDistributionProps {
   // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
   attributeLabels?: Record<string, string>;
+  // Whether or not to apply unique colors to each value in the attribute explorer.
+  colorBars?: boolean;
   context: DatasetContext;
   // Returns detected fields for the given context.
   fetchAttributes: (context: DatasetContext) => Promise<AttributeConfig[]>;
   // Returns value counts for a single field within the dataset described by context.
-  fetchDistribution: (context: DatasetContext, field: string, filters: ActiveFilter[]) => Observable<AttributeValueCount[]>;
+  fetchDistribution: (
+    context: DatasetContext,
+    field: string,
+    filters: ActiveFilter[]
+  ) => Observable<AttributeValueCount[]>;
   // Returns a URL to view full distribution for a field in Logs Drilldown. Return undefined to hide the link.
   getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
@@ -68,6 +74,7 @@ export interface AttributeDistributionProps {
 
 export function AttributeDistribution({
   attributeLabels = EMPTY_ATTRIBUTE_LABELS,
+  colorBars,
   context,
   fetchAttributes,
   fetchDistribution,
@@ -81,7 +88,6 @@ export function AttributeDistribution({
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [extraFieldsShown, setExtraFieldsShown] = useState(0);
-
   const [state, dispatch] = useReducer(
     reducer,
     selectedFiltersProp ?? [],
@@ -292,9 +298,7 @@ export function AttributeDistribution({
     const nonPriority = state.attributes.filter(
       (a) => !priorityFieldSet.has(a.attribute) && !pinnedSet.has(a.attribute)
     );
-    const pinned = state.attributes.filter(
-      (a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute)
-    );
+    const pinned = state.attributes.filter((a) => priorityFieldSet.has(a.attribute) || pinnedSet.has(a.attribute));
     return {
       comboboxOptions: nonPriority.map((a) => ({ label: a.attribute_name, value: a.attribute })),
       nonPriorityAttributes: nonPriority,
@@ -337,18 +341,24 @@ export function AttributeDistribution({
 
   return (
     <div className={styles.container}>
-      {header !== undefined ? header : (
+      {header !== undefined ? (
+        header
+      ) : (
         <div className={styles.header}>
           <div className={styles.title}>
             {t('errors-analysis.title', 'Attribute Explorer')}
-            <Tooltip content={t('errors-analysis.description', 'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.')}>
+            <Tooltip
+              content={t(
+                'errors-analysis.description',
+                'Spot patterns and narrow down root causes by exploring how your data breaks down across key attributes. Click any value to filter your results.'
+              )}
+            >
               <Icon name="info-circle" size="sm" />
             </Tooltip>
           </div>
           {queryLimitLabel && <div className={styles.queryLimit}>{queryLimitLabel}</div>}
         </div>
       )}
-
 
       {comboboxOptions.length > 0 && (
         <Combobox
@@ -367,22 +377,26 @@ export function AttributeDistribution({
       )}
 
       {!state.detecting && state.attributes.length === 0 && (
-        <div className={styles.emptyState}>{t('errors-analysis.no-fields-detected', 'No fields detected for this error group.')}</div>
+        <div className={styles.emptyState}>
+          {t('errors-analysis.no-fields-detected', 'No fields detected for this error group.')}
+        </div>
       )}
 
       <div className={styles.sections}>
-        {state.detecting && state.attributes.length === 0 && priorityAttributes.map((attr) => (
-          <div key={attr} className={styles.section}>
-            <div className={styles.sectionHeaderRow}>
-              <div className={styles.sectionHeader}>
-                <span className={styles.sectionLabel}>{attributeLabels[attr] ?? attr}</span>
+        {state.detecting &&
+          state.attributes.length === 0 &&
+          priorityAttributes.map((attr) => (
+            <div key={attr} className={styles.section}>
+              <div className={styles.sectionHeaderRow}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionLabel}>{attributeLabels[attr] ?? attr}</span>
+                </div>
+              </div>
+              <div className={styles.loadingRow}>
+                <Spinner size="sm" />
               </div>
             </div>
-            <div className={styles.loadingRow}>
-              <Spinner size="sm" />
-            </div>
-          </div>
-        ))}
+          ))}
         {visibleAttributes.map((attr) => {
           const attrState = state.data[attr.attribute];
           if (!attrState) {
@@ -397,6 +411,7 @@ export function AttributeDistribution({
               key={attr.attribute}
               attrState={attrState}
               config={attr}
+              colorBars={!!colorBars}
               fieldLink={getFieldLink?.(attr.attribute)}
               hasActiveFilter={fieldFilters.length > 0}
               includedValues={includedValues}
@@ -412,10 +427,16 @@ export function AttributeDistribution({
             {nonPriorityAttributes.length > 0 && (extraFieldsShown > 0 || remainingCount > 0) && (
               <>
                 <button
-                  aria-label={t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })}
+                  aria-label={t('errors-analysis.show-more-fields', 'Show {{count}} more fields', {
+                    count: nextBatch,
+                  })}
                   className={cx(styles.showMoreButton, remainingCount === 0 && styles.showMoreButtonDisabled)}
                   disabled={remainingCount === 0}
-                  title={remainingCount === 0 ? t('errors-analysis.no-more-fields', 'No more fields') : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })}
+                  title={
+                    remainingCount === 0
+                      ? t('errors-analysis.no-more-fields', 'No more fields')
+                      : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })
+                  }
                   type="button"
                   onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
                 >
@@ -425,7 +446,11 @@ export function AttributeDistribution({
                   aria-label={t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
                   className={cx(styles.showMoreButton, extraFieldsShown === 0 && styles.showMoreButtonDisabled)}
                   disabled={extraFieldsShown === 0}
-                  title={extraFieldsShown === 0 ? t('errors-analysis.no-extra-fields-shown', 'No extra fields shown') : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')}
+                  title={
+                    extraFieldsShown === 0
+                      ? t('errors-analysis.no-extra-fields-shown', 'No extra fields shown')
+                      : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')
+                  }
                   type="button"
                   onClick={() => setExtraFieldsShown(0)}
                 >
@@ -447,6 +472,7 @@ export function AttributeDistribution({
 
 interface AttributeSectionProps {
   attrState: AttributeState;
+  colorBars: boolean;
   config: AttributeConfig;
   excludedValues: Set<string>;
   fieldLink?: string;
@@ -460,6 +486,7 @@ interface AttributeSectionProps {
 function AttributeSection({
   attrState,
   config,
+  colorBars,
   fieldLink,
   hasActiveFilter,
   includedValues,
@@ -469,11 +496,19 @@ function AttributeSection({
   onToggle,
 }: AttributeSectionProps) {
   const styles = useStyles2(getStyles);
+  const theme = useTheme2();
   const { error, expanded, loading, values } = attrState;
 
-  const allValues = mergeWithSnapshot(values, snapshotValues);
+  const allValues = useMemo(() => mergeWithSnapshot(values, snapshotValues), [values, snapshotValues]);
   const visibleValues = expanded ? allValues.slice(0, MAX_VALUES_EXPANDED) : allValues.slice(0, MAX_VALUES_COLLAPSED);
   const isExpandable = allValues.length > MAX_VALUES_COLLAPSED;
+
+  // Assign palette colors by allValues index so colors are stable on expand/collapse.
+  const palette = theme.visualization.palette;
+  const valueColorMap = useMemo(
+    () => (colorBars ? new Map(allValues.map((item, i) => [item.value, palette[i % palette.length]])) : undefined),
+    [colorBars, allValues, palette]
+  );
 
   return (
     <div className={styles.section}>
@@ -487,13 +522,17 @@ function AttributeSection({
         </button>
         {fieldLink && (
           <a
-            aria-label={t('errors-analysis.field-link-label', 'View {{name}} in Logs Drilldown field tab', { name: config.attribute_name })}
+            aria-label={t('errors-analysis.field-link-label', 'View {{name}} in Logs Drilldown field tab', {
+              name: config.attribute_name,
+            })}
             className={styles.fieldLinkIcon}
             data-field-link-icon
             href={fieldLink}
             rel="noreferrer"
             target="_blank"
-            title={t('errors-analysis.field-link-label', 'View {{name}} in Logs Drilldown field tab', { name: config.attribute_name })}
+            title={t('errors-analysis.field-link-label', 'View {{name}} in Logs Drilldown field tab', {
+              name: config.attribute_name,
+            })}
           >
             <Icon name="external-link-alt" size="sm" />
           </a>
@@ -571,7 +610,13 @@ function AttributeSection({
                       </span>
                     </div>
                     <div className={styles.barWrapper}>
-                      <div className={styles.bar} style={{ width: `${item.percentage}%` }} />
+                      <div
+                        className={styles.bar}
+                        style={{
+                          background: valueColorMap?.get(item.value) ?? theme.colors.primary.main,
+                          width: `${item.percentage}%`,
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -581,30 +626,32 @@ function AttributeSection({
         </div>
       )}
 
-      {!loading && !error && allValues.length === 0 && <div className={styles.emptyRow}>{t('errors-analysis.no-values-found', 'No values found')}</div>}
-
+      {!loading && !error && allValues.length === 0 && (
+        <div className={styles.emptyRow}>{t('errors-analysis.no-values-found', 'No values found')}</div>
+      )}
     </div>
   );
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
   bar: css({
-    background: theme.colors.primary.main,
-    opacity: 0.5,
+    // background supplied via inline style (per-value color)
+    opacity: 0.65,
     borderRadius: theme.shape.radius.default,
     height: '100%',
     transition: 'width 0.3s ease',
   }),
   barWrapper: css({
-    background: theme.colors.background.primary,
+    background: colorManipulator.alpha(theme.colors.text.primary, 0.08),
     borderRadius: theme.shape.radius.default,
-    height: '3px',
+    height: '4px',
     overflow: 'hidden',
     width: '100%',
   }),
   container: css({
-    backgroundColor: theme.colors.background.secondary,
-    borderRight: `1px solid ${theme.colors.border.weak}`,
+    backgroundColor: theme.colors.background.primary,
+    borderRadius: theme.shape.radius.default,
+    border: `1px solid ${theme.colors.border.weak}`,
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1.5),
@@ -783,8 +830,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(0.5),
   }),
   valueLabel: css({
-    flex: '0 0 auto',
-    maxWidth: '40%',
+    flex: 1,
+    minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
