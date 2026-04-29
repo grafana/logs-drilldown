@@ -7,6 +7,7 @@ import pluginJson from '../../src/plugin.json';
 import { FilterOp, FilterOpType } from '../../src/services/filterTypes';
 import { LokiQuery } from '../../src/services/lokiQuery';
 import { testIds } from '../../src/services/testIds';
+import { STATIC_FROM, STATIC_TO } from '../config/constants';
 
 export type CapturedResponses = CapturedResponse[];
 
@@ -138,8 +139,22 @@ export class ExplorePage {
     await this.page.unrouteAll({ behavior: 'ignoreErrors' });
   }
 
-  async gotoServices() {
-    await this.page.goto(`/a/${pluginJson.id}/explore`);
+  async gotoServices(opts: { from?: string; to?: string } = {}) {
+    // Append the static window so the service selection scene queries the
+    // pre-baked snapshot (`tests/config/constants.ts`). Without this it falls
+    // back to the app's `now-15m`/`now` default and finds no data.
+    //
+    // Tests that exercise refresh/time-picker behavior (e.g. assert that
+    // refreshing the time range fires new panel queries) need a *relative*
+    // window because Grafana caches results for the same absolute range and
+    // a refresh becomes a no-op. Those tests can override `from`/`to`.
+    const params = new URLSearchParams({
+      from: opts.from ?? STATIC_FROM,
+      to: opts.to ?? STATIC_TO,
+      'var-ds': 'gdev-loki',
+      timezone: 'utc',
+    });
+    await this.page.goto(`/a/${pluginJson.id}/explore?${params.toString()}`);
   }
 
   async addServiceName() {
@@ -274,14 +289,24 @@ export class ExplorePage {
     await main.evaluate((main) => main.scrollTo(0, 0));
   }
 
-  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
+  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = STATIC_FROM, to = STATIC_TO) {
     await this.page.goto(
-      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
+      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
     );
   }
 
   async gotoEmbedUrl() {
-    await this.page.goto(`/a/${pluginJson.id}/embed`);
+    // The embed scene builds its own datasource and query via
+    // `getEmbeddedScene()` in `src/Components/Pages.tsx`. We only override
+    // `from`/`to` so panel queries land inside the static-data Loki window;
+    // we deliberately do NOT pass `var-ds` here because that variable is
+    // owned by the embedded scene's internal wiring.
+    const params = new URLSearchParams({
+      from: STATIC_FROM,
+      to: STATIC_TO,
+      timezone: 'utc',
+    });
+    await this.page.goto(`/a/${pluginJson.id}/embed?${params.toString()}`);
   }
 
   async gotoServicesOldUrlLineFilters(
@@ -289,15 +314,16 @@ export class ExplorePage {
     caseSensitive?: boolean,
     lineFilterValue = 'debug'
   ) {
+    const range = `&from=${encodeURIComponent(STATIC_FROM)}&to=${encodeURIComponent(STATIC_TO)}`;
     if (caseSensitive) {
       await this.page.goto(
         // case insensitive
-        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C~%20%60%28%3Fi%29%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt`
+        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C~%20%60%28%3Fi%29%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt${range}`
       );
     } else {
       await this.page.goto(
         // case insensitive
-        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C%3D%20%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt`
+        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C%3D%20%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt${range}`
       );
     }
   }
@@ -306,7 +332,7 @@ export class ExplorePage {
     sortOrder: 'Ascending' | 'Descending' = 'Descending',
     wrapLogMessage: 'false' | 'true' = 'false'
   ) {
-    const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=now-5m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
+    const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=${encodeURIComponent(STATIC_FROM)}&to=${encodeURIComponent(STATIC_TO)}&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
     await this.page.goto(url);
   }
 

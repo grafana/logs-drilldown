@@ -1,6 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import { testIds } from '../src/services/testIds';
+import { STATIC_FROM, STATIC_TO } from './config/constants';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { ExplorePage } from './fixtures/explore';
 
@@ -15,7 +16,9 @@ test.describe.skip('Default fields', () => {
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery', /gld-sample-\d+/, /^logs-.+/],
     });
-    await page.goto('/grafana/plugins/grafana-lokiexplore-app?page=admin-default-fields&from=now-1m&to=now');
+    await page.goto(
+      `/grafana/plugins/grafana-lokiexplore-app?page=admin-default-fields&from=${encodeURIComponent(STATIC_FROM)}&to=${encodeURIComponent(STATIC_TO)}`
+    );
     await expect(page.getByText('Configure default fields to')).toBeVisible();
     await expect(page.getByText('Experimental')).toBeVisible();
     explorePage.captureConsoleLogs();

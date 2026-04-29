@@ -259,6 +259,12 @@ test.describe('embed', () => {
     await page.getByLabel('Remove filter with key service_name').click();
     await page.getByLabel('Remove filter with key cluster').click();
     await expect(page.getByText('Please select at least one label to see the logs breakdown.')).toHaveCount(1);
+    // After removing the filters the labels combobox keeps focus and its
+    // dropdown listbox can intercept pointer events on Reset. Dismiss the
+    // floating portal before clicking. (Live-data Loki was slow enough that
+    // the listbox hadn't opened yet; the static snapshot returns labels
+    // immediately so we need to be explicit.)
+    await page.keyboard.press('Escape');
     await page.getByText('Reset').first().click();
     await explorePage.addCustomValueToCombobox(
       labelName,

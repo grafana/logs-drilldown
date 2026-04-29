@@ -1,6 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import pluginJson from '../src/plugin.json';
+import { STATIC_FROM, STATIC_TO } from './config/constants';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage } from './fixtures/explore';
 
@@ -24,21 +25,30 @@ test.describe('navigating app', () => {
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
     await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
     await expect(page).toHaveURL(/var-primary_label=service_name/);
-    await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
 
-    // assert panels are showing
-    const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
+    // The mega menu click resets `from`/`to` to the app default
+    // (Components/Pages.tsx#DEFAULT_TIME_RANGE = `now-15m`/`now`). Against the
+    // static-data e2e Loki snapshot that window is empty, so we override the
+    // range back to the snapshot window before checking that service panels
+    // render. The assertion below still verifies that everything *else* in
+    // the URL matches the canonical reset shape.
+    const resetParams = new URLSearchParams(page.url().split('?')[1]);
     const expectedSearchParams = new URLSearchParams(
       '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=&var-jsonFields&var-fields=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-lineFormat=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C.%2B'
     );
-    actualSearchParams.sort();
+    resetParams.sort();
     expectedSearchParams.sort();
-    expect(actualSearchParams.toString()).toEqual(expectedSearchParams.toString());
+    expect(resetParams.toString()).toEqual(expectedSearchParams.toString());
+
+    resetParams.set('from', STATIC_FROM);
+    resetParams.set('to', STATIC_TO);
+    await page.goto(`/a/${pluginJson.id}/explore?${resetParams.toString()}`);
+    await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
   });
 
   // Looks like mega menu clicks no longer trigger navigation, so whatever scene state is persisted after clicking on mega menu
   test('mega menu click should persist url params', async ({ page }) => {
-    await page.goto(`/a/${pluginJson.id}/explore`);
+    await explorePage.gotoServices();
 
     // Primary label search uses regex; type a substring then confirm via the custom-value row (see wrapWildcardSearch in query.ts).
     await explorePage.servicesSearch.click();

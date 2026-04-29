@@ -12,6 +12,10 @@ overrides:
     volume_enabled: true
     retention_period: 30d
     max_query_length: 0d
+    # Allow the static-data e2e generator (e2e/scripts/generate-loki-snapshot.sh)
+    # to push samples timestamped 2025-05-26, even when the snapshot is
+    # rebuilt months later. Loki's default rejects samples older than 7d.
+    reject_old_samples: false
   '2':
     allow_structured_metadata: true
     pattern_persistence_enabled: false

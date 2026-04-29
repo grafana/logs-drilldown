@@ -32,12 +32,23 @@ envsubst < /etc/otel/config.template.yaml > /etc/otel/config.yaml
 
 # Start the OTEL collector in the background
 /otelcol-contrib --config /etc/otel/config.yaml &
+COLLECTOR_PID=\$!
 
 # Wait a bit for collector to start
 sleep 2
 
-# Start the log generator
+# Start the log generator (foreground)
 /generator \$@
+GEN_EXIT=\$?
+
+# In live mode the generator only exits when the container is stopped, so
+# the kill below is effectively a no-op (collector already gone). In static
+# mode the generator finishes after its bounded run; give the collector a
+# moment to drain queued batches, then SIGTERM it for a clean shutdown.
+sleep 3
+kill -TERM \$COLLECTOR_PID 2>/dev/null || true
+wait \$COLLECTOR_PID 2>/dev/null || true
+exit \$GEN_EXIT
 EOF
 
 # Install envsubst utility

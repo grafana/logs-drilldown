@@ -38,10 +38,14 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       const firstResult = page.getByRole('option').first();
 
-      // Expect the first result to be tempo-distributor
-      await expect(firstResult).not.toContainText('nginx');
+      // We're about to favorite "nginx" so we want to make sure it isn't the
+      // top option to begin with (otherwise we can't tell that favoriting
+      // brought it to the top). Match the exact label rather than a substring
+      // because the static snapshot also contains `nginx-json`/`nginx-json-mixed`.
+      await expect(firstResult).not.toHaveText('nginx');
 
-      // Select nginx, as it has the lowest volume, and should otherwise show up last
+      // Select nginx, which is far enough down the volume-sorted list that it
+      // would not appear first without being favorited.
       await explorePage.servicesSearch.pressSequentially('^nginx$');
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
@@ -322,8 +326,15 @@ test.describe('explore services page', () => {
         logsQueryCount = 0;
         logCountQueryCount = 0;
 
+        // This describe block mocks `/index/volume*` and `/ds/query*`, so the
+        // tests do not depend on the static-data Loki snapshot. They DO depend
+        // on a relative time range though: refresh-time-range and navigation
+        // tests assert query counts, and Grafana would treat repeated queries
+        // against the same absolute window as cache hits, suppressing the new
+        // requests. Use `now-15m`/`now` here so each refresh/nav fires a fresh
+        // request as the tests expect.
         await Promise.all([
-          await explorePage.gotoServices(),
+          await explorePage.gotoServices({ from: 'now-15m', to: 'now' }),
           page.route('**/index/volume*', async (route) => {
             logsVolumeCount++;
             const volumeResponse = getMockVolumeApiResponse();
@@ -636,13 +647,46 @@ test.describe('explore services page', () => {
             await page.waitForTimeout(25);
             await route.fulfill({ json, response });
           }),
-          await page.route('**/resources/patterns*', async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-
+          await page.route('**/resources/patterns*', async (route, request) => {
+            // Loki's pattern ingester is in-memory and is empty in the static
+            // snapshot (the snapshot is loaded from disk on cold-start, but the
+            // pattern ingester only aggregates against wall-clock time). Return
+            // a query-shaped mock so the namespace-tab count assertions can
+            // observe different pattern counts per namespace.
+            const url = new URL(request.url());
+            const expression = url.searchParams.get('query') ?? '';
+            const namespaceMatch = expression.match(/namespace\s*=\s*"([^"]+)"/);
+            const namespace = namespaceMatch?.[1] ?? '';
+            const buildSamples = (counts: number[]) =>
+              counts.map((count, idx) => [1748257200 + idx * 60, count] as [number, number]);
+            const patternsByNamespace: Record<string, Array<{ level: string; pattern: string; samples: number[][] }>> = {
+              gateway: [
+                {
+                  level: 'info',
+                  pattern: 'level=info ts=<_> caller=poller.go:133 msg="<_>"',
+                  samples: buildSamples([10, 12, 9, 11, 13]),
+                },
+                {
+                  level: 'warn',
+                  pattern: 'level=warn ts=<_> caller=instance.go:43 msg="<_>"',
+                  samples: buildSamples([3, 4, 5, 2, 3]),
+                },
+              ],
+              mimir: [
+                {
+                  level: 'info',
+                  pattern: 'level=info ts=<_> caller=registry.go:232 msg="<_>"',
+                  samples: buildSamples([7, 8, 6, 9, 7]),
+                },
+              ],
+            };
+            const json = {
+              status: 'success',
+              data: patternsByNamespace[namespace] ?? [],
+            };
             patternsCount++;
             await page.waitForTimeout(25);
-            await route.fulfill({ json, response });
+            await route.fulfill({ json });
           }),
 
           // Can skip logs query for this test

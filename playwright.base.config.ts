@@ -11,6 +11,11 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
  */
 export const baseConfig = {
   expect: { timeout: 15000 },
+  /* Per-test timeout. Default is 30s, but with `workers: 4` tests share a
+   * single Grafana instance and queries are slightly serialized, so long
+   * tests with many UI interactions can exceed 30s under parallel load.
+   * 60s gives a comfortable margin without masking real hangs. */
+  timeout: 60_000,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Run tests in files in parallel */
@@ -28,8 +33,13 @@ export const baseConfig = {
     //   mode: 'on',
     // },
   },
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Parallel workers. The static-data Loki snapshot makes query outcomes
+   * deterministic, so tests can run in parallel against a single Grafana +
+   * Loki stack. Empirically 4 is the sweet spot: more workers (e.g. 10)
+   * overwhelm Grafana's query proxy with concurrent panel requests and
+   * cause spurious "loading indicator" timeouts. metrics-drilldown uses
+   * the same value for the same reason. */
+  workers: 4,
 };
 
 /**

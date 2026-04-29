@@ -204,9 +204,16 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
       // re-root
       await page.getByRole('button', { exact: true, name: 'root' }).click();
-      // Open nested_object
-      await page.getByLabel('nested_object', { exact: true }).getByRole('button', { name: '▶' }).click();
-      await page.getByLabel('deeplyNestedObject', { exact: true }).getByRole('button', { name: '▶' }).click();
+      // Open nested_object — use `.first()` because the JSON tree briefly has
+      // stale + new panel copies during the re-root re-render under parallel
+      // load, which trips Playwright's strict-mode locator. Other tests in
+      // this file use the same pattern.
+      await page.getByLabel('nested_object', { exact: true }).first().getByRole('button', { name: '▶' }).click();
+      await page
+        .getByLabel('deeplyNestedObject', { exact: true })
+        .first()
+        .getByRole('button', { name: '▶' })
+        .click();
 
       // Both url nodes should have active filter state
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(2);
@@ -372,7 +379,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
 
     test('can share link to log line', async ({ page }) => {
       // Need to make sure we have >100 logs so we start with a 3-minute interval
-      await explorePage.gotoServicesBreakdownOldUrl('nginx-json', 'now-3m');
+      await explorePage.gotoServicesBreakdownOldUrl('nginx-json');
       await explorePage.setDefaultViewportSize();
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
