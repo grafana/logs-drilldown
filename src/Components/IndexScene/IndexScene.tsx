@@ -52,7 +52,11 @@ import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
-import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
+import {
+  getDetectedFieldValuesTagValuesProvider,
+  getLabelsTagValuesProvider,
+  getLevelsTagValuesFromInstantVolumeQuery,
+} from '../../services/TagValuesProviders';
 import { filterInvalidTimeOptions, getQuickOptions } from '../../services/timePicker';
 import {
   getDataSourceVariable,
@@ -750,14 +754,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
       const interpolated = interpolateExpression(this, expr);
 
-      return getDetectedFieldValuesTagValuesProvider(
-        filter,
-        variable,
-        interpolated,
-        this,
-        sceneGraph.getTimeRange(this).state.value,
-        VAR_LEVELS
-      );
+      return getLevelsTagValuesFromInstantVolumeQuery(this, interpolated, sceneGraph.getTimeRange(this).state.value);
     };
   }
 

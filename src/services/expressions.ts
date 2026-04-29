@@ -61,6 +61,15 @@ export function getTimeSeriesExpr(sceneRef: SceneObject, streamSelectorName: str
  * Get expressions for UI variables
  * @param variableType
  */
+/**
+ * Instant metric query that lists distinct detected_level values with non-zero volume
+ * for the given log pipeline (same scope as {@link DETECTED_LEVELS_VALUES_EXPR} when interpolated).
+ */
+export function buildLevelsInstantVolumeQueryExpr(logPipelineExpr: string): string {
+  const inner = logPipelineExpr.trim();
+  return `sum(count_over_time(${inner}[$__auto])) by (${LEVEL_VARIABLE_VALUE})`;
+}
+
 export function getFieldsTagValuesExpression(variableType: UIVariableFilterType) {
   switch (variableType) {
     case VAR_LEVELS:

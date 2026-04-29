@@ -1,15 +1,28 @@
 import { isArray } from 'lodash';
+import { lastValueFrom } from 'rxjs';
 
-import { DataSourceGetTagValuesOptions, GetTagResponse, MetricFindValue, ScopedVars, TimeRange } from '@grafana/data';
+import {
+  DataFrame,
+  DataQueryRequest,
+  DataSourceGetTagValuesOptions,
+  GetTagResponse,
+  MetricFindValue,
+  ScopedVars,
+  TimeRange,
+  dateTime,
+} from '@grafana/data';
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
+import { buildLevelsInstantVolumeQueryExpr } from './expressions';
 import { FilterOp } from './filterTypes';
+import { getLevelLabelsFromInstantSeries, getLevelLabelsFromSeries } from './levels';
 import { logger } from './logger';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { isOperatorInclusive, isOperatorRegex } from './operatorHelpers';
+import { sanitizeStreamSelector } from './query';
 import { getDataSource } from './scenes';
 import { getFavoriteLabelValuesFromStorage } from './store';
 import { getDataSourceVariable, getValueFromFieldsFilter } from './variableGetters';
@@ -48,6 +61,79 @@ export interface LokiLanguageProviderWithDetectedLabelValues {
     queryOptions?: FetchDetectedLabelValuesOptions,
     requestOptions?: Partial<BackendSrvRequest>
   ) => Promise<string[] | Error>;
+}
+
+function getFramesFromLokiQueryResponse(response: { data?: unknown }): DataFrame[] {
+  const d = response.data;
+  if (Array.isArray(d)) {
+    return d as DataFrame[];
+  }
+  if (d && typeof d === 'object' && 'series' in d && Array.isArray((d as { series: DataFrame[] }).series)) {
+    return (d as { series: DataFrame[] }).series;
+  }
+  return [];
+}
+
+/**
+ * Resolves log level options via an instant LogQL volume-style query instead of the
+ * detected label values API.
+ */
+export async function getLevelsTagValuesFromInstantVolumeQuery(
+  sceneRef: SceneObject,
+  interpolatedLogPipelineExpr: string,
+  timeRange: TimeRange
+): Promise<{
+  replace?: boolean;
+  values: MetricFindValue[];
+}> {
+  const datasourceUnknownType = await getDataSourceSrv().get(getDataSource(sceneRef));
+  if (!(datasourceUnknownType instanceof DataSourceWithBackend)) {
+    logger.error(new Error('getLevelsTagValuesFromInstantVolumeQuery: Invalid datasource!'));
+    return { replace: true, values: [] };
+  }
+
+  const datasource = datasourceUnknownType as LokiDatasource;
+  const innerExpr = sanitizeStreamSelector(interpolatedLogPipelineExpr.trim());
+  const expr = buildLevelsInstantVolumeQueryExpr(innerExpr);
+
+  const rangeSec = Math.max(1, Math.round((timeRange.to.valueOf() - timeRange.from.valueOf()) / 1000));
+
+  const request: DataQueryRequest<LokiQuery> = {
+    app: 'explore',
+    interval: `${rangeSec}s`,
+    intervalMs: rangeSec * 1000,
+    range: {
+      from: dateTime(timeRange.from),
+      raw: {
+        from: dateTime(timeRange.from).utc().toISOString(),
+        to: dateTime(timeRange.to).utc().toISOString(),
+      },
+      to: dateTime(timeRange.to),
+    },
+    requestId: `levels-instant-volume-${expr.slice(0, 80)}`,
+    scopedVars: {},
+    startTime: Date.now(),
+    targets: [
+      {
+        datasource: { type: 'loki', uid: getDataSource(sceneRef) },
+        expr,
+        queryType: 'instant',
+        refId: 'levels-instant-volume',
+      },
+    ],
+    timezone: 'browser',
+  };
+
+  try {
+    const response = await lastValueFrom(datasource.query(request));
+    const frames = getFramesFromLokiQueryResponse(response);
+    const levelNames = getLevelLabelsFromInstantSeries(frames);
+    const unique = [...new Set(levelNames)];
+    return { replace: true, values: unique.map((text) => ({ text })) };
+  } catch (e) {
+    logger.error(e, { msg: 'getLevelsTagValuesFromInstantVolumeQuery: instant volume query failed' });
+    return { replace: true, values: [] };
+  }
 }
 
 export const getDetectedFieldValuesTagValuesProvider = async (
