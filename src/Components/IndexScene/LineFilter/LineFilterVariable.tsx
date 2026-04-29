@@ -6,9 +6,13 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { IconButton, useStyles2 } from '@grafana/ui';
 
-import { LineFilterCaseSensitive } from '../../services/filterTypes';
-import { LineFilterEditor } from '../ServiceScene/LineFilter/LineFilterEditor';
-import { RegexInputValue } from '../ServiceScene/LineFilter/RegexIconButton';
+import { LineFilterEditor } from './LineFilterEditor';
+import { RegexInputValue } from './RegexIconButton';
+import { LineFilterCaseSensitive } from 'services/filterTypes';
+
+/** First filter only shows remove (×) when this is true. */
+export const lineFilterHasValueToClear = (lineFilter: string | undefined): boolean =>
+  (lineFilter?.trim() ?? '').length > 0;
 
 export interface LineFilterProps {
   caseSensitive: boolean;
@@ -25,9 +29,19 @@ export interface LineFilterProps {
   updateFilter: (lineFilter: string, debounced: boolean) => void;
 }
 
-export function LineFilterVariable({ onClick, props }: { onClick: () => void; props: LineFilterProps }) {
+export function LineFilterVariable({
+  isFirstLineFilterRow,
+  onClick,
+  props,
+}: {
+  isFirstLineFilterRow: boolean;
+  onClick?: () => void;
+  props: LineFilterProps;
+}) {
   const [focus, setFocus] = useState(false);
   const styles = useStyles2(getLineFilterStyles);
+  const showRemove = onClick != null && (isFirstLineFilterRow ? lineFilterHasValueToClear(props.lineFilter) : true);
+
   return (
     <>
       <span>
@@ -35,25 +49,20 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
           <span>
             <Trans i18nKey="components.index-scene.line-filter-variable.line-filter">Line filter</Trans>
           </span>
-          <IconButton
-            onClick={onClick}
-            name={'times'}
-            size={'xs'}
-            aria-label={t('components.index-scene.line-filter-variable.aria-label-remove-line-filter', 'Remove line filter')}
-          />
-        </div>
-        <span className={styles.collapseWrap}>
-          <LineFilterEditor {...props} focus={focus} setFocus={setFocus} type={'variable'} />
-          {focus && (
+          {showRemove && (
             <IconButton
-              className={styles.collapseBtn}
-              tooltip={t('components.index-scene.line-filter-variable.tooltip-collapse', 'Collapse')}
-              size={'lg'}
-              aria-label={t('components.index-scene.line-filter-variable.aria-label-collapse-filter', 'Collapse filter')}
-              onClick={() => setFocus(false)}
-              name={'table-collapse-all'}
+              onClick={onClick}
+              name={'times'}
+              size={'xs'}
+              aria-label={t(
+                'components.index-scene.line-filter-variable.aria-label-remove-line-filter',
+                'Remove line filter'
+              )}
             />
           )}
+        </div>
+        <span className={styles.editorWrap}>
+          <LineFilterEditor {...props} focus={focus} setFocus={setFocus} type={'variable'} />
         </span>
       </span>
     </>
@@ -61,10 +70,7 @@ export function LineFilterVariable({ onClick, props }: { onClick: () => void; pr
 }
 
 const getLineFilterStyles = (theme: GrafanaTheme2) => ({
-  collapseBtn: css({
-    marginLeft: theme.spacing(1),
-  }),
-  collapseWrap: css({
+  editorWrap: css({
     display: 'flex',
   }),
   titleWrap: css({

@@ -340,8 +340,9 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await explorePage.getJsonToggleLocator().click();
 
       // Highlight method (json label) and PATCH (json value)
-      await page.getByTestId(testIds.exploreServiceDetails.searchLogs).fill('method');
-      await page.getByRole('button', { exact: true, name: 'Include' }).click();
+      const lineFilterInput = page.getByTestId(testIds.exploreServiceDetails.searchLogs);
+      await lineFilterInput.fill('method');
+      await lineFilterInput.press('Enter');
       await explorePage.assertTabsNotLoading();
       await explorePage.assertPanelsNotLoading();
 

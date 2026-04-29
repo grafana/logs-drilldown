@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { ComboboxOption, Combobox, InlineField, useStyles2 } from '@grafana/ui';
+import { Combobox, ComboboxOption, InlineField, useStyles2 } from '@grafana/ui';
 
 import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';
@@ -19,7 +19,7 @@ interface LineLimitState extends SceneObjectState {
 }
 
 /**
- * The line filter scene used in the logs tab
+ * Max log lines (Loki max_entries_limit) selector.
  */
 export class LineLimitScene extends SceneObjectBase<LineLimitState> {
   static Component = LineLimitComponent;
@@ -110,7 +110,9 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
             width="auto"
             minWidth={8}
             onChange={model.onChangeMaxLines}
-            placeholder={t('components.service-scene.line-limit-scene.max-lines-placeholder', '{{logs}} logs', { logs: maxLines })}
+            placeholder={t('components.service-scene.line-limit-scene.max-lines-placeholder', '{{logs}} logs', {
+              logs: maxLines,
+            })}
             createCustomValue
           />
         </InlineField>
@@ -121,12 +123,15 @@ function LineLimitComponent({ model }: SceneComponentProps<LineLimitScene>) {
 
 const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
+    alignItems: 'center',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
+    flexShrink: 0,
     gap: theme.spacing(0.5),
+    width: 'auto',
   }),
   label: css({
-    marginRight: 0,
+    marginTop: theme.spacing(0.5),
   }),
 });
 

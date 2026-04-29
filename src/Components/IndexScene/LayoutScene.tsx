@@ -13,7 +13,7 @@ import { getDrilldownSlug } from '../../services/routing';
 import { IndexScene } from './IndexScene';
 import { InterceptBanner } from './InterceptBanner';
 import { LevelsVariableScene } from './LevelsVariableScene';
-import { LineFilterVariablesScene } from './LineFilterVariablesScene';
+import { LineFilterVariablesScene } from './LineFilter/LineFilterVariablesScene';
 import { VariableLayoutScene } from './VariableLayoutScene';
 
 interface LayoutSceneState extends SceneObjectState {

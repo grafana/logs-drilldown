@@ -140,7 +140,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
             </div>
           )}
 
-          {/* 2nd row - Combined fields (fields + metadata) + Levels + KG Insights toggle - custom renderer */}
+          {/* 2nd row — Log levels, Fields (+ metadata), Line filters (same row); KG toggle when shown */}
           <div className={styles.controlsRowContainer}>
             {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
             {controls && (
@@ -155,6 +155,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 </div>
               </div>
             )}
+            {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
             {kgAnnotationToggle && slug !== PageSlugs.explore && (
               <kgAnnotationToggle.Component model={kgAnnotationToggle} />
             )}
@@ -184,11 +185,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               patterns={patterns}
               onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
             />
-          </div>
-
-          {/* 4th row - Line filters - custom renderer */}
-          <div className={styles.controlsRowContainer}>
-            {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
           </div>
         </>
       </div>
@@ -224,7 +220,7 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       },
       alignItems: 'flex-start',
       display: headerCollapsed ? 'none' : 'flex',
-      // @todo add custom renderers for all variables, this currently results in 2 "empty" rows that always take up space
+      flexWrap: 'wrap',
       gap: theme.spacing(2),
       label: 'controls-row',
     }),

@@ -27,7 +27,7 @@ test.describe('matrix', () => {
     await page.goto('/a/grafana-lokiexplore-app/explore?from=now-15s&to=now');
     // Click on first service
     await page.getByText('Show logs').nth(1).click();
-    await explorePage.assertTwoPanelMenus();
+    await explorePage.assertPanelMenu();
   });
 
   test('can open viz menu without error - labels tab', async ({ page }) => {

@@ -6,11 +6,11 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { Button, Combobox, Field, useStyles2 } from '@grafana/ui';
 
-import { testIds } from '../../../services/testIds';
-import { LineFilterProps } from '../../IndexScene/LineFilterVariable';
-import { LineFilterInput } from '../Breakdowns/LineFilterInput';
+import { LineFilterInput } from '../../ServiceScene/Breakdowns/LineFilterInput';
 import { LineFilterCaseSensitivityButton } from './LineFilterCaseSensitivityButton';
+import { LineFilterProps } from './LineFilterVariable';
 import { RegexIconButton } from './RegexIconButton';
+import { testIds } from 'services/testIds';
 
 export interface LineFilterEditorProps extends LineFilterProps {
   focus: boolean;

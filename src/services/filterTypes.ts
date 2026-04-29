@@ -65,3 +65,6 @@ export enum LineFilterCaseSensitive {
   caseSensitive = 'caseSensitive',
   caseInsensitive = 'caseInsensitive',
 }
+
+/** Delay before applying line-filter text to variables / queries while typing */
+export const LINE_FILTER_INPUT_DEBOUNCE_MS = 2000;

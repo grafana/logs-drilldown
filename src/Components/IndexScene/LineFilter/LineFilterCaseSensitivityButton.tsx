@@ -5,8 +5,8 @@ import { css, cx } from '@emotion/css';
 import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
 
-import { LineFilterCaseSensitive } from '../../../services/filterTypes';
-import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from '../../../services/mixins';
+import { LineFilterCaseSensitive } from 'services/filterTypes';
+import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from 'services/mixins';
 
 interface Props {
   caseSensitive: boolean;
