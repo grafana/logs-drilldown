@@ -709,6 +709,7 @@ test.describe('explore services breakdown page', () => {
   test(`Levels: include ${levelName} values`, async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
+      refIds: ['levels-instant-volume'],
     });
     await explorePage.goToLabelsTab();
 
