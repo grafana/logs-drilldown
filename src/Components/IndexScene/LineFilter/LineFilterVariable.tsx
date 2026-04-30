@@ -44,9 +44,9 @@ export function LineFilterVariable({
 
   return (
     <>
-      <span>
+      <div>
         <div className={styles.titleWrap}>
-          <span className={styles.titleLabel}>
+          <div className={styles.titleLabel}>
             <Trans i18nKey="components.index-scene.line-filter-variable.line-filter">Line filter</Trans>
             {isFirstLineFilterRow && (
               <Tooltip
@@ -58,7 +58,7 @@ export function LineFilterVariable({
                 <Icon className={styles.titleInfoIcon} name="info-circle" />
               </Tooltip>
             )}
-          </span>
+          </div>
           {showRemove && (
             <IconButton
               onClick={onClick}
@@ -71,10 +71,10 @@ export function LineFilterVariable({
             />
           )}
         </div>
-        <span className={styles.editorWrap}>
+        <div className={styles.editorWrap}>
           <LineFilterEditor {...props} focus={focus} setFocus={setFocus} type={'variable'} />
-        </span>
-      </span>
+        </div>
+      </div>
     </>
   );
 }
@@ -87,6 +87,7 @@ const getLineFilterStyles = (theme: GrafanaTheme2) => ({
     cursor: 'help',
     marginLeft: theme.spacing(0.5),
     verticalAlign: 'text-bottom',
+    color: theme.colors.text.disabled,
   }),
   titleLabel: css({
     alignItems: 'center',
