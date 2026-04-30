@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { IconButton, useStyles2 } from '@grafana/ui';
+import { Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { LineFilterEditor } from './LineFilterEditor';
 import { RegexInputValue } from './RegexIconButton';
@@ -46,8 +46,18 @@ export function LineFilterVariable({
     <>
       <span>
         <div className={styles.titleWrap}>
-          <span>
+          <span className={styles.titleLabel}>
             <Trans i18nKey="components.index-scene.line-filter-variable.line-filter">Line filter</Trans>
+            {isFirstLineFilterRow && (
+              <Tooltip
+                content={t(
+                  'components.index-scene.line-filter-variable.description-line-filter',
+                  'Match or exclude text in the log line body. You can use plain text, RE2 regular expressions, and case sensitivity.'
+                )}
+              >
+                <Icon className={styles.titleInfoIcon} name="info-circle" />
+              </Tooltip>
+            )}
           </span>
           {showRemove && (
             <IconButton
@@ -72,6 +82,15 @@ export function LineFilterVariable({
 const getLineFilterStyles = (theme: GrafanaTheme2) => ({
   editorWrap: css({
     display: 'flex',
+  }),
+  titleInfoIcon: css({
+    cursor: 'help',
+    marginLeft: theme.spacing(0.5),
+    verticalAlign: 'text-bottom',
+  }),
+  titleLabel: css({
+    alignItems: 'center',
+    display: 'inline-flex',
   }),
   titleWrap: css({
     display: 'flex',
