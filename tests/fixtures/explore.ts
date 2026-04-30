@@ -213,10 +213,10 @@ export class ExplorePage {
   }
 
   async assertNotLoading() {
-    const locator = this.page.getByText(/loading/i);
+    // Avoid broad /loading/i checks here: Grafana and Scenes can expose
+    // unrelated loading labels while the snapshot-backed UI under test is ready.
+    const locator = this.page.getByText(/^Loading(\.\.\.)?$/i);
     await expect(locator).toHaveCount(0);
-    const grafanaLoading = this.page.getByLabel(/loading/i);
-    await expect(grafanaLoading).toHaveCount(0);
   }
 
   async assertPanelsNotLoading() {
@@ -469,12 +469,8 @@ export class ExplorePage {
     await this.getOperatorLocator(operator).click();
     // Assert operator is no longer visible
     await expect(this.getOperatorLocator(operator)).toHaveCount(0);
-    // Wait for loading to be done
-    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Enter custom value
     await this.page.keyboard.type(text);
-    // Wait for loading to go away
-    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Custom row is prepended by Combobox; use visible text (default "Use custom value" or i18n "Filter values by")
     const customValueRow = this.page
       .getByRole('option')

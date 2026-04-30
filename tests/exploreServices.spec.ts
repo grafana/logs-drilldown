@@ -568,8 +568,10 @@ test.describe('explore services page', () => {
             'true'
           );
 
-          // Navigate to the fields breakdown tab
-          await explorePage.goToFieldsTab();
+          // Navigate to the fields breakdown tab. Avoid the broad page-wide
+          // loading assertion here; this test only needs the tab navigation
+          // state for browser-history checks.
+          await page.getByTestId(testIds.exploreServiceDetails.tabFields).click();
 
           // Assert fields tab is selected and active
           await expect(page.getByTestId(testIds.exploreServiceDetails.tabFields)).toHaveCount(1);
@@ -659,7 +661,10 @@ test.describe('explore services page', () => {
             const namespace = namespaceMatch?.[1] ?? '';
             const buildSamples = (counts: number[]) =>
               counts.map((count, idx) => [1748257200 + idx * 60, count] as [number, number]);
-            const patternsByNamespace: Record<string, Array<{ level: string; pattern: string; samples: number[][] }>> = {
+            const patternsByNamespace: Record<
+              string,
+              Array<{ level: string; pattern: string; samples: number[][] }>
+            > = {
               gateway: [
                 {
                   level: 'info',

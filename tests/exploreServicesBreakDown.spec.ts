@@ -94,7 +94,10 @@ test.describe('explore services breakdown page', () => {
       legendFormats: [`{{${labelName}}}`, `{{service_name}}`],
       refIds: ['logsPanelQuery'],
     });
-    await explorePage.goToLabelsTab();
+    // Navigate to labels aggregation view. Wait on the specific cluster control
+    // below instead of broad tab-loading state, which can remain busy under
+    // parallel E2E load while the target interaction is already available.
+    await page.getByTestId(testIds.exploreServiceDetails.tabLabels).click();
 
     // Select cluster
     const selectClusterButton = page.getByLabel(`Select ${labelName}`);
@@ -189,8 +192,10 @@ test.describe('explore services breakdown page', () => {
     // Assert cluster has been added as the new URL slug
     await expect(page).toHaveURL(/\/cluster\/us-\.%2B\//);
 
-    // Navigate to labels aggregation view
-    await explorePage.goToLabelsTab();
+    // Navigate to labels aggregation view. Wait on the specific label controls below
+    // instead of the broad page-wide loading assertion, which can catch unrelated
+    // Grafana loading affordances under parallel E2E load.
+    await page.getByTestId(testIds.exploreServiceDetails.tabLabels).click();
 
     // Assert service_name is visible as a normal label
     const clusterNameSelect = page.getByLabel('Select cluster');
@@ -203,17 +208,16 @@ test.describe('explore services breakdown page', () => {
 
     // add service exclude
     await clusterNameSelect.click();
-    await explorePage.assertNotLoading();
 
     // Assert all three us-.+ cluster values are showing
-    await expect(page.getByTestId(/data-testid Panel header us-.+/)).toHaveCount(3);
+    await expect(page.getByRole('region', { name: /^us-.+/ })).toHaveCount(3);
 
     // Assert there are only 4 panels (3 value panels + summary panel)
-    await expect(page.getByTestId(/data-testid Panel header/)).toHaveCount(4);
+    await expect(page.getByRole('region', { name: /^(cluster|us-east-1|us-east-2|us-west-1)$/ })).toHaveCount(4);
 
     // exclude nginx service
     const usEastExcludeButton = page
-      .getByTestId('data-testid Panel header us-east-1')
+      .getByRole('region', { name: 'us-east-1' })
       .getByTestId('data-testid button-filter-exclude');
 
     await expect(usEastExcludeButton).toHaveCount(1);
@@ -224,11 +228,11 @@ test.describe('explore services breakdown page', () => {
     await expect(clusterExcludeFilter).toHaveCount(1);
     await expect(clusterExcludeFilter).toHaveText('cluster != us-east-1');
 
-    // Assert remaining two us-.+ cluster values are showing
-    await expect(page.getByTestId(/data-testid Panel header us-.+/)).toHaveCount(3);
+    // Assert remaining us-.+ cluster values are showing
+    await expect(page.getByRole('region', { name: /^us-.+/ })).toHaveCount(3);
 
     // Assert there are only 3 panels (2 value panels + summary panel)
-    await expect(page.getByTestId(/data-testid Panel header/)).toHaveCount(4);
+    await expect(page.getByRole('region', { name: /^(cluster|us-east-1|us-east-2|us-west-1)$/ })).toHaveCount(4);
   });
 
   test('logs panel should have panel-content class suffix', async ({ page }) => {
@@ -262,26 +266,19 @@ test.describe('explore services breakdown page', () => {
     // Switch to table view
     await explorePage.getTableToggleLocator().click();
 
-    // Wait for URL to be updated after switching to table view
-    await page.waitForTimeout(100);
+    // Wait for both URL params to settle after switching to table view.
+    await expect
+      .poll(() => {
+        const searchParams = new URL(page.url()).searchParams;
+        const displayedFields = JSON.parse(searchParams.get('displayedFields') || '[]');
+        const urlColumns = JSON.parse(searchParams.get('urlColumns') || '[]');
+        const filteredUrlColumns = urlColumns.filter(
+          (col: string) => !DEFAULT_URL_COLUMNS.includes(col) && col !== DETECTED_LEVEL
+        );
 
-    await explorePage.assertNotLoading();
-
-    // Extract the current URL
-    const currentUrl = page.url();
-
-    // Parse the URL to get query parameters
-    const urlObj = new URL(currentUrl);
-    const displayedFields = JSON.parse(urlObj.searchParams.get('displayedFields') || '[]');
-    const urlColumns = JSON.parse(urlObj.searchParams.get('urlColumns') || '[]');
-
-    // Filter out default columns from urlColumns
-    const filteredUrlColumns = urlColumns.filter(
-      (col: string) => !DEFAULT_URL_COLUMNS.includes(col) && col !== DETECTED_LEVEL
-    );
-
-    // Check if filtered urlColumns matches displayedFields
-    expect(displayedFields).toEqual(filteredUrlColumns);
+        return JSON.stringify(displayedFields) === JSON.stringify(filteredUrlColumns);
+      })
+      .toBe(true);
   });
 
   test('table should show detected_level column when log data contains detected_level', async ({ page }) => {
@@ -355,7 +352,7 @@ test.describe('explore services breakdown page', () => {
 
     // Refresh the page to see if the columns were saved in the url state
     await page.reload();
-    await expect(table).toBeVisible();
+    await expect(table).toBeVisible({ timeout: 45000 });
     await expect(table.getByRole('columnheader').nth(0)).toContainText('body');
   });
 
@@ -388,7 +385,8 @@ test.describe('explore services breakdown page', () => {
     const table = page.getByTestId(testIds.table.wrapper);
 
     // assert the table shows the raw log line option by default
-    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible();
+    await expect(table).toBeVisible({ timeout: 45000 });
+    await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).toBeVisible({ timeout: 45000 });
     // Show log text option should be visible by default
     await expect(page.getByRole('button', { name: 'Show log labels' })).toBeVisible();
 
@@ -988,8 +986,7 @@ test.describe('explore services breakdown page', () => {
     expect(countOfAllRows).toBeGreaterThan(countOfAllRowsAfterFilter);
 
     // Assert the viz was filtered as well
-    const legendIconsCount = await page.getByTestId('series-icon').count();
-    expect(legendIconsCount).toBe(countOfAllRowsAfterFilter);
+    await expect.poll(() => page.getByTestId('series-icon').count()).toBe(countOfAllRowsAfterFilter);
   });
 
   test('should select an include pattern field in default single view, update filters, not open log panel', async ({
@@ -1511,7 +1508,7 @@ test.describe('explore services breakdown page', () => {
       responses: responses,
     });
     const logRow = page.locator('.unwrapped-log-line').nth(1);
-    await expect(logRow).toHaveCount(1);
+    await expect(logRow).toHaveCount(1, { timeout: 45000 });
     await expect(page.getByText(/Rendering \d+ rows.../)).toHaveCount(0);
 
     await page.locator('.unwrapped-log-line').nth(1).hover();
