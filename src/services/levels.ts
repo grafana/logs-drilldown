@@ -1,4 +1,4 @@
-import { DataFrame, FieldType } from '@grafana/data';
+import { DataFrame } from '@grafana/data';
 import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
@@ -39,16 +39,6 @@ export function toggleLevelVisibility(
 
 export function getLevelLabelsFromSeries(series: DataFrame[]) {
   return series.map((dataFrame) => getLabelValueFromDataFrame(dataFrame) ?? UNKNOWN_LEVEL_LOGS);
-}
-
-export function getLevelLabelsFromInstantSeries(series: DataFrame[]): string[] {
-  return [
-    ...new Set(
-      series.flatMap(
-        (dataFrame) => dataFrame.fields.find((field) => field.type === FieldType.string)?.values ?? [UNKNOWN_LEVEL_LOGS]
-      )
-    ),
-  ];
 }
 
 export function getLabelValueFromDataFrame(frame: DataFrame) {

@@ -3,13 +3,7 @@ import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import { FilterOp } from './filterTypes';
-import {
-  getLevelLabelsFromInstantSeries,
-  getLevelLabelsFromSeries,
-  getVisibleLevels,
-  toggleLevelFromFilter,
-  toggleLevelVisibility,
-} from './levels';
+import { getLevelLabelsFromSeries, getVisibleLevels, toggleLevelFromFilter, toggleLevelVisibility } from './levels';
 import { UNKNOWN_LEVEL_LOGS } from './panel';
 import { getLevelsVariable } from './variableGetters';
 import { VAR_LEVELS } from './variables';
@@ -108,66 +102,6 @@ describe('getLabelsFromSeries', () => {
   ];
   it('returns the label value from time series', () => {
     expect(getLevelLabelsFromSeries(series)).toEqual(['error', 'warn', 'logs']);
-  });
-});
-
-describe('getLevelLabelsFromInstantSeries', () => {
-  it('returns an empty array when there are no frames', () => {
-    expect(getLevelLabelsFromInstantSeries([])).toEqual([]);
-  });
-
-  it('collects values from the string field of each frame', () => {
-    const frames = [
-      toDataFrame({
-        fields: [
-          { name: 'Value', type: FieldType.number, values: [1] },
-          { name: 'detected_level', type: FieldType.string, values: ['error'] },
-        ],
-      }),
-      toDataFrame({
-        fields: [
-          { name: 'Value', type: FieldType.number, values: [2] },
-          { name: 'detected_level', type: FieldType.string, values: ['warn'] },
-        ],
-      }),
-    ];
-    expect(getLevelLabelsFromInstantSeries(frames)).toEqual(['error', 'warn']);
-  });
-
-  it('deduplicates level labels across frames', () => {
-    const frames = [
-      toDataFrame({
-        fields: [{ name: 'level', type: FieldType.string, values: ['info'] }],
-      }),
-      toDataFrame({
-        fields: [{ name: 'level', type: FieldType.string, values: ['info', 'debug'] }],
-      }),
-    ];
-    expect(getLevelLabelsFromInstantSeries(frames)).toEqual(['info', 'debug']);
-  });
-
-  it('uses unknown level when no string field exists on a frame', () => {
-    const frames = [
-      toDataFrame({
-        fields: [
-          { name: 'Time', type: FieldType.time, values: [0] },
-          { name: 'Value', type: FieldType.number, values: [1] },
-        ],
-      }),
-    ];
-    expect(getLevelLabelsFromInstantSeries(frames)).toEqual([UNKNOWN_LEVEL_LOGS]);
-  });
-
-  it('uses the first string field when multiple string fields exist', () => {
-    const frames = [
-      toDataFrame({
-        fields: [
-          { name: 'label', type: FieldType.string, values: ['a'] },
-          { name: 'other', type: FieldType.string, values: ['ignored'] },
-        ],
-      }),
-    ];
-    expect(getLevelLabelsFromInstantSeries(frames)).toEqual(['a']);
   });
 });
 

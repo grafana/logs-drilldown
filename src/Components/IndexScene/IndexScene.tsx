@@ -52,11 +52,7 @@ import { renderPatternFilters } from '../../services/renderPatternFilters';
 import { getDrilldownSlug } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
-import {
-  getDetectedFieldValuesTagValuesProvider,
-  getLabelsTagValuesProvider,
-  getLevelsTagValuesFromInstantVolumeQuery,
-} from '../../services/TagValuesProviders';
+import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
 import { filterInvalidTimeOptions, getQuickOptions } from '../../services/timePicker';
 import {
   getDataSourceVariable,
@@ -100,6 +96,7 @@ import {
   provideServiceSelectionQuestions,
   updateAssistantContext,
 } from 'services/assistant';
+import { getLevelsFromLogsVolume } from 'services/logsVolume';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
@@ -754,11 +751,18 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
       const interpolated = interpolateExpression(this, expr);
 
-      return getLevelsTagValuesFromInstantVolumeQuery(
-        this,
+      const reusedLevels = getLevelsFromLogsVolume(this, otherFiltersString);
+      if (reusedLevels) {
+        return Promise.resolve({ replace: true, values: reusedLevels.map((text) => ({ text })) });
+      }
+
+      return getDetectedFieldValuesTagValuesProvider(
+        filter,
+        variable,
         interpolated,
+        this,
         sceneGraph.getTimeRange(this).state.value,
-        otherFiltersString
+        VAR_LEVELS
       );
     };
   }
