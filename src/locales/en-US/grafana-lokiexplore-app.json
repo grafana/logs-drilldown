@@ -154,6 +154,7 @@
           }
         },
         "fields-and-metadata-variable": {
+          "description": "Filter by values extracted from log lines (detected fields from parsers such as JSON or logfmt) and by structured metadata attached to each log line.",
           "label": {
             "fields": "Fields"
           }
@@ -164,6 +165,7 @@
           }
         },
         "label-variable": {
+          "description": "Filter logs by stream labels (for example job or namespace). Label filters are part of the Loki stream selector and apply before log pipelines.",
           "label": {
             "labels": "Labels"
           }
@@ -189,11 +191,13 @@
       },
       "levels-variable-scene": {
         "aria-label-log-level-filters": "Log level filters",
+        "description-log-levels": "Keep only logs whose detected severity matches your selection (for example error or warn). Leave empty to include all levels.",
         "label-log-levels": "Log levels",
         "placeholder-all-levels": "All levels"
       },
       "line-filter-variable": {
         "aria-label-remove-line-filter": "Remove line filter",
+        "description-line-filter": "Match or exclude text in the log line body. You can use plain text, RE2 regular expressions, and case sensitivity.",
         "line-filter": "Line filter"
       },
       "line-filter-variables-scene": {
