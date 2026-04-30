@@ -353,6 +353,31 @@ export class ExplorePage {
     });
   }
 
+  /**
+   * Index scene: `VAR_FIELDS_AND_METADATA` sets placeholder `Filter by fields`; `VAR_FIELDS` ("Detected fields")
+   * uses the scenes default `Filter by label values`, so the Fields-proxy placeholder is unique.
+   * Grafana versions differ on whether the filter control is exposed as combobox name vs placeholder; use
+   * a single union locator and always `.first()` on interaction to avoid duplicate strict violations.
+   */
+  private getIndexAdHocCombobox(comboBox: ComboBoxIndex): Locator {
+    if (comboBox === ComboBoxIndex.labels) {
+      return this.page
+        .getByPlaceholder('Filter by labels')
+        .or(this.page.getByRole('combobox', { name: 'Labels', exact: true }))
+        .or(this.page.getByRole('combobox', { name: 'Filter by labels', exact: true }));
+    }
+    return this.page
+      .getByPlaceholder('Filter by fields')
+      .or(this.page.getByRole('combobox', { name: 'Filter by fields', exact: true }))
+      .or(this.page.getByRole('combobox', { name: 'Fields', exact: true }));
+  }
+
+  /** Opens an index-scene ad hoc combobox; description tooltips (portal) can overlap sibling filters. */
+  private async clickIndexAdHocCombobox(comboBox: ComboBoxIndex): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await this.getIndexAdHocCombobox(comboBox).first().click({ force: true });
+  }
+
   async addNthValueToCombobox(
     labelName: string,
     operator: FilterOpType,
@@ -360,10 +385,7 @@ export class ExplorePage {
     n: number,
     typeAhead?: string
   ) {
-    const placeholder = comboBox === ComboBoxIndex.labels ? 'Filter by labels' : 'Filter by fields';
-    // Open combobox
-    const comboboxLocator = this.page.getByPlaceholder(placeholder);
-    await comboboxLocator.click();
+    await this.clickIndexAdHocCombobox(comboBox);
 
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);
@@ -405,13 +427,10 @@ export class ExplorePage {
     typeAhead?: string,
     exact = false
   ) {
-    await expect(this.page.getByRole('combobox', { name: 'Filter by labels' })).toHaveCount(1);
-    await expect(this.page.getByRole('combobox', { name: 'Filter by fields' })).toHaveCount(1);
+    await expect(this.getIndexAdHocCombobox(ComboBoxIndex.labels).first()).toBeVisible();
+    await expect(this.getIndexAdHocCombobox(ComboBoxIndex.fields).first()).toBeVisible();
 
-    // Open combobox
-    const placeholder = comboBox === ComboBoxIndex.labels ? 'Filter by labels' : 'Filter by fields';
-    const comboboxLocator = this.page.getByRole('combobox', { name: placeholder });
-    await comboboxLocator.click();
+    await this.clickIndexAdHocCombobox(comboBox);
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);
       await this.assertNotLoading();
@@ -478,8 +497,8 @@ export class ExplorePage {
     const labelsPanelMenu = this.page.getByTestId(/data-testid Panel menu/);
     const panelMenuExploreItem = this.page.getByTestId('data-testid Panel menu item Explore');
 
-    // Go to label value summary
-    await this.page.getByText('Select').first().click();
+    // Go to label value summary (stable vs plain-text "Select", which is duplicated / i18n-sensitive)
+    await this.page.getByTestId(testIds.breakdowns.common.selectValueBreakdown).first().click();
 
     // Check first (summary) panel
     await labelsPanelMenu.nth(0).click();
