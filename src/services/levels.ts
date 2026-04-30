@@ -1,4 +1,4 @@
-import { DataFrame } from '@grafana/data';
+import { DataFrame, FieldType } from '@grafana/data';
 import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
@@ -42,7 +42,8 @@ export function getLevelLabelsFromSeries(series: DataFrame[]) {
 }
 
 export function getLabelValueFromDataFrame(frame: DataFrame) {
-  const labels = frame.fields[1]?.labels;
+  const valueField = frame.fields.find((field) => field.type === FieldType.number);
+  const labels = valueField?.labels;
 
   if (!labels) {
     return null;
