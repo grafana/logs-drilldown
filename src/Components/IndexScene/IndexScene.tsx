@@ -96,6 +96,7 @@ import {
   provideServiceSelectionQuestions,
   updateAssistantContext,
 } from 'services/assistant';
+import { getLevelsFromLogsVolume } from 'services/logsVolume';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
@@ -749,6 +750,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const uninterpolatedExpression = getFieldsTagValuesExpression(VAR_LEVELS);
       const expr = uninterpolatedExpression.replace(PENDING_FIELDS_EXPR, otherFiltersString);
       const interpolated = interpolateExpression(this, expr);
+
+      const reusedLevels = getLevelsFromLogsVolume(this, otherFiltersString);
+      if (reusedLevels) {
+        return Promise.resolve({ replace: true, values: reusedLevels.map((text) => ({ text })) });
+      }
 
       return getDetectedFieldValuesTagValuesProvider(
         filter,
