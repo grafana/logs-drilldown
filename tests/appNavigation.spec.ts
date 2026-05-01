@@ -23,23 +23,11 @@ test.describe('navigating app', () => {
 
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
     await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
-    // Scenes 7 disambiguates var-primary_label (claimed by both the variable and ServiceSelectionScene._urlSync)
-    // by appending -2. Accept either form so this test isn't tightly coupled to that disambiguation suffix.
-    // TODO: investigate whether the var-primary_label-2 key breaks bookmarked URL restoration in
-    // ServiceSelectionScene.getSelectedTabFromUrl, which still reads var-primary_label.
-    await expect(page).toHaveURL(/var-primary_label(-\d+)?=service_name/);
+    await expect(page).toHaveURL(/var-primary_label=service_name/);
     await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
 
-    // assert panels are showing — strip the optional -N suffix from var-primary_label so the comparison
-    // is stable across scenes versions.
-    const normalizePrimaryLabelKey = (params: URLSearchParams) => {
-      const out = new URLSearchParams();
-      for (const [key, value] of params) {
-        out.append(key.replace(/^var-primary_label-\d+$/, 'var-primary_label'), value);
-      }
-      return out;
-    };
-    const actualSearchParams = normalizePrimaryLabelKey(new URLSearchParams(page.url().split('?')[1]));
+    // assert panels are showing
+    const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
     const expectedSearchParams = new URLSearchParams(
       '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=&var-jsonFields&var-fields=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-lineFormat=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C.%2B'
     );
