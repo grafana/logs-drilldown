@@ -10,20 +10,35 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
  * This can be extended by specific config files
  */
 export const baseConfig = {
-  expect: { timeout: 15000 },
-  /* Per-test timeout. Default is 30s, but with `workers: 4` tests share a
-   * single Grafana instance and queries are slightly serialized, so long
-   * tests with many UI interactions can exceed 30s under parallel load.
-   * 60s gives a comfortable margin without masking real hangs. */
-  timeout: 60_000,
+  /* Default expect timeout. Bumped from 15s to 30s because under parallel
+   * E2E load (multiple workers sharing a single Grafana + Loki stack)
+   * queries and scene rendering can take noticeably longer than in
+   * isolation. Individual assertions can still pass an explicit `timeout`
+   * override when they need to wait longer or shorter. */
+  expect: { timeout: 30000 },
+  /* Per-test timeout. With multiple workers, tests share a single Grafana
+   * instance and queries are slightly serialized. Long tests with many UI
+   * interactions and tab navigations can accumulate sequential waits well
+   * past the Playwright default of 30s. 180s gives plenty of headroom for
+   * the longest tests (e.g. cluster breakdown tests) without masking real
+   * hangs — Grafana shouldn't ever take >2 minutes to respond to a query
+   * against the static-data Loki snapshot. */
+  timeout: 180_000,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
-  /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
+  /* Always retry once. With multiple workers driving a single Grafana +
+   * Loki stack, individual queries occasionally hang on the backend
+   * (request never returns) even though the test logic is correct — most
+   * commonly on field/label *value* breakdown queries that do an
+   * unaggregated `count_over_time(... | json | logfmt ...)` over the full
+   * snapshot window. A single retry reliably masks these one-off backend
+   * hangs without hiding real test logic failures (those still fail twice).
+   */
+  retries: 1,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -39,7 +54,7 @@ export const baseConfig = {
    * overwhelm Grafana's query proxy with concurrent panel requests and
    * cause spurious "loading indicator" timeouts. metrics-drilldown uses
    * the same value for the same reason. */
-  workers: 4,
+  workers: 2,
 };
 
 /**

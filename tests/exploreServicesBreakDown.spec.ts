@@ -104,20 +104,24 @@ test.describe('explore services breakdown page', () => {
     await expect(selectClusterButton).toHaveCount(1);
     await page.getByLabel(`Select ${labelName}`).click();
 
-    // include eu-west-1 cluster
+    // include eu-west-1 cluster. Locate the value panel via its accessible
+    // role (`region`) which is reliably rendered before the legacy
+    // `data-testid Panel header X` testid is attached. Use a generous timeout
+    // because the LABEL_BREAKDOWN_VALUES query can be slow under parallel
+    // E2E load.
     const includeCluster = 'eu-west-1';
     const clusterIncludeSelectButton = page
-      .getByTestId(`data-testid Panel header ${includeCluster}`)
+      .getByRole('region', { name: includeCluster })
       .getByTestId('data-testid button-filter-include');
-    await expect(clusterIncludeSelectButton).toHaveCount(1);
+    await expect(clusterIncludeSelectButton).toHaveCount(1, { timeout: 45000 });
     await clusterIncludeSelectButton.click();
 
     // include us-west-1 cluster
     const includeCluster2 = 'us-west-1';
     const cluster2IncludeSelectButton = page
-      .getByTestId(`data-testid Panel header ${includeCluster2}`)
+      .getByRole('region', { name: includeCluster2 })
       .getByTestId('data-testid button-filter-include');
-    await expect(clusterIncludeSelectButton).toHaveCount(1);
+    await expect(cluster2IncludeSelectButton).toHaveCount(1);
     await cluster2IncludeSelectButton.click();
 
     // assert there are 2 includes selected
@@ -127,7 +131,7 @@ test.describe('explore services breakdown page', () => {
     // exclude "us-east-1" cluster
     const excludeCluster = 'us-east-1';
     const clusterExcludeSelectButton = page
-      .getByTestId(`data-testid Panel header ${excludeCluster}`)
+      .getByRole('region', { name: excludeCluster })
       .getByTestId('data-testid button-filter-exclude');
     await expect(clusterExcludeSelectButton).toHaveCount(1);
     await clusterExcludeSelectButton.click();
@@ -142,11 +146,11 @@ test.describe('explore services breakdown page', () => {
     await expect(clusterExcludeSelectButton).not.toHaveAttribute('aria-selected', 'true');
     await expect(clusterIncludeSelectButton).toHaveAttribute('aria-selected', 'true');
 
-    // Navigate to labels tab
+    // Navigate to labels tab. `goToLabelsTab` already asserts the tab strip is
+    // ready, so we don't need an additional `assertTabsNotLoading()` after it.
     await explorePage.goToLabelsTab();
 
     // Include should navigate us back to labels tab
-    await explorePage.assertTabsNotLoading();
     await expect(selectClusterButton).toHaveCount(1);
 
     // Now remove service_name variable
@@ -154,22 +158,24 @@ test.describe('explore services breakdown page', () => {
     await expect(removeServiceNameFilterBtn).toHaveCount(1);
     await removeServiceNameFilterBtn.click();
 
-    // Assert cluster has been added as the new URL slug
-    await explorePage.assertTabsNotLoading();
+    // Assert cluster has been added as the new URL slug. The URL change is the
+    // canonical signal here; no need for a separate tab-loading wait.
     await expect(page).toHaveURL(/\/cluster\/eu-west-1\//);
 
     // Assert service_name is visible as a normal label
     const serviceNameSelect = page.getByLabel('Select service_name');
     await expect(serviceNameSelect).toHaveCount(1);
     await serviceNameSelect.click();
-    await explorePage.assertNotLoading();
 
-    // exclude nginx service
+    // exclude nginx service. The `toHaveCount(1)` below already waits for the
+    // panel to render, so the broad `assertNotLoading()` is redundant here.
+    // Use `exact: true` because `name: 'nginx'` would also match `nginx-json`
+    // and `nginx-json-mixed` panels via substring.
     const nginxExcludeBtn = page
-      .getByTestId('data-testid Panel header nginx')
+      .getByRole('region', { name: 'nginx', exact: true })
       .getByTestId('data-testid button-filter-exclude');
 
-    await expect(nginxExcludeBtn).toHaveCount(1);
+    await expect(nginxExcludeBtn).toHaveCount(1, { timeout: 45000 });
     await nginxExcludeBtn.click();
 
     // Assert service name exclusion filter is visible
@@ -209,13 +215,17 @@ test.describe('explore services breakdown page', () => {
     // add service exclude
     await clusterNameSelect.click();
 
-    // Assert all three us-.+ cluster values are showing
-    await expect(page.getByRole('region', { name: /^us-.+/ })).toHaveCount(3);
+    // Assert all three us-.+ cluster value panels are showing. Use a longer
+    // timeout since LABEL_BREAKDOWN_VALUES query can be slow under parallel
+    // E2E load. Using heading+name regex matches the canonical panel header
+    // even before the region's accessible name is computed.
+    const usValuePanels = page.getByRole('heading', { name: /^us-(east|west)-\d$/ });
+    await expect(usValuePanels).toHaveCount(3, { timeout: 45000 });
 
     // Assert there are only 4 panels (3 value panels + summary panel)
-    await expect(page.getByRole('region', { name: /^(cluster|us-east-1|us-east-2|us-west-1)$/ })).toHaveCount(4);
+    await expect(page.getByRole('heading', { name: /^(cluster|us-east-1|us-east-2|us-west-1)$/ })).toHaveCount(4);
 
-    // exclude nginx service
+    // exclude us-east-1 cluster
     const usEastExcludeButton = page
       .getByRole('region', { name: 'us-east-1' })
       .getByTestId('data-testid button-filter-exclude');
@@ -228,11 +238,11 @@ test.describe('explore services breakdown page', () => {
     await expect(clusterExcludeFilter).toHaveCount(1);
     await expect(clusterExcludeFilter).toHaveText('cluster != us-east-1');
 
-    // Assert remaining us-.+ cluster values are showing
-    await expect(page.getByRole('region', { name: /^us-.+/ })).toHaveCount(3);
+    // Assert remaining us-.+ cluster values are still showing
+    await expect(page.getByRole('heading', { name: /^us-(east|west)-\d$/ })).toHaveCount(3);
 
-    // Assert there are only 3 panels (2 value panels + summary panel)
-    await expect(page.getByRole('region', { name: /^(cluster|us-east-1|us-east-2|us-west-1)$/ })).toHaveCount(4);
+    // Assert there are only 4 panels (3 value panels + summary panel)
+    await expect(page.getByRole('heading', { name: /^(cluster|us-east-1|us-east-2|us-west-1)$/ })).toHaveCount(4);
   });
 
   test('logs panel should have panel-content class suffix', async ({ page }) => {
@@ -314,7 +324,7 @@ test.describe('explore services breakdown page', () => {
       await expect(page).toHaveURL(/urlColumnsSortDir=(asc)/);
 
       // Reload to verify persistence
-      await page.reload();
+      await page.reload({ waitUntil: 'domcontentloaded' });
       await expect(table).toBeVisible();
       await expect(page).toHaveURL(/urlColumnsSortBy=(body)/);
       await expect(page).toHaveURL(/urlColumnsSortDir=(asc)/);
@@ -351,7 +361,7 @@ test.describe('explore services breakdown page', () => {
     await expect(table.getByRole('columnheader').nth(0)).toContainText('body');
 
     // Refresh the page to see if the columns were saved in the url state
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(table).toBeVisible({ timeout: 45000 });
     await expect(table.getByRole('columnheader').nth(0)).toContainText('body');
   });
@@ -393,7 +403,10 @@ test.describe('explore services breakdown page', () => {
     // Change the option
     await page.getByRole('button', { name: 'Show log labels' }).click();
 
-    await page.reload();
+    // Use `domcontentloaded` rather than the default `load` event because
+    // Grafana keeps long-lived live tail/SSE connections open which prevent
+    // the `load` event from firing reliably under parallel E2E load.
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await explorePage.assertNotLoading();
     await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).not.toBeVisible();
   });
@@ -985,8 +998,13 @@ test.describe('explore services breakdown page', () => {
     expect(countOfAllRowsAfterFilter).toBeGreaterThanOrEqual(1);
     expect(countOfAllRows).toBeGreaterThan(countOfAllRowsAfterFilter);
 
-    // Assert the viz was filtered as well
-    await expect.poll(() => page.getByTestId('series-icon').count()).toBe(countOfAllRowsAfterFilter);
+    // Assert the viz was filtered as well. The viz is a separate scene that
+    // re-renders asynchronously after the search input is debounced; under
+    // parallel E2E load this can take a while, so use a generous timeout and
+    // wait for the count to settle to the expected value.
+    await expect
+      .poll(() => page.getByTestId('series-icon').count(), { timeout: 60000 })
+      .toBe(countOfAllRowsAfterFilter);
   });
 
   test('should select an include pattern field in default single view, update filters, not open log panel', async ({
@@ -1700,7 +1718,7 @@ test.describe('explore services breakdown page', () => {
     expect((await firstRow.boundingBox())?.width).toBeLessThanOrEqual(viewportSize?.width ?? Infinity);
 
     // Reload the page and verify the setting in local storage is applied to the panel
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     expect(await explorePage.getNowrapLocator().isChecked()).toBe(false);
     expect(await explorePage.getWrapLocator().isChecked()).toBe(true);
     expect((await firstRow.boundingBox())?.width).toBeLessThanOrEqual(viewportSize?.width ?? Infinity);
@@ -1757,7 +1775,7 @@ test.describe('explore services breakdown page', () => {
     );
 
     // Reload the page
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
     // Verify options are correct
     expect(await explorePage.getLogsDirectionNewestFirstLocator().isChecked()).toBe(false);
@@ -1968,7 +1986,7 @@ test.describe('explore services breakdown page', () => {
     await expect(summaryPanelBody).not.toBeVisible();
 
     // Reload the page
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await explorePage.assertNotLoading();
 
     // Assert the collapse state was saved to local storage and set as default

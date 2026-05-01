@@ -254,7 +254,7 @@ test.describe('embed', () => {
 
     await explorePage.addCustomValueToCombobox(labelName, FilterOp.RegexEqual, ComboBoxIndex.labels, `us-.+`);
     await assertFiltersAreReadOnly();
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await assertFiltersAreReadOnly();
 
     // Remove all filters

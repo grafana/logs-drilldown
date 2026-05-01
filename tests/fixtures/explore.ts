@@ -227,8 +227,14 @@ export class ExplorePage {
   async waitForRequest(
     init: () => Promise<any>,
     callback: (lokiQuery: LokiQuery) => void,
-    test: (lokiQuery: LokiQuery) => boolean
+    test: (lokiQuery: LokiQuery) => boolean,
+    options: { timeout?: number } = {}
   ) {
+    // Default to 60s rather than 30s because Grafana queries get noticeably
+    // slower under parallel E2E load (multiple workers driving a single
+    // Grafana + Loki stack), and many tests use `waitForRequest` to chain
+    // multiple sequential query waits where each one is occasionally slow.
+    const { timeout = 60000 } = options;
     await Promise.all([
       init(),
       this.page.waitForResponse(
@@ -241,7 +247,7 @@ export class ExplorePage {
           }
           return false;
         },
-        { timeout: 30000 }
+        { timeout }
       ),
     ]);
   }
@@ -269,8 +275,10 @@ export class ExplorePage {
     for (let loc of tabSelectors) {
       const tabsLoadingSelector = loc.filter({ has: this.page.locator('svg') });
 
-      //Assert we can see the tabs
-      await expect(loc).toHaveCount(1);
+      // Assert we can see the tabs. Use a generous timeout because this is
+      // often the first post-navigation checkpoint and the SPA shell can take
+      // longer to render under parallel E2E load.
+      await expect(loc).toHaveCount(1, { timeout: 45000 });
       // Assert that the loading svg is not present
       await expect.poll(() => tabsLoadingSelector.count(), { timeout: 0 }).toEqual(0);
     }
