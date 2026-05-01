@@ -60,15 +60,17 @@ test.describe('explore services page', () => {
       // Assert nginx is showing as a favorite
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
 
-      // Clear the search filter — the clear button uses aria-label (old Select) or title (new Combobox)
-      await page.getByRole('button', { name: 'Clear value' }).first().click();
+      // Clear search filter
+      await page.getByLabel('Remove filter with key service_name').click();
 
       // Assert there is more than one result now
       await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
 
-      // Assert that the first element is nginx with the Remove filter action
+      // Assert that the first element is nginx (because it's a favorite, even with no filters)
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
-      await expect(explorePage.getPanelHeaderLocator().first().getByText('Remove', { exact: true })).toBeVisible();
+      await expect(
+        explorePage.getPanelHeaderLocator().first().getByRole('button', { name: 'Remove nginx from favorites' })
+      ).toBeVisible();
       await explorePage.servicesSearch.click();
 
       // assert the first element has nginx

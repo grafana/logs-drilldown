@@ -150,26 +150,32 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
 
     this._subs.add(this.getQuerySubscription(key, $data, panel));
 
-    context.onToggleSeriesVisibility = (value: string, mode: SeriesVisibilityChangeMode) => {
-      let action: FilterType;
-      if (this.state.type === 'label') {
-        if (key === LEVEL_VARIABLE_VALUE) {
-          action = toggleLevelFromFilter(value, this);
-        } else {
-          action = toggleLabelFromFilter(key, value, this);
-        }
-      } else {
-        action = toggleFieldFromFilter(key, value, this);
+    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
+      if (label == null) {
+        return;
       }
-
-      reportAppInteraction(
-        USER_EVENTS_PAGES.service_details,
-        USER_EVENTS_ACTIONS.service_details.label_in_panel_summary_clicked,
-        {
-          action,
-          label: value,
+      const values = Array.isArray(label) ? label : [label];
+      for (const value of values) {
+        let action: FilterType;
+        if (this.state.type === 'label') {
+          if (key === LEVEL_VARIABLE_VALUE) {
+            action = toggleLevelFromFilter(value, this);
+          } else {
+            action = toggleLabelFromFilter(key, value, this);
+          }
+        } else {
+          action = toggleFieldFromFilter(key, value, this);
         }
-      );
+
+        reportAppInteraction(
+          USER_EVENTS_PAGES.service_details,
+          USER_EVENTS_ACTIONS.service_details.label_in_panel_summary_clicked,
+          {
+            action,
+            label: value,
+          }
+        );
+      }
     };
   };
 
