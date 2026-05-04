@@ -132,7 +132,7 @@ const datasourceUrlKey = 'var-ds';
 
 export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionSceneState> {
   // Note: We intentionally do NOT register a SceneObjectUrlSyncConfig for `var-primary_label`
-  // Registering it on this scene as well makes scenes 7's UniqueUrlKeyMapper add `var-primary_label-2` to the URL (@grafana/scenes#1395)
+  // Registering it on this scene as well makes scenes@7 UniqueUrlKeyMapper add `var-primary_label-2` to the URL (@grafana/scenes#1395)
 
   constructor(state: Partial<ServiceSelectionSceneState>) {
     super({
