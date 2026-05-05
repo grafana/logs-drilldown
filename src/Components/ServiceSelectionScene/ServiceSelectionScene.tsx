@@ -1087,8 +1087,14 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       const levelsToToggle = Array.isArray(level) ? level : [level];
       const allLevels = getLevelLabelsFromSeries(panel.state.$data?.state.data?.series ?? []);
       let nextLevels: string[] = this.state.serviceLevel.get(labelValue) ?? [];
-      for (const lv of levelsToToggle) {
-        nextLevels = toggleLevelVisibility(lv, nextLevels, mode, allLevels);
+
+      if (Array.isArray(level) && mode === SeriesVisibilityChangeMode.ToggleSelection) {
+        // For multi-select payloads, treat the whole selection as one action to avoid collapsing to the last label.
+        nextLevels = areArraysEqual(nextLevels, levelsToToggle) ? [] : levelsToToggle;
+      } else {
+        for (const lv of levelsToToggle) {
+          nextLevels = toggleLevelVisibility(lv, nextLevels, mode, allLevels);
+        }
       }
       this.state.serviceLevel.set(labelValue, nextLevels);
 
