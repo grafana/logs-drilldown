@@ -193,10 +193,11 @@
         "placeholder-all-levels": ""
       },
       "line-filter-variable": {
-        "aria-label-collapse-filter": "",
         "aria-label-remove-line-filter": "",
-        "line-filter": "",
-        "tooltip-collapse": ""
+        "line-filter": ""
+      },
+      "line-filter-variables-scene": {
+        "aria-label-add-line-filter": ""
       },
       "pattern-controls": {
         "excluded-pattern": "",
