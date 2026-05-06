@@ -1,16 +1,4 @@
 # Mock-only stack for the Playwright e2e suite.
-#
-# Standalone — no `extends`. The Playwright suite runs entirely against fake
-# fixtures in tests/mocks/, so we just need Grafana with the unsigned plugin
-# volume-mounted in. Everything is spelled out inline so CI behaviour matches
-# local exactly.
-#
-# Why we BUILD from .config/Dockerfile instead of using `image:` directly:
-# the stock `grafana/grafana-enterprise:13.0.1` image takes 9+ seconds in
-# Docker's "Creating" phase on the CI runner (container layer materialisation),
-# which combined with Grafana's own startup pushes us past CI's 60s
-# wait-for-grafana budget. Building locally produces a flat image layer that
-# Docker can instantiate in <100ms.
 services:
   grafana:
     container_name: 'grafana-logsapp'
@@ -47,9 +35,3 @@ services:
       # `host-gateway` would be more portable but fails on the self-hosted
       # CI runners.
       - 'host.docker.internal:172.17.0.1'
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -q -O - http://localhost:3000/grafana/api/health || exit 1']
-      interval: 3s
-      timeout: 3s
-      retries: 30
-      start_period: 60s
