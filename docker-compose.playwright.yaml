@@ -1,8 +1,16 @@
 # Mock-only stack for the Playwright e2e suite.
-#
-# Brings up only the Grafana container — no Loki, Tempo, Prometheus, Alloy, or generator.
 services:
   grafana:
     extends:
-      file: docker-compose.dev.yaml
+      file: docker-compose-defaults.yaml
       service: grafana
+    container_name: 'grafana-logsapp'
+    build:
+      context: ./.config
+      args:
+        grafana_image: ${GRAFANA_IMAGE:-grafana}
+    extra_hosts:
+      # Mocks intercept all data-source HTTP traffic so this isn't strictly
+      # required, but the provisioned datasources reference host.docker.internal
+      # — keeping it avoids name-resolution warnings at startup.
+      - 'host.docker.internal:172.17.0.1'
