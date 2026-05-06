@@ -1,7 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
+import { devices } from '@playwright/test';
 import { dirname } from 'node:path';
-
-import type { PluginOptions } from '@grafana/plugin-e2e';
 
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
@@ -17,7 +15,7 @@ export const baseConfig = {
   fullyParallel: true,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
-  /* Retry flaky tests once. Same in CI and local so behaviour is identical. */
+  /* Retry flaky tests once. Same in CI and local so behavior is identical. */
   retries: 1,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
