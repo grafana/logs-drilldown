@@ -1,20 +1,30 @@
 # Mock-only stack for the Playwright e2e suite.
 #
-# Standalone on purpose — no `extends` and no custom Dockerfile. The Playwright
-# suite runs entirely against fake fixtures in tests/mocks/, so we just need
-# stock Grafana with the unsigned plugin volume-mounted in. Everything is
-# spelled out inline so CI behaviour matches local exactly (the chained
-# `playwright -> dev -> defaults -> .config/base` extends approach was failing
-# in CI with the container Started but Grafana never binding the HTTP port).
+# Standalone — no `extends`. The Playwright suite runs entirely against fake
+# fixtures in tests/mocks/, so we just need Grafana with the unsigned plugin
+# volume-mounted in. Everything is spelled out inline so CI behaviour matches
+# local exactly.
+#
+# Why we BUILD from .config/Dockerfile instead of using `image:` directly:
+# the stock `grafana/grafana-enterprise:13.0.1` image takes 9+ seconds in
+# Docker's "Creating" phase on the CI runner (container layer materialisation),
+# which combined with Grafana's own startup pushes us past CI's 60s
+# wait-for-grafana budget. Building locally produces a flat image layer that
+# Docker can instantiate in <100ms.
 services:
   grafana:
-    image: grafana/${GRAFANA_IMAGE:-grafana-enterprise}:${GRAFANA_VERSION:-13.0.1}
     container_name: 'grafana-logsapp'
     user: root
+    build:
+      context: ./.config
+      args:
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-13.0.1}
+        development: 'false'
+        anonymous_auth_enabled: 'true'
     ports:
       - 3001:3000/tcp
     environment:
-      # Auth — anonymous admin so Playwright doesn't need to log in.
       GF_AUTH_ANONYMOUS_ENABLED: 'true'
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_BASIC_ENABLED: 'false'
@@ -24,7 +34,6 @@ services:
       GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
       GF_SERVER_ROOT_URL: http://localhost:3001/grafana
 
-      # Plugin loading — the unsigned dev build needs to be allowlisted.
       GF_DEFAULT_APP_MODE: development
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-lokiexplore-app
       GF_PLUGINS_PREINSTALL_DISABLED: 'true'
@@ -33,11 +42,12 @@ services:
     volumes:
       - ./dist:/var/lib/grafana/plugins/grafana-lokiexplore-app
       - ./provisioning:/etc/grafana/provisioning
+    extra_hosts:
+      # 172.17.0.1 is the default Docker bridge gateway on Linux runners.
+      # `host-gateway` would be more portable but fails on the self-hosted
+      # CI runners.
+      - 'host.docker.internal:172.17.0.1'
     healthcheck:
-      # CI waits 60s for /grafana to return 200; mirror that locally so
-      # `docker compose up -d` blocks until Grafana is actually ready (and
-      # surfaces failures via `docker compose ps` instead of silently
-      # appearing healthy while the HTTP port is dead).
       test: ['CMD-SHELL', 'wget -q -O - http://localhost:3000/grafana/api/health || exit 1']
       interval: 3s
       timeout: 3s

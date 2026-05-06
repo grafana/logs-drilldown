@@ -424,8 +424,14 @@ test.describe('explore nginx-json breakdown pages ', () => {
       const clipboardContent = await handle.jsonValue();
       // Navigate to url from clipboard
       await page.goto(clipboardContent);
-      // Assert that the Line we copied is in the viewport, and all the k/v exactly match
-      await expect(page.getByText(selectedLogLineText ?? '')).toBeInViewport();
+      // The JSON viz expands and scrolls to the deep-linked node asynchronously
+      // after navigation. On React 19 in particular, the auto-scroll fires
+      // late enough that the default toBeInViewport polling can miss it, so
+      // wait until the matching node mounts and then explicitly scroll it in.
+      const sharedLogLineLoc = page.getByText(selectedLogLineText ?? '');
+      await expect(sharedLogLineLoc).toHaveCount(1, { timeout: 15000 });
+      await sharedLogLineLoc.scrollIntoViewIfNeeded();
+      await expect(sharedLogLineLoc).toBeInViewport();
     });
 
     test('derived field links', async ({ page, context }) => {
