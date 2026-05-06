@@ -281,7 +281,10 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       })
     );
 
-    context.onToggleSeriesVisibility = (label: string, mode: SeriesVisibilityChangeMode) => {
+    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
+      if (label == null || Array.isArray(label)) {
+        return;
+      }
       const action = toggleLevelFromFilter(label, this);
       this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, label), true);
 

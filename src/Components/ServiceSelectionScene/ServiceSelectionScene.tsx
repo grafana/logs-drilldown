@@ -23,8 +23,6 @@ import {
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
-  SceneObjectUrlSyncConfig,
-  SceneObjectUrlValues,
   SceneQueryRunner,
   SceneVariableSet,
   VizPanel,
@@ -133,9 +131,8 @@ const primaryLabelUrlKey = 'var-primary_label';
 const datasourceUrlKey = 'var-ds';
 
 export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionSceneState> {
-  protected _urlSync = new SceneObjectUrlSyncConfig(this, {
-    keys: [primaryLabelUrlKey],
-  });
+  // Note: We intentionally do NOT register a SceneObjectUrlSyncConfig for `var-primary_label`
+  // Registering it on this scene as well makes scenes@7 UniqueUrlKeyMapper add `var-primary_label-2` to the URL (@grafana/scenes#1395)
 
   constructor(state: Partial<ServiceSelectionSceneState>) {
     super({
@@ -355,34 +352,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       }
     );
   }, 500);
-
-  /**
-   * Set changes from the URL to the state of the primary label variable
-   */
-  getUrlState() {
-    const { key } = getSelectedTabFromUrl();
-    const primaryLabelVar = getServiceSelectionPrimaryLabel(this);
-    const filter = primaryLabelVar.state.filters[0];
-
-    if (filter.key && filter.key !== key) {
-      getServiceSelectionPrimaryLabel(this).setState({
-        filters: [
-          {
-            ...filter,
-            key: key ?? filter.key,
-          },
-        ],
-      });
-    }
-
-    return {};
-  }
-
-  /**
-   * Unused, but required
-   * @param values
-   */
-  updateFromUrl(values: SceneObjectUrlValues) {}
 
   addDatasourceChangeToBrowserHistory(newDs: string) {
     const location = locationService.getLocation();
@@ -1109,12 +1078,25 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   ) => {
     const originalOnToggleSeriesVisibility = context.onToggleSeriesVisibility;
 
-    context.onToggleSeriesVisibility = (level: string, mode: SeriesVisibilityChangeMode) => {
+    context.onToggleSeriesVisibility = (level: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
       originalOnToggleSeriesVisibility?.(level, mode);
 
+      if (level == null) {
+        return;
+      }
+      const levelsToToggle = Array.isArray(level) ? level : [level];
       const allLevels = getLevelLabelsFromSeries(panel.state.$data?.state.data?.series ?? []);
-      const levels = toggleLevelVisibility(level, this.state.serviceLevel.get(labelValue), mode, allLevels);
-      this.state.serviceLevel.set(labelValue, levels);
+      let nextLevels: string[] = this.state.serviceLevel.get(labelValue) ?? [];
+
+      if (Array.isArray(level) && mode === SeriesVisibilityChangeMode.ToggleSelection) {
+        // For multi-select payloads, treat the whole selection as one action to avoid collapsing to the last label.
+        nextLevels = areArraysEqual(nextLevels, levelsToToggle) ? [] : levelsToToggle;
+      } else {
+        for (const lv of levelsToToggle) {
+          nextLevels = toggleLevelVisibility(lv, nextLevels, mode, allLevels);
+        }
+      }
+      this.state.serviceLevel.set(labelValue, nextLevels);
 
       this.updateServiceLogs(labelName, labelValue);
     };

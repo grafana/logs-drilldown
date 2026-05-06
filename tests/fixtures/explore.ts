@@ -405,12 +405,12 @@ export class ExplorePage {
     typeAhead?: string,
     exact = false
   ) {
-    await expect(this.page.getByRole('combobox', { name: 'Filter by labels' })).toHaveCount(1);
-    await expect(this.page.getByRole('combobox', { name: 'Filter by fields' })).toHaveCount(1);
+    await expect(this.page.getByRole('combobox', { name: 'Labels' })).toHaveCount(1);
+    await expect(this.page.getByRole('combobox', { name: 'Fields' })).toHaveCount(1);
 
     // Open combobox
-    const placeholder = comboBox === ComboBoxIndex.labels ? 'Filter by labels' : 'Filter by fields';
-    const comboboxLocator = this.page.getByRole('combobox', { name: placeholder });
+    const accessibleName = comboBox === ComboBoxIndex.labels ? 'Labels' : 'Fields';
+    const comboboxLocator = this.page.getByRole('combobox', { name: accessibleName });
     await comboboxLocator.click();
     if (typeAhead) {
       await this.page.keyboard.type(typeAhead);

@@ -1075,22 +1075,17 @@ test.describe('explore services breakdown page', () => {
   test('Should filter patterns by level', async ({ page }) => {
     await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
     await explorePage.assertTabsNotLoading();
-    // Get total count of rows
-    const unfilteredRowsCount = await page
-      .getByTestId('data-testid table-wrapper')
-      .locator('[role="rowgroup"] [role="row"]')
-      .count();
-    // Click on level within table
-    await page.getByTestId('data-testid table-wrapper').getByRole('button', { name: 'debug' }).click();
-    const filteredRowsCount = await page
-      .getByTestId('data-testid table-wrapper')
-      .locator('[role="rowgroup"] [role="row"]')
-      .count();
 
-    // Assert only one pattern has debug level
-    expect(filteredRowsCount).toBe(1);
-    // Assert total count of rows is greater than 1
-    expect(unfilteredRowsCount).toBeGreaterThan(filteredRowsCount);
+    const rows = page.getByTestId('data-testid table-wrapper').locator('[role="rowgroup"] [role="row"]');
+
+    // Get total count of rows once the table has settled
+    await expect(rows.first()).toBeVisible();
+    const unfilteredRowsCount = await rows.count();
+    expect(unfilteredRowsCount).toBeGreaterThan(1);
+
+    // Click on level within table to filter to debug only — wait for the table to converge to 1 row
+    await page.getByTestId('data-testid table-wrapper').getByRole('button', { name: 'debug' }).click();
+    await expect(rows).toHaveCount(1);
 
     // remove level filter from variable
     await page
@@ -1098,10 +1093,8 @@ test.describe('explore services breakdown page', () => {
       .getByRole('button', { name: 'Remove' })
       .click();
 
-    // assert after removing the level filter we see the full count of rows again
-    expect(
-      await page.getByTestId('data-testid table-wrapper').locator('[role="rowgroup"] [role="row"]').count()
-    ).toEqual(unfilteredRowsCount);
+    // Wait for the patterns query to refire and the table to return to its full size
+    await expect(rows).toHaveCount(unfilteredRowsCount);
   });
   test('Should only call patterns API once on time range change', async ({ page }) => {
     let patternsCount = 0;
