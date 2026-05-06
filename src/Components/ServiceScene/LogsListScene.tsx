@@ -332,7 +332,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       );
     } else {
       this.showLogsError(
-        'No logs match your search. Please try a with different labels or an alternative time range.',
+        'No logs match your search. Please try again with different labels or an alternative time range.',
         'no-logs'
       );
     }
