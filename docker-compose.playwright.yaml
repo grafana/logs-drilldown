@@ -1,0 +1,8 @@
+# Mock-only stack for the Playwright e2e suite.
+#
+# Brings up only the Grafana container — no Loki, Tempo, Prometheus, Alloy, or generator.
+services:
+  grafana:
+    extends:
+      file: docker-compose.dev.yaml
+      service: grafana

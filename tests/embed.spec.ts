@@ -7,6 +7,8 @@ import { FilterOp } from '../src/services/filterTypes';
 import { testIds } from '../src/services/testIds';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { ComboBoxIndex, ExplorePage } from './fixtures/explore';
+import { mockExploreApi } from './fixtures/mockExploreApi';
+import { loadBreakdownTempoDistributor } from './mocks/scenarios/loadBreakdownTempoDistributor';
 
 const fieldName = 'caller';
 const labelName = 'cluster';
@@ -67,10 +69,12 @@ test.describe('embed', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
-    // Make it go. Make it go fast.
-    explorePage.blockAllQueriesExcept({
-      refIds: ['null'],
-    });
+    // Mocks instead of real Loki: register the default scenario plus the
+    // `tempo-distributor` breakdown loader (the embed URL points at that
+    // service). Tests that still want to stub specific queries layer
+    // `blockAllQueriesExcept` on top — allowed refIds fall back to these mocks.
+    await mockExploreApi(page);
+    await loadBreakdownTempoDistributor(page);
     await explorePage.gotoEmbedUrl();
     explorePage.captureConsoleLogs();
 
@@ -259,6 +263,10 @@ test.describe('embed', () => {
     await page.getByLabel('Remove filter with key service_name').click();
     await page.getByLabel('Remove filter with key cluster').click();
     await expect(page.getByText('Please select at least one label to see the logs breakdown.')).toHaveCount(1);
+    // Removing the last filter focuses the labels combobox, which opens
+    // its listbox in a floating-ui portal that overlaps the Reset button.
+    // Press Escape to close the listbox so the click isn't intercepted.
+    await page.keyboard.press('Escape');
     await page.getByText('Reset').first().click();
     await explorePage.addCustomValueToCombobox(
       labelName,

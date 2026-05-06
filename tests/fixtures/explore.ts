@@ -1,4 +1,4 @@
-import { ConsoleMessage, Locator, Page, TestInfo } from '@playwright/test';
+import { ConsoleMessage, Locator, Page, Request, TestInfo } from '@playwright/test';
 
 import { DataFrameJSON } from '@grafana/data';
 import { expect } from '@grafana/plugin-e2e';
@@ -7,6 +7,7 @@ import pluginJson from '../../src/plugin.json';
 import { FilterOp, FilterOpType } from '../../src/services/filterTypes';
 import { LokiQuery } from '../../src/services/lokiQuery';
 import { testIds } from '../../src/services/testIds';
+import { SNAPSHOT_FROM_PARAM, SNAPSHOT_TO_PARAM } from '../mocks/snapshotTime';
 
 export type CapturedResponses = CapturedResponse[];
 
@@ -138,8 +139,13 @@ export class ExplorePage {
     await this.page.unrouteAll({ behavior: 'ignoreErrors' });
   }
 
-  async gotoServices() {
-    await this.page.goto(`/a/${pluginJson.id}/explore`);
+  /**
+   * Navigate to /explore. By default uses the fixed snapshot time range so
+   * static mocks render in-range. Pass `from`/`to` overrides (e.g. `'now-15m'`,
+   * `'now'`) when running against live Loki — the mock recorder does this.
+   */
+  async gotoServices(from: string = SNAPSHOT_FROM_PARAM, to: string = SNAPSHOT_TO_PARAM) {
+    await this.page.goto(`/a/${pluginJson.id}/explore?from=${from}&to=${to}`);
   }
 
   async addServiceName() {
@@ -274,14 +280,18 @@ export class ExplorePage {
     await main.evaluate((main) => main.scrollTo(0, 0));
   }
 
-  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
+  async gotoServicesBreakdownOldUrl(
+    serviceName = 'tempo-distributor',
+    from: string = SNAPSHOT_FROM_PARAM,
+    to: string = SNAPSHOT_TO_PARAM
+  ) {
     await this.page.goto(
-      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
+      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=${to}`
     );
   }
 
-  async gotoEmbedUrl() {
-    await this.page.goto(`/a/${pluginJson.id}/embed`);
+  async gotoEmbedUrl(from: string = SNAPSHOT_FROM_PARAM, to: string = SNAPSHOT_TO_PARAM) {
+    await this.page.goto(`/a/${pluginJson.id}/embed?from=${from}&to=${to}`);
   }
 
   async gotoServicesOldUrlLineFilters(
@@ -306,51 +316,144 @@ export class ExplorePage {
     sortOrder: 'Ascending' | 'Descending' = 'Descending',
     wrapLogMessage: 'false' | 'true' = 'false'
   ) {
-    const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=now-5m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
+    const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=${SNAPSHOT_FROM_PARAM}&to=${SNAPSHOT_TO_PARAM}&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
     await this.page.goto(url);
   }
 
+  /**
+   * Capture `/ds/query` requests/responses for a subset of refIds/legendFormats
+   * so a test can assert on them. The route handler delegates to whatever
+   * scenario is currently registered (default or layered) via `route.fallback()`,
+   * and a `page.on('response')` listener pulls the JSON body for matched
+   * requests so tests don't have to know which scenario is serving the data.
+   *
+   * Use cases:
+   *   - assert that a UI action fires a specific query (`requests`)
+   *   - assert that a panel rendered specific frames (`responses`)
+   */
+  captureQueries(options: {
+    legendFormats?: string[];
+    refIds?: Array<string | RegExp>;
+    requests?: PlaywrightRequest[];
+    responses?: CapturedResponses;
+  }) {
+    const matched = new WeakMap<Request, { legendFormat?: string; refId: string }>();
+
+    this.page.route('**/ds/query**', async (route) => {
+      const request = route.request();
+      const post = request.postDataJSON();
+      const queries = post.queries as LokiQuery[];
+      const refId = queries[0].refId;
+      const legendFormat = queries[0].legendFormat;
+
+      const isMatch =
+        options?.refIds?.some((refIdToTarget) => refId.match(refIdToTarget)) ||
+        (legendFormat && options?.legendFormats?.includes(legendFormat));
+
+      if (isMatch) {
+        if (options.requests) {
+          options.requests.push({ post: request.postDataJSON(), url: request.url() });
+        }
+        if (options.responses) {
+          matched.set(request, { legendFormat, refId });
+        }
+      }
+
+      await route.fallback();
+    });
+
+    if (options.responses) {
+      this.page.on('response', async (response) => {
+        const wanted = matched.get(response.request());
+        if (!wanted) {
+          return;
+        }
+        try {
+          const json = await response.json();
+          const key = wanted.refId ?? wanted.legendFormat ?? '';
+          options.responses!.push({ [key]: { ...json, status: response.status() } } as CapturedResponse);
+        } catch {
+          // non-JSON response — nothing useful to capture.
+        }
+      });
+    }
+  }
+
+  /**
+   * Force-empty every `/ds/query` response except for the listed refIds /
+   * legendFormats — those still get served by the registered scenario. Useful
+   * for tests that need a tightly controlled "only the queries I care about
+   * return data" environment (e.g. asserting that a UI element only appears
+   * when a specific field has data).
+   *
+   * Most tests should NOT need this — `mockExploreApi` already serves every
+   * query. Reach for `captureQueries` if you only need to inspect what fired,
+   * and `blockAllQueriesExcept` only when the test depends on other queries
+   * returning empty.
+   */
   blockAllQueriesExcept(options: {
     legendFormats?: string[];
     refIds?: Array<string | RegExp>;
     requests?: PlaywrightRequest[];
     responses?: CapturedResponses;
   }) {
-    // Let's not wait for all these queries
+    // The original implementation called route.continue() for allowed queries,
+    // which bypassed any previously-registered ds/query handler and went
+    // straight to the live Loki backend. Without that backend, a subsequent
+    // call to blockAllQueriesExcept would *stack* on top of the previous one,
+    // and an "allowed-here-but-not-there" query would still get blocked. We
+    // unroute the prior handler (matched by the same pattern) so the latest
+    // call to this helper is the only block layer active. Scenario handlers
+    // registered with `**/ds/query*` (single star) are not affected.
+    void this.page.unroute('**/ds/query**');
+    const matched = new WeakMap<Request, { legendFormat?: string; refId: string }>();
+
     this.page.route('**/ds/query**', async (route) => {
-      const post = route.request().postDataJSON();
+      const request = route.request();
+      const post = request.postDataJSON();
       const queries = post.queries as LokiQuery[];
       const refId = queries[0].refId;
       const legendFormat = queries[0].legendFormat;
 
-      if (
+      const allowed =
         options?.refIds?.some((refIdToTarget) => refId.match(refIdToTarget)) ||
-        (legendFormat && options?.legendFormats?.includes(legendFormat))
-      ) {
-        if (options.responses || options.requests) {
-          const response = await route.fetch();
-          const json = await response.json();
-          if (options.responses) {
-            options?.responses?.push({ [refId ?? legendFormat]: json });
-          }
+        (legendFormat && options?.legendFormats?.includes(legendFormat));
 
-          if (options?.requests) {
-            const request = route.request();
-            const requestObject: PlaywrightRequest = {
-              post: request.postDataJSON(),
-              url: request.url(),
-            };
-            options?.requests?.push(requestObject);
-          }
-
-          await route.fulfill({ json, response });
-        } else {
-          await route.continue();
+      if (allowed) {
+        if (options.requests) {
+          options.requests.push({ post: request.postDataJSON(), url: request.url() });
         }
+        if (options.responses) {
+          // Capture by listening on `response` so the data comes from whichever
+          // scenario is registered (default mockExploreApi or a layered loader)
+          // — never the live Loki backend. The handler still calls
+          // `route.fallback()` so the registered mock actually serves the page.
+          matched.set(request, { legendFormat, refId });
+        }
+        await route.fallback();
       } else {
+        // The original `blockAllQueriesExcept` returned an empty JSON array;
+        // some downstream tests rely on Grafana treating that as a transient
+        // empty payload (and not as a fully-formed `{ results: {} }` response).
         await route.fulfill({ json: [] });
       }
     });
+
+    if (options.responses) {
+      this.page.on('response', async (response) => {
+        const wanted = matched.get(response.request());
+        if (!wanted) {
+          return;
+        }
+        try {
+          const json = await response.json();
+          const key = wanted.refId ?? wanted.legendFormat ?? '';
+          options.responses!.push({ [key]: json } as CapturedResponse);
+        } catch {
+          // non-JSON response — nothing useful to capture.
+        }
+      });
+    }
   }
 
   async addNthValueToCombobox(

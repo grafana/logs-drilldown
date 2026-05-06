@@ -11,7 +11,23 @@ import {
   levelTextMatch,
   serviceSelectionPaginationTextMatch,
 } from './fixtures/explore';
-import { getMockVolumeApiResponse } from './mocks/getMockVolumeApiResponse';
+import { mockExploreApi } from './fixtures/mockExploreApi';
+import { nextIncrementingVolumeResponse, volumeResponse } from './mocks/labels/_global';
+import { loadBreakdownNamespaceGateway } from './mocks/scenarios/loadBreakdownNamespaceGateway';
+import { loadBreakdownNamespaceMimir } from './mocks/scenarios/loadBreakdownNamespaceMimir';
+import { loadBreakdownNginx } from './mocks/scenarios/loadBreakdownNginx';
+import { loadBreakdownTempoDistributor } from './mocks/scenarios/loadBreakdownTempoDistributor';
+import { loadBreakdownTempoDistributorWithLevelInfo } from './mocks/scenarios/loadBreakdownTempoDistributorWithLevelInfo';
+import { loadServiceSelectionFilterImi } from './mocks/scenarios/loadServiceSelectionFilterImi';
+import { loadServiceSelectionFilterMimir } from './mocks/scenarios/loadServiceSelectionFilterMimir';
+import { loadServiceSelectionFilterMimirI } from './mocks/scenarios/loadServiceSelectionFilterMimirI';
+import { loadServiceSelectionFilterNamespaceGateway } from './mocks/scenarios/loadServiceSelectionFilterNamespaceGateway';
+import { loadServiceSelectionFilterNginxExact } from './mocks/scenarios/loadServiceSelectionFilterNginxExact';
+import { loadServiceSelectionFilterTempoD } from './mocks/scenarios/loadServiceSelectionFilterTempoD';
+import { loadServiceSelectionFilterTempoI } from './mocks/scenarios/loadServiceSelectionFilterTempoI';
+import { loadServiceSelectionDefault } from './mocks/scenarios/loadServiceSelectionDefault';
+import { loadServiceSelectionNamespaceTab } from './mocks/scenarios/loadServiceSelectionNamespaceTab';
+import { SNAPSHOT_FROM_PARAM, SNAPSHOT_TO_PARAM } from './mocks/snapshotTime';
 
 test.describe('explore services page', () => {
   let explorePage: ExplorePage;
@@ -25,6 +41,7 @@ test.describe('explore services page', () => {
       await page.setViewportSize({ height: 600, width: 1280 });
       await explorePage.clearLocalStorage();
       explorePage.captureConsoleLogs();
+      await mockExploreApi(page);
     });
 
     test.afterEach(async ({ page }) => {
@@ -41,6 +58,9 @@ test.describe('explore services page', () => {
       // Expect the first result to be tempo-distributor
       await expect(firstResult).not.toContainText('nginx');
 
+      // After typing `^nginx$` the next /index/volume call must return only nginx.
+      await loadServiceSelectionFilterNginxExact(page);
+
       // Select nginx, as it has the lowest volume, and should otherwise show up last
       await explorePage.servicesSearch.pressSequentially('^nginx$');
       await expect(page.getByRole('listbox')).toBeVisible();
@@ -48,6 +68,7 @@ test.describe('explore services page', () => {
 
       // Assert the first is nginx, or we might click before it's done loading
       await expect(explorePage.getPanelHeaderLocator().first()).toHaveText('nginxIncludeShow logs');
+      await loadBreakdownNginx(page);
       await explorePage.addServiceName();
       await explorePage.clickShowLogs();
 
@@ -60,6 +81,9 @@ test.describe('explore services page', () => {
       // Assert nginx is showing as a favorite
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
 
+      // After the next click the search filter is cleared and /index/volume re-fires
+      // with no filter — restore the full service list.
+      await loadServiceSelectionDefault(page);
       // Clear the search filter — the clear button uses aria-label (old Select) or title (new Combobox)
       await page.getByRole('button', { name: 'Clear value' }).first().click();
 
@@ -96,9 +120,6 @@ test.describe('explore services page', () => {
         await page.route('**/logsdrilldowndefaultlabels*', async (route) => {
           await route.fulfill({ json: defaultLabelsMockResponse });
         });
-        await page.route('**/ds/query*', async (route) => {
-          await route.fulfill({ json: {} });
-        });
         await explorePage.gotoServices();
       });
 
@@ -120,6 +141,7 @@ test.describe('explore services page', () => {
       await explorePage.setExtraTallViewportSize();
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
+      await loadServiceSelectionFilterMimir(page);
       await explorePage.servicesSearch.pressSequentially('mimir');
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
@@ -142,6 +164,7 @@ test.describe('explore services page', () => {
     test('should filter service labels on exact search', async ({ page }) => {
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
+      await loadServiceSelectionFilterMimirI(page);
       await explorePage.servicesSearch.pressSequentially('mimir-i');
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
@@ -156,6 +179,7 @@ test.describe('explore services page', () => {
       await explorePage.setExtraTallViewportSize();
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
+      await loadServiceSelectionFilterImi(page);
       await explorePage.servicesSearch.pressSequentially('imi');
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
@@ -179,6 +203,11 @@ test.describe('explore services page', () => {
     });
 
     test('should filter logs by clicking on the chart levels', async ({ page }) => {
+      // Layer scenarios before the page navigates so the initial queries hit them.
+      // The "WithLevelInfo" variant filters logs panel rows by detected_level when
+      // the request expr contains a `detected_level=~"…"` clause.
+      await loadBreakdownTempoDistributorWithLevelInfo(page);
+      await loadServiceSelectionFilterTempoD(page);
       await explorePage.gotoServices();
       await explorePage.servicesSearch.click();
       await explorePage.servicesSearch.pressSequentially('tempo-d');
@@ -247,6 +276,7 @@ test.describe('explore services page', () => {
 
       // Filter results for tempo-ingester
       await explorePage.servicesSearch.click();
+      await loadServiceSelectionFilterTempoI(page);
       await explorePage.servicesSearch.pressSequentially('tempo-i');
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
 
@@ -277,6 +307,7 @@ test.describe('explore services page', () => {
 
       // Filter results for tempo-distributor
       await explorePage.servicesSearch.click();
+      await loadServiceSelectionFilterTempoD(page);
       await explorePage.servicesSearch.pressSequentially('tempo-d');
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
@@ -322,12 +353,23 @@ test.describe('explore services page', () => {
         logsQueryCount = 0;
         logCountQueryCount = 0;
 
+        // Drop mockExploreApi's handlers — these tests want full control over
+        // /index/volume and /ds/query so they can count requests, and they don't
+        // hit any of the breakdown endpoints.
+        await page.unrouteAll({ behavior: 'ignoreErrors' });
+
         await Promise.all([
-          await explorePage.gotoServices(),
+          // Use a relative time range here: the `refreshing time range should
+          // request panel data once` test relies on each refresh advancing
+          // `now` by >1s so Grafana re-runs panel queries. With the fixed
+          // snapshot range the time range never changes and refreshes
+          // become no-ops.
+          await explorePage.gotoServices('now-15m', 'now'),
           page.route('**/index/volume*', async (route) => {
             logsVolumeCount++;
-            const volumeResponse = getMockVolumeApiResponse();
-            await route.fulfill({ json: volumeResponse });
+            // Volume value must change every call so panel cache invalidates and
+            // the page re-issues panel queries on refresh.
+            await route.fulfill({ json: nextIncrementingVolumeResponse() });
           }),
           page.route('**/ds/query*', async (route, request) => {
             const rawPostData = request.postData();
@@ -588,80 +630,67 @@ test.describe('explore services page', () => {
   test.describe('sequential', () => {
     test.beforeEach(skipUnlessLatestGrafana);
 
-    test.describe.configure({ mode: 'serial' });
     test.describe('tabs - namespace', () => {
-      let page: Page;
-      let logsVolumeCount = 0;
-      let logsQueryCount = 0;
-      let detectedLabelsCount = 0;
-      let patternsCount = 0;
-      let detectedFieldsCount = 0;
-
-      const resetQueryCounts = () => {
-        logsVolumeCount = 0;
-        logsQueryCount = 0;
-        patternsCount = 0;
-        detectedLabelsCount = 0;
-        detectedFieldsCount = 0;
+      type QueryCounters = {
+        detectedFields: number;
+        detectedLabels: number;
+        logsQuery: number;
+        logsVolume: number;
+        patterns: number;
       };
 
-      test.beforeAll(async ({ browser }, testInfo) => {
-        const pagePre = await browser.newPage();
-        explorePage = new ExplorePage(pagePre, testInfo);
-        page = explorePage.page;
-        await explorePage.setDefaultViewportSize();
-        explorePage.captureConsoleLogs();
-        await Promise.all([
-          await page.route('**/index/volume*', async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
+      // Pure observer — registers a `page.on('request')` listener that does
+      // NOT intercept; the page still receives whatever route handlers were
+      // registered separately.
+      function attachQueryCounters(page: Page): QueryCounters {
+        const counts: QueryCounters = {
+          detectedFields: 0,
+          detectedLabels: 0,
+          logsQuery: 0,
+          logsVolume: 0,
+          patterns: 0,
+        };
+        page.on('request', (request) => {
+          const url = request.url();
+          if (url.includes('/index/volume')) {
+            counts.logsVolume++;
+          } else if (url.includes('/resources/detected_fields')) {
+            counts.detectedFields++;
+          } else if (url.includes('/resources/detected_labels')) {
+            counts.detectedLabels++;
+          } else if (url.includes('/resources/patterns')) {
+            counts.patterns++;
+          } else if (url.includes('/ds/query')) {
+            counts.logsQuery++;
+          }
+        });
+        return counts;
+      }
 
-            logsVolumeCount++;
-            await page.waitForTimeout(25);
-            await route.fulfill({ json, response });
-          }),
-          await page.route('**/resources/detected_fields*', async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
+      function resetQueryCounters(c: QueryCounters) {
+        c.detectedFields = 0;
+        c.detectedLabels = 0;
+        c.logsQuery = 0;
+        c.logsVolume = 0;
+        c.patterns = 0;
+      }
 
-            detectedFieldsCount++;
-            await page.waitForTimeout(25);
-            await route.fulfill({ json, response });
-          }),
-          await page.route('**/resources/detected_labels*', async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-
-            detectedLabelsCount++;
-            await page.waitForTimeout(25);
-            await route.fulfill({ json, response });
-          }),
-          await page.route('**/resources/patterns*', async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-
-            patternsCount++;
-            await page.waitForTimeout(25);
-            await route.fulfill({ json, response });
-          }),
-
-          // Can skip logs query for this test
-          await page.route('**/ds/query*', async (route) => {
-            logsQueryCount++;
-            await route.fulfill({ json: {} });
-          }),
-
-          await explorePage.gotoServices(),
-        ]);
-        await explorePage.clearLocalStorage();
-      });
-
-      test.afterAll(async ({}) => {
+      test.afterEach(async () => {
         await explorePage?.unroute();
         explorePage?.echoConsoleLogsOnRetry();
       });
 
-      test('Part 1: user can add namespace label as a new tab and navigate to breakdown', async ({}) => {
+      test('Part 1: user can add namespace label as a new tab and navigate to breakdown', async ({
+        page,
+      }, testInfo) => {
+        explorePage = new ExplorePage(page, testInfo);
+        await explorePage.setDefaultViewportSize();
+        await explorePage.clearLocalStorage();
+        explorePage.captureConsoleLogs();
+        await mockExploreApi(page);
+        const counts = attachQueryCounters(page);
+        await explorePage.gotoServices();
+
         await expect(page.getByText('of 0')).not.toBeVisible();
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
@@ -674,6 +703,10 @@ test.describe('explore services page', () => {
         const selectNewLabelSelect = page.locator('[role="tooltip"]');
         await expect(selectNewLabelSelect).toContainText('Search labels');
 
+        // The page is about to switch to the namespace primary-label tab, which
+        // re-fires `/index/volume` grouped by namespace.
+        await loadServiceSelectionNamespaceTab(page);
+
         // Add "namespace" as a new tab
         await page.getByText('namespace', { exact: true }).click();
         const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
@@ -681,6 +714,9 @@ test.describe('explore services page', () => {
 
         // Assert results have loaded before we search or we'll cancel the ongoing volume query
         await expect(page.getByText('of 6')).toBeVisible();
+
+        // After typing `Gate` the next /index/volume call must return only the gateway namespace.
+        await loadServiceSelectionFilterNamespaceGateway(page);
         // Search for "gateway" (same Combobox pattern as service tab)
         await explorePage.servicesSearch.click();
         await explorePage.servicesSearch.fill('Gate');
@@ -690,6 +726,9 @@ test.describe('explore services page', () => {
         // Asser this filters down to only one result
         await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(1);
         await expect(page.getByText('of 1')).toBeVisible();
+
+        // Drilling into gateway → per-namespace endpoints (detected_*/patterns) need gateway data.
+        await loadBreakdownNamespaceGateway(page);
 
         // Select the first and only result
         await explorePage.addServiceName();
@@ -704,15 +743,36 @@ test.describe('explore services page', () => {
 
         expect(page.url()).toMatch(/a\/grafana-lokiexplore-app\/explore\/namespace\/gateway\/logs/);
 
-        await expect.poll(() => logsVolumeCount).toEqual(3);
-        await expect.poll(() => patternsCount).toEqual(1);
-        await expect.poll(() => detectedLabelsCount).toEqual(2);
-        await expect.poll(() => detectedFieldsCount).toEqual(1);
+        await expect.poll(() => counts.logsVolume).toEqual(3);
+        await expect.poll(() => counts.patterns).toEqual(1);
+        await expect.poll(() => counts.detectedLabels).toEqual(2);
+        await expect.poll(() => counts.detectedFields).toEqual(1);
       });
 
-      test('Part 2: changing primary label updates tab counts', async ({}) => {
-        resetQueryCounts();
+      test('Part 2: changing primary label updates tab counts', async ({ page }, testInfo) => {
+        explorePage = new ExplorePage(page, testInfo);
+        await explorePage.setDefaultViewportSize();
+        await explorePage.clearLocalStorage();
+        explorePage.captureConsoleLogs();
+        await mockExploreApi(page);
+        // Pre-load gateway breakdown so direct navigation hydrates with
+        // gateway-specific tab counts (no Part 1 dependency).
+        await loadBreakdownNamespaceGateway(page);
+        const counts = attachQueryCounters(page);
+
+        // Deep-link straight into the gateway namespace breakdown. The
+        // `var-primary_label=namespace|=~|.+` query param tells the app to
+        // treat namespace as the primary label (Part 1 normally adds it as a
+        // tab, which gets persisted to localStorage; we simulate that via URL
+        // here so this test doesn't depend on Part 1's side effects).
+        await page.goto(
+          '/a/grafana-lokiexplore-app/explore/namespace/gateway/logs' +
+            `?from=${SNAPSHOT_FROM_PARAM}&to=${SNAPSHOT_TO_PARAM}&var-ds=gdev-loki` +
+            '&var-primary_label=namespace%7C%3D~%7C.%2B' +
+            '&var-filters=namespace%7C%3D%7Cgateway'
+        );
         await explorePage.assertTabsNotLoading();
+
         const gatewayPatternsCount = await page
           .getByTestId(testIds.exploreServiceDetails.tabPatterns)
           .locator('> span')
@@ -729,12 +789,19 @@ test.describe('explore services page', () => {
         expect(isNumber(Number(gatewayFieldsCount))).toEqual(true);
         expect(isNumber(Number(gatewayLabelsCount))).toEqual(true);
 
+        // Reset counters so the assertions below only measure traffic
+        // generated by the namespace switch.
+        resetQueryCounters(counts);
+
         // Namespace filter should exist
         const selectLoc = page.getByLabel('Edit filter with key namespace');
         await expect(selectLoc).toHaveCount(1);
 
         // Open service name / primary label dropdown
         await selectLoc.click();
+
+        // The next click re-fires per-namespace endpoints with `{namespace="mimir"}`.
+        await loadBreakdownNamespaceMimir(page);
 
         // Change to mimir namespace
         const optionLoc = page.getByRole('option', { exact: true, name: 'mimir' });
@@ -763,10 +830,10 @@ test.describe('explore services page', () => {
         expect(mimirPatternsCount).not.toEqual(gatewayPatternsCount);
         expect(mimirFieldsCount).not.toEqual(gatewayFieldsCount);
 
-        await expect.poll(() => logsVolumeCount).toEqual(0);
-        await expect.poll(() => patternsCount).toEqual(1);
-        await expect.poll(() => detectedLabelsCount).toEqual(1);
-        await expect.poll(() => detectedFieldsCount).toEqual(1);
+        await expect.poll(() => counts.logsVolume).toEqual(0);
+        await expect.poll(() => counts.patterns).toEqual(1);
+        await expect.poll(() => counts.detectedLabels).toEqual(1);
+        await expect.poll(() => counts.detectedFields).toEqual(1);
       });
     });
   });

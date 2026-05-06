@@ -36,7 +36,7 @@ jobs:
       run-playwright: ${{ github.event_name == 'pull_request' }} # Run playwright tests for PRs only
       run-playwright-with-grafana-dependency: '>=11.6'
       upload-playwright-artifacts: true
-      playwright-docker-compose-file: docker-compose.dev.yaml
+      playwright-docker-compose-file: docker-compose.playwright.yaml
       playwright-grafana-url: http://localhost:3001/grafana
 
       node-version: '24'

@@ -12,7 +12,7 @@ test.describe('Plugin config', () => {
     await expect(page.getByText('Default data source').first()).toBeVisible();
     await expect(page.getByText('Maximum time picker interval').first()).toBeVisible();
 
-    const disablePatternsLabelLoc = page.getByText('Disable patterns');
+    const disablePatternsLabelLoc = page.getByText('Disable patterns', { exact: true });
 
     // Check box
     await expect(disablePatternsLabelLoc).toBeVisible();

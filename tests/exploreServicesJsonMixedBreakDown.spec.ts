@@ -3,6 +3,8 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { LokiQuery } from '../src/services/lokiQuery';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
+import { mockExploreApi } from './fixtures/mockExploreApi';
+import { loadBreakdownNginxJsonMixed } from './mocks/scenarios/loadBreakdownNginxJsonMixed';
 
 const mixedFieldName = 'method';
 const logFmtFieldName = 'caller';
@@ -18,6 +20,8 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
+    await mockExploreApi(page);
+    await loadBreakdownNginxJsonMixed(page);
     await explorePage.gotoServicesBreakdownOldUrl(serviceName);
   });
 
@@ -29,7 +33,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
 
   test(`should exclude ${mixedFieldName}, request should contain both parsers`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
-    explorePage.blockAllQueriesExcept({
+    explorePage.captureQueries({
       refIds: [new RegExp(`^${mixedFieldName}$`)],
       requests,
     });
@@ -68,7 +72,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   });
   test(`should exclude ${logFmtFieldName}, request should contain logfmt`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
-    explorePage.blockAllQueriesExcept({
+    explorePage.captureQueries({
       refIds: [new RegExp(`^${logFmtFieldName}$`)],
       requests,
     });
@@ -118,7 +122,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   });
   test(`should exclude ${jsonFmtFieldName}, request should contain logfmt`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
-    explorePage.blockAllQueriesExcept({
+    explorePage.captureQueries({
       refIds: [jsonFmtFieldName],
       requests,
     });
@@ -157,7 +161,7 @@ test.describe('explore nginx-json-mixed breakdown pages ', () => {
   });
   test(`should exclude ${metadataFieldName}, request should contain no parser`, async ({ page }) => {
     let requests: PlaywrightRequest[] = [];
-    explorePage.blockAllQueriesExcept({
+    explorePage.captureQueries({
       refIds: [metadataFieldName],
       requests,
     });

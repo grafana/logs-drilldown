@@ -48,6 +48,13 @@ ci/
 /playwright/.cache/
 /playwright/.auth/
 
+# E2E mock recordings — intermediate output of `pnpm mocks:record`,
+# consumed once by `pnpm mocks:split`. The split per-service fixtures
+# under tests/mocks/labels/ are the actual source of truth and ARE
+# committed. The raw ds_query.json capture exceeds GitHub's 100 MB
+# file size limit, so we never commit this folder.
+/tests/mocks/captured/
+
 # generator go vendoring
 generator/vendor/
 generator/generator

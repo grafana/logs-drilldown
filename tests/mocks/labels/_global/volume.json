@@ -1,0 +1,12 @@
+[
+  { "metric": { "service_name": "tempo-distributor" }, "value": [1777910014.305, "53826521"] },
+  { "metric": { "service_name": "tempo-ingester" }, "value": [1777910014.305, "51585442"] },
+  { "metric": { "service_name": "mimir-ingester" }, "value": [1777910014.305, "2340497"] },
+  { "metric": { "service_name": "httpd" }, "value": [1777910014.305, "2093405"] },
+  { "metric": { "service_name": "nginx-json" }, "value": [1777910014.305, "1654774"] },
+  { "metric": { "service_name": "mimir-distributor" }, "value": [1777910014.305, "1516802"] },
+  { "metric": { "service_name": "mimir-querier" }, "value": [1777910014.305, "984900"] },
+  { "metric": { "service_name": "nginx" }, "value": [1777910014.305, "926310"] },
+  { "metric": { "service_name": "apache" }, "value": [1777910014.305, "874633"] },
+  { "metric": { "service_name": "mimir-ruler" }, "value": [1777910014.305, "301744"] }
+]

@@ -3,6 +3,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { testIds } from '../src/services/testIds';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { ExplorePage } from './fixtures/explore';
+import { SNAPSHOT_FROM_PARAM, SNAPSHOT_TO_PARAM } from './mocks/snapshotTime';
 
 test.describe.skip('Default fields', () => {
   let explorePage: ExplorePage;
@@ -12,10 +13,9 @@ test.describe.skip('Default fields', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
-    explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery', /gld-sample-\d+/, /^logs-.+/],
-    });
-    await page.goto('/grafana/plugins/grafana-lokiexplore-app?page=admin-default-fields&from=now-1m&to=now');
+    await page.goto(
+      `/grafana/plugins/grafana-lokiexplore-app?page=admin-default-fields&from=${SNAPSHOT_FROM_PARAM}&to=${SNAPSHOT_TO_PARAM}`
+    );
     await expect(page.getByText('Configure default fields to')).toBeVisible();
     await expect(page.getByText('Experimental')).toBeVisible();
     explorePage.captureConsoleLogs();

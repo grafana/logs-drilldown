@@ -11,14 +11,14 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
  */
 export const baseConfig = {
   expect: { timeout: 15000 },
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  /* Fail the build if anyone leaves `test.only` in the source. Same in CI and local. */
+  forbidOnly: true,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
-  /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
+  /* Retry flaky tests once. Same in CI and local so behaviour is identical. */
+  retries: 1,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -28,8 +28,8 @@ export const baseConfig = {
     //   mode: 'on',
     // },
   },
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Fixed worker count, same in CI and local. */
+  workers: 5,
 };
 
 /**

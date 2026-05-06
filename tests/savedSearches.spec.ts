@@ -3,6 +3,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { testIds } from '../src/services/testIds';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage, serviceSelectionPaginationTextMatch } from './fixtures/explore';
+import { mockExploreApi } from './fixtures/mockExploreApi';
 
 test.describe('saved searches', () => {
   let explorePage: ExplorePage;
@@ -13,6 +14,7 @@ test.describe('saved searches', () => {
     await page.setViewportSize({ height: 600, width: 1280 });
     await explorePage.clearLocalStorage();
     explorePage.captureConsoleLogs();
+    await mockExploreApi(page);
   });
 
   test.afterEach(async ({ page }) => {

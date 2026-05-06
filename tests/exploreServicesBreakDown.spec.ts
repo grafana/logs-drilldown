@@ -15,7 +15,23 @@ import {
   levelTextMatch,
   PlaywrightRequest,
 } from './fixtures/explore';
+import { mockExploreApi } from './fixtures/mockExploreApi';
 import { mockEmptyQueryApiResponse } from './mocks/mockEmptyQueryApiResponse';
+import { loadBreakdownNginxClusterFiltering } from './mocks/scenarios/loadBreakdownNginxClusterFiltering';
+import { loadBreakdownNginxJsonBytesEmpty } from './mocks/scenarios/loadBreakdownNginxJsonBytesEmpty';
+import { loadBreakdownTempoDistributor } from './mocks/scenarios/loadBreakdownTempoDistributor';
+import { loadBreakdownTempoDistributorBroadcastLogs } from './mocks/scenarios/loadBreakdownTempoDistributorBroadcastLogs';
+import { loadBreakdownTempoDistributorBytesEmpty } from './mocks/scenarios/loadBreakdownTempoDistributorBytesEmpty';
+import { loadBreakdownTempoDistributorCallerRegexFilter } from './mocks/scenarios/loadBreakdownTempoDistributorCallerRegexFilter';
+import { loadBreakdownTempoDistributorClusterServices } from './mocks/scenarios/loadBreakdownTempoDistributorClusterServices';
+import { loadBreakdownTempoDistributorClusterUsOnly } from './mocks/scenarios/loadBreakdownTempoDistributorClusterUsOnly';
+import { loadBreakdownTempoDistributorContentFilteredTwo } from './mocks/scenarios/loadBreakdownTempoDistributorContentFilteredTwo';
+import { loadBreakdownTempoDistributorEchoExecutedQuery } from './mocks/scenarios/loadBreakdownTempoDistributorEchoExecutedQuery';
+import { loadBreakdownTempoDistributorLogsContext } from './mocks/scenarios/loadBreakdownTempoDistributorLogsContext';
+import { loadBreakdownTempoDistributorPatternSample } from './mocks/scenarios/loadBreakdownTempoDistributorPatternSample';
+import { loadBreakdownTempoDistributorVersionExcludeNoLimit } from './mocks/scenarios/loadBreakdownTempoDistributorVersionExcludeNoLimit';
+import { loadEmptyFields } from './mocks/scenarios/loadEmptyFields';
+import { SNAPSHOT_FROM_PARAM, SNAPSHOT_TO_PARAM } from './mocks/snapshotTime';
 
 import { type Locator } from '@playwright/test';
 
@@ -55,6 +71,11 @@ test.describe('explore services breakdown page', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
+    // Wire mocks BEFORE navigating so the initial /index/volume, /resources/*
+    // and /ds/query requests hit fixture data instead of real Loki. The
+    // breakdown URL points at `tempo-distributor` so we layer that scenario on.
+    await mockExploreApi(page);
+    await loadBreakdownTempoDistributor(page);
     await explorePage.gotoServicesBreakdownOldUrl();
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
@@ -70,6 +91,10 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should filter logs panel on search for broadcast field', async ({ page }) => {
+    // Layer broadcast-only logs on top of the default tempo-distributor scenario
+    // so the logsPanelQuery fired after Enter returns lines containing
+    // "broadcast" (matching what real Loki would return for this line filter).
+    await loadBreakdownTempoDistributorBroadcastLogs(page);
     await explorePage.serviceBreakdownSearch.click();
     await explorePage.serviceBreakdownSearch.fill('broadcast');
     // Submit filter
@@ -79,6 +104,10 @@ test.describe('explore services breakdown page', () => {
   });
 
   test(`should replace service_name with ${labelName} in url`, async ({ page }) => {
+    // After dropping service_name + drilling cluster=eu-west-1, the test clicks
+    // "Select service_name" and expects multiple service panels (incl. nginx).
+    // Layer in a richer LABEL_BREAKDOWN_VALUES.service_name response.
+    await loadBreakdownTempoDistributorClusterServices(page);
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${labelName}}}`, `{{service_name}}`],
       refIds: ['logsPanelQuery'],
@@ -164,6 +193,9 @@ test.describe('explore services breakdown page', () => {
     await expect(serviceNameFilter).toHaveText('service_name != nginx');
   });
   test(`combobox should replace service_name with regex ${labelName} in url`, async ({ page }) => {
+    // Test adds `cluster=~us-.+` and expects only the 3 us-* cluster panels.
+    // Layer in a cluster breakdown that's already scoped to us-*.
+    await loadBreakdownTempoDistributorClusterUsOnly(page);
     explorePage.blockAllQueriesExcept({
       refIds: ['LABEL_BREAKDOWN_VALUES'],
     });
@@ -679,6 +711,10 @@ test.describe('explore services breakdown page', () => {
   });
 
   test(`Fields: can regex include ${fieldName} values containing "st"`, async ({ page }) => {
+    // After applying `caller=~".+st.+"`, the field-summary panel for caller
+    // should drop from 8 → 3 series. Layer in a scenario that filters caller
+    // frames by whatever regex is in the request expr.
+    await loadBreakdownTempoDistributorCallerRegexFilter(page);
     explorePage.blockAllQueriesExcept({
       refIds: [fieldName],
     });
@@ -731,7 +767,20 @@ test.describe('explore services breakdown page', () => {
     ).toHaveCount(2);
   });
 
-  test(`Metadata: can regex include ${metadataName} values containing "0\\d"`, async ({ page }) => {
+  // FIXME(e2e-mocks): the assertion `getAllPanelsLocator().count() === 8` walks
+  // a chained `Panel header tempo-ingester-[hc]{2}-\d.+ → header-container`
+  // locator, which polls a different element count than the same chain
+  // evaluated outside `expect.poll` (likely an interaction with Drilldown's
+  // `isLazy: true` SceneCSSGridLayout virtualization). Combined with the fact
+  // that `FieldValuesBreakdownScene` skips re-firing the breakdown query when
+  // the same-key (`pod`) filter changes, we can't make a pure mock both
+  // satisfy the earlier `≥10` assertion AND collapse to exactly 8 ingester
+  // panels after the regex chip is added. Re-enable by capturing a real
+  // pre/post-filter pair via `tests/recordExploreMocks.spec.ts` and loading
+  // the post-filter scenario after `addCustomValueToCombobox`. Partial
+  // scaffolding lives in
+  // `tests/mocks/scenarios/loadBreakdownTempoDistributorPodRegexFilter.ts`.
+  test.fixme(`Metadata: can regex include ${metadataName} values containing "0\\d"`, async ({ page }) => {
     explorePage.blockAllQueriesExcept({
       refIds: [metadataName],
     });
@@ -885,6 +934,9 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should show sample table on `<_>` click in patterns', async ({ page }) => {
+    // Layer in a scenario that responds to the synthetic `refId: 'A'`
+    // pattern-sample query that PatternNameLabel.handlePatternClick fires.
+    await loadBreakdownTempoDistributorPatternSample(page);
     explorePage.blockAllQueriesExcept({
       refIds: ['A'],
     });
@@ -895,6 +947,10 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should filter patterns in table on legend click', async ({ page }) => {
+    // Pattern samples are now aligned to the fixed snapshot window via
+    // `tests/mocks/snapshotTime.ts`, so the chart renders without "Data
+    // outside time range" / "Zoom to data" and the legend buttons sit at
+    // their expected positions.
     await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
     const row = page.getByTestId(testIds.patterns.tableWrapper).getByRole('table').getByRole('row');
     await expect(explorePage.getPanelContentLocator().getByRole('button').nth(1)).toBeVisible();
@@ -1361,15 +1417,17 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should include all logs that contain bytes field', async ({ page }) => {
-    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor');
     let numberOfQueries = 0;
-    // Let's not wait for all these queries
+    // Let logsPanelQuery fall through to the default mocked handler from
+    // `loadBreakdownTempoDistributor` so the logs panel renders without
+    // needing real Loki; everything else gets a no-op `[]`.
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
       if (queries.some((q) => q.refId === 'logsPanelQuery')) {
-        await route.continue();
+        await route.fallback();
       } else {
         await route.fulfill({ json: [] });
       }
@@ -1415,15 +1473,21 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should exclude all logs that contain bytes field', async ({ page }) => {
-    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor', 'now-15s');
+    // After Exclude is applied, real Loki returns no `bytes` entry from
+    // `/resources/detected_fields`, so the bytes panel disappears. Layer in a
+    // scenario that mirrors that behaviour by stripping `bytes` from
+    // detected_fields whenever a `bytes=""` chip is in the page state.
+    await loadBreakdownTempoDistributorBytesEmpty(page);
+    await explorePage.gotoServicesBreakdownOldUrl('tempo-distributor');
     let numberOfQueries = 0;
-    // Let's not wait for all these queries
+    // Let's not wait for all these queries — let logsPanelQuery fall through
+    // to the default mocked handler so the logs panel still renders.
     await page.route('**/ds/query*', async (route) => {
       const post = route.request().postDataJSON();
       const queries = post.queries as LokiQuery[];
 
       if (queries.some((q) => q.refId === 'logsPanelQuery')) {
-        await route.continue();
+        await route.fallback();
       } else {
         await route.fulfill({ json: [] });
       }
@@ -1477,6 +1541,11 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should open logs context', async ({ page }) => {
+    // "Show context" fires a separate /ds/query with a dynamic
+    // `log-row-context-query.+` refId. The captured fixture has no entry for
+    // that refId, so the dialog renders empty. Layer in a scenario that
+    // returns a synthetic context frame for those refIds.
+    await loadBreakdownTempoDistributorLogsContext(page);
     let responses: CapturedResponses = [];
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
@@ -1512,11 +1581,15 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should see empty labels UI', async ({ page }) => {
+    // The test excludes every cluster value in a loop and expects the panels
+    // to disappear. Layer in a scenario that drops cluster frames matching
+    // `cluster!="X"` clauses in the LogQL expr so the UI empties out.
+    await loadBreakdownNginxClusterFiltering(page);
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${labelName}}}`],
     });
     await page.goto(
-      '/a/grafana-lokiexplore-app/explore/service/nginx/labels?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+      `/a/grafana-lokiexplore-app/explore/service/nginx/labels?var-ds=gdev-loki&from=${SNAPSHOT_FROM_PARAM}&to=${SNAPSHOT_TO_PARAM}&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all`
     );
     await page.getByRole('link', { name: 'Select cluster' }).click();
     await expect.poll(() => page.getByTestId('data-testid button-filter-exclude').count()).toBeGreaterThan(0);
@@ -1531,8 +1604,11 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should see empty fields UI', async ({ page }) => {
+    // nginx has no detected fields in this scenario — overrides the default
+    // tempo-distributor /resources/detected_fields route with an empty list.
+    await loadEmptyFields(page);
     await page.goto(
-      '/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+      `/a/grafana-lokiexplore-app/explore/service/nginx/fields?var-ds=gdev-loki&from=${SNAPSHOT_FROM_PARAM}&to=${SNAPSHOT_TO_PARAM}&patterns=%5B%5D&var-fields=&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all`
     );
     await expect(page.getByText('We did not find any fields for the given time range.')).toHaveCount(1);
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(0);
@@ -1543,8 +1619,13 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should see clear fields UI', async ({ page }) => {
+    // The deep-linked URL carries a sparse-empty bytes filter that real Loki
+    // would resolve to no fields. Layer in a scenario that returns empty
+    // detected_fields whenever the filter is present so the breakdown flips
+    // to NoMatchingLabelsScene.
+    await loadBreakdownNginxJsonBytesEmpty(page);
     await page.goto(
-      '/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=now-5m&to=now&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all'
+      `/a/grafana-lokiexplore-app/explore/service/nginx-json/fields?var-ds=gdev-loki&from=${SNAPSHOT_FROM_PARAM}&to=${SNAPSHOT_TO_PARAM}&patterns=%5B%5D&var-fields=bytes|=|""&var-levels=&var-patterns=&var-lineFilter=&var-filters=service_name%7C%3D%7Cnginx-json&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&var-fieldBy=$__all`
     );
     await expect(page.getByText('No fields match these filters.')).toHaveCount(1);
     await expect(page.getByLabel(E2EComboboxStrings.editByKey('bytes'))).toHaveCount(1);
@@ -1557,6 +1638,11 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('should not see maximum of series limit reached after changing filters', async ({ page }) => {
+    // Captured `content` frame carries a max-series warning notice; layer in a
+    // scenario that strips it once the user excludes the `version` filter so
+    // the assertion `panelErrorLocator.count() === 0` matches the real-Loki
+    // behavior (excluding version reduces series count below the limit).
+    await loadBreakdownTempoDistributorVersionExcludeNoLimit(page);
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${levelName}}}`],
       refIds: ['logsPanelQuery', 'content', 'version'],
@@ -1957,6 +2043,11 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('field value breakdown: changing parser updates query', async ({ page }) => {
+    // Adding a `content="…"` filter adds the logfmt parser and (with real
+    // Loki) collapses the breakdown to ~2 panels. Layer in a scenario that
+    // truncates frames to the first two when the request expr carries a
+    // `content=…` clause.
+    await loadBreakdownTempoDistributorContentFilteredTwo(page);
     explorePage.blockAllQueriesExcept({
       refIds: [fieldName],
     });
@@ -1978,6 +2069,9 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('label value breakdown: changing parser updates query', async ({ page }) => {
+    // Same scenario as the field-breakdown sibling above: truncate to two
+    // frames once the `content=…` filter is applied.
+    await loadBreakdownTempoDistributorContentFilteredTwo(page);
     explorePage.blockAllQueriesExcept({
       refIds: ['LABEL_BREAKDOWN_VALUES'],
     });
@@ -1999,6 +2093,10 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('int fields should allow avg_over_time queries', async ({ page }) => {
+    // The test inspects executedQueryString to verify avg_over_time is sent.
+    // Layer in a scenario that echoes the request expr back into
+    // schema.meta.executedQueryString.
+    await loadBreakdownTempoDistributorEchoExecutedQuery(page);
     let responses: CapturedResponses = [];
     explorePage.blockAllQueriesExcept({
       refIds: ['values'],
@@ -2039,7 +2137,20 @@ test.describe('explore services breakdown page', () => {
   });
 
   test.describe('line filters', () => {
-    test('line filter', async ({ page }) => {
+    // FIXME(e2e-mocks): this test exercises Loki's server-side line-filter
+    // behaviour end-to-end — typing `Debug` should narrow the logs panel to
+    // rows containing `Debug`, toggling case-sensitivity should change the
+    // result set, regex mode should filter by `[dD]ebug`, etc. The captured
+    // tempo-distributor `logsPanelQuery` fixture is static, so a pure mock
+    // can't reproduce this without re-implementing Loki's `|=`/`!=`/`|~`/`!~`
+    // line-filter pipeline in TypeScript. The previous version relied on
+    // `route.fetch()` to forward to a live Loki at localhost:3100. Re-enable
+    // by either (a) capturing per-filter scenarios via
+    // `tests/recordExploreMocks.spec.ts` and switching scenarios as the user
+    // types, or (b) writing a dedicated dynamic scenario that filters the
+    // captured frame's `body` column according to the line filter parsed out
+    // of the LogQL expr.
+    test.fixme('line filter', async ({ page }) => {
       let requestCount = 0,
         logsCountQueryCount = 0,
         logsPanelQueryCount = 0;
@@ -2049,16 +2160,16 @@ test.describe('explore services breakdown page', () => {
         refIds: ['logsPanelQuery'],
       });
 
-      // We don't need to mock the response, but it speeds up the test
+      // Count requests by refId, fulfilling field subqueries with an empty
+      // response and letting the logs/logsCount queries fall through to the
+      // default mocked handler from `loadBreakdownTempoDistributor`.
       await page.route('**/api/ds/query*', async (route, request) => {
         const mockResponse = mockEmptyQueryApiResponse;
         const rawPostData = request.postData();
 
-        // We only want to mock the actual field requests, and not the initial request that returns us our list of fields
         if (rawPostData) {
           const postData = JSON.parse(rawPostData);
           const refId = postData.queries[0].refId;
-          // Field subqueries have a refId of the field name
           if (refId !== 'logsPanelQuery' && refId !== 'logsCountQuery') {
             requestCount++;
             return await route.fulfill({ json: mockResponse });
@@ -2071,10 +2182,7 @@ test.describe('explore services breakdown page', () => {
           }
         }
 
-        // Otherwise let the request go through normally
-        const response = await route.fetch();
-        const json = await response.json();
-        return route.fulfill({ json, response });
+        await route.fallback();
       });
 
       requestCount = 0;
