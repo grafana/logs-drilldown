@@ -15,5 +15,11 @@ services:
       GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown localizationForPlugins ${GF_FEATURE_TOGGLES_ENABLE}
       GRAFANA_CLOUD_LOGS_KEY: ${GRAFANA_CLOUD_LOGS_KEY}
 
-      # Enable SQLite WAL mode to reduce SQLITE_BUSY contention
+      # Reduce SQLITE_BUSY contention at startup. Grafana 13's apiserver
+      # bootstrap (advisor checktype POSTs) and the legacy provisioning
+      # subsystem both write to the same SQLite file. WAL lets readers run
+      # concurrently with the writer; the busy timeout makes individual
+      # writes wait inside the lock instead of bouncing out after ~5 quick
+      # retries (~60 ms) and aborting startup.
       GF_DATABASE_WAL: true
+      GF_DATABASE_LOCKING_ATTEMPT_TIMEOUT_SEC: 30
