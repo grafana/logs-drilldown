@@ -13,4 +13,6 @@ services:
       GF_SERVER_ROOT_URL: http://localhost:3001/grafana
       GF_PLUGINS_PREINSTALL_DISABLED: true
       GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown localizationForPlugins ${GF_FEATURE_TOGGLES_ENABLE}
+      # Turn off the advisor in CI to reduce SQLITE_BUSY contention at startup of playwright tests.
+      GF_FEATURE_TOGGLES_grafanaAdvisor: 'false'
       GRAFANA_CLOUD_LOGS_KEY: ${GRAFANA_CLOUD_LOGS_KEY}
