@@ -14,3 +14,6 @@ services:
       GF_PLUGINS_PREINSTALL_DISABLED: true
       GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown localizationForPlugins ${GF_FEATURE_TOGGLES_ENABLE}
       GRAFANA_CLOUD_LOGS_KEY: ${GRAFANA_CLOUD_LOGS_KEY}
+
+      # Enable SQLite WAL mode to reduce SQLITE_BUSY contention
+      GF_DATABASE_WAL: true
