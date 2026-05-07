@@ -150,16 +150,20 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
 
     this._subs.add(this.getQuerySubscription(key, $data, panel));
 
-    context.onToggleSeriesVisibility = (value: string, mode: SeriesVisibilityChangeMode) => {
+    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
+      if (label == null || Array.isArray(label)) {
+        return;
+      }
+
       let action: FilterType;
       if (this.state.type === 'label') {
         if (key === LEVEL_VARIABLE_VALUE) {
-          action = toggleLevelFromFilter(value, this);
+          action = toggleLevelFromFilter(label, this);
         } else {
-          action = toggleLabelFromFilter(key, value, this);
+          action = toggleLabelFromFilter(key, label, this);
         }
       } else {
-        action = toggleFieldFromFilter(key, value, this);
+        action = toggleFieldFromFilter(key, label, this);
       }
 
       reportAppInteraction(
@@ -167,7 +171,7 @@ export class ValueSummaryPanelScene extends SceneObjectBase<ValueSummaryPanelSce
         USER_EVENTS_ACTIONS.service_details.label_in_panel_summary_clicked,
         {
           action,
-          label: value,
+          label,
         }
       );
     };
