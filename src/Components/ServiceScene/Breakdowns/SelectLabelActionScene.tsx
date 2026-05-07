@@ -157,9 +157,13 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
       component: () => (
         <SelectableValueComponent
           selected={numericSelected}
-          text={t('components.service-scene.breakdowns.select-label-action-scene.add-expression', 'Add an expression, i.e. {{labelName}} > 30', {
-            labelName,
-          })}
+          text={t(
+            'components.service-scene.breakdowns.select-label-action-scene.add-expression',
+            'Add an expression, i.e. {{labelName}} > 30',
+            {
+              labelName,
+            }
+          )}
         />
       ),
       value: NUMERIC_FILTER_VALUE,
@@ -198,9 +202,13 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
           <IconButton
             disabled={filterButtonDisabled}
             name={'filter'}
-            tooltip={t('components.service-scene.breakdowns.select-label-action-scene.clear-filters-tooltip', 'Clear {{labelName}} filters', {
-              labelName,
-            })}
+            tooltip={t(
+              'components.service-scene.breakdowns.select-label-action-scene.clear-filters-tooltip',
+              'Clear {{labelName}} filters',
+              {
+                labelName,
+              }
+            )}
             onClick={() => model.clearFilters(variableName)}
           />
         )}
@@ -232,6 +240,7 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
         )}
         {hideValueDrilldown !== true && (
           <LinkButton
+            data-testid={testIds.breakdowns.common.selectValueBreakdown}
             disabled={disabled}
             title={t(
               'components.service-scene.breakdowns.select-label-action-scene.view-breakdown-title',
@@ -241,7 +250,11 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
             variant="primary"
             fill="outline"
             size="sm"
-            aria-label={t('components.service-scene.breakdowns.select-label-action-scene.select-label', 'Select {{labelName}}', { labelName })}
+            aria-label={t(
+              'components.service-scene.breakdowns.select-label-action-scene.select-label',
+              'Select {{labelName}}',
+              { labelName }
+            )}
             href={model.getViewValuesLink()}
           >
             <Trans i18nKey="components.service-scene.breakdowns.select-label-action-scene.select">Select</Trans>

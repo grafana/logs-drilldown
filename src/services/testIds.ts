@@ -28,6 +28,8 @@ export const testIds = {
         submitButton: 'data-testid filter-numeric-submit',
       },
       filterSelect: 'data-testid filter-select',
+      /** Primary CTAs that drill into label/field value breakdown (Labels & Fields tabs). */
+      selectValueBreakdown: 'data-testid breakdown-select-value',
       sortByDirection: 'data-testid SortBy direction',
       sortByFunction: 'data-testid SortBy function',
     },
