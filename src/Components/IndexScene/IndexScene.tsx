@@ -840,6 +840,10 @@ function getVariableSet(
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
+    description: t(
+      'components.index-scene.get-variable-set.label-variable.description',
+      'Filter logs by stream labels (for example job or namespace). Label filters are part of the Loki stream selector and apply before log pipelines.'
+    ),
     expressionBuilder: renderLogQLLabelFilters,
     hide: VariableHide.dontHide,
     key: 'adhoc_service_filter',
@@ -895,6 +899,10 @@ function getVariableSet(
   const fieldsAndMetadataVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     applyMode: 'manual',
+    description: t(
+      'components.index-scene.get-variable-set.fields-and-metadata-variable.description',
+      'Filter by values extracted from log lines (detected fields from parsers such as JSON or logfmt) and by structured metadata attached to each log line.'
+    ),
     hide: VariableHide.hideVariable,
     label: t('components.index-scene.get-variable-set.fields-and-metadata-variable.label.fields', 'Fields'),
     layout: 'combobox',
