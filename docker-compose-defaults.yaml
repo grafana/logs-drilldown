@@ -26,6 +26,15 @@ services:
       # advisor outright in CI -- E2E tests don't need it. WAL + a longer
       # busy timeout are kept as defense-in-depth for any other apiserver
       # subsystem that may write during startup.
-      GF_FEATURE_TOGGLES_GRAFANAADVISOR: false
+      #
+      # CASE MATTERS: applyFeatureToggleEnvOverrides
+      # (pkg/setting/setting_feature_toggles.go) strips the GF_FEATURE_TOGGLES_
+      # prefix and uses the rest verbatim as a case-sensitive ini key. The
+      # registered flag is `grafanaAdvisor` (registry.go), so an uppercase
+      # GF_FEATURE_TOGGLES_GRAFANAADVISOR registers a different (unknown)
+      # toggle and the advisor stays on. Quote the value too -- bare `false`
+      # is YAML boolean false and Docker Compose can hand it to the container
+      # as an empty string, which the override code skips entirely.
+      GF_FEATURE_TOGGLES_grafanaAdvisor: 'false'
       GF_DATABASE_WAL: true
       GF_DATABASE_LOCKING_ATTEMPT_TIMEOUT_SEC: 30
