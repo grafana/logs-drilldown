@@ -152,6 +152,10 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         <ControlsLabel
           layout="vertical"
           label={t('components.index-scene.levels-variable-scene.label-log-levels', 'Log levels')}
+          description={t(
+            'components.index-scene.levels-variable-scene.description-log-levels',
+            'Keep only logs whose detected severity matches your selection (for example error or warn). Leave empty to include all levels.'
+          )}
         />
         <MultiCombobox<string>
           aria-label={t(
