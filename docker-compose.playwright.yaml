@@ -1,37 +1,18 @@
 # Mock-only stack for the Playwright e2e suite.
 services:
   grafana:
+    extends:
+      file: docker-compose-defaults.yaml
+      service: grafana
     container_name: 'grafana-logsapp'
-    user: root
     build:
       context: ./.config
       args:
-        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
-        grafana_version: ${GRAFANA_VERSION:-13.0.1}
-        development: 'false'
-        anonymous_auth_enabled: 'true'
-    ports:
+        grafana_image: ${GRAFANA_IMAGE:-grafana}
+    ports: !override
       - 3001:3000/tcp
-    environment:
-      GF_AUTH_ANONYMOUS_ENABLED: 'true'
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-      GF_AUTH_BASIC_ENABLED: 'false'
-
-      # Subpath — CI's wait-for-grafana check (and tests) target
-      # http://localhost:3001/grafana, so Grafana must serve from /grafana.
-      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
-      GF_SERVER_ROOT_URL: http://localhost:3001/grafana
-
-      GF_DEFAULT_APP_MODE: development
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-lokiexplore-app
-      GF_PLUGINS_PREINSTALL_DISABLED: 'true'
-
-      GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown localizationForPlugins ${GF_FEATURE_TOGGLES_ENABLE:-}
-    volumes:
-      - ./dist:/var/lib/grafana/plugins/grafana-lokiexplore-app
-      - ./provisioning:/etc/grafana/provisioning
     extra_hosts:
-      # 172.17.0.1 is the default Docker bridge gateway on Linux runners.
-      # `host-gateway` would be more portable but fails on the self-hosted
-      # CI runners.
+      # This allows us to connect to other services running on the host machine.
+      # 172.17.0.1 is the default Docker bridge network gateway IP address
+      # Using "host-gateway" would be more portable across different Docker setups but fails in our CI build
       - 'host.docker.internal:172.17.0.1'
