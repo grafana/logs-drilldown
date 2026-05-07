@@ -15,11 +15,17 @@ services:
       GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall lokiLogsDataplane kubernetesLogsDrilldown localizationForPlugins ${GF_FEATURE_TOGGLES_ENABLE}
       GRAFANA_CLOUD_LOGS_KEY: ${GRAFANA_CLOUD_LOGS_KEY}
 
-      # Reduce SQLITE_BUSY contention at startup. Grafana 13's apiserver
-      # bootstrap (advisor checktype POSTs) and the legacy provisioning
-      # subsystem both write to the same SQLite file. WAL lets readers run
-      # concurrently with the writer; the busy timeout makes individual
-      # writes wait inside the lock instead of bouncing out after ~5 quick
-      # retries (~60 ms) and aborting startup.
+      # Reduce SQLITE_BUSY contention at startup. On Grafana 13.0.1 the
+      # advisor app's apiserver bootstrap (POSTs to
+      # /apis/advisor.grafana.app/v0alpha1/.../checktypes) and the legacy
+      # provisioning subsystem both write to the same SQLite file, and the
+      # advisor's write transaction self-deadlocks against the rebuild reads
+      # that the unified storage migration issues on a separate connection
+      # (see grafana/grafana#122993, fixed in 13.0.2 by grafana/grafana#123034).
+      # The deadlock is not resolvable by busy_timeout, so we disable the
+      # advisor outright in CI -- E2E tests don't need it. WAL + a longer
+      # busy timeout are kept as defense-in-depth for any other apiserver
+      # subsystem that may write during startup.
+      GF_FEATURE_TOGGLES_GRAFANAADVISOR: false
       GF_DATABASE_WAL: true
       GF_DATABASE_LOCKING_ATTEMPT_TIMEOUT_SEC: 30
