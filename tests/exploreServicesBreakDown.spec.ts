@@ -406,9 +406,9 @@ test.describe('explore services breakdown page', () => {
       await expandFiltersBtn.click();
     }
     const levelsWrap = page.getByTestId(testIds.variables.levels.inputWrap);
-    await levelsWrap.scrollIntoViewIfNeeded();
-    // New level filter should be added
-    await expect(levelsWrap).toBeVisible();
+    // Use expect().toBeVisible() instead of scrollIntoViewIfNeeded(): scroll waits for layout stability,
+    // which Grafana sticky UI often never satisfies in CI.
+    await expect(levelsWrap).toBeVisible({ timeout: 20000 });
     await expect(levelsWrap).toContainText(levelTextMatch);
   });
 

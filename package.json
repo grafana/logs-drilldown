@@ -14,7 +14,7 @@
     "e2e:smoke": "GRAFANA_URL=http://localhost:3001 playwright test -c playwright.smoke.config.ts -x --trace on",
     "e2e:matrix": "playwright test -c playwright.matrix.config.ts -x --trace on",
     "e2e": "playwright test --config playwright.config.ts",
-    "e2e:fast": "playwright test --workers=10",
+    "e2e:fast": "playwright test --workers=9",
     "e2e:debug": "playwright test --debug -x --trace on /test",
     "e2e:codegen": "playwright install && playwright codegen",
     "generate-logs": "pushd generator; docker build -t log-generator . && docker run log-generator -url http://host.docker.internal:3100/loki/api/v1/push -tenant-id=1; popd",
