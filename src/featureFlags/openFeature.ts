@@ -306,7 +306,6 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
     return config.featureToggles.exploreLogsShardSplitting;
   }
   if (flagName === 'logsTablePanelNG') {
-    // @ts-expect-error Remove with grafana/data@13
     return config.featureToggles.logsTablePanelNG;
   }
   return undefined;
