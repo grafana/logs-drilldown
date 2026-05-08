@@ -66,7 +66,6 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
       ...state,
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
       isDisabledLineState: false,
-      // @todo override from local storage
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
