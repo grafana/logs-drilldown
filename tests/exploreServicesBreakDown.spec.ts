@@ -391,8 +391,8 @@ test.describe('explore services breakdown page', () => {
 
     // When `detected_level` is its own table column (auto-added when present in data), the level is a
     // compact cell button named "error" | "warn" | … — not a `detected_level=value` pill in the body.
-    const levelCellButton = table.getByRole('button', { name: 'error', exact: true }).nth(1);
-    await expect(levelCellButton).toBeVisible({ timeout: 20000 });
+    const levelCellButton = table.getByRole('button', { name: 'error', exact: true }).nth(0);
+    await expect(levelCellButton).toBeVisible();
     await levelCellButton.click();
     // Get the context menu
     const pillContextMenu = page.getByRole('button', { name: 'Add to search', exact: true });
@@ -400,15 +400,11 @@ test.describe('explore services breakdown page', () => {
     await expect(pillContextMenu).toBeVisible();
     // Click the filter button
     await pillContextMenu.click();
-    // Filters row is hidden when collapsed; levels live in that row (VariableLayoutScene).
-    const expandFiltersBtn = page.getByRole('button', { name: 'Expand filters' });
-    if ((await expandFiltersBtn.count()) > 0) {
-      await expandFiltersBtn.click();
-    }
+
     const levelsWrap = page.getByTestId(testIds.variables.levels.inputWrap);
     // Use expect().toBeVisible() instead of scrollIntoViewIfNeeded(): scroll waits for layout stability,
     // which Grafana sticky UI often never satisfies in CI.
-    await expect(levelsWrap).toBeVisible({ timeout: 20000 });
+    await expect(levelsWrap).toBeVisible();
     await expect(levelsWrap).toContainText(levelTextMatch);
   });
 
