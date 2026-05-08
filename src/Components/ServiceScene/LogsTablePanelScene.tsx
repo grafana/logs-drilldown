@@ -126,6 +126,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
     const parentScene = this.getParentScene();
     const panelBuilder = new VizConfigBuilder<Options, {}>('logstable', pluginVersion, () => ({
       ...defaultOptions,
+      sortOrder: this.state.sortOrder,
       displayedFields: parentScene.state.displayedFields,
       wrapText: getBooleanLogOption('wrapText', true),
     }));
