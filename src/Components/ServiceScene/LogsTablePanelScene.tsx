@@ -124,11 +124,9 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
   }
 
   public onActivate() {
-    // @todo add from local storage, url
     const parentScene = this.getParentScene();
     const panelBuilder = new VizConfigBuilder<Options, {}>('logstable', pluginVersion, () => ({
       ...defaultOptions,
-      // Could do url columns
       displayedFields: parentScene.state.displayedFields,
       wrapText: getBooleanLogOption('wrapText', true),
     }));
@@ -176,17 +174,19 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
       })
     );
 
-    this.getParentScene().subscribeToState((newState, prevState) => {
-      const options = this.getPanelOptions();
-      if (!areArraysEqual(newState.displayedFields, prevState.displayedFields)) {
-        this.state.panel?.setState({
-          options: {
-            ...options,
-            displayedFields: newState.displayedFields,
-          },
-        });
-      }
-    });
+    this._subs.add(
+      this.getParentScene().subscribeToState((newState, prevState) => {
+        const options = this.getPanelOptions();
+        if (!areArraysEqual(newState.displayedFields, prevState.displayedFields)) {
+          this.state.panel?.setState({
+            options: {
+              ...options,
+              displayedFields: newState.displayedFields,
+            },
+          });
+        }
+      })
+    );
 
     this.onLoadSyncDisplayedFieldsWithUrlColumns();
 
@@ -337,10 +337,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsTablePanelScene>) => {
     const styles = useStyles2(getStyles);
-    // Get state from parent model
-    // const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { error, errorType, canClearFilters, panel } = model.useState();
-    // const { displayedFields } = parentModel.useState();
 
     return (
       <div className={styles.panelWrapper}>
