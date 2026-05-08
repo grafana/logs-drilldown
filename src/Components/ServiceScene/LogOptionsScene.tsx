@@ -49,14 +49,14 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   }
 
   handleWrapLinesChange = (type: boolean) => {
-    this.getLogsPanelScene().setState({ prettifyLogMessage: type, wrapLogMessage: type });
+    this.getLogsPanelScene()?.setState({ prettifyLogMessage: type, wrapLogMessage: type });
     setLogOption('wrapLogMessage', type);
     setLogOption('prettifyLogMessage', type);
     this.getLogsListScene().setLogsVizOption({ prettifyLogMessage: type, wrapLogMessage: type });
   };
 
   onChangeLogsSortOrder = (sortOrder: LogsSortOrder) => {
-    this.getLogsPanelScene().setState({ sortOrder: sortOrder });
+    this.getLogsPanelScene()?.setState({ sortOrder: sortOrder });
     setLogOption('sortOrder', sortOrder);
     this.getLogsListScene().setLogsVizOption({ sortOrder: sortOrder });
   };
@@ -66,15 +66,19 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   };
 
   getLogsPanelScene = () => {
-    return sceneGraph.getAncestor(this, LogsPanelScene);
+    try {
+      return sceneGraph.getAncestor(this, LogsPanelScene);
+    } catch (e) {
+      // This will fail on initialization, so no need to pollute output.
+    }
+    return undefined;
   };
 }
 
 function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
   const { buttonRendererScene, lineLimitScene, onChangeVisualizationType, visualizationType } = model.useState();
-  const { sortOrder, wrapLogMessage } = model.getLogsPanelScene().useState();
+  const state = model.getLogsPanelScene()?.useState();
   const styles = useStyles2(getStyles);
-  const wrapLines = wrapLogMessage ?? false;
 
   return (
     <div className={styles.container}>
@@ -102,14 +106,14 @@ function LogOptionsRenderer({ model }: SceneComponentProps<LogOptionsScene>) {
                   value: LogsSortOrder.Ascending,
                 },
               ]}
-              value={sortOrder}
+              value={state?.sortOrder}
               onChange={model.onChangeLogsSortOrder}
             />
           </InlineField>
           <InlineField className={styles.buttonGroupWrapper} transparent>
             <RadioButtonGroup
               size="sm"
-              value={wrapLines}
+              value={state?.wrapLogMessage ?? false}
               onChange={model.handleWrapLinesChange}
               options={[
                 {
