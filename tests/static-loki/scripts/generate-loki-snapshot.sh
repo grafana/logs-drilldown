@@ -7,14 +7,14 @@
 # to flush its in-memory chunks to filesystem storage, then copies the
 # contents of /tmp/loki out of the container and zips them into:
 #
-#     e2e/provisioning/loki/data.zip
+#     tests/static-loki/provisioning/loki/data.zip
 #
 # Re-running this script overwrites the existing zip. The resulting file is
 # committed to the repository; the e2e Loki image (Dockerfile.loki-static-data)
 # unzips it back into /tmp/loki at build time.
 #
 # Usage:
-#   ./e2e/scripts/generate-loki-snapshot.sh
+#   pnpm run generate:loki-snapshot
 #
 # Requirements: docker, docker compose v2, zip, curl.
 #
@@ -25,10 +25,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
-COMPOSE_FILE="$ROOT_DIR/e2e/docker/docker-compose.snapshot.yaml"
-PROVISIONING_DIR="$ROOT_DIR/e2e/provisioning/loki"
+COMPOSE_FILE="$ROOT_DIR/tests/static-loki/docker/docker-compose.snapshot.yaml"
+PROVISIONING_DIR="$ROOT_DIR/tests/static-loki/provisioning/loki"
 ZIP_PATH="$PROVISIONING_DIR/data.zip"
 
 PROJECT_NAME="logs-drilldown-snapshot"

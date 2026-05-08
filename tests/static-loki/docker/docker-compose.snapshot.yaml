@@ -1,6 +1,6 @@
 name: 'logs-drilldown-snapshot'
 
-# This compose file is used by e2e/scripts/generate-loki-snapshot.sh to build a
+# This compose file is used by tests/static-loki/scripts/generate-loki-snapshot.sh (pnpm run generate:loki-snapshot) to build a
 # deterministic Loki snapshot for the static-data e2e setup. It is NOT used at
 # test time. Tests use docker-compose.dev.yaml (which runs the static Loki
 # image built from the snapshot zip) instead.

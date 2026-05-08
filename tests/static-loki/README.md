@@ -7,7 +7,7 @@ provisioned with a static TSDB snapshot and tests use fixed `from`/`to`
 search params instead of `now-*`.
 
 ```
-e2e/
+tests/static-loki/
   docker/
     Dockerfile.loki-static-data        # Builds a Loki image pre-loaded with the snapshot
     docker-compose.snapshot.yaml       # Helper compose file used only when generating the snapshot
@@ -15,7 +15,7 @@ e2e/
     loki/
       data.zip                         # Committed snapshot of /tmp/loki produced by the generator
   scripts/
-    generate-loki-snapshot.sh          # Regenerates data.zip from scratch
+    generate-loki-snapshot.sh          # Regenerates data.zip from scratch (pnpm run generate:loki-snapshot)
 ```
 
 ## How it fits together at test time
@@ -31,7 +31,7 @@ in the e2e environment.
 
 ## When to regenerate the snapshot
 
-Re-run `e2e/scripts/generate-loki-snapshot.sh` whenever you:
+Run `pnpm run generate:loki-snapshot` whenever you:
 
 * Add or rename services / labels in the generator (e.g. `generator/generator.go`)
 * Change Loki configuration in a way that affects index or chunk layout
@@ -48,7 +48,7 @@ The script:
 3. Calls Loki's `/flush` endpoint to force ingester chunks to filesystem
    storage.
 4. Copies `/tmp/loki` out of the container, zips it, and writes the result
-   to `e2e/provisioning/loki/data.zip`.
+   to `tests/static-loki/provisioning/loki/data.zip`.
 
 After the script finishes you can inspect the diff with `git status`/`git
 diff` and commit the new `data.zip`.

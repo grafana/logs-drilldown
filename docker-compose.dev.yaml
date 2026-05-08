@@ -17,11 +17,11 @@ services:
       - 'host.docker.internal:172.17.0.1'
   loki:
     # Static-data Loki for the Playwright e2e suite. The image bakes in the
-    # snapshot from e2e/provisioning/loki/data.zip, so there is no live
-    # generator. Regenerate the snapshot with e2e/scripts/generate-loki-snapshot.sh.
+    # snapshot from tests/static-loki/provisioning/loki/data.zip, so there is no live
+    # generator. Regenerate the snapshot with pnpm run generate:loki-snapshot.
     build:
       context: .
-      dockerfile: e2e/docker/Dockerfile.loki-static-data
+      dockerfile: tests/static-loki/docker/Dockerfile.loki-static-data
     image: logs-drilldown/loki-static-data:e2e
     environment:
       LOG_CLUSTER_DEPTH: '8'

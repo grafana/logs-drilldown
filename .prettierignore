@@ -23,4 +23,5 @@ docker-compose-local-all.yaml
 docker-compose.dev.yaml
 docker-compose.local.yaml
 generator/
+tests/static-loki/
 .yarnrc

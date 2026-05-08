@@ -3,7 +3,7 @@
  *
  * Why this exists:
  *   The pattern ingester is in-memory and operates on wall-clock time. The
- *   static-data Loki snapshot we ship for e2e (`e2e/provisioning/loki/data.zip`)
+ *   static-data Loki snapshot we ship for e2e (`tests/static-loki/provisioning/loki/data.zip`)
  *   contains chunks with timestamps from `STATIC_FROM`/`STATIC_TO` (May 2025),
  *   but no in-memory pattern state is preserved across the restart that
  *   happens when Loki boots from the snapshot. Pattern persistence

@@ -2,6 +2,10 @@
 
 This directory contains end-to-end (e2e) tests for the Grafana Logs Drilldown plugin.
 
+## Static Loki snapshot (CI)
+
+Playwright runs against a **pre-baked Loki dataset** in CI (`docker-compose.dev.yaml`). Snapshot assets, the regeneration script, and documentation live under [`tests/static-loki/README.md`](static-loki/README.md). Regenerate the zip with `pnpm run generate:loki-snapshot`.
+
 ## Test Version Strategy
 
 ### Full Test Suite (`tests/`)

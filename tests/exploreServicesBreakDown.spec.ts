@@ -58,7 +58,7 @@ test.describe('explore services breakdown page', () => {
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
     // Loki's pattern ingester is in-memory and never repopulates from the
-    // static snapshot (`e2e/provisioning/loki/data.zip`), so the Patterns tab
+    // static snapshot (`tests/static-loki/provisioning/loki/data.zip`), so the Patterns tab
     // would otherwise be empty for every test in this file. We register a
     // deterministic mock for the patterns datasource resource here; tests
     // that need a different patterns response (e.g. the error-state test on
@@ -1601,7 +1601,7 @@ test.describe('explore services breakdown page', () => {
   // Disabled: this test was designed against the live `generator` service,
   // where excluding `version` brought the `content` series count below
   // Loki's `max_query_series` (500) and cleared the panel error. The static
-  // snapshot (`e2e/provisioning/loki/data.zip`) bakes in `noisyTempo` output
+  // snapshot (`tests/static-loki/provisioning/loki/data.zip`) bakes in `noisyTempo` output
   // with per-line random `[compactor-XXXX]` content values, so `content`
   // permanently has thousands of unique series regardless of the version
   // filter. Re-enable this once the snapshot is regenerated with bounded

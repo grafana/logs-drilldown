@@ -1,9 +1,9 @@
 /**
  * Fixed time-range search params used by the static-data e2e suite.
  *
- * The Loki snapshot built by `e2e/scripts/generate-loki-snapshot.sh` covers
+ * The Loki snapshot built by `pnpm run generate:loki-snapshot` covers
  * the window 2025-05-26T11:00:00Z .. 2025-05-26T12:05:00Z (see
- * `e2e/README.md`). Tests should navigate using these values instead of
+ * `tests/static-loki/README.md`). Tests should navigate using these values instead of
  * `now-*&to=now`, otherwise queries return no data.
  */
 
