@@ -14,6 +14,7 @@ import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LineLimitScene } from './LineLimitScene';
 import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { LogsListScene } from './LogsListScene';
+import { LogsPanelScene } from './LogsPanelScene';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType, setLogOption } from 'services/store';
 
@@ -65,9 +66,7 @@ export class LogOptionsScene extends SceneObjectBase<LogOptionsState> {
   };
 
   getLogsPanelScene = () => {
-    //@todo fix
-    return this.parent as any;
-    // return sceneGraph.getAncestor(this, LogsPanelScene);
+    return sceneGraph.getAncestor(this, LogsPanelScene);
   };
 }
 
