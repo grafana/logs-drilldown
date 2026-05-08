@@ -43,6 +43,7 @@ import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTable';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
+import { runSceneQueries } from 'services/query';
 
 interface LogsTableSceneState extends SceneObjectState {
   canClearFilters?: boolean;
@@ -103,10 +104,22 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
     }
   }
 
+  handleSortChange = (newOrder: LogsSortOrder) => {
+    if (newOrder === this.state.sortOrder) {
+      return;
+    }
+    setLogOption('sortOrder', newOrder);
+    runSceneQueries(this);
+    this.setState({ sortOrder: newOrder });
+  };
+
   protected onOptionsChange(options: DeepPartial<Options>, prevOptions: DeepPartial<Options>) {
     // todo: Update after Grafana >= 13.1
     if ('wrapText' in options && 'wrapText' in prevOptions && options.wrapText !== prevOptions.wrapText) {
       setLogOption('wrapText', Boolean(options.wrapText));
+    }
+    if (options.sortOrder && options.sortOrder !== this.state.sortOrder) {
+      this.handleSortChange(options.sortOrder);
     }
   }
 
