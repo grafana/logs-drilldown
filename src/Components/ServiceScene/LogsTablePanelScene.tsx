@@ -328,15 +328,6 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
     // const parentModel = sceneGraph.getAncestor(model, LogsListScene);
     const { error, errorType, canClearFilters, panel } = model.useState();
     // const { displayedFields } = parentModel.useState();
-    // const { data } = sceneGraph.getData(model).useState();
-
-    // const dataFrame = getLogsPanelFrame(data);
-
-    // Define callback function to update filters in react
-    // const addFilter = (filter: AdHocVariableFilter) => {
-    //   const variableType = getVariableForLabel(dataFrame, filter.key, model);
-    //   addAdHocFilter(filter, parentModel, variableType);
-    // };
 
     return (
       <div className={styles.panelWrapper}>
