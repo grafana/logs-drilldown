@@ -154,6 +154,7 @@
           }
         },
         "fields-and-metadata-variable": {
+          "description": "",
           "label": {
             "fields": ""
           }
@@ -164,6 +165,7 @@
           }
         },
         "label-variable": {
+          "description": "",
           "label": {
             "labels": ""
           }
@@ -189,11 +191,13 @@
       },
       "levels-variable-scene": {
         "aria-label-log-level-filters": "",
+        "description-log-levels": "",
         "label-log-levels": "",
         "placeholder-all-levels": ""
       },
       "line-filter-variable": {
         "aria-label-remove-line-filter": "",
+        "description-line-filter": "",
         "line-filter": ""
       },
       "line-filter-variables-scene": {
