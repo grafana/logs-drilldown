@@ -26,6 +26,7 @@ import { getRouteParams } from '../../services/routing';
 import { getLabelsVariable } from '../../services/variableGetters';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
+import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
@@ -45,6 +46,7 @@ import {
   getLogsVisualizationType,
   getLogsVolumeOption,
   LogsVisualizationType,
+  setDisplayedFieldsInStorage,
   setLogsVisualizationType,
 } from 'services/store';
 
@@ -198,10 +200,27 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   showBackendFields = () => {
-    // This is technically a user action, but I think it makes sense to continue to get served the backend fields
-    this.setState({ displayedFields: [], userDisplayedFields: false });
-    if (this.logsPanelScene) {
-      this.logsPanelScene.showBackendFields();
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const backendDisplayedFields = serviceScene.state.backendDisplayedFields ?? [];
+
+    setDisplayedFieldsInStorage(this, backendDisplayedFields);
+    setDisplayedFieldsInStorage(this, null, true);
+
+    const urlColumns =
+      backendDisplayedFields.filter(
+        (column) => DEFAULT_URL_COLUMNS.includes(column) || DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+      ) || [];
+
+    this.setState({
+      displayedFields: backendDisplayedFields,
+      userDisplayedFields: false,
+      urlColumns,
+    });
+
+    if (this.logsPanelScene?.state.body) {
+      this.logsPanelScene.setLogsVizOption({
+        displayedFields: backendDisplayedFields,
+      });
     }
   };
 
