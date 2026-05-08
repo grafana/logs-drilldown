@@ -27,7 +27,7 @@ export const baseConfig = {
     // },
   },
   /* Fixed worker count, same in CI and local. */
-  workers: 9,
+  workers: 5,
 };
 
 /**
