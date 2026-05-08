@@ -302,9 +302,6 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
   ) {
     return Boolean(config.featureToggles.kgAnnotationsInLokiExplore);
   }
-  if (flagName === 'exploreLogsShardSplitting') {
-    return config.featureToggles.exploreLogsShardSplitting;
-  }
   if (flagName === 'logsTablePanelNG') {
     return config.featureToggles.logsTablePanelNG;
   }
