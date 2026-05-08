@@ -385,20 +385,31 @@ test.describe('explore services breakdown page', () => {
     await explorePage.getTableToggleLocator().click();
 
     const table = page.getByTestId(testIds.table.wrapper);
+    await expect(table).toBeVisible();
     // switch table body to label view
     await page.getByRole('button', { name: 'Show log labels' }).click();
 
-    // Get a detected_level debug pill, and click it
-    await table.getByRole('button', { name: 'error', exact: true }).nth(1).click();
+    // When `detected_level` is its own table column (auto-added when present in data), the level is a
+    // compact cell button named "error" | "warn" | … — not a `detected_level=value` pill in the body.
+    const levelCellButton = table.getByRole('button', { name: 'error', exact: true }).nth(1);
+    await expect(levelCellButton).toBeVisible({ timeout: 20000 });
+    await levelCellButton.click();
     // Get the context menu
     const pillContextMenu = page.getByRole('button', { name: 'Add to search', exact: true });
     // Assert menu is open
     await expect(pillContextMenu).toBeVisible();
     // Click the filter button
     await pillContextMenu.click();
+    // Filters row is hidden when collapsed; levels live in that row (VariableLayoutScene).
+    const expandFiltersBtn = page.getByRole('button', { name: 'Expand filters' });
+    if ((await expandFiltersBtn.count()) > 0) {
+      await expandFiltersBtn.click();
+    }
+    const levelsWrap = page.getByTestId(testIds.variables.levels.inputWrap);
+    await levelsWrap.scrollIntoViewIfNeeded();
     // New level filter should be added
-    await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toBeVisible();
-    await expect(page.getByTestId(testIds.variables.levels.inputWrap)).toContainText(levelTextMatch);
+    await expect(levelsWrap).toBeVisible();
+    await expect(levelsWrap).toContainText(levelTextMatch);
   });
 
   test('table log line state should persist in the url', async ({ page }) => {
