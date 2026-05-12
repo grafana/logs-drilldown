@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { AdHocVariableFilter, MetricFindValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
+  AdHocFilterWithLabels,
   ControlsLabel,
   SceneComponentProps,
   sceneGraph,
@@ -97,14 +98,14 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     const levelsVar = getLevelsVariable(this);
     const filterOptions = this.state.options?.filter((opt) => opt.selected);
 
-    const filters: AdHocVariableFilter[] =
+    const filters =
       filterOptions?.map((filterOpt) => {
         const operator = filterOpt.operator ?? FilterOp.Equal;
         const value =
           filterOpt.value !== undefined && filterOpt.value !== ''
             ? String(filterOpt.value)
             : String(filterOpt.text ?? '');
-        const filter: AdHocVariableFilter = {
+        const filter: AdHocFilterWithLabels = {
           key: LEVEL_VARIABLE_VALUE,
           operator,
           value,
@@ -185,7 +186,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           options={model.getTagValues}
           createCustomValue={true}
           loading={isLoading}
-          value={options?.filter((v) => v.selected).map((v) => String(v.value))}
+          value={options?.filter((v) => v.selected).map((v) => String(v.text))}
           width="auto"
           minWidth={20}
         />
