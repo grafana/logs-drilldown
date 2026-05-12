@@ -72,12 +72,19 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         return [];
       }
 
-      const newOptions = response.values.map((value) => ({
-        selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
-        text: value.text,
-        value: value.value ?? value.text,
-        operator: FilterOp.Equal,
-      }));
+      const newOptions = response.values.map((value) => {
+        const existingFilter = levelsVar.state.filters.find((filter) => filter.value === value.text);
+        const operator = levelsVar.state.filters[0]?.operator ?? FilterOp.Equal;
+        return {
+          selected: Boolean(existingFilter),
+          text:
+            existingFilter?.valueLabels?.[0] ??
+            existingFilter?.value ??
+            (operator === FilterOp.Equal ? value.text : `!${value.text}`),
+          value: value.text,
+          operator,
+        };
+      });
       const existingSelectedOptions = this.state.options?.filter(
         (existingOption) =>
           existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
@@ -85,7 +92,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
       const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
       this.setState({ options });
       return options
-        .map((option) => ({ label: option.text, value: String(option.value ?? option.text) }))
+        .map((option) => ({ label: option.text, value: String(option.value) }))
         .filter((option) => option.label?.includes(typeAhead));
     } catch (err) {
       return [];
