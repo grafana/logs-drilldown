@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { AdHocVariableFilter, MetricFindValue } from '@grafana/data';
+import { MetricFindValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   AdHocFilterWithLabels,
