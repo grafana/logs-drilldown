@@ -346,6 +346,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     } else {
       panel
         .setOption('showTime', getBooleanLogOption('showTime', true))
+        .setOption('timestampResolution', getLogOption('timestampResolution', 'ms'))
         .setOption('showControls', true)
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)
