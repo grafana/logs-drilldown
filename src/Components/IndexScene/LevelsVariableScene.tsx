@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import { MetricFindValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
+  AdHocFilterWithLabels,
   ControlsLabel,
   SceneComponentProps,
   sceneGraph,
@@ -21,7 +22,7 @@ import { testIds } from '../../services/testIds';
 import { getLevelsVariable } from '../../services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
 
-type ChipOption = MetricFindValue & { selected?: boolean };
+type ChipOption = MetricFindValue & { operator?: string; selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
   isLoading: boolean;
   options?: ChipOption[];
@@ -52,6 +53,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         selected: true,
         text: filter.valueLabels?.[0] ?? filter.value,
         value: filter.value,
+        operator: filter.operator,
       })),
     });
   }
@@ -70,11 +72,16 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         return [];
       }
 
-      const newOptions = response.values.map((value) => ({
-        selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
-        text: value.text,
-        value: value.value ?? value.text,
-      }));
+      const newOptions = response.values.map((value) => {
+        const existingFilter = levelsVar.state.filters.find((filter) => filter.value === value.text);
+        const operator = existingFilter?.operator ?? FilterOp.Equal;
+        return {
+          selected: Boolean(existingFilter),
+          text: existingFilter?.valueLabels?.[0] ?? existingFilter?.value ?? value.text,
+          value: value.text,
+          operator,
+        };
+      });
       const existingSelectedOptions = this.state.options?.filter(
         (existingOption) =>
           existingOption.selected && !newOptions.some((newOption) => newOption.value === existingOption.value)
@@ -82,7 +89,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
       const options = existingSelectedOptions ? [...newOptions, ...existingSelectedOptions] : [...newOptions];
       this.setState({ options });
       return options
-        .map((option) => ({ label: option.text, value: String(option.value ?? option.text) }))
+        .map((option) => ({ label: option.text, value: String(option.value) }))
         .filter((option) => option.label?.includes(typeAhead));
     } catch (err) {
       return [];
@@ -95,14 +102,28 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     const levelsVar = getLevelsVariable(this);
     const filterOptions = this.state.options?.filter((opt) => opt.selected);
 
-    levelsVar.updateFilters(
-      filterOptions?.map((filterOpt) => ({
-        key: LEVEL_VARIABLE_VALUE,
-        operator: FilterOp.Equal,
-        value: filterOpt.text,
-      })) ?? [],
-      { forcePublish, skipPublish }
-    );
+    const filters =
+      filterOptions?.map((filterOpt) => {
+        const operator = filterOpt.operator ?? FilterOp.Equal;
+        const value =
+          filterOpt.value !== undefined && filterOpt.value !== ''
+            ? String(filterOpt.value)
+            : String(filterOpt.text ?? '');
+        const filter: AdHocFilterWithLabels = {
+          key: LEVEL_VARIABLE_VALUE,
+          operator,
+          value,
+        };
+        const displayLabel = filterOpt.text ?? value;
+        if (operator === FilterOp.NotEqual) {
+          filter.valueLabels = [displayLabel.startsWith('!') ? displayLabel : `!${value}`];
+        } else if (displayLabel !== value) {
+          filter.valueLabels = [displayLabel];
+        }
+        return filter;
+      }) ?? [];
+
+    levelsVar.updateFilters(filters, { forcePublish, skipPublish });
   };
 
   onChangeOptions = (options: Array<ComboboxOption<string>>) => {
@@ -116,6 +137,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         selected: true,
         text: option.label ?? option.value,
         value: option.value,
+        operator: FilterOp.Equal,
       }));
 
     this.setState({
@@ -168,7 +190,9 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           options={model.getTagValues}
           createCustomValue={true}
           loading={isLoading}
-          value={options?.filter((v) => v.selected).map((v) => String(v.value))}
+          value={options
+            ?.filter((v) => v.selected)
+            .map((option) => ({ label: option.text, value: String(option.value) }))}
           width="auto"
           minWidth={20}
         />
