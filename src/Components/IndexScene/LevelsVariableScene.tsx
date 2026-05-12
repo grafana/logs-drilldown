@@ -74,13 +74,10 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
 
       const newOptions = response.values.map((value) => {
         const existingFilter = levelsVar.state.filters.find((filter) => filter.value === value.text);
-        const operator = levelsVar.state.filters[0]?.operator ?? FilterOp.Equal;
+        const operator = existingFilter?.operator ?? FilterOp.Equal;
         return {
           selected: Boolean(existingFilter),
-          text:
-            existingFilter?.valueLabels?.[0] ??
-            existingFilter?.value ??
-            (operator === FilterOp.Equal ? value.text : `!${value.text}`),
+          text: existingFilter?.valueLabels?.[0] ?? existingFilter?.value ?? value.text,
           value: value.text,
           operator,
         };
