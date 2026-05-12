@@ -186,7 +186,9 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
           options={model.getTagValues}
           createCustomValue={true}
           loading={isLoading}
-          value={options?.filter((v) => v.selected).map((v) => String(v.text))}
+          value={options
+            ?.filter((v) => v.selected)
+            .map((option) => ({ label: option.text, value: String(option.value) }))}
           width="auto"
           minWidth={20}
         />
