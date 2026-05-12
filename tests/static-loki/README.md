@@ -41,7 +41,7 @@ The script:
 
 1. Spins up a temporary Loki container (using the same configs as
    `docker-compose.dev.yaml`).
-2. Runs the generator with `-static-start=2025-05-26T11:00:00Z
+2. Runs the generator with `-static-start=2026-04-26T11:00:00Z
    -static-duration=65m -static-step=5s -seed=42 -tenant-id=1`. The
    generator emits a bounded amount of data per service inside that window,
    then exits.
@@ -57,14 +57,19 @@ diff` and commit the new `data.zip`.
 
 Loki's `/loki/api/v1/query_range` returns logs whose timestamp falls inside
 the requested `[from, to]` range. The static dataset uses
-`2025-05-26T11:00:00Z` to `2025-05-26T12:05:00Z`, and Playwright tests
+`2026-04-26T11:00:00Z` to `2026-04-26T12:05:00Z`, and Playwright tests
 should query the same window via `tests/config/constants.ts`
 (`DEFAULT_STATIC_URL_SEARCH_PARAMS`). Using `now-*&to=now` against the
 static dataset would return nothing because the data is anchored to a fixed
-moment in 2025 rather than the wall clock at test time.
+moment in 2026 rather than the wall clock at test time.
 
 The default Loki retention (`30d`) on tenant `1` is overridden in
 `config/loki-overrides.yaml` to keep the snapshot queryable indefinitely.
+
+When regenerating `data.zip`, pick a `static-start` window that is **entirely
+in the past** relative to the machine running Docker (Loki rejects pushes with
+`timestamp too new` if log timestamps are ahead of wall clock by more than a
+small grace period).
 
 ## Live local development
 

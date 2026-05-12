@@ -32,7 +32,7 @@ func main() {
 	syslogProtocol := flag.String("syslog-network", "udp", "Syslog network type: 'udp' or 'tcp'")
 	syslogAddr := flag.String("syslog-addr", "127.0.0.1:514", "Syslog remote address (e.g., '127.0.0.1:514')")
 
-	staticStart := flag.String("static-start", "", "Enable static (deterministic) mode. RFC3339 timestamp marking the start of the data window (e.g. 2025-05-26T11:00:00Z). When set, the generator emits a fixed amount of data inside [start, start+duration] and exits.")
+	staticStart := flag.String("static-start", "", "Enable static (deterministic) mode. RFC3339 timestamp marking the start of the data window (e.g. 2026-04-26T11:00:00Z). When set, the generator emits a fixed amount of data inside [start, start+duration] and exits.")
 	staticDuration := flag.Duration("static-duration", 65*time.Minute, "Static mode: duration of the data window starting at -static-start")
 	staticStep := flag.Duration("static-step", 5*time.Second, "Static mode: virtual time advanced per log iteration")
 	staticThrottle := flag.Duration("static-throttle", 100*time.Microsecond, "Static mode: real-time pause between iterations to avoid overwhelming Loki")

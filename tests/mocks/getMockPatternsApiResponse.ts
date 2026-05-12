@@ -4,7 +4,7 @@
  * Why this exists:
  *   The pattern ingester is in-memory and operates on wall-clock time. The
  *   static-data Loki snapshot we ship for e2e (`tests/static-loki/provisioning/loki/data.zip`)
- *   contains chunks with timestamps from `STATIC_FROM`/`STATIC_TO` (May 2025),
+ *   contains chunks with timestamps from `STATIC_FROM`/`STATIC_TO` (Apr 2026),
  *   but no in-memory pattern state is preserved across the restart that
  *   happens when Loki boots from the snapshot. Pattern persistence
  *   (`__aggregated_metric__` streams) requires real wall-clock time to flush,
@@ -28,7 +28,7 @@
  *
  * Shape: matches `LokiPattern[]` from `src/services/datasource.ts`.
  */
-const STATIC_PATTERN_BASE_TIMESTAMP_S = 1748257200; // 2025-05-26T11:00:00Z
+const STATIC_PATTERN_BASE_TIMESTAMP_S = 1777201200; // 2026-04-26T11:00:00Z
 
 const buildSamples = (counts: number[]) =>
   counts.map((count, idx) => [STATIC_PATTERN_BASE_TIMESTAMP_S + idx * 60, count] as [number, number]);

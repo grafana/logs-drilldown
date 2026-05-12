@@ -34,7 +34,7 @@ services:
     command:
       - -url=http://snapshot-loki:3100/loki/api/v1/push
       - -tenant-id=1
-      - -static-start=2025-05-26T11:00:00Z
+      - -static-start=2026-04-26T11:00:00Z
       - -static-duration=65m
       - -static-step=5s
       - -static-throttle=200us

@@ -13,7 +13,7 @@ overrides:
     retention_period: 30d
     max_query_length: 0d
     # Allow the static-data e2e generator (pnpm run generate:loki-snapshot)
-    # to push samples timestamped 2025-05-26, even when the snapshot is
+    # to push samples timestamped 2026-04-26, even when the snapshot is
     # rebuilt months later. Loki's default rejects samples older than 7d.
     reject_old_samples: false
   '2':

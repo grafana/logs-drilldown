@@ -660,7 +660,7 @@ test.describe('explore services page', () => {
             const namespaceMatch = expression.match(/namespace\s*=\s*"([^"]+)"/);
             const namespace = namespaceMatch?.[1] ?? '';
             const buildSamples = (counts: number[]) =>
-              counts.map((count, idx) => [1748257200 + idx * 60, count] as [number, number]);
+              counts.map((count, idx) => [1777201200 + idx * 60, count] as [number, number]);
             const patternsByNamespace: Record<
               string,
               Array<{ level: string; pattern: string; samples: number[][] }>

@@ -90,8 +90,8 @@ curl -fsS -X POST -H 'X-Scope-OrgID: 1' "$LOKI_HOST_URL/flush" || true
 sleep 5
 
 echo "==> Sanity check: tenant 1 returns labels for the static window"
-START_NS=1748257200000000000   # 2025-05-26T11:00:00Z
-END_NS=1748261100000000000     # 2025-05-26T12:05:00Z
+START_NS=1777201200000000000   # 2026-04-26T11:00:00Z
+END_NS=1777205100000000000     # 2026-04-26T12:05:00Z
 LABELS_JSON="$(curl -fsS -H 'X-Scope-OrgID: 1' "$LOKI_HOST_URL/loki/api/v1/labels?start=$START_NS&end=$END_NS" || true)"
 if [ -z "$LABELS_JSON" ] || ! echo "$LABELS_JSON" | grep -q 'service_name'; then
   echo "error: tenant 1 has no service_name label inside the static window" >&2
