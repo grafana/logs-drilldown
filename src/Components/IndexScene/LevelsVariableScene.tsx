@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { MetricFindValue } from '@grafana/data';
+import { AdHocVariableFilter, MetricFindValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   ControlsLabel,
@@ -21,7 +21,7 @@ import { testIds } from '../../services/testIds';
 import { getLevelsVariable } from '../../services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
 
-type ChipOption = MetricFindValue & { selected?: boolean };
+type ChipOption = MetricFindValue & { operator?: string; selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {
   isLoading: boolean;
   options?: ChipOption[];
@@ -52,6 +52,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         selected: true,
         text: filter.valueLabels?.[0] ?? filter.value,
         value: filter.value,
+        operator: filter.operator,
       })),
     });
   }
@@ -74,6 +75,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         selected: levelsVar.state.filters.some((filter) => filter.value === value.text),
         text: value.text,
         value: value.value ?? value.text,
+        operator: FilterOp.Equal,
       }));
       const existingSelectedOptions = this.state.options?.filter(
         (existingOption) =>
@@ -95,14 +97,28 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
     const levelsVar = getLevelsVariable(this);
     const filterOptions = this.state.options?.filter((opt) => opt.selected);
 
-    levelsVar.updateFilters(
-      filterOptions?.map((filterOpt) => ({
-        key: LEVEL_VARIABLE_VALUE,
-        operator: FilterOp.Equal,
-        value: filterOpt.text,
-      })) ?? [],
-      { forcePublish, skipPublish }
-    );
+    const filters: AdHocVariableFilter[] =
+      filterOptions?.map((filterOpt) => {
+        const operator = filterOpt.operator ?? FilterOp.Equal;
+        const value =
+          filterOpt.value !== undefined && filterOpt.value !== ''
+            ? String(filterOpt.value)
+            : String(filterOpt.text ?? '');
+        const filter: AdHocVariableFilter = {
+          key: LEVEL_VARIABLE_VALUE,
+          operator,
+          value,
+        };
+        const displayLabel = filterOpt.text ?? value;
+        if (operator === FilterOp.NotEqual) {
+          filter.valueLabels = [displayLabel.startsWith('!') ? displayLabel : `!${value}`];
+        } else if (displayLabel !== value) {
+          filter.valueLabels = [displayLabel];
+        }
+        return filter;
+      }) ?? [];
+
+    levelsVar.updateFilters(filters, { forcePublish, skipPublish });
   };
 
   onChangeOptions = (options: Array<ComboboxOption<string>>) => {
@@ -116,6 +132,7 @@ export class LevelsVariableScene extends SceneObjectBase<LevelsVariableSceneStat
         selected: true,
         text: option.label ?? option.value,
         value: option.value,
+        operator: FilterOp.Equal,
       }));
 
     this.setState({
