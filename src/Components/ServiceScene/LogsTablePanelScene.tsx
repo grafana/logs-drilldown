@@ -45,7 +45,7 @@ import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTabl
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { runSceneQueries } from 'services/query';
 
-interface LogsTableSceneState extends SceneObjectState {
+interface LogsTablePanelSceneState extends SceneObjectState {
   canClearFilters?: boolean;
   emptyScene?: NoMatchingLabelsScene;
   error?: string;
@@ -55,13 +55,13 @@ interface LogsTableSceneState extends SceneObjectState {
   panel?: VizPanel<Options, {}>;
   sortOrder: LogsSortOrder;
 }
-export class LogsTablePanelScene extends SceneObjectBase<LogsTableSceneState> {
+export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneState> {
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     // urlColumns are options.displayedFields
     keys: ['sortOrder', 'urlColumns'],
   });
 
-  constructor(state: Partial<LogsTableSceneState>) {
+  constructor(state: Partial<LogsTablePanelSceneState>) {
     super({
       ...state,
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
