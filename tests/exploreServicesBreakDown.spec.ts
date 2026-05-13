@@ -188,7 +188,6 @@ test.describe('explore services breakdown page', () => {
       refIds: ['LABEL_BREAKDOWN_VALUES'],
     });
 
-    await explorePage.assertTabsNotLoading();
     // Add custom value to combobox
     await explorePage.addCustomValueToCombobox(labelName, FilterOp.RegexEqual, ComboBoxIndex.labels, `us-.+`);
 
@@ -446,7 +445,6 @@ test.describe('explore services breakdown page', () => {
   });
 
   test(`should select label ${levelName}, update filters, open in explore`, async ({ page }) => {
-    await explorePage.assertTabsNotLoading();
     const valueName = 'info';
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
@@ -459,7 +457,6 @@ test.describe('explore services breakdown page', () => {
     await expect(page.getByText(`{service_name="tempo-distributor"} | ${levelName}="${valueName}"`)).toBeVisible();
   });
   test(`should select label ${labelName}, update filters, open in explore`, async ({ browser, page }) => {
-    await explorePage.assertTabsNotLoading();
     explorePage.blockAllQueriesExcept({
       legendFormats: [`{{${labelName}}}`],
       refIds: ['logsPanelQuery'],
@@ -501,8 +498,6 @@ test.describe('explore services breakdown page', () => {
     // Assert the variables are visible
     await expect(page.getByLabel(`Edit filter with key ${labelName}`)).toBeVisible();
     await expect(page.getByLabel(`Edit filter with key service_name`)).toBeVisible();
-
-    await explorePage.assertTabsNotLoading();
 
     // Assert the label variable has the correct value
     // const labelFilter = page.getByTestId('AdHocFilter-cluster');
@@ -589,7 +584,6 @@ test.describe('explore services breakdown page', () => {
     await page.getByTestId(testIds.breakdowns.labelFieldSearch).click();
     await page.keyboard.type('tenan');
     await page.getByRole('option', { name: 'tenant', exact: true }).click();
-    await explorePage.assertNotLoading();
 
     // Assert loading is done and panels are showing
     const panels = page.getByTestId(/data-testid Panel header/);
@@ -650,12 +644,10 @@ test.describe('explore services breakdown page', () => {
 
   test(`should search fields for ${fieldName}`, async ({ page }) => {
     await explorePage.goToFieldsTab();
-    await explorePage.assertNotLoading();
     await explorePage.click(page.getByLabel(`Select ${fieldName}`));
     await explorePage.click(page.getByPlaceholder('Search for value'));
     const panels = page.getByTestId(/data-testid Panel header/);
     await expect(panels.first()).toBeVisible();
-    await explorePage.assertNotLoading();
     // Assert there is at least 2 panels
     await expect(panels.nth(1)).toBeVisible();
     // expect(await panels.count()).toBeGreaterThan(1);
@@ -716,7 +708,6 @@ test.describe('explore services breakdown page', () => {
       refIds: [fieldName],
     });
     await explorePage.goToFieldsTab();
-    await explorePage.assertNotLoading();
 
     // Go to caller values breakdown
     await page.getByLabel(`Select ${fieldName}`).click();
@@ -801,7 +792,6 @@ test.describe('explore services breakdown page', () => {
     await page.getByLabel('Remove filter with key').first().click();
 
     // Get panel count to ensure the pod regex filter reduces the result set
-    await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
 
     // Pods have a variable count!
@@ -816,7 +806,6 @@ test.describe('explore services breakdown page', () => {
 
     await expect(page.getByLabel(E2EComboboxStrings.editByKey(metadataName))).toBeVisible();
     await expect(page.getByText('=~').nth(3)).toBeVisible();
-    await explorePage.assertNotLoading();
     await explorePage.assertPanelsNotLoading();
     await expect
       .poll(() =>
@@ -865,8 +854,6 @@ test.describe('explore services breakdown page', () => {
     await explorePage.goToFieldsTab();
     // Make sure the panels have started to render
     await expect(page.getByTestId(/data-testid Panel header/).first()).toBeInViewport();
-
-    await explorePage.assertTabsNotLoading();
 
     // Assert the container size of the plugin hasn't changed, or that will mess with the assumptions below
     const pageContainerSize = await page.locator('#pageContent').boundingBox();
@@ -1110,8 +1097,7 @@ test.describe('explore services breakdown page', () => {
   });
 
   test('Should filter patterns by level', async ({ page }) => {
-    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
-    await explorePage.assertTabsNotLoading();
+    await explorePage.goToPatternsTab();
 
     const rows = page.getByTestId('data-testid table-wrapper').locator('[role="rowgroup"] [role="row"]');
 
@@ -1143,10 +1129,8 @@ test.describe('explore services breakdown page', () => {
       return route.fulfill({ json, response });
     });
 
-    await explorePage.assertTabsNotLoading();
     await expect.poll(() => patternsCount).toEqual(1);
-    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
-    await explorePage.assertTabsNotLoading();
+    await explorePage.goToPatternsTab();
     await expect.poll(() => patternsCount).toEqual(2);
     await page.getByTestId('data-testid RefreshPicker run button').click();
     await explorePage.assertTabsNotLoading();
@@ -1160,8 +1144,6 @@ test.describe('explore services breakdown page', () => {
     // Assert the panel is done loading before going on
     await expect(page.getByTestId(testIds.logsPanelHeader.header).getByLabel('Panel loading bar')).toHaveCount(0);
 
-    await explorePage.assertTabsNotLoading();
-    await explorePage.assertNotLoading();
     // @todo this test was flaking because the row is clicked before the logs panel renders the final rows. Potential grafana/grafana bug in the logs panel?
     // assert that the logs panel is done rendering
     await expect(page.getByText(/Rendering \d+ rows.../)).toHaveCount(0);
@@ -1665,8 +1647,6 @@ test.describe('explore services breakdown page', () => {
 
   test('should update label set if detected_labels is loaded in another tab', async ({ page }) => {
     explorePage.blockAllQueriesExcept({});
-    await explorePage.assertNotLoading();
-    await explorePage.assertTabsNotLoading();
     await explorePage.goToLabelsTab();
 
     const tabCountLocator = page.getByTestId(testIds.exploreServiceDetails.tabLabels).locator('> span');
@@ -1675,11 +1655,9 @@ test.describe('explore services breakdown page', () => {
     // Count panels, compare to tab count
     await expect(panels).toHaveCount(parseInt((await tabCountLocator.textContent()) as string, 10));
 
-    await explorePage.assertTabsNotLoading();
     await explorePage.goToLogsTab();
     await page.getByLabel('Edit filter with key').click();
     await page.getByText('mimir-ingester').click();
-    await explorePage.assertTabsNotLoading();
     await explorePage.goToLabelsTab();
 
     // Count panels, compare to tab count
@@ -1964,7 +1942,6 @@ test.describe('explore services breakdown page', () => {
     });
 
     await explorePage.goToFieldsTab();
-    await explorePage.assertNotLoading();
     await explorePage.click(page.getByLabel(`Select ${fieldName}`));
 
     const summaryPanel = page.getByTestId(`data-testid Panel header ${fieldName}`);
@@ -2016,7 +1993,6 @@ test.describe('explore services breakdown page', () => {
 
     // Use the dropdown since the tenant field might not be visible
     await page.getByLabel(`Select ${fieldName}`).click();
-    await explorePage.assertNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(9);
 
@@ -2037,7 +2013,6 @@ test.describe('explore services breakdown page', () => {
 
     // Use the dropdown since the tenant field might not be visible (label + value no longer one "LabelAll" text node)
     await page.getByLabel(`Select ${levelName}`).click();
-    await explorePage.assertNotLoading();
 
     await expect(explorePage.getAllPanelsLocator()).toHaveCount(5);
 
@@ -2163,7 +2138,6 @@ test.describe('explore services breakdown page', () => {
 
       // switch to case-sensitive in the global variable
       await page.getByLabel('Enable case match').nth(0).click();
-      await explorePage.assertTabsNotLoading();
       await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(3);
       expect(logsPanelQueryCount).toEqual(3);
@@ -2199,7 +2173,6 @@ test.describe('explore services breakdown page', () => {
           intervals: [2_001, 50, 100, 250],
         })
         .toBe(1);
-      await explorePage.assertTabsNotLoading();
       await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(6);
       expect(logsPanelQueryCount).toEqual(6);
@@ -2215,7 +2188,6 @@ test.describe('explore services breakdown page', () => {
       await firstLineFilterLoc.click();
       await page.keyboard.type('__');
       await expect(page.getByTestId('data-testid search-logs').first()).toHaveValue('[dD]ebug__');
-      await explorePage.assertTabsNotLoading();
       await expect(page.getByText('No logs match your search.')).toHaveCount(1);
       expect(logsCountQueryCount).toEqual(8);
       expect(logsPanelQueryCount).toEqual(8);

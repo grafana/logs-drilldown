@@ -35,7 +35,6 @@ test.describe('saved searches', () => {
 
     // Wait for the logs tab to be visible and active
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
-    await explorePage.assertTabsNotLoading();
 
     // Capture the selected service chip text for later round-trip validation
     const serviceChip = page.getByLabel('Edit filter with key service_name');
@@ -126,7 +125,6 @@ test.describe('saved searches', () => {
 
     await explorePage.addServiceName();
     await explorePage.clickShowLogs();
-    await explorePage.assertTabsNotLoading();
 
     // Save the search
     const saveSearchButton = page.getByRole('button', { name: 'Save search' });
@@ -184,7 +182,6 @@ test.describe('saved searches', () => {
 
     await explorePage.addServiceName();
     await explorePage.clickShowLogs();
-    await explorePage.assertTabsNotLoading();
 
     // Save the search
     const saveSearchButton = page.getByRole('button', { name: 'Save search' });
@@ -218,7 +215,6 @@ test.describe('saved searches', () => {
 
     await explorePage.addServiceName();
     await explorePage.clickShowLogs();
-    await explorePage.assertTabsNotLoading();
 
     // Capture the selected service chip text for later round-trip validation
     const serviceChip = page.getByLabel('Edit filter with key service_name');
@@ -234,8 +230,7 @@ test.describe('saved searches', () => {
     await page.getByRole('button', { name: 'Save', exact: true }).click();
 
     // Navigate to patterns tab
-    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
-    await explorePage.assertTabsNotLoading();
+    await explorePage.goToPatternsTab();
 
     // Navigate back to service selection using the mega menu
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();

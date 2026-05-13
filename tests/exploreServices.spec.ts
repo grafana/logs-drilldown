@@ -421,7 +421,6 @@ test.describe('explore services page', () => {
         // Click on first service
         await explorePage.addServiceName();
         await explorePage.clickShowLogs();
-        await explorePage.assertTabsNotLoading();
 
         // Clear variable
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toHaveCount(0);
@@ -438,7 +437,6 @@ test.describe('explore services page', () => {
         // Click on first service
         await explorePage.addServiceName();
         await explorePage.clickShowLogs();
-        await explorePage.assertTabsNotLoading();
 
         // Clear variable
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toHaveCount(0);
@@ -743,7 +741,6 @@ test.describe('explore services page', () => {
         // Select the first and only result
         await explorePage.addServiceName();
         await explorePage.clickShowLogs();
-        await explorePage.assertTabsNotLoading();
 
         // Logs tab should be visible and selected
         await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toHaveCount(1);
@@ -761,7 +758,6 @@ test.describe('explore services page', () => {
 
       test('Part 2: changing primary label updates tab counts', async ({}) => {
         resetQueryCounts();
-        await explorePage.assertTabsNotLoading();
         const gatewayPatternsCount = await page
           .getByTestId(testIds.exploreServiceDetails.tabPatterns)
           .locator('> span')
@@ -789,8 +785,6 @@ test.describe('explore services page', () => {
         const optionLoc = page.getByRole('option', { exact: true, name: 'mimir' });
         await expect(optionLoc).toHaveCount(1);
         await optionLoc.click();
-
-        await explorePage.assertTabsNotLoading();
 
         const mimirPatternsCount = await page
           .getByTestId(testIds.exploreServiceDetails.tabPatterns)

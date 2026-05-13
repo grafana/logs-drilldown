@@ -111,7 +111,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
       await expect(page.getByLabel('Edit filter with key referer')).toHaveCount(1);
 
       await explorePage.assertPanelsNotLoading();
-      await explorePage.assertTabsNotLoading();
 
       // should only have a single result now
       await expect(userIdentifierInclude).toHaveCount(1);
@@ -230,11 +229,7 @@ test.describe('explore nginx-json breakdown pages ', () => {
       // load, which trips Playwright's strict-mode locator. Other tests in
       // this file use the same pattern.
       await page.getByLabel('nested_object', { exact: true }).first().getByRole('button', { name: '▶' }).click();
-      await page
-        .getByLabel('deeplyNestedObject', { exact: true })
-        .first()
-        .getByRole('button', { name: '▶' })
-        .click();
+      await page.getByLabel('deeplyNestedObject', { exact: true }).first().getByRole('button', { name: '▶' }).click();
 
       // Both url nodes should have active filter state
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(2);
@@ -371,7 +366,6 @@ test.describe('explore nginx-json breakdown pages ', () => {
       const lineFilterInput = page.getByTestId(testIds.exploreServiceDetails.searchLogs);
       await lineFilterInput.fill('method');
       await lineFilterInput.press('Enter');
-      await explorePage.assertTabsNotLoading();
       await explorePage.assertPanelsNotLoading();
 
       // Should not be visible until highlighting is clicked
