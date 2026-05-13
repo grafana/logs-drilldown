@@ -222,11 +222,8 @@ export class ExplorePage {
     test: (lokiQuery: LokiQuery) => boolean,
     options: { timeout?: number } = {}
   ) {
-    // Default to 60s rather than 30s because Grafana queries get noticeably
-    // slower under parallel E2E load (multiple workers driving a single
-    // Grafana + Loki stack), and many tests use `waitForRequest` to chain
-    // multiple sequential query waits where each one is occasionally slow.
-    const { timeout = 60000 } = options;
+    // Default 30s: static snapshot keeps queries cheap, but parallel workers can make them noticeably slower.
+    const { timeout = 30_000 } = options;
     await Promise.all([
       init(),
       this.page.waitForResponse(
