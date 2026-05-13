@@ -1,8 +1,8 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-import { LokiQuery } from '../src/services/lokiQuery';
-import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
-import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
+import { LokiQuery } from '../../src/services/lokiQuery';
+import { skipUnlessLatestGrafana } from '../config/grafana-versions-supported';
+import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from '../fixtures/explore';
 
 const mixedFieldName = 'method';
 const logFmtFieldName = 'caller';
@@ -10,7 +10,7 @@ const jsonFmtFieldName = 'status';
 const metadataFieldName = 'pod';
 const serviceName = 'nginx-json-mixed';
 // const levelName = 'cluster'
-test.describe('explore nginx-json-mixed breakdown pages ', () => {
+test.describe('JSON view mixed breakdown (nginx-json-mixed)', () => {
   let explorePage: ExplorePage;
 
   test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {

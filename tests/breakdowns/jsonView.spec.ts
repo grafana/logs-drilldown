@@ -1,14 +1,14 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-import { LokiQuery } from '../src/services/lokiQuery';
-import { testIds } from '../src/services/testIds';
-import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
-import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from './fixtures/explore';
+import { LokiQuery } from '../../src/services/lokiQuery';
+import { testIds } from '../../src/services/testIds';
+import { skipUnlessLatestGrafana } from '../config/grafana-versions-supported';
+import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from '../fixtures/explore';
 
 const selectedButtonColor = 'rgb(110, 159, 255)';
 const hoverButtonColor = 'rgb(255, 255, 255)';
 const fieldName = 'method';
-test.describe('explore nginx-json breakdown pages ', () => {
+test.describe('JSON view breakdown (nginx-json)', () => {
   let explorePage: ExplorePage;
 
   test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
