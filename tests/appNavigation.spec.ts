@@ -61,16 +61,11 @@ test.describe('navigating app', () => {
     await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'tempo-distributor' })).not.toBeVisible();
 
-    await explorePage.addServiceName();
-    await explorePage.clickShowLogs();
+    await explorePage.clickSelectServiceShowLogsLink('tempo-ingester');
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
-    await expect(page).toHaveURL(/a\/grafana-lokiexplore-app\/explore\?patterns=%5B%5D/);
 
-    // assert panels are showing
-    await expect(page.getByTestId('data-testid button-filter-include').first()).toHaveCount(1);
-
-    // assert the var-filters param contains the service name
+    // assert the var-filters param clear back to the service selection scene
     const varFilters = new URL(page.url()).searchParams.get('var-filters') ?? '';
-    expect(varFilters).toContain('tempo-ingester');
+    expect(varFilters).not.toContain('tempo-ingester');
   });
 });

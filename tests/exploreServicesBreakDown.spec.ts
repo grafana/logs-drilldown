@@ -946,7 +946,7 @@ test.describe('explore services breakdown page', () => {
       .getByRole('row')
       .nth(2)
       .getByRole('cell')
-      .nth(3);
+      .nth(5);
 
     // Assert the target row is visible
     await expect(patternTextCell).toBeVisible();

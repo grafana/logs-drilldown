@@ -10,7 +10,7 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 export const baseConfig = {
   /* Increase timeouts to run in parallel */
   expect: { timeout: 30000 },
-  timeout: 180_000,
+  timeout: 60_000,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Run tests in files in parallel */
@@ -27,7 +27,7 @@ export const baseConfig = {
     //   mode: 'on',
     // },
   },
-  workers: 10,
+  workers: 5,
 };
 
 /**

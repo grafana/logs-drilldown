@@ -140,14 +140,6 @@ export class ExplorePage {
   }
 
   async gotoServices(opts: { from?: string; to?: string } = {}) {
-    // Append the static window so the service selection scene queries the
-    // pre-baked snapshot (`tests/config/constants.ts`). Without this it falls
-    // back to the app's `now-15m`/`now` default and finds no data.
-    //
-    // Tests that exercise refresh/time-picker behavior (e.g. assert that
-    // refreshing the time range fires new panel queries) need a *relative*
-    // window because Grafana caches results for the same absolute range and
-    // a refresh becomes a no-op. Those tests can override `from`/`to`.
     const params = new URLSearchParams({
       from: opts.from ?? STATIC_FROM,
       to: opts.to ?? STATIC_TO,
@@ -259,6 +251,18 @@ export class ExplorePage {
 
   getPanelHeaderLocator() {
     return this.page.getByTestId('data-testid header-container');
+  }
+
+  /** Service-selection grid row for `serviceName` (timeseries panel header with "Show logs" link). */
+  getServiceSelectionRow(serviceName: string): Locator {
+    const heading = this.page.getByRole('heading', { name: serviceName, exact: true });
+    return this.getPanelHeaderLocator()
+      .filter({ has: heading })
+      .filter({ has: this.page.getByTestId(testIds.index.selectServiceButton) });
+  }
+
+  async clickSelectServiceShowLogsLink(serviceName: string) {
+    await this.getServiceSelectionRow(serviceName).getByTestId(testIds.index.selectServiceButton).click();
   }
 
   getExploreCodeQueryLocator() {
