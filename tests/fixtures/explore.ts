@@ -175,16 +175,12 @@ export class ExplorePage {
    * The trailing `.or(…radio…)` is **legacy only** when the plugin still renders `RadioButtonGroup`
    * (`!logsControlsSupported()`); there is no `role="radio"` on current core logs controls.
    */
-  getLogsDirectionNewestFirstLocator() {
-    const mergedName =
-      /Sorted by newest logs first|Click to show oldest first|Set oldest logs first|Newest logs first/i;
-    const toolbar = this.getLogsVisualizationToolbar();
-    return this.page
-      .getByRole('button', { name: mergedName })
-      .or(this.page.getByLabel(mergedName))
-      .or(this.page.getByTitle(mergedName))
-      .or(toolbar.getByRole('radio', { name: 'Newest first', exact: true }))
-      .first();
+  async getLogsDirectionNewestFirstLocator() {
+    await this.page
+      .getByRole('button', {
+        name: /Sorted by newest logs first/i,
+      })
+      .click();
   }
 
   /**
@@ -192,16 +188,12 @@ export class ExplorePage {
    * (e.g. `Oldest logs first`) + **button** `aria-label` (`Sorted by oldest logs first - Click to show newest first`),
    * same sidebar / `page` scope as {@link getLogsDirectionNewestFirstLocator}. Radio fallback is legacy-only.
    */
-  getLogsDirectionOldestFirstLocator() {
-    const mergedName =
-      /Sorted by oldest logs first|Click to show newest first|Set newest logs first|Oldest logs first/i;
-    const toolbar = this.getLogsVisualizationToolbar();
-    return this.page
-      .getByRole('button', { name: mergedName })
-      .or(this.page.getByLabel(mergedName))
-      .or(this.page.getByTitle(mergedName))
-      .or(toolbar.getByRole('radio', { name: 'Oldest first', exact: true }))
-      .first();
+  async getLogsDirectionOldestFirstLocator() {
+    await this.page
+      .getByRole('button', {
+        name: /Sorted by oldest logs first/i,
+      })
+      .click();
   }
 
   captureConsoleLogs() {
