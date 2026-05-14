@@ -233,7 +233,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
         this.setState({ isDisabledLineState: true });
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     }
     const parentModel = this.getParentScene();
 
