@@ -253,7 +253,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
       parentModel.setState({
         displayedFields: displayedFields,
       });
-      setDisplayedFieldsInStorage(this, displayedFields);
+      setDisplayedFieldsInStorage(this, displayedFields, true);
     }
   };
 
