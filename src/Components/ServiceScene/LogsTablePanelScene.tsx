@@ -261,7 +261,6 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
   buildLinkToLogLine = (uid: string) => {
     const parent = this.getParentScene();
     const timeRange = sceneGraph.getTimeRange(parent).state.value;
-    console.log(parent.state.displayedFields);
     const link = generateLogShortlink(
       'panelState',
       {
