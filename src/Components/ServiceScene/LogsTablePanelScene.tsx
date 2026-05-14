@@ -24,16 +24,16 @@ import {
 import { AdHocFilterItem, PanelContext, useStyles2 } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysEqual, areArraysStrictlyEqual } from '../../services/comparison';
+import { areArraysEqual } from '../../services/comparison';
 import { getAllLabelsFromDataFrame } from '../../services/labels';
 import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
 import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from '../../services/store';
 import { clearVariables } from '../../services/variableHelpers';
 import { PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
+import { DETECTED_LEVEL, LEVEL } from '../Table/constants';
 import { addToFilters } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
-import { LogOptionsScene, OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from './LogOptionsScene';
+import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { ServiceScene } from './ServiceScene';
