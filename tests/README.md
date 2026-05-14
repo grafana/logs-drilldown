@@ -8,7 +8,15 @@ Playwright runs against a **pre-baked Loki dataset** in CI (`docker-compose.dev.
 
 ## Local debugging and codegen (Playwright)
 
-With Grafana and static Loki up (for example `docker-compose.dev.yaml` on port **3001**), sign in as the same user your Playwright auth uses (usually `admin`), then open the **Explore** URL that matches the static snapshot window and datasource used in tests (`STATIC_FROM` / `STATIC_TO` and `gdev-loki` in [`tests/config/constants.ts`](config/constants.ts)):
+**Running Playwright locally (including `pnpm exec playwright test` and codegen) requires the same Grafana + static Loki stack that CI uses.** From the repository root, start it and wait until the containers are healthy:
+
+```bash
+pnpm server:ci
+```
+
+That command brings up `docker-compose.dev.yaml` (see [`package.json`](../package.json) `server:ci` script) so Grafana is available on port **3001** with the pre-baked Loki snapshot. Other compose setups (for example `pnpm server` or ad hoc `docker compose` without that file) may not match what the tests expect, which leads to missing data, wrong URLs, or flaky locators.
+
+After the stack is up, sign in as the same user your Playwright auth uses (usually `admin`), then open the **Explore** URL that matches the static snapshot window and datasource used in tests (`STATIC_FROM` / `STATIC_TO` and `gdev-loki` in [`tests/config/constants.ts`](config/constants.ts)):
 
 ```text
 http://localhost:3001/grafana/a/grafana-lokiexplore-app/explore?var-ds=gdev-loki&from=2026-04-26T11:00:00.000Z&to=2026-04-26T12:05:00.000Z

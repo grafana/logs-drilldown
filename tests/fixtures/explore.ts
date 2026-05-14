@@ -1,4 +1,4 @@
-import { ConsoleMessage, Locator, Page, TestInfo } from '@playwright/test';
+import { ConsoleMessage, Locator, Page, Request, TestInfo } from '@playwright/test';
 
 import { DataFrameJSON } from '@grafana/data';
 import { expect } from '@grafana/plugin-e2e';
@@ -27,6 +27,20 @@ export interface PlaywrightRequest {
   post: any;
   url: string;
 }
+
+function tryGetLokiQueriesFromRequest(request: Request): LokiQuery[] {
+  try {
+    const post = request.postDataJSON() as { queries?: unknown };
+    return Array.isArray(post?.queries) ? (post.queries as LokiQuery[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function isBatchDataQueryRequestUrl(url: string): boolean {
+  return url.includes('ds/query');
+}
+
 export class ExplorePage {
   readonly firstServicePageSelect: Locator;
   logVolumeGraph: Locator;
@@ -305,21 +319,26 @@ export class ExplorePage {
   ) {
     // Default 30s: static snapshot keeps queries cheap, but parallel workers can make them noticeably slower.
     const { timeout = 30_000 } = options;
-    await Promise.all([
-      init(),
-      this.page.waitForResponse(
-        (resp) => {
-          const post = resp.request().postDataJSON();
-          const queries = post?.queries as LokiQuery[];
-          if (queries && test(queries[0])) {
-            callback(queries[0]);
-            return true;
+
+    let callbackInvoked = false;
+    const tryMatch = (request: Request): boolean => {
+      if (!isBatchDataQueryRequestUrl(request.url())) {
+        return false;
+      }
+      const queries = tryGetLokiQueriesFromRequest(request);
+      for (const q of queries) {
+        if (test(q)) {
+          if (!callbackInvoked) {
+            callbackInvoked = true;
+            callback(q);
           }
-          return false;
-        },
-        { timeout }
-      ),
-    ]);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    await Promise.all([init(), this.page.waitForRequest((req) => tryMatch(req), { timeout })]);
   }
 
   // This is flakey, panels won't show the state if the requests come back in < 75ms
@@ -434,24 +453,25 @@ export class ExplorePage {
   }) {
     // Let's not wait for all these queries
     this.page.route('**/ds/query**', async (route) => {
-      const post = route.request().postDataJSON();
-      const queries = post.queries as LokiQuery[];
-      const refId = queries[0].refId;
-      const legendFormat = queries[0].legendFormat;
+      const request = route.request();
+      const queries = tryGetLokiQueriesFromRequest(request);
+      const refIdMatched = queries.find((q) => options?.refIds?.some((refIdToTarget) => q.refId?.match(refIdToTarget)));
+      const legendMatched = queries.find(
+        (q) => q.legendFormat != null && options?.legendFormats?.includes(q.legendFormat)
+      );
+      const matched = refIdMatched ?? legendMatched;
+      const refId = matched?.refId;
+      const legendFormat = matched?.legendFormat;
 
-      if (
-        options?.refIds?.some((refIdToTarget) => refId.match(refIdToTarget)) ||
-        (legendFormat && options?.legendFormats?.includes(legendFormat))
-      ) {
+      if (matched) {
         if (options.responses || options.requests) {
           const response = await route.fetch();
           const json = await response.json();
           if (options.responses) {
-            options?.responses?.push({ [refId ?? legendFormat]: json });
+            options?.responses?.push({ [refId ?? legendFormat ?? '']: json });
           }
 
           if (options?.requests) {
-            const request = route.request();
             const requestObject: PlaywrightRequest = {
               post: request.postDataJSON(),
               url: request.url(),

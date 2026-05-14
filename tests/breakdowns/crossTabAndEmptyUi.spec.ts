@@ -193,7 +193,7 @@ test.describe('Cross-tab and empty UI', () => {
       () => {
         queryWithForwardDirectionExecuted = true;
       },
-      (q) => q.direction === LokiQueryDirection.Forward
+      (q) => q.refId === 'logsPanelQuery' && q.direction === LokiQueryDirection.Forward
     );
 
     expect(queryWithForwardDirectionExecuted).toEqual(true);
