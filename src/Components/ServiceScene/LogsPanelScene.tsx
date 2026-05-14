@@ -381,7 +381,6 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       this.setState({ dedupStrategy: value });
       this.setLogsVizOption({ dedupStrategy: value });
     } else if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
-      // @todo is this a user action?
       const parent = this.getParentScene();
       parent.setState({ otelDisplayedFields: value });
     }
