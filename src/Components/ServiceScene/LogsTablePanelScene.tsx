@@ -299,18 +299,6 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  container: css({
-    display: 'flex',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    height: '100%',
-    flex: 1,
-  }),
-  tableContainer: css({
-    overflow: 'hidden',
-    flex: '1 1 auto',
-    minWidth: 0,
-  }),
   panelWrapper: css({
     height: '100%',
     label: 'panel-wrapper-table',
