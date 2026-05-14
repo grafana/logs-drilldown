@@ -167,25 +167,39 @@ export class ExplorePage {
   }
 
   /**
-   * Sort “newest first” is active: Grafana core shows `Sorted by newest logs first`; table/JSON
-   * use our `LogListControls` (`Set oldest logs first`); legacy header uses `Newest first` radio.
+   * Sort “newest first” is active (or the control that switches to oldest). Grafana ≥12 with
+   * `showControls` uses a **button** whose visible copy lives in a **`<label><span>…</span>`**
+   * (`for` → button `id`) plus a long **`aria-label`** (e.g. `Sorted by newest logs first - Click to show oldest first`).
+   * The toggle may sit in a **sidebar**, so we query `page`, not only the Logs/Table toolbar.
+   *
+   * The trailing `.or(…radio…)` is **legacy only** when the plugin still renders `RadioButtonGroup`
+   * (`!logsControlsSupported()`); there is no `role="radio"` on current core logs controls.
    */
   getLogsDirectionNewestFirstLocator() {
+    const mergedName =
+      /Sorted by newest logs first|Click to show oldest first|Set oldest logs first|Newest logs first/i;
     const toolbar = this.getLogsVisualizationToolbar();
-    return toolbar
-      .getByRole('button', {
-        name: /Sorted by newest logs first|Set oldest logs first/i,
-      })
+    return this.page
+      .getByRole('button', { name: mergedName })
+      .or(this.page.getByLabel(mergedName))
+      .or(this.page.getByTitle(mergedName))
       .or(toolbar.getByRole('radio', { name: 'Newest first', exact: true }))
       .first();
   }
 
+  /**
+   * Sort “oldest first” is active (or the control that switches to newest): **label + span**
+   * (e.g. `Oldest logs first`) + **button** `aria-label` (`Sorted by oldest logs first - Click to show newest first`),
+   * same sidebar / `page` scope as {@link getLogsDirectionNewestFirstLocator}. Radio fallback is legacy-only.
+   */
   getLogsDirectionOldestFirstLocator() {
+    const mergedName =
+      /Sorted by oldest logs first|Click to show newest first|Set newest logs first|Oldest logs first/i;
     const toolbar = this.getLogsVisualizationToolbar();
-    return toolbar
-      .getByRole('button', {
-        name: /Sorted by oldest logs first|Set newest logs first/i,
-      })
+    return this.page
+      .getByRole('button', { name: mergedName })
+      .or(this.page.getByLabel(mergedName))
+      .or(this.page.getByTitle(mergedName))
       .or(toolbar.getByRole('radio', { name: 'Oldest first', exact: true }))
       .first();
   }
