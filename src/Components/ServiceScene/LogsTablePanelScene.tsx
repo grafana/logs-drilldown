@@ -23,27 +23,27 @@ import {
 } from '@grafana/schema/dist/esm/raw/composable/logstable/panelcfg/x/LogsTablePanelCfg_types.gen';
 import { AdHocFilterItem, PanelContext, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysEqual } from '../../services/comparison';
-import { getAllLabelsFromDataFrame } from '../../services/labels';
-import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from '../../services/store';
-import { clearVariables } from '../../services/variableHelpers';
-import { PanelMenu } from '../Panels/PanelMenu';
-import { DETECTED_LEVEL, LEVEL } from '../Table/constants';
 import { addToFilters } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { ServiceScene } from './ServiceScene';
+import { PanelMenu } from 'Components/Panels/PanelMenu';
+import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual } from 'services/comparison';
 import { getVariableForLabel } from 'services/fields';
 import { FilterOp } from 'services/filterTypes';
+import { getAllLabelsFromDataFrame } from 'services/labels';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTable';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { runSceneQueries } from 'services/query';
+import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
+import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from 'services/store';
+import { clearVariables } from 'services/variableHelpers';
 
 interface LogsTablePanelSceneState extends SceneObjectState {
   canClearFilters?: boolean;
