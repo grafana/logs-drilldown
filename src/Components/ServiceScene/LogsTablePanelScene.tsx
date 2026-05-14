@@ -166,7 +166,6 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
 
     this.setState({
       emptyScene: new NoMatchingLabelsScene({ clearCallback: () => clearVariables(this) }),
-      menu: new PanelMenu({}),
       panel,
     });
     setControlsExpandedStateFromLocalStorage(this.getParentScene());
