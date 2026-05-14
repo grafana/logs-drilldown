@@ -30,12 +30,10 @@ import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { ServiceScene } from './ServiceScene';
 import { PanelMenu } from 'Components/Panels/PanelMenu';
-import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
 import { getVariableForLabel } from 'services/fields';
 import { FilterOp } from 'services/filterTypes';
-import { getAllLabelsFromDataFrame } from 'services/labels';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTable';
@@ -43,6 +41,7 @@ import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { runSceneQueries } from 'services/query';
 import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
 import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from 'services/store';
+import { copyText, generateLogShortlink } from 'services/text';
 import { clearVariables } from 'services/variableHelpers';
 
 interface LogsTablePanelSceneState extends SceneObjectState {
@@ -128,6 +127,8 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
     const parentScene = this.getParentScene();
     const panelBuilder = new VizConfigBuilder<Options, {}>('logstable', pluginVersion, () => ({
       ...defaultOptions,
+      buildLinkToLogLine: this.buildLinkToLogLine,
+      showCopyLogLink: true,
       sortOrder: this.state.sortOrder,
       displayedFields: parentScene.state.displayedFields,
       wrapText: getBooleanLogOption('wrapText', true),
@@ -257,26 +258,25 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
     }
   };
 
-  // check if the data has a detected_level or level field
-  hasDetectedLevel = () => {
-    const dataProvider = sceneGraph.getData(this);
-    const data = dataProvider.state.data;
-    if (!data?.series?.length) {
-      return null;
-    }
+  buildLinkToLogLine = (uid: string) => {
+    const parent = this.getParentScene();
+    const timeRange = sceneGraph.getTimeRange(parent).state.value;
+    console.log(parent.state.displayedFields);
+    const link = generateLogShortlink(
+      'panelState',
+      {
+        logs: {
+          displayedFields: parent.state.displayedFields,
+          id: uid,
+          sortOrder: this.state.sortOrder,
+        },
+      },
+      timeRange
+    );
 
-    // Get all available labels from the series
-    const allLabels = getAllLabelsFromDataFrame(data.series);
+    copyText(link);
 
-    // Check if detected_level or level exists in the labels
-    if (allLabels.includes(DETECTED_LEVEL)) {
-      return DETECTED_LEVEL;
-    }
-    if (allLabels.includes(LEVEL)) {
-      return LEVEL;
-    }
-
-    return null;
+    return link;
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsTablePanelScene>) => {
