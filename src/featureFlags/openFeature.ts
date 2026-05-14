@@ -129,6 +129,12 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
+  logsTablePanelNG: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
   'drilldown.logs.fake_flag': {
     valueType: 'string',
     values: [
@@ -295,6 +301,9 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
     'kgAnnotationsInLokiExplore' in config.featureToggles
   ) {
     return Boolean(config.featureToggles.kgAnnotationsInLokiExplore);
+  }
+  if (flagName === 'logsTablePanelNG') {
+    return config.featureToggles.logsTablePanelNG;
   }
   return undefined;
 }
