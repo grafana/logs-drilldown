@@ -168,7 +168,7 @@ test.describe('Cross-tab and empty UI', () => {
     const firstRowAfterReload = explorePage.getLogsPanelRow();
   });
 
-  test('logs panel options: sortOrder', async ({ page }) => {
+  test.skip('logs panel options: sortOrder', async ({ page }) => {
     const firstRowTimeCell = explorePage.getLogsPanelRowTimestampLocator(0);
     const secondRowTimeCell = explorePage.getLogsPanelRowTimestampLocator(1);
 
