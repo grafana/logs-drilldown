@@ -169,10 +169,6 @@ test.describe('Cross-tab and empty UI', () => {
   });
 
   test('logs panel options: sortOrder', async ({ page }) => {
-    explorePage.blockAllQueriesExcept({
-      refIds: ['logsPanelQuery'],
-    });
-
     const firstRowTimeCell = explorePage.getLogsPanelRowTimestampLocator(0);
     const secondRowTimeCell = explorePage.getLogsPanelRowTimestampLocator(1);
 
