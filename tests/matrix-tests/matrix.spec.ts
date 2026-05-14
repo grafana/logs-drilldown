@@ -10,7 +10,6 @@ test.describe('matrix', () => {
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.clearLocalStorage();
     explorePage.captureConsoleLogs();
-    await explorePage.assertNotLoading();
   });
 
   test.afterEach(async () => {

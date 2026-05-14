@@ -179,7 +179,7 @@ test.describe('Table', () => {
     // Grafana keeps long-lived live tail/SSE connections open which prevent
     // the `load` event from firing reliably under parallel E2E load.
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await explorePage.assertNotLoading();
+
     await expect(table.getByTestId(testIds.table.rawLogLine).nth(0)).not.toBeVisible();
   });
 

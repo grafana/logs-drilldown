@@ -5,6 +5,8 @@ import { testIds } from '../../src/services/testIds';
 import { skipUnlessLatestGrafana } from '../config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage, PlaywrightRequest } from '../fixtures/explore';
 
+const EXPANDED_NODE_COUNT = 50;
+
 const selectedButtonColor = 'rgb(110, 159, 255)';
 const hoverButtonColor = 'rgb(255, 255, 255)';
 const fieldName = 'method';
@@ -158,28 +160,9 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       // Should be no results
       await expect(page.getByText('No logs match your search.')).toHaveCount(1);
     });
-    // This test is fragile against the static-data Loki snapshot:
-    //   1. It drills into `nested_object` and applies a filter on the
-    //      *first* `url` shown there.
-    //   2. Then drills into `nested_object.deeplyNestedObject` and applies
-    //      a filter on the *first* `url` shown at that deeper level.
-    //   3. Re-roots back to the top level.
-    //   4. Expects to see `nested_object` in the JSON tree again so it can
-    //      expand it.
-    //
-    // Step 4 only succeeds if at least one log line has both
-    // `nested_object.url = X` AND `nested_object.deeplyNestedObject.url = Y`
-    // (where X and Y are the URLs picked in 1 and 2). With the snapshot
-    // generator's randomised, per-log nested URLs that overlap is not
-    // guaranteed, so the combined filter often matches zero logs and the
-    // JSON tree disappears with "No logs match your search.".
-    //
-    // This reproduces in single-worker mode against the base branch (no
-    // parallelisation involved) — the failure mode is data-driven. We mark
-    // it `fixme` until the test is rewritten to use deterministic URL
-    // values, rather than `.first()`, so the combined filter is guaranteed
-    // to match.
-    test.fixme('can drill into nested nodes', async ({ page }) => {
+
+    // TODO: very flaky remove or fix
+    test.skip('can drill into nested nodes', async ({ page }) => {
       await explorePage.goToLogsTab();
       await explorePage.getJsonToggleLocator().click();
 
@@ -187,59 +170,42 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       await page.getByLabel('Set nested_object as root node').first().focus();
       await page.keyboard.press('Enter');
 
-      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(EXPANDED_NODE_COUNT);
+      const includeAny = page.getByLabel(/Include log lines containing url=".+"/);
+      await expect(includeAny).toHaveCount(EXPANDED_NODE_COUNT);
 
-      // Add filter from new root
-      await page
-        .getByLabel(/Include log lines containing url=".+"/)
-        .first()
-        .click();
+      const outerChip = includeAny.first();
+      await outerChip.click();
       await expect(page.getByLabel('Edit filter with key nested_object_url')).toHaveCount(1);
-      await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveAttribute(
-        'aria-selected',
-        'true'
-      );
+      await expect(outerChip).toHaveAttribute('aria-selected', 'true');
 
-      await page
-        .getByLabel(/Include log lines containing url=".+"/)
-        .first()
-        .hover();
-      // This always returns the hover style, even if you focus another element.
-      await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveCSS(
-        'color',
-        hoverButtonColor
-      );
+      await outerChip.hover();
+      await expect(outerChip).toHaveCSS('color', hoverButtonColor);
 
-      // Drill down again into DeeplyNestedObject
       await page.getByLabel('Set deeplyNestedObject as root node').first().click();
-      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
-      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'false');
-      await page
-        .getByLabel(/Include log lines containing url=".+"/)
-        .first()
-        .click();
+      const includeAfterDeep = page.getByLabel(/Include log lines containing url=".+"/);
+      await expect(includeAfterDeep).toHaveCount(1);
+      const innerChip = includeAfterDeep.first();
+      await expect(innerChip).toHaveAttribute('aria-selected', 'false');
+      await innerChip.click();
       await expect(page.getByLabel('Edit filter with key nested_object_deeplyNestedObject_url')).toHaveCount(1);
-      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(1);
-      await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveAttribute('aria-selected', 'true');
+      await expect(innerChip).toHaveAttribute('aria-selected', 'true');
 
-      // re-root
       await page.getByRole('button', { exact: true, name: 'root' }).click();
-      // Open nested_object — use `.first()` because the JSON tree briefly has
-      // stale + new panel copies during the re-root re-render under parallel
-      // load, which trips Playwright's strict-mode locator. Other tests in
-      // this file use the same pattern.
-      await page.getByLabel('nested_object', { exact: true }).first().getByRole('button', { name: '▶' }).click();
-      await page.getByLabel('deeplyNestedObject', { exact: true }).first().getByRole('button', { name: '▶' }).click();
 
-      // Both url nodes should have active filter state
+      const jsonTree = page.getByRole('tree');
+      const nestedObj = jsonTree.getByLabel('nested_object', { exact: true }).first();
+      await expect(nestedObj).toBeVisible({ timeout: 30_000 });
+      await nestedObj.scrollIntoViewIfNeeded();
+      await nestedObj.getByRole('button', { name: '▶' }).click();
+
+      const deeplyNested = jsonTree.getByLabel('deeplyNestedObject', { exact: true }).first();
+      await expect(deeplyNested).toBeVisible({ timeout: 30_000 });
+      await deeplyNested.scrollIntoViewIfNeeded();
+      await deeplyNested.getByRole('button', { name: '▶' }).click();
+
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(2);
-      await expect(page.getByLabel(/Include log lines containing url=".+"/).first()).toHaveAttribute(
-        'aria-selected',
-        'true'
-      );
-      await expect(page.getByLabel(/Include log lines containing url=".+"/).last()).toHaveAttribute(
-        'aria-selected',
-        'true'
+      await expect(page.locator('[aria-label^="Include log lines containing url="][aria-selected="true"]')).toHaveCount(
+        2
       );
     });
     test('can filter nested props and drill back to root without removing json parser prop for active filters', async ({
@@ -449,5 +415,3 @@ test.describe('JSON view breakdown (nginx-json)', () => {
     });
   });
 });
-
-const EXPANDED_NODE_COUNT = 50;

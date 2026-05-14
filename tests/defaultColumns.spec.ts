@@ -3,9 +3,10 @@ import { expect, test } from '@grafana/plugin-e2e';
 import { testIds } from '../src/services/testIds';
 import { STATIC_FROM, STATIC_TO } from './config/constants';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
-import { ExplorePage } from './fixtures/explore';
+import { E2EComboboxStrings, ExplorePage } from './fixtures/explore';
+import { mockDefaultColumns } from './mocks/mockDefaultColumns';
 
-test.describe.skip('Default fields', () => {
+test.describe('Default fields', () => {
   let explorePage: ExplorePage;
   test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
     skipUnlessLatestGrafana({ grafanaVersion });
@@ -13,14 +14,15 @@ test.describe.skip('Default fields', () => {
 
     await explorePage.setExtraTallViewportSize();
     await explorePage.clearLocalStorage();
+    await mockDefaultColumns(page);
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery', /gld-sample-\d+/, /^logs-.+/],
     });
     await page.goto(
       `/grafana/plugins/grafana-lokiexplore-app?page=admin-default-fields&from=${encodeURIComponent(STATIC_FROM)}&to=${encodeURIComponent(STATIC_TO)}`
     );
-    await expect(page.getByText('Configure default fields to')).toBeVisible();
-    await expect(page.getByText('Experimental')).toBeVisible();
+    await expect(page.getByText('Configure the fields to show by default')).toBeVisible();
+    await expect(page.getByText('Beta')).toBeVisible();
     explorePage.captureConsoleLogs();
   });
 
@@ -106,8 +108,10 @@ test.describe.skip('Default fields', () => {
       test('2. can see default columns in service selection', async ({ page }) => {
         await explorePage.gotoServices();
         await explorePage.servicesSearch.click();
-        await page.keyboard.type('apache|^nginx$');
-        await page.keyboard.press('Escape');
+        await explorePage.servicesSearch.pressSequentially('apache|^nginx$');
+        await expect(page.getByRole('listbox')).toBeVisible();
+        await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
+        await page.keyboard.press('Enter');
         await expect(page.getByTestId(testIds.index.selectServiceButton)).toHaveCount(2);
         await expect(page.getByText(apacheServiceLogLineIdentifier)).not.toBeVisible();
         await expect(page.getByText(nginxServiceLogLineIdentifier)).not.toBeVisible();
@@ -119,8 +123,10 @@ test.describe.skip('Default fields', () => {
         const showDefaultFieldsButton = page.getByText('Show default fields');
         await explorePage.gotoServices();
         await explorePage.servicesSearch.click();
-        await page.keyboard.type('apache');
-        await page.keyboard.press('Escape');
+        await explorePage.servicesSearch.pressSequentially('apach');
+        await expect(page.getByRole('listbox')).toBeVisible();
+        await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
+        await page.keyboard.press('Enter');
         await expect(page.getByTestId(testIds.index.selectServiceButton)).toHaveCount(1);
         await page.getByTestId(testIds.index.selectServiceButton).click();
         await expect(showOriginalLogLineButton).toBeVisible();
@@ -140,8 +146,10 @@ test.describe.skip('Default fields', () => {
         // Start over to verify user changes take precedence
         await explorePage.gotoServices();
         await explorePage.servicesSearch.click();
-        await page.keyboard.type('apache');
-        await page.keyboard.press('Escape');
+        await explorePage.servicesSearch.pressSequentially('apach');
+        await expect(page.getByRole('listbox')).toBeVisible();
+        await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
+        await page.keyboard.press('Enter');
         await expect(page.getByTestId(testIds.index.selectServiceButton)).toHaveCount(1);
         await page.getByTestId(testIds.index.selectServiceButton).click();
         await expect(page.getByText(fullApachePodRegex).first()).toBeVisible();
@@ -152,8 +160,10 @@ test.describe.skip('Default fields', () => {
         const showOriginalLogLineButton = page.getByText('Show original log line');
         await explorePage.gotoServices();
         await explorePage.servicesSearch.click();
-        await page.keyboard.type('apache|^nginx$');
-        await page.keyboard.press('Escape');
+        await explorePage.servicesSearch.pressSequentially('apache|^nginx$');
+        await expect(page.getByRole('listbox')).toBeVisible();
+        await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
+        await page.keyboard.press('Enter');
         await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(2);
         await page.getByTestId(testIds.index.showLogsButton).first().click();
         await page.getByTestId(testIds.index.showLogsButton).last().click();

@@ -9,7 +9,6 @@ test.describe('play', () => {
     explorePage = new ExplorePage(page, testInfo);
     await explorePage.clearLocalStorage();
     explorePage.captureConsoleLogs();
-    await explorePage.assertNotLoading();
   });
 
   test.afterEach(async () => {

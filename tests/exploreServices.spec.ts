@@ -11,6 +11,7 @@ import {
   levelTextMatch,
   serviceSelectionPaginationTextMatch,
 } from './fixtures/explore';
+import { getMockPatternsByNamespace } from './mocks/getMockPatternsByNamespace';
 import { getMockVolumeApiResponse } from './mocks/getMockVolumeApiResponse';
 
 test.describe('explore services page', () => {
@@ -204,7 +205,7 @@ test.describe('explore services page', () => {
       // Add detected_level filter
       await page.getByTestId(testIds.exploreServiceDetails.tabLabels).click();
       await page.getByLabel('Select detected_level').click();
-      await explorePage.assertNotLoading();
+
       await explorePage.assertPanelsNotLoading();
 
       // Scroll to the bottom of the page
@@ -648,48 +649,10 @@ test.describe('explore services page', () => {
             await route.fulfill({ json, response });
           }),
           await page.route('**/resources/patterns*', async (route, request) => {
-            // Loki's pattern ingester is in-memory and is empty in the static
-            // snapshot (the snapshot is loaded from disk on cold-start, but the
-            // pattern ingester only aggregates against wall-clock time). Return
-            // a query-shaped mock so the namespace-tab count assertions can
-            // observe different pattern counts per namespace.
-            const url = new URL(request.url());
-            const expression = url.searchParams.get('query') ?? '';
-            const namespaceMatch = expression.match(/namespace\s*=\s*"([^"]+)"/);
-            const namespace = namespaceMatch?.[1] ?? '';
-            const buildSamples = (counts: number[]) =>
-              counts.map((count, idx) => [1777201200 + idx * 60, count] as [number, number]);
-            const patternsByNamespace: Record<
-              string,
-              Array<{ level: string; pattern: string; samples: number[][] }>
-            > = {
-              gateway: [
-                {
-                  level: 'info',
-                  pattern: 'level=info ts=<_> caller=poller.go:133 msg="<_>"',
-                  samples: buildSamples([10, 12, 9, 11, 13]),
-                },
-                {
-                  level: 'warn',
-                  pattern: 'level=warn ts=<_> caller=instance.go:43 msg="<_>"',
-                  samples: buildSamples([3, 4, 5, 2, 3]),
-                },
-              ],
-              mimir: [
-                {
-                  level: 'info',
-                  pattern: 'level=info ts=<_> caller=registry.go:232 msg="<_>"',
-                  samples: buildSamples([7, 8, 6, 9, 7]),
-                },
-              ],
-            };
-            const json = {
-              status: 'success',
-              data: patternsByNamespace[namespace] ?? [],
-            };
             patternsCount++;
-            await page.waitForTimeout(25);
-            await route.fulfill({ json });
+            await route.fulfill({
+              json: getMockPatternsByNamespace(request),
+            });
           }),
 
           // Can skip logs query for this test

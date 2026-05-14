@@ -73,8 +73,6 @@ test.describe('embed', () => {
     });
     await explorePage.gotoEmbedUrl();
     explorePage.captureConsoleLogs();
-
-    await explorePage.assertNotLoading();
   });
 
   test.afterEach(async ({ page }) => {

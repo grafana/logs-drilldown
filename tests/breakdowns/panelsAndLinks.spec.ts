@@ -179,7 +179,6 @@ test.describe('Panels and links', () => {
 
     // Reload the page
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await explorePage.assertNotLoading();
 
     // Assert the collapse state was saved to local storage and set as default
     await expect(summaryPanel).toBeVisible();

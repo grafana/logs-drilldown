@@ -48,16 +48,32 @@ export class ExplorePage {
     this.refreshPicker = this.page.getByTestId(testIds.header.refreshPicker);
   }
 
+  /**
+   * Toolbar for the main logs viz (Logs / Table / JSON radios + Grafana logs controls when
+   * `showControls` is on). Do not scope to `Panel header Logs` alone — sort/wrap live outside
+   * that strip on current Grafana builds.
+   */
+  getLogsVisualizationToolbar() {
+    const withLogsAndTableRadios = (candidates: Locator) =>
+      candidates
+        .filter({ has: this.page.getByRole('radio', { name: 'Logs', exact: true }) })
+        .filter({ has: this.page.getByRole('radio', { name: 'Table', exact: true }) });
+
+    return withLogsAndTableRadios(this.page.getByRole('region'))
+      .or(withLogsAndTableRadios(this.page.locator('section')))
+      .first();
+  }
+
   getTableToggleLocator() {
-    return this.page.getByLabel('Table', { exact: true });
+    return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'Table', exact: true });
   }
 
   getJsonToggleLocator() {
-    return this.page.getByLabel('JSON', { exact: true });
+    return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'JSON', exact: true });
   }
 
   getLogsToggleLocator() {
-    return this.page.getByTestId(testIds.logsPanelHeader.header).getByLabel('Logs', { exact: true });
+    return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'Logs', exact: true });
   }
 
   getPanelContentLocator() {
@@ -65,7 +81,7 @@ export class ExplorePage {
   }
 
   getLogsPanelLocator() {
-    return this.page.getByTestId(new RegExp(testIds.logsPanelHeader.header));
+    return this.page.getByTestId(new RegExp(testIds.logsPanelHeader.header)).first();
   }
 
   getLogsVolumePanelLocator() {
@@ -73,26 +89,91 @@ export class ExplorePage {
   }
 
   getLogsPanelContentLocator() {
-    return this.getLogsPanelLocator().locator(this.getPanelContentLocator());
+    const chained = this.getLogsPanelLocator().getByTestId('data-testid panel content');
+    const withRadios = this.page
+      .getByTestId('data-testid panel content')
+      .filter({ has: this.page.getByRole('radio', { name: 'Logs', exact: true }) });
+    return withRadios.or(chained).first();
   }
 
   getLogsPanelRow(n = 0) {
-    return this.getLogsPanelContentLocator().locator('tr').nth(0);
+    const content = this.getLogsPanelContentLocator();
+    // Logs viz: virtualized rows (`data-log-index`). Table viz: `<tr>` with cells.
+    return content.locator('[data-log-index]').nth(n).or(content.locator('tr:has(td)').nth(n));
   }
 
-  getWrapLocator() {
-    return this.page.getByLabel('Wrap', { exact: true });
-  }
-  getNowrapLocator() {
-    return this.page.getByLabel('No wrap', { exact: true });
+  /**
+   * Timestamp cell: table mode uses the 3rd `td`. Logs viz uses the first field whose class
+   * includes `level-` (e.g. `level-error field` / `level-info field`) next to the log line.
+   */
+  getLogsPanelRowTimestampLocator(rowIndex: number) {
+    const content = this.getLogsPanelContentLocator();
+    const virtualRow = content.locator('[data-log-index]').nth(rowIndex);
+    const logsVizTimestamp = virtualRow.locator('.field[class*="level-"]').first();
+    const tableTimestamp = content.locator('tr:has(td)').nth(rowIndex).locator('td').nth(2);
+    return logsVizTimestamp.or(tableTimestamp);
   }
 
+  /** Grafana logs toolbar: wrap control (`aria-label="Set line wrap"`). */
+  getLogsWrapToggle() {
+    return this.getLogsVisualizationToolbar().locator('button[aria-label="Set line wrap"]');
+  }
+
+  /** Assert wrap is off when the control exposes `aria-pressed` (plugin table controls). */
+  async expectLogsWrapToolbarDefault() {
+    const wrap = this.getLogsWrapToggle();
+    await expect(wrap).toBeVisible();
+    const pressed = await wrap.getAttribute('aria-pressed');
+    if (pressed === 'true' || pressed === 'false') {
+      await expect(wrap).toHaveAttribute('aria-pressed', 'false');
+    }
+  }
+
+  async setLogsLineWrapMenu(enabled: boolean) {
+    const btn = this.getLogsWrapToggle();
+    await expect(btn).toBeVisible();
+
+    // Grafana logs: `Set line wrap` keeps `aria-pressed="false"` while off — first click only opens
+    // the menu; we must pick the menuitem (see `role="menu"` + `button[role="menuitem"]`).
+    if ((await btn.getAttribute('aria-label')) === 'Set line wrap') {
+      await btn.click();
+      const choice = enabled ? 'Enable line wrapping' : 'Disable line wrapping';
+      const menu = this.page.locator('[role="menu"]').filter({ hasText: choice }).last();
+      await expect(menu).toBeVisible();
+      await menu.getByRole('menuitem', { name: choice, exact: true }).click();
+      return;
+    }
+
+    const pressed = await btn.getAttribute('aria-pressed');
+    if (pressed === 'true' || pressed === 'false') {
+      if ((pressed === 'true') !== enabled) {
+        await btn.click();
+      }
+    }
+  }
+
+  /**
+   * Sort “newest first” is active: Grafana core shows `Sorted by newest logs first`; table/JSON
+   * use our `LogListControls` (`Set oldest logs first`); legacy header uses `Newest first` radio.
+   */
   getLogsDirectionNewestFirstLocator() {
-    return this.page.getByLabel('Newest first', { exact: true });
+    const toolbar = this.getLogsVisualizationToolbar();
+    return toolbar
+      .getByRole('button', {
+        name: /Sorted by newest logs first|Set oldest logs first/i,
+      })
+      .or(toolbar.getByRole('radio', { name: 'Newest first', exact: true }))
+      .first();
   }
 
   getLogsDirectionOldestFirstLocator() {
-    return this.page.getByLabel('Oldest first', { exact: true });
+    const toolbar = this.getLogsVisualizationToolbar();
+    return toolbar
+      .getByRole('button', {
+        name: /Sorted by oldest logs first|Set newest logs first/i,
+      })
+      .or(toolbar.getByRole('radio', { name: 'Oldest first', exact: true }))
+      .first();
   }
 
   captureConsoleLogs() {
