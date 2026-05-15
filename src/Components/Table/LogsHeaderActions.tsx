@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { reportInteraction } from '@grafana/runtime';
 import { Button, Icon, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { LineLimitScene } from '../ServiceScene/LineLimitScene';
@@ -28,6 +29,9 @@ export function LogsPanelHeaderActions({ lineLimitScene, onChange, vizType }: Lo
     setExpandedLogsView(lineLimitScene, newState);
     setLogsExpanded(newState);
     toggleLogsListPanelSize(lineLimitScene, newState);
+    reportInteraction('grafana_logs_app_toggle_logs_size_clicked', {
+      expanded: newState,
+    });
   }, [lineLimitScene]);
 
   return (
