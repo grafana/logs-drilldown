@@ -82,6 +82,16 @@ export class ExplorePage {
     return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'Table', exact: true });
   }
 
+  /**
+   * Switch to table viz. The Table toolbar radio shows a Grafana tooltip that can stay
+   * under the cursor and intercept clicks on the table header; dismiss it before further UI steps.
+   */
+  async clickTableToggle(): Promise<void> {
+    await this.getTableToggleLocator().click();
+    await this.page.keyboard.press('Escape');
+    await this.page.mouse.move(0, 0);
+  }
+
   getJsonToggleLocator() {
     return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'JSON', exact: true });
   }

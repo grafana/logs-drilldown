@@ -26,7 +26,7 @@ test.describe('Table', () => {
   test(`should show "Explore" on table panel menu`, async ({ page }) => {
     await explorePage.goToLogsTab();
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const panelMenu = page.getByTestId('data-testid Panel menu Logs');
     const panelMenuItem = page.getByTestId('data-testid Panel menu item Explore');
 
@@ -46,7 +46,7 @@ test.describe('Table', () => {
     await page.getByLabel('Show this field instead of').nth(1).click();
 
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
 
     // Wait for both URL params to settle after switching to table view.
     await expect
@@ -67,7 +67,7 @@ test.describe('Table', () => {
     await explorePage.goToLogsTab();
 
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const table = page.getByTestId(testIds.table.wrapper);
     await expect(table).toBeVisible();
 
@@ -80,7 +80,7 @@ test.describe('Table', () => {
     await explorePage.goToLogsTab();
 
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const table = page.getByTestId(testIds.table.wrapper);
     await expect(table).toBeVisible();
 
@@ -107,7 +107,7 @@ test.describe('Table', () => {
     await explorePage.goToLogsTab();
 
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const table = page.getByTestId(testIds.table.wrapper);
     await expect(table).toBeVisible();
 
@@ -120,7 +120,7 @@ test.describe('Table', () => {
     const table = page.getByTestId(testIds.table.wrapper);
     await explorePage.goToLogsTab();
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
 
     // Assert table column order
     await expect(table.getByRole('columnheader').nth(0)).toContainText('timestamp');
@@ -140,7 +140,7 @@ test.describe('Table', () => {
 
   test(`should add ${levelName} filter on table click`, async ({ page }) => {
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
 
     const table = page.getByTestId(testIds.table.wrapper);
     // switch table body to label view
@@ -163,7 +163,7 @@ test.describe('Table', () => {
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery'],
     });
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const table = page.getByTestId(testIds.table.wrapper);
 
     // assert the table shows the raw log line option by default
@@ -192,7 +192,7 @@ test.describe('Table', () => {
     await page.getByLabel('Show this field instead of').nth(1).click();
 
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const columnHeaders = await page.getByRole('columnheader');
     await expect(columnHeaders).toHaveCount(8);
 
@@ -203,13 +203,13 @@ test.describe('Table', () => {
     await page.getByRole('button', { name: 'Show original log line' }).click();
 
     // Switch to table view
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     const defaultColumnHeaders = await page.getByRole('columnheader');
     await expect(defaultColumnHeaders).toHaveCount(6);
   });
 
   test('should show inspect modal', async ({ page }) => {
-    await explorePage.getTableToggleLocator().click();
+    await explorePage.clickTableToggle();
     // Expect table to be rendered
     await expect(page.getByTestId(testIds.table.wrapper)).toBeVisible();
 
