@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 
 import { LogsPanelHeaderActions } from './LogsHeaderActions';
+import { LineLimitScene } from 'Components/ServiceScene/LineLimitScene';
 import { toggleLogsListPanelSize } from 'services/scenes';
 import { getExpandedLogsView, setExpandedLogsView } from 'services/store';
 
@@ -44,7 +45,13 @@ describe('LogsPanelHeaderActions', () => {
     const lineLimitScene = new MockLineLimitScene({});
     const onChange = jest.fn();
 
-    render(<LogsPanelHeaderActions lineLimitScene={lineLimitScene} onChange={onChange} vizType="logs" />);
+    render(
+      <LogsPanelHeaderActions
+        lineLimitScene={lineLimitScene as unknown as LineLimitScene}
+        onChange={onChange}
+        vizType="logs"
+      />
+    );
 
     expect(screen.getByRole('radio', { name: 'Logs' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Table' })).not.toBeChecked();
@@ -58,7 +65,13 @@ describe('LogsPanelHeaderActions', () => {
     const lineLimitScene = new MockLineLimitScene({});
     const onChange = jest.fn();
 
-    render(<LogsPanelHeaderActions lineLimitScene={lineLimitScene} onChange={onChange} vizType="logs" />);
+    render(
+      <LogsPanelHeaderActions
+        lineLimitScene={lineLimitScene as unknown as LineLimitScene}
+        onChange={onChange}
+        vizType="logs"
+      />
+    );
 
     await user.click(screen.getByRole('radio', { name: 'Table' }));
 
@@ -70,7 +83,13 @@ describe('LogsPanelHeaderActions', () => {
     const user = userEvent.setup();
     const lineLimitScene = new MockLineLimitScene({});
 
-    render(<LogsPanelHeaderActions lineLimitScene={lineLimitScene} onChange={jest.fn()} vizType="logs" />);
+    render(
+      <LogsPanelHeaderActions
+        lineLimitScene={lineLimitScene as unknown as LineLimitScene}
+        onChange={jest.fn()}
+        vizType="logs"
+      />
+    );
 
     const expandButton = screen.getAllByRole('button')[0];
     await user.click(expandButton);
