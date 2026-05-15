@@ -2,6 +2,34 @@
 
 This directory contains end-to-end (e2e) tests for the Grafana Logs Drilldown plugin.
 
+## Static Loki snapshot (CI)
+
+Playwright runs against a **pre-baked Loki dataset** in CI (`docker-compose.dev.yaml`). Snapshot assets, the regeneration script, and documentation live under [`tests/static-loki/README.md`](static-loki/README.md). Regenerate the zip with `pnpm run generate:loki-snapshot`.
+
+## Local debugging and codegen (Playwright)
+
+**Running Playwright locally (including `pnpm exec playwright test` and codegen) requires the same Grafana + static Loki stack that CI uses.** From the repository root, start it and wait until the containers are healthy:
+
+```bash
+pnpm server:ci
+```
+
+That command brings up `docker-compose.dev.yaml` (see [`package.json`](../package.json) `server:ci` script) so Grafana is available on port **3001** with the pre-baked Loki snapshot. Other compose setups (for example `pnpm server` or ad hoc `docker compose` without that file) may not match what the tests expect, which leads to missing data, wrong URLs, or flaky locators.
+
+After the stack is up, sign in as the same user your Playwright auth uses (usually `admin`), then open the **Explore** URL that matches the static snapshot window and datasource used in tests (`STATIC_FROM` / `STATIC_TO` and `gdev-loki` in [`tests/config/constants.ts`](config/constants.ts)):
+
+```text
+http://localhost:3001/grafana/a/grafana-lokiexplore-app/explore?var-ds=gdev-loki&from=2026-04-26T11:00:00.000Z&to=2026-04-26T12:05:00.000Z
+```
+
+Use that URL to reproduce failures in the browser, or to record locators with codegen (from the repo root, after Grafana is reachable):
+
+```bash
+pnpm exec playwright codegen 'http://localhost:3001/grafana/a/grafana-lokiexplore-app/explore?var-ds=gdev-loki&from=2026-04-26T11:00:00.000Z&to=2026-04-26T12:05:00.000Z'
+```
+
+If you change the snapshot window in `constants.ts`, update this README and the URL so they stay aligned.
+
 ## Test Version Strategy
 
 ### Full Test Suite (`tests/`)

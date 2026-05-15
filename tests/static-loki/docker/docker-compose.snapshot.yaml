@@ -1,0 +1,42 @@
+name: 'logs-drilldown-snapshot'
+
+# This compose file is used by tests/static-loki/scripts/generate-loki-snapshot.sh (pnpm run generate:loki-snapshot) to build a
+# deterministic Loki snapshot for the static-data e2e setup. It is NOT used at
+# test time. Tests use docker-compose.dev.yaml (which runs the static Loki
+# image built from the snapshot zip) instead.
+#
+# Paths are relative to the project directory (logs-drilldown root), which the
+# snapshot script sets via `docker compose --project-directory ... -f ...`.
+
+services:
+  snapshot-loki:
+    image: grafana/loki:3.6
+    container_name: snapshot-loki
+    # Distroless base; no shell or wget for an in-container healthcheck. The
+    # snapshot script polls /ready from the host on port 3199 instead.
+    ports:
+      - '3199:3100'
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./config/loki-overrides.yaml:/etc/loki/overrides.yaml
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+      - -runtime-config.file=/etc/loki/overrides.yaml
+
+  snapshot-generator:
+    build:
+      context: ./generator
+    container_name: snapshot-generator
+    depends_on:
+      - snapshot-loki
+    environment:
+      OTLP_ENDPOINT: 'http://snapshot-loki:3100/otlp'
+    command:
+      - -url=http://snapshot-loki:3100/loki/api/v1/push
+      - -tenant-id=1
+      - -static-start=2026-04-26T11:00:00Z
+      - -static-duration=65m
+      - -static-step=5s
+      - -static-throttle=200us
+      - -static-drain=15s
+      - -seed=42

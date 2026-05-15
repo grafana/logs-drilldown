@@ -26,6 +26,7 @@ automaxprocs
 autorest
 basictracer
 bazil
+behaviour
 bbolt
 benbjohnson
 beorn
@@ -311,6 +312,7 @@ netns
 newrelic
 niemeyer
 nkeys
+nolint
 notdir
 nsuµmh
 nuid
@@ -409,6 +411,7 @@ sourcegraph
 spaolacci
 spdystream
 stargz
+staticcheck
 stdlog
 stdr
 stefanberger

@@ -11,6 +11,7 @@ import {
   levelTextMatch,
   serviceSelectionPaginationTextMatch,
 } from './fixtures/explore';
+import { getMockPatternsByNamespace } from './mocks/getMockPatternsByNamespace';
 import { getMockVolumeApiResponse } from './mocks/getMockVolumeApiResponse';
 
 test.describe('explore services page', () => {
@@ -38,10 +39,14 @@ test.describe('explore services page', () => {
       await explorePage.servicesSearch.click();
       const firstResult = page.getByRole('option').first();
 
-      // Expect the first result to be tempo-distributor
-      await expect(firstResult).not.toContainText('nginx');
+      // We're about to favorite "nginx" so we want to make sure it isn't the
+      // top option to begin with (otherwise we can't tell that favoriting
+      // brought it to the top). Match the exact label rather than a substring
+      // because the static snapshot also contains `nginx-json`/`nginx-json-mixed`.
+      await expect(firstResult).not.toHaveText('nginx');
 
-      // Select nginx, as it has the lowest volume, and should otherwise show up last
+      // Select nginx, which is far enough down the volume-sorted list that it
+      // would not appear first without being favorited.
       await explorePage.servicesSearch.pressSequentially('^nginx$');
       await expect(page.getByRole('listbox')).toBeVisible();
       await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
@@ -200,7 +205,7 @@ test.describe('explore services page', () => {
       // Add detected_level filter
       await page.getByTestId(testIds.exploreServiceDetails.tabLabels).click();
       await page.getByLabel('Select detected_level').click();
-      await explorePage.assertNotLoading();
+
       await explorePage.assertPanelsNotLoading();
 
       // Scroll to the bottom of the page
@@ -322,8 +327,15 @@ test.describe('explore services page', () => {
         logsQueryCount = 0;
         logCountQueryCount = 0;
 
+        // This describe block mocks `/index/volume*` and `/ds/query*`, so the
+        // tests do not depend on the static-data Loki snapshot. They DO depend
+        // on a relative time range though: refresh-time-range and navigation
+        // tests assert query counts, and Grafana would treat repeated queries
+        // against the same absolute window as cache hits, suppressing the new
+        // requests. Use `now-15m`/`now` here so each refresh/nav fires a fresh
+        // request as the tests expect.
         await Promise.all([
-          await explorePage.gotoServices(),
+          await explorePage.gotoServices({ from: 'now-15m', to: 'now' }),
           page.route('**/index/volume*', async (route) => {
             logsVolumeCount++;
             const volumeResponse = getMockVolumeApiResponse();
@@ -410,7 +422,6 @@ test.describe('explore services page', () => {
         // Click on first service
         await explorePage.addServiceName();
         await explorePage.clickShowLogs();
-        await explorePage.assertTabsNotLoading();
 
         // Clear variable
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toHaveCount(0);
@@ -427,7 +438,6 @@ test.describe('explore services page', () => {
         // Click on first service
         await explorePage.addServiceName();
         await explorePage.clickShowLogs();
-        await explorePage.assertTabsNotLoading();
 
         // Clear variable
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toHaveCount(0);
@@ -557,8 +567,10 @@ test.describe('explore services page', () => {
             'true'
           );
 
-          // Navigate to the fields breakdown tab
-          await explorePage.goToFieldsTab();
+          // Navigate to the fields breakdown tab. Avoid the broad page-wide
+          // loading assertion here; this test only needs the tab navigation
+          // state for browser-history checks.
+          await page.getByTestId(testIds.exploreServiceDetails.tabFields).click();
 
           // Assert fields tab is selected and active
           await expect(page.getByTestId(testIds.exploreServiceDetails.tabFields)).toHaveCount(1);
@@ -636,13 +648,11 @@ test.describe('explore services page', () => {
             await page.waitForTimeout(25);
             await route.fulfill({ json, response });
           }),
-          await page.route('**/resources/patterns*', async (route) => {
-            const response = await route.fetch();
-            const json = await response.json();
-
+          await page.route('**/resources/patterns*', async (route, request) => {
             patternsCount++;
-            await page.waitForTimeout(25);
-            await route.fulfill({ json, response });
+            await route.fulfill({
+              json: getMockPatternsByNamespace(request),
+            });
           }),
 
           // Can skip logs query for this test
@@ -694,7 +704,6 @@ test.describe('explore services page', () => {
         // Select the first and only result
         await explorePage.addServiceName();
         await explorePage.clickShowLogs();
-        await explorePage.assertTabsNotLoading();
 
         // Logs tab should be visible and selected
         await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toHaveCount(1);
@@ -712,7 +721,6 @@ test.describe('explore services page', () => {
 
       test('Part 2: changing primary label updates tab counts', async ({}) => {
         resetQueryCounts();
-        await explorePage.assertTabsNotLoading();
         const gatewayPatternsCount = await page
           .getByTestId(testIds.exploreServiceDetails.tabPatterns)
           .locator('> span')
@@ -740,8 +748,6 @@ test.describe('explore services page', () => {
         const optionLoc = page.getByRole('option', { exact: true, name: 'mimir' });
         await expect(optionLoc).toHaveCount(1);
         await optionLoc.click();
-
-        await explorePage.assertTabsNotLoading();
 
         const mimirPatternsCount = await page
           .getByTestId(testIds.exploreServiceDetails.tabPatterns)

@@ -18,50 +18,50 @@ type LogGenerator func(ctx context.Context, logger *log.AppLogger, metadata push
 var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 	"gateway": {
 		"apache": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					logger.LogWithMetadata(level, t, flog.NewApacheCommonLog(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 		"httpd": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					logger.LogWithMetadata(level, t, flog.NewApacheCombinedLog(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 		"nginx": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					logger.LogWithMetadata(level, t, flog.NewCommonLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 		"nginx-json": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 		"nginx-json-mixed": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					if level == log.ERROR {
 						log := flog.NewCommonLogFormat(t, log.RandURI(), statusFromLevel(level))
 						// Add a stacktrace to the logfmt log, and include a field that will conflict with stream selectors
@@ -70,7 +70,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 	},
 
@@ -99,32 +99,32 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 	},
 	"grafanacon": {
 		"grafanacon-json-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 		"grafanacon-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 					logger.LogWithMetadata(level, t, flog.NewJSONLogFormat(t, log.RandURI(), statusFromLevel(level)), metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 	},
 	"e-commerce": {
 		"shopping-cart-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 
 					var logLine string
 					if level == log.WARN {
@@ -137,13 +137,13 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					logger.LogWithMetadata(level, t, logLine, metadata)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 		"shopping-cart-structured-otel": func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-			go func() {
-				for ctx.Err() == nil {
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
 					level := log.RandLevel()
-					t := time.Now()
+					t := logger.Now()
 
 					var logLine string
 					newLabels := metadata
@@ -166,7 +166,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					logger.LogWithMetadata(level, t, logLine, newLabels)
 					logger.Sleep()
 				}
-			}()
+			})
 		},
 	},
 }
@@ -174,31 +174,32 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 func lokiOtelPod(svc string) LogGenerator {
 	logs := map[string]map[model.LabelValue]string{
 		"loki-ingester-otel": {
-			log.ERROR: lokiGRPCLog("connection refused to object store", "/loki.Ingester/Push"),
-			log.INFO:  lokiGRPCLog("", "/loki.Ingester/Push"),
+			log.ERROR: lokiGRPCLog(time.Time{}, "connection refused to object store", "/loki.Ingester/Push"),
+			log.INFO:  lokiGRPCLog(time.Time{}, "", "/loki.Ingester/Push"),
 		},
 		"loki-querier-otel": {
-			log.INFO:  lokiGRPCLog("caller=engine.go:263 component=querier org_id=29 traceID=<_> msg=\"executing query\" query=<_> query_hash=1182293200 type=range length=20s step=4 token_id=123", "loki.Query/Engine"),
-			log.DEBUG: lokiGRPCLog("caller=scheduler_processor.go:135 component=querier msg=\"received query\" worker=<_> wait_time_sec=20s", "loki.Query/SchedulerProcessor"),
+			log.INFO:  lokiGRPCLog(time.Time{}, "caller=engine.go:263 component=querier org_id=29 traceID=<_> msg=\"executing query\" query=<_> query_hash=1182293200 type=range length=20s step=4 token_id=123", "loki.Query/Engine"),
+			log.DEBUG: lokiGRPCLog(time.Time{}, "caller=scheduler_processor.go:135 component=querier msg=\"received query\" worker=<_> wait_time_sec=20s", "loki.Query/SchedulerProcessor"),
 		},
 		"loki-queryfrontend-otel": {
-			log.INFO: lokiGRPCLog("caller=roundtrip.go:419 org_id=29 traceID=213098 msg=\"executing query\" type=instant query=\"abc\" query_hash=120938", "loki.Query/QueryRange"),
+			log.INFO: lokiGRPCLog(time.Time{}, "caller=roundtrip.go:419 org_id=29 traceID=213098 msg=\"executing query\" type=instant query=\"abc\" query_hash=120938", "loki.Query/QueryRange"),
 		},
 		"loki-distributor-otel": {
-			log.DEBUG: lokiGRPCLog("caller=push.go:165 org_id=29 traceID=192382 msg=\"push request parsed\" path=push.go contentType=application/x-protobuf contentEncoding= bodySize=129KB streams=12938 entries=81902398 streamLabelsSize=2KB entriesSize=2MB structuredMetadataSize=200KB totalSize=20MB mostRecentLagMs=10s", "loki.Distributor/Push"),
-			log.INFO:  lokiGRPCLog("caller=tee_service.go:273 msg=\"prepared Tee batches for tenant\" tenant=29 stream_count=100 avg_logs_slice_cap_start=120 avg_logs_slice_cap_end=123992 avg_logs_slice_len_end=10200 avg_log_lines_count=122300 avg_log_line_length=10s", "loki.Distributor/Tee"),
+			log.DEBUG: lokiGRPCLog(time.Time{}, "caller=push.go:165 org_id=29 traceID=192382 msg=\"push request parsed\" path=push.go contentType=application/x-protobuf contentEncoding= bodySize=129KB streams=12938 entries=81902398 streamLabelsSize=2KB entriesSize=2MB structuredMetadataSize=200KB totalSize=20MB mostRecentLagMs=10s", "loki.Distributor/Push"),
+			log.INFO:  lokiGRPCLog(time.Time{}, "caller=tee_service.go:273 msg=\"prepared Tee batches for tenant\" tenant=29 stream_count=100 avg_logs_slice_cap_start=120 avg_logs_slice_cap_end=123992 avg_logs_slice_len_end=10200 avg_log_lines_count=122300 avg_log_line_length=10s", "loki.Distributor/Tee"),
 		},
 	}
 	return func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
 		serviceLogs := logs[svc]
 		for k, v := range serviceLogs {
-			go func() {
-				for ctx.Err() == nil {
-					t := time.Now()
-					logger.LogWithMetadata(k, t, v, log.RandStructuredMetadata("loki-ingester", 0))
+			level, line := k, v
+			log.Go(func() {
+				for ctx.Err() == nil && !logger.Done() {
+					t := logger.Now()
+					logger.LogWithMetadata(level, t, line, log.RandStructuredMetadata("loki-ingester", 0))
 					logger.Sleep()
 				}
-			}()
+			})
 		}
 	}
 }
@@ -212,72 +213,72 @@ var noisyTempo = func(ctx context.Context, logger *log.AppLogger, metadata push.
 	const fmt6 = `level=error ts=%s caller=memcached.go:153 msg="Failed to get keys from memcached" err="memcache: connect timeout to %s:11211"`
 	const fmt7 = `level=info ts=%s caller=registry.go:232 tenant=%s msg="collecting metrics" active_series=%d`
 	const fmt8 = `level=info ts=%s caller=main.go:107 msg="Starting Grafana Enterprise Traces" version="version=weekly-r138-f1920489, branch=weekly-r138, revision=f1920489"`
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.DEBUG, t, fmt.Sprintf(fmt1, t.Format(time.RFC3339Nano), rand.Intn(100), rand.Intn(100), log.RandSeq(5), log.RandSeq(5)), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.WARN, t, fmt.Sprintf(fmt2, t.Format(time.RFC3339Nano), log.RandOrgID()), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt3, t.Format(time.RFC3339Nano), rand.Intn(1000), rand.Intn(1000), rand.Intn(1000)), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt4, t.Format(time.RFC3339Nano), rand.Intn(1000)), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt5, t.Format(time.RFC3339Nano), log.RandOrgID(), log.RandSeq(5)), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.ERROR, t, fmt.Sprintf(fmt6, t.Format(time.RFC3339Nano), flog.FakeIP()), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt7, t.Format(time.RFC3339Nano), log.RandOrgID(), rand.Intn(1000)), metadata)
 			logger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
 			logger.LogWithMetadata(log.INFO, t, fmt.Sprintf(fmt8, t.Format(time.RFC3339Nano)), metadata)
 			logger.Sleep()
 		}
-	}()
+	})
 }
 
 var mimirPod = func(ctx context.Context, logger *log.AppLogger, metadata push.LabelsAdapter) {
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
-			logger.LogWithMetadata(log.INFO, t, mimirGRPCLog("", "/cortex.Ingester/Push"), metadata)
+	log.Go(func() {
+		for ctx.Err() == nil && !logger.Done() {
+			t := logger.Now()
+			logger.LogWithMetadata(log.INFO, t, mimirGRPCLog(t, "", "/cortex.Ingester/Push"), metadata)
 			logger.Sleep()
 		}
-	}()
+	})
 }
 
 func startFailingMimirPod(ctx context.Context, logger log.Logger) {
@@ -294,20 +295,20 @@ func startFailingMimirPod(ctx context.Context, logger log.Logger) {
 		}
 	}
 
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
-			appLogger.LogWithMetadata(log.ERROR, t, mimirGRPCLog("connection refused to object store", "/cortex.Ingester/Push"), log.RandStructuredMetadata("mimir-ingester", 0))
+	log.Go(func() {
+		for ctx.Err() == nil && !appLogger.Done() {
+			t := appLogger.Now()
+			appLogger.LogWithMetadata(log.ERROR, t, mimirGRPCLog(t, "connection refused to object store", "/cortex.Ingester/Push"), log.RandStructuredMetadata("mimir-ingester", 0))
 			appLogger.Sleep()
 		}
-	}()
-	go func() {
-		for ctx.Err() == nil {
-			t := time.Now()
-			appLogger.LogWithMetadata(log.INFO, t, mimirGRPCLog("", "/cortex.Ingester/Push"), log.RandStructuredMetadata("mimir-ingester", 0))
+	})
+	log.Go(func() {
+		for ctx.Err() == nil && !appLogger.Done() {
+			t := appLogger.Now()
+			appLogger.LogWithMetadata(log.INFO, t, mimirGRPCLog(t, "", "/cortex.Ingester/Push"), log.RandStructuredMetadata("mimir-ingester", 0))
 			appLogger.Sleep()
 		}
-	}()
+	})
 }
 
 const (
@@ -316,7 +317,10 @@ const (
 	// we need another app may be pyrscope and many different pattern this time to make pattern tab interesting.
 )
 
-func mimirGRPCLog(err string, path string) string {
+// mimirGRPCLog formats a Mimir-style gRPC log line. When t is the zero value
+// the current wall clock is used (to preserve the previous behaviour for
+// callers that don't have a virtual clock available, e.g. live mode).
+func mimirGRPCLog(t time.Time, err string, path string) string {
 	level := log.INFO
 	org := log.RandOrgID()
 	if err != "" {
@@ -324,22 +328,29 @@ func mimirGRPCLog(err string, path string) string {
 		org = log.OrgIDs[rand.Intn(len(log.OrgIDs[2:]))]
 	}
 
-	log := fmt.Sprintf(
+	if t.IsZero() {
+		t = time.Now()
+	}
+
+	out := fmt.Sprintf(
 		mimirGrpcLogFmt,
-		time.Now().Format(time.RFC3339Nano),
+		t.Format(time.RFC3339Nano),
 		org,
 		level,
 		path,
 		log.RandDuration(),
 	)
 	if err != "" {
-		log += ` err="` + err + `"`
+		out += ` err="` + err + `"`
 	}
 
-	return log
+	return out
 }
 
-func lokiGRPCLog(err, path string) string {
+// lokiGRPCLog formats a Loki-style gRPC log line. When t is the zero value
+// the current wall clock is used (to preserve the previous behaviour for
+// callers that don't have a virtual clock available).
+func lokiGRPCLog(t time.Time, err, path string) string {
 	level := log.INFO
 	org := log.RandOrgID()
 	if err != "" {
@@ -347,19 +358,23 @@ func lokiGRPCLog(err, path string) string {
 		org = log.OrgIDs[rand.Intn(len(log.OrgIDs[2:]))]
 	}
 
-	log := fmt.Sprintf(
+	if t.IsZero() {
+		t = time.Now()
+	}
+
+	out := fmt.Sprintf(
 		lokiGrpcLogFmt,
-		time.Now().Format(time.RFC3339Nano),
+		t.Format(time.RFC3339Nano),
 		org,
 		level,
 		path,
 		log.RandDuration(),
 	)
 	if err != "" {
-		log += ` err="` + err + `"`
+		out += ` err="` + err + `"`
 	}
 
-	return log
+	return out
 }
 
 func statusFromLevel(level model.LabelValue) int {

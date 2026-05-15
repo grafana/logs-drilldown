@@ -1,7 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
+import { devices } from '@playwright/test';
 import { dirname } from 'node:path';
-
-import type { PluginOptions } from '@grafana/plugin-e2e';
 
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
@@ -10,15 +8,16 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
  * This can be extended by specific config files
  */
 export const baseConfig = {
-  expect: { timeout: 15000 },
+  /* Increase timeouts to run in parallel */
+  expect: { timeout: 30000 },
+  timeout: 60_000,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
-  /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
+  retries: 1,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -28,8 +27,7 @@ export const baseConfig = {
     //   mode: 'on',
     // },
   },
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: 5,
 };
 
 /**

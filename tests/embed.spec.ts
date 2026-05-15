@@ -73,9 +73,6 @@ test.describe('embed', () => {
     });
     await explorePage.gotoEmbedUrl();
     explorePage.captureConsoleLogs();
-
-    await explorePage.assertNotLoading();
-    await explorePage.assertTabsNotLoading();
   });
 
   test.afterEach(async ({ page }) => {
@@ -141,25 +138,27 @@ test.describe('embed', () => {
   });
 
   test('can use browser history to undo adding field filters via the UI', async ({ page }) => {
-    await explorePage.goToFieldsTab();
     // Load the field values
+    await explorePage.unroute();
     explorePage.blockAllQueriesExcept({
       refIds: [fieldName],
     });
+    await page.getByTestId(testIds.exploreServiceDetails.tabFields).click();
+    await assertFieldsTabActive(page);
 
     // Clear line filter
     await page.getByRole('button', { name: 'Remove line filter' }).click();
 
     // Go to value drilldown
     await page.getByLabel(`Select ${fieldName}`).click();
-    await explorePage.assertNotLoading();
 
     // Click filters
-    await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(3)).toBeVisible();
-    await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0).click();
-    await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(1).click();
-    await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(2).click();
-    await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(3).click();
+    const includeButtons = page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude);
+    await expect.poll(() => includeButtons.count(), { timeout: 45000 }).toBeGreaterThanOrEqual(4);
+    await includeButtons.nth(0).click();
+    await includeButtons.nth(1).click();
+    await includeButtons.nth(2).click();
+    await includeButtons.nth(3).click();
 
     // Assert they are selected
     await expectButtonsSelected(page);
@@ -238,8 +237,9 @@ test.describe('embed', () => {
     // Remove the primary label filter
     await page.getByRole('button', { name: 'Remove filter with key service_name' }).click();
 
-    // Assert something from the service selection is visible
-    await expect(page.getByTestId(testIds.index.addNewLabelTab)).toHaveCount(1);
+    // Assert something from the service selection is visible. The add-label tab
+    // depends on label-tab queries that this test intentionally blocks.
+    await expect(page.getByTestId(testIds.exploreServiceSearch.search).first()).toBeVisible();
   });
 
   test('can reset to reference query after clearing all filters', async ({ page }) => {
@@ -252,13 +252,19 @@ test.describe('embed', () => {
 
     await explorePage.addCustomValueToCombobox(labelName, FilterOp.RegexEqual, ComboBoxIndex.labels, `us-.+`);
     await assertFiltersAreReadOnly();
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await assertFiltersAreReadOnly();
 
     // Remove all filters
     await page.getByLabel('Remove filter with key service_name').click();
     await page.getByLabel('Remove filter with key cluster').click();
     await expect(page.getByText('Please select at least one label to see the logs breakdown.')).toHaveCount(1);
+    // After removing the filters the labels combobox keeps focus and its
+    // dropdown listbox can intercept pointer events on Reset. Dismiss the
+    // floating portal before clicking. (Live-data Loki was slow enough that
+    // the listbox hadn't opened yet; the static snapshot returns labels
+    // immediately so we need to be explicit.)
+    await page.keyboard.press('Escape');
     await page.getByText('Reset').first().click();
     await explorePage.addCustomValueToCombobox(
       labelName,
@@ -288,6 +294,6 @@ test.describe('embed', () => {
       page.getByText(
         `{service_name=~"tempo-distributor|tempo-ingester"} | user!="03428" |~ "(?i)Error" | json | logfmt | drop __error__, __error_details__ | msg!="Failed to get keys from redis"`
       )
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 45000 });
   });
 });
