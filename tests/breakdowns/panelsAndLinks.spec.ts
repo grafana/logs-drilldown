@@ -23,7 +23,7 @@ test.describe('Panels and links', () => {
     await expect(page.getByText('Shortened link copied to')).toBeVisible();
   });
 
-  test('panel menu: label name panel should open links in explore', async ({ context, page }) => {
+  test('panel menu: label name panel should open links in explore', async ({ page }) => {
     await explorePage.goToLabelsTab();
     await page.getByTestId('data-testid Panel menu detected_level').click();
 
@@ -38,7 +38,7 @@ test.describe('Panels and links', () => {
     );
   });
 
-  test('panel menu: label value panel should open links in explore', async ({ context, page }) => {
+  test('panel menu: label value panel should open links in explore', async ({ page }) => {
     await explorePage.goToLabelsTab();
     await page.getByLabel(`Select ${levelName}`).click();
     await page.getByTestId('data-testid Panel menu error').click();
@@ -54,7 +54,7 @@ test.describe('Panels and links', () => {
     );
   });
 
-  test('panel menu: field name panel should open links in explore', async ({ context, page }) => {
+  test('panel menu: field name panel should open links in explore', async ({ page }) => {
     await explorePage.goToFieldsTab();
     await page.getByTestId(`data-testid Panel menu ${fieldName}`).click();
 
@@ -69,7 +69,7 @@ test.describe('Panels and links', () => {
     );
   });
 
-  test('panel menu: field value panel should open links in explore', async ({ context, page }) => {
+  test('panel menu: field value panel should open links in explore', async ({ page }) => {
     await explorePage.goToFieldsTab();
     await page.getByLabel('Select caller').click();
 

@@ -6,14 +6,7 @@ import { testIds } from '../../src/services/testIds';
 import { STATIC_FROM, STATIC_TO } from '../config/constants';
 import { ComboBoxIndex, E2EComboboxStrings, ExplorePage } from '../fixtures/explore';
 
-import {
-  fieldName,
-  labelName,
-  levelName,
-  metadataName,
-  setupServiceBreakdownTest,
-  teardownServiceBreakdownTest,
-} from './shared';
+import { fieldName, labelName, levelName, setupServiceBreakdownTest, teardownServiceBreakdownTest } from './shared';
 
 test.describe('Cross-tab and empty UI', () => {
   let explorePage: ExplorePage;
@@ -156,16 +149,12 @@ test.describe('Cross-tab and empty UI', () => {
     expect(await explorePage.getTableToggleLocator().isChecked()).toBe(false);
     expect(await explorePage.getLogsToggleLocator().isChecked()).toBe(true);
 
-    const firstRow = explorePage.getLogsPanelRow();
-    const viewportSize = page.viewportSize();
-
     await explorePage.setLogsLineWrapMenu(true);
     await expect(page).toHaveURL(/wrapLogMessage=(%22)?true(%22)?/);
 
     // Reload the page and verify the setting in local storage is applied to the panel
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/wrapLogMessage=(%22)?true(%22)?/);
-    const firstRowAfterReload = explorePage.getLogsPanelRow();
   });
 
   test.skip('logs panel options: sortOrder', async ({ page }) => {
