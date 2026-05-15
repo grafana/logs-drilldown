@@ -86,6 +86,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   private logsPanelScene?: LogsPanelScene = undefined;
 
+  private panelWrapperEl: HTMLDivElement | null = null;
+
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
@@ -100,18 +102,41 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
+  public setPanelWrapperEl(el: HTMLDivElement | null) {
+    if (el === this.panelWrapperEl) {
+      return;
+    }
+    this.panelWrapperEl = el;
+  }
+
+  public getPanelWrapperEl(): HTMLDivElement | null {
+    return this.panelWrapperEl;
+  }
+
+  public syncPanelHeightFromWrapper = () => {
+    if (!this.state.panel || !this.panelWrapperEl) {
+      return;
+    }
+    this.state.panel.state.children?.[0].setState({
+      height: `calc(100vh - ${this.panelWrapperEl.getBoundingClientRect().y + 16}px)`,
+    });
+  };
+
   public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
     const { panel } = model.useState();
     const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+    useLayoutEffect(() => {
+      model.setPanelWrapperEl(wrapperRef.current);
+      return () => model.setPanelWrapperEl(null);
+    }, [model, panel]);
+
     useResizeObserver({
       onResize: () => {
-        if (!panel || !wrapperRef.current) {
+        if (!panel) {
           return;
         }
-        console.log(wrapperRef.current.getBoundingClientRect().y);
-        panel.state.children?.[0].setState({
-          height: `calc(100vh - ${wrapperRef.current.getBoundingClientRect().y + 16}px)`,
-        });
+        model.syncPanelHeightFromWrapper();
       },
       ref: wrapperRef,
     });
