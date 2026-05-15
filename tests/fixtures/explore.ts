@@ -237,7 +237,10 @@ export class ExplorePage {
   }
 
   async clearLocalStorage() {
-    await this.page.evaluate(() => window.localStorage.clear());
+    await this.page.evaluate(() => {
+      window.localStorage.clear();
+      window.localStorage.setItem('grafana.explore.logs.logsVolume.collapsed', 'false');
+    });
   }
 
   async setDefaultViewportSize() {
