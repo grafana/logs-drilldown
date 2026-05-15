@@ -1,10 +1,10 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { css } from '@emotion/css';
 import { useResizeObserver } from '@react-aria/utils';
 
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { locationService, useChromeHeaderHeight } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
@@ -60,6 +60,7 @@ export interface LogsListSceneState extends SceneObjectState {
   displayedFields: string[];
   error?: string;
   errorType?: ErrorType;
+  headerHeight: number;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
   // Displayed fields set by the otelLogsFormatting feature
@@ -93,6 +94,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     super({
       ...state,
       displayedFields: [],
+      headerHeight: 48,
       userDisplayedFields: false,
       otelDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
@@ -122,23 +124,33 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       this.extendPanelHeight();
       return;
     }
+    const offset = this.panelWrapperEl.getBoundingClientRect().y + window.scrollY;
     this.state.panel.state.children?.[0].setState({
-      height: `calc(100vh - ${this.panelWrapperEl.getBoundingClientRect().y + 16}px)`,
+      height: `calc(100vh - ${offset + 16}px)`,
     });
   };
 
   public extendPanelHeight = () => {
-    if (!this.state.panel || !this.panelWrapperEl) {
+    if (!this.state.panel) {
       return;
     }
     this.state.panel.state.children?.[0].setState({
-      height: `calc(100vh - ${56}px)`,
+      height: `calc(100vh - ${this.state.headerHeight + 16}px)`,
     });
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
     const { panel } = model.useState();
     const wrapperRef = useRef<HTMLDivElement | null>(null);
+    const height = useChromeHeaderHeight();
+
+    useEffect(() => {
+      if (height) {
+        model.setState({
+          headerHeight: height,
+        });
+      }
+    }, [height, model]);
 
     useLayoutEffect(() => {
       model.setPanelWrapperEl(wrapperRef.current);

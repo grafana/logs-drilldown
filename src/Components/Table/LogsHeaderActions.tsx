@@ -25,9 +25,9 @@ export function LogsPanelHeaderActions({ lineLimitScene, onChange, vizType }: Lo
 
   const toggleLogsSize = useCallback(() => {
     const newState = !getExpandedLogsView(lineLimitScene);
-    toggleLogsListPanelSize(lineLimitScene, newState);
     setExpandedLogsView(lineLimitScene, newState);
     setLogsExpanded(newState);
+    toggleLogsListPanelSize(lineLimitScene, newState);
   }, [lineLimitScene]);
 
   return (
