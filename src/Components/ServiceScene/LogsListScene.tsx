@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 
 import { css } from '@emotion/css';
+import { useResizeObserver } from '@react-aria/utils';
 
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
@@ -101,13 +102,26 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
     const { panel } = model.useState();
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
+    useResizeObserver({
+      onResize: () => {
+        if (!panel || !wrapperRef.current) {
+          return;
+        }
+        console.log(wrapperRef.current.getBoundingClientRect().y);
+        panel.state.children?.[0].setState({
+          height: `calc(100vh - ${wrapperRef.current.getBoundingClientRect().y + 16}px)`,
+        });
+      },
+      ref: wrapperRef,
+    });
 
     if (!panel) {
       return;
     }
 
     return (
-      <div className={styles.panelWrapper}>
+      <div className={styles.panelWrapper} ref={wrapperRef}>
         <panel.Component model={panel} />
       </div>
     );
@@ -475,7 +489,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
     const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
-    const panelHeight = 'calc(100vh - 180px)';
+    const panelHeight = 'calc(100vh - 48px)';
     const children =
       this.state.visualizationType === 'logs'
         ? [
@@ -496,7 +510,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
                 body: logsTablePanelNG
                   ? new LogsTablePanelScene({ error, canClearFilters })
                   : new LogsTableScene({ error, canClearFilters }),
-                height: 'calc(100vh - 220px)',
+                height: panelHeight,
               }),
             ];
 
