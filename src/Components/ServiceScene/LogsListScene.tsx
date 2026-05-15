@@ -43,6 +43,7 @@ import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getBooleanLogOption,
   getDisplayedFieldsInStorage,
+  getExpandedLogsView,
   getExplorationPrefixForLabelValue,
   getLogsVisualizationType,
   getLogsVolumeOption,
@@ -117,8 +118,21 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     if (!this.state.panel || !this.panelWrapperEl) {
       return;
     }
+    if (getExpandedLogsView(this)) {
+      this.extendPanelHeight();
+      return;
+    }
     this.state.panel.state.children?.[0].setState({
       height: `calc(100vh - ${this.panelWrapperEl.getBoundingClientRect().y + 16}px)`,
+    });
+  };
+
+  public extendPanelHeight = () => {
+    if (!this.state.panel || !this.panelWrapperEl) {
+      return;
+    }
+    this.state.panel.state.children?.[0].setState({
+      height: `calc(100vh - ${56}px)`,
     });
   };
 
