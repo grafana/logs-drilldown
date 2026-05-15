@@ -1,9 +1,9 @@
-import { config } from '@grafana/runtime';
+import { config, getAppPluginVersion } from '@grafana/runtime';
 
+import packageJson from '../../package.json';
 import { getFaro, setFaro } from './faroInstance';
 import { getFaroEnvironment } from './getFaroEnv';
 import { logger } from 'services/logger';
-import packageJson from '../../package.json';
 import { PLUGIN_BASE_URL, PLUGIN_ID } from 'services/plugin';
 
 export { getFaro, setFaro } from './faroInstance';
@@ -26,9 +26,8 @@ export async function initFaro() {
     ]);
 
     const { environment, faroUrl, appName } = faroEnvironment;
-    const { apps, bootData } = config;
-    const pluginVersion = apps?.[PLUGIN_ID]?.version ?? packageJson.version;
-    const userEmail = bootData.user?.email ?? '';
+    const pluginVersion = (await getAppPluginVersion(PLUGIN_ID)) ?? packageJson.version;
+    const userEmail = config.bootData.user?.email ?? '';
 
     setFaro(
       initializeFaro({

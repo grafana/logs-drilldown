@@ -9,11 +9,6 @@ jest.mock('@grafana/faro-web-tracing');
 
 jest.mock('@grafana/runtime', () => ({
   config: {
-    apps: {
-      'grafana-lokiexplore-app': {
-        version: '1.0.0',
-      },
-    },
     bootData: {
       user: {
         email: 'sixty.four@grafana.com',
@@ -24,6 +19,7 @@ jest.mock('@grafana/runtime', () => ({
       edition: 'Enterprise',
     },
   },
+  getAppPluginVersion: jest.fn().mockResolvedValue('1.0.0'),
 }));
 
 const mockedGetFaroEnvironment = getFaroEnvironment as jest.MockedFunction<typeof getFaroEnvironment>;
