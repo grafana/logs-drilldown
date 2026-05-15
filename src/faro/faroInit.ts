@@ -8,7 +8,7 @@ import { PLUGIN_BASE_URL, PLUGIN_ID } from 'services/plugin';
 
 export { getFaro, setFaro } from './faroInstance';
 
-export async function initFaro() {
+export const initFaro = async () => {
   if (getFaro()) {
     return;
   }
@@ -54,14 +54,12 @@ export async function initFaro() {
 
           return null;
         },
-      }),
-      () => {
-        logger.info('Plugin loaded successfully', { PLUGIN_ID, appName, environment, pluginVersion });
-      }
+      })
     );
+    logger.info('Plugin loaded successfully', { pluginId: PLUGIN_ID, appName, environment, pluginVersion });
   } catch (error) {
     logger.error(error instanceof Error ? error : new Error(String(error)), {
       phase: 'initFaro',
     });
   }
-}
+};

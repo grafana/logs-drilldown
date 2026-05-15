@@ -4,9 +4,6 @@ let faro: Faro | null = null;
 
 export const getFaro = () => faro;
 
-export const setFaro = (instance: Faro | null, callback?: () => void) => {
+export const setFaro = (instance: Faro | null) => {
   faro = instance;
-  if (callback) {
-    callback();
-  }
 };

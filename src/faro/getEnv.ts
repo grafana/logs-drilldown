@@ -2,16 +2,24 @@ export type Environment = 'dev' | 'local' | 'ops' | 'prod';
 
 const MATCHERS: Array<{ environment: Environment; regExp: RegExp }> = [
   {
-    regExp: /localhost/,
+    regExp: /^localhost(:\d+)?$/i,
     environment: 'local',
   },
   {
-    regExp: /grafana-dev\.net/,
+    regExp: /^127\.0\.0\.1(:\d+)?$/i,
+    environment: 'local',
+  },
+  {
+    regExp: /(^|\.)grafana-dev\.net(:\d+)?$/i,
     environment: 'dev',
   },
   {
-    regExp: /grafana-ops\.net/,
+    regExp: /(^|\.)grafana-ops\.net(:\d+)?$/i,
     environment: 'ops',
+  },
+  {
+    regExp: /(^|\.)grafana\.net(:\d+)?$/i,
+    environment: 'prod',
   },
 ];
 
@@ -23,7 +31,7 @@ export function resolveEnvironmentFromHost(host: string | undefined | null): Env
 
   const found = MATCHERS.find(({ regExp }) => regExp.test(host));
 
-  return found ? found.environment : 'prod';
+  return found ? found.environment : null;
 }
 
 export function getEnvironment(): Environment | null {
