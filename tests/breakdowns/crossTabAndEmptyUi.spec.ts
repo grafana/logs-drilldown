@@ -229,6 +229,7 @@ test.describe('Cross-tab and empty UI', () => {
       refIds: ['logsPanelQuery', 'A'],
     });
 
+    await explorePage.toggleLogsVolume();
     await expect(explorePage.getLogsDirectionNewestFirstLocator()).toBeVisible();
     await expect(explorePage.getLogsDirectionOldestFirstLocator()).not.toBeVisible();
 

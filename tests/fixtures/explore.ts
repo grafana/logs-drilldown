@@ -279,6 +279,10 @@ export class ExplorePage {
     await this.page.getByTestId('data-testid Show logs header').click();
   }
 
+  async toggleLogsVolume() {
+    await this.page.getByText(/Log volume/).click();
+  }
+
   /**
    * Changes the datasource from gdev-loki to gdev-loki-copy
    */
