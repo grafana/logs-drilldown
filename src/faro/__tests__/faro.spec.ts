@@ -95,7 +95,7 @@ describe('initFaro()', () => {
       expect(user).toStrictEqual({ email: 'sixty.four@grafana.com' });
 
       expect(getWebInstrumentations).toHaveBeenCalledWith({
-        captureConsole: true,
+        captureConsole: false,
       });
       expect(instrumentations).toBeInstanceOf(Array);
       if (!Array.isArray(instrumentations)) {

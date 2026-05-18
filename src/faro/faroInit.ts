@@ -42,7 +42,7 @@ export const initFaro = async () => {
         },
         instrumentations: [
           ...getWebInstrumentations({
-            captureConsole: true,
+            captureConsole: false,
           }),
           new TracingInstrumentation(),
         ],
