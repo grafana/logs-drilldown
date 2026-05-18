@@ -1,22 +1,26 @@
 import { getWebInstrumentations, initializeFaro } from '@grafana/faro-web-sdk';
 
-import { initFaro, setFaro } from '../faroInit';
+import { initFaro } from '../faroInit';
+import { setFaro } from '../faroInstance';
 import { getFaroEnvironment } from '../getFaroEnv';
 
 jest.mock('../getFaroEnv');
 jest.mock('@grafana/faro-web-sdk');
 jest.mock('@grafana/faro-web-tracing');
 
+const mockUserEmail = { current: 'sixty.four@grafana.com' as string | undefined };
+
 jest.mock('@grafana/runtime', () => ({
   config: {
-    bootData: {
-      user: {
-        email: 'sixty.four@grafana.com',
-      },
-    },
-    buildInfo: {
-      version: '11.6.0',
-      edition: 'Enterprise',
+    get bootData() {
+      const email = mockUserEmail.current;
+      return {
+        user: email ? { email } : {},
+        buildInfo: {
+          version: '11.6.0',
+          edition: 'Enterprise',
+        },
+      };
     },
   },
   getAppPluginVersion: jest.fn().mockResolvedValue('1.0.0'),
@@ -34,6 +38,7 @@ describe('initFaro()', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     setFaro(null);
+    mockUserEmail.current = 'sixty.four@grafana.com';
     initializeFaroMock.mockReturnValue({} as ReturnType<typeof initializeFaro>);
     getWebInstrumentationsMock.mockReturnValue([{} as never]);
   });
@@ -105,6 +110,24 @@ describe('initFaro()', () => {
 
       expect(isolate).toBe(true);
       expect(beforeSend).toBeInstanceOf(Function);
+    });
+
+    test('omits user when bootData has no email', async () => {
+      mockUserEmail.current = undefined;
+      mockedGetFaroEnvironment.mockReturnValue({
+        environment: 'prod',
+        faroUrl: PROD_URL,
+        appName: 'grafana-logsdrilldown-app-prod',
+      });
+
+      await initFaro();
+
+      const lastCall = initializeFaroMock.mock.lastCall;
+      if (lastCall == null) {
+        throw new Error('expected initializeFaro to have been called');
+      }
+
+      expect(lastCall[0].user).toBeUndefined();
     });
   });
 

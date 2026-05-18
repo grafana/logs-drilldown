@@ -10,9 +10,13 @@ const PluginPropsContext = React.createContext<AppRootProps | null>(null);
 const App = (props: AppRootProps) => {
   // Initialize Faro for internal observability
   useEffect(() => {
-    void import('faro/faroInit').then(({ initFaro }) => {
-      void initFaro();
-    });
+    void import('faro/faroInit')
+      .then(({ initFaro }) => {
+        void initFaro();
+      })
+      .catch((error) => {
+        console.error('Failed to initialize Faro', error);
+      });
   }, []);
 
   return (

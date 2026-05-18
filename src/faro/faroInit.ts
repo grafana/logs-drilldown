@@ -6,8 +6,6 @@ import { getFaroEnvironment } from './getFaroEnv';
 import { logger } from 'services/logger';
 import { PLUGIN_BASE_URL, PLUGIN_ID } from 'services/plugin';
 
-export { getFaro, setFaro } from './faroInstance';
-
 export const initFaro = async () => {
   if (getFaro()) {
     return;
@@ -27,7 +25,7 @@ export const initFaro = async () => {
 
     const { environment, faroUrl, appName } = faroEnvironment;
     const pluginVersion = (await getAppPluginVersion(PLUGIN_ID)) ?? packageJson.version;
-    const userEmail = config.bootData.user?.email ?? '';
+    const userEmail = config.bootData.user?.email;
 
     setFaro(
       initializeFaro({
@@ -37,9 +35,7 @@ export const initFaro = async () => {
           version: pluginVersion,
           environment,
         },
-        user: {
-          email: userEmail,
-        },
+        ...(userEmail ? { user: { email: userEmail } } : {}),
         instrumentations: [
           ...getWebInstrumentations({
             captureConsole: false,
