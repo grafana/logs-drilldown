@@ -1,11 +1,20 @@
+import { ChangeEvent } from 'react';
+
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import {
   applyLogSelectionToLineFilters,
   lineFilterRowIsEmpty,
+  LineFilterVariablesScene,
   nextLineFilterKeyLabel,
 } from './LineFilterVariablesScene';
-import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
+import { LINE_FILTER_INPUT_DEBOUNCE_MS, LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
+
+const mockGetLineFiltersVariable = jest.fn();
+
+jest.mock('services/variableGetters', () => ({
+  getLineFiltersVariable: (...args: unknown[]) => mockGetLineFiltersVariable(...args),
+}));
 
 describe('lineFilterRowIsEmpty', () => {
   it('treats undefined, empty, and whitespace-only as empty', () => {
@@ -81,5 +90,43 @@ describe('applyLogSelectionToLineFilters', () => {
     expect(next[0].value).toBe('x');
     expect(next[0].key).toBe(LineFilterCaseSensitive.caseSensitive);
     expect(next[0].keyLabel).toBe('0');
+  });
+});
+
+describe('onToggleExclusive', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('does not revert operator when exclude is toggled before debounced text update fires', () => {
+    const filter: AdHocFilterWithLabels = {
+      key: LineFilterCaseSensitive.caseInsensitive,
+      keyLabel: '0',
+      operator: LineFilterOp.match,
+      value: '',
+    };
+    let filters: AdHocFilterWithLabels[] = [{ ...filter }];
+    const updateFilters = jest.fn((newFilters: AdHocFilterWithLabels[]) => {
+      filters = newFilters;
+    });
+    mockGetLineFiltersVariable.mockReturnValue({
+      state: { filters },
+      updateFilters,
+    });
+
+    const scene = new LineFilterVariablesScene({});
+    scene.onInputChange({ target: { value: 'error' } } as ChangeEvent<HTMLInputElement>, filter);
+    scene.onToggleExclusive({ ...filter, value: 'error' });
+
+    expect(filters[0]?.operator).toBe(LineFilterOp.negativeMatch);
+
+    jest.advanceTimersByTime(LINE_FILTER_INPUT_DEBOUNCE_MS);
+
+    expect(updateFilters.mock.calls.at(-1)?.[0][0]?.operator).toBe(LineFilterOp.negativeMatch);
   });
 });

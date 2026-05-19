@@ -214,6 +214,8 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
    * Updates filter operator when user toggles exclusion
    */
   onToggleExclusive = (filter: AdHocFilterWithLabels) => {
+    // Cancel the debounced update so that the operator matches the current api call
+    this.updateVariableDebounced.cancel();
     let newOperator: string;
     switch (filter.operator) {
       case LineFilterOp.match: {
