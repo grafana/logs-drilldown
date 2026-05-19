@@ -32,6 +32,7 @@ import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
+import { syncLogsListPanelHeightFromScene } from 'services/scenes';
 import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
@@ -134,6 +135,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     }
     this.updateContainerHeight(panel);
     setLogsVolumeOption('collapsed', collapsed ? 'true' : undefined);
+    syncLogsListPanelHeightFromScene(sceneGraph.getAncestor(this, ServiceScene));
   }
 
   private getVizPanel() {

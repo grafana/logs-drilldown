@@ -387,8 +387,11 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       const clipboardContent = await handle.jsonValue();
       // Navigate to url from clipboard
       await page.goto(clipboardContent);
-      // Assert that the Line we copied is in the viewport, and all the k/v exactly match
-      await expect(page.getByText(selectedLogLineText ?? '')).toBeInViewport();
+      // Short default viewport (see setDefaultViewportSize) leaves the linked row below the fold;
+      // scroll before asserting visibility in the viewport.
+      const restoredLine = page.getByText(selectedLogLineText ?? '').first();
+      await restoredLine.scrollIntoViewIfNeeded();
+      await expect(restoredLine).toBeInViewport();
     });
 
     test('derived field links', async ({ page, context }) => {
