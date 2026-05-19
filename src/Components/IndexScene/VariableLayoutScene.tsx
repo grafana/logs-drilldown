@@ -8,6 +8,7 @@ import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
+import { syncLogsListPanelHeightFromScene } from '../../services/scenes';
 import {
   getCollapsibleFiltersState,
   getJsonParserVariableVisibility,
@@ -69,6 +70,11 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     reportInteraction('grafana_logs_app_filters_collapse_toggled', {
       collapsed,
     });
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    const contentScene = indexScene.state.contentScene;
+    if (contentScene) {
+      syncLogsListPanelHeightFromScene(contentScene);
+    }
   };
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {

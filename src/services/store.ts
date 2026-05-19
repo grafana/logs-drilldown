@@ -549,3 +549,19 @@ export function getTableLogLine(): LogLineState {
 export function setTableLogLine(value: LogLineState) {
   localStorage.setItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY, value);
 }
+
+// Logs view size
+export function getExpandedLogsView(sceneRef: SceneObject) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  try {
+    return Boolean(JSON.parse(String(localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.expanded`))));
+  } catch (e) {
+    logger.error(e);
+  }
+  return false;
+}
+
+export function setExpandedLogsView(sceneRef: SceneObject, expanded: boolean) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.expanded`, JSON.stringify(expanded));
+}

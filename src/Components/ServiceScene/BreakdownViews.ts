@@ -118,7 +118,6 @@ function buildLogsListScene() {
       }),
       new SceneFlexItem({
         body: new LogsListScene({}),
-        height: 'calc(100vh - 500px)',
         minHeight: '470px',
       }),
     ],
