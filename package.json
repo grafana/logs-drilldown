@@ -117,7 +117,7 @@
     "@grafana/api-clients": "13.0.1",
     "@grafana/assistant": "0.1.13",
     "@grafana/data": "13.0.1",
-    "@grafana/faro-web-sdk": "^1.19.0",
+    "@grafana/faro-web-sdk": "^2.4.0",
     "@grafana/i18n": "13.0.1",
     "@grafana/lezer-logql": "^0.3.0",
     "@grafana/runtime": "13.0.1",
