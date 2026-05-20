@@ -1,14 +1,18 @@
-import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneVariables } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject, SceneVariables } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { getMaxLinesOptions } from '../Components/ServiceScene/LineLimitScene';
+import { runSceneQueries } from './query';
 import { getRouteParams } from './routing';
-import { areLabelFiltersEqual, getVariablesThatCanBeCleared } from './variableHelpers';
+import { clearMaxLines, getMaxLines } from './store';
+import { areLabelFiltersEqual, clearVariables, getVariablesThatCanBeCleared } from './variableHelpers';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS, VAR_LINE_FILTERS } from './variables';
 
 // Mock dependencies
 jest.mock('@grafana/scenes', () => ({
   ...jest.requireActual('@grafana/scenes'),
   sceneGraph: {
+    findDescendents: jest.fn(() => []),
     getVariables: jest.fn(),
     getAncestor: jest.fn(),
   },
@@ -16,6 +20,20 @@ jest.mock('@grafana/scenes', () => ({
 
 jest.mock('./routing', () => ({
   getRouteParams: jest.fn(),
+}));
+
+jest.mock('./store', () => ({
+  clearMaxLines: jest.fn(),
+  getMaxLines: jest.fn(() => 1000),
+}));
+
+jest.mock('../Components/ServiceScene/LineLimitScene', () => ({
+  ...jest.requireActual('../Components/ServiceScene/LineLimitScene'),
+  getMaxLinesOptions: jest.fn(() => [{ value: 1000, label: '1000' }]),
+}));
+
+jest.mock('./query', () => ({
+  runSceneQueries: jest.fn(),
 }));
 
 describe('areLabelFiltersEqual', () => {
@@ -248,4 +266,27 @@ describe('getVariablesThatCanBeCleared', () => {
       expect(variables).toHaveLength(2);
     }
   );
+});
+
+describe('clearVariables', () => {
+  const sceneRef = {} as SceneObject;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(sceneGraph.getAncestor).mockReturnValue({
+      setState: jest.fn(),
+    } as unknown as IndexScene);
+    jest.mocked(sceneGraph.getVariables).mockReturnValue({
+      state: { variables: [] },
+    } as unknown as SceneVariables);
+  });
+
+  it('clears max lines storage and re-runs queries', () => {
+    clearVariables(sceneRef);
+
+    expect(clearMaxLines).toHaveBeenCalledWith(sceneRef);
+    expect(getMaxLines).toHaveBeenCalledWith(sceneRef);
+    expect(getMaxLinesOptions).toHaveBeenCalledWith(1000);
+    expect(runSceneQueries).toHaveBeenCalledWith(sceneRef);
+  });
 });

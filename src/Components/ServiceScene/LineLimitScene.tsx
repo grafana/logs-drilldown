@@ -5,12 +5,13 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { sceneGraph, SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Combobox, ComboboxOption, InlineField, useStyles2 } from '@grafana/ui';
 
+import { IndexScene } from '../IndexScene/IndexScene';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from 'services/datasourceTypes';
 import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';
-
 interface LineLimitState extends SceneObjectState {
   error?: string;
   isInvalid?: boolean;
@@ -38,10 +39,11 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
    */
   private onActivate = () => {
     const maxLines = getMaxLines(this);
+    const limit = getMaxLinesLimit(this);
     this.setState({
       maxLines,
       maxLinesOptions: getMaxLinesOptions(maxLines),
-      isInvalid: false,
+      isInvalid: maxLines > limit,
     });
   };
 
@@ -64,21 +66,26 @@ export class LineLimitScene extends SceneObjectBase<LineLimitState> {
   };
 
   onChangeMaxLines = (option: ComboboxOption<number>) => {
+    const newMaxLines = typeof option.value === 'string' ? Number(option.value) : option.value;
     const isValid = this.validateMaxLines(option.value);
-    if (!isValid) {
+    const limit = getMaxLinesLimit(this);
+    const isOverLimit = isValid && newMaxLines > limit;
+
+    if (!isValid || isOverLimit) {
       this.setState({
         isInvalid: true,
+        maxLines: isValid ? newMaxLines : this.state.maxLines,
+        maxLinesOptions: isValid ? getMaxLinesOptions(newMaxLines) : this.state.maxLinesOptions,
       });
-    } else {
-      this.setState({
-        isInvalid: false,
-      });
+      return;
     }
-    const newMaxLines = option.value;
-    setMaxLines(this, newMaxLines);
+
     this.setState({
+      isInvalid: false,
       maxLines: newMaxLines,
+      maxLinesOptions: getMaxLinesOptions(newMaxLines),
     });
+    setMaxLines(this, newMaxLines);
     runSceneQueries(this);
     reportInteraction('grafana_logs_app_line_limit_changed', {
       maxLines: newMaxLines,
@@ -135,22 +142,38 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-function getMaxLinesOptions(currentMaxLines: number): Array<ComboboxOption<number>> {
-  const defaultOptions = [
-    { value: 100, label: '100' },
-    { value: 500, label: '500' },
-    { value: 1000, label: '1000' },
-    { value: 2000, label: '2000' },
-    { value: 5000, label: '5000' },
-  ];
+const MAX_LINES_PRESETS = [100, 500, 1000, 2000, 5000] as const;
+
+export const getMaxLinesOptions = (currentMaxLines: number): Array<ComboboxOption<number>> => {
+  const defaultOptions: Array<ComboboxOption<number>> = MAX_LINES_PRESETS.map((value) => ({
+    value,
+    label: value.toString(),
+  }));
   if (defaultOptions.find((option) => option.value === currentMaxLines)) {
     return defaultOptions;
   }
-  let index = defaultOptions.findIndex((option) => option.value > currentMaxLines);
+  const options = [...defaultOptions];
+  let index = options.findIndex((option) => option.value > currentMaxLines);
   index = index <= 0 ? 0 : index;
-  defaultOptions.splice(index, 0, {
+  options.splice(index, 0, {
     value: currentMaxLines,
     label: currentMaxLines.toString(),
   });
-  return defaultOptions;
-}
+  return options;
+};
+
+export const getMaxLinesLimit = (sceneRef: SceneObject): number => {
+  const indexScene = sceneGraph.getAncestor(sceneRef, IndexScene);
+  const lokiConfig = indexScene.state.lokiConfig;
+  if (lokiConfig && lokiConfig !== LOKI_CONFIG_API_NOT_SUPPORTED) {
+    const limit = lokiConfig.limits.max_entries_limit_per_query;
+    if (limit > 0) {
+      return limit;
+    }
+  }
+  const dsLimit = indexScene.state.ds?.maxLines;
+  if (dsLimit && dsLimit > 0) {
+    return dsLimit;
+  }
+  return MAX_LINES_PRESETS[MAX_LINES_PRESETS.length - 1];
+};

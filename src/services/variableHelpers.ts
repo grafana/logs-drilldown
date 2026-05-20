@@ -2,13 +2,16 @@ import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { getMaxLinesOptions, LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from './comparison';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
 import { isOperatorInclusive } from './operatorHelpers';
 import { includeOperators, numericOperators, operators } from './operators';
+import { runSceneQueries } from './query';
 import { getRouteParams } from './routing';
+import { clearMaxLines, getMaxLines } from './store';
 import { getLabelsVariable } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS } from './variables';
 
@@ -62,6 +65,18 @@ export function clearVariables(sceneRef: SceneObject) {
         value: '',
       });
     }
+  });
+
+  clearMaxLines(sceneRef);
+  maxLinesResetDefaultValues(sceneRef);
+  runSceneQueries(sceneRef);
+}
+
+function maxLinesResetDefaultValues(sceneRef: SceneObject) {
+  const maxLines = getMaxLines(sceneRef);
+  const maxLinesOptions = getMaxLinesOptions(maxLines);
+  sceneGraph.findDescendents(sceneRef, LineLimitScene).forEach((lineLimitScene) => {
+    lineLimitScene.setState({ maxLines, maxLinesOptions, isInvalid: false });
   });
 }
 
