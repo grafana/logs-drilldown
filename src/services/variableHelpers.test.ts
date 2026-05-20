@@ -1,6 +1,7 @@
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject, SceneVariables } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
 import { runSceneQueries } from './query';
 import { getRouteParams } from './routing';
 import { clearMaxLines, getMaxLines } from './store';
@@ -279,5 +280,24 @@ describe('clearVariables', () => {
     expect(clearMaxLines).toHaveBeenCalledWith(sceneRef);
     expect(getMaxLines).toHaveBeenCalledWith(sceneRef);
     expect(runSceneQueries).toHaveBeenCalledWith(sceneRef);
+  });
+
+  it('marks line limit invalid after clear when default exceeds the limit', () => {
+    const lineLimitScene = new LineLimitScene({});
+    const indexScene = { setState: jest.fn() } as unknown as IndexScene;
+
+    jest.mocked(getMaxLines).mockReturnValue(6000);
+    jest.mocked(sceneGraph.findDescendents).mockReturnValue([lineLimitScene]);
+    jest.mocked(sceneGraph.getAncestor).mockImplementation((ref) => {
+      if (ref === lineLimitScene) {
+        return { state: { ds: { maxLines: 5000 }, lokiConfig: undefined } } as IndexScene;
+      }
+      return indexScene;
+    });
+
+    clearVariables(sceneRef);
+
+    expect(lineLimitScene.state.isInvalid).toBe(true);
+    expect(lineLimitScene.state.maxLines).toBe(6000);
   });
 });

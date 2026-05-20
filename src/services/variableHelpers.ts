@@ -2,7 +2,7 @@ import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { getMaxLinesOptions, LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
+import { getMaxLinesLimit, getMaxLinesOptions, LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
 import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from './comparison';
 import { CustomConstantVariable } from './CustomConstantVariable';
@@ -76,7 +76,8 @@ function maxLinesResetDefaultValues(sceneRef: SceneObject) {
   const maxLines = getMaxLines(sceneRef);
   const maxLinesOptions = getMaxLinesOptions(maxLines);
   sceneGraph.findDescendents(sceneRef, LineLimitScene).forEach((lineLimitScene) => {
-    lineLimitScene.setState({ maxLines, maxLinesOptions, isInvalid: false });
+    const limit = getMaxLinesLimit(lineLimitScene);
+    lineLimitScene.setState({ maxLines, maxLinesOptions, isInvalid: maxLines > limit });
   });
 }
 

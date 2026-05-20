@@ -152,14 +152,13 @@ export const getMaxLinesOptions = (currentMaxLines: number): Array<ComboboxOptio
   if (defaultOptions.find((option) => option.value === currentMaxLines)) {
     return defaultOptions;
   }
-  const options = [...defaultOptions];
-  let index = options.findIndex((option) => option.value > currentMaxLines);
+  let index = defaultOptions.findIndex((option) => option.value > currentMaxLines);
   index = index <= 0 ? 0 : index;
-  options.splice(index, 0, {
+  defaultOptions.splice(index, 0, {
     value: currentMaxLines,
     label: currentMaxLines.toString(),
   });
-  return options;
+  return defaultOptions;
 };
 
 export const getMaxLinesLimit = (sceneRef: SceneObject): number => {
