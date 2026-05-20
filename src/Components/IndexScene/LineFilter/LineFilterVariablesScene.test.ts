@@ -93,7 +93,7 @@ describe('applyLogSelectionToLineFilters', () => {
   });
 });
 
-describe('onToggleExclusive', () => {
+describe('line filter debounce vs toggles', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.clearAllMocks();
@@ -103,13 +103,7 @@ describe('onToggleExclusive', () => {
     jest.useRealTimers();
   });
 
-  it('does not revert operator when exclude is toggled before debounced text update fires', () => {
-    const filter: AdHocFilterWithLabels = {
-      key: LineFilterCaseSensitive.caseInsensitive,
-      keyLabel: '0',
-      operator: LineFilterOp.match,
-      value: '',
-    };
+  function setupScene(filter: AdHocFilterWithLabels) {
     let filters: AdHocFilterWithLabels[] = [{ ...filter }];
     const updateFilters = jest.fn((newFilters: AdHocFilterWithLabels[]) => {
       filters = newFilters;
@@ -118,15 +112,68 @@ describe('onToggleExclusive', () => {
       state: { filters },
       updateFilters,
     });
-
     const scene = new LineFilterVariablesScene({});
-    scene.onInputChange({ target: { value: 'error' } } as ChangeEvent<HTMLInputElement>, filter);
-    scene.onToggleExclusive({ ...filter, value: 'error' });
+    return {
+      scene,
+      filter,
+      get filters() {
+        return filters;
+      },
+      updateFilters,
+    };
+  }
 
-    expect(filters[0]?.operator).toBe(LineFilterOp.negativeMatch);
+  it('does not revert operator when exclude is toggled before debounced text update fires', () => {
+    const filter: AdHocFilterWithLabels = {
+      key: LineFilterCaseSensitive.caseInsensitive,
+      keyLabel: '0',
+      operator: LineFilterOp.match,
+      value: '',
+    };
+    const ctx = setupScene(filter);
+    ctx.scene.onInputChange({ target: { value: 'error' } } as ChangeEvent<HTMLInputElement>, filter);
+    ctx.scene.onToggleExclusive({ ...filter, value: 'error' });
+
+    expect(ctx.filters[0]?.operator).toBe(LineFilterOp.negativeMatch);
 
     jest.advanceTimersByTime(LINE_FILTER_INPUT_DEBOUNCE_MS);
 
-    expect(updateFilters.mock.calls.at(-1)?.[0][0]?.operator).toBe(LineFilterOp.negativeMatch);
+    expect(ctx.updateFilters.mock.calls.at(-1)?.[0][0]?.operator).toBe(LineFilterOp.negativeMatch);
+  });
+
+  it('does not revert operator when regex is toggled before debounced text update fires', () => {
+    const filter: AdHocFilterWithLabels = {
+      key: LineFilterCaseSensitive.caseInsensitive,
+      keyLabel: '0',
+      operator: LineFilterOp.match,
+      value: '',
+    };
+    const ctx = setupScene(filter);
+    ctx.scene.onInputChange({ target: { value: 'error' } } as ChangeEvent<HTMLInputElement>, filter);
+    ctx.scene.onRegexToggle({ ...filter, value: 'error' });
+
+    expect(ctx.filters[0]?.operator).toBe(LineFilterOp.regex);
+
+    jest.advanceTimersByTime(LINE_FILTER_INPUT_DEBOUNCE_MS);
+
+    expect(ctx.updateFilters.mock.calls.at(-1)?.[0][0]?.operator).toBe(LineFilterOp.regex);
+  });
+
+  it('does not revert case sensitivity when toggled before debounced text update fires', () => {
+    const filter: AdHocFilterWithLabels = {
+      key: LineFilterCaseSensitive.caseInsensitive,
+      keyLabel: '0',
+      operator: LineFilterOp.match,
+      value: '',
+    };
+    const ctx = setupScene(filter);
+    ctx.scene.onInputChange({ target: { value: 'error' } } as ChangeEvent<HTMLInputElement>, filter);
+    ctx.scene.onCaseSensitiveToggle({ ...filter, value: 'error' });
+
+    expect(ctx.filters[0]?.key).toBe(LineFilterCaseSensitive.caseSensitive);
+
+    jest.advanceTimersByTime(LINE_FILTER_INPUT_DEBOUNCE_MS);
+
+    expect(ctx.updateFilters.mock.calls.at(-1)?.[0][0]?.key).toBe(LineFilterCaseSensitive.caseSensitive);
   });
 });
