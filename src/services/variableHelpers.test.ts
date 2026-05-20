@@ -1,7 +1,6 @@
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject, SceneVariables } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { getMaxLinesOptions } from '../Components/ServiceScene/LineLimitScene';
 import { runSceneQueries } from './query';
 import { getRouteParams } from './routing';
 import { clearMaxLines, getMaxLines } from './store';
@@ -9,6 +8,8 @@ import { areLabelFiltersEqual, clearVariables, getVariablesThatCanBeCleared } fr
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS, VAR_LINE_FILTERS } from './variables';
 
 // Mock dependencies
+jest.mock('./store');
+
 jest.mock('@grafana/scenes', () => ({
   ...jest.requireActual('@grafana/scenes'),
   sceneGraph: {
@@ -20,16 +21,6 @@ jest.mock('@grafana/scenes', () => ({
 
 jest.mock('./routing', () => ({
   getRouteParams: jest.fn(),
-}));
-
-jest.mock('./store', () => ({
-  clearMaxLines: jest.fn(),
-  getMaxLines: jest.fn(() => 1000),
-}));
-
-jest.mock('../Components/ServiceScene/LineLimitScene', () => ({
-  ...jest.requireActual('../Components/ServiceScene/LineLimitScene'),
-  getMaxLinesOptions: jest.fn(() => [{ value: 1000, label: '1000' }]),
 }));
 
 jest.mock('./query', () => ({
@@ -273,6 +264,7 @@ describe('clearVariables', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(getMaxLines).mockReturnValue(1000);
     jest.mocked(sceneGraph.getAncestor).mockReturnValue({
       setState: jest.fn(),
     } as unknown as IndexScene);
@@ -286,7 +278,6 @@ describe('clearVariables', () => {
 
     expect(clearMaxLines).toHaveBeenCalledWith(sceneRef);
     expect(getMaxLines).toHaveBeenCalledWith(sceneRef);
-    expect(getMaxLinesOptions).toHaveBeenCalledWith(1000);
     expect(runSceneQueries).toHaveBeenCalledWith(sceneRef);
   });
 });
