@@ -246,6 +246,11 @@ export function setMaxLines(sceneRef: SceneObject, maxLines: number) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`, maxLines.toString());
 }
 
+export function clearMaxLines(sceneRef: SceneObject) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.removeItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`);
+}
+
 const getDisplayedFieldsKey = (sceneRef: SceneObject, userAdded: boolean, prefix?: string) => {
   const PREFIX = prefix ?? getExplorationPrefix(sceneRef);
   const POSTFIX = userAdded ? 'logs.user.fields' : 'logs.fields';
