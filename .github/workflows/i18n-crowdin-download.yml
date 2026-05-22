@@ -7,8 +7,33 @@ on:
 
 jobs:
   download-sources-from-crowdin:
-    uses: grafana/grafana-github-actions/.github/workflows/crowdin-download.yml@main
-    with:
-      crowdin_project_id: 40
-      pr_labels: 'i18n'
-      github_board_id: 702
+    runs-on: ubuntu-x64
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Get GitHub App token
+        id: get-github-app-token
+        uses: grafana/shared-workflows/actions/create-github-app-token@259ba21cb3ff07724f331e26d926d655d24b317b # create-github-app-token/v0.2.3
+        with:
+          github_app: grafana-pr-automation
+      - name: 'Get vault secrets'
+        id: vault-secrets
+        uses: grafana/shared-workflows/actions/get-vault-secrets@main
+        with:
+            # Vault secret paths:
+            # - ci/repo/grafana/logs-drilldown/grafana-frontend-crowdin-token
+            repo_secrets: |
+                CROWDIN_TOKEN=grafana-frontend-crowdin-token:access_token
+      - name: Download from Crowdin
+        uses: grafana/grafana-github-actions/crowdin-download@main
+        with:
+          crowdin_token: ${{ env.CROWDIN_TOKEN }}
+          crowdin_project_id: 40
+          pr_labels: 'i18n'
+          github_board_id: 702
+          github_repo_token: ${{ steps.get-github-app-token.outputs.token }}
