@@ -1,14 +1,20 @@
-import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneVariables } from '@grafana/scenes';
+import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject, SceneVariables } from '@grafana/scenes';
 
 import { IndexScene } from '../Components/IndexScene/IndexScene';
+import { LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
+import { runSceneQueries } from './query';
 import { getRouteParams } from './routing';
-import { areLabelFiltersEqual, getVariablesThatCanBeCleared } from './variableHelpers';
+import { clearMaxLines, getMaxLines } from './store';
+import { areLabelFiltersEqual, clearVariables, getVariablesThatCanBeCleared } from './variableHelpers';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS, VAR_LINE_FILTERS } from './variables';
 
 // Mock dependencies
+jest.mock('./store');
+
 jest.mock('@grafana/scenes', () => ({
   ...jest.requireActual('@grafana/scenes'),
   sceneGraph: {
+    findDescendents: jest.fn(() => []),
     getVariables: jest.fn(),
     getAncestor: jest.fn(),
   },
@@ -16,6 +22,10 @@ jest.mock('@grafana/scenes', () => ({
 
 jest.mock('./routing', () => ({
   getRouteParams: jest.fn(),
+}));
+
+jest.mock('./query', () => ({
+  runSceneQueries: jest.fn(),
 }));
 
 describe('areLabelFiltersEqual', () => {
@@ -248,4 +258,46 @@ describe('getVariablesThatCanBeCleared', () => {
       expect(variables).toHaveLength(2);
     }
   );
+});
+
+describe('clearVariables', () => {
+  const sceneRef = {} as SceneObject;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getMaxLines).mockReturnValue(1000);
+    jest.mocked(sceneGraph.getAncestor).mockReturnValue({
+      setState: jest.fn(),
+    } as unknown as IndexScene);
+    jest.mocked(sceneGraph.getVariables).mockReturnValue({
+      state: { variables: [] },
+    } as unknown as SceneVariables);
+  });
+
+  it('clears max lines storage and re-runs queries', () => {
+    clearVariables(sceneRef);
+
+    expect(clearMaxLines).toHaveBeenCalledWith(sceneRef);
+    expect(getMaxLines).toHaveBeenCalledWith(sceneRef);
+    expect(runSceneQueries).toHaveBeenCalledWith(sceneRef);
+  });
+
+  it('marks line limit invalid after clear when default exceeds the limit', () => {
+    const lineLimitScene = new LineLimitScene({});
+    const indexScene = { setState: jest.fn() } as unknown as IndexScene;
+
+    jest.mocked(getMaxLines).mockReturnValue(6000);
+    jest.mocked(sceneGraph.findDescendents).mockReturnValue([lineLimitScene]);
+    jest.mocked(sceneGraph.getAncestor).mockImplementation((ref) => {
+      if (ref === lineLimitScene) {
+        return { state: { ds: { maxLines: 5000 }, lokiConfig: undefined } } as IndexScene;
+      }
+      return indexScene;
+    });
+
+    clearVariables(sceneRef);
+
+    expect(lineLimitScene.state.isInvalid).toBe(true);
+    expect(lineLimitScene.state.maxLines).toBe(6000);
+  });
 });
