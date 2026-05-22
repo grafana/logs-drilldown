@@ -1,7 +1,8 @@
-import { LogContext } from '@grafana/faro-web-sdk';
-import { FetchError, logError, logInfo, logWarning } from '@grafana/runtime';
+import { LogContext, LogLevel } from '@grafana/faro-web-sdk';
+import { FetchError } from '@grafana/runtime';
 
 import packageJson from '../../package.json';
+import { getFaro } from '../faro/faroInstance';
 import pluginJson from '../plugin.json';
 import { isRecord } from './narrowing';
 
@@ -12,33 +13,43 @@ const defaultContext = {
 
 export const logger = {
   error: (err: Error | unknown, context?: LogContext) => {
-    const ctx = { ...defaultContext, ...context };
-    console.error(err, ctx);
-    attemptFaroErr(err, ctx);
+    attemptFaroErr(err, { ...defaultContext, ...context });
   },
   info: (msg: string, context?: LogContext) => {
-    const ctx = { ...defaultContext, ...context };
-    console.log(msg, ctx);
-    attemptFaroInfo(msg, ctx);
+    attemptFaroInfo(msg, { ...defaultContext, ...context });
   },
   warn: (msg: string, context?: LogContext) => {
-    const ctx = { ...defaultContext, ...context };
-    console.warn(msg, ctx);
-    attemptFaroWarn(msg, ctx);
+    attemptFaroWarn(msg, { ...defaultContext, ...context });
   },
 };
 
-const attemptFaroInfo = (msg: string, context?: LogContext) => {
+const attemptFaroInfo = (msg: string, context: LogContext) => {
+  const faro = getFaro();
+  if (!faro) {
+    console.log(msg, context);
+    return;
+  }
   try {
-    logInfo(msg, context);
+    faro.api.pushLog([msg], {
+      level: LogLevel.INFO,
+      context,
+    });
   } catch (e) {
     console.warn('Failed to log faro event!');
   }
 };
 
-const attemptFaroWarn = (msg: string, context?: LogContext) => {
+const attemptFaroWarn = (msg: string, context: LogContext) => {
+  const faro = getFaro();
+  if (!faro) {
+    console.warn(msg, context);
+    return;
+  }
   try {
-    logWarning(msg, context);
+    faro.api.pushLog([msg], {
+      level: LogLevel.WARN,
+      context,
+    });
   } catch (e) {
     console.warn('Failed to log faro warning!', { context, msg });
   }
@@ -73,23 +84,27 @@ function populateFetchErrorContext(err: unknown | FetchError, context: LogContex
   }
 }
 
-const attemptFaroErr = (err: Error | FetchError | unknown, context2: LogContext) => {
-  let context = context2;
+const attemptFaroErr = (err: Error | FetchError | unknown, context: LogContext) => {
+  const faro = getFaro();
+  if (!faro) {
+    console.error(err, context);
+    return;
+  }
   try {
     populateFetchErrorContext(err, context);
 
     if (err instanceof Error) {
-      logError(err, context);
+      faro.api.pushError(err, { context });
     } else if (typeof err === 'string') {
-      logError(new Error(err), context);
+      faro.api.pushError(new Error(err), { context });
     } else if (err && typeof err === 'object') {
       if (context.msg) {
-        logError(new Error(context.msg), context);
+        faro.api.pushError(new Error(context.msg), { context });
       } else {
-        logError(new Error('error object'), context);
+        faro.api.pushError(new Error('error object'), { context });
       }
     } else {
-      logError(new Error('unknown error'), context);
+      faro.api.pushError(new Error('unknown error'), { context });
     }
   } catch (e) {
     console.error('Failed to log faro error!', { context, err });
