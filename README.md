@@ -65,7 +65,7 @@ If you want to [install the app in a docker container](https://grafana.com/docs/
 
 In order to run the setup locally and build the plugin by your own, follow these steps:
 
-1. `pnpm install`
+1. `pnpm install --frozen-lockfile --ignore-scripts` (then `pnpm run prepare` once for husky git hooks)
 2. `pnpm run dev` this builds the plugin continuously
 3. `pnpm run server` this spins up the docker setup, including a Loki instance and the fake data generator
 

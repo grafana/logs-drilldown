@@ -88,6 +88,7 @@
     "jest": "30.2.0",
     "jest-canvas-mock": "2.5.2",
     "jest-environment-jsdom": "30.2.0",
+    "jest-matcher-utils": "30.2.0",
     "lint-staged": "16.2.7",
     "prettier": "3.6.0",
     "react-scroll-sync": "1.0.2",
@@ -135,7 +136,7 @@
     "@openfeature/ofrep-web-provider": "^0.3.5",
     "@openfeature/web-sdk": "^1.7.2",
     "@react-aria/utils": "^3.31.0",
-    "@reduxjs/toolkit": "2.10.1",
+    "@reduxjs/toolkit": "2.12.0",
     "@types/react-table": "^7.7.20",
     "@types/semver": "^7.7.1",
     "lodash": "~4.18.1",
@@ -151,16 +152,5 @@
     "tslib": "2.5.3",
     "uuid": "^14.0.0"
   },
-  "pnpm": {
-    "overrides": {
-      "react-router-dom": "^7.12.0",
-      "uuid": "^14.0.0",
-      "immutable": "~5.1.5",
-      "dompurify": "~3.4.0",
-      "serialize-javascript": "~7.0.5",
-      "strip-ansi": "~6.0.1",
-      "js-yaml": "~4.1.1"
-    }
-  },
-  "packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8"
+  "packageManager": "pnpm@11.3.0+sha512.2c403d6594527287672b1f7056343a1f7c3634036a67ffabfcc2b3d7595d843768f8787148d1b57cf7956c90606bbd192857c363af19e96d2d0ec9ec5741d215"
 }

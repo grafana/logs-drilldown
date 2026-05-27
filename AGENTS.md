@@ -31,6 +31,8 @@ Before proposing a fix, verify whether the reported behavior is:
 
 Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. Never modify anything inside the `.config` folder; It is managed by Grafana plugin tools.
 
+- **Dependency installs** — `pnpm-workspace.yaml` sets `frozenLockfile: true` and `ignoreScripts: true` (applied on every `pnpm install`). In scripts and CI use `pnpm install --frozen-lockfile --ignore-scripts`. To refresh the lockfile after dependency changes, use `pnpm install --no-frozen-lockfile --ignore-scripts`. Run `pnpm run prepare` once after clone to set up husky git hooks. Do not run installs without `--ignore-scripts` unless a package truly needs a lifecycle script (rebuild manually). Review `pnpm-workspace.yaml` `overrides` when security advisories affect transitive deps.
+
 - **Frontend security** — Follow workspace rules for HTML sanitization (DOMPurify), URLs (`textUtil.sanitizeUrl`), and avoiding unsafe DOM APIs.
 
 ### TypeScript and DOM events

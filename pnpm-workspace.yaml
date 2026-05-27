@@ -1,9 +1,37 @@
 packages:
   - '.'
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@swc/core'
-  - esbuild
-  - protobufjs
-  - unrs-resolver
+# https://pnpm.io/supply-chain-security
+# Same as passing --frozen-lockfile on every pnpm install (CI uses this via plugin-ci-workflows too).
+frozenLockfile: true
+# Disable lifecycle scripts like husky git hooks such as postinstall.
+ignoreScripts: true
+# Three days in minutes (3 × 24 × 60).
+minimumReleaseAge: 4320
+# Fail install if a package's trust evidence is weaker than an earlier release (e.g. lost trusted publisher).
+trustPolicy: no-downgrade
+# @grafana/ui@13 pulls react-data-grid from GitHub; disable until that dep is on npm.
+blockExoticSubdeps: false
+# Requires every dependency with a lifecycle script to be listed in allowBuilds
+strictDepBuilds: true
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  protobufjs: true
+  unrs-resolver: true
+
+overrides:
+  react-router-dom: ^7.12.0
+  uuid: ^14.0.0
+  immutable: ~5.1.5
+  dompurify: ~3.4.0
+  serialize-javascript: ~7.0.5
+  strip-ansi: ~6.0.1
+  js-yaml: ~4.1.1
+  chokidar: ^5.0.0
+  react-redux: ^9.3.0
+  reselect: ^5.1.1
+  semver: ^7.7.4
+  ua-parser-js: 2.0.9
