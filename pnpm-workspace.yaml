@@ -1,9 +1,18 @@
 packages:
   - '.'
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@swc/core'
-  - esbuild
-  - protobufjs
-  - unrs-resolver
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  protobufjs: true
+  unrs-resolver: true
+
+overrides:
+  react-router-dom: ^7.12.0
+  uuid: ^14.0.0
+  immutable: ~5.1.5
+  dompurify: ~3.4.0
+  serialize-javascript: ~7.0.5
+  strip-ansi: ~6.0.1
+  js-yaml: ~4.1.1
