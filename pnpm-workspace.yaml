@@ -16,3 +16,15 @@ overrides:
   serialize-javascript: ~7.0.5
   strip-ansi: ~6.0.1
   js-yaml: ~4.1.1
+  # Security patches for transitive vulnerabilities (pnpm audit)
+  fast-uri: 3.1.2
+  protobufjs: 8.2.0
+  js-cookie: 3.0.6
+  'brace-expansion@^5': 5.0.6
+  'ws@^8': 8.20.1
+  qs: 6.15.2
+
+# pnpm v11 defaults blockExoticSubdeps to true; @grafana/ui@13 depends on a
+# Grafana-owned GitHub fork of react-data-grid which is already present in the
+# lockfile. Disable the block so overrides can be applied without errors.
+blockExoticSubdeps: false
