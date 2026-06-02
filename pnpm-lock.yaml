@@ -18,6 +18,7 @@ overrides:
   brace-expansion@^5: 5.0.6
   ws@^8: 8.20.1
   qs: 6.15.2
+  react-data-grid: npm:@grafana/react-data-grid@7.0.0-beta.57
 
 importers:
   .:
@@ -1235,6 +1236,13 @@ packages:
       { integrity: sha512-Jol/+Vt5kR77Y2zFuknj/FmodemfKvyRf1jB373lxJqzunAiQ2leEX/zw0xnSyWxUiKvmD5Cc+dhpm2jaj5qag== }
     engines: { node: '>=18.8.0' }
     hasBin: true
+
+  '@grafana/react-data-grid@7.0.0-beta.57':
+    resolution:
+      { integrity: sha512-v3DuW+TF16Jq5/dNJc0ifReBuknZb4+deB7M+liLMUU8sr2RavguNHpxCk4L/AdqLeXJFGhhqEDUYpeeQm2DzA== }
+    peerDependencies:
+      react: ^18.0 || ^19.0
+      react-dom: ^18.0 || ^19.0
 
   '@grafana/runtime@13.0.1':
     resolution:
@@ -6728,17 +6736,6 @@ packages:
       react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
-  react-data-grid@https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed:
-    resolution:
-      {
-        gitHosted: true,
-        tarball: https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed,
-      }
-    version: 7.0.0-beta.56
-    peerDependencies:
-      react: ^18.0 || ^19.0
-      react-dom: ^18.0 || ^19.0
-
   react-dom@18.3.1:
     resolution:
       { integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw== }
@@ -9333,6 +9330,12 @@ snapshots:
       - eslint
       - supports-color
 
+  '@grafana/react-data-grid@7.0.0-beta.57(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      clsx: 2.1.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@grafana/runtime@13.0.1(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
     dependencies:
       '@grafana/data': 13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
@@ -9470,7 +9473,7 @@ snapshots:
       react-calendar: 6.0.1(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-custom-scrollbars-2: 4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-data-grid: https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-data-grid: '@grafana/react-data-grid@7.0.0-beta.57(react-dom@18.3.1(react@18.3.1))(react@18.3.1)'
       react-dom: 18.3.1(react@18.3.1)
       react-dropzone: 14.3.8(react@18.3.1)
       react-highlight-words: 0.21.0(react@18.3.1)
@@ -14576,12 +14579,6 @@ snapshots:
       dom-css: 2.1.0
       prop-types: 15.8.1
       raf: 3.4.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  react-data-grid@https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 

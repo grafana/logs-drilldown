@@ -23,8 +23,7 @@ overrides:
   'brace-expansion@^5': 5.0.6
   'ws@^8': 8.20.1
   qs: 6.15.2
-
-# pnpm v11 defaults blockExoticSubdeps to true; @grafana/ui@13 depends on a
-# Grafana-owned GitHub fork of react-data-grid which is already present in the
-# lockfile. Disable the block so overrides can be applied without errors.
-blockExoticSubdeps: false
+  # @grafana/ui@13.0.1 pulls react-data-grid from a GitHub tarball; redirect to
+  # the equivalent npm-published package to satisfy blockExoticSubdeps (pnpm v11
+  # default). Remove once we upgrade to @grafana/ui>=13.1.0 which ships the npm dep.
+  react-data-grid: 'npm:@grafana/react-data-grid@7.0.0-beta.57'
