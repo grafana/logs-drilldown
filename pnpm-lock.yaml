@@ -74,8 +74,8 @@ importers:
         specifier: ^1.4.1
         version: 1.4.9
       '@openfeature/ofrep-web-provider':
-        specifier: ^0.3.5
-        version: 0.3.6(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))
+        specifier: ^0.4.1
+        version: 0.4.1(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))
       '@openfeature/web-sdk':
         specifier: ^1.7.2
         version: 1.7.3(@openfeature/core@1.9.2)
@@ -1736,9 +1736,21 @@ packages:
     peerDependencies:
       '@openfeature/core': ^1.6.0
 
+  '@openfeature/ofrep-core@2.2.0':
+    resolution:
+      { integrity: sha512-YbeT8mYS4Ggo/JFcYY1IzN0O0UvsCx7RPk1m40TFc4ip0gJdFVpYc5a8WDwZC2v/YqxreJ7NWBDxHxP5SOevsA== }
+    peerDependencies:
+      '@openfeature/core': ^1.6.0
+
   '@openfeature/ofrep-web-provider@0.3.6':
     resolution:
       { integrity: sha512-fV4BHab6gg0IMPeJJZ3lxtyfStSpea7N81sHJeBjgf7wYrU/SIYmdWV9Vy5HwlONjcsV58EKtOndV3WdkCqnAQ== }
+    peerDependencies:
+      '@openfeature/web-sdk': ^1.4.0
+
+  '@openfeature/ofrep-web-provider@0.4.1':
+    resolution:
+      { integrity: sha512-DoWFtDT+9r+KyqvOYLPTgPgZLKIlUejaUkM++y/VSmVwWZiuKuJP3c8bqBMV+Mi8GSQ9ihJETLzk/BLNXWChpg== }
     peerDependencies:
       '@openfeature/web-sdk': ^1.4.0
 
@@ -10038,9 +10050,20 @@ snapshots:
     dependencies:
       '@openfeature/core': 1.9.2
 
+  '@openfeature/ofrep-core@2.2.0(@openfeature/core@1.9.2)':
+    dependencies:
+      '@openfeature/core': 1.9.2
+
   '@openfeature/ofrep-web-provider@0.3.6(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))':
     dependencies:
       '@openfeature/ofrep-core': 2.1.0(@openfeature/core@1.9.2)
+      '@openfeature/web-sdk': 1.7.3(@openfeature/core@1.9.2)
+    transitivePeerDependencies:
+      - '@openfeature/core'
+
+  '@openfeature/ofrep-web-provider@0.4.1(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))':
+    dependencies:
+      '@openfeature/ofrep-core': 2.2.0(@openfeature/core@1.9.2)
       '@openfeature/web-sdk': 1.7.3(@openfeature/core@1.9.2)
     transitivePeerDependencies:
       - '@openfeature/core'
