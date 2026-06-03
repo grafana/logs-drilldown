@@ -74,8 +74,8 @@ importers:
         specifier: ^1.4.1
         version: 1.4.9
       '@openfeature/ofrep-web-provider':
-        specifier: ^0.3.5
-        version: 0.3.6(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))
+        specifier: ^0.4.1
+        version: 0.4.1(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))
       '@openfeature/web-sdk':
         specifier: ^1.7.2
         version: 1.7.3(@openfeature/core@1.9.2)
@@ -1730,15 +1730,15 @@ packages:
     resolution:
       { integrity: sha512-0lX0xYTflLrjiYNlareYmdV98xEddR5+PhcuoGvH+BMIqpZ2icAC7us9Uv86KRVqofXvpAUwpP32wgqmtUFs8Q== }
 
-  '@openfeature/ofrep-core@2.1.0':
+  '@openfeature/ofrep-core@2.2.0':
     resolution:
-      { integrity: sha512-UVRb7IS4c9i2kQrSO1yKLIMFBjEBLgHFaOhhcSXc4E2Q93SjUPspcoWMx+Qf5yyjuW6i93d6ynSQ3+KzB3evTw== }
+      { integrity: sha512-YbeT8mYS4Ggo/JFcYY1IzN0O0UvsCx7RPk1m40TFc4ip0gJdFVpYc5a8WDwZC2v/YqxreJ7NWBDxHxP5SOevsA== }
     peerDependencies:
       '@openfeature/core': ^1.6.0
 
-  '@openfeature/ofrep-web-provider@0.3.6':
+  '@openfeature/ofrep-web-provider@0.4.1':
     resolution:
-      { integrity: sha512-fV4BHab6gg0IMPeJJZ3lxtyfStSpea7N81sHJeBjgf7wYrU/SIYmdWV9Vy5HwlONjcsV58EKtOndV3WdkCqnAQ== }
+      { integrity: sha512-DoWFtDT+9r+KyqvOYLPTgPgZLKIlUejaUkM++y/VSmVwWZiuKuJP3c8bqBMV+Mi8GSQ9ihJETLzk/BLNXWChpg== }
     peerDependencies:
       '@openfeature/web-sdk': ^1.4.0
 
@@ -9374,7 +9374,7 @@ snapshots:
       '@grafana/schema': 13.0.1
       '@grafana/ui': 13.0.1(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@openfeature/core': 1.9.2
-      '@openfeature/ofrep-web-provider': 0.3.6(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))
+      '@openfeature/ofrep-web-provider': 0.4.1(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))
       '@openfeature/react-sdk': 1.2.1(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(react@18.3.1)
       '@openfeature/web-sdk': 1.7.3(@openfeature/core@1.9.2)
       '@types/systemjs': 6.15.3
@@ -10034,13 +10034,13 @@ snapshots:
 
   '@openfeature/core@1.9.2': {}
 
-  '@openfeature/ofrep-core@2.1.0(@openfeature/core@1.9.2)':
+  '@openfeature/ofrep-core@2.2.0(@openfeature/core@1.9.2)':
     dependencies:
       '@openfeature/core': 1.9.2
 
-  '@openfeature/ofrep-web-provider@0.3.6(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))':
+  '@openfeature/ofrep-web-provider@0.4.1(@openfeature/core@1.9.2)(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))':
     dependencies:
-      '@openfeature/ofrep-core': 2.1.0(@openfeature/core@1.9.2)
+      '@openfeature/ofrep-core': 2.2.0(@openfeature/core@1.9.2)
       '@openfeature/web-sdk': 1.7.3(@openfeature/core@1.9.2)
     transitivePeerDependencies:
       - '@openfeature/core'
