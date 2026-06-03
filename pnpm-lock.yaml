@@ -14,7 +14,8 @@ overrides:
   js-yaml: ~4.1.1
   fast-uri: 3.1.2
   protobufjs: 8.2.0
-  js-cookie: 3.0.6
+  js-cookie: 3.0.8
+  '@ungap/structured-clone': 1.3.1
   brace-expansion@^5: 5.0.6
   ws@^8: 8.20.1
   qs: 6.15.2
@@ -2987,10 +2988,9 @@ packages:
       { integrity: sha512-f1WO2Lx8a9t8DARmcWAUPJbu0G20bJlj8L4z72K00TMeJAoyLr/tHhI/pzYBLrR4dXWkcxO1cWYZEOX8DKHTqA== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
-  '@ungap/structured-clone@1.3.0':
+  '@ungap/structured-clone@1.3.1':
     resolution:
-      { integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g== }
-    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
+      { integrity: sha512-mUFwbeTqrVgDQxFveS+df2yfap6iuP20NAKAsBt5jDEoOTDew+zwLAOilHCeQJOVSvmgCX4ogqIrA0mnyr08yQ== }
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution:
@@ -5765,11 +5765,9 @@ packages:
     resolution:
       { integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg== }
 
-  js-cookie@3.0.6:
+  js-cookie@3.0.8:
     resolution:
-      { integrity: sha512-mYhz0Og/Wv8bZJcBC6rRzYG+rYf8DyQSK3rcUbuGHQIgSsX6uynAIVoaPgqf0udH2AGS953hGFy3w6on1rJzMw== }
-    engines: { node: '>=20' }
-    deprecated: Missing corresponding tag/release on GitHub
+      { integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw== }
 
   js-tokens@4.0.0:
     resolution:
@@ -11144,7 +11142,7 @@ snapshots:
       '@typescript-eslint/types': 8.58.2
       eslint-visitor-keys: 5.0.1
 
-  '@ungap/structured-clone@1.3.0': {}
+  '@ungap/structured-clone@1.3.1': {}
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     optional: true
@@ -13809,7 +13807,7 @@ snapshots:
   jest-worker@30.2.0:
     dependencies:
       '@types/node': 24.0.0
-      '@ungap/structured-clone': 1.3.0
+      '@ungap/structured-clone': 1.3.1
       jest-util: 30.2.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -13831,7 +13829,7 @@ snapshots:
 
   jquery@3.7.1: {}
 
-  js-cookie@3.0.6: {}
+  js-cookie@3.0.8: {}
 
   js-tokens@4.0.0: {}
 
@@ -14787,7 +14785,7 @@ snapshots:
       copy-to-clipboard: 3.3.3
       fast-deep-equal: 3.1.3
       fast-shallow-equal: 1.0.0
-      js-cookie: 3.0.6
+      js-cookie: 3.0.8
       nano-css: 5.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
