@@ -1,7 +1,6 @@
 module github.com/grafana/explore-logs/generator
 
 go 1.26.2
-toolchain go1.26.2
 
 require (
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
@@ -63,7 +62,7 @@ require (
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
 	golang.org/x/net v0.53.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
