@@ -228,7 +228,8 @@ export function initOpenFeatureProvider(): Promise<void> {
     OPEN_FEATURE_DOMAIN,
     new OFREPWebProvider({
       baseUrl,
-      pollInterval: -1, // Do not poll - flags are fetched once on init
+      disableVisibilityRefresh: true, // Do not refresh
+      cacheMode: 'disabled', // Do not write to localStorage
       timeoutMs: 10_000, // Timeout after 10 seconds
     }),
     {
