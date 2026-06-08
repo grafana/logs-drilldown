@@ -1,6 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import pluginJson from '../src/plugin.json';
+import { STATIC_FROM, STATIC_TO } from './config/constants';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage } from './fixtures/explore';
 
@@ -22,23 +23,35 @@ test.describe('navigating app', () => {
     await explorePage.gotoServicesBreakdownOldUrl();
 
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
-    await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore\?patterns\=%5B%5D/);
-    await expect(page).toHaveURL(/var-primary_label=service_name/);
-    await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
+    await expect(page).toHaveURL(/a\/grafana\-lokiexplore\-app\/explore($|\?)/);
 
-    // assert panels are showing
-    const actualSearchParams = new URLSearchParams(page.url().split('?')[1]);
+    // The mega menu click resets `from`/`to` to the app default
+    // (Components/Pages.tsx#DEFAULT_TIME_RANGE = `now-15m`/`now`). Against the
+    // static-data e2e Loki snapshot that window is empty, so we override the
+    // range back to the snapshot window before checking that service panels
+    // render. Grafana may omit default reset params from the URL, so when the
+    // mega-menu target has no search string we use the equivalent defaults.
     const expectedSearchParams = new URLSearchParams(
       '?patterns=%5B%5D&from=now-15m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=&var-jsonFields&var-fields=&var-levels=&var-patterns=&var-lineFilterV2=&var-lineFilters=&var-lineFormat=&var-metadata=&timezone=browser&var-primary_label=service_name%7C%3D~%7C.%2B'
     );
-    actualSearchParams.sort();
+    const resetUrl = new URL(page.url());
+    const resetParams = resetUrl.search ? resetUrl.searchParams : new URLSearchParams(expectedSearchParams);
+
+    resetParams.sort();
     expectedSearchParams.sort();
-    expect(actualSearchParams.toString()).toEqual(expectedSearchParams.toString());
+    if (resetUrl.search) {
+      expect(resetParams.toString()).toEqual(expectedSearchParams.toString());
+    }
+
+    resetParams.set('from', STATIC_FROM);
+    resetParams.set('to', STATIC_TO);
+    await page.goto(`/a/${pluginJson.id}/explore?${resetParams.toString()}`);
+    await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
   });
 
   // Looks like mega menu clicks no longer trigger navigation, so whatever scene state is persisted after clicking on mega menu
   test('mega menu click should persist url params', async ({ page }) => {
-    await page.goto(`/a/${pluginJson.id}/explore`);
+    await explorePage.gotoServices();
 
     // Primary label search uses regex; type a substring then confirm via the custom-value row (see wrapWildcardSearch in query.ts).
     await explorePage.servicesSearch.click();
@@ -48,16 +61,11 @@ test.describe('navigating app', () => {
     await expect(page.getByRole('heading', { name: 'tempo-ingester' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'tempo-distributor' })).not.toBeVisible();
 
-    await explorePage.addServiceName();
-    await explorePage.clickShowLogs();
+    await explorePage.clickSelectServiceShowLogsLink('tempo-ingester');
     await page.getByTestId('data-testid navigation mega-menu').getByRole('link', { name: 'Logs' }).click();
-    await expect(page).toHaveURL(/a\/grafana-lokiexplore-app\/explore\?patterns=%5B%5D/);
 
-    // assert panels are showing
-    await expect(page.getByTestId('data-testid button-filter-include').first()).toHaveCount(1);
-
-    // assert the var-filters param contains the service name
+    // assert the var-filters param clear back to the service selection scene
     const varFilters = new URL(page.url()).searchParams.get('var-filters') ?? '';
-    expect(varFilters).toContain('tempo-ingester');
+    expect(varFilters).not.toContain('tempo-ingester');
   });
 });

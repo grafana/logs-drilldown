@@ -1,4 +1,4 @@
-import { ConsoleMessage, Locator, Page, TestInfo } from '@playwright/test';
+import { ConsoleMessage, Locator, Page, Request, TestInfo } from '@playwright/test';
 
 import { DataFrameJSON } from '@grafana/data';
 import { expect } from '@grafana/plugin-e2e';
@@ -7,6 +7,7 @@ import pluginJson from '../../src/plugin.json';
 import { FilterOp, FilterOpType } from '../../src/services/filterTypes';
 import { LokiQuery } from '../../src/services/lokiQuery';
 import { testIds } from '../../src/services/testIds';
+import { STATIC_FROM, STATIC_TO } from '../config/constants';
 
 export type CapturedResponses = CapturedResponse[];
 
@@ -26,6 +27,20 @@ export interface PlaywrightRequest {
   post: any;
   url: string;
 }
+
+function tryGetLokiQueriesFromRequest(request: Request): LokiQuery[] {
+  try {
+    const post = request.postDataJSON() as { queries?: unknown };
+    return Array.isArray(post?.queries) ? (post.queries as LokiQuery[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function isBatchDataQueryRequestUrl(url: string): boolean {
+  return url.includes('ds/query');
+}
+
 export class ExplorePage {
   readonly firstServicePageSelect: Locator;
   logVolumeGraph: Locator;
@@ -47,16 +62,42 @@ export class ExplorePage {
     this.refreshPicker = this.page.getByTestId(testIds.header.refreshPicker);
   }
 
+  /**
+   * Toolbar for the main logs viz (Logs / Table / JSON radios + Grafana logs controls when
+   * `showControls` is on). Do not scope to `Panel header Logs` alone — sort/wrap live outside
+   * that strip on current Grafana builds.
+   */
+  getLogsVisualizationToolbar() {
+    const withLogsAndTableRadios = (candidates: Locator) =>
+      candidates
+        .filter({ has: this.page.getByRole('radio', { name: 'Logs', exact: true }) })
+        .filter({ has: this.page.getByRole('radio', { name: 'Table', exact: true }) });
+
+    return withLogsAndTableRadios(this.page.getByRole('region'))
+      .or(withLogsAndTableRadios(this.page.locator('section')))
+      .first();
+  }
+
   getTableToggleLocator() {
-    return this.page.getByLabel('Table', { exact: true });
+    return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'Table', exact: true });
+  }
+
+  /**
+   * Switch to table viz. The Table toolbar radio shows a Grafana tooltip that can stay
+   * under the cursor and intercept clicks on the table header; dismiss it before further UI steps.
+   */
+  async clickTableToggle(): Promise<void> {
+    await this.getTableToggleLocator().click();
+    await this.page.keyboard.press('Escape');
+    await this.page.mouse.move(0, 0);
   }
 
   getJsonToggleLocator() {
-    return this.page.getByLabel('JSON', { exact: true });
+    return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'JSON', exact: true });
   }
 
   getLogsToggleLocator() {
-    return this.page.getByTestId(testIds.logsPanelHeader.header).getByLabel('Logs', { exact: true });
+    return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'Logs', exact: true });
   }
 
   getPanelContentLocator() {
@@ -64,7 +105,7 @@ export class ExplorePage {
   }
 
   getLogsPanelLocator() {
-    return this.page.getByTestId(new RegExp(testIds.logsPanelHeader.header));
+    return this.page.getByTestId(new RegExp(testIds.logsPanelHeader.header)).first();
   }
 
   getLogsVolumePanelLocator() {
@@ -72,26 +113,105 @@ export class ExplorePage {
   }
 
   getLogsPanelContentLocator() {
-    return this.getLogsPanelLocator().locator(this.getPanelContentLocator());
+    const chained = this.getLogsPanelLocator().getByTestId('data-testid panel content');
+    const withRadios = this.page
+      .getByTestId('data-testid panel content')
+      .filter({ has: this.page.getByRole('radio', { name: 'Logs', exact: true }) });
+    return withRadios.or(chained).first();
   }
 
   getLogsPanelRow(n = 0) {
-    return this.getLogsPanelContentLocator().locator('tr').nth(0);
+    const content = this.getLogsPanelContentLocator();
+    // Logs viz: virtualized rows (`data-log-index`). Table viz: `<tr>` with cells.
+    return content.locator('[data-log-index]').nth(n).or(content.locator('tr:has(td)').nth(n));
   }
 
-  getWrapLocator() {
-    return this.page.getByLabel('Wrap', { exact: true });
-  }
-  getNowrapLocator() {
-    return this.page.getByLabel('No wrap', { exact: true });
+  /**
+   * Timestamp cell: table mode uses the 3rd `td`. Logs viz uses the first field whose class
+   * includes `level-` (e.g. `level-error field` / `level-info field`) next to the log line.
+   */
+  getLogsPanelRowTimestampLocator(rowIndex: number) {
+    const content = this.getLogsPanelContentLocator();
+    const virtualRow = content.locator('[data-log-index]').nth(rowIndex);
+    const logsVizTimestamp = virtualRow.locator('.field[class*="level-"]').first();
+    const tableTimestamp = content.locator('tr:has(td)').nth(rowIndex).locator('td').nth(2);
+    return logsVizTimestamp.or(tableTimestamp);
   }
 
+  /** Grafana logs toolbar: wrap control (`aria-label="Set line wrap"`). */
+  getLogsWrapToggle() {
+    return this.getLogsVisualizationToolbar().locator('button[aria-label="Set line wrap"]');
+  }
+
+  /** Assert wrap is off when the control exposes `aria-pressed` (plugin table controls). */
+  async expectLogsWrapToolbarDefault() {
+    const wrap = this.getLogsWrapToggle();
+    await expect(wrap).toBeVisible();
+    const pressed = await wrap.getAttribute('aria-pressed');
+    if (pressed === 'true' || pressed === 'false') {
+      await expect(wrap).toHaveAttribute('aria-pressed', 'false');
+    }
+  }
+
+  async setLogsLineWrapMenu(enabled: boolean) {
+    const btn = this.getLogsWrapToggle();
+    await expect(btn).toBeVisible();
+
+    // Grafana logs: `Set line wrap` keeps `aria-pressed="false"` while off — first click only opens
+    // the menu; we must pick the menuitem (see `role="menu"` + `button[role="menuitem"]`).
+    if ((await btn.getAttribute('aria-label')) === 'Set line wrap') {
+      await btn.click();
+      const choice = enabled ? 'Enable line wrapping' : 'Disable line wrapping';
+      const menu = this.page.locator('[role="menu"]').filter({ hasText: choice }).last();
+      await expect(menu).toBeVisible();
+      await menu.getByRole('menuitem', { name: choice, exact: true }).click();
+      return;
+    }
+
+    const pressed = await btn.getAttribute('aria-pressed');
+    if (pressed === 'true' || pressed === 'false') {
+      if ((pressed === 'true') !== enabled) {
+        await btn.click();
+      }
+    }
+  }
+
+  /**
+   * Sort “newest first” is active (or the control that switches to oldest). Grafana ≥12 with
+   * `showControls` uses a **button** whose visible copy lives in a **`<label><span>…</span>`**
+   * (`for` → button `id`) plus a long **`aria-label`** (e.g. `Sorted by newest logs first - Click to show oldest first`).
+   * The toggle may sit in a **sidebar**, so we query `page`, not only the Logs/Table toolbar.
+   *
+   * The trailing `.or(…radio…)` is **legacy only** when the plugin still renders `RadioButtonGroup`
+   * (`!logsControlsSupported()`); there is no `role="radio"` on current core logs controls.
+   */
   getLogsDirectionNewestFirstLocator() {
-    return this.page.getByLabel('Newest first', { exact: true });
+    const mergedName =
+      /Sorted by newest logs first|Click to show oldest first|Set oldest logs first|Newest logs first/i;
+    const toolbar = this.getLogsVisualizationToolbar();
+    return this.page
+      .getByRole('button', { name: mergedName })
+      .or(this.page.getByLabel(mergedName))
+      .or(this.page.getByTitle(mergedName))
+      .or(toolbar.getByRole('radio', { name: 'Newest first', exact: true }))
+      .first();
   }
 
+  /**
+   * Sort “oldest first” is active (or the control that switches to newest): **label + span**
+   * (e.g. `Oldest logs first`) + **button** `aria-label` (`Sorted by oldest logs first - Click to show newest first`),
+   * same sidebar / `page` scope as {@link getLogsDirectionNewestFirstLocator}. Radio fallback is legacy-only.
+   */
   getLogsDirectionOldestFirstLocator() {
-    return this.page.getByLabel('Oldest first', { exact: true });
+    const mergedName =
+      /Sorted by oldest logs first|Click to show newest first|Set newest logs first|Oldest logs first/i;
+    const toolbar = this.getLogsVisualizationToolbar();
+    return this.page
+      .getByRole('button', { name: mergedName })
+      .or(this.page.getByLabel(mergedName))
+      .or(this.page.getByTitle(mergedName))
+      .or(toolbar.getByRole('radio', { name: 'Oldest first', exact: true }))
+      .first();
   }
 
   captureConsoleLogs() {
@@ -117,7 +237,10 @@ export class ExplorePage {
   }
 
   async clearLocalStorage() {
-    await this.page.evaluate(() => window.localStorage.clear());
+    await this.page.evaluate(() => {
+      window.localStorage.clear();
+      window.localStorage.setItem('grafana.explore.logs.logsVolume.collapsed', 'false');
+    });
   }
 
   async setDefaultViewportSize() {
@@ -138,8 +261,14 @@ export class ExplorePage {
     await this.page.unrouteAll({ behavior: 'ignoreErrors' });
   }
 
-  async gotoServices() {
-    await this.page.goto(`/a/${pluginJson.id}/explore`);
+  async gotoServices(opts: { from?: string; to?: string } = {}) {
+    const params = new URLSearchParams({
+      from: opts.from ?? STATIC_FROM,
+      to: opts.to ?? STATIC_TO,
+      'var-ds': 'gdev-loki',
+      timezone: 'utc',
+    });
+    await this.page.goto(`/a/${pluginJson.id}/explore?${params.toString()}`);
   }
 
   async addServiceName() {
@@ -148,6 +277,10 @@ export class ExplorePage {
 
   async clickShowLogs() {
     await this.page.getByTestId('data-testid Show logs header').click();
+  }
+
+  async toggleLogsVolume() {
+    await this.page.getByText(/Log volume/).click();
   }
 
   /**
@@ -198,10 +331,10 @@ export class ExplorePage {
   }
 
   async assertNotLoading() {
-    const locator = this.page.getByText(/loading/i);
+    // Avoid broad /loading/i checks here: Grafana and Scenes can expose
+    // unrelated loading labels while the snapshot-backed UI under test is ready.
+    const locator = this.page.getByText(/^Loading(\.\.\.)?$/i);
     await expect(locator).toHaveCount(0);
-    const grafanaLoading = this.page.getByLabel(/loading/i);
-    await expect(grafanaLoading).toHaveCount(0);
   }
 
   async assertPanelsNotLoading() {
@@ -212,23 +345,31 @@ export class ExplorePage {
   async waitForRequest(
     init: () => Promise<any>,
     callback: (lokiQuery: LokiQuery) => void,
-    test: (lokiQuery: LokiQuery) => boolean
+    test: (lokiQuery: LokiQuery) => boolean,
+    options: { timeout?: number } = {}
   ) {
-    await Promise.all([
-      init(),
-      this.page.waitForResponse(
-        (resp) => {
-          const post = resp.request().postDataJSON();
-          const queries = post?.queries as LokiQuery[];
-          if (queries && test(queries[0])) {
-            callback(queries[0]);
-            return true;
+    // Default 30s: static snapshot keeps queries cheap, but parallel workers can make them noticeably slower.
+    const { timeout = 30_000 } = options;
+
+    let callbackInvoked = false;
+    const tryMatch = (request: Request): boolean => {
+      if (!isBatchDataQueryRequestUrl(request.url())) {
+        return false;
+      }
+      const queries = tryGetLokiQueriesFromRequest(request);
+      for (const q of queries) {
+        if (test(q)) {
+          if (!callbackInvoked) {
+            callbackInvoked = true;
+            callback(q);
           }
-          return false;
-        },
-        { timeout: 30000 }
-      ),
-    ]);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    await Promise.all([init(), this.page.waitForRequest((req) => tryMatch(req), { timeout })]);
   }
 
   // This is flakey, panels won't show the state if the requests come back in < 75ms
@@ -238,6 +379,18 @@ export class ExplorePage {
 
   getPanelHeaderLocator() {
     return this.page.getByTestId('data-testid header-container');
+  }
+
+  /** Service-selection grid row for `serviceName` (timeseries panel header with "Show logs" link). */
+  getServiceSelectionRow(serviceName: string): Locator {
+    const heading = this.page.getByRole('heading', { name: serviceName, exact: true });
+    return this.getPanelHeaderLocator()
+      .filter({ has: heading })
+      .filter({ has: this.page.getByTestId(testIds.index.selectServiceButton) });
+  }
+
+  async clickSelectServiceShowLogsLink(serviceName: string) {
+    await this.getServiceSelectionRow(serviceName).getByTestId(testIds.index.selectServiceButton).click();
   }
 
   getExploreCodeQueryLocator() {
@@ -254,8 +407,10 @@ export class ExplorePage {
     for (let loc of tabSelectors) {
       const tabsLoadingSelector = loc.filter({ has: this.page.locator('svg') });
 
-      //Assert we can see the tabs
-      await expect(loc).toHaveCount(1);
+      // Assert we can see the tabs. Use a generous timeout because this is
+      // often the first post-navigation checkpoint and the SPA shell can take
+      // longer to render under parallel E2E load.
+      await expect(loc).toHaveCount(1, { timeout: 45000 });
       // Assert that the loading svg is not present
       await expect.poll(() => tabsLoadingSelector.count(), { timeout: 0 }).toEqual(0);
     }
@@ -274,14 +429,24 @@ export class ExplorePage {
     await main.evaluate((main) => main.scrollTo(0, 0));
   }
 
-  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = 'now-1m') {
+  async gotoServicesBreakdownOldUrl(serviceName = 'tempo-distributor', from = STATIC_FROM, to = STATIC_TO) {
     await this.page.goto(
-      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${from}&to=now`
+      `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
     );
   }
 
   async gotoEmbedUrl() {
-    await this.page.goto(`/a/${pluginJson.id}/embed`);
+    // The embed scene builds its own datasource and query via
+    // `getEmbeddedScene()` in `src/Components/Pages.tsx`. We only override
+    // `from`/`to` so panel queries land inside the static-data Loki window;
+    // we deliberately do NOT pass `var-ds` here because that variable is
+    // owned by the embedded scene's internal wiring.
+    const params = new URLSearchParams({
+      from: STATIC_FROM,
+      to: STATIC_TO,
+      timezone: 'utc',
+    });
+    await this.page.goto(`/a/${pluginJson.id}/embed?${params.toString()}`);
   }
 
   async gotoServicesOldUrlLineFilters(
@@ -289,15 +454,16 @@ export class ExplorePage {
     caseSensitive?: boolean,
     lineFilterValue = 'debug'
   ) {
+    const range = `&from=${encodeURIComponent(STATIC_FROM)}&to=${encodeURIComponent(STATIC_TO)}`;
     if (caseSensitive) {
       await this.page.goto(
         // case insensitive
-        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C~%20%60%28%3Fi%29%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt`
+        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C~%20%60%28%3Fi%29%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt${range}`
       );
     } else {
       await this.page.goto(
         // case insensitive
-        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C%3D%20%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt`
+        `/a/${pluginJson.id}/explore/service/tempo-distributor/logs?mode=service_details&patterns=[]&var-lineFilter=%7C%3D%20%60${lineFilterValue}%60&var-filters=service_name|=|${serviceName}&var-logsFormat= | logfmt${range}`
       );
     }
   }
@@ -306,7 +472,7 @@ export class ExplorePage {
     sortOrder: 'Ascending' | 'Descending' = 'Descending',
     wrapLogMessage: 'false' | 'true' = 'false'
   ) {
-    const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=now-5m&to=now&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
+    const url = `/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?patterns=[]&from=${encodeURIComponent(STATIC_FROM)}&to=${encodeURIComponent(STATIC_TO)}&var-all-fields=&var-ds=gdev-loki&var-filters=service_name|=|tempo-distributor&var-fields=&var-jsonFields=&var-lineFormat=&var-levels=&var-metadata=&var-patterns=&var-lineFilter=&timezone=utc&urlColumns=["Time","Line"]&visualizationType="logs"&displayedFields=[]&sortOrder="${sortOrder}"&wrapLogMessage=${wrapLogMessage}&var-lineFilterV2=&var-lineFilters=`;
     await this.page.goto(url);
   }
 
@@ -318,24 +484,25 @@ export class ExplorePage {
   }) {
     // Let's not wait for all these queries
     this.page.route('**/ds/query**', async (route) => {
-      const post = route.request().postDataJSON();
-      const queries = post.queries as LokiQuery[];
-      const refId = queries[0].refId;
-      const legendFormat = queries[0].legendFormat;
+      const request = route.request();
+      const queries = tryGetLokiQueriesFromRequest(request);
+      const refIdMatched = queries.find((q) => options?.refIds?.some((refIdToTarget) => q.refId?.match(refIdToTarget)));
+      const legendMatched = queries.find(
+        (q) => q.legendFormat != null && options?.legendFormats?.includes(q.legendFormat)
+      );
+      const matched = refIdMatched ?? legendMatched;
+      const refId = matched?.refId;
+      const legendFormat = matched?.legendFormat;
 
-      if (
-        options?.refIds?.some((refIdToTarget) => refId.match(refIdToTarget)) ||
-        (legendFormat && options?.legendFormats?.includes(legendFormat))
-      ) {
+      if (matched) {
         if (options.responses || options.requests) {
           const response = await route.fetch();
           const json = await response.json();
           if (options.responses) {
-            options?.responses?.push({ [refId ?? legendFormat]: json });
+            options?.responses?.push({ [refId ?? legendFormat ?? '']: json });
           }
 
           if (options?.requests) {
-            const request = route.request();
             const requestObject: PlaywrightRequest = {
               post: request.postDataJSON(),
               url: request.url(),
@@ -443,12 +610,8 @@ export class ExplorePage {
     await this.getOperatorLocator(operator).click();
     // Assert operator is no longer visible
     await expect(this.getOperatorLocator(operator)).toHaveCount(0);
-    // Wait for loading to be done
-    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Enter custom value
     await this.page.keyboard.type(text);
-    // Wait for loading to go away
-    await expect(this.page.getByText('Loading options...')).toHaveCount(0);
     // Custom row is prepended by Combobox; use visible text (default "Use custom value" or i18n "Filter values by")
     const customValueRow = this.page
       .getByRole('option')

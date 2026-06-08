@@ -183,6 +183,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
    * Updates filter operator when user toggles regex
    */
   onRegexToggle = (filter: AdHocFilterWithLabels) => {
+    this.updateVariableDebounced.cancel();
     let newOperator: LineFilterOp;
     // Set value to scene state
     switch (filter.operator) {
@@ -214,6 +215,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
    * Updates filter operator when user toggles exclusion
    */
   onToggleExclusive = (filter: AdHocFilterWithLabels) => {
+    this.updateVariableDebounced.cancel();
     let newOperator: string;
     switch (filter.operator) {
       case LineFilterOp.match: {
@@ -244,6 +246,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
    * Updates filter key when user toggles case sensitivity
    */
   onCaseSensitiveToggle = (filter: AdHocFilterWithLabels) => {
+    this.updateVariableDebounced.cancel();
     const caseSensitive =
       filter.key === LineFilterCaseSensitive.caseSensitive
         ? LineFilterCaseSensitive.caseInsensitive

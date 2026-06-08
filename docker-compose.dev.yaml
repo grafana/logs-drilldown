@@ -16,23 +16,37 @@ services:
       # Using "host-gateway" would be more portable across different Docker setups but fails in our CI build
       - 'host.docker.internal:172.17.0.1'
   loki:
-    image: grafana/loki:3.6
+    # Static-data Loki for the Playwright e2e suite. The image bakes in the
+    # snapshot from tests/static-loki/provisioning/loki/data.zip, so there is no live
+    # generator. Regenerate the snapshot with pnpm run generate:loki-snapshot.
+    build:
+      context: .
+      dockerfile: tests/static-loki/docker/Dockerfile.loki-static-data
+    image: logs-drilldown/loki-static-data:e2e
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
     ports:
       - '3100:3100'
-    volumes:
-      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
-      - ./config/loki-overrides.yaml:/etc/loki/overrides.yaml
     command:
       - -config.file=/etc/loki/local-config.yaml
       - -runtime-config.file=/etc/loki/overrides.yaml
+    healthcheck:
+      # Loki's distroless image has no shell, so we use a static busybox
+      # binary copied into Dockerfile.loki-static-data and invoke it via
+      # Docker's exec form. /ready returns 200 once Loki finishes loading
+      # the baked-in snapshot.
+      test:
+        - CMD
+        - /usr/local/bin/wget
+        - -q
+        - -O
+        - /dev/null
+        - http://localhost:3100/ready
+      # Loki's ingester sleeps ~22-30s before marking itself ready, so
+      # start_period is generous to keep CI logs clean.
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 45s
     restart: on-failure
-  generator:
-    build:
-      context: ./generator
-    command: -url http://loki:3100/loki/api/v1/push -tenant-id=1 -trace-url tempo:4317
-    environment:
-      - OTLP_ENDPOINT=http://loki:3100/otlp
-      - GENERATOR_CI_DATA=1

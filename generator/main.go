@@ -32,9 +32,31 @@ func main() {
 	syslogProtocol := flag.String("syslog-network", "udp", "Syslog network type: 'udp' or 'tcp'")
 	syslogAddr := flag.String("syslog-addr", "127.0.0.1:514", "Syslog remote address (e.g., '127.0.0.1:514')")
 
+	staticStart := flag.String("static-start", "", "Enable static (deterministic) mode. RFC3339 timestamp marking the start of the data window (e.g. 2026-04-26T11:00:00Z). When set, the generator emits a fixed amount of data inside [start, start+duration] and exits.")
+	staticDuration := flag.Duration("static-duration", 65*time.Minute, "Static mode: duration of the data window starting at -static-start")
+	staticStep := flag.Duration("static-step", 5*time.Second, "Static mode: virtual time advanced per log iteration")
+	staticThrottle := flag.Duration("static-throttle", 100*time.Microsecond, "Static mode: real-time pause between iterations to avoid overwhelming Loki")
+	staticDrain := flag.Duration("static-drain", 10*time.Second, "Static mode: extra time to wait for in-flight pushes after generators finish")
+	staticSeed := flag.Int64("seed", 42, "Static mode: seed used for math/rand and gofakeit so generated data is reproducible")
+
 	flag.Parse()
 
-	if os.Getenv("GENERATOR_CI_DATA") == "1" {
+	if *staticStart != "" {
+		start, err := time.Parse(time.RFC3339, *staticStart)
+		if err != nil {
+			stdlog.Fatalf("generator: invalid -static-start %q: %v", *staticStart, err)
+		}
+		if *staticDuration <= 0 {
+			stdlog.Fatalf("generator: -static-duration must be positive, got %s", *staticDuration)
+		}
+		log.EnableStatic(log.StaticConfig{
+			Start:    start.UTC(),
+			End:      start.UTC().Add(*staticDuration),
+			Step:     *staticStep,
+			Throttle: *staticThrottle,
+		}, *staticSeed)
+		stdlog.Printf("generator: static mode enabled: window=[%s,%s] step=%s seed=%d", start.UTC().Format(time.RFC3339), start.UTC().Add(*staticDuration).Format(time.RFC3339), *staticStep, *staticSeed)
+	} else if os.Getenv("GENERATOR_CI_DATA") == "1" {
 		stdlog.Print("generator: GENERATOR_CI_DATA=1, using full clusters/pods for all services (CI mode)")
 	} else {
 		stdlog.Print("generator: service-tiered mode (docker-compose-local-all), E2E-critical services get full data")
@@ -72,7 +94,7 @@ func main() {
 	}
 
 	var logger log.Logger = client
-	if traceEmitter != nil && !log.IsCIData() {
+	if traceEmitter != nil && !log.IsCIData() && !log.StaticEnabled() {
 		logger = log.NewTraceAwareLogger(logger, traceEmitter, true) // append for Loki line filter
 	}
 
@@ -112,7 +134,7 @@ func main() {
 							return
 						}
 						var otelLogger log.Logger = log.NewOtelLogger(string(serviceName), labels)
-						if traceEmitter != nil && !log.IsCIData() {
+						if traceEmitter != nil && !log.IsCIData() && !log.StaticEnabled() {
 							otelLogger = log.NewTraceAwareLogger(otelLogger, traceEmitter, false) // no append: trace_id in attributes, avoids breaking ParseJSON
 						}
 						appLogger = log.NewAppLogger(labels, otelLogger)
@@ -132,6 +154,17 @@ func main() {
 		}
 	}
 	startFailingMimirPod(ctx, logger)
+
+	if log.StaticEnabled() {
+		// Wait for every spawned generator goroutine to finish, then give the
+		// Loki client a few seconds to flush in-flight pushes before main
+		// returns and the deferred client.Stop() runs.
+		log.WaitGenerators()
+		stdlog.Printf("generator: static mode generators finished; draining for %s", *staticDrain)
+		time.Sleep(*staticDrain)
+		stop()
+		return
+	}
 
 	<-ctx.Done()
 }

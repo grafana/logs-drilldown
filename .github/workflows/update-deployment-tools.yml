@@ -49,7 +49,7 @@ jobs:
         id: get-github-app-token
         uses: grafana/shared-workflows/actions/create-github-app-token@ae92934a14a48b94494dbc06d74a81d47fe08a40 # create-github-app-token/v0.2.2
         with:
-          github_app: DrilldownBot
+          github_app: drilldownbot
 
       - name: Check out deployment_tools repo
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1

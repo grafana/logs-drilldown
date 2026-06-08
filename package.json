@@ -14,12 +14,13 @@
     "e2e:smoke": "playwright test -c playwright.smoke.config.ts -x --trace on",
     "e2e:matrix": "playwright test -c playwright.matrix.config.ts -x --trace on",
     "e2e": "playwright test -x --trace on",
-    "e2e:fast": "playwright test --retries=1 --workers=3",
+    "e2e:fast": "playwright test --retries=1 --workers=10",
     "e2e:10x": "playwright test -x --trace on --repeat-each=10 --workers 1",
     "e2e:10x:fast": "playwright test --repeat-each=10 --workers 3 --retries=1",
     "e2e:flake": "pnpm run e2e:10x",
     "e2e:debug": "playwright test --debug -x --trace on /test",
     "e2e:codegen": "playwright install && playwright codegen",
+    "generate:loki-snapshot": "bash tests/static-loki/scripts/generate-loki-snapshot.sh",
     "generate-logs": "pushd generator; docker build -t log-generator . && docker run log-generator -url http://host.docker.internal:3100/loki/api/v1/push -tenant-id=1; popd",
     "server": "docker compose -f docker-compose.local.yaml up --build",
     "server:enterprise": "GRAFANA_VERSION=nightly GRAFANA_IMAGE=grafana-enterprise GF_FEATURE_TOGGLES_ENABLE=queryLibrary docker compose -f docker-compose.local.yaml  up --build",
@@ -27,7 +28,7 @@
     "start": "pnpm run build && docker compose -f docker-compose.local.yaml up --build -d && pnpm run dev",
     "start:all": "pnpm run build && docker compose -f docker-compose-local-all.yaml up --build -d && pnpm run dev",
     "server:localLoki": "docker compose -f docker-compose-local-loki.dev.yaml up --build",
-    "server:ci": "docker compose -f docker-compose.dev.yaml up --build -d",
+    "server:ci": "docker compose -f docker-compose.dev.yaml up --build -d --wait",
     "server:syslog": "docker compose -f docker-compose-syslog.dev.yaml up --build",
     "server:down": "docker compose -f docker-compose.local.yaml down",
     "sign": "pnpm dlx @grafana/sign-plugin@latest",
@@ -45,6 +46,7 @@
     "@commitlint/config-conventional": "19.8.1",
     "@eslint/eslintrc": "^3.3.5",
     "@grafana/eslint-config": "9.0.0",
+    "@grafana/faro-webpack-plugin": "^0.5.1",
     "@grafana/plugin-e2e": "3.3.3",
     "@grafana/plugin-types-bundler": "0.5.0",
     "@grafana/tsconfig": "2.0.1",
@@ -116,7 +118,8 @@
     "@grafana/api-clients": "13.0.1",
     "@grafana/assistant": "0.1.13",
     "@grafana/data": "13.0.1",
-    "@grafana/faro-web-sdk": "^1.19.0",
+    "@grafana/faro-web-sdk": "2.4.0",
+    "@grafana/faro-web-tracing": "2.4.0",
     "@grafana/i18n": "13.0.1",
     "@grafana/lezer-logql": "^0.3.0",
     "@grafana/runtime": "13.0.1",
@@ -129,7 +132,7 @@
     "@leeoniya/ufuzzy": "^1.0.19",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
-    "@openfeature/ofrep-web-provider": "^0.3.5",
+    "@openfeature/ofrep-web-provider": "^0.4.1",
     "@openfeature/web-sdk": "^1.7.2",
     "@react-aria/utils": "^3.31.0",
     "@reduxjs/toolkit": "2.10.1",
@@ -148,16 +151,5 @@
     "tslib": "2.5.3",
     "uuid": "^14.0.0"
   },
-  "pnpm": {
-    "overrides": {
-      "react-router-dom": "^7.12.0",
-      "uuid": "^14.0.0",
-      "immutable": "~5.1.5",
-      "dompurify": "~3.4.0",
-      "serialize-javascript": "~7.0.5",
-      "strip-ansi": "~6.0.1",
-      "js-yaml": "~4.1.1"
-    }
-  },
-  "packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8"
+  "packageManager": "pnpm@11.3.0+sha512.2c403d6594527287672b1f7056343a1f7c3634036a67ffabfcc2b3d7595d843768f8787148d1b57cf7956c90606bbd192857c363af19e96d2d0ec9ec5741d215"
 }

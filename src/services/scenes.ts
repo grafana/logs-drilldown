@@ -78,6 +78,29 @@ export function findObjectOfType<T extends SceneObject>(
   return null;
 }
 
+/** Recompute logs list panel height from its wrapper after layout changes (e.g. volume or header filters). */
+export function syncLogsListPanelHeightFromScene(root: SceneObject) {
+  const logsListScene = findObjectOfType(root, (scene) => scene instanceof LogsListScene, LogsListScene);
+  if (!logsListScene) {
+    return;
+  }
+  requestAnimationFrame(() => {
+    logsListScene.syncPanelHeightFromWrapper();
+  });
+}
+
+export function toggleLogsListPanelSize(root: SceneObject, expanded: boolean) {
+  const logsListScene = findObjectOfType(root, (scene) => scene instanceof LogsListScene, LogsListScene);
+  if (!logsListScene) {
+    return;
+  }
+  if (expanded) {
+    logsListScene.extendPanelHeight();
+  } else {
+    logsListScene.syncPanelHeightFromWrapper();
+  }
+}
+
 export function getTimePicker(scene: IndexScene) {
   return scene.state.controls?.find((s) => s instanceof SceneTimePicker) as SceneTimePicker;
 }

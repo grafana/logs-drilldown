@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { css } from '@emotion/css';
+import { useResizeObserver } from '@react-aria/utils';
 
 import { LoadingState, PanelData, shallowCompare } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { locationService, useChromeHeaderHeight } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   SceneComponentProps,
@@ -26,12 +27,14 @@ import { getRouteParams } from '../../services/routing';
 import { getLabelsVariable } from '../../services/variableGetters';
 import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
 import { IndexScene } from '../IndexScene/IndexScene';
+import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
 import { LogLineState } from '../Table/Context/TableColumnsContext';
 import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
@@ -40,10 +43,12 @@ import { isEmptyLogsResult } from 'services/logsFrame';
 import {
   getBooleanLogOption,
   getDisplayedFieldsInStorage,
+  getExpandedLogsView,
   getExplorationPrefixForLabelValue,
   getLogsVisualizationType,
   getLogsVolumeOption,
   LogsVisualizationType,
+  setDisplayedFieldsInStorage,
   setLogsVisualizationType,
 } from 'services/store';
 
@@ -55,6 +60,7 @@ export interface LogsListSceneState extends SceneObjectState {
   displayedFields: string[];
   error?: string;
   errorType?: ErrorType;
+  headerHeight: number;
   loading?: boolean;
   logsVolumeCollapsedByError?: boolean;
   // Displayed fields set by the otelLogsFormatting feature
@@ -82,10 +88,13 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   private logsPanelScene?: LogsPanelScene = undefined;
 
+  private panelWrapperEl: HTMLDivElement | null = null;
+
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
       displayedFields: [],
+      headerHeight: 48,
       userDisplayedFields: false,
       otelDisplayedFields: [],
       visualizationType: getLogsVisualizationType(),
@@ -96,15 +105,74 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
+  public setPanelWrapperEl(el: HTMLDivElement | null) {
+    if (el === this.panelWrapperEl) {
+      return;
+    }
+    this.panelWrapperEl = el;
+  }
+
+  public getPanelWrapperEl(): HTMLDivElement | null {
+    return this.panelWrapperEl;
+  }
+
+  public syncPanelHeightFromWrapper = () => {
+    if (!this.state.panel || !this.panelWrapperEl) {
+      return;
+    }
+    if (getExpandedLogsView(this)) {
+      this.extendPanelHeight();
+      return;
+    }
+    const offset = this.panelWrapperEl.getBoundingClientRect().y + window.scrollY;
+    this.state.panel.state.children?.[0].setState({
+      height: `calc(100vh - ${offset + 16}px)`,
+    });
+  };
+
+  public extendPanelHeight = () => {
+    if (!this.state.panel) {
+      return;
+    }
+    this.state.panel.state.children?.[0].setState({
+      height: `calc(100vh - ${this.state.headerHeight + 16}px)`,
+    });
+  };
+
   public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
     const { panel } = model.useState();
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
+    const height = useChromeHeaderHeight();
+
+    useEffect(() => {
+      if (height) {
+        model.setState({
+          headerHeight: height,
+        });
+      }
+    }, [height, model]);
+
+    useLayoutEffect(() => {
+      model.setPanelWrapperEl(wrapperRef.current);
+      return () => model.setPanelWrapperEl(null);
+    }, [model, panel]);
+
+    useResizeObserver({
+      onResize: () => {
+        if (!panel) {
+          return;
+        }
+        model.syncPanelHeightFromWrapper();
+      },
+      ref: wrapperRef,
+    });
 
     if (!panel) {
       return;
     }
 
     return (
-      <div className={styles.panelWrapper}>
+      <div className={styles.panelWrapper} ref={wrapperRef}>
         <panel.Component model={panel} />
       </div>
     );
@@ -197,10 +265,27 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   };
 
   showBackendFields = () => {
-    // This is technically a user action, but I think it makes sense to continue to get served the backend fields
-    this.setState({ displayedFields: [], userDisplayedFields: false });
-    if (this.logsPanelScene) {
-      this.logsPanelScene.showBackendFields();
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const backendDisplayedFields = serviceScene.state.backendDisplayedFields ?? [];
+
+    setDisplayedFieldsInStorage(this, backendDisplayedFields);
+    setDisplayedFieldsInStorage(this, null, true);
+
+    const urlColumns =
+      backendDisplayedFields.filter(
+        (column) => DEFAULT_URL_COLUMNS.includes(column) || DEFAULT_URL_COLUMNS_LEVELS.includes(column)
+      ) || [];
+
+    this.setState({
+      displayedFields: backendDisplayedFields,
+      userDisplayedFields: false,
+      urlColumns,
+    });
+
+    if (this.logsPanelScene?.state.body) {
+      this.logsPanelScene.setLogsVizOption({
+        displayedFields: backendDisplayedFields,
+      });
     }
   };
 
@@ -453,8 +538,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const { error, errorType, canClearFilters } = this.state;
 
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
+    const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
-    const panelHeight = 'calc(100vh - 180px)';
+    const panelHeight = 'calc(100vh - 48px)';
     const children =
       this.state.visualizationType === 'logs'
         ? [
@@ -472,7 +558,9 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
             ]
           : [
               new SceneFlexItem({
-                body: new LogsTableScene({ error, canClearFilters }),
+                body: logsTablePanelNG
+                  ? new LogsTablePanelScene({ error, canClearFilters })
+                  : new LogsTableScene({ error, canClearFilters }),
                 height: panelHeight,
               }),
             ];

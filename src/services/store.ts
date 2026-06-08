@@ -246,6 +246,11 @@ export function setMaxLines(sceneRef: SceneObject, maxLines: number) {
   localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`, maxLines.toString());
 }
 
+export function clearMaxLines(sceneRef: SceneObject) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.removeItem(`${pluginJson.id}.${PREFIX}.logs.maxLines`);
+}
+
 const getDisplayedFieldsKey = (sceneRef: SceneObject, userAdded: boolean, prefix?: string) => {
   const PREFIX = prefix ?? getExplorationPrefix(sceneRef);
   const POSTFIX = userAdded ? 'logs.user.fields' : 'logs.fields';
@@ -266,6 +271,37 @@ export function getDisplayedFieldsInStorage(
     return unknownToStrings(JSON.parse(storedFields));
   }
   return [];
+}
+
+export type TableColumnWidth = { field: string; width: number };
+
+export function saveTableColumnWidths(sceneRef: SceneObject, columnWidths: TableColumnWidth[]) {
+  const key = `${pluginJson.id}.${getExplorationPrefix(sceneRef)}.table.columnWidths`;
+  localStorage.setItem(key, JSON.stringify(columnWidths));
+}
+
+export function getTableColumnWidths(sceneRef: SceneObject): TableColumnWidth[] {
+  const key = `${pluginJson.id}.${getExplorationPrefix(sceneRef)}.table.columnWidths`;
+  let stored: unknown;
+  try {
+    stored = JSON.parse(localStorage.getItem(key) ?? '[]');
+  } catch (e) {
+    logger.error(e);
+  }
+
+  let columnWidths = Array.isArray(stored)
+    ? stored.filter(
+        (columnWidth: unknown): columnWidth is TableColumnWidth =>
+          typeof columnWidth === 'object' &&
+          columnWidth !== null &&
+          'field' in columnWidth &&
+          'width' in columnWidth &&
+          typeof columnWidth.width === 'number' &&
+          typeof columnWidth.field === 'string'
+      )
+    : [];
+
+  return columnWidths;
 }
 
 export function setDisplayedFieldsInStorage(sceneRef: SceneObject, fields: string[] | null, userAdded = false) {
@@ -296,7 +332,10 @@ export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   return localStorageResult ? (localStorageResult as T) : defaultValue;
 }
 
-export function getBooleanLogOption(option: keyof Options | 'controlsExpanded', defaultValue: boolean): boolean {
+export function getBooleanLogOption(
+  option: keyof Options | 'controlsExpanded' | 'wrapText',
+  defaultValue: boolean
+): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
     return defaultValue;
@@ -305,7 +344,7 @@ export function getBooleanLogOption(option: keyof Options | 'controlsExpanded', 
 }
 
 export function setLogOption(
-  option: keyof Options | 'maxLines' | 'controlsExpanded',
+  option: keyof Options | 'maxLines' | 'controlsExpanded' | 'wrapText',
   value: string | number | boolean
 ) {
   let storedValue = value.toString();
@@ -514,4 +553,20 @@ export function getTableLogLine(): LogLineState {
 }
 export function setTableLogLine(value: LogLineState) {
   localStorage.setItem(TABLE_LOG_LINE_LOCALSTORAGE_KEY, value);
+}
+
+// Logs view size
+export function getExpandedLogsView(sceneRef: SceneObject) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  try {
+    return Boolean(JSON.parse(String(localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.expanded`))));
+  } catch (e) {
+    logger.error(e);
+  }
+  return false;
+}
+
+export function setExpandedLogsView(sceneRef: SceneObject, expanded: boolean) {
+  const PREFIX = getExplorationPrefix(sceneRef);
+  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.expanded`, JSON.stringify(expanded));
 }

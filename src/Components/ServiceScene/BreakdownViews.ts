@@ -109,17 +109,12 @@ function buildLabelValuesBreakdownActionScene(value: string) {
 
 function buildLogsListScene() {
   return new SceneFlexLayout({
-    height: 'auto',
-    maxHeight: 'auto',
-    minHeight: 'auto',
     children: [
       new SceneFlexItem({
         body: new LogsVolumeContainerScene({}),
       }),
       new SceneFlexItem({
         body: new LogsListScene({}),
-        height: 'calc(100vh - 500px)',
-        minHeight: '470px',
       }),
     ],
     direction: 'column',

@@ -129,6 +129,12 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
+  logsTablePanelNG: {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
   'drilldown.logs.fake_flag': {
     valueType: 'string',
     values: [
@@ -222,7 +228,8 @@ export function initOpenFeatureProvider(): Promise<void> {
     OPEN_FEATURE_DOMAIN,
     new OFREPWebProvider({
       baseUrl,
-      pollInterval: -1, // Do not poll - flags are fetched once on init
+      disableVisibilityRefresh: true, // Do not refresh
+      cacheMode: 'disabled', // Do not write to localStorage
       timeoutMs: 10_000, // Timeout after 10 seconds
     }),
     {
@@ -295,6 +302,9 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
     'kgAnnotationsInLokiExplore' in config.featureToggles
   ) {
     return Boolean(config.featureToggles.kgAnnotationsInLokiExplore);
+  }
+  if (flagName === 'logsTablePanelNG') {
+    return config.featureToggles.logsTablePanelNG;
   }
   return undefined;
 }
