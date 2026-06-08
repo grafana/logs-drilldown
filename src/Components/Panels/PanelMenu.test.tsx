@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 
 import { isAssistantAvailable } from '@grafana/assistant';
 import { PanelMenuItem } from '@grafana/data';
-import { getDataSourceSrv, usePluginComponent } from '@grafana/runtime';
+import { getDataSourceSrv, reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
   SceneCSSGridItem,
   SceneFlexLayout,
@@ -19,8 +19,13 @@ import {
 import { reportAppInteraction } from '../../services/analytics';
 import { isLogsQuery } from '../../services/logql';
 import { interpolateExpression } from '../../services/query';
-import { findObjectOfType, getDataSource, getQueryRunnerFromChildren } from '../../services/scenes';
-import { setPanelOption } from '../../services/store';
+import {
+  findObjectOfType,
+  getDataSource,
+  getQueryRunnerFromChildren,
+  toggleLogsListPanelSize,
+} from '../../services/scenes';
+import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from '../../services/store';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
@@ -44,6 +49,7 @@ jest.mock('../../services/scenes', () => ({
   getDataSource: jest.fn(),
   getQueryRunnerFromChildren: jest.fn(),
   findObjectOfType: jest.fn(),
+  toggleLogsListPanelSize: jest.fn(),
 }));
 jest.mock('../../services/store');
 jest.mock('../ServiceScene/Breakdowns/Panels/ValueSummary');
@@ -251,6 +257,78 @@ describe('PanelMenu', () => {
     });
   });
 
+  describe('Expand/Condense Logs View', () => {
+    it('should show "Expand logs view" item with expand icon when logs are not expanded', () => {
+      jest.mocked(getExpandedLogsView).mockReturnValue(false);
+
+      const menu = new PanelMenu({});
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      expect(items).toContainEqual(
+        expect.objectContaining({
+          text: 'Expand logs view',
+          iconClassName: 'expand-arrows',
+        })
+      );
+    });
+
+    it('should show "Condense logs view" item with compress icon when logs are expanded', () => {
+      jest.mocked(getExpandedLogsView).mockReturnValue(true);
+
+      const menu = new PanelMenu({});
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      expect(items).toContainEqual(
+        expect.objectContaining({
+          text: 'Condense logs view',
+          iconClassName: 'compress-arrows',
+        })
+      );
+    });
+
+    it('should expand the logs view when clicking the toggle while condensed', () => {
+      jest.mocked(getExpandedLogsView).mockReturnValue(false);
+
+      const menu = new PanelMenu({});
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      const toggleItem = items?.find((item: PanelMenuItem) => item.text === 'Expand logs view');
+
+      // @ts-expect-error
+      toggleItem?.onClick?.();
+
+      expect(setExpandedLogsView).toHaveBeenCalledWith(menu, true);
+      expect(menu.state.logsExpanded).toBe(true);
+      expect(toggleLogsListPanelSize).toHaveBeenCalledWith(menu, true);
+      expect(reportInteraction).toHaveBeenCalledWith('grafana_logs_app_toggle_logs_size_clicked', {
+        expanded: true,
+      });
+    });
+
+    it('should condense the logs view when clicking the toggle while expanded', () => {
+      jest.mocked(getExpandedLogsView).mockReturnValue(true);
+
+      const menu = new PanelMenu({});
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      const toggleItem = items?.find((item: PanelMenuItem) => item.text === 'Condense logs view');
+
+      // @ts-expect-error
+      toggleItem?.onClick?.();
+
+      expect(setExpandedLogsView).toHaveBeenCalledWith(menu, false);
+      expect(menu.state.logsExpanded).toBe(false);
+      expect(toggleLogsListPanelSize).toHaveBeenCalledWith(menu, false);
+      expect(reportInteraction).toHaveBeenCalledWith('grafana_logs_app_toggle_logs_size_clicked', {
+        expanded: false,
+      });
+    });
+  });
+
   describe('Event Handlers', () => {
     it('should track analytics when explore link is clicked', () => {
       const menu = new PanelMenu({});
@@ -311,7 +389,7 @@ describe('PanelMenu', () => {
       menu.activate();
 
       const mockAddItem = menu.state.body
-        ? jest.spyOn(menu.state.body, 'addItem').mockImplementation(() => { })
+        ? jest.spyOn(menu.state.body, 'addItem').mockImplementation(() => {})
         : jest.fn();
       const testItem: PanelMenuItem = { text: 'Test Item', type: 'group' };
 
@@ -325,7 +403,7 @@ describe('PanelMenu', () => {
       menu.activate();
 
       const mockSetItems = menu.state.body
-        ? jest.spyOn(menu.state.body, 'setItems').mockImplementation(() => { })
+        ? jest.spyOn(menu.state.body, 'setItems').mockImplementation(() => {})
         : jest.fn();
       const testItems: PanelMenuItem[] = [{ text: 'Test Item', type: 'group' }];
 
