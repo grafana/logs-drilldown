@@ -30,6 +30,7 @@ import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/Field
 import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
+import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 import { isLogsQuery } from 'services/logql';
 
 export enum TimeSeriesPanelType {
@@ -61,33 +62,8 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
   constructor(state: Partial<PanelMenuState>) {
     super(state);
     this.addActivationHandler(() => {
-      const logsExpanded = getExpandedLogsView(this);
-
-      const toggleLogsSize = () => {
-        const logsExpanded = !getExpandedLogsView(this);
-        setExpandedLogsView(this, logsExpanded);
-        this.setState({
-          logsExpanded,
-        });
-        toggleLogsListPanelSize(this, logsExpanded);
-        reportInteraction('grafana_logs_app_toggle_logs_size_clicked', {
-          expanded: logsExpanded,
-        });
-      };
-
       // Navigation options (all panels)
       const items: PanelMenuItem[] = [
-        {
-          text: t('components.panels.panel-menu.items.text.ui', 'Interface'),
-          type: 'group',
-        },
-        {
-          iconClassName: logsExpanded ? 'compress-arrows' : 'expand-arrows',
-          onClick: toggleLogsSize,
-          text: logsExpanded
-            ? t('components.panels.panel-menu.items.text.condense-logs', 'Condense logs view')
-            : t('components.panels.panel-menu.items.text.expand-logs', 'Expand logs view'),
-        },
         {
           text: t('components.panels.panel-menu.items.text.navigation', 'Navigation'),
           type: 'group',
@@ -100,6 +76,38 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           text: t('components.panels.panel-menu.items.text.explore', 'Explore'),
         },
       ];
+
+      // When Logs are in the current Scene
+      const logsScene = findObjectOfType(this, (scene) => scene instanceof LogsListScene, LogsListScene);
+      if (logsScene) {
+        const logsExpanded = getExpandedLogsView(this);
+
+        const toggleLogsSize = () => {
+          const logsExpanded = !getExpandedLogsView(this);
+          setExpandedLogsView(this, logsExpanded);
+          this.setState({
+            logsExpanded,
+          });
+          toggleLogsListPanelSize(this, logsExpanded);
+          reportInteraction('grafana_logs_app_toggle_logs_size_clicked', {
+            expanded: logsExpanded,
+          });
+        };
+
+        items.unshift(
+          {
+            text: t('components.panels.panel-menu.items.text.ui', 'Interface'),
+            type: 'group',
+          },
+          {
+            iconClassName: logsExpanded ? 'compress-arrows' : 'expand-arrows',
+            onClick: toggleLogsSize,
+            text: logsExpanded
+              ? t('components.panels.panel-menu.items.text.condense-logs', 'Condense logs view')
+              : t('components.panels.panel-menu.items.text.expand-logs', 'Expand logs view'),
+          }
+        );
+      }
 
       let viz;
       try {

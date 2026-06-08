@@ -29,6 +29,7 @@ import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from '../../
 import { IndexScene } from '../IndexScene/IndexScene';
 import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
 import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
+import { LogsListScene } from '../ServiceScene/LogsListScene';
 import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 import {
   CollapsablePanelText,
@@ -115,6 +116,16 @@ const mockFieldsVizPanelWrapper = {
 const mockFlexLayout = {
   state: {},
 };
+
+const mockLogsListScene = {
+  state: {},
+} as any;
+
+// Makes findObjectOfType resolve a LogsListScene so the expand/condense logs view items are added.
+const mockLogsSceneFound = () =>
+  jest
+    .mocked(findObjectOfType)
+    .mockImplementation((_ref, _check, type) => (type === LogsListScene ? mockLogsListScene : null));
 
 // Setup mocks
 beforeEach(() => {
@@ -258,7 +269,19 @@ describe('PanelMenu', () => {
   });
 
   describe('Expand/Condense Logs View', () => {
+    it('should not show the logs view toggle when there is no logs scene', () => {
+      jest.mocked(findObjectOfType).mockReturnValue(null);
+
+      const menu = new PanelMenu({});
+      menu.activate();
+
+      const items = menu.state.body?.state.items;
+      expect(items).not.toContainEqual(expect.objectContaining({ text: 'Expand logs view' }));
+      expect(items).not.toContainEqual(expect.objectContaining({ text: 'Condense logs view' }));
+    });
+
     it('should show "Expand logs view" item with expand icon when logs are not expanded', () => {
+      mockLogsSceneFound();
       jest.mocked(getExpandedLogsView).mockReturnValue(false);
 
       const menu = new PanelMenu({});
@@ -274,6 +297,7 @@ describe('PanelMenu', () => {
     });
 
     it('should show "Condense logs view" item with compress icon when logs are expanded', () => {
+      mockLogsSceneFound();
       jest.mocked(getExpandedLogsView).mockReturnValue(true);
 
       const menu = new PanelMenu({});
@@ -289,6 +313,7 @@ describe('PanelMenu', () => {
     });
 
     it('should expand the logs view when clicking the toggle while condensed', () => {
+      mockLogsSceneFound();
       jest.mocked(getExpandedLogsView).mockReturnValue(false);
 
       const menu = new PanelMenu({});
@@ -309,6 +334,7 @@ describe('PanelMenu', () => {
     });
 
     it('should condense the logs view when clicking the toggle while expanded', () => {
+      mockLogsSceneFound();
       jest.mocked(getExpandedLogsView).mockReturnValue(true);
 
       const menu = new PanelMenu({});
