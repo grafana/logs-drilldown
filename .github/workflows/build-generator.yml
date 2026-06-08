@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - uses: grafana/shared-workflows/actions/docker-build-push-image@main
+      - uses: grafana/shared-workflows/actions/docker-build-push-image@e288f43e2954fe65ce3dadfcc418dacb638cf7e1 # main
         name: Build and push
         with:
           registries: gar

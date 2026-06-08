@@ -21,7 +21,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: grafana/plugin-actions/bundle-types@main
+      - uses: grafana/plugin-actions/bundle-types@2ecc2ba7168309f04010b5b637530b877d67e4ff # main
         with:
           entry-point: ./src/Components/ExposedComponents/types.ts
           ts-config: ./tsconfig-for-bundle-types.json
