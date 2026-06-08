@@ -12,6 +12,14 @@ overrides:
   serialize-javascript: ~7.0.5
   strip-ansi: ~6.0.1
   js-yaml: ~4.1.1
+  fast-uri: 3.1.2
+  protobufjs: 8.2.0
+  js-cookie: 3.0.8
+  '@ungap/structured-clone': 1.3.1
+  brace-expansion@^5: 5.0.6
+  ws@^8: 8.20.1
+  qs: 6.15.2
+  react-data-grid: npm:@grafana/react-data-grid@7.0.0-beta.57
 
 importers:
   .:
@@ -1230,6 +1238,13 @@ packages:
     engines: { node: '>=18.8.0' }
     hasBin: true
 
+  '@grafana/react-data-grid@7.0.0-beta.57':
+    resolution:
+      { integrity: sha512-v3DuW+TF16Jq5/dNJc0ifReBuknZb4+deB7M+liLMUU8sr2RavguNHpxCk4L/AdqLeXJFGhhqEDUYpeeQm2DzA== }
+    peerDependencies:
+      react: ^18.0 || ^19.0
+      react-dom: ^18.0 || ^19.0
+
   '@grafana/runtime@13.0.1':
     resolution:
       { integrity: sha512-eyDnFnCuSlslJUFXvPGdribJ3UukV4eQAT/j1QQO1umqkVgq9XxLy9oM/SSoAzay7oOAUz+h2oBAiIS7FKN0gw== }
@@ -2049,46 +2064,6 @@ packages:
   '@popperjs/core@2.11.8':
     resolution:
       { integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A== }
-
-  '@protobufjs/aspromise@1.1.2':
-    resolution:
-      { integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ== }
-
-  '@protobufjs/base64@1.1.2':
-    resolution:
-      { integrity: sha512-AZkcAA5vnN/v4PDqKyMR5lx7hZttPDgClv83E//FMNhR2TMcLUhfRUBHCmSl0oi9zMgDDqRUJkSxO3wm85+XLg== }
-
-  '@protobufjs/codegen@2.0.5':
-    resolution:
-      { integrity: sha512-zgXFLzW3Ap33e6d0Wlj4MGIm6Ce8O89n/apUaGNB/jx+hw+ruWEp7EwGUshdLKVRCxZW12fp9r40E1mQrf/34g== }
-
-  '@protobufjs/eventemitter@1.1.0':
-    resolution:
-      { integrity: sha512-j9ednRT81vYJ9OfVuXG6ERSTdEL1xVsNgqpkxMsbIabzSo3goCjDIveeGv5d03om39ML71RdmrGNjG5SReBP/Q== }
-
-  '@protobufjs/fetch@1.1.1':
-    resolution:
-      { integrity: sha512-GpptLrs57adMSuHi3VNj0mAF8dwh36LMaYF6XyJ6JMWlVsc+t42tm1HSEDmOs3A8fC9yyeisgLhsTVQokOZ0zw== }
-
-  '@protobufjs/float@1.0.2':
-    resolution:
-      { integrity: sha512-Ddb+kVXlXst9d+R9PfTIxh1EdNkgoRe5tOX6t01f1lYWOvJnSPDBlG241QLzcyPdoNTsblLUdujGSE4RzrTZGQ== }
-
-  '@protobufjs/inquire@1.1.2':
-    resolution:
-      { integrity: sha512-pa0vFRuws4wkvaXKK1uXZMAwAX4/t8ANaJo45iw/oQHNQ9q5xUzwgFmVJGXiga2BeN+zpX7Vf9vmsiIa2J+MUw== }
-
-  '@protobufjs/path@1.1.2':
-    resolution:
-      { integrity: sha512-6JOcJ5Tm08dOHAbdR3GrvP+yUUfkjG5ePsHYczMFLq3ZmMkAD98cDgcT2iA1lJ9NVwFd4tH/iSSoe44YWkltEA== }
-
-  '@protobufjs/pool@1.1.0':
-    resolution:
-      { integrity: sha512-0kELaGSIDBKvcgS4zkjz1PeddatrjYcmMWOlAuAPwAeccUrPHdUqo/J6LiymHHEiJT5NrF1UVwxY14f+fy4WQw== }
-
-  '@protobufjs/utf8@1.1.1':
-    resolution:
-      { integrity: sha512-oOAWABowe8EAbMyWKM0tYDKi8Yaox52D+HWZhAIJqQXbqe0xI/GV7FhLWqlEKreMkfDjshR5FKgi3mnle0h6Eg== }
 
   '@rc-component/cascader@1.9.0':
     resolution:
@@ -3025,9 +3000,9 @@ packages:
       { integrity: sha512-f1WO2Lx8a9t8DARmcWAUPJbu0G20bJlj8L4z72K00TMeJAoyLr/tHhI/pzYBLrR4dXWkcxO1cWYZEOX8DKHTqA== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
-  '@ungap/structured-clone@1.3.0':
+  '@ungap/structured-clone@1.3.1':
     resolution:
-      { integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g== }
+      { integrity: sha512-mUFwbeTqrVgDQxFveS+df2yfap6iuP20NAKAsBt5jDEoOTDew+zwLAOilHCeQJOVSvmgCX4ogqIrA0mnyr08yQ== }
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution:
@@ -3533,9 +3508,9 @@ packages:
     resolution:
       { integrity: sha512-MCV/fYJEbqx68aE58kv2cA/kiky1G8vux3OR6/jbS+jIMe/6fJWa0DTzJU7dqijOWYwHi1t29FlfYI9uytqlpA== }
 
-  brace-expansion@5.0.5:
+  brace-expansion@5.0.6:
     resolution:
-      { integrity: sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ== }
+      { integrity: sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g== }
     engines: { node: 18 || 20 || >=22 }
 
   braces@3.0.3:
@@ -4704,9 +4679,9 @@ packages:
     resolution:
       { integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg== }
 
-  fast-uri@3.1.0:
+  fast-uri@3.1.2:
     resolution:
-      { integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA== }
+      { integrity: sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ== }
 
   fast-wrap-ansi@0.2.0:
     resolution:
@@ -5802,9 +5777,9 @@ packages:
     resolution:
       { integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg== }
 
-  js-cookie@2.2.1:
+  js-cookie@3.0.8:
     resolution:
-      { integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ== }
+      { integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw== }
 
   js-tokens@4.0.0:
     resolution:
@@ -6645,14 +6620,9 @@ packages:
     resolution:
       { integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg== }
 
-  protobufjs@8.0.1:
+  protobufjs@8.2.0:
     resolution:
-      { integrity: sha512-NWWCCscLjs+cOKF/s/XVNFRW7Yih0fdH+9brffR5NZCy8k42yRdl5KlWKMVXuI1vfCoy4o1z80XR/W/QUb3V3w== }
-    engines: { node: '>=12.0.0' }
-
-  protobufjs@8.0.3:
-    resolution:
-      { integrity: sha512-LBYnMWkKLB8fE/ljROPDbCl7mgLSlI+oBe1fAAr5MTqFg4TIi0tYrVVurJvQggOjnUYMQtEZBjrej59ojMNTHQ== }
+      { integrity: sha512-oI+GC9iPxrQEr6wragljFKH46/r3rNsm6eg7F2fp6kBUMnf6/mesDRdBuF4gK+OyaKJ8N4C1B9s9cCeYdqFikg== }
     engines: { node: '>=12.0.0' }
 
   protocol-buffers-schema@3.6.1:
@@ -6668,9 +6638,9 @@ packages:
     resolution:
       { integrity: sha512-oTUZM/NAZS8p7ANR3SHh30kXB+zK2r2BPcEn/awJIbOvq82WoMN4p62AWWp3Hhw50G0xMsw1mhIBLqHw64EcNQ== }
 
-  qs@6.14.2:
+  qs@6.15.2:
     resolution:
-      { integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q== }
+      { integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw== }
     engines: { node: '>=0.6' }
 
   queue-microtask@1.2.3:
@@ -6775,14 +6745,6 @@ packages:
     peerDependencies:
       react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-
-  react-data-grid@https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed:
-    resolution:
-      { tarball: https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed }
-    version: 7.0.0-beta.56
-    peerDependencies:
-      react: ^18.0 || ^19.0
-      react-dom: ^18.0 || ^19.0
 
   react-dom@18.3.1:
     resolution:
@@ -8287,9 +8249,9 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.20.0:
+  ws@8.20.1:
     resolution:
-      { integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA== }
+      { integrity: sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w== }
     engines: { node: '>=10.0.0' }
     peerDependencies:
       bufferutil: ^4.0.1
@@ -9378,6 +9340,12 @@ snapshots:
       - eslint
       - supports-color
 
+  '@grafana/react-data-grid@7.0.0-beta.57(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      clsx: 2.1.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@grafana/runtime@13.0.1(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
     dependencies:
       '@grafana/data': 13.0.1(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
@@ -9515,7 +9483,7 @@ snapshots:
       react-calendar: 6.0.1(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-custom-scrollbars-2: 4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-data-grid: https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-data-grid: '@grafana/react-data-grid@7.0.0-beta.57(react-dom@18.3.1(react@18.3.1))(react@18.3.1)'
       react-dom: 18.3.1(react@18.3.1)
       react-dropzone: 14.3.8(react@18.3.1)
       react-highlight-words: 0.21.0(react@18.3.1)
@@ -10150,7 +10118,7 @@ snapshots:
       '@opentelemetry/sdk-logs': 0.215.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-metrics': 2.7.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-base': 2.7.0(@opentelemetry/api@1.9.1)
-      protobufjs: 8.0.3
+      protobufjs: 8.2.0
 
   '@opentelemetry/otlp-transformer@0.217.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -10161,7 +10129,7 @@ snapshots:
       '@opentelemetry/sdk-logs': 0.217.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-metrics': 2.7.1(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-base': 2.7.1(@opentelemetry/api@1.9.1)
-      protobufjs: 8.0.1
+      protobufjs: 8.2.0
 
   '@opentelemetry/resources@2.7.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -10306,28 +10274,6 @@ snapshots:
   '@polka/url@1.0.0-next.29': {}
 
   '@popperjs/core@2.11.8': {}
-
-  '@protobufjs/aspromise@1.1.2': {}
-
-  '@protobufjs/base64@1.1.2': {}
-
-  '@protobufjs/codegen@2.0.5': {}
-
-  '@protobufjs/eventemitter@1.1.0': {}
-
-  '@protobufjs/fetch@1.1.1':
-    dependencies:
-      '@protobufjs/aspromise': 1.1.2
-
-  '@protobufjs/float@1.0.2': {}
-
-  '@protobufjs/inquire@1.1.2': {}
-
-  '@protobufjs/path@1.1.2': {}
-
-  '@protobufjs/pool@1.1.0': {}
-
-  '@protobufjs/utf8@1.1.1': {}
 
   '@rc-component/cascader@1.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -11219,7 +11165,7 @@ snapshots:
       '@typescript-eslint/types': 8.58.2
       eslint-visitor-keys: 5.0.1
 
-  '@ungap/structured-clone@1.3.0': {}
+  '@ungap/structured-clone@1.3.1': {}
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     optional: true
@@ -11424,7 +11370,7 @@ snapshots:
   ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.0
+      fast-uri: 3.1.2
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -11636,7 +11582,7 @@ snapshots:
     dependencies:
       balanced-match: 1.0.2
 
-  brace-expansion@5.0.5:
+  brace-expansion@5.0.6:
     dependencies:
       balanced-match: 4.0.4
 
@@ -12769,7 +12715,7 @@ snapshots:
     dependencies:
       fast-string-truncated-width: 3.0.3
 
-  fast-uri@3.1.0: {}
+  fast-uri@3.1.2: {}
 
   fast-wrap-ansi@0.2.0:
     dependencies:
@@ -13884,7 +13830,7 @@ snapshots:
   jest-worker@30.2.0:
     dependencies:
       '@types/node': 24.0.0
-      '@ungap/structured-clone': 1.3.0
+      '@ungap/structured-clone': 1.3.1
       jest-util: 30.2.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -13906,7 +13852,7 @@ snapshots:
 
   jquery@3.7.1: {}
 
-  js-cookie@2.2.1: {}
+  js-cookie@3.0.8: {}
 
   js-tokens@4.0.0: {}
 
@@ -13936,7 +13882,7 @@ snapshots:
       whatwg-encoding: 3.1.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
-      ws: 8.20.0
+      ws: 8.20.1
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -14148,7 +14094,7 @@ snapshots:
 
   minimatch@10.2.5:
     dependencies:
-      brace-expansion: 5.0.5
+      brace-expansion: 5.0.6
 
   minimatch@3.1.5:
     dependencies:
@@ -14540,22 +14486,7 @@ snapshots:
       object-assign: 4.1.1
       react-is: 16.13.1
 
-  protobufjs@8.0.1:
-    dependencies:
-      '@protobufjs/aspromise': 1.1.2
-      '@protobufjs/base64': 1.1.2
-      '@protobufjs/codegen': 2.0.5
-      '@protobufjs/eventemitter': 1.1.0
-      '@protobufjs/fetch': 1.1.1
-      '@protobufjs/float': 1.0.2
-      '@protobufjs/inquire': 1.1.2
-      '@protobufjs/path': 1.1.2
-      '@protobufjs/pool': 1.1.0
-      '@protobufjs/utf8': 1.1.1
-      '@types/node': 24.0.0
-      long: 5.3.2
-
-  protobufjs@8.0.3:
+  protobufjs@8.2.0:
     dependencies:
       '@types/node': 24.0.0
       long: 5.3.2
@@ -14566,7 +14497,7 @@ snapshots:
 
   pure-rand@7.0.1: {}
 
-  qs@6.14.2:
+  qs@6.15.2:
     dependencies:
       side-channel: 1.1.0
 
@@ -14669,12 +14600,6 @@ snapshots:
       dom-css: 2.1.0
       prop-types: 15.8.1
       raf: 3.4.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  react-data-grid@https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -14883,7 +14808,7 @@ snapshots:
       copy-to-clipboard: 3.3.3
       fast-deep-equal: 3.1.3
       fast-shallow-equal: 1.0.0
-      js-cookie: 2.2.1
+      js-cookie: 3.0.8
       nano-css: 5.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -15527,7 +15452,7 @@ snapshots:
       faye-websocket: 0.10.0
       livereload-js: 2.4.0
       object-assign: 4.1.1
-      qs: 6.14.2
+      qs: 6.15.2
     transitivePeerDependencies:
       - supports-color
 
@@ -16033,7 +15958,7 @@ snapshots:
 
   ws@7.5.10: {}
 
-  ws@8.20.0: {}
+  ws@8.20.1: {}
 
   xdg-basedir@4.0.0: {}
 
