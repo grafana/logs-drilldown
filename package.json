@@ -132,7 +132,7 @@
     "@leeoniya/ufuzzy": "^1.0.19",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
-    "@openfeature/ofrep-web-provider": "^0.3.5",
+    "@openfeature/ofrep-web-provider": "^0.4.1",
     "@openfeature/web-sdk": "^1.7.2",
     "@react-aria/utils": "^3.31.0",
     "@reduxjs/toolkit": "2.10.1",
