@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getDataSourceSrv, usePluginComponent } from '@grafana/runtime';
+import { getDataSourceSrv, reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneCSSGridItem,
@@ -22,8 +22,8 @@ import { Panel } from '@grafana/schema';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
 import { logger } from '../../services/logger';
 import { getQueryExpression } from '../../services/queryRunner';
-import { findObjectOfType, getDataSource } from '../../services/scenes';
-import { setPanelOption } from '../../services/store';
+import { findObjectOfType, getDataSource, toggleLogsListPanelSize } from '../../services/scenes';
+import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from '../../services/store';
 import { DetectedFieldType } from '../../services/variables';
 import { IndexScene } from '../IndexScene/IndexScene';
 import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
@@ -50,6 +50,7 @@ export enum CollapsablePanelText {
 interface PanelMenuState extends SceneObjectState {
   body?: VizPanelMenu;
   fieldType?: DetectedFieldType;
+  logsExpanded?: boolean;
   panelType?: TimeSeriesPanelType;
 }
 
@@ -60,8 +61,33 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
   constructor(state: Partial<PanelMenuState>) {
     super(state);
     this.addActivationHandler(() => {
+      const logsExpanded = getExpandedLogsView(this);
+
+      const toggleLogsSize = () => {
+        const logsExpanded = !getExpandedLogsView(this);
+        setExpandedLogsView(this, logsExpanded);
+        this.setState({
+          logsExpanded,
+        });
+        toggleLogsListPanelSize(this, logsExpanded);
+        reportInteraction('grafana_logs_app_toggle_logs_size_clicked', {
+          expanded: logsExpanded,
+        });
+      };
+
       // Navigation options (all panels)
       const items: PanelMenuItem[] = [
+        {
+          text: t('components.panels.panel-menu.items.text.ui', 'Interface'),
+          type: 'group',
+        },
+        {
+          iconClassName: logsExpanded ? 'compress-arrows' : 'expand-arrows',
+          onClick: toggleLogsSize,
+          text: logsExpanded
+            ? t('components.panels.panel-menu.items.text.condense-logs', 'Condense logs view')
+            : t('components.panels.panel-menu.items.text.expand-logs', 'Expand logs view'),
+        },
         {
           text: t('components.panels.panel-menu.items.text.navigation', 'Navigation'),
           type: 'group',
@@ -236,7 +262,10 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
 
 function addVisualizationHeader(items: PanelMenuItem[]) {
   items.push({
-    text: t('components.panels.panel-menu.add-visualization-header.text.visualization-divider', 'visualization_divider'),
+    text: t(
+      'components.panels.panel-menu.add-visualization-header.text.visualization-divider',
+      'visualization_divider'
+    ),
     type: 'divider',
   });
   items.push({
