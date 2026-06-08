@@ -308,7 +308,7 @@
       "load-search-button": {
         "button-no-search-tooltip": "No saved searches to load",
         "button-tooltip": "Load saved search",
-        "saved-query-button-tooltip": "Load saved query"
+        "saved-query-button-tooltip": "Load Saved query"
       },
       "load-search-modal": {
         "empty": "No saved searches to display.",
@@ -322,7 +322,7 @@
       },
       "save-search-button": {
         "button-tooltip": "Save search",
-        "button-tooltip-saved-queries": "Save in Saved Queries"
+        "button-tooltip-saved-queries": "Save in Saved queries"
       },
       "save-search-modal": {
         "already-exists-alert": "There is a previously saved search with the same query: {{title}}",
