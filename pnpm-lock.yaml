@@ -248,8 +248,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
       eslint-webpack-plugin:
-        specifier: 5.0.0
-        version: 5.0.0(eslint@9.32.0(jiti@2.6.1))(webpack@5.104.1)
+        specifier: 5.0.3
+        version: 5.0.3(eslint@9.32.0(jiti@2.6.1))(webpack@5.104.1)
       fork-ts-checker-webpack-plugin:
         specifier: 9.1.0
         version: 9.1.0(typescript@5.9.2)(webpack@5.104.1)
@@ -4548,9 +4548,9 @@ packages:
       { integrity: sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA== }
     engines: { node: ^20.19.0 || ^22.13.0 || >=24 }
 
-  eslint-webpack-plugin@5.0.0:
+  eslint-webpack-plugin@5.0.3:
     resolution:
-      { integrity: sha512-iDhXf2r55KO1UhMfpus8oGp93wdNF+934q5kEkwa7qn3BH9f51QEC11xQidt+8jfqRnEYYZa2/8lhac7U/vqWw== }
+      { integrity: sha512-P2Id4RMSMQMwMEuw3W9x3n2qDbKPeD+tehWMY3ENFsoSPKNZ9i3WTZEsFE7NeQIpNebhNEGw8qorvpLVq1rK1g== }
     engines: { node: '>= 18.12.0' }
     peerDependencies:
       eslint: ^8.0.0 || ^9.0.0
@@ -12562,10 +12562,11 @@ snapshots:
 
   eslint-visitor-keys@5.0.1: {}
 
-  eslint-webpack-plugin@5.0.0(eslint@9.32.0(jiti@2.6.1))(webpack@5.104.1):
+  eslint-webpack-plugin@5.0.3(eslint@9.32.0(jiti@2.6.1))(webpack@5.104.1):
     dependencies:
       '@types/eslint': 9.6.1
       eslint: 9.32.0(jiti@2.6.1)
+      flatted: 3.4.2
       jest-worker: 29.7.0
       micromatch: 4.0.8
       normalize-path: 3.0.0
