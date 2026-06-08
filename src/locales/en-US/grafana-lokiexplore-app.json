@@ -288,8 +288,11 @@
         },
         "items": {
           "text": {
+            "condense-logs": "Condense logs view",
+            "expand-logs": "Expand logs view",
             "explore": "Explore",
-            "navigation": "Navigation"
+            "navigation": "Navigation",
+            "ui": "Interface"
           }
         },
         "text": {
@@ -680,8 +683,6 @@
         "show-original-log-line": "Show original log line",
         "tooltip": {
           "clear-displayed-fields": "Clear displayed fields: {{fields}}",
-          "condense-logs": "Condense logs view",
-          "expand-logs": "Expand logs view",
           "show-default-fields": "Show default fields: {{fields}}"
         }
       },
