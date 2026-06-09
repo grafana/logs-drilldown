@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "changelog-sections": [
+    { "section": "🎉 Features", "type": "feat" },
+    { "section": "🐛 Bug Fixes", "type": "fix" },
+    { "section": "📝 Documentation", "type": "docs" },
+    { "section": "💄 Styles", "type": "style" },
+    { "section": "♻️ Code Refactoring", "type": "refactor" },
+    { "section": "⚡️ Performance Improvements", "type": "perf" },
+    { "section": "🧪 Tests", "type": "test" },
+    { "section": "🏗️ Builds", "type": "build" },
+    { "section": "🤖 Continuous Integrations", "type": "ci" },
+    { "section": "⏪ Reverts", "type": "revert" },
+    { "section": "🧹 Chore", "type": "chore", "hidden": true },
+    { "section": "🚫 Omit", "type": "omit", "hidden": true },
+    { "section": "🚫 Skip", "type": "skip", "hidden": true },
+    { "section": "🔒 Internal", "type": "internal", "hidden": true }
+  ],
+  "draft-pull-request": true,
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "grafana-lokiexplore-app",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
