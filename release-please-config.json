@@ -19,6 +19,8 @@
   "draft-pull-request": true,
   "include-v-in-tag": true,
   "include-component-in-tag": false,
+  "draft": true,
+  "force-tag-creation": true,
   "packages": {
     ".": {
       "release-type": "node",
