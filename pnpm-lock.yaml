@@ -146,7 +146,7 @@ importers:
         specifier: 19.8.1
         version: 19.8.1
       '@eslint/eslintrc':
-        specifier: ^3.3.5
+        specifier: 3.3.5
         version: 3.3.5
       '@grafana/eslint-config':
         specifier: 9.0.0
@@ -260,7 +260,7 @@ importers:
         specifier: 9.1.7
         version: 9.1.7
       i18next-cli:
-        specifier: ^1.40.1
+        specifier: 1.54.1
         version: 1.54.1(@swc/helpers@0.5.17)(@types/node@24.0.0)(i18next@25.10.10(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(typescript@5.9.2)
       identity-obj-proxy:
         specifier: 3.0.0

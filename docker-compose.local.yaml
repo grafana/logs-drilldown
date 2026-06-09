@@ -15,7 +15,7 @@ services:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
         grafana_version: ${GRAFANA_VERSION:-main}
   loki:
-    image: grafana/loki:3.6
+    image: grafana/loki:3.6@sha256:9db961170b729dc38277963cbb4a79941626388562cc455db61bf85564aa8945
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'

@@ -11,4 +11,4 @@ on:
 
 jobs:
   verify-i18n:
-    uses: grafana/grafana-github-actions/.github/workflows/verify-i18n.yml@main
+    uses: grafana/grafana-github-actions/.github/workflows/verify-i18n.yml@3c62d35c5a66e730186a338e45aeb8fa784e2d56 # main
