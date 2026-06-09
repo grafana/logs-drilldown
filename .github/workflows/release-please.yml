@@ -5,12 +5,12 @@
 #   1. Run this workflow manually (Actions → Release Please → Run workflow).
 #      It opens (or updates) a draft release PR proposing the next version
 #      and CHANGELOG entries.
-#   2. Mark the release PR ready for review and merge it. Merging creates a
-#      `v<version>` tag on the merge commit and a GitHub Release stub.
+#   2. Mark the release PR ready for review and merge it. That push to main
+#      triggers release-please again, which creates the `v<version>` tag and
+#      a GitHub Release stub.
 #   3. Publish the plugin by manually running the
 #      `Plugins Platform Publish - CD` workflow (.github/workflows/cd.yml)
-#      against `main`. There is no automatic tag-push trigger in this repo
-#      yet, so step 3 is a separate human action.
+#      against `main`.
 #
 # Required repo files:
 #   .release-please-manifest.json  — e.g. { ".": "1.0.0" }
@@ -27,6 +27,9 @@
 name: Release Please
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
