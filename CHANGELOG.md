@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.1.0](https://github.com/grafana/logs-drilldown/compare/v2.0.4...v2.1.0) (2026-06-09)
+
+
+### 🎉 Features
+
+* **ExpandCondenseLosgsView:** Move to Panel Menu ([#1932](https://github.com/grafana/logs-drilldown/issues/1932)) ([1ce28e0](https://github.com/grafana/logs-drilldown/commit/1ce28e0c7114bbc7405da34606d4f2a045d933a2))
+* **LogsListScene:** Allow logs panel to fit the screen height with an option to use full screen size ([#1895](https://github.com/grafana/logs-drilldown/issues/1895)) ([2812f8b](https://github.com/grafana/logs-drilldown/commit/2812f8b24d572ed3a27af23322dcde8302b815ea))
+* **LogsTablePanel:** Add support for the Logs Table native visualization ([#1752](https://github.com/grafana/logs-drilldown/issues/1752)) ([d6da40b](https://github.com/grafana/logs-drilldown/commit/d6da40b4b75e47b6e24623bfa504ae5e61f5ec10))
+
+
+### 🐛 Bug Fixes
+
+* **BreadownView:** remove hardcoded min height ([#1903](https://github.com/grafana/logs-drilldown/issues/1903)) ([edc2993](https://github.com/grafana/logs-drilldown/commit/edc2993610005d458eb278feccf27cb1631e8c8b))
+* **ci:** use JSON output for Crowdin token from get-vault-secrets ([#1935](https://github.com/grafana/logs-drilldown/issues/1935)) ([e9aed5e](https://github.com/grafana/logs-drilldown/commit/e9aed5ef4e945a206afae2c967bfd0016ef6ffba)), closes [#1934](https://github.com/grafana/logs-drilldown/issues/1934)
+* **deps:** patch transitive vulnerabilities via pnpm overrides ([#1920](https://github.com/grafana/logs-drilldown/issues/1920)) ([591bce0](https://github.com/grafana/logs-drilldown/commit/591bce0b981de722ed14221d6723e5a37cd47888))
+* **filters:** add tooltips for each type of filter ([#1876](https://github.com/grafana/logs-drilldown/issues/1876)) ([a48af80](https://github.com/grafana/logs-drilldown/commit/a48af805343eb417578a17e8d6af5fb406fff5bc))
+* **levels filter:** reuse levels from Logs Volume if available ([#1873](https://github.com/grafana/logs-drilldown/issues/1873)) ([b121272](https://github.com/grafana/logs-drilldown/commit/b1212724a37008f7e5894649162aa4843496fc03))
+* **LevelsVariableScene:** fix negative values in queries and the displayed value in the combobox ([#1893](https://github.com/grafana/logs-drilldown/issues/1893)) ([1ed53ff](https://github.com/grafana/logs-drilldown/commit/1ed53ffbb331b17f0c071ea68aa83b80c3c564ad))
+* **lineFilters:** cancel debounced requests when onToggleExclusive changes ([#1899](https://github.com/grafana/logs-drilldown/issues/1899)) ([7284df1](https://github.com/grafana/logs-drilldown/commit/7284df169ac7f7682ecb72144052df91d9631a27))
+* **lineLimit:** show invalid for values over the max line limit ([#1902](https://github.com/grafana/logs-drilldown/issues/1902)) ([39d3245](https://github.com/grafana/logs-drilldown/commit/39d3245e463a56dd49042ea9aee43f84c9f9ce11))
+* **LogsPanelScene:** set timestamp resolution from viz options ([#1892](https://github.com/grafana/logs-drilldown/issues/1892)) ([50fed81](https://github.com/grafana/logs-drilldown/commit/50fed813dda88d800d71d3d5df94b5b3df6def36))
+* **security/unknown/generator:** update module golang.org/x/net to v0.55.0 [security] ([#1923](https://github.com/grafana/logs-drilldown/issues/1923)) ([1f0d313](https://github.com/grafana/logs-drilldown/commit/1f0d313a3ba2d1d86bba5c0ff70128922971948e))
+
+
+### 🤖 Continuous Integrations
+
+* **advisor:** turn off the advisor app ([#1886](https://github.com/grafana/logs-drilldown/issues/1886)) ([6c9a8f4](https://github.com/grafana/logs-drilldown/commit/6c9a8f4081babbae428393ef0ac4959437aad88d))
+* **release-please:** add release please ([#1885](https://github.com/grafana/logs-drilldown/issues/1885)) ([3857226](https://github.com/grafana/logs-drilldown/commit/3857226f9f81c05b0fa050e66c97ce9eebccc4cc))
+
 ## 2.0.4
 
 ##### Build System / Dependencies
