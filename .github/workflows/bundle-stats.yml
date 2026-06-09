@@ -30,6 +30,6 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - uses: grafana/plugin-actions/bundle-size@main
+      - uses: grafana/plugin-actions/bundle-size@2ecc2ba7168309f04010b5b637530b877d67e4ff # main
         with:
           node-version: '24'
