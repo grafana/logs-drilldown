@@ -25,14 +25,14 @@ jobs:
         id: vault-secrets
         uses: grafana/shared-workflows/actions/get-vault-secrets@main
         with:
-            # Vault secret paths:
-            # - ci/repo/grafana/logs-drilldown/grafana-frontend-crowdin-token
-            repo_secrets: |
-                CROWDIN_TOKEN=grafana-frontend-crowdin-token:access_token
+          # Vault secret paths:
+          # - ci/repo/grafana/logs-drilldown/grafana-frontend-crowdin-token
+          repo_secrets: |
+            CROWDIN_TOKEN=grafana-frontend-crowdin-token:access_token
       - name: Download from Crowdin
         uses: grafana/grafana-github-actions/crowdin-download@main
         with:
-          crowdin_token: ${{ env.CROWDIN_TOKEN }}
+          crowdin_token: ${{ fromJSON(steps.vault-secrets.outputs.secrets).CROWDIN_TOKEN }}
           crowdin_project_id: 40
           pr_labels: 'i18n'
           github_board_id: 702
