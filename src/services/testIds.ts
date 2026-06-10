@@ -56,7 +56,7 @@ export const testIds = {
   },
 
   index: {
-    addNewLabelTab: 'data-testid Tab Add label',
+    addNewLabelTab: 'data-testid Tab Add label tab',
     aggregatedMetricsMenu: 'data-testid aggregated-metrics-menu',
     aggregatedMetricsToggle: 'data-testid aggregated-metrics-toggle',
     header: {
