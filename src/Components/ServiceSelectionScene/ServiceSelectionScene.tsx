@@ -41,7 +41,7 @@ import {
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
 import { escapeLabelValueInExactSelector } from '../../services/extensions/scenesMethods';
-import { pushUrlHandler } from '../../services/navigate';
+import { getDrillDownIndexLink, pushUrlHandler } from '../../services/navigate';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
   clearServiceSelectionSearchVariable,
@@ -554,6 +554,15 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const levelFilter = this.getLevelFilterForService(labelValue);
 
     const backendDisplayedFields = this.getDefaultColumns(labelName, labelValue);
+
+    const onClickFilterString = (lineFilter: string) => {
+      const link = getDrillDownIndexLink(labelName, labelValue, {
+        'var-filters': [`${labelName}|=|${labelValue}`],
+        'var-lineFilters': [`caseInsensitive,0|__gfp__=|${lineFilter}`],
+      });
+      window.open(link, '_blank');
+    };
+
     const cssGridItem = new SceneCSSGridItem({
       $behaviors: [new behaviors.CursorSync({ sync: DashboardCursorSync.Off })],
       body: PanelBuilders.logs()
@@ -577,6 +586,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
         .setOption('displayedFields', backendDisplayedFields)
+        .setOption('onClickFilterString', onClickFilterString)
+        .setOption('showLogContextToggle', true)
         .build(),
     });
 
@@ -1153,6 +1164,13 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'column',
       flexGrow: 1,
+      // Hack to select internal div
+      'section > div[class$="panel-content"]': css({
+        // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
+        contain: 'none',
+        // Prevent overflow from spilling out of parent container
+        overflow: 'auto',
+      }),
     }),
     bodyWrapper: css({
       display: 'flex',
