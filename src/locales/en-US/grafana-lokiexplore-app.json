@@ -747,7 +747,7 @@
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "Add label",
+        "label-add-tab": "Add label tab",
         "label-loading-tabs": "Loading tabs",
         "tab": {
           "content-remove-tab": "Remove tab"
