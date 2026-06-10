@@ -137,7 +137,7 @@ importers:
         version: 3.3.5
       '@grafana/eslint-config':
         specifier: 9.0.0
-        version: 9.0.0(@stylistic/eslint-plugin-ts@4.4.1(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/eslint-plugin@8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint-config-prettier@10.1.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-jsdoc@52.0.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react-hooks@7.0.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.6.1)))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
+        version: 9.0.0(@stylistic/eslint-plugin-ts@4.4.1(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/eslint-plugin@8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint-config-prettier@10.1.8(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-jsdoc@52.0.4(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react-hooks@7.0.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.6.1)))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
       '@grafana/faro-webpack-plugin':
         specifier: 0.5.1
         version: 0.5.1(@swc/core@1.15.0(@swc/helpers@0.5.17))(webpack-cli@6.0.0)
@@ -214,14 +214,14 @@ importers:
         specifier: 9.32.0
         version: 9.32.0(jiti@2.6.1)
       eslint-config-prettier:
-        specifier: 10.1.0
-        version: 10.1.0(eslint@9.32.0(jiti@2.6.1))
+        specifier: 10.1.8
+        version: 10.1.8(eslint@9.32.0(jiti@2.6.1))
       eslint-plugin-import:
         specifier: 2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))
       eslint-plugin-jsdoc:
-        specifier: 52.0.0
-        version: 52.0.0(eslint@9.32.0(jiti@2.6.1))
+        specifier: 52.0.4
+        version: 52.0.4(eslint@9.32.0(jiti@2.6.1))
       eslint-plugin-jsx-a11y:
         specifier: 6.10.2
         version: 6.10.2(eslint@9.32.0(jiti@2.6.1))
@@ -4422,9 +4422,9 @@ packages:
       { integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA== }
     engines: { node: '>=10' }
 
-  eslint-config-prettier@10.1.0:
+  eslint-config-prettier@10.1.8:
     resolution:
-      { integrity: sha512-EZxtSSOjkmuRfrDZxcnRgLy8ea/hVGcsCj1zFIKiAZ3SJJOz0Pdusq2FFj0qJrFcpg2KzCo8j8bjInYpgMsdgA== }
+      { integrity: sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w== }
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -4466,9 +4466,9 @@ packages:
       '@typescript-eslint/parser':
         optional: true
 
-  eslint-plugin-jsdoc@52.0.0:
+  eslint-plugin-jsdoc@52.0.4:
     resolution:
-      { integrity: sha512-KZjaoTWWUIml6K6zyPvwCYlLoMDQ69taSdTcdTIavBUoJCIWUfYcsRIw4n9dzllMouqdxiFfKW33EAbBLBu1HA== }
+      { integrity: sha512-be5OzGlLExvcK13Il3noU7/v7WmAQGenTmCaBKf1pwVtPOb6X+PGFVnJad0QhMj4KKf45XjE4hbsBxv25q1fTg== }
     engines: { node: '>=20.11.0' }
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -9199,14 +9199,14 @@ snapshots:
       tslib: 2.8.1
       typescript: 5.9.2
 
-  '@grafana/eslint-config@9.0.0(@stylistic/eslint-plugin-ts@4.4.1(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/eslint-plugin@8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint-config-prettier@10.1.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-jsdoc@52.0.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react-hooks@7.0.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.6.1)))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)':
+  '@grafana/eslint-config@9.0.0(@stylistic/eslint-plugin-ts@4.4.1(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/eslint-plugin@8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint-config-prettier@10.1.8(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-jsdoc@52.0.4(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react-hooks@7.0.0(eslint@9.32.0(jiti@2.6.1)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.6.1)))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)':
     dependencies:
       '@stylistic/eslint-plugin-ts': 4.4.1(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
       '@typescript-eslint/eslint-plugin': 8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
       '@typescript-eslint/parser': 8.38.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
       eslint: 9.32.0(jiti@2.6.1)
-      eslint-config-prettier: 10.1.0(eslint@9.32.0(jiti@2.6.1))
-      eslint-plugin-jsdoc: 52.0.0(eslint@9.32.0(jiti@2.6.1))
+      eslint-config-prettier: 10.1.8(eslint@9.32.0(jiti@2.6.1))
+      eslint-plugin-jsdoc: 52.0.4(eslint@9.32.0(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.32.0(jiti@2.6.1))
       eslint-plugin-react-hooks: 7.0.0(eslint@9.32.0(jiti@2.6.1))
       typescript: 5.9.2
@@ -12388,7 +12388,7 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-config-prettier@10.1.0(eslint@9.32.0(jiti@2.6.1)):
+  eslint-config-prettier@10.1.8(eslint@9.32.0(jiti@2.6.1)):
     dependencies:
       eslint: 9.32.0(jiti@2.6.1)
 
@@ -12439,7 +12439,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jsdoc@52.0.0(eslint@9.32.0(jiti@2.6.1)):
+  eslint-plugin-jsdoc@52.0.4(eslint@9.32.0(jiti@2.6.1)):
     dependencies:
       '@es-joy/jsdoccomment': 0.52.0
       are-docs-informative: 0.0.2
