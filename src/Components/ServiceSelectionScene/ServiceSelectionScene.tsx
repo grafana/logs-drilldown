@@ -11,6 +11,7 @@ import {
   GrafanaTheme2,
   LoadingState,
   LogRowModel,
+  UrlQueryMap,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
@@ -568,12 +569,15 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
     const goToLogLine = (log: LogRowModel) => {
       const timeRange = resolveRowTimeRangeForSharing(log);
-      const link = getDrillDownIndexLink(labelName, labelValue, {
+      const params: UrlQueryMap = {
         'var-filters': [`${labelName}|=|${labelValue}`],
-        'var-levels': [`detected_level|=|${log.logLevel}`],
         [UrlParameterType.From]: timeRange.from.toISOString(),
         [UrlParameterType.To]: timeRange.to.toISOString(),
-      });
+      };
+      if (log.labels.detected_level) {
+        params['var-levels'] = [`detected_level|=|${log.labels.detected_level}`];
+      }
+      const link = getDrillDownIndexLink(labelName, labelValue, params);
       window.open(link, '_blank');
     };
 
