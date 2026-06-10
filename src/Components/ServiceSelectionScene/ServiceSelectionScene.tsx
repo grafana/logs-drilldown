@@ -10,7 +10,9 @@ import {
   dateTime,
   GrafanaTheme2,
   LoadingState,
+  LogRowModel,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -79,6 +81,7 @@ import {
   wrapWildcardSearch,
 } from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
+import { resolveRowTimeRangeForSharing, UrlParameterType } from 'services/text';
 import {
   DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,
@@ -563,6 +566,17 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       window.open(link, '_blank');
     };
 
+    const goToLogLine = (log: LogRowModel) => {
+      const timeRange = resolveRowTimeRangeForSharing(log);
+      const link = getDrillDownIndexLink(labelName, labelValue, {
+        'var-filters': [`${labelName}|=|${labelValue}`],
+        'var-levels': [`detected_level|=|${log.logLevel}`],
+        [UrlParameterType.From]: timeRange.from.toISOString(),
+        [UrlParameterType.To]: timeRange.to.toISOString(),
+      });
+      window.open(link, '_blank');
+    };
+
     const cssGridItem = new SceneCSSGridItem({
       $behaviors: [new behaviors.CursorSync({ sync: DashboardCursorSync.Off })],
       body: PanelBuilders.logs()
@@ -588,6 +602,15 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('displayedFields', backendDisplayedFields)
         .setOption('onClickFilterString', onClickFilterString)
         .setOption('showLogContextToggle', true)
+        .setOption('logLineMenuCustomItems', [
+          {
+            divider: true,
+          },
+          {
+            label: t('components.service-selection-scene.logs-panel.go-to-log-line', 'Go to log line'),
+            onClick: goToLogLine,
+          },
+        ])
         .build(),
     });
 
