@@ -1,25 +1,19 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import SVG from 'react-inlinesvg';
 
 import { GrafanaTheme2, locationUtil } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
+
+const GROT_LOKI_IMAGE = '/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg';
 
 export const NoLokiSplash = () => {
   const styles = useStyles2(getStyles);
-  const theme = useTheme2();
   return (
     <div className={styles.wrap}>
       <div className={styles.graphicContainer}>
-        <SVG
-          src={
-            theme.isDark
-              ? `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
-              : `/public/plugins/grafana-lokiexplore-app/img/grot_loki.svg`
-          }
-        />
+        <img src={GROT_LOKI_IMAGE} alt="" className={styles.graphic} />
       </div>
       <div className={styles.text}>
         <h3 className={styles.title}>
@@ -63,6 +57,10 @@ export const NoLokiSplash = () => {
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {
+    graphic: css({
+      height: '100%',
+      width: '100%',
+    }),
     graphicContainer: css({
       [theme.breakpoints.up('md')]: {
         alignSelf: 'flex-end',

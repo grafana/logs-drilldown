@@ -9,13 +9,13 @@ allowBuilds:
   unrs-resolver: true
 
 overrides:
-  react-router-dom: ^7.12.0
-  uuid: ^14.0.0
-  immutable: ~5.1.5
-  dompurify: ~3.4.0
-  serialize-javascript: ~7.0.5
-  strip-ansi: ~6.0.1
-  js-yaml: ~4.1.1
+  react-router-dom: 7.17.0
+  uuid: 14.0.0
+  immutable: 5.1.5
+  dompurify: 3.4.0
+  serialize-javascript: 7.0.5
+  strip-ansi: 6.0.1
+  js-yaml: 4.1.1
   # Security patches for transitive vulnerabilities (pnpm audit)
   fast-uri: 3.1.2
   protobufjs: 8.2.0
@@ -24,7 +24,3 @@ overrides:
   'brace-expansion@^5': 5.0.6
   'ws@^8': 8.20.1
   qs: 6.15.2
-  # @grafana/ui@13.0.1 pulls react-data-grid from a GitHub tarball; redirect to
-  # the equivalent npm-published package to satisfy blockExoticSubdeps (pnpm v11
-  # default). Remove once we upgrade to @grafana/ui>=13.1.0 which ships the npm dep.
-  react-data-grid: 'npm:@grafana/react-data-grid@7.0.0-beta.57'
