@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.2
+
+##### Chores
+
+* **version-pr:**  try creating a pr for version-bump-changelog (#1942) (2b21a5d1)
+* **release-please:**  update trigger to autogenerate git tags (#1939) (6f233d77)
+
+
 ## 2.1.1
 
 ##### Bug Fixes
