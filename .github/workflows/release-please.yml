@@ -2,24 +2,24 @@
 # based on conventional commits since the last tag.
 #
 # Release flow in this repo:
-#   1. Run this workflow manually (Actions → Release Please → Run workflow).
-#      It opens (or updates) a draft release PR proposing the next version
-#      and CHANGELOG entries.
-#   2. Mark the release PR ready for review and merge it. Merging creates a
-#      `v<version>` tag on the merge commit and a GitHub Release stub.
-#   3. Publish the plugin by manually running the
+#   1. Pushes to main with unreleased conventional commits open or update a
+#      draft release PR with the proposed version and CHANGELOG entries.
+#   2. Merge that release PR when ready. The next push to main creates the
+#      `v<version>` git tag and a draft GitHub Release with release notes.
+#   3. Pushing the tag triggers `.github/workflows/publish-github-release.yml`,
+#      which builds the signed plugin zip and uploads
+#      `grafana-lokiexplore-app-<version>.zip` (+ `.sha1`) to that release.
+#   4. Publish the plugin to prod by manually running the
 #      `Plugins Platform Publish - CD` workflow (.github/workflows/cd.yml)
-#      against `main`. There is no automatic tag-push trigger in this repo
-#      yet, so step 3 is a separate human action.
+#      against `main` or the release tag with environment `prod`.
 #
 # Required repo files:
 #   .release-please-manifest.json  — e.g. { ".": "1.0.0" }
 #   release-please-config.json     — see release-please-config.json in this repo
 #
-# Note: do NOT add `skip-github-release` to the config — it prevents tag
-# creation and breaks release-please state tracking. If/when this repo gains
-# an automatic publish-on-tag workflow, that workflow can update the release
-# stub release-please already created (e.g. via softprops/action-gh-release).
+# Note: release-please does not build plugin zips. GitHub Releases are created
+# as drafts (`draft` + `force-tag-creation` in release-please-config.json) so
+# publish-github-release can attach assets before the release is published.
 #
 # For more information, see
 # https://github.com/grafana/plugin-ci-workflows/tree/main/actions/plugins/release-please
@@ -27,7 +27,9 @@
 name: Release Please
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
