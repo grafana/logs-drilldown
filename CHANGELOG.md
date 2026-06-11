@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/grafana/logs-drilldown/compare/v2.1.0...v2.1.1) (2026-06-11)
+
+
+### 🐛 Bug Fixes
+
+* **ServiceSelectionTabsScene:** rename add tab action ([#1937](https://github.com/grafana/logs-drilldown/issues/1937)) ([732e748](https://github.com/grafana/logs-drilldown/commit/732e748c8da499c4816f390636d84b3832752411))
+
 ## 2.1.1
 
 ##### Bug Fixes
