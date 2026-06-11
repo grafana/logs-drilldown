@@ -574,9 +574,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         [UrlParameterType.From]: timeRange.from.toISOString(),
         [UrlParameterType.To]: timeRange.to.toISOString(),
       };
-      if (log.labels.detected_level) {
-        params['var-levels'] = [`detected_level|=|${log.labels.detected_level}`];
-      }
       const link = getDrillDownIndexLink(labelName, labelValue, params);
       window.open(link, '_blank');
     };
