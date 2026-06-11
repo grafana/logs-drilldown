@@ -1,9 +1,9 @@
 import { dateTime, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 
-import { setUrlParamsFromFieldFilters, setUrlParamsFromLabelFilters } from './extensions/links';
+import { setLineFilterUrlParams, setUrlParamsFromFieldFilters, setUrlParamsFromLabelFilters } from './extensions/links';
 import { LabelType } from './fieldsTypes';
-import { FieldFilter, FilterOp, IndexedLabelFilter } from './filterTypes';
+import { FieldFilter, FilterOp, IndexedLabelFilter, LineFilterType } from './filterTypes';
 import { logger } from './logger';
 import { getLabelTypeFromFrame } from './lokiQuery';
 import { LEVEL_VARIABLE_VALUE } from './variables';
@@ -57,25 +57,44 @@ export const generateLogShortlink = (paramName: string, data: PermalinkDataType,
   return generateLink(urlUtil.renderUrl(location.pathname, searchParams));
 };
 
-export const generateLogRowShortlink = (log: LogRowModel, panelState: PermalinkDataType) => {
+export const generateLogRowShortlink = (log: LogRowModel, panelState?: PermalinkDataType) => {
   const location = locationService.getLocation();
   const timeRange = resolveRowTimeRangeForSharing(log);
   let searchParams = new URLSearchParams(location.search);
+  searchParams.set('panelState', JSON.stringify(panelState));
+  return generateLinkFromFilters(location.pathname, timeRange, searchParams, getLogLineFilterParams(log));
+};
+
+export type LinkFilters = {
+  fields?: FieldFilter[];
+  labels: IndexedLabelFilter[];
+  lineFilters?: LineFilterType[];
+};
+
+export const generateLinkFromFilters = (
+  path: string,
+  timeRange: TimeRange,
+  searchParams: URLSearchParams,
+  filters: LinkFilters
+) => {
   searchParams.set(UrlParameterType.From, timeRange.from.toISOString());
   searchParams.set(UrlParameterType.To, timeRange.to.toISOString());
-  searchParams.set('panelState', JSON.stringify(panelState));
 
-  const { fields, labels } = getLogLineFilterParams(log);
-
-  if (fields.length) {
-    searchParams = setUrlParamsFromFieldFilters(fields, searchParams);
-  }
+  const { fields = [], labels, lineFilters = [] } = filters;
 
   if (labels.length) {
     searchParams = setUrlParamsFromLabelFilters(labels, searchParams);
   }
 
-  return generateLink(`${location.pathname}?${searchParams.toString()}`);
+  if (lineFilters.length) {
+    searchParams = setLineFilterUrlParams(lineFilters, searchParams);
+  }
+
+  if (fields.length) {
+    searchParams = setUrlParamsFromFieldFilters(fields, searchParams);
+  }
+
+  return generateLink(`${path}?${searchParams.toString()}`);
 };
 
 /**

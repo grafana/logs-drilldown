@@ -147,7 +147,7 @@ export function setUrlParamsFromLabelFilters(labelFilters: IndexedLabelFilter[],
   return params;
 }
 
-function setLineFilterUrlParams(lineFilters: LineFilterType[], params: URLSearchParams) {
+export function setLineFilterUrlParams(lineFilters: LineFilterType[], params: URLSearchParams) {
   for (const lineFilter of lineFilters) {
     params = appendUrlParameter(
       UrlParameters.LineFilters,
