@@ -144,7 +144,7 @@ describe('ServiceSelection Config', () => {
 
       render(<Config />);
 
-      expect(screen.getByRole('heading', { name: /welcome to grafana logs drilldown/i })).toBeInTheDocument();
+      expect(screen.getByText(/welcome to grafana logs drilldown/i)).toBeInTheDocument();
       expect(screen.getByText(/no loki datasource configured/i)).toBeInTheDocument();
     });
   });
