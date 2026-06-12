@@ -2,12 +2,12 @@ import React from 'react';
 
 import { isNumber } from 'lodash';
 
-import { DataFrame, Field, TimeRange } from '@grafana/data';
+import { DataFrame, Field } from '@grafana/data';
 import { SceneDataProvider, sceneGraph } from '@grafana/scenes';
 
 import { isLogLineField, isLogsIdField } from '../../../services/fields';
 import { logger } from '../../../services/logger';
-import { copyText, generateLogShortlink } from '../../../services/text';
+import { copyText, generateLogRowShortlink, getPermalinkLogRowFromDataFrame } from '../../../services/text';
 import CopyToClipboardButton from '../../Buttons/CopyToClipboardButton';
 import { JSONLogsScene } from '../JSONLogsScene';
 import { getLogsPanelFrame } from '../ServiceScene';
@@ -18,14 +18,10 @@ interface Props {
   model: JSONLogsScene;
 }
 export function JSONLogLineActionButtons({ model, keyPath }: Props) {
-  const timeRange = sceneGraph.getTimeRange(model).state.value;
   return (
     <>
       <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(model))} />
-      <CopyToClipboardButton
-        type={'share-alt'}
-        onClick={() => getLinkToLog(keyPath, timeRange, model.state.rawFrame)}
-      />
+      <CopyToClipboardButton type={'share-alt'} onClick={() => getLinkToLog(keyPath, model.state.rawFrame)} />
     </>
   );
 }
@@ -40,15 +36,25 @@ const copyLogLine = (keyPath: KeyPath, $data: SceneDataProvider) => {
   }
 };
 
-function getLinkToLog(keyPath: KeyPath, timeRange: TimeRange, rawFrame: DataFrame | undefined) {
-  const idField: Field<string> | undefined = rawFrame?.fields.find((f) => isLogsIdField(f.name));
+function getLinkToLog(keyPath: KeyPath, rawFrame: DataFrame | undefined) {
   const logLineIndex = keyPath[0];
   if (!isNumber(logLineIndex)) {
     const error = Error('Invalid line index');
     logger.error(error, { msg: 'Error getting log line index' });
     throw error;
   }
+  if (!rawFrame) {
+    return;
+  }
+
+  const row = getPermalinkLogRowFromDataFrame(rawFrame, logLineIndex);
+  if (!row) {
+    return;
+  }
+
+  const idField: Field<string> | undefined = rawFrame.fields.find((f) => isLogsIdField(f.name));
   const logId = idField?.values[logLineIndex];
-  const logLineLink = generateLogShortlink('selectedLine', { id: logId, row: logLineIndex }, timeRange);
+  // The JSON view scrolls to and highlights the line from the `selectedLine` url param.
+  const logLineLink = generateLogRowShortlink(row, { id: logId, row: logLineIndex }, 'selectedLine');
   copyText(logLineLink);
 }

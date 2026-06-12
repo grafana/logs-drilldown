@@ -8,7 +8,7 @@ import { ClipboardButton, IconButton, Modal, useTheme2 } from '@grafana/ui';
 
 import { testIds } from '../../services/testIds';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
-import { generateLogShortlink } from 'services/text';
+import { generateLogRowShortlink, getPermalinkLogRowFromDataFrame } from 'services/text';
 
 export const getStyles = (theme: GrafanaTheme2, isNumber?: boolean) => ({
   clipboardButton: css({
@@ -51,16 +51,21 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
   const isNumber = typeof props.value === 'string' && !isNaN(Number(props.value));
   const theme = useTheme2();
   const styles = getStyles(theme, isNumber);
-  const { logsFrame, timeRange } = useQueryContext();
+  const { logsFrame } = useQueryContext();
   const logId = logsFrame?.idField?.values[props.rowIndex];
   const lineValue = logsFrame?.bodyField.values[props.rowIndex];
   const [isInspecting, setIsInspecting] = useState(false);
   const getText = useCallback(() => {
-    if (timeRange) {
-      return generateLogShortlink('selectedLine', { id: logId, row: props.rowIndex }, timeRange);
+    if (!logsFrame) {
+      return '';
     }
-    return '';
-  }, [logId, props.rowIndex, timeRange]);
+    const row = getPermalinkLogRowFromDataFrame(logsFrame.raw, props.rowIndex);
+    if (!row) {
+      return '';
+    }
+    // The Table view scrolls to and highlights the line from the `selectedLine` url param.
+    return generateLogRowShortlink(row, { id: logId, row: props.rowIndex }, 'selectedLine');
+  }, [logsFrame, logId, props.rowIndex]);
   return (
     <>
       <div className={styles.iconWrapper}>
