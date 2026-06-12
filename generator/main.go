@@ -14,9 +14,7 @@ import (
 
 	"github.com/grafana/explore-logs/generator/log"
 	"github.com/grafana/explore-logs/generator/trace"
-	"github.com/grafana/loki-client-go/loki"
 	"github.com/grafana/loki/pkg/push"
-	"github.com/prometheus/common/config"
 	"github.com/prometheus/common/model"
 )
 
@@ -62,27 +60,14 @@ func main() {
 		stdlog.Print("generator: service-tiered mode (docker-compose-local-all), E2E-critical services get full data")
 	}
 
-	cfg, err := loki.NewDefaultConfig(*url)
-	if err != nil {
-		panic(err)
-	}
-	cfg.BackoffConfig.MaxRetries = 1
-	cfg.BackoffConfig.MinBackoff = 100 * time.Millisecond
-	cfg.BackoffConfig.MaxBackoff = 100 * time.Millisecond
-
-	if *tenantId != "" {
-		cfg.TenantID = *tenantId
-	}
-
-	if *token != "" {
-		t := config.Secret(*token)
-		cfg.Client.BasicAuth = &config.BasicAuth{
-			Username: *tenantId,
-			Password: t,
-		}
-	}
-
-	client, err := loki.New(cfg)
+	client, err := log.NewLokiLogger(log.LokiLoggerConfig{
+		URL:        *url,
+		TenantID:   *tenantId,
+		Token:      *token,
+		MaxRetries: 1,
+		MinBackoff: 100 * time.Millisecond,
+		MaxBackoff: 100 * time.Millisecond,
+	})
 	if err != nil {
 		panic(err)
 	}
