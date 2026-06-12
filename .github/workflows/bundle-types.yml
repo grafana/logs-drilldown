@@ -25,3 +25,4 @@ jobs:
         with:
           entry-point: ./src/Components/ExposedComponents/types.ts
           ts-config: ./tsconfig-for-bundle-types.json
+          node-version: '24'
