@@ -645,7 +645,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             divider: true,
           },
           {
-            label: t('components.service-selection-scene.logs-panel.go-to-log-line', 'Show similar logs'),
+            label: t('components.service-selection-scene.logs-panel.show-similar-logs', 'Show similar logs'),
             onClick: goToSimilarLogs,
           },
           {

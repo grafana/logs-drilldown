@@ -728,7 +728,8 @@
         "title": "Log volume has not been configured."
       },
       "logs-panel": {
-        "go-to-log-line": "Go to log line"
+        "go-to-log-line": "Go to log line",
+        "show-similar-logs": "Show similar logs"
       },
       "no-service-search-results": {
         "title": "No service matched your search."
