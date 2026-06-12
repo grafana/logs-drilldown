@@ -191,7 +191,13 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
           }),
           new AdHocFiltersVariable({
             datasource: EXPLORATION_DS,
-            expressionBuilder: renderLogQLLabelFilters,
+            // Emit a leading `, ` only when there are filters, so callers can append the
+            // expression directly to a stream selector without producing a dangling comma
+            // (an empty replica would otherwise yield `{foo=`bar` , }` and break log context).
+            expressionBuilder: (filters) => {
+              const expr = renderLogQLLabelFilters(filters);
+              return expr ? `, ${expr}` : '';
+            },
             filters: [],
             hide: VariableHide.hideVariable,
             key: 'adhoc_service_filter_replica',
@@ -685,7 +691,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
             ? []
             : [
                 buildVolumeQuery(
-                  `{${VAR_PRIMARY_LABEL_EXPR}, ${VAR_LABELS_REPLICA_EXPR}}`,
+                  `{${VAR_PRIMARY_LABEL_EXPR}${VAR_LABELS_REPLICA_EXPR}}`,
                   'volume',
                   this.getSelectedTab()
                 ),
@@ -1114,16 +1120,16 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       if (this.hasDefaultColumnsSet()) {
         const matchingCols = this.getDefaultColumns(labelName, labelValue);
         if (matchingCols.length > 0) {
-          return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+          return `{${labelName}=\`${labelValue}\`${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
         } else {
-          return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+          return `{${labelName}=\`${labelValue}\`${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
         }
       } else {
         // We could still be waiting for API response, so we have to assume that
-        return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
+        return `{${labelName}=\`${labelValue}\`${VAR_LABELS_REPLICA_EXPR} }${levelFilter} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS}`;
       }
     } else {
-      return `{${labelName}=\`${labelValue}\` , ${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
+      return `{${labelName}=\`${labelValue}\`${VAR_LABELS_REPLICA_EXPR} }${levelFilter}`;
     }
   }
 
@@ -1143,7 +1149,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
 
     return `sum by (${LEVEL_VARIABLE_VALUE}) (count_over_time({ ${filter.key}=\"${escapeLabelValueInExactSelector(
       labelValue
-    )}\", ${VAR_LABELS_REPLICA_EXPR} } [$__auto]))`;
+    )}\"${VAR_LABELS_REPLICA_EXPR} } [$__auto]))`;
   }
 
   private extendTimeSeriesLegendBus = (
