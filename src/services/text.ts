@@ -59,10 +59,13 @@ export const generateLogShortlink = (paramName: string, data: PermalinkDataType,
 
 export const generateLogRowShortlink = (log: LogRowModel, panelState?: PermalinkDataType) => {
   const location = locationService.getLocation();
+  console.log(location);
+  return;
   const timeRange = resolveRowTimeRangeForSharing(log);
   let searchParams = new URLSearchParams(location.search);
   searchParams.set('panelState', JSON.stringify(panelState));
-  return generateLinkFromFilters(location.pathname, timeRange, searchParams, getLogLineFilterParams(log));
+  const { fields } = getLogLinePermalinkFilterParams(log);
+  return generateLinkFromFilters(location.pathname, timeRange, searchParams, { fields, labels: [] });
 };
 
 export type LinkFilters = {
@@ -71,14 +74,14 @@ export type LinkFilters = {
   lineFilters?: LineFilterType[];
 };
 
-export const generateLinkFromFilters = (
-  path: string,
-  timeRange: TimeRange,
-  searchParams: URLSearchParams,
-  filters: LinkFilters
-) => {
-  searchParams.set(UrlParameterType.From, timeRange.from.toISOString());
-  searchParams.set(UrlParameterType.To, timeRange.to.toISOString());
+export const generateLinkFromFilters = (path: string, filters: LinkFilters, timeRange?: TimeRange) => {
+  const url = new URL(generateLink(path));
+
+  let searchParams = url.searchParams;
+  if (timeRange) {
+    searchParams.set(UrlParameterType.From, timeRange.from.toISOString());
+    searchParams.set(UrlParameterType.To, timeRange.to.toISOString());
+  }
 
   const { fields = [], labels, lineFilters = [] } = filters;
 
@@ -94,12 +97,9 @@ export const generateLinkFromFilters = (
     searchParams = setUrlParamsFromFieldFilters(fields, searchParams);
   }
 
-  return generateLink(`${path}?${searchParams.toString()}`);
+  return `${url.origin}${url.pathname}?${searchParams.toString()}`;
 };
 
-/**
- * Given a particular log, generate the necessary filters to narrow down the search as much as possible.
- */
 const OMIT_UNIQUE_LABELS = [
   '__aggregated_metric__',
   '__stream_shard__',
@@ -108,7 +108,10 @@ const OMIT_UNIQUE_LABELS = [
   'level',
   'level_extracted',
 ];
-export function getLogLineFilterParams(log: LogRowModel) {
+/**
+ * Given a particular log, generate the necessary filters to narrow down the search as much as possible.
+ */
+export function getLogLinePermalinkFilterParams(log: LogRowModel) {
   const labels: IndexedLabelFilter[] = [];
   const fields: FieldFilter[] = [];
 
@@ -131,6 +134,7 @@ export function getLogLineFilterParams(log: LogRowModel) {
       labels.push({
         key: label,
         operator: FilterOp.Equal,
+        type: LabelType.Indexed,
         value: log.uniqueLabels[label],
       });
     } else {
@@ -143,9 +147,28 @@ export function getLogLineFilterParams(log: LogRowModel) {
       });
     }
   }
+
   return {
     fields,
     labels,
+  };
+}
+
+/**
+ * Given a particular log, return the minimum set of filters to browse this and similar log lines.
+ */
+export function getLogLineFilterParams(log: LogRowModel) {
+  const { fields, labels } = getLogLinePermalinkFilterParams(log);
+
+  // If structured metadata fields are available, filter parsed fields to reduce noise.
+  const hasStructuredMetadata = fields.some((field) => field.type === LabelType.StructuredMetadata);
+  const filteredFields = hasStructuredMetadata
+    ? fields.filter((field) => field.type === LabelType.StructuredMetadata)
+    : fields;
+
+  return {
+    labels,
+    fields: filteredFields,
   };
 }
 

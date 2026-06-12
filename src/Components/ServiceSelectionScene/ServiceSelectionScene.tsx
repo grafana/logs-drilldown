@@ -11,7 +11,7 @@ import {
   GrafanaTheme2,
   LoadingState,
   LogRowModel,
-  UrlQueryMap,
+  TimeRange,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
@@ -71,6 +71,8 @@ import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { LabelType } from 'services/fieldsTypes';
+import { FieldFilter, FilterOp } from 'services/filterTypes';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
 import { getMetadataService } from 'services/metadata';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
@@ -82,7 +84,12 @@ import {
   wrapWildcardSearch,
 } from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
-import { resolveRowTimeRangeForSharing, UrlParameterType } from 'services/text';
+import {
+  generateLinkFromFilters,
+  getLogLineFilterParams,
+  getLogLinePermalinkFilterParams,
+  resolveRowTimeRangeForSharing,
+} from 'services/text';
 import {
   DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,
@@ -567,15 +574,29 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
       window.open(link, '_blank');
     };
 
-    const goToLogLine = (log: LogRowModel) => {
-      const timeRange = resolveRowTimeRangeForSharing(log);
-      const params: UrlQueryMap = {
-        'var-filters': [`${labelName}|=|${labelValue}`],
-        [UrlParameterType.From]: timeRange.from.toISOString(),
-        [UrlParameterType.To]: timeRange.to.toISOString(),
-      };
-      const link = getDrillDownIndexLink(labelName, labelValue, params);
+    const goToLog = (fields: FieldFilter[], timeRange?: TimeRange) => {
+      const labels = [
+        {
+          key: labelName,
+          operator: FilterOp.Equal,
+          type: LabelType.Indexed,
+          value: labelValue,
+        },
+      ];
+
+      const link = generateLinkFromFilters(getDrillDownIndexLink(labelName, labelValue), { labels, fields }, timeRange);
       window.open(link, '_blank');
+    };
+
+    const goToLogLine = (log: LogRowModel) => {
+      const { fields } = getLogLinePermalinkFilterParams(log);
+      const timeRange = resolveRowTimeRangeForSharing(log);
+      goToLog(fields, timeRange);
+    };
+
+    const goToSimilarLogs = (log: LogRowModel) => {
+      const { fields } = getLogLineFilterParams(log);
+      goToLog(fields);
     };
 
     const cssGridItem = new SceneCSSGridItem({
@@ -606,6 +627,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('logLineMenuCustomItems', [
           {
             divider: true,
+          },
+          {
+            label: t('components.service-selection-scene.logs-panel.go-to-log-line', 'Show similar logs'),
+            onClick: goToSimilarLogs,
           },
           {
             label: t('components.service-selection-scene.logs-panel.go-to-log-line', 'Go to log line'),
