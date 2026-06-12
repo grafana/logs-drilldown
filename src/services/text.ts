@@ -1,4 +1,4 @@
-import { DataFrame, dateTime, FieldType, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
+import { DataFrame, dateTime, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 
 import { setLineFilterUrlParams, setUrlParamsFromFieldFilters, setUrlParamsFromLabelFilters } from './extensions/links';
