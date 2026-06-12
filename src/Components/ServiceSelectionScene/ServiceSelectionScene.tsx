@@ -639,7 +639,6 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('fontSize', 'small')
         .setOption('displayedFields', backendDisplayedFields)
         .setOption('onClickFilterString', onClickFilterString)
-        .setOption('showLogContextToggle', true)
         .setOption('logLineMenuCustomItems', [
           {
             divider: true,
