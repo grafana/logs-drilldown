@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/grafana/logs-drilldown/compare/v2.1.0...v2.2.0) (2026-06-12)
+
+
+### 🎉 Features
+
+* **logs:** new options for service selection (show context, go to log line, show similar log lines, add line filter) and updated permalinks ([#1940](https://github.com/grafana/logs-drilldown/issues/1940)) ([158acbf](https://github.com/grafana/logs-drilldown/commit/158acbf0317a3e885164f1779a68a15e5f4ac817))
+
+
+### 🐛 Bug Fixes
+
+* **ServiceSelection:** fix broken context queries in due to trailing commas ([#1953](https://github.com/grafana/logs-drilldown/issues/1953)) ([34b809e](https://github.com/grafana/logs-drilldown/commit/34b809e772a4aed38bd30c7eb856bc8f4cf02238))
+* **ServiceSelectionTabsScene:** rename add tab action ([#1937](https://github.com/grafana/logs-drilldown/issues/1937)) ([732e748](https://github.com/grafana/logs-drilldown/commit/732e748c8da499c4816f390636d84b3832752411))
+
 ## 2.1.2
 
 ##### Chores
