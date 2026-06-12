@@ -59,13 +59,11 @@ export const generateLogShortlink = (paramName: string, data: PermalinkDataType,
 
 export const generateLogRowShortlink = (log: LogRowModel, panelState?: PermalinkDataType) => {
   const location = locationService.getLocation();
-  console.log(location);
-  return;
   const timeRange = resolveRowTimeRangeForSharing(log);
   let searchParams = new URLSearchParams(location.search);
   searchParams.set('panelState', JSON.stringify(panelState));
   const { fields } = getLogLinePermalinkFilterParams(log);
-  return generateLinkFromFilters(location.pathname, timeRange, searchParams, { fields, labels: [] });
+  return generateLinkFromFilters(`${location.pathname}?${searchParams.toString()}`, { fields, labels: [] }, timeRange);
 };
 
 export type LinkFilters = {
