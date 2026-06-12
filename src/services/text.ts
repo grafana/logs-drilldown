@@ -1,4 +1,4 @@
-import { DataFrame, dateTime, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
+import { DataFrame, dateTime, FieldType, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 
 import { setLineFilterUrlParams, setUrlParamsFromFieldFilters, setUrlParamsFromLabelFilters } from './extensions/links';
@@ -170,6 +170,9 @@ export function getLogLinePermalinkFilterParams(log: PermalinkLogRow) {
     }
     const labelType = getLabelTypeFromFrame(label, log.dataFrame, log.rowIndex) ?? LabelType.Parsed;
 
+    // Limit parsed fields to not overcrowd the filters with superfluous entries.
+    const hasParsedFields = fields.filter((field) => field.type === LabelType.Parsed).length === 2;
+
     if (labelType === LabelType.Indexed) {
       labels.push({
         key: label,
@@ -177,7 +180,7 @@ export function getLogLinePermalinkFilterParams(log: PermalinkLogRow) {
         type: LabelType.Indexed,
         value: log.uniqueLabels[label],
       });
-    } else {
+    } else if (labelType === LabelType.StructuredMetadata || !hasParsedFields) {
       fields.push({
         key: label,
         operator: FilterOp.Equal,
@@ -191,24 +194,6 @@ export function getLogLinePermalinkFilterParams(log: PermalinkLogRow) {
   return {
     fields,
     labels,
-  };
-}
-
-/**
- * Given a particular log, return the minimum set of filters to browse this and similar log lines.
- */
-export function getLogLineFilterParams(log: PermalinkLogRow) {
-  const { fields, labels } = getLogLinePermalinkFilterParams(log);
-
-  // If structured metadata fields are available, filter parsed fields to reduce noise.
-  const hasStructuredMetadata = fields.some((field) => field.type === LabelType.StructuredMetadata);
-  const filteredFields = hasStructuredMetadata
-    ? fields.filter((field) => field.type === LabelType.StructuredMetadata)
-    : fields;
-
-  return {
-    labels,
-    fields: filteredFields,
   };
 }
 

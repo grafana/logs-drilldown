@@ -84,12 +84,7 @@ import {
   wrapWildcardSearch,
 } from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
-import {
-  generateLinkFromFilters,
-  getLogLineFilterParams,
-  getLogLinePermalinkFilterParams,
-  resolveRowTimeRangeForSharing,
-} from 'services/text';
+import { generateLinkFromFilters, getLogLinePermalinkFilterParams, resolveRowTimeRangeForSharing } from 'services/text';
 import {
   DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,
@@ -616,7 +611,7 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         USER_EVENTS_PAGES.service_selection,
         USER_EVENTS_ACTIONS.service_selection.show_similar_logs_clicked
       );
-      const { fields } = getLogLineFilterParams(log);
+      const { fields } = getLogLinePermalinkFilterParams(log);
       goToLog(fields);
     };
 
