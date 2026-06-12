@@ -1,12 +1,16 @@
 import { dateTime, FieldType, LogsSortOrder, TimeRange, toDataFrame } from '@grafana/data';
 
+import { LabelType } from './fieldsTypes';
+import { FilterOp, LineFilterOp } from './filterTypes';
 import { PLUGIN_ID } from './plugin';
 import {
   capitalizeFirstLetter,
   ensureValidTimeRangeForLink,
   generateLink,
+  generateLinkFromFilters,
   generateLogRowShortlink,
   generateLogShortlink,
+  getLogLinePermalinkFilterParams,
   PermalinkLogRow,
   resolveRowTimeRangeForSharing,
   truncateText,
@@ -161,6 +165,7 @@ describe('generateLogRowShortlink', () => {
     // No fields/labels filters were derived from this empty row.
     expect(url.searchParams.get('var-fields')).toBeNull();
     expect(url.searchParams.get('var-labels')).toBeNull();
+    expect(url.searchParams.get('var-filters')).toBeDefined();
   });
 
   test('derives level and structured-metadata field filters but drops indexed labels', () => {
@@ -206,5 +211,128 @@ describe('generateLogRowShortlink', () => {
 
     expect(url.searchParams.get('customState')).toEqual(JSON.stringify(panelState));
     expect(url.searchParams.get('panelState')).toBeNull();
+  });
+});
+
+describe('getLogLinePermalinkFilterParams', () => {
+  const makeLog = (overrides: Partial<PermalinkLogRow>): PermalinkLogRow => ({
+    dataFrame: toDataFrame({ fields: [] }),
+    labels: {},
+    rowIndex: 0,
+    timeEpochMs: 0,
+    uniqueLabels: {},
+    ...overrides,
+  });
+
+  test('returns empty filters for a row with no labels', () => {
+    expect(getLogLinePermalinkFilterParams(makeLog({}))).toEqual({ fields: [], labels: [] });
+  });
+
+  test('derives a level field from the detected_level label', () => {
+    const log = makeLog({
+      dataFrame: toDataFrame({
+        fields: [{ name: 'labelTypes', type: FieldType.other, values: [{ detected_level: 'S' }] }],
+      }),
+      labels: { detected_level: 'info' },
+    });
+
+    expect(getLogLinePermalinkFilterParams(log).fields).toEqual([
+      { key: 'detected_level', operator: FilterOp.Equal, type: LabelType.StructuredMetadata, value: 'info' },
+    ]);
+  });
+
+  test('defaults the level field type to Parsed when the frame has no label types', () => {
+    const log = makeLog({ labels: { detected_level: 'warn' } });
+
+    expect(getLogLinePermalinkFilterParams(log).fields).toEqual([
+      { key: 'detected_level', operator: FilterOp.Equal, type: LabelType.Parsed, value: 'warn' },
+    ]);
+  });
+
+  test('routes indexed labels to labels and structured metadata to fields', () => {
+    const log = makeLog({
+      dataFrame: toDataFrame({
+        fields: [{ name: 'labelTypes', type: FieldType.other, values: [{ pod: 'I', region: 'S' }] }],
+      }),
+      uniqueLabels: { pod: 'mypod', region: 'us-east' },
+    });
+
+    const { fields, labels } = getLogLinePermalinkFilterParams(log);
+
+    expect(labels).toEqual([{ key: 'pod', operator: FilterOp.Equal, type: LabelType.Indexed, value: 'mypod' }]);
+    expect(fields).toEqual([
+      {
+        key: 'region',
+        operator: FilterOp.Equal,
+        parser: 'structuredMetadata',
+        type: LabelType.StructuredMetadata,
+        value: 'us-east',
+      },
+    ]);
+  });
+
+  test('skips reserved labels such as level and aggregated-metric markers', () => {
+    const log = makeLog({
+      uniqueLabels: { __aggregated_metric__: '1', detected_level: 'info', level: 'info', level_extracted: 'info' },
+    });
+
+    expect(getLogLinePermalinkFilterParams(log)).toEqual({ fields: [], labels: [] });
+  });
+
+  test('limits parsed fields to two to avoid overcrowding the filters', () => {
+    const log = makeLog({
+      dataFrame: toDataFrame({
+        fields: [{ name: 'labelTypes', type: FieldType.other, values: [{ p1: 'P', p2: 'P', p3: 'P' }] }],
+      }),
+      uniqueLabels: { p1: 'a', p2: 'b', p3: 'c' },
+    });
+
+    const { fields } = getLogLinePermalinkFilterParams(log);
+
+    expect(fields.map((field) => field.key)).toEqual(['p1', 'p2']);
+    expect(fields.every((field) => field.parser === 'mixed')).toBe(true);
+  });
+});
+
+describe('generateLinkFromFilters', () => {
+  beforeEach(() => {
+    window.history.pushState({}, '', `/a/${PLUGIN_ID}/explore`);
+  });
+
+  const path = `/a/${PLUGIN_ID}/explore?var-ds=DSID`;
+
+  test('prepends the sub-path and preserves the existing query when no filters are given', () => {
+    const url = new URL(generateLinkFromFilters(path, { labels: [] }));
+
+    expect(url.origin).toEqual('http://localhost:3000');
+    expect(url.pathname).toEqual(`${mockSubPath}/a/${PLUGIN_ID}/explore`);
+    expect(url.searchParams.get('var-ds')).toEqual('DSID');
+  });
+
+  test('writes the time range into from/to params', () => {
+    const timeRange: TimeRange = {
+      from: dateTime(0),
+      raw: { from: dateTime(0), to: dateTime(1000) },
+      to: dateTime(1000),
+    };
+
+    const url = new URL(generateLinkFromFilters(path, { labels: [] }, timeRange));
+
+    expect(url.searchParams.get('from')).toEqual(dateTime(0).toISOString());
+    expect(url.searchParams.get('to')).toEqual(dateTime(1000).toISOString());
+  });
+
+  test('adds indexed label, field, and line filter params', () => {
+    const url = new URL(
+      generateLinkFromFilters(path, {
+        fields: [{ key: 'region', operator: FilterOp.Equal, parser: 'mixed', type: LabelType.Parsed, value: 'us' }],
+        labels: [{ key: 'pod', operator: FilterOp.Equal, type: LabelType.Indexed, value: 'mypod' }],
+        lineFilters: [{ key: 'caseSensitive', operator: LineFilterOp.match, value: 'error' }],
+      })
+    );
+
+    expect(url.searchParams.get('var-filters')).toContain('pod');
+    expect(url.searchParams.get('var-fields')).toContain('region');
+    expect(url.searchParams.get('var-lineFilters')).toContain('error');
   });
 });
