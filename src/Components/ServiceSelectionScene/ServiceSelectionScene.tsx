@@ -72,7 +72,7 @@ import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { LabelType } from 'services/fieldsTypes';
-import { FieldFilter, FilterOp } from 'services/filterTypes';
+import { FieldFilter, FilterOp, LineFilterCaseSensitive, LineFilterOp, LineFilterType } from 'services/filterTypes';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
 import { getMetadataService } from 'services/metadata';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
@@ -567,14 +567,23 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const backendDisplayedFields = this.getDefaultColumns(labelName, labelValue);
 
     const onClickFilterString = (lineFilter: string) => {
-      const link = getDrillDownIndexLink(labelName, labelValue, {
-        'var-filters': [`${labelName}|=|${labelValue}`],
-        'var-lineFilters': [`caseInsensitive,0|__gfp__=|${lineFilter}`],
-      });
-      window.open(link, '_blank');
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_selection,
+        USER_EVENTS_ACTIONS.service_selection.logs_popover_line_filter
+      );
+      goToLog(
+        [],
+        [
+          {
+            key: LineFilterCaseSensitive.caseInsensitive.toString(),
+            operator: LineFilterOp.match,
+            value: lineFilter,
+          },
+        ]
+      );
     };
 
-    const goToLog = (fields: FieldFilter[], timeRange?: TimeRange) => {
+    const goToLog = (fields: FieldFilter[], lineFilters: LineFilterType[] = [], timeRange?: TimeRange) => {
       const labels = [
         {
           key: labelName,
@@ -584,17 +593,29 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         },
       ];
 
-      const link = generateLinkFromFilters(getDrillDownIndexLink(labelName, labelValue), { labels, fields }, timeRange);
+      const link = generateLinkFromFilters(
+        getDrillDownIndexLink(labelName, labelValue),
+        { labels, fields, lineFilters },
+        timeRange
+      );
       window.open(link, '_blank');
     };
 
     const goToLogLine = (log: LogRowModel) => {
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_selection,
+        USER_EVENTS_ACTIONS.service_selection.go_to_log_line_clicked
+      );
       const { fields } = getLogLinePermalinkFilterParams(log);
       const timeRange = resolveRowTimeRangeForSharing(log);
-      goToLog(fields, timeRange);
+      goToLog(fields, [], timeRange);
     };
 
     const goToSimilarLogs = (log: LogRowModel) => {
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_selection,
+        USER_EVENTS_ACTIONS.service_selection.show_similar_logs_clicked
+      );
       const { fields } = getLogLineFilterParams(log);
       goToLog(fields);
     };

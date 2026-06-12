@@ -51,6 +51,12 @@ export const USER_EVENTS_ACTIONS = {
     service_selected: 'service_selected',
     // Adding new tab
     add_new_tab: 'add_new_tab',
+    // Clicking "Go to log line" in the logs panel menu.
+    go_to_log_line_clicked: 'go_to_log_line_clicked',
+    // Clicking "Show similar logs" in the logs panel menu.
+    show_similar_logs_clicked: 'show_similar_logs_clicked',
+    // Clicking a line filter from the logs panel popover menu.
+    logs_popover_line_filter: 'logs_popover_line_filter',
   },
   [USER_EVENTS_PAGES.service_details]: {
     // Selecting action view tab (logs/labels/fields/patterns). Props: newActionView, previousActionView
