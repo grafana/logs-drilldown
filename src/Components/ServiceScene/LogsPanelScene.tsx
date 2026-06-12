@@ -50,7 +50,7 @@ import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
-import { copyText, generateLogShortlink, resolveRowTimeRangeForSharing } from 'services/text';
+import { copyText, generateLogRowShortlink } from 'services/text';
 import { clearVariables } from 'services/variableHelpers';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from 'services/variables';
 
@@ -412,19 +412,14 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       return;
     }
     const parent = this.getParentScene();
-    const timeRange = resolveRowTimeRangeForSharing(row);
     copyText(
-      generateLogShortlink(
-        'panelState',
-        {
-          logs: {
-            displayedFields: parent.state.displayedFields,
-            id: row.uid,
-            sortOrder: this.state.sortOrder,
-          },
+      generateLogRowShortlink(row, {
+        logs: {
+          displayedFields: parent.state.displayedFields,
+          id: row.uid,
+          sortOrder: this.state.sortOrder,
         },
-        timeRange
-      )
+      })
     );
   };
 

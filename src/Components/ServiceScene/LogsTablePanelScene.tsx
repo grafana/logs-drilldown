@@ -28,11 +28,11 @@ import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
-import { ServiceScene } from './ServiceScene';
+import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
 import { PanelMenu } from 'Components/Panels/PanelMenu';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
-import { getVariableForLabel } from 'services/fields';
+import { getVariableForLabel, isLogsIdField } from 'services/fields';
 import { FilterOp } from 'services/filterTypes';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
@@ -41,7 +41,12 @@ import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { runSceneQueries } from 'services/query';
 import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
 import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from 'services/store';
-import { copyText, generateLogShortlink } from 'services/text';
+import {
+  copyText,
+  generateLogRowShortlink,
+  generateLogShortlink,
+  getPermalinkLogRowFromDataFrame,
+} from 'services/text';
 import { clearVariables } from 'services/variableHelpers';
 
 interface LogsTablePanelSceneState extends SceneObjectState {
@@ -259,18 +264,25 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
 
   buildLinkToLogLine = (uid: string) => {
     const parent = this.getParentScene();
-    const timeRange = sceneGraph.getTimeRange(parent).state.value;
-    const link = generateLogShortlink(
-      'panelState',
-      {
-        logs: {
-          displayedFields: parent.state.displayedFields,
-          id: uid,
-          sortOrder: this.state.sortOrder,
-        },
+    const panelState = {
+      logs: {
+        displayedFields: parent.state.displayedFields,
+        id: uid,
+        sortOrder: this.state.sortOrder,
       },
-      timeRange
-    );
+    };
+
+    // The panel only gives us the log line's uid, so resolve its row in the logs frame to build a row-based
+    // shortlink (which adds field filters + a tight time range around the line). Fall back to the current panel
+    // time range if the row can't be resolved from its uid.
+    const dataFrame = getLogsPanelFrame(sceneGraph.getData(this).state.data);
+    const idField = dataFrame?.fields.find((field) => isLogsIdField(field.name));
+    const rowIndex = idField ? idField.values.findIndex((value) => value === uid) : -1;
+    const row = dataFrame && rowIndex >= 0 ? getPermalinkLogRowFromDataFrame(dataFrame, rowIndex) : null;
+
+    const link = row
+      ? generateLogRowShortlink(row, panelState)
+      : generateLogShortlink('panelState', panelState, sceneGraph.getTimeRange(parent).state.value);
 
     copyText(link);
 

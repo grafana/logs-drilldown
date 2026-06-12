@@ -10,7 +10,10 @@ import {
   dateTime,
   GrafanaTheme2,
   LoadingState,
+  LogRowModel,
+  TimeRange,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -41,7 +44,7 @@ import {
 import { areArraysEqual } from '../../services/comparison';
 import { CustomConstantVariable } from '../../services/CustomConstantVariable';
 import { escapeLabelValueInExactSelector } from '../../services/extensions/scenesMethods';
-import { pushUrlHandler } from '../../services/navigate';
+import { getDrillDownIndexLink, pushUrlHandler } from '../../services/navigate';
 import { getQueryRunnerFromChildren } from '../../services/scenes';
 import {
   clearServiceSelectionSearchVariable,
@@ -68,6 +71,8 @@ import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { LabelType } from 'services/fieldsTypes';
+import { FieldFilter, FilterOp, LineFilterCaseSensitive, LineFilterOp, LineFilterType } from 'services/filterTypes';
 import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
 import { getMetadataService } from 'services/metadata';
 import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
@@ -79,6 +84,7 @@ import {
   wrapWildcardSearch,
 } from 'services/query';
 import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
+import { generateLinkFromFilters, getLogLinePermalinkFilterParams, resolveRowTimeRangeForSharing } from 'services/text';
 import {
   DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,
@@ -554,6 +560,61 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
     const levelFilter = this.getLevelFilterForService(labelValue);
 
     const backendDisplayedFields = this.getDefaultColumns(labelName, labelValue);
+
+    const onClickFilterString = (lineFilter: string) => {
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_selection,
+        USER_EVENTS_ACTIONS.service_selection.logs_popover_line_filter
+      );
+      goToLog(
+        [],
+        [
+          {
+            key: LineFilterCaseSensitive.caseInsensitive.toString(),
+            operator: LineFilterOp.match,
+            value: lineFilter,
+          },
+        ]
+      );
+    };
+
+    const goToLog = (fields: FieldFilter[], lineFilters: LineFilterType[] = [], timeRange?: TimeRange) => {
+      const labels = [
+        {
+          key: labelName,
+          operator: FilterOp.Equal,
+          type: LabelType.Indexed,
+          value: labelValue,
+        },
+      ];
+
+      const link = generateLinkFromFilters(
+        getDrillDownIndexLink(labelName, labelValue),
+        { labels, fields, lineFilters },
+        timeRange
+      );
+      window.open(link, '_blank');
+    };
+
+    const goToLogLine = (log: LogRowModel) => {
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_selection,
+        USER_EVENTS_ACTIONS.service_selection.go_to_log_line_clicked
+      );
+      const { fields } = getLogLinePermalinkFilterParams(log);
+      const timeRange = resolveRowTimeRangeForSharing(log);
+      goToLog(fields, [], timeRange);
+    };
+
+    const goToSimilarLogs = (log: LogRowModel) => {
+      reportAppInteraction(
+        USER_EVENTS_PAGES.service_selection,
+        USER_EVENTS_ACTIONS.service_selection.show_similar_logs_clicked
+      );
+      const { fields } = getLogLinePermalinkFilterParams(log);
+      goToLog(fields);
+    };
+
     const cssGridItem = new SceneCSSGridItem({
       $behaviors: [new behaviors.CursorSync({ sync: DashboardCursorSync.Off })],
       body: PanelBuilders.logs()
@@ -577,6 +638,21 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
         .setOption('enableLogDetails', false)
         .setOption('fontSize', 'small')
         .setOption('displayedFields', backendDisplayedFields)
+        .setOption('onClickFilterString', onClickFilterString)
+        .setOption('showLogContextToggle', true)
+        .setOption('logLineMenuCustomItems', [
+          {
+            divider: true,
+          },
+          {
+            label: t('components.service-selection-scene.logs-panel.show-similar-logs', 'Show similar logs'),
+            onClick: goToSimilarLogs,
+          },
+          {
+            label: t('components.service-selection-scene.logs-panel.go-to-log-line', 'Go to log line'),
+            onClick: goToLogLine,
+          },
+        ])
         .build(),
     });
 
@@ -1153,6 +1229,13 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'column',
       flexGrow: 1,
+      // Hack to select internal div
+      'section > div[class$="panel-content"]': css({
+        // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
+        contain: 'none',
+        // Prevent overflow from spilling out of parent container
+        overflow: 'auto',
+      }),
     }),
     bodyWrapper: css({
       display: 'flex',

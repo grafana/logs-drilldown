@@ -97,7 +97,7 @@ export function stringifyAdHocValueLabels(value?: string): string {
   return escapeURLDelimiters(replaceEscapeChars(value));
 }
 
-function setUrlParamsFromFieldFilters(fields: FieldFilter[], params: URLSearchParams) {
+export function setUrlParamsFromFieldFilters(fields: FieldFilter[], params: URLSearchParams) {
   for (const field of fields) {
     if (field.type === LabelType.StructuredMetadata) {
       if (field.key === LEVEL_VARIABLE_VALUE) {
@@ -147,7 +147,7 @@ export function setUrlParamsFromLabelFilters(labelFilters: IndexedLabelFilter[],
   return params;
 }
 
-function setLineFilterUrlParams(lineFilters: LineFilterType[], params: URLSearchParams) {
+export function setLineFilterUrlParams(lineFilters: LineFilterType[], params: URLSearchParams) {
   for (const lineFilter of lineFilters) {
     params = appendUrlParameter(
       UrlParameters.LineFilters,
@@ -350,4 +350,3 @@ export function interpolateQueryExpr(value: string | unknown[], variable: QueryV
   const escapedValues = lodashMap(value, lokiSpecialRegexEscape);
   return escapedValues.join('|');
 }
-
