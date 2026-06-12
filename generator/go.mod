@@ -1,6 +1,6 @@
 module github.com/grafana/explore-logs/generator
 
-go 1.26.2
+go 1.26.4
 
 require (
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
