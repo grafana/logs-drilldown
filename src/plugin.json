@@ -66,7 +66,27 @@
     }
   },
   "preload": true,
-  "languages": ["en-US"],
+  "languages": [
+    "en-US",
+    "cs-CZ",
+    "de-DE",
+    "es-ES",
+    "fr-FR",
+    "hu-HU",
+    "id-ID",
+    "it-IT",
+    "ja-JP",
+    "ko-KR",
+    "nl-NL",
+    "pl-PL",
+    "pt-BR",
+    "pt-PT",
+    "ru-RU",
+    "sv-SE",
+    "tr-TR",
+    "zh-Hans",
+    "zh-Hant"
+  ],
   "extensions": {
     "addedComponents": [],
     "addedFunctions": [
