@@ -15,7 +15,7 @@ overrides:
   dompurify: 3.4.0
   serialize-javascript: 7.0.5
   strip-ansi: 6.0.1
-  js-yaml: 4.1.1
+  js-yaml: 4.2.0
   # Security patches for transitive vulnerabilities (pnpm audit)
   fast-uri: 3.1.2
   protobufjs: 8.2.0
