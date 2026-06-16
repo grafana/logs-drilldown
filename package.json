@@ -41,7 +41,7 @@
   "author": "Grafana",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@babel/core": "7.28.5",
+    "@babel/core": "7.29.6",
     "@commitlint/cli": "20.3.0",
     "@commitlint/config-conventional": "19.8.1",
     "@eslint/eslintrc": "3.3.5",
