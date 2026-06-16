@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.0](https://github.com/grafana/logs-drilldown/compare/v2.1.0...v2.2.0) (2026-06-16)
+
+
+### 🎉 Features
+
+* **logs:** new options for service selection (show context, go to log line, show similar log lines, add line filter) and updated permalinks ([#1940](https://github.com/grafana/logs-drilldown/issues/1940)) ([158acbf](https://github.com/grafana/logs-drilldown/commit/158acbf0317a3e885164f1779a68a15e5f4ac817))
+
+
+### 🐛 Bug Fixes
+
+* **security/high/:** update security protobufjs to v8.6.0 [security] ([#1956](https://github.com/grafana/logs-drilldown/issues/1956)) ([6a22918](https://github.com/grafana/logs-drilldown/commit/6a2291872d3d088a49461ba190d2a242cbac8a9f))
+* **security/high/:** update security ws@^8 to v8.21.0 [security] ([#1957](https://github.com/grafana/logs-drilldown/issues/1957)) ([9a6bf79](https://github.com/grafana/logs-drilldown/commit/9a6bf79f2564a698572e2acbe70b9da6c9de077e))
+* **security/low/:** update security @babel/core to v7.29.6 [security] ([#1961](https://github.com/grafana/logs-drilldown/issues/1961)) ([28841a6](https://github.com/grafana/logs-drilldown/commit/28841a659eb4a9996f5b9f993fae749a52408a4c))
+* **security/medium/:** update security dompurify to v3.4.9 [security] ([#1958](https://github.com/grafana/logs-drilldown/issues/1958)) ([a507628](https://github.com/grafana/logs-drilldown/commit/a507628880667d11031aecc2d958761184b26341))
+* **security/medium/:** update security js-yaml to v4.2.0 [security] ([#1959](https://github.com/grafana/logs-drilldown/issues/1959)) ([67eb1e5](https://github.com/grafana/logs-drilldown/commit/67eb1e5ca3fcb5f696d35a9893acb41d9b7df031))
+* **ServiceSelection:** fix broken context queries in due to trailing commas ([#1953](https://github.com/grafana/logs-drilldown/issues/1953)) ([34b809e](https://github.com/grafana/logs-drilldown/commit/34b809e772a4aed38bd30c7eb856bc8f4cf02238))
+* **ServiceSelectionTabsScene:** rename add tab action ([#1937](https://github.com/grafana/logs-drilldown/issues/1937)) ([732e748](https://github.com/grafana/logs-drilldown/commit/732e748c8da499c4816f390636d84b3832752411))
+
 ## 2.1.2
 
 ##### Chores
