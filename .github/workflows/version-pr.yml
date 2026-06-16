@@ -21,6 +21,9 @@ on:
         required: false
         type: boolean
         default: true
+  pull_request:
+    types: [closed]
+    branches: [main]
 
 permissions:
   contents: write
