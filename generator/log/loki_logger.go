@@ -23,7 +23,8 @@ const (
 	defaultMaxRetries = 10
 	defaultMinBackoff = 500 * time.Millisecond
 	defaultMaxBackoff = 5 * time.Minute
-	protoContentType  = "application/x-protobuf"
+	protoContentType     = "application/x-protobuf"
+	snappyContentEncoding = "snappy"
 )
 
 // LokiLoggerConfig configures a LokiLogger.
@@ -232,6 +233,7 @@ func (l *LokiLogger) send(ctx context.Context, buf []byte) (int, error) {
 		return -1, err
 	}
 	req.Header.Set("Content-Type", protoContentType)
+	req.Header.Set("Content-Encoding", snappyContentEncoding)
 	req.Header.Set("User-Agent", "logs-drilldown-generator/1.0")
 
 	if l.cfg.TenantID != "" {

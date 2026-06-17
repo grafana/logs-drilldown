@@ -37,6 +37,7 @@ func TestLokiLoggerPushFormat(t *testing.T) {
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, protoContentType, r.Header.Get("Content-Type"))
+		assert.Equal(t, snappyContentEncoding, r.Header.Get("Content-Encoding"))
 		body, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
 		mu.Lock()
