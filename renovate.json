@@ -6,16 +6,9 @@
     "github>grafana/grafana-renovate-config//presets/labels",
     "github>grafana/grafana-renovate-config//presets/docker"
   ],
-  "extends": ["config:best-practices"],
+  "extends": ["config:recommended", "group:allNonMajor"],
   "schedule": ["on the first day of the month"],
   "prCreation": "not-pending",
   "internalChecksFilter": "strict",
-  "rebaseWhen": "behind-base-branch",
-  "packageRules": [
-    {
-      "description": "Group all Grafana packages together",
-      "groupName": "Grafana packages",
-      "matchPackageNames": ["/^@grafana//"]
-    }
-  ]
+  "rebaseWhen": "behind-base-branch"
 }
