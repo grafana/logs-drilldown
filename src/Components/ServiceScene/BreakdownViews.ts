@@ -112,9 +112,11 @@ function buildLogsListScene() {
     children: [
       new SceneFlexItem({
         body: new LogsVolumeContainerScene({}),
+        ySizing: 'content',
       }),
       new SceneFlexItem({
         body: new LogsListScene({}),
+        ySizing: 'fill',
       }),
     ],
     direction: 'column',

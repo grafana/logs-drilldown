@@ -75,6 +75,7 @@ export interface LogsListSceneState extends SceneObjectState {
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
+  panelHeight: undefined | string = undefined;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: [
       'urlColumns',
@@ -124,9 +125,14 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       this.extendPanelHeight();
       return;
     }
-    const offset = this.panelWrapperEl.getBoundingClientRect().y + window.scrollY;
+    const dimensions = this.panelWrapperEl.getBoundingClientRect();
+    if (dimensions.height === 0) {
+      return;
+    }
+    const offset = dimensions.y + window.scrollY;
+    this.panelHeight = `calc(100vh - ${offset + 16}px)`;
     this.state.panel.state.children?.[0].setState({
-      height: `calc(100vh - ${offset + 16}px)`,
+      height: this.panelHeight,
     });
   };
 
@@ -540,7 +546,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
     const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
-    const panelHeight = 'calc(100vh - 48px)';
+    const panelHeight = this.panelHeight ?? 'calc(100vh - 48px)';
     const children =
       this.state.visualizationType === 'logs'
         ? [
@@ -568,6 +574,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     return new SceneFlexLayout({
       children,
       direction: 'column',
+      ySizing: 'fill',
     });
   }
 }
