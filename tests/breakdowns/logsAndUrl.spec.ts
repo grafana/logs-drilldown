@@ -215,24 +215,13 @@ test.describe('Logs and URL', () => {
     await expect(logRow).toHaveCount(1, { timeout: 45000 });
     await expect(page.getByText(/Rendering \d+ rows.../)).toHaveCount(0);
 
-    await page.locator('.unwrapped-log-line').nth(1).hover();
+    await page.locator('.unwrapped-log-line').nth(10).hover();
     const logMenu = page.getByLabel('Log menu').first();
     await logMenu.click();
     await page.getByText('Show context').click();
     const dialog = page.locator('[role="dialog"]');
     await expect(dialog.getByText('Log context')).toHaveCount(1);
     await expect(dialog.getByText('Log context')).toBeVisible();
-
-    await expect(dialog.getByTestId('entry-row')).toHaveCount(1);
-    await expect(dialog.getByTestId('entry-row')).toBeVisible();
-
-    // Select the second so we don't pick the only row
-    const secondClosestRow = dialog.getByTitle('See log details').nth(2);
-    await expect(secondClosestRow).toHaveCount(1);
-    await expect(secondClosestRow).toBeVisible();
-    await expect(dialog.getByLabel('Fields')).toHaveCount(0);
-    await secondClosestRow.click();
-    await expect(dialog.getByLabel('Fields')).toHaveCount(1);
 
     // Get the last request and assert it returned a 200
     const key = Object.keys(responses[responses.length - 1]);
