@@ -10,25 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      issues: write
       contents: read
     steps:
       - name: Get GitHub App token
         id: app-token
-        uses: grafana/shared-workflows/actions/create-github-app-token@ae92934a14a48b94494dbc06d74a81d47fe08a40 # create-github-app-token/v0.2.2
+        uses: grafana/shared-workflows/actions/create-github-app-token@259ba21cb3ff07724f331e26d926d655d24b317b # create-github-app-token/v0.2.3
         with:
           github_app: drilldownbot
 
-      - uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
-        with:
-          project-url: https://github.com/orgs/grafana/projects/702
-          github-token: ${{ steps.app-token.outputs.token }}
-
-      - name: Add common labels and project to issues
-        run: |
-          gh issue edit "$NUMBER" --add-label "$LABELS"
+      - name: Add needs-triage label
+        run: gh issue edit "$NUMBER" --add-label "$LABELS"
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.issue.number }}
           LABELS: needs-triage
+
+      - uses: actions/add-to-project@5afcf98fcd03f1c2f92c3c83f58ae24323cc57fd # v2.0.0
+        with:
+          project-url: https://github.com/orgs/grafana/projects/702
+          github-token: ${{ steps.app-token.outputs.token }}
