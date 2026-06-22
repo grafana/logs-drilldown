@@ -143,6 +143,7 @@ export const generateLinkFromFilters = (path: string, filters: LinkFilters, time
   if (fields.length) {
     searchParams.delete(UrlParameters.Fields);
     searchParams.delete(UrlParameters.Levels);
+    searchParams.delete(UrlParameters.Metadata);
     searchParams = setUrlParamsFromFieldFilters(fields, searchParams);
   }
 
