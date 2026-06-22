@@ -288,8 +288,11 @@
         },
         "items": {
           "text": {
+            "condense-logs": "",
+            "expand-logs": "",
             "explore": "",
-            "navigation": ""
+            "navigation": "",
+            "ui": ""
           }
         },
         "text": {
@@ -724,6 +727,10 @@
         "docs-link": "",
         "title": ""
       },
+      "logs-panel": {
+        "go-to-log-line": "",
+        "show-similar-logs": ""
+      },
       "no-service-search-results": {
         "title": ""
       },
@@ -744,7 +751,7 @@
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
+        "label-add-tab": "",
         "label-loading-tabs": "",
         "tab": {
           "content-remove-tab": ""
