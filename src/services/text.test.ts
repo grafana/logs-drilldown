@@ -335,4 +335,62 @@ describe('generateLinkFromFilters', () => {
     expect(url.searchParams.get('var-fields')).toContain('region');
     expect(url.searchParams.get('var-lineFilters')).toContain('error');
   });
+
+  test('replaces existing label params instead of duplicating them', () => {
+    const pathWithLabel = `/a/${PLUGIN_ID}/explore?var-ds=DSID&var-filters=service_name|=|old`;
+
+    const url = new URL(
+      generateLinkFromFilters(pathWithLabel, {
+        labels: [{ key: 'pod', operator: FilterOp.Equal, type: LabelType.Indexed, value: 'mypod' }],
+      })
+    );
+
+    const labelParams = url.searchParams.getAll('var-filters');
+    expect(labelParams).toHaveLength(1);
+    expect(labelParams[0]).toContain('pod');
+    expect(labelParams[0]).not.toContain('service_name');
+  });
+
+  test('replaces existing line filter params instead of duplicating them', () => {
+    const pathWithLineFilter = `/a/${PLUGIN_ID}/explore?var-ds=DSID&var-lineFilters=caseSensitive|=|old`;
+
+    const url = new URL(
+      generateLinkFromFilters(pathWithLineFilter, {
+        labels: [],
+        lineFilters: [{ key: 'caseSensitive', operator: LineFilterOp.match, value: 'error' }],
+      })
+    );
+
+    const lineFilterParams = url.searchParams.getAll('var-lineFilters');
+    expect(lineFilterParams).toHaveLength(1);
+    expect(lineFilterParams[0]).toContain('error');
+    expect(lineFilterParams[0]).not.toContain('old');
+  });
+
+  test('replaces existing field and level params instead of duplicating them', () => {
+    const pathWithFields = `/a/${PLUGIN_ID}/explore?var-ds=DSID&var-fields=region|=|old&var-levels=detected_level|=|warn`;
+
+    const url = new URL(
+      generateLinkFromFilters(pathWithFields, {
+        fields: [{ key: 'region', operator: FilterOp.Equal, parser: 'mixed', type: LabelType.Parsed, value: 'us' }],
+        labels: [],
+      })
+    );
+
+    const fieldParams = url.searchParams.getAll('var-fields');
+    expect(fieldParams).toHaveLength(1);
+    expect(fieldParams[0]).toContain('us');
+    expect(fieldParams[0]).not.toContain('old');
+    // Levels are cleared alongside fields and not re-added when no level field is provided.
+    expect(url.searchParams.getAll('var-levels')).toHaveLength(0);
+  });
+
+  test('preserves existing filter params when no matching filters are provided', () => {
+    const pathWithFilters = `/a/${PLUGIN_ID}/explore?var-ds=DSID&var-filters=service_name|=|keep&var-lineFilters=caseSensitive|=|keep`;
+
+    const url = new URL(generateLinkFromFilters(pathWithFilters, { labels: [] }));
+
+    expect(url.searchParams.getAll('var-filters')).toEqual(['service_name|=|keep']);
+    expect(url.searchParams.getAll('var-lineFilters')).toEqual(['caseSensitive|=|keep']);
+  });
 });

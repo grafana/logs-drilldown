@@ -1,7 +1,12 @@
 import { DataFrame, dateTime, LogRowModel, LogsSortOrder, TimeRange, urlUtil } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 
-import { setLineFilterUrlParams, setUrlParamsFromFieldFilters, setUrlParamsFromLabelFilters } from './extensions/links';
+import {
+  setLineFilterUrlParams,
+  setUrlParamsFromFieldFilters,
+  setUrlParamsFromLabelFilters,
+  UrlParameters,
+} from './extensions/links';
 import { LabelType } from './fieldsTypes';
 import { FieldFilter, FilterOp, IndexedLabelFilter, LineFilterType } from './filterTypes';
 import { logger } from './logger';
@@ -126,14 +131,19 @@ export const generateLinkFromFilters = (path: string, filters: LinkFilters, time
   const { fields = [], labels, lineFilters = [] } = filters;
 
   if (labels.length) {
+    searchParams.delete(UrlParameters.Labels);
     searchParams = setUrlParamsFromLabelFilters(labels, searchParams);
   }
 
   if (lineFilters.length) {
+    searchParams.delete(UrlParameters.LineFilters);
     searchParams = setLineFilterUrlParams(lineFilters, searchParams);
   }
 
   if (fields.length) {
+    searchParams.delete(UrlParameters.Fields);
+    searchParams.delete(UrlParameters.Levels);
+    searchParams.delete(UrlParameters.Metadata);
     searchParams = setUrlParamsFromFieldFilters(fields, searchParams);
   }
 
