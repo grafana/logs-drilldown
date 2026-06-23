@@ -138,6 +138,8 @@ export const USER_EVENTS_ACTIONS = {
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
     open_in_explore_menu_clicked: 'open_in_explore_menu_clicked',
+    // Toggling LogQL parsers on/off from the header query options. Props: enabled
+    parsers_toggled: 'parsers_toggled',
   },
   [USER_EVENTS_PAGES.default_columns_config]: {
     add_record: 'add_record',

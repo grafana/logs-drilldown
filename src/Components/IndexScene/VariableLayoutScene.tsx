@@ -5,7 +5,14 @@ import { css, cx } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
-import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import {
+  SceneComponentProps,
+  SceneFlexLayout,
+  sceneGraph,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneQueryRunner,
+} from '@grafana/scenes';
 import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { syncLogsListPanelHeightFromScene } from '../../services/scenes';
@@ -14,7 +21,7 @@ import {
   getJsonParserVariableVisibility,
   setCollapsibleFiltersState,
 } from '../../services/store';
-import { AppliedPattern } from '../../services/variables';
+import { AppliedPattern, VAR_JSON_PARSER, VAR_LOGFMT_PARSER } from '../../services/variables';
 import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { GiveFeedbackButton } from './GiveFeedbackButton';
@@ -27,13 +34,23 @@ import {
 } from './LayoutScene';
 import { PatternControls } from './PatternControls';
 import { ResetFiltersButton } from './ResetFiltersButton';
+import { reportAppInteraction, USER_EVENTS_PAGES, USER_EVENTS_ACTIONS } from 'services/analytics';
+import { CustomConstantVariable } from 'services/CustomConstantVariable';
 import { PageSlugs } from 'services/enums';
+import {
+  getJsonParserSegment,
+  getLogfmtParserSegment,
+  getParserEnabled,
+  setParserEnabled,
+} from 'services/parserToggle';
 import { getDrilldownSlug } from 'services/routing';
+import { testIds } from 'services/testIds';
 
 type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
   collapsed?: boolean;
   embeddedLink?: EmbeddedLinkScene;
+  parsersEnabled?: boolean;
   position: HeaderPosition;
 }
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
@@ -43,6 +60,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     super({
       ...props,
       collapsed,
+      parsersEnabled: getParserEnabled(),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -77,13 +95,50 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
     }
   };
 
+  public toggleParser = () => {
+    const parsersEnabled = !this.state.parsersEnabled;
+
+    reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.parsers_toggled, {
+      enabled: parsersEnabled,
+    });
+
+    setParserEnabled(parsersEnabled);
+
+    const jsonParserVariable = sceneGraph.lookupVariable(VAR_JSON_PARSER, this);
+    const logfmtParserVariable = sceneGraph.lookupVariable(VAR_LOGFMT_PARSER, this);
+    if (jsonParserVariable instanceof CustomConstantVariable) {
+      const segment = getJsonParserSegment(parsersEnabled);
+      jsonParserVariable.setState({ options: [{ label: segment, value: segment }], text: segment, value: segment });
+    }
+    if (logfmtParserVariable instanceof CustomConstantVariable) {
+      const segment = getLogfmtParserSegment(parsersEnabled);
+      logfmtParserVariable.setState({ options: [{ label: segment, value: segment }], text: segment, value: segment });
+    }
+
+    this.setState({ parsersEnabled });
+
+    const indexScene = sceneGraph.getAncestor(this, IndexScene);
+
+    // Parsed-field, JSON-path and line-format filters require a parser, so remove them when disabling
+    // to avoid sending invalid queries.
+    if (!parsersEnabled) {
+      indexScene.clearParserDependentFilters();
+    }
+
+    // Re-run every query under the index scene so the new parser setting is applied immediately. Queries
+    // built from a fixed expression (e.g. breakdown panels) are re-evaluated against the gate when rebuilt.
+    sceneGraph.findDescendents(indexScene, SceneQueryRunner).forEach((queryRunner) => {
+      queryRunner.runQueries();
+    });
+  };
+
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { controls, patterns, embedded, kgAnnotationToggle } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
-    const { collapsed } = model.useState();
+    const { collapsed, parsersEnabled } = model.useState();
     const styles = useStyles2((theme) => getStyles(theme, height ?? 40, collapsed));
     const slug = getDrilldownSlug();
 
@@ -111,20 +166,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
-                  {slug !== PageSlugs.explore && (
-                    <ToolbarButton
-                      className={collapsed ? styles.iconCollapsed : styles.iconExpanded}
-                      variant={collapsed ? 'active' : 'canvas'}
-                      icon="arrow-from-right"
-                      onClick={model.toggleCollapsedState}
-                      tooltip={
-                        collapsed
-                          ? t('components.index-scene.variable-layout-scene.expand', 'Expand filters')
-                          : t('components.index-scene.variable-layout-scene.collapse', 'Collapse filters')
-                      }
-                    />
-                  )}
-
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
                   {controls.map((control) => {
@@ -132,6 +173,40 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       <control.Component key={control.state.key} model={control} />
                     ) : null;
                   })}
+
+                  {slug !== PageSlugs.explore && (
+                    <>
+                      <ToolbarButton
+                        className={collapsed ? styles.iconCollapsed : styles.iconExpanded}
+                        variant={collapsed ? 'active' : 'canvas'}
+                        icon="arrow-from-right"
+                        onClick={model.toggleCollapsedState}
+                        tooltip={
+                          collapsed
+                            ? t('components.index-scene.variable-layout-scene.expand', 'Expand filters')
+                            : t('components.index-scene.variable-layout-scene.collapse', 'Collapse filters')
+                        }
+                      />
+                      <ToolbarButton
+                        variant={parsersEnabled ? 'active' : 'canvas'}
+                        onClick={model.toggleParser}
+                        data-testid={testIds.index.parserToggle}
+                        tooltip={
+                          parsersEnabled
+                            ? t(
+                                'components.index-scene.variable-layout.parser-toggle.tooltip-enabled',
+                                'Parsers are on. Click to disable extracting fields from the logs using JSON and logfmt parsers.'
+                              )
+                            : t(
+                                'components.index-scene.variable-layout.parser-toggle.tooltip-disabled',
+                                'Parsers are off. Click to enable JSON and logfmt parsers to extract fields from the log lines.'
+                              )
+                        }
+                      >
+                        {t('components.index-scene.variable-layout.parser-toggle.label', 'P')}
+                      </ToolbarButton>
+                    </>
+                  )}
 
                   <div className={styles.timeRange}>
                     {controls.map((control) => {

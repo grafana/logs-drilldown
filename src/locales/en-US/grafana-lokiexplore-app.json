@@ -248,6 +248,13 @@
           "query-options": "Query options"
         }
       },
+      "variable-layout": {
+        "parser-toggle": {
+          "label": "P",
+          "tooltip-disabled": "Parsers are off. Click to enable JSON and logfmt parsers to extract fields from the log lines.",
+          "tooltip-enabled": "Parsers are on. Click to disable extracting fields from the logs using JSON and logfmt parsers."
+        }
+      },
       "variable-layout-scene": {
         "collapse": "Collapse filters",
         "expand": "Expand filters"
@@ -383,7 +390,8 @@
           "text-loading": "Loading..."
         },
         "fields-breakdown-scene": {
-          "label-field": "Field"
+          "label-field": "Field",
+          "parsers-disabled": "No fields are available because parsers are disabled. Enable parsers in the query options to extract fields from your log lines."
         },
         "label-breakdown-scene": {
           "label-label": "Label",
