@@ -15,7 +15,6 @@ jobs:
     permissions:
       contents: write
       id-token: write
-      attestations: write
       pull-requests: read
     with:
       # Checkout/build PR or main branch, depending on event

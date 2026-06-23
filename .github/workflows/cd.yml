@@ -28,13 +28,11 @@ jobs:
     permissions:
       contents: write
       id-token: write
-      attestations: write
       pull-requests: read
     with:
       branch: ${{ github.event.inputs.branch }}
       environment: ${{ github.event.inputs.environment }}
       docs-only: ${{ fromJSON(github.event.inputs.docs-only) }}
-      attestation: true
       run-playwright: false
 
       # Use argo workflows, auto merge to dev,ops in deployment tools
