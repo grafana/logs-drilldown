@@ -3,6 +3,7 @@ import { SceneObject } from '@grafana/scenes';
 import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { getParserFromFieldsFilters } from './fields';
 import { logger } from './logger';
+import { getParserEnabled } from './parserToggle';
 import { getFieldsVariable } from './variableGetters';
 import {
   DETECTED_FIELD_AND_METADATA_VALUES_EXPR,
@@ -42,8 +43,8 @@ export function getTimeSeriesExpr(sceneRef: SceneObject, streamSelectorName: str
   const fieldFilters = fieldsVariable.state.filters;
   const parser = getParserFromFieldsFilters(fieldsVariable);
 
-  // if we have fields, we also need to add parsers
-  if (fieldFilters.length) {
+  // if we have fields, we also need to add parsers (unless parsers are disabled via the header toggle)
+  if (getParserEnabled() && fieldFilters.length) {
     if (parser === 'mixed') {
       return `sum(count_over_time({${VAR_LABELS_EXPR}} ${metadataExpressionToAdd} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${streamSelectorName})`;
     }

@@ -13,6 +13,7 @@ import { CustomConstantVariable } from './CustomConstantVariable';
 import { isFilterMetadata } from './filters';
 import { logger } from './logger';
 import { narrowFieldValue, NarrowingError } from './narrowing';
+import { getParserEnabled } from './parserToggle';
 import {
   AdHocFieldValue,
   FieldValue,
@@ -56,7 +57,11 @@ export function getLogsStreamSelector(options: LogsQueryOptions) {
     structuredMetadataToAdd = '',
   } = options;
 
-  switch (parser) {
+  // When parsers are disabled via the header toggle, drop the `| json`/`| logfmt` stages entirely by
+  // falling back to the structured-metadata-only selector.
+  const effectiveParser = getParserEnabled() ? parser : 'structuredMetadata';
+
+  switch (effectiveParser) {
     case 'structuredMetadata':
       return `{${VAR_LABELS_EXPR}${labelExpressionToAdd}} ${structuredMetadataToAdd} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${fieldExpressionToAdd} ${VAR_FIELDS_EXPR}`;
     case 'json':
