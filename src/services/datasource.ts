@@ -1,3 +1,4 @@
+/* eslint-disable sort/imports */
 import { Observable, Subscriber } from 'rxjs';
 
 import {
@@ -31,6 +32,7 @@ import { getDataSource } from './scenes';
 import { runShardSplitQuery } from './shardQuerySplitting';
 import { SERVICE_NAME } from './variables';
 import { getFeatureFlag } from 'featureFlags/openFeature';
+import { getParserEnabled } from './parserToggle';
 
 export const WRAPPED_LOKI_DS_UID = 'wrapped-loki-ds-uid';
 
@@ -416,8 +418,10 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       const typeField: Field = { config: {}, name: DETECTED_FIELDS_TYPE_NAME, type: FieldType.string, values: [] };
       const pathField: Field = { config: {}, name: DETECTED_FIELDS_PATH_NAME, type: FieldType.string, values: [] };
 
+      const parsersEnabled = getParserEnabled();
+
       response.fields?.forEach((field) => {
-        if (!FIELDS_TO_REMOVE.includes(field.label)) {
+        if (!FIELDS_TO_REMOVE.includes(field.label) && (parsersEnabled || field.parsers === null)) {
           nameField.values.push(field.label);
           cardinalityField.values.push(field.cardinality);
           parserField.values.push(field.parsers?.length ? field.parsers.join(', ') : 'structuredMetadata');

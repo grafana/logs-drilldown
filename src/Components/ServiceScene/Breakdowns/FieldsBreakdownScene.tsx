@@ -38,7 +38,6 @@ import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { extractParserFromString, getDetectedFieldsParserField } from 'services/fields';
 import { getFieldOptions } from 'services/filters';
 import { getParserEnabled } from 'services/parserToggle';
 import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
@@ -189,13 +188,8 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       return;
     }
 
-    const parserField = getDetectedFieldsParserField(dataFrame);
     const parserEnabled = getParserEnabled();
-    const allFieldNames = dataFrame.fields[0].values
-      .map((value) => String(value))
-      .filter((_, index) =>
-        parserEnabled ? true : extractParserFromString(parserField?.values?.[index] ?? '') === 'structuredMetadata'
-      );
+    const allFieldNames = dataFrame.fields[0].values.map((value) => String(value));
 
     // No available fields and parsers disabled
     if (!parserEnabled && allFieldNames.length === 0) {
