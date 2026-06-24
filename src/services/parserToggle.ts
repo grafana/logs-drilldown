@@ -3,6 +3,7 @@ import { sceneGraph, SceneQueryRunner, type SceneObject } from '@grafana/scenes'
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { JSON_PARSER_SEGMENT, LOGFMT_PARSER_SEGMENT, VAR_JSON_PARSER, VAR_LOGFMT_PARSER } from './variables';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 
 // Whether LogQL parsers (`| json ... | logfmt | drop __error__, __error_details__`) are appended to
 // queries. Persisted in local storage so the choice is remembered across sessions. Defaults to `true`
@@ -19,7 +20,7 @@ export function getParserEnabled(): boolean {
 
 export function setParserEnabled(enabled: boolean, sceneRef: SceneObject): void {
   localStorage.setItem(PARSER_ENABLED_LOCALSTORAGE_KEY, enabled.toString());
-  
+
   const jsonParserVariable = sceneGraph.lookupVariable(VAR_JSON_PARSER, sceneRef);
   const logfmtParserVariable = sceneGraph.lookupVariable(VAR_LOGFMT_PARSER, sceneRef);
   if (jsonParserVariable instanceof CustomConstantVariable) {
@@ -39,11 +40,13 @@ export function setParserEnabled(enabled: boolean, sceneRef: SceneObject): void 
     indexScene.clearParserDependentFilters();
   }
 
-  // Re-run every query under the index scene so the new parser setting is applied immediately. Queries
-  // built from a fixed expression (e.g. breakdown panels) are re-evaluated against the gate when rebuilt.
-  sceneGraph.findDescendents(indexScene, SceneQueryRunner).forEach((queryRunner) => {
-    queryRunner.runQueries();
-  });
+  // Re-run the parser-dependent queries so the new setting is applied immediately.
+  const serviceScene = sceneGraph.findDescendents(indexScene, ServiceScene)[0];
+  if (serviceScene) {
+    sceneGraph.findDescendents(serviceScene, SceneQueryRunner).forEach((queryRunner) => {
+      queryRunner.runQueries();
+    });
+  }
 }
 
 /** Value of the `${jsonParser}` variable based on whether parsers are enabled. */
