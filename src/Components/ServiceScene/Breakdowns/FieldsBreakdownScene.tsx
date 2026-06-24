@@ -189,28 +189,24 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       return;
     }
 
-    let allFieldNames = dataFrame.fields[0].values.map((v) => String(v));
-
-    // With parsers disabled, parser-based fields (json/logfmt) can't be queried, so only list
-    // structured-metadata fields, which are available without a parser.
-    if (!getParserEnabled()) {
-      const parserField = getDetectedFieldsParserField(dataFrame);
-      allFieldNames = allFieldNames.filter(
-        (_, index) => extractParserFromString(parserField?.values?.[index] ?? '') === 'structuredMetadata'
+    const parserField = getDetectedFieldsParserField(dataFrame);
+    const parserEnabled = getParserEnabled();
+    const allFieldNames = dataFrame.fields[0].values
+      .map((value) => String(value))
+      .filter((_, index) =>
+        parserEnabled ? true : extractParserFromString(parserField?.values?.[index] ?? '') === 'structuredMetadata'
       );
 
-      // Every detected field requires a parser, but parsers are disabled: show a dedicated empty state
-      // explaining how to get fields back instead of an empty breakdown.
-      if (allFieldNames.length === 0) {
-        this.state.changeFieldCount?.(0);
-        this.setState({
-          body: new EmptyLayoutScene({
-            type: 'fields',
-          }),
-          loading: false,
-        });
-        return;
-      }
+    // No available fields and parsers disabled
+    if (!parserEnabled && allFieldNames.length === 0) {
+      this.state.changeFieldCount?.(0);
+      this.setState({
+        body: new EmptyLayoutScene({
+          type: 'fields',
+        }),
+        loading: false,
+      });
+      return;
     }
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
