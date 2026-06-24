@@ -248,13 +248,6 @@
           "query-options": "Query options"
         }
       },
-      "variable-layout": {
-        "parser-toggle": {
-          "label": "P",
-          "tooltip-disabled": "Parsers are off. Click to enable JSON and logfmt parsers to extract fields from the log lines.",
-          "tooltip-enabled": "Parsers are on. Click to disable extracting fields from the logs using JSON and logfmt parsers."
-        }
-      },
       "variable-layout-scene": {
         "collapse": "Collapse filters",
         "expand": "Expand filters"
@@ -511,8 +504,12 @@
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "Names",
-              "volume": "Volume"
+              "display-volume": "Display volume",
+              "parse-fields": "Extract fields"
+            },
+            "tooltip": {
+              "display-volume": "Query time series for each field showing the distribution of values over time",
+              "parse-fields": "Apply logftm/JSON parsers to extract fields from the log lines"
             }
           }
         },
