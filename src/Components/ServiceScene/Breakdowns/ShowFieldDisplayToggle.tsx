@@ -1,62 +1,43 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps } from '@grafana/scenes';
-import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { InlineSwitch } from '@grafana/ui';
 
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
 import { setFieldsPanelTypes } from '../../../services/store';
-import { FieldsAggregatedBreakdownScene, FieldsPanelsType } from './FieldsAggregatedBreakdownScene';
+import { FieldsAggregatedBreakdownScene } from './FieldsAggregatedBreakdownScene';
 
 export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
   const { fieldsPanelsType } = model.useState();
-  const styles = useStyles2(getStyles);
-  const options: Array<SelectableValue<FieldsPanelsType>> = [
-    {
-      label: t('components.service-scene.breakdowns.show-field-display-toggle.options.label.volume', 'Volume'),
-      value: 'timeseries',
-    },
-    {
-      label: t('components.service-scene.breakdowns.show-field-display-toggle.options.label.names', 'Names'),
-      value: 'text',
-    },
-  ];
+
+  const toggle = useCallback(() => {
+    const nextPanelType = fieldsPanelsType === 'timeseries' ? 'text' : 'timeseries';
+    model.setState({ fieldsPanelsType: nextPanelType });
+    setFieldsPanelTypes(nextPanelType);
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.fields_panel_type_toggle,
+      {
+        fieldsPanelType: nextPanelType,
+      }
+    );
+  }, [fieldsPanelsType, model]);
+
+  const enabled = fieldsPanelsType === 'timeseries';
 
   return (
-    <RadioButtonGroup
-      className={styles.radioGroup}
-      options={options}
-      value={fieldsPanelsType}
-      onChange={(panelType) => {
-        model.setState({ fieldsPanelsType: panelType });
-        setFieldsPanelTypes(panelType);
-        reportAppInteraction(
-          USER_EVENTS_PAGES.service_details,
-          USER_EVENTS_ACTIONS.service_details.fields_panel_type_toggle,
-          {
-            fieldsPanelType: panelType,
-          }
-        );
-      }}
+    <InlineSwitch
+      label={t(
+        'components.service-scene.breakdowns.show-field-display-toggle.options.label.display-volume',
+        'Display volume'
+      )}
+      showLabel={true}
+      value={enabled}
+      onClick={toggle}
     />
   );
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    radioGroup: css({
-      [theme.breakpoints.up(theme.breakpoints.values.md)]: {
-        flexDirection: 'row',
-      },
-      // Why do I need to hack the label height?
-      '> div > label': {
-        height: '100%',
-      },
-
-      flexDirection: 'column',
-    }),
-  };
-};
