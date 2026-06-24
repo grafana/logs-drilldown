@@ -384,8 +384,7 @@
           "text-loading": "Loading..."
         },
         "fields-breakdown-scene": {
-          "label-field": "Field",
-          "parsers-disabled": "No fields are available because parsers are disabled. Enable parsers in the query options to extract fields from your log lines."
+          "label-field": "Field"
         },
         "label-breakdown-scene": {
           "label-label": "Label",

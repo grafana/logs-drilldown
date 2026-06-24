@@ -49,7 +49,7 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
             type,
           }
         )
-  }, []);
+  }, [type]);
 
   return (
     <div className={sharedStyles.emptyStateWrap}>

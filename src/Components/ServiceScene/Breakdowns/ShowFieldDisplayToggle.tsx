@@ -92,7 +92,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
       <Stack alignItems="center">
         <Tooltip content={t(
           'components.service-scene.breakdowns.show-field-display-toggle.options.tooltip.parse-fields',
-          'Apply logftm/JSON parsers to extract fields from the log lines'
+          'Enable to apply logftm/JSON parsers to every query and extract fields from the log lines'
         )}>
           <label htmlFor="toggle-parser">
             {t(
