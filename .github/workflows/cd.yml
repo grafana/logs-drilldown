@@ -34,6 +34,8 @@ jobs:
       environment: ${{ github.event.inputs.environment }}
       docs-only: ${{ fromJSON(github.event.inputs.docs-only) }}
       run-playwright: false
+      # Publish the github release automatically, turn draft off
+      github-draft-release: false
 
       # Use argo workflows, auto merge to dev,ops in deployment tools
       grafana-cloud-deployment-type: provisioned
