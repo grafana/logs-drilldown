@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.5](https://github.com/grafana/logs-drilldown/compare/v2.1.4...v2.1.5) (2026-06-24)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** bump dompurify override to 3.4.11 for CVE remediation ([#1970](https://github.com/grafana/logs-drilldown/issues/1970)) ([b607808](https://github.com/grafana/logs-drilldown/commit/b60780830c857198f55650efa3b7a7c67e3630ce))
+
 ## [2.1.4](https://github.com/grafana/logs-drilldown/compare/v2.1.3...v2.1.4) (2026-06-22)
 
 
