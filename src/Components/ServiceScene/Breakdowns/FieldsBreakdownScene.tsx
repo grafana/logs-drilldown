@@ -38,7 +38,9 @@ import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { extractParserFromString, getDetectedFieldsParserField } from 'services/fields';
 import { getFieldOptions } from 'services/filters';
+import { getParserEnabled } from 'services/parserToggle';
 import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
 import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_FIELDS, VAR_LABELS } from 'services/variables';
@@ -187,11 +189,28 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       return;
     }
 
+    // With parsers disabled, parser-based fields can't be queried, so only list structured-metadata fields.
+    const allFieldNames = dataFrame.fields[0].values.map((v) => String(v));
+
+    // Every detected field requires a parser, but parsers are disabled: show a dedicated empty state
+    // explaining how to get fields back instead of an empty breakdown.
+    if (!getParserEnabled() && allFieldNames.length === 0) {
+      this.state.changeFieldCount?.(0);
+      this.setState({
+        body: new EmptyLayoutScene({
+          type: 'fields',
+        }),
+        loading: false,
+      });
+      return;
+    }
+
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const variable = getFieldGroupByVariable(this);
+
     variable.setState({
       loading: false,
-      options: getFieldOptions(dataFrame.fields[0].values.map((v) => String(v))),
+      options: getFieldOptions(allFieldNames),
       value: serviceScene.state.drillDownLabel ?? ALL_VARIABLE_VALUE,
     });
     this.setState({

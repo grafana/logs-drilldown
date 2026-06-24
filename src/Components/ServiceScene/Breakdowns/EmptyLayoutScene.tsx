@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { t } from '@grafana/i18n';
@@ -7,6 +7,7 @@ import { Box, Button, EmptyState } from '@grafana/ui';
 
 import { emptyStateStyles } from './FieldsBreakdownScene';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
+import { getParserEnabled } from 'services/parserToggle';
 import { useSharedStyles } from 'styles/shared-styles';
 
 export interface EmptyLayoutSceneState extends SceneObjectState {
@@ -31,17 +32,30 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
 
   const embeddedOptions = getEmptyStateOptions(type, model);
 
-  return (
-    <div className={sharedStyles.emptyStateWrap}>
-      <EmptyState
-        variant="not-found"
-        message={t(
+  const message = useMemo(() => {
+    if (type === 'fields' && getParserEnabled() === false) {
+      return t(
+          'components.service-scene.breakdowns.empty-layout-scene.parsed-fields',
+          'We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.',
+          {
+            type,
+          }
+        );
+    }
+    return t(
           'components.service-scene.breakdowns.empty-layout-scene.title',
           'We did not find any {{type}} for the given time range.',
           {
             type,
           }
-        )}
+        )
+  }, []);
+
+  return (
+    <div className={sharedStyles.emptyStateWrap}>
+      <EmptyState
+        variant="not-found"
+        message={message}
       >
         {t('components.service-scene.breakdowns.empty-layout-scene.prefix', 'Please')}{' '}
         <a

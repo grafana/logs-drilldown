@@ -360,6 +360,7 @@
         },
         "empty-layout-scene": {
           "link": "let us know",
+          "parsed-fields": "We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.",
           "prefix": "Please",
           "suffix": "if you think this is a mistake.",
           "title": "We did not find any {{type}} for the given time range."
