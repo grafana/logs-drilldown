@@ -189,20 +189,28 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       return;
     }
 
-    // With parsers disabled, parser-based fields can't be queried, so only list structured-metadata fields.
-    const allFieldNames = dataFrame.fields[0].values.map((v) => String(v));
+    let allFieldNames = dataFrame.fields[0].values.map((v) => String(v));
 
-    // Every detected field requires a parser, but parsers are disabled: show a dedicated empty state
-    // explaining how to get fields back instead of an empty breakdown.
-    if (!getParserEnabled() && allFieldNames.length === 0) {
-      this.state.changeFieldCount?.(0);
-      this.setState({
-        body: new EmptyLayoutScene({
-          type: 'fields',
-        }),
-        loading: false,
-      });
-      return;
+    // With parsers disabled, parser-based fields (json/logfmt) can't be queried, so only list
+    // structured-metadata fields, which are available without a parser.
+    if (!getParserEnabled()) {
+      const parserField = getDetectedFieldsParserField(dataFrame);
+      allFieldNames = allFieldNames.filter(
+        (_, index) => extractParserFromString(parserField?.values?.[index] ?? '') === 'structuredMetadata'
+      );
+
+      // Every detected field requires a parser, but parsers are disabled: show a dedicated empty state
+      // explaining how to get fields back instead of an empty breakdown.
+      if (allFieldNames.length === 0) {
+        this.state.changeFieldCount?.(0);
+        this.setState({
+          body: new EmptyLayoutScene({
+            type: 'fields',
+          }),
+          loading: false,
+        });
+        return;
+      }
     }
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);

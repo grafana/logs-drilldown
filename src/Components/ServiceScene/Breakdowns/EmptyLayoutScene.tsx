@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Box, Button, EmptyState } from '@grafana/ui';
+import { Box, Button, EmptyState, Stack } from '@grafana/ui';
 
 import { emptyStateStyles } from './FieldsBreakdownScene';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
-import { getParserEnabled } from 'services/parserToggle';
+import { getParserEnabled, setParserEnabled } from 'services/parserToggle';
 import { useSharedStyles } from 'styles/shared-styles';
 
 export interface EmptyLayoutSceneState extends SceneObjectState {
@@ -32,8 +32,10 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
 
   const embeddedOptions = getEmptyStateOptions(type, model);
 
+  const noFieldsAndParsersDisabled = type === 'fields' && getParserEnabled() === false;
+
   const message = useMemo(() => {
-    if (type === 'fields' && getParserEnabled() === false) {
+    if (noFieldsAndParsersDisabled) {
       return t(
           'components.service-scene.breakdowns.empty-layout-scene.parsed-fields',
           'We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.',
@@ -49,7 +51,11 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
             type,
           }
         )
-  }, [type]);
+  }, [noFieldsAndParsersDisabled, type]);
+
+  const enableParsers = useCallback(() => {
+    setParserEnabled(true, model);
+  }, [model]);
 
   return (
     <div className={sharedStyles.emptyStateWrap}>
@@ -68,15 +74,25 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
         </a>{' '}
         {t('components.service-scene.breakdowns.empty-layout-scene.suffix', 'if you think this is a mistake.')}
         <Box marginTop={1} justifyContent="center">
-          {assistantAvailable && (
-            <Button
-              variant="secondary"
-              onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
-              icon="ai-sparkle"
-            >
-              {embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
-            </Button>
-          )}
+          <Stack gap={1}>
+            {assistantAvailable && (
+              <Button
+                variant="secondary"
+                onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
+                icon="ai-sparkle"
+              >
+                {embeddedOptions?.promptCTA ?? t('components.service-scene.breakdowns.empty-layout-scene.ask-assistant', 'Ask Grafana Assistant')}
+              </Button>
+            )}
+            {noFieldsAndParsersDisabled && (
+              <Button
+                variant="primary"
+                onClick={enableParsers}
+              >
+                {t('components.service-scene.breakdowns.empty-layout-scene.enable-parsers', 'Enable extracted fields')}
+              </Button>
+            )}
+          </Stack>
         </Box>
       </EmptyState>
     </div>
