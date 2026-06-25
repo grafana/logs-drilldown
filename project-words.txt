@@ -434,6 +434,7 @@ tidwall
 timerange
 tmpl
 Toggletip
+toggleable
 toplevel
 toxiproxy
 treeprint
