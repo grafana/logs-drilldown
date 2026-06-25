@@ -156,6 +156,8 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         logger.warn('Layout is not SceneCSSGridLayout');
       }
     });
+
+    this.updateFieldCount();
   }
 
   private sortChildren(cardinalityMap: Map<string, number>) {
@@ -186,11 +188,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       body: this.build(),
     });
 
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    if (serviceScene.state.fieldsCount === undefined) {
-      this.updateFieldCount();
-    }
+    this.updateFieldCount();
 
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(serviceScene.state.$detectedFieldsData?.subscribeToState(this.onDetectedFieldsChange));
     this._subs.add(this.subscribeToFieldsVar());
     this._subs.add(
