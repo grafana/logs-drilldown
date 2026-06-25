@@ -1,4 +1,3 @@
-/* eslint-disable sort/imports */
 import { Observable, Subscriber } from 'rxjs';
 
 import {
@@ -26,13 +25,13 @@ import { FIELDS_TO_REMOVE, LABELS_TO_REMOVE, sortLabelsByCardinality } from './f
 import { logger } from './logger';
 import { requestSupportsSharding } from './logql';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
+import { getParserEnabled } from './parserToggle';
 import { PLUGIN_ID } from './plugin';
 import { sanitizeStreamSelector } from './query';
 import { getDataSource } from './scenes';
 import { runShardSplitQuery } from './shardQuerySplitting';
 import { SERVICE_NAME } from './variables';
 import { getFeatureFlag } from 'featureFlags/openFeature';
-import { getParserEnabled } from './parserToggle';
 
 export const WRAPPED_LOKI_DS_UID = 'wrapped-loki-ds-uid';
 
