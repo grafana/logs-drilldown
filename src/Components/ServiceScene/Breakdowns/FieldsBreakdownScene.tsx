@@ -322,9 +322,11 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
           <>
             <div className={styles.toggleWrapper}>
               {body.state.fieldsPanelsType !== 'text' && (
-                <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+                <>
+                  <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+                  <FieldsAggregatedBreakdownScene.Selector model={body} />
+                </>
               )}
-              <FieldsAggregatedBreakdownScene.Selector model={body} />
             </div>
             <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />
           </>
