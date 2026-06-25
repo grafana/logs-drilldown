@@ -938,7 +938,7 @@ function getVariableSet(
     applyMode: 'manual',
     description: t(
       'components.index-scene.get-variable-set.fields-and-metadata-variable.description',
-      'Filter by values extracted from log lines (detected fields from parsers such as JSON or logfmt) and by structured metadata attached to each log line.'
+      'Filter by extracted fields (JSON or logfmt, if enabled) and by structured metadata attached to each log line.'
     ),
     hide: VariableHide.hideVariable,
     label: t('components.index-scene.get-variable-set.fields-and-metadata-variable.label.fields', 'Fields'),
