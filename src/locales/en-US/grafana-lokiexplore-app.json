@@ -359,6 +359,8 @@
           "no-values-found": "No values found matching “{{filter}}”"
         },
         "empty-layout-scene": {
+          "ask-assistant": "Ask Grafana Assistant",
+          "enable-parsers": "Enable extracted fields",
           "link": "let us know",
           "parsed-fields": "We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.",
           "prefix": "Please",
@@ -384,7 +386,9 @@
           "text-loading": "Loading..."
         },
         "fields-breakdown-scene": {
-          "label-field": "Field"
+          "label-field": "Field",
+          "label-field-tooltip": "Structured metadata and parsed fields",
+          "label-metadata-tooltip": "Structured metadata fields"
         },
         "label-breakdown-scene": {
           "label-label": "Label",
