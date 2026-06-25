@@ -15,7 +15,7 @@ import {
   VariableDependencyConfig,
   VariableValueOption,
 } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { Stack, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
@@ -332,14 +332,14 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
           <>
-            <div className={styles.toggleWrapper}>
+            <Stack justifyContent="space-between">
               {body.state.fieldsPanelsType !== 'text' && (
                 <>
                   <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
                   <FieldsAggregatedBreakdownScene.Selector model={body} />
                 </>
               )}
-            </div>
+            </Stack>
             <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />
           </>
         )}
@@ -420,10 +420,6 @@ function getStyles(theme: GrafanaTheme2) {
       justifyContent: 'space-between',
     }),
     labelsMenuWrapperNoSearch: css({
-      flexDirection: 'row',
-    }),
-    toggleWrapper: css({
-      display: 'flex',
       flexDirection: 'row',
     }),
     valuesMenuWrapper: css({

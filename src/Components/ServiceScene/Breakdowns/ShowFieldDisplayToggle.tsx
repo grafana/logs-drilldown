@@ -41,7 +41,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
   const volumeEnabled = fieldsPanelsType === 'timeseries';
 
   return (
-    <Stack gap={2}>
+    <Stack gap={2} flex={1}>
       <Stack alignItems="center">
         <Tooltip
           content={t(
