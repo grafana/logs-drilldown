@@ -196,6 +196,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
         if (newState.fieldsPanelsType !== prevState.fieldsPanelsType) {
+          // Cancel any in-flight queries on the current (about to be discarded) body, otherwise
+          // the time series requests keep running even after we switch to the text display.
+          this.cancelInFlightQueries();
           // All query runners need to be rebuilt
           this.setState({
             body: this.build(),
@@ -203,6 +206,23 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }
       })
     );
+  }
+
+  /**
+   * Cancels in-flight queries on the current body's panels. Used when switching the field display
+   * type so the discarded time series query runners don't keep their requests running.
+   */
+  private cancelInFlightQueries() {
+    const body = this.state.body;
+    if (!body) {
+      return;
+    }
+    const queryRunners = sceneGraph.findDescendents(body, SceneQueryRunner);
+    for (const queryRunner of queryRunners) {
+      if (queryRunner.state.data?.state === LoadingState.Loading) {
+        queryRunner.cancelQuery();
+      }
+    }
   }
 
   private subscribeToFieldsVar() {
@@ -244,8 +264,12 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       this.subscribeToPanel(child);
     });
 
+    const isText = this.state.fieldsPanelsType === 'text';
+
     return new LayoutSwitcher({
+      // Text panels only support the grid view, so lock it and ignore the stored layout preference.
       active: 'grid',
+      syncLayoutFromStore: !isText,
       layouts: [
         new SceneCSSGridLayout({
           autoRows: this.state.fieldsPanelsType === 'timeseries' ? '200px' : '35px',
@@ -261,8 +285,14 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }),
       ],
       options: [
-        { label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.grid', 'Grid'), value: 'grid' },
-        { label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.rows', 'Rows'), value: 'rows' },
+        {
+          label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.grid', 'Grid'),
+          value: 'grid',
+        },
+        {
+          label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.rows', 'Rows'),
+          value: 'rows',
+        },
       ],
     });
   }
@@ -618,6 +648,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.text-loading', 'Loading...')} />;
+    return (
+      <LoadingPlaceholder
+        text={t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.text-loading', 'Loading...')}
+      />
+    );
   };
 }
