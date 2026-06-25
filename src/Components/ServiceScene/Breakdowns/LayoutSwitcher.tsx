@@ -14,6 +14,8 @@ export interface LayoutSwitcherState extends SceneObjectState {
   active: LayoutType;
   layouts: SceneObject[];
   options: Array<SelectableValue<LayoutType>>;
+  // When false, the active layout is locked and not synced from the stored layout preference.
+  syncLayoutFromStore?: boolean;
 }
 
 export type LayoutType = 'grid' | 'rows';
@@ -53,7 +55,9 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   };
 
   public onActivate = () => {
-    this.updateLayout();
+    if (this.state.syncLayoutFromStore !== false) {
+      this.updateLayout();
+    }
   };
 
   public static Component = ({ model }: SceneComponentProps<LayoutSwitcher>) => {
