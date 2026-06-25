@@ -43,10 +43,12 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
   return (
     <Stack gap={2}>
       <Stack alignItems="center">
-        <Tooltip content={t(
-          'components.service-scene.breakdowns.show-field-display-toggle.options.tooltip.display-volume',
-          'Query time series for each field showing the distribution of values over time'
-        )}>
+        <Tooltip
+          content={t(
+            'components.service-scene.breakdowns.show-field-display-toggle.options.tooltip.display-volume',
+            'Query time series for each field showing the distribution of values over time'
+          )}
+        >
           <label htmlFor="toggle-volume">
             {t(
               'components.service-scene.breakdowns.show-field-display-toggle.options.label.display-volume',
@@ -54,18 +56,16 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
             )}
           </label>
         </Tooltip>
-        <Switch
-          value={volumeEnabled}
-          onClick={toggleVolume}
-          id="toggle-volume"
-        />
+        <Switch value={volumeEnabled} onClick={toggleVolume} id="toggle-volume" />
       </Stack>
 
       <Stack alignItems="center">
-        <Tooltip content={t(
-          'components.service-scene.breakdowns.show-field-display-toggle.options.tooltip.parse-fields',
-          'Enable to apply logftm/JSON parsers to every query and extract fields from the log lines'
-        )}>
+        <Tooltip
+          content={t(
+            'components.service-scene.breakdowns.show-field-display-toggle.options.tooltip.parse-fields',
+            'Enable to apply logfmt/JSON parsers to every query and extract fields from the log lines'
+          )}
+        >
           <label htmlFor="toggle-parser">
             {t(
               'components.service-scene.breakdowns.show-field-display-toggle.options.label.parse-fields',
@@ -73,11 +73,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
             )}
           </label>
         </Tooltip>
-        <Switch
-          value={parsersEnabledState}
-          onClick={toggleParser}
-          id="toggle-parser"
-        />
+        <Switch value={parsersEnabledState} onClick={toggleParser} id="toggle-parser" />
       </Stack>
     </Stack>
   );

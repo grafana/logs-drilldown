@@ -316,6 +316,18 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     // Trigger re-render on body state change
     body?.useState();
     // @todo small viewport support
+
+    const parserEnabled = getParserEnabled();
+    const tooltip = parserEnabled
+      ? t(
+          'components.service-scene.breakdowns.fields-breakdown-scene.label-field-tooltip',
+          'Structured metadata and parsed fields'
+        )
+      : t(
+          'components.service-scene.breakdowns.fields-breakdown-scene.label-metadata-tooltip',
+          'Structured metadata fields'
+        );
+
     return (
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
@@ -336,6 +348,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         {!loading && options.length > 1 && (
           <FieldSelector
             label={t('components.service-scene.breakdowns.fields-breakdown-scene.label-field', 'Field')}
+            tooltip={tooltip}
             options={options}
             value={String(value)}
             onChange={model.onFieldSelectorChange}

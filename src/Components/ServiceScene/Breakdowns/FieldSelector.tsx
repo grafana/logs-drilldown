@@ -14,6 +14,7 @@ type Props<T> = {
   label: string;
   onChange: (label: T | undefined) => void;
   options: VariableValueOption[];
+  tooltip?: string;
   value?: T;
 };
 
@@ -23,7 +24,7 @@ export type AsyncFieldSelectorProps = {
   selectOption: (value: string) => void;
 } & Props<string>;
 
-export function FieldSelector<T extends string | number>({ label, onChange, options, value }: Props<T>) {
+export function FieldSelector<T extends string | number>({ label, onChange, options, tooltip, value }: Props<T>) {
   const styles = useStyles2(getStyles);
 
   const selectableOptions: Array<ComboboxOption<T>> = options.map((option) => {
@@ -34,7 +35,7 @@ export function FieldSelector<T extends string | number>({ label, onChange, opti
   });
 
   return (
-    <InlineField className={styles.selectWrapper} label={label}>
+    <InlineField className={styles.selectWrapper} label={label} tooltip={tooltip}>
       <Combobox<T>
         options={selectableOptions}
         value={value}
