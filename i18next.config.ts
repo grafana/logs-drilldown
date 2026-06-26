@@ -15,5 +15,6 @@ export default defineConfig({
     indentation: 2,
     functions: ['t', '*.t'],
     transComponents: ['Trans'],
+    warnOnConflicts: 'error',
   },
 });
