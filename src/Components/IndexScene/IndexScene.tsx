@@ -49,7 +49,7 @@ import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { getConfigQueryRunner } from '../../services/panel';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
-import { getDrilldownSlug } from '../../services/routing';
+import { buildServicesUrl, getDrilldownSlug, ROUTES, SERVICE_URL_EXCLUDED_KEYS } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
@@ -274,6 +274,23 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   public onActivate() {
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
+
+    if (!this.state.embedded && this.userInServiceSelection()) {
+      const searchParams = urlUtil.getUrlSearchParams();
+      const hasExcludedServiceUrlKey = SERVICE_URL_EXCLUDED_KEYS.some((key) =>
+        Object.prototype.hasOwnProperty.call(searchParams, key)
+      );
+
+      if (hasExcludedServiceUrlKey) {
+        const cleanExploreUrl = buildServicesUrl(ROUTES.explore());
+        const location = locationService.getLocation();
+        const currentUrl = location.pathname + location.search;
+
+        if (cleanExploreUrl !== currentUrl) {
+          locationService.replace(cleanExploreUrl);
+        }
+      }
+    }
 
     // Show "show logs" button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);

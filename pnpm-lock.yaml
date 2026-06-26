@@ -38,7 +38,11 @@ importers:
         version: 13.1.0(@grafana/runtime@13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@reduxjs/toolkit@2.10.1(react-redux@9.2.0(@types/react@18.3.0)(react@18.3.1)(redux@4.2.1))(react@18.3.1))(rxjs@7.8.2)
       '@grafana/assistant':
         specifier: 0.1.13
+<<<<<<< HEAD
         version: 0.1.13(@grafana/data@13.1.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/scenes@7.4.0(a615c9ab2e85022f4df9d406e9afcf67))(@grafana/ui@13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react@18.3.1)(rxjs@7.8.2)
+=======
+        version: 0.1.13(e2d932ddc932ebe7947539f401350230)
+>>>>>>> 303bc188 (fix(url): update scenes, remove json and line filter from service url)
       '@grafana/data':
         specifier: 13.1.0
         version: 13.1.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
@@ -58,11 +62,19 @@ importers:
         specifier: 13.1.0
         version: 13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/scenes':
+<<<<<<< HEAD
         specifier: 7.4.0
         version: 7.4.0(a615c9ab2e85022f4df9d406e9afcf67)
       '@grafana/scenes-react':
         specifier: 7.4.0
         version: 7.4.0(a615c9ab2e85022f4df9d406e9afcf67)
+=======
+        specifier: 8.7.0
+        version: 8.7.0(@grafana/data@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@13.0.2)(@grafana/i18n@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@13.0.2)(@grafana/ui@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+      '@grafana/scenes-react':
+        specifier: 8.7.0
+        version: 8.7.0(@grafana/data@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@13.0.2)(@grafana/i18n@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@13.0.2)(@grafana/ui@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+>>>>>>> 303bc188 (fix(url): update scenes, remove json and line filter from service url)
       '@grafana/schema':
         specifier: 13.1.0
         version: 13.1.0
@@ -1022,15 +1034,6 @@ packages:
     resolution:
       { integrity: sha512-L/B1lc/TViYk4DcpGxtAVbx0ZyiKM5ktoIyafGkH6zg/tj+mA+NE//aPYKG0k8kCHSHVJrpLpcAlOBEXQ3SavA== }
 
-  '@emotion/css@11.10.5':
-    resolution:
-      { integrity: sha512-maJy0wG82hWsiwfJpc3WrYsyVwUbdu+sdIseKUB+/OLjB8zgc3tqkT6eO0Yt0AhIkJwGGnmMY/xmQwEAgQ4JHA== }
-    peerDependencies:
-      '@babel/core': 7.29.6
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-
   '@emotion/css@11.10.6':
     resolution:
       { integrity: sha512-88Sr+3heKAKpj9PCqq5A1hAmAkoSIvwEq1O2TwDij7fUtsJpdkV4jMTISSTouFeRvsGvXIpuSuDQ4C1YdfNGXw== }
@@ -1046,19 +1049,6 @@ packages:
   '@emotion/memoize@0.9.0':
     resolution:
       { integrity: sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ== }
-
-  '@emotion/react@11.10.5':
-    resolution:
-      { integrity: sha512-TZs6235tCJ/7iF6/rvTaOH4oxQg2gMAcdHemjwLKIjKz4rRuYe1HJ2TQJKnAcRAfOUDdU8XoDadCe1rl72iv8A== }
-    peerDependencies:
-      '@babel/core': 7.29.6
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/react':
-        optional: true
 
   '@emotion/react@11.14.0':
     resolution:
@@ -1091,10 +1081,6 @@ packages:
   '@emotion/utils@1.4.2':
     resolution:
       { integrity: sha512-3vLclRofFziIa3J2wDh9jjbkUz9qk5Vi3IZ/FSTKViB0k+ef0fPV7dYrUIugbgupYDx7v9ud/SjrtEP8Y4xLoA== }
-
-  '@emotion/weak-memoize@0.3.1':
-    resolution:
-      { integrity: sha512-EsBwpc7hBUJWAsNPBmJy4hxWx12v6bshQsldrVmjxJoc3isbxhOrF2IcCpaXxfvq03NwkI7sbsOLXbYuqF/8Ww== }
 
   '@emotion/weak-memoize@0.4.0':
     resolution:
@@ -1163,13 +1149,6 @@ packages:
   '@floating-ui/react-dom@2.1.8':
     resolution:
       { integrity: sha512-cC52bHwM/n/CxS87FH0yWdngEZrjdtLW/qVruo68qg+prK7ZQ4YGdut2GyDVpoGeAYe/h899rVeOVm6Oi40k2A== }
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-
-  '@floating-ui/react@0.26.28':
-    resolution:
-      { integrity: sha512-yORQuuAtVpiRjpMhdc0wJj06b9JFjrYF4qp96j++v2NBpbi6SEGF7donUJ3TMieerQ6qVkAv1tgr7L4r5roTqw== }
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -1321,9 +1300,9 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  '@grafana/scenes-react@7.4.0':
+  '@grafana/scenes-react@8.7.0':
     resolution:
-      { integrity: sha512-5UxC3IQ4fsiOJcSiBkNPd5550vDHLDx8lL9YcTrKveRHS1aEuZWleuHQNnboRQy4Df68JB9aA5f6aNC4gKJ6+Q== }
+      { integrity: sha512-+unrEVYPwg13MgmKisbcZEOFz3FXeVvogrjtg8G8GeHplb8MxOyx7ndDGMz/PTiK0uj7DElv1sf3VDXtROr5wA== }
     peerDependencies:
       '@grafana/data': '>=11.6'
       '@grafana/e2e-selectors': '>=11.6'
@@ -1335,9 +1314,9 @@ packages:
       react-router-dom: 7.17.0
       rxjs: ^7.8.1
 
-  '@grafana/scenes@7.4.0':
+  '@grafana/scenes@8.7.0':
     resolution:
-      { integrity: sha512-mHZhp8EbIbxO50f3TB5yxumkWLoggG7FcKy88nIGWYgraUJrAZ2j5XcdhKhmDEMqKv4ayrChLXcUO/lTGKZ5Qw== }
+      { integrity: sha512-fkHI42tgSAOxSDgcSMO1aCRxu0f2lBZOhyulUbP5wErD6dICYnV+ouG5w/TybJLNetJc791ZEvLWJ9SaqXCvdQ== }
     peerDependencies:
       '@grafana/data': '>=11.6'
       '@grafana/e2e-selectors': '>=11.6'
@@ -8934,18 +8913,6 @@ snapshots:
       '@emotion/weak-memoize': 0.4.0
       stylis: 4.2.0
 
-  '@emotion/css@11.10.5(@babel/core@7.29.6)':
-    dependencies:
-      '@emotion/babel-plugin': 11.13.5
-      '@emotion/cache': 11.14.0
-      '@emotion/serialize': 1.3.3
-      '@emotion/sheet': 1.4.0
-      '@emotion/utils': 1.4.2
-    optionalDependencies:
-      '@babel/core': 7.29.6
-    transitivePeerDependencies:
-      - supports-color
-
   '@emotion/css@11.10.6':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
@@ -8969,23 +8936,6 @@ snapshots:
   '@emotion/hash@0.9.2': {}
 
   '@emotion/memoize@0.9.0': {}
-
-  '@emotion/react@11.10.5(@babel/core@7.29.6)(@types/react@18.3.0)(react@18.3.1)':
-    dependencies:
-      '@babel/runtime': 7.29.2
-      '@emotion/babel-plugin': 11.13.5
-      '@emotion/cache': 11.14.0
-      '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@18.3.1)
-      '@emotion/utils': 1.4.2
-      '@emotion/weak-memoize': 0.3.1
-      hoist-non-react-statics: 3.3.2
-      react: 18.3.1
-    optionalDependencies:
-      '@babel/core': 7.29.6
-      '@types/react': 18.3.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@emotion/react@11.14.0(@types/react@18.3.0)(react@18.3.1)':
     dependencies:
@@ -9020,8 +8970,6 @@ snapshots:
       react: 18.3.1
 
   '@emotion/utils@1.4.2': {}
-
-  '@emotion/weak-memoize@0.3.1': {}
 
   '@emotion/weak-memoize@0.4.0': {}
 
@@ -9092,14 +9040,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@floating-ui/react@0.26.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@floating-ui/utils': 0.2.11
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      tabbable: 6.4.0
-
   '@floating-ui/react@0.27.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/react-dom': 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -9148,12 +9088,21 @@ snapshots:
       '@reduxjs/toolkit': 2.10.1(react-redux@9.2.0(@types/react@18.3.0)(react@18.3.1)(redux@4.2.1))(react@18.3.1)
       rxjs: 7.8.2
 
+<<<<<<< HEAD
   '@grafana/assistant@0.1.13(@grafana/data@13.1.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/scenes@7.4.0(a615c9ab2e85022f4df9d406e9afcf67))(@grafana/ui@13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(react@18.3.1)(rxjs@7.8.2)':
     dependencies:
       '@grafana/data': 13.1.0(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/runtime': 13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/scenes': 7.4.0(a615c9ab2e85022f4df9d406e9afcf67)
       '@grafana/ui': 13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+=======
+  '@grafana/assistant@0.1.13(e2d932ddc932ebe7947539f401350230)':
+    dependencies:
+      '@grafana/data': 13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/runtime': 13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/scenes': 8.7.0(@grafana/data@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@13.0.2)(@grafana/i18n@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@13.0.2)(@grafana/ui@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+      '@grafana/ui': 13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+>>>>>>> 303bc188 (fix(url): update scenes, remove json and line filter from service url)
       react: 18.3.1
       rxjs: 7.8.2
 
@@ -9365,6 +9314,7 @@ snapshots:
       - supports-color
       - typescript
 
+<<<<<<< HEAD
   '@grafana/scenes-react@7.4.0(a615c9ab2e85022f4df9d406e9afcf67)':
     dependencies:
       '@emotion/css': 11.10.5(@babel/core@7.29.6)
@@ -9375,6 +9325,18 @@ snapshots:
       '@grafana/scenes': 7.4.0(a615c9ab2e85022f4df9d406e9afcf67)
       '@grafana/schema': 13.1.0
       '@grafana/ui': 13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+=======
+  '@grafana/scenes-react@8.7.0(@grafana/data@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@13.0.2)(@grafana/i18n@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@13.0.2)(@grafana/ui@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)':
+    dependencies:
+      '@emotion/css': 11.13.5
+      '@emotion/react': 11.14.0(@types/react@18.3.0)(react@18.3.1)
+      '@grafana/data': 13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/e2e-selectors': 13.0.2
+      '@grafana/runtime': 13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/scenes': 8.7.0(@grafana/data@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@13.0.2)(@grafana/i18n@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@13.0.2)(@grafana/ui@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+      '@grafana/schema': 13.0.2
+      '@grafana/ui': 13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+>>>>>>> 303bc188 (fix(url): update scenes, remove json and line filter from service url)
       lodash: 4.18.1
       lru-cache: 10.4.3
       react: 18.3.1
@@ -9383,11 +9345,11 @@ snapshots:
       react-use: 17.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rxjs: 7.8.2
     transitivePeerDependencies:
-      - '@babel/core'
       - '@grafana/i18n'
       - '@types/react'
       - supports-color
 
+<<<<<<< HEAD
   '@grafana/scenes@7.4.0(a615c9ab2e85022f4df9d406e9afcf67)':
     dependencies:
       '@emotion/css': 11.10.5(@babel/core@7.29.6)
@@ -9399,6 +9361,19 @@ snapshots:
       '@grafana/runtime': 13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
       '@grafana/schema': 13.1.0
       '@grafana/ui': 13.1.0(@babel/runtime@7.29.2)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(codemirror@6.0.2)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+=======
+  '@grafana/scenes@8.7.0(@grafana/data@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/e2e-selectors@13.0.2)(@grafana/i18n@13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/runtime@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@grafana/schema@13.0.2)(@grafana/ui@13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2))(@types/react@18.3.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)':
+    dependencies:
+      '@emotion/css': 11.13.5
+      '@emotion/react': 11.14.0(@types/react@18.3.0)(react@18.3.1)
+      '@floating-ui/react': 0.27.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@grafana/data': 13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/e2e-selectors': 13.0.2
+      '@grafana/i18n': 13.0.2(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/runtime': 13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+      '@grafana/schema': 13.0.2
+      '@grafana/ui': 13.0.2(@react-spectrum/provider@3.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.0)(eslint@9.32.0(jiti@2.6.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)
+>>>>>>> 303bc188 (fix(url): update scenes, remove json and line filter from service url)
       '@leeoniya/ufuzzy': 1.0.19
       '@tanstack/react-virtual': 3.13.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       history: 4.10.1
@@ -9413,7 +9388,6 @@ snapshots:
       rxjs: 7.8.2
       uuid: 14.0.0
     transitivePeerDependencies:
-      - '@babel/core'
       - '@types/react'
       - supports-color
 
