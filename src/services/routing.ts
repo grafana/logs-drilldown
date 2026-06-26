@@ -78,6 +78,7 @@ export const EXPLORATIONS_ROUTE = `${PLUGIN_BASE_URL}/${PageSlugs.explore}`;
 // For redirect back to service, we just want to keep datasource, and timerange
 export const SERVICE_URL_KEYS = ['from', 'to', `var-${VAR_DATASOURCE}`, `var-${VAR_LABELS}`];
 export const SERVICE_URL_KEYS_NO_TIMERANGE = [`var-${VAR_DATASOURCE}`, `var-${VAR_LABELS}`];
+export const SERVICE_URL_EXCLUDED_KEYS = [`var-${VAR_JSON_FIELDS}`, `var-${VAR_LINE_FORMAT}`];
 //@todo why patterns and var-patterns?
 export const DRILLDOWN_URL_KEYS = [
   'from',
@@ -161,7 +162,7 @@ export function extractValuesFromRoute(routeMatch: RouteMatch): RouteProps {
 export function buildServicesRoute(extraQueryParams?: UrlQueryMap): UrlQueryMap {
   return {
     ...Object.entries(urlUtil.getUrlSearchParams()).reduce<UrlQueryMap>((acc, [key, value]) => {
-      if (SERVICE_URL_KEYS.includes(key)) {
+      if (SERVICE_URL_KEYS.includes(key) && !SERVICE_URL_EXCLUDED_KEYS.includes(key)) {
         acc[key] = value;
       }
 

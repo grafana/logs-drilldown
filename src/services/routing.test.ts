@@ -52,4 +52,15 @@ describe('buildBreakdownUrl', () => {
       `/a/grafana-lokiexplore-app/${PageSlugs.explore}?var-ds=DSID&from=now-5m&to=now&var-filters=service_name%7C%3D%7Ctempo-distributor`
     );
   });
+
+  it('service page excludes var-jsonFields and var-lineFormat when navigating back to explore', () => {
+    navigateTo(
+      'http://localhost:3000/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs?var-ds=DSID&from=now-5m&to=now&var-filters=service_name%7C%3D%7Ctempo-distributor&var-jsonFields=invalid&var-lineFormat=bad'
+    );
+
+    const breakdownUrl = buildServicesUrl(ROUTES.explore());
+    expect(breakdownUrl).toBe(
+      `/a/grafana-lokiexplore-app/${PageSlugs.explore}?var-ds=DSID&from=now-5m&to=now&var-filters=service_name%7C%3D%7Ctempo-distributor`
+    );
+  });
 });
