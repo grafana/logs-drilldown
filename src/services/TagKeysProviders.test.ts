@@ -1,10 +1,13 @@
 import { dateTime, TimeRange } from '@grafana/data';
 import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
-import { AdHocFiltersVariable, sceneGraph } from '@grafana/scenes';
+import { AdHocFiltersVariable, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { LokiDatasource } from './lokiQuery';
+import { getParserEnabled } from './parserToggle';
 import { getDataSource } from './scenes';
-import { getLabelsKeys, getLabelsTagKeysProvider } from './TagKeysProviders';
+import { DetectedFieldsResult } from './TagValuesProviders';
+import { getFieldsKeysProvider, getLabelsKeys, getLabelsTagKeysProvider } from './TagKeysProviders';
+import { LEVEL_VARIABLE_VALUE, VAR_FIELDS_AND_METADATA } from './variables';
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
@@ -14,10 +17,30 @@ jest.mock('./scenes', () => ({
   ...jest.requireActual('./scenes'),
   getDataSource: jest.fn(),
 }));
+jest.mock('./parserToggle', () => ({
+  getParserEnabled: jest.fn(),
+}));
 
 function mockDsMethod(ds: object): LokiDatasource {
   Object.setPrototypeOf(ds, DataSourceWithBackend.prototype);
   return ds as LokiDatasource;
+}
+
+function mockFieldsDatasource(fields: DetectedFieldsResult): {
+  datasource: LokiDatasource;
+  fetchDetectedFields: jest.Mock;
+} {
+  const fetchDetectedFields = jest.fn().mockResolvedValue(fields);
+  const datasource = mockDsMethod({
+    languageProvider: { fetchDetectedFields },
+  });
+
+  jest.mocked(getDataSource).mockReturnValue('loki-uid');
+  jest.mocked(getDataSourceSrv).mockReturnValue({
+    get: jest.fn().mockResolvedValue(datasource),
+  } as unknown as ReturnType<typeof getDataSourceSrv>);
+
+  return { datasource, fetchDetectedFields };
 }
 
 describe('getLabelsKeys', () => {
@@ -86,6 +109,92 @@ describe('getLabelsTagKeysProvider', () => {
       expect.objectContaining({
         timeRange: sceneTimeRange,
       })
+    );
+  });
+});
+
+describe('getFieldsKeysProvider with parsers disabled', () => {
+  const sceneRef = {} as SceneObject;
+
+  const detectedFields: DetectedFieldsResult = [
+    { cardinality: 1, label: 'trace_id', parsers: null, type: 'string' },
+    { cardinality: 2, label: 'pod', parsers: null, type: 'string' },
+    { cardinality: 3, label: 'level', parsers: ['logfmt'], type: 'string' },
+    { cardinality: 4, label: 'duration', parsers: ['json', 'logfmt'], type: 'string' },
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getParserEnabled).mockReturnValue(false);
+  });
+
+  it('returns only structured-metadata fields (parsers === null) for VAR_FIELDS_AND_METADATA', async () => {
+    mockFieldsDatasource(detectedFields);
+
+    const result = await getFieldsKeysProvider({
+      expr: '{service_name="test"}',
+      sceneRef,
+      variableType: VAR_FIELDS_AND_METADATA,
+    });
+
+    expect(result.replace).toBe(true);
+    expect(result.values.map((value) => value.text)).toEqual(['trace_id', 'pod']);
+  });
+
+  it('marks the returned structured-metadata fields with the structuredMetadata parser group', async () => {
+    mockFieldsDatasource(detectedFields);
+
+    const result = await getFieldsKeysProvider({
+      expr: '{service_name="test"}',
+      sceneRef,
+      variableType: VAR_FIELDS_AND_METADATA,
+    });
+
+    expect(result.values).toEqual([
+      expect.objectContaining({
+        group: 'structuredMetadata',
+        meta: expect.objectContaining({ parser: 'structuredMetadata' }),
+        text: 'trace_id',
+        value: 'trace_id',
+      }),
+      expect.objectContaining({
+        group: 'structuredMetadata',
+        meta: expect.objectContaining({ parser: 'structuredMetadata' }),
+        text: 'pod',
+        value: 'pod',
+      }),
+    ]);
+  });
+
+  it('excludes parser-dependent fields when no structured-metadata fields exist', async () => {
+    mockFieldsDatasource([
+      { cardinality: 3, label: 'level', parsers: ['logfmt'], type: 'string' },
+      { cardinality: 4, label: 'duration', parsers: ['json', 'logfmt'], type: 'string' },
+    ]);
+
+    const result = await getFieldsKeysProvider({
+      expr: '{service_name="test"}',
+      sceneRef,
+      variableType: VAR_FIELDS_AND_METADATA,
+    });
+
+    expect(result.values).toEqual([]);
+  });
+
+  it('still includes the detected level field even when it requires a parser', async () => {
+    mockFieldsDatasource([
+      { cardinality: 1, label: 'trace_id', parsers: null, type: 'string' },
+      { cardinality: 5, label: LEVEL_VARIABLE_VALUE, parsers: ['logfmt'], type: 'string' },
+    ]);
+
+    const result = await getFieldsKeysProvider({
+      expr: '{service_name="test"}',
+      sceneRef,
+      variableType: VAR_FIELDS_AND_METADATA,
+    });
+
+    expect(result.values.map((value) => value.text)).toEqual(
+      expect.arrayContaining(['trace_id', LEVEL_VARIABLE_VALUE])
     );
   });
 });
