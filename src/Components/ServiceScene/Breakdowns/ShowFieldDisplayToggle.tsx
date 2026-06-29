@@ -56,7 +56,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
             )}
           </label>
         </Tooltip>
-        <Switch value={volumeEnabled} onClick={toggleVolume} id="toggle-volume" />
+        <Switch value={volumeEnabled} onChange={toggleVolume} id="toggle-volume" />
       </Stack>
 
       <Stack alignItems="center">
@@ -73,7 +73,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
             )}
           </label>
         </Tooltip>
-        <Switch value={parsersEnabledState} onClick={toggleParser} id="toggle-parser" />
+        <Switch value={parsersEnabledState} onChange={toggleParser} id="toggle-parser" />
       </Stack>
     </Stack>
   );
