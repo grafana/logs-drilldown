@@ -5,8 +5,8 @@ import { AdHocFiltersVariable, sceneGraph, SceneObject } from '@grafana/scenes';
 import { LokiDatasource } from './lokiQuery';
 import { getParserEnabled } from './parserToggle';
 import { getDataSource } from './scenes';
-import { DetectedFieldsResult } from './TagValuesProviders';
 import { getFieldsKeysProvider, getLabelsKeys, getLabelsTagKeysProvider } from './TagKeysProviders';
+import { DetectedFieldsResult } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS_AND_METADATA } from './variables';
 
 jest.mock('@grafana/runtime', () => ({
