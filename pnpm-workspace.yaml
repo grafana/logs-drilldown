@@ -9,8 +9,8 @@ allowBuilds:
   unrs-resolver: true
 
 minimumReleaseAgeExclude:
-  - '@grafana/scenes-react@8.7.0'
-  - '@grafana/scenes@8.7.0'
+  - '@grafana/scenes-react@8.9.0'
+  - '@grafana/scenes@8.9.0'
 
 overrides:
   react-router-dom: 7.17.0
