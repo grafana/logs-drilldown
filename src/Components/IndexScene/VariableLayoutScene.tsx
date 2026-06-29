@@ -5,13 +5,7 @@ import { css, cx } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
-import {
-  SceneComponentProps,
-  SceneFlexLayout,
-  sceneGraph,
-  SceneObjectBase,
-  SceneObjectState,
-} from '@grafana/scenes';
+import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { syncLogsListPanelHeightFromScene } from '../../services/scenes';
@@ -40,7 +34,6 @@ type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
   collapsed?: boolean;
   embeddedLink?: EmbeddedLinkScene;
-  parsersEnabled?: boolean;
   position: HeaderPosition;
 }
 export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneState> {
