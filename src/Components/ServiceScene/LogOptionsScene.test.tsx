@@ -36,9 +36,9 @@ describe('LogOptionsScene', () => {
 
     render(<scene.Component model={scene} />);
 
-    expect(screen.getByTitle('Show results newest to oldest')).toBeInTheDocument();
-    expect(screen.getByTitle('Show results oldest to newest')).toBeInTheDocument();
-    await userEvent.click(screen.getByTitle('Show results oldest to newest'));
+    expect(screen.getByRole('radio', { name: 'Newest first' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Oldest first' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('radio', { name: 'Oldest first' }));
     expect(setLogOption).toHaveBeenCalledTimes(1);
     expect(setLogOption).toHaveBeenCalledWith('sortOrder', LogsSortOrder.Ascending);
     expect(scene.setLogsVizOption).toHaveBeenCalledWith({ sortOrder: LogsSortOrder.Ascending });
@@ -51,9 +51,9 @@ describe('LogOptionsScene', () => {
 
     render(<scene.Component model={scene} />);
 
-    expect(screen.getByTitle('Show results newest to oldest')).toBeInTheDocument();
-    expect(screen.getByTitle('Show results oldest to newest')).toBeInTheDocument();
-    await userEvent.click(screen.getByTitle('Show results newest to oldest'));
+    expect(screen.getByRole('radio', { name: 'Newest first' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Oldest first' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('radio', { name: 'Newest first' }));
     expect(setLogOption).toHaveBeenCalledTimes(1);
     expect(setLogOption).toHaveBeenCalledWith('sortOrder', LogsSortOrder.Descending);
     expect(scene.setLogsVizOption).toHaveBeenCalledWith({ sortOrder: LogsSortOrder.Descending });
@@ -66,9 +66,9 @@ describe('LogOptionsScene', () => {
 
     render(<scene.Component model={scene} />);
 
-    expect(screen.getByTitle('Enable wrapping of long log lines')).toBeInTheDocument();
-    expect(screen.getByTitle('Disable wrapping of long log lines')).toBeInTheDocument();
-    await userEvent.click(screen.getByTitle('Enable wrapping of long log lines'));
+    expect(screen.getByRole('radio', { name: 'Wrap' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'No wrap' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('radio', { name: 'Wrap' }));
     expect(setLogOption).toHaveBeenCalledTimes(2);
     expect(setLogOption).toHaveBeenCalledWith('wrapLogMessage', true);
     expect(setLogOption).toHaveBeenCalledWith('prettifyLogMessage', true);
