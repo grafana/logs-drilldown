@@ -370,7 +370,7 @@ function getStyles(theme: GrafanaTheme2) {
       paddingTop: theme.spacing(0),
     }),
     labelsMenuWrapper: css({
-      alignItems: 'top',
+      alignItems: 'center',
       display: 'flex',
       flexDirection: 'row-reverse',
       flexGrow: 0,

@@ -76,19 +76,6 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
 
 function LayoutSwitcherComponent({ model }: { model: LayoutSwitcher }) {
   const { active, options } = model.useState();
-  const styles = useStyles2(getStyles);
 
-  return (
-    <Field className={styles.field}>
-      <RadioButtonGroup options={options} value={active} onChange={model.onLayoutChange} />
-    </Field>
-  );
+  return <RadioButtonGroup options={options} value={active} onChange={model.onLayoutChange} />;
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    field: css({
-      marginBottom: 0,
-    }),
-  };
-};
