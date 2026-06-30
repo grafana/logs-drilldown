@@ -280,7 +280,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
     });
   }
 
-  private sortChildren(cardinalityMap: Map<string, number>) {
+  private sortChildren() {
     return (a: SceneCSSGridItem, b: SceneCSSGridItem) => {
       const aPanel = a.state.body as VizPanel;
       const bPanel = b.state.body as VizPanel;
