@@ -99,7 +99,12 @@ import {
   updateAssistantContext,
 } from 'services/assistant';
 import { getLevelsFromLogsVolume } from 'services/logsVolume';
-import { getJsonParserSegment, getLogfmtParserSegment, getParserEnabled } from 'services/parserToggle';
+import {
+  getJsonParserSegment,
+  getLogfmtParserSegment,
+  getParserEnabled,
+  setParserEnabled,
+} from 'services/parserToggle';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
@@ -322,6 +327,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     // Sync fields in query variables to support existing urls
     fieldsAndMetadataVariable.updateFilters([...metadataFilters, ...fieldFilters]);
+
+    // When opening a link that carries parser-dependent filters, make sure parsers are enabled so the
+    // incoming filters produce valid queries (the user may have parsers disabled locally).
+    this.enableParserIfRequiredByFilters();
 
     // Update the fields/metadata filters when the combined variable is changed in the variable UI.
     this._subs.add(fieldsAndMetadataVariable.subscribeToState(this.subscribeToCombinedFieldsVariable));
@@ -574,6 +583,25 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const lineFormatVariable = getLineFormatVariable(this);
     if (lineFormatVariable.state.filters.length) {
       lineFormatVariable.setState({ filters: [] });
+    }
+  }
+
+  /**
+   * Parsed-field, JSON-path and line-format filters require a parser stage. When a
+   * link is opened with any of these filters present but the user has parsers disabled locally, the
+   * filters would render invalid queries, so we re-enable parsers to honor the incoming filters.
+   */
+  private enableParserIfRequiredByFilters() {
+    if (getParserEnabled()) {
+      return;
+    }
+
+    const hasParsedFieldFilters = getFieldsVariable(this).state.filters.length > 0;
+    const hasJsonFieldFilters = getJSONFieldsVariable(this).state.filters.length > 0;
+    const hasLineFormatFilters = getLineFormatVariable(this).state.filters.length > 0;
+
+    if (hasParsedFieldFilters || hasJsonFieldFilters || hasLineFormatFilters) {
+      setParserEnabled(true, this);
     }
   }
 
