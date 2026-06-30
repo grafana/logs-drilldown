@@ -124,6 +124,8 @@ export async function getFieldsKeysProvider({
       throw tagKeys;
     }
 
+    const parserEnabled = getParserEnabled();
+
     const result: MetricFindValue[] = tagKeys
       .filter((field) => {
         if (variableType === VAR_LEVELS) {
@@ -132,7 +134,7 @@ export async function getFieldsKeysProvider({
 
         if (variableType === VAR_FIELDS_AND_METADATA && field.label !== LEVEL_VARIABLE_VALUE) {
           // With parsers disabled, only structured-metadata fields (no parser) can be queried.
-          return getParserEnabled() ? true : field.parsers === null;
+          return parserEnabled ? true : field.parsers === null;
         }
 
         return field.parsers !== null;
