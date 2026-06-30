@@ -1,10 +1,8 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
-
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { SelectableValue } from '@grafana/data';
 import { SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Field, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { RadioButtonGroup } from '@grafana/ui';
 
 import { getDrilldownSlug } from '../../../services/routing';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
