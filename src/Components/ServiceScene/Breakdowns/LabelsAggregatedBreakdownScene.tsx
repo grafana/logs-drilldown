@@ -167,25 +167,12 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
 
       updatedChildren.push(...this.buildChildren(options));
 
-      const cardinalityMap = this.calculateCardinalityMap(detectedLabelsFrame);
-      updatedChildren.sort(this.sortChildren(cardinalityMap));
+      updatedChildren.sort(this.sortChildren());
 
       layout.setState({
         children: updatedChildren,
       });
     });
-  }
-
-  private calculateCardinalityMap(detectedLabels?: DataFrame) {
-    const cardinalityMap = new Map<string, number>();
-    if (detectedLabels?.length) {
-      for (let i = 0; i < detectedLabels?.fields.length; i++) {
-        const name: string = detectedLabels.fields[i].name;
-        const cardinality: number = detectedLabels.fields[i].values[0];
-        cardinalityMap.set(name, cardinality);
-      }
-    }
-    return cardinalityMap;
   }
 
   private build(): LayoutSwitcher {
@@ -198,8 +185,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const $detectedLabels = serviceScene.state.$detectedLabelsData;
     if ($detectedLabels?.state.data?.state === LoadingState.Done) {
-      const cardinalityMap = this.calculateCardinalityMap($detectedLabels?.state.data.series[0]);
-      children.sort(this.sortChildren(cardinalityMap));
+      children.sort(this.sortChildren());
     }
 
     const childrenClones = children.map((child) => child.clone());
@@ -304,9 +290,7 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
       if (bPanel.state.title === LEVEL_VARIABLE_VALUE) {
         return 1;
       }
-      const aCardinality = cardinalityMap.get(aPanel.state.title) ?? 0;
-      const bCardinality = cardinalityMap.get(bPanel.state.title) ?? 0;
-      return bCardinality - aCardinality;
+      return aPanel.state.title.toLowerCase().localeCompare(bPanel.state.title.toLowerCase());
     };
   }
 
