@@ -58,6 +58,7 @@ import { SelectLabelActionScene } from './SelectLabelActionScene';
 import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
 import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { cancelInFlightQueries } from 'services/queries';
 
 export type FieldsPanelsType = 'text' | 'timeseries';
 
@@ -90,7 +91,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
     const detectedFieldsFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
     const newNamesField = getDetectedFieldsNamesFromQueryRunnerState(newState);
     const newParsersField = getDetectedFieldsParsersFromQueryRunnerState(newState);
-    const cardinalityMap = this.calculateCardinalityMap(newState);
 
     // Iterate through all the layouts
     this.state.body?.state.layouts.forEach((layout) => {
@@ -143,7 +143,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         const options = fieldsToAdd.map((fieldName) => fieldName);
 
         updatedChildren.push(...this.buildChildren(options));
-        updatedChildren.sort(this.sortChildren(cardinalityMap));
+        updatedChildren.sort(this.sortChildren());
 
         updatedChildren.map((child) => {
           this.subscribeToPanel(child);
@@ -156,29 +156,16 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         logger.warn('Layout is not SceneCSSGridLayout');
       }
     });
+
+    this.updateFieldCount();
   }
 
-  private sortChildren(cardinalityMap: Map<string, number>) {
+  private sortChildren() {
     return (a: SceneCSSGridItem, b: SceneCSSGridItem) => {
       const aPanel = a.state.body as FieldsVizPanelWrapper;
       const bPanel = b.state.body as FieldsVizPanelWrapper;
-      const aCardinality = cardinalityMap.get(aPanel.state.viz.state.title) ?? 0;
-      const bCardinality = cardinalityMap.get(bPanel.state.viz.state.title) ?? 0;
-      return bCardinality - aCardinality;
+      return aPanel.state.viz.state.title.toLowerCase().localeCompare(bPanel.state.viz.state.title.toLowerCase());
     };
-  }
-
-  private calculateCardinalityMap(newState?: QueryRunnerState) {
-    const detectedFieldsFrame = getDetectedFieldsFrameFromQueryRunnerState(newState);
-    const cardinalityMap = new Map<string, number>();
-    if (detectedFieldsFrame?.length) {
-      for (let i = 0; i < detectedFieldsFrame?.length; i++) {
-        const name: string = detectedFieldsFrame.fields[0].values[i];
-        const cardinality: number = detectedFieldsFrame.fields[1].values[i];
-        cardinalityMap.set(name, cardinality);
-      }
-    }
-    return cardinalityMap;
   }
 
   onActivate() {
@@ -186,16 +173,19 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       body: this.build(),
     });
 
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    if (serviceScene.state.fieldsCount === undefined) {
-      this.updateFieldCount();
-    }
+    this.updateFieldCount();
 
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(serviceScene.state.$detectedFieldsData?.subscribeToState(this.onDetectedFieldsChange));
     this._subs.add(this.subscribeToFieldsVar());
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
         if (newState.fieldsPanelsType !== prevState.fieldsPanelsType) {
+          // Cancel any in-flight queries on the current (about to be discarded) body, otherwise
+          // the time series requests keep running even after we switch to the text display.
+          if (this.state.body) {
+            cancelInFlightQueries(this.state.body);
+          }
           // All query runners need to be rebuilt
           this.setState({
             body: this.build(),
@@ -234,9 +224,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
     const children = this.buildChildren(options);
 
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    const cardinalityMap = this.calculateCardinalityMap(serviceScene.state.$detectedFieldsData?.state);
-    children.sort(this.sortChildren(cardinalityMap));
+    children.sort(this.sortChildren());
     const childrenClones = children.map((child) => child.clone());
 
     // We must subscribe to the data providers for all children after the clone, or we'll see bugs in the row layout
@@ -244,8 +232,12 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       this.subscribeToPanel(child);
     });
 
+    const isText = this.state.fieldsPanelsType === 'text';
+
     return new LayoutSwitcher({
+      // Text panels only support the grid view, so lock it and ignore the stored layout preference.
       active: 'grid',
+      syncLayoutFromStore: !isText,
       layouts: [
         new SceneCSSGridLayout({
           autoRows: this.state.fieldsPanelsType === 'timeseries' ? '200px' : '35px',
@@ -261,8 +253,14 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }),
       ],
       options: [
-        { label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.grid', 'Grid'), value: 'grid' },
-        { label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.rows', 'Rows'), value: 'rows' },
+        {
+          label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.grid', 'Grid'),
+          value: 'grid',
+        },
+        {
+          label: t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.label.rows', 'Rows'),
+          value: 'rows',
+        },
       ],
     });
   }
@@ -618,6 +616,10 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
       return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.text-loading', 'Loading...')} />;
+    return (
+      <LoadingPlaceholder
+        text={t('components.service-scene.breakdowns.fields-aggregated-breakdown-scene.text-loading', 'Loading...')}
+      />
+    );
   };
 }

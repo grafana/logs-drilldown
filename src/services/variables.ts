@@ -63,6 +63,21 @@ export const VAR_JSON_FIELDS_EXPR = '${jsonFields}';
 export const VAR_LINE_FORMAT = 'lineFormat';
 export const VAR_LINE_FORMAT_EXPR = '${lineFormat}';
 
+// Parser pipeline segments, toggled on/off globally via the header "Parsers" switch.
+// They are kept as two separate variables (rather than one) so the `${jsonFields}` variable
+// stays at the top level of the query expression and resolves in a single interpolation pass.
+export const VAR_JSON_PARSER = 'jsonParser';
+export const VAR_JSON_PARSER_EXPR = '${jsonParser}';
+export const VAR_LOGFMT_PARSER = 'logfmtParser';
+export const VAR_LOGFMT_PARSER_EXPR = '${logfmtParser}';
+// Value of VAR_JSON_PARSER / VAR_LOGFMT_PARSER when parsers are enabled (the default).
+export const JSON_PARSER_SEGMENT = `| json`;
+export const LOGFMT_PARSER_SEGMENT = `| logfmt | drop __error__, __error_details__`;
+// The mixed (json + logfmt) parser pipeline expressed with the toggleable parser variables. Used in
+// every query that applies the mixed format so the header "Parsers" toggle removes parsing everywhere.
+// `${jsonFields}` stays at the top level so it resolves in a single interpolation pass.
+export const PARSER_EXPR = `${VAR_JSON_PARSER_EXPR} ${VAR_JSON_FIELDS_EXPR} ${VAR_LOGFMT_PARSER_EXPR}`;
+
 export const DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS = `| json | logfmt | drop __error__, __error_details__`;
 export const DETECTED_FIELDS_MIXED_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__`;
 export const MIXED_FORMAT_EXPR = `| json ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__`;
@@ -80,13 +95,13 @@ export const VAR_LINE_FILTER_EXPR = '${lineFilterV2}';
 // The new multi value line filter (ad-hoc variable)
 export const VAR_LINE_FILTERS = 'lineFilters';
 export const VAR_LINE_FILTERS_EXPR = '${lineFilters}';
-export const LOG_STREAM_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} | json ${VAR_JSON_FIELDS_EXPR} | logfmt | drop __error__, __error_details__ ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR}`;
+export const LOG_STREAM_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${PARSER_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR}`;
 // Same as the LOG_STREAM_SELECTOR_EXPR, but without the fields as they will need to be built manually to exclude the current filter value
-export const DETECTED_FIELD_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${MIXED_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
-export const DETECTED_FIELD_AND_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${DETECTED_FIELDS_MIXED_FORMAT_EXPR} ${PENDING_FIELDS_EXPR}`;
-export const DETECTED_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_FIELDS_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
-export const DETECTED_LEVELS_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${PENDING_FIELDS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_LOGS_FORMAT_EXPR} ${VAR_FIELDS_EXPR}`;
-export const PATTERNS_SAMPLE_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LOGS_FORMAT_EXPR}`;
+export const DETECTED_FIELD_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${PARSER_EXPR} ${VAR_FIELDS_EXPR}`;
+export const DETECTED_FIELD_AND_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${PARSER_EXPR} ${PENDING_FIELDS_EXPR}`;
+export const DETECTED_METADATA_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_LEVELS_EXPR} ${PENDING_FIELDS_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${PARSER_EXPR} ${VAR_FIELDS_EXPR}`;
+export const DETECTED_LEVELS_VALUES_EXPR = `{${VAR_LABELS_EXPR}} ${PENDING_FIELDS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${PARSER_EXPR} ${VAR_FIELDS_EXPR}`;
+export const PATTERNS_SAMPLE_SELECTOR_EXPR = `{${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${PARSER_EXPR}`;
 export const PRETTY_LOG_STREAM_SELECTOR_EXPR = `${VAR_LABELS_EXPR} ${VAR_LEVELS_EXPR} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_FIELDS_EXPR}`;
 export const EXPLORATION_DS = { uid: VAR_DATASOURCE_EXPR };
 export const ALL_VARIABLE_VALUE = '$__all';

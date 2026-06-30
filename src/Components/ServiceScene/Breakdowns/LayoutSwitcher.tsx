@@ -1,10 +1,8 @@
 import React from 'react';
 
-import { css } from '@emotion/css';
-
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { SelectableValue } from '@grafana/data';
 import { SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Field, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { RadioButtonGroup } from '@grafana/ui';
 
 import { getDrilldownSlug } from '../../../services/routing';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
@@ -14,6 +12,8 @@ export interface LayoutSwitcherState extends SceneObjectState {
   active: LayoutType;
   layouts: SceneObject[];
   options: Array<SelectableValue<LayoutType>>;
+  // When false, the active layout is locked and not synced from the stored layout preference.
+  syncLayoutFromStore?: boolean;
 }
 
 export type LayoutType = 'grid' | 'rows';
@@ -53,7 +53,9 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
   };
 
   public onActivate = () => {
-    this.updateLayout();
+    if (this.state.syncLayoutFromStore !== false) {
+      this.updateLayout();
+    }
   };
 
   public static Component = ({ model }: SceneComponentProps<LayoutSwitcher>) => {
@@ -72,19 +74,6 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
 
 function LayoutSwitcherComponent({ model }: { model: LayoutSwitcher }) {
   const { active, options } = model.useState();
-  const styles = useStyles2(getStyles);
 
-  return (
-    <Field className={styles.field}>
-      <RadioButtonGroup options={options} value={active} onChange={model.onLayoutChange} />
-    </Field>
-  );
+  return <RadioButtonGroup options={options} value={active} onChange={model.onLayoutChange} />;
 }
-
-const getStyles = (theme: GrafanaTheme2) => {
-  return {
-    field: css({
-      marginBottom: 0,
-    }),
-  };
-};

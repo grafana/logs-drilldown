@@ -359,7 +359,10 @@
           "no-values-found": "No values found matching “{{filter}}”"
         },
         "empty-layout-scene": {
+          "ask-assistant": "Ask Grafana Assistant",
+          "enable-parsers": "Enable extracted fields",
           "link": "let us know",
+          "parsed-fields": "We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.",
           "prefix": "Please",
           "suffix": "if you think this is a mistake.",
           "title": "We did not find any {{type}} for the given time range."
@@ -383,7 +386,9 @@
           "text-loading": "Loading..."
         },
         "fields-breakdown-scene": {
-          "label-field": "Field"
+          "label-field": "Field",
+          "label-field-tooltip": "Structured metadata and parsed fields",
+          "label-metadata-tooltip": "Structured metadata fields"
         },
         "label-breakdown-scene": {
           "label-label": "Label",
@@ -503,8 +508,22 @@
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "Names",
-              "volume": "Volume"
+              "display-volume": "Display volume",
+              "parse-fields": "Extract fields from logs"
+            },
+            "tooltip": {
+              "display-volume": "Query time series for each field showing the distribution of values over time",
+              "parse-fields": "Apply logfmt/JSON parsers to extract fields from the log lines"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "Display volume"
+            },
+            "tooltip": {
+              "display-volume": "Query time series for each label showing the distribution of values over time"
             }
           }
         },

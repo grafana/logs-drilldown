@@ -111,6 +111,14 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               <div className={styles.controlsWrapper}>
                 {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
+                  {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
+
+                  {controls.map((control) => {
+                    return control.state.key === CONTROLS_VARS_DATASOURCE ? (
+                      <control.Component key={control.state.key} model={control} />
+                    ) : null;
+                  })}
+
                   {slug !== PageSlugs.explore && (
                     <ToolbarButton
                       className={collapsed ? styles.iconCollapsed : styles.iconExpanded}
@@ -124,14 +132,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       }
                     />
                   )}
-
-                  {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
-
-                  {controls.map((control) => {
-                    return control.state.key === CONTROLS_VARS_DATASOURCE ? (
-                      <control.Component key={control.state.key} model={control} />
-                    ) : null;
-                  })}
 
                   <div className={styles.timeRange}>
                     {controls.map((control) => {

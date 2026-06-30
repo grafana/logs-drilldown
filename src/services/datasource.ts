@@ -25,6 +25,7 @@ import { FIELDS_TO_REMOVE, LABELS_TO_REMOVE, sortLabelsByCardinality } from './f
 import { logger } from './logger';
 import { requestSupportsSharding } from './logql';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
+import { getParserEnabled } from './parserToggle';
 import { PLUGIN_ID } from './plugin';
 import { sanitizeStreamSelector } from './query';
 import { getDataSource } from './scenes';
@@ -416,8 +417,10 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       const typeField: Field = { config: {}, name: DETECTED_FIELDS_TYPE_NAME, type: FieldType.string, values: [] };
       const pathField: Field = { config: {}, name: DETECTED_FIELDS_PATH_NAME, type: FieldType.string, values: [] };
 
+      const parsersEnabled = getParserEnabled();
+
       response.fields?.forEach((field) => {
-        if (!FIELDS_TO_REMOVE.includes(field.label)) {
+        if (!FIELDS_TO_REMOVE.includes(field.label) && (parsersEnabled || field.parsers === null)) {
           nameField.values.push(field.label);
           cardinalityField.values.push(field.cardinality);
           parserField.values.push(field.parsers?.length ? field.parsers.join(', ') : 'structuredMetadata');

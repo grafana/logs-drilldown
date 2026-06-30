@@ -15,7 +15,7 @@ import {
   VariableDependencyConfig,
   VariableValueOption,
 } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { Stack, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
@@ -39,6 +39,7 @@ import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getFieldOptions } from 'services/filters';
+import { getParserEnabled } from 'services/parserToggle';
 import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
 import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_FIELDS, VAR_LABELS } from 'services/variables';
@@ -187,11 +188,27 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
       return;
     }
 
+    const parserEnabled = getParserEnabled();
+    const allFieldNames = dataFrame.fields[0].values.map((value) => String(value));
+
+    // No available fields and parsers disabled
+    if (!parserEnabled && allFieldNames.length === 0) {
+      this.state.changeFieldCount?.(0);
+      this.setState({
+        body: new EmptyLayoutScene({
+          type: 'fields',
+        }),
+        loading: false,
+      });
+      return;
+    }
+
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const variable = getFieldGroupByVariable(this);
+
     variable.setState({
       loading: false,
-      options: getFieldOptions(dataFrame.fields[0].values.map((v) => String(v))),
+      options: getFieldOptions(allFieldNames),
       value: serviceScene.state.drillDownLabel ?? ALL_VARIABLE_VALUE,
     });
     this.setState({
@@ -299,16 +316,30 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     // Trigger re-render on body state change
     body?.useState();
     // @todo small viewport support
+
+    const parserEnabled = getParserEnabled();
+    const tooltip = parserEnabled
+      ? t(
+          'components.service-scene.breakdowns.fields-breakdown-scene.label-field-tooltip',
+          'Structured metadata and parsed fields'
+        )
+      : t(
+          'components.service-scene.breakdowns.fields-breakdown-scene.label-metadata-tooltip',
+          'Structured metadata fields'
+        );
+
     return (
       <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
         {body instanceof FieldsAggregatedBreakdownScene && (
           <>
-            <div className={styles.toggleWrapper}>
+            <Stack justifyContent="space-between">
               {body.state.fieldsPanelsType !== 'text' && (
-                <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+                <>
+                  <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
+                  <FieldsAggregatedBreakdownScene.Selector model={body} />
+                </>
               )}
-              <FieldsAggregatedBreakdownScene.Selector model={body} />
-            </div>
+            </Stack>
             <FieldsAggregatedBreakdownScene.ShowFieldDisplayToggle model={body} />
           </>
         )}
@@ -317,6 +348,7 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         {!loading && options.length > 1 && (
           <FieldSelector
             label={t('components.service-scene.breakdowns.fields-breakdown-scene.label-field', 'Field')}
+            tooltip={tooltip}
             options={options}
             value={String(value)}
             onChange={model.onFieldSelectorChange}
@@ -380,7 +412,7 @@ function getStyles(theme: GrafanaTheme2) {
       paddingTop: theme.spacing(0),
     }),
     labelsMenuWrapper: css({
-      alignItems: 'top',
+      alignItems: 'center',
       display: 'flex',
       flexDirection: 'row-reverse',
       flexGrow: 0,
@@ -388,10 +420,6 @@ function getStyles(theme: GrafanaTheme2) {
       justifyContent: 'space-between',
     }),
     labelsMenuWrapperNoSearch: css({
-      flexDirection: 'row',
-    }),
-    toggleWrapper: css({
-      display: 'flex',
       flexDirection: 'row',
     }),
     valuesMenuWrapper: css({

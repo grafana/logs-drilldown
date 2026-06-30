@@ -115,6 +115,8 @@ export const USER_EVENTS_ACTIONS = {
     visualization_init: 'visualization_init',
     // fields rollup viz type toggle
     fields_panel_type_toggle: 'fields_panel_type_toggle',
+    // labels rollup viz type toggle
+    labels_panel_type_toggle: 'labels_panel_type_toggle',
     // table header buttons
     table_columns_header_button_reset_width: 'table_columns_header_button_reset_width',
     table_columns_header_button_show_labels: 'table_columns_header_button_show_labels',
@@ -138,6 +140,8 @@ export const USER_EVENTS_ACTIONS = {
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
     open_in_explore_menu_clicked: 'open_in_explore_menu_clicked',
+    // Toggling LogQL parsers on/off from the header query options. Props: enabled
+    parsers_toggled: 'parsers_toggled',
   },
   [USER_EVENTS_PAGES.default_columns_config]: {
     add_record: 'add_record',

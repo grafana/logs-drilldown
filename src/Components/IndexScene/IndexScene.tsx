@@ -58,8 +58,10 @@ import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
   getFieldsVariable,
+  getJSONFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
+  getLineFormatVariable,
   getMetadataVariable,
   getPatternsVariable,
   getUrlParamNameForVariable,
@@ -97,6 +99,12 @@ import {
   updateAssistantContext,
 } from 'services/assistant';
 import { getLevelsFromLogsVolume } from 'services/logsVolume';
+import {
+  getJsonParserSegment,
+  getLogfmtParserSegment,
+  getParserEnabled,
+  setParserEnabled,
+} from 'services/parserToggle';
 import { PLUGIN_BASE_URL } from 'services/plugin';
 import {
   getJsonParserExpressionBuilder,
@@ -126,11 +134,13 @@ import {
   VAR_FIELDS,
   VAR_FIELDS_AND_METADATA,
   VAR_JSON_FIELDS,
+  VAR_JSON_PARSER,
   VAR_LABELS,
   VAR_LEVELS,
   VAR_LINE_FILTER,
   VAR_LINE_FILTERS,
   VAR_LINE_FORMAT,
+  VAR_LOGFMT_PARSER,
   VAR_LOGS_FORMAT,
   VAR_METADATA,
   VAR_PATTERNS,
@@ -317,6 +327,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     // Sync fields in query variables to support existing urls
     fieldsAndMetadataVariable.updateFilters([...metadataFilters, ...fieldFilters]);
+
+    // When opening a link that carries parser-dependent filters, make sure parsers are enabled so the
+    // incoming filters produce valid queries (the user may have parsers disabled locally).
+    this.enableParserIfRequiredByFilters();
 
     // Update the fields/metadata filters when the combined variable is changed in the variable UI.
     this._subs.add(fieldsAndMetadataVariable.subscribeToState(this.subscribeToCombinedFieldsVariable));
@@ -543,6 +557,53 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       getMetadataVariable(this).updateFilters(metadataFilters);
     }
   };
+
+  /**
+   * Removes filters that can only work when parsers are enabled. Parsed-field filters and JSON-path
+   * drill-downs (json fields / line format) require a `| json`/`| logfmt` parser stage, so they would
+   * produce invalid queries once parsers are turned off. Structured-metadata filters are preserved as
+   * they don't depend on a parser.
+   */
+  public clearParserDependentFilters() {
+    const combinedVariable = getFieldsAndMetadataVariable(this);
+    const metadataFilters = combinedVariable.state.filters.filter((f: AdHocFiltersWithLabelsAndMeta) =>
+      isFilterMetadata(f)
+    );
+    // Updating the combined variable propagates to the fields and metadata variables via
+    // `subscribeToCombinedFieldsVariable`, clearing the parsed fields while keeping metadata.
+    if (metadataFilters.length !== combinedVariable.state.filters.length) {
+      combinedVariable.updateFilters(metadataFilters);
+    }
+
+    const jsonFieldsVariable = getJSONFieldsVariable(this);
+    if (jsonFieldsVariable.state.filters.length) {
+      jsonFieldsVariable.setState({ filters: [] });
+    }
+
+    const lineFormatVariable = getLineFormatVariable(this);
+    if (lineFormatVariable.state.filters.length) {
+      lineFormatVariable.setState({ filters: [] });
+    }
+  }
+
+  /**
+   * Parsed-field, JSON-path and line-format filters require a parser stage. When a
+   * link is opened with any of these filters present but the user has parsers disabled locally, the
+   * filters would render invalid queries, so we re-enable parsers to honor the incoming filters.
+   */
+  private enableParserIfRequiredByFilters() {
+    if (getParserEnabled()) {
+      return;
+    }
+
+    const hasParsedFieldFilters = getFieldsVariable(this).state.filters.length > 0;
+    const hasJsonFieldFilters = getJSONFieldsVariable(this).state.filters.length > 0;
+    const hasLineFormatFilters = getLineFormatVariable(this).state.filters.length > 0;
+
+    if (hasParsedFieldFilters || hasJsonFieldFilters || hasLineFormatFilters) {
+      setParserEnabled(true, this);
+    }
+  }
 
   private setTagProviders() {
     this.setLabelsProviders();
@@ -837,6 +898,10 @@ function getVariableSet(
   const initialMetadataFilters = initialFieldFilters?.filter((f) => f.meta?.parser === 'structuredMetadata');
   const initialParsedFieldFilters = initialFieldFilters?.filter((f) => f.meta?.parser !== 'structuredMetadata');
 
+  const parsersEnabled = getParserEnabled();
+  const jsonParserSegment = getJsonParserSegment(parsersEnabled);
+  const logfmtParserSegment = getLogfmtParserSegment(parsersEnabled);
+
   const labelVariable = new AdHocFiltersVariable({
     allowCustomValue: true,
     datasource: EXPLORATION_DS,
@@ -901,7 +966,7 @@ function getVariableSet(
     applyMode: 'manual',
     description: t(
       'components.index-scene.get-variable-set.fields-and-metadata-variable.description',
-      'Filter by values extracted from log lines (detected fields from parsers such as JSON or logfmt) and by structured metadata attached to each log line.'
+      'Filter by extracted fields (JSON or logfmt, if enabled) and by structured metadata attached to each log line.'
     ),
     hide: VariableHide.hideVariable,
     label: t('components.index-scene.get-variable-set.fields-and-metadata-variable.label.fields', 'Fields'),
@@ -1002,6 +1067,25 @@ function getVariableSet(
           options: [{ label: MIXED_FORMAT_EXPR, value: MIXED_FORMAT_EXPR }],
           skipUrlSync: true,
           value: MIXED_FORMAT_EXPR,
+        }),
+
+        // Parser pipeline segments toggled by the header "Parsers" switch. When parsers are disabled
+        // both resolve to an empty string, removing the `| json ... | logfmt | drop ...` stages.
+        new CustomConstantVariable({
+          hide: VariableHide.hideVariable,
+          name: VAR_JSON_PARSER,
+          options: [{ label: jsonParserSegment, value: jsonParserSegment }],
+          skipUrlSync: true,
+          text: jsonParserSegment,
+          value: jsonParserSegment,
+        }),
+        new CustomConstantVariable({
+          hide: VariableHide.hideVariable,
+          name: VAR_LOGFMT_PARSER,
+          options: [{ label: logfmtParserSegment, value: logfmtParserSegment }],
+          skipUrlSync: true,
+          text: logfmtParserSegment,
+          value: logfmtParserSegment,
         }),
       ],
     }),

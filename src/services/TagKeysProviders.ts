@@ -15,6 +15,7 @@ import { ExpressionBuilder } from './ExpressionBuilder';
 import { LABELS_TO_REMOVE } from './filters';
 import { logger } from './logger';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
+import { getParserEnabled } from './parserToggle';
 import { getDataSource } from './scenes';
 import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
@@ -123,6 +124,8 @@ export async function getFieldsKeysProvider({
       throw tagKeys;
     }
 
+    const parserEnabled = getParserEnabled();
+
     const result: MetricFindValue[] = tagKeys
       .filter((field) => {
         if (variableType === VAR_LEVELS) {
@@ -130,7 +133,8 @@ export async function getFieldsKeysProvider({
         }
 
         if (variableType === VAR_FIELDS_AND_METADATA && field.label !== LEVEL_VARIABLE_VALUE) {
-          return true;
+          // With parsers disabled, only structured-metadata fields (no parser) can be queried.
+          return parserEnabled ? true : field.parsers === null;
         }
 
         return field.parsers !== null;
