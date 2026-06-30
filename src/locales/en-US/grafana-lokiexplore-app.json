@@ -509,11 +509,11 @@
           "options": {
             "label": {
               "display-volume": "Display volume",
-              "parse-fields": "Extract fields"
+              "parse-fields": "Extract fields from logs"
             },
             "tooltip": {
               "display-volume": "Query time series for each field showing the distribution of values over time",
-              "parse-fields": "Apply logftm/JSON parsers to extract fields from the log lines"
+              "parse-fields": "Apply logfmt/JSON parsers to extract fields from the log lines"
             }
           }
         },

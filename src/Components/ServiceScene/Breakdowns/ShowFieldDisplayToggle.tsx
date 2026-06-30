@@ -69,7 +69,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
           <label htmlFor="toggle-parser">
             {t(
               'components.service-scene.breakdowns.show-field-display-toggle.options.label.parse-fields',
-              'Extract fields'
+              'Extract fields from logs'
             )}
           </label>
         </Tooltip>
