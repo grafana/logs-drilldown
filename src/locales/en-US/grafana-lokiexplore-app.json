@@ -517,6 +517,16 @@
             }
           }
         },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "Display volume"
+            },
+            "tooltip": {
+              "display-volume": "Query time series for each label showing the distribution of values over time"
+            }
+          }
+        },
         "sort-by-scene": {
           "aria-label-sort-direction": "Sort direction",
           "description": {

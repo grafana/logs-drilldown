@@ -58,6 +58,7 @@ import { SelectLabelActionScene } from './SelectLabelActionScene';
 import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
 import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { cancelInFlightQueries } from 'services/queries';
 
 export type FieldsPanelsType = 'text' | 'timeseries';
 
@@ -182,7 +183,9 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         if (newState.fieldsPanelsType !== prevState.fieldsPanelsType) {
           // Cancel any in-flight queries on the current (about to be discarded) body, otherwise
           // the time series requests keep running even after we switch to the text display.
-          this.cancelInFlightQueries();
+          if (this.state.body) {
+            cancelInFlightQueries(this.state.body);
+          }
           // All query runners need to be rebuilt
           this.setState({
             body: this.build(),
@@ -190,23 +193,6 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
         }
       })
     );
-  }
-
-  /**
-   * Cancels in-flight queries on the current body's panels. Used when switching the field display
-   * type so the discarded time series query runners don't keep their requests running.
-   */
-  private cancelInFlightQueries() {
-    const body = this.state.body;
-    if (!body) {
-      return;
-    }
-    const queryRunners = sceneGraph.findDescendents(body, SceneQueryRunner);
-    for (const queryRunner of queryRunners) {
-      if (queryRunner.state.data?.state === LoadingState.Loading) {
-        queryRunner.cancelQuery();
-      }
-    }
   }
 
   private subscribeToFieldsVar() {

@@ -16,7 +16,7 @@ import {
   VariableDependencyConfig,
   VariableValueOption,
 } from '@grafana/scenes';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert, Stack, useStyles2 } from '@grafana/ui';
 
 import { areArraysEqual } from '../../../services/comparison';
 import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
@@ -296,11 +296,20 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     const variable = getLabelGroupByVariable(model);
     const { options, value } = variable.useState();
     const styles = useStyles2(getStyles);
+    // Trigger re-render on body state change (e.g. when toggling the volume display)
+    body?.useState();
 
     return (
       <div className={styles.labelsMenuWrapper}>
         {body instanceof LabelValuesBreakdownScene && <LabelValuesBreakdownScene.Selector model={body} />}
-        {body instanceof LabelsAggregatedBreakdownScene && <LabelsAggregatedBreakdownScene.Selector model={body} />}
+        {body instanceof LabelsAggregatedBreakdownScene && (
+          <>
+            <Stack justifyContent="space-between">
+              {body.state.labelsPanelsType !== 'text' && <LabelsAggregatedBreakdownScene.Selector model={body} />}
+            </Stack>
+            <LabelsAggregatedBreakdownScene.ShowLabelDisplayToggle model={body} />
+          </>
+        )}
         {body instanceof LabelValuesBreakdownScene && <search.Component model={search} />}
         {!loading && options.length > 0 && (
           <FieldSelector

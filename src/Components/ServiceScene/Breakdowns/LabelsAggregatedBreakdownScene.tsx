@@ -8,6 +8,7 @@ import {
   SceneCSSGridItem,
   SceneCSSGridLayout,
   SceneDataProvider,
+  SceneDataTransformer,
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
@@ -20,22 +21,28 @@ import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafan
 import { ValueSlugs } from '../../../services/enums';
 import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
 import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
+import { getLabelsPanelType } from '../../../services/store';
 import { getFieldsVariable, getLabelGroupByVariable } from '../../../services/variableGetters';
 import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/variables';
 import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
 import { ServiceScene } from '../ServiceScene';
+import { FieldsPanelsType } from './FieldsAggregatedBreakdownScene';
 import { LabelBreakdownScene } from './LabelBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
+import { ShowLabelDisplayToggle } from './ShowLabelDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { cancelInFlightQueries } from 'services/queries';
 
 export interface LabelsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;
+  labelsPanelsType: FieldsPanelsType;
 }
 
 export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggregatedBreakdownSceneState> {
   constructor(state: Partial<LabelsAggregatedBreakdownSceneState>) {
     super({
+      labelsPanelsType: getLabelsPanelType() ?? 'timeseries',
       ...state,
     });
 
@@ -71,9 +78,29 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
         this.updateQueriesOnFieldsVariableChange();
       })
     );
+
+    this._subs.add(
+      this.subscribeToState((newState, prevState) => {
+        if (newState.labelsPanelsType !== prevState.labelsPanelsType) {
+          // Cancel any in-flight queries on the current (about to be discarded) body, otherwise
+          // the time series requests keep running even after we switch to the text display.
+          if (this.state.body) {
+            cancelInFlightQueries(this.state.body);
+          }
+          // All query runners need to be rebuilt
+          this.setState({
+            body: this.build(),
+          });
+        }
+      })
+    );
   }
 
   private updateQueriesOnFieldsVariableChange = () => {
+    // Text panels don't run volume queries, so there's nothing to update.
+    if (this.state.labelsPanelsType === 'text') {
+      return;
+    }
     this.state.body?.state.layouts.forEach((layoutObj) => {
       const layout = layoutObj as SceneCSSGridLayout;
       // Iterate through the existing panels
@@ -177,25 +204,35 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
 
     const childrenClones = children.map((child) => child.clone());
 
+    const isText = this.state.labelsPanelsType === 'text';
+
     return new LayoutSwitcher({
+      // Text panels only support the grid view, so lock it and ignore the stored layout preference.
       active: 'grid',
+      syncLayoutFromStore: !isText,
       layouts: [
         new SceneCSSGridLayout({
-          autoRows: '200px',
+          autoRows: isText ? '35px' : '200px',
           children: children,
           isLazy: true,
           templateColumns: LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS,
         }),
         new SceneCSSGridLayout({
-          autoRows: '200px',
+          autoRows: isText ? '35px' : '200px',
           children: childrenClones,
           isLazy: true,
           templateColumns: '1fr',
         }),
       ],
       options: [
-        { label: t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
+        {
+          label: t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.layout.grid', 'Grid'),
+          value: 'grid',
+        },
+        {
+          label: t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.layout.rows', 'Rows'),
+          value: 'rows',
+        },
       ],
     });
   }
@@ -208,31 +245,53 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
       if (value === ALL_VARIABLE_VALUE || !value) {
         continue;
       }
-      const query = buildLabelsQuery(this, String(option.value), String(option.value));
-      const queryRunner = getQueryRunner([query]);
-
       children.push(
-        new SceneCSSGridItem({
-          body: PanelBuilders.timeseries()
-            .setOption('annotations', { multiLane: true })
-            .setTitle(optionValue)
-            .setData(queryRunner)
-            .setHeaderActions([new SelectLabelActionScene({ fieldType: ValueSlugs.label, labelName: optionValue })])
-            .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
-            .setCustomFieldConfig('fillOpacity', 100)
-            .setCustomFieldConfig('lineWidth', 0)
-            .setCustomFieldConfig('pointSize', 0)
-            .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
-            .setHoverHeader(false)
-            .setShowMenuAlways(true)
-            .setOverrides(setLevelColorOverrides)
-            .setMenu(new PanelMenu({}))
-            .setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES)
-            .build(),
-        })
+        this.state.labelsPanelsType === 'text'
+          ? this.buildTextChild(optionValue)
+          : this.buildTimeSeriesChild(optionValue)
       );
     }
     return children;
+  }
+
+  private buildTimeSeriesChild(optionValue: string): SceneCSSGridItem {
+    const query = buildLabelsQuery(this, optionValue, optionValue);
+    const queryRunner = getQueryRunner([query]);
+
+    return new SceneCSSGridItem({
+      body: PanelBuilders.timeseries()
+        .setOption('annotations', { multiLane: true })
+        .setTitle(optionValue)
+        .setData(queryRunner)
+        .setHeaderActions([new SelectLabelActionScene({ fieldType: ValueSlugs.label, labelName: optionValue })])
+        .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
+        .setCustomFieldConfig('fillOpacity', 100)
+        .setCustomFieldConfig('lineWidth', 0)
+        .setCustomFieldConfig('pointSize', 0)
+        .setCustomFieldConfig('drawStyle', DrawStyle.Bars)
+        .setHoverHeader(false)
+        .setShowMenuAlways(true)
+        .setOverrides(setLevelColorOverrides)
+        .setMenu(new PanelMenu({}))
+        .setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES)
+        .build(),
+    });
+  }
+
+  private buildTextChild(optionValue: string): SceneCSSGridItem {
+    const text = PanelBuilders.text()
+      .setTitle(optionValue)
+      // Text panels don't query volume; an empty data provider keeps the panel lightweight.
+      .setData(new SceneDataTransformer({ transformations: [] }))
+      .setHeaderActions([new SelectLabelActionScene({ fieldType: ValueSlugs.label, labelName: optionValue })])
+      .setShowMenuAlways(true)
+      .setMenu(new PanelMenu({}));
+
+    text.setOption('content', '');
+
+    return new SceneCSSGridItem({
+      body: text.build(),
+    });
   }
 
   private sortChildren(cardinalityMap: Map<string, number>) {
@@ -251,6 +310,8 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
     };
   }
 
+  public static ShowLabelDisplayToggle = ShowLabelDisplayToggle;
+
   public static Selector({ model }: SceneComponentProps<LabelsAggregatedBreakdownScene>) {
     const { body } = model.useState();
     return <>{body && <LayoutSwitcher.Selector model={body} />}</>;
@@ -264,6 +325,10 @@ export class LabelsAggregatedBreakdownScene extends SceneObjectBase<LabelsAggreg
       return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.loading', 'Loading...')} />;
+    return (
+      <LoadingPlaceholder
+        text={t('components.service-scene.breakdowns.labels-aggregated-breakdown-scene.loading', 'Loading...')}
+      />
+    );
   };
 }

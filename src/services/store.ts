@@ -536,6 +536,19 @@ export function setFieldsPanelTypes(panelTypes: FieldsPanelsType) {
   localStorage.setItem(FIELDS_PANEL_TYPES, panelTypes);
 }
 
+const LABELS_PANEL_TYPES = `${pluginJson.id}.labelsBreakdown.labelsPanelType`;
+export function getLabelsPanelType(): FieldsPanelsType | null {
+  const stored = localStorage.getItem(LABELS_PANEL_TYPES);
+  if (stored === 'text' || stored === 'timeseries') {
+    return stored;
+  }
+  return null;
+}
+
+export function setLabelsPanelType(panelType: FieldsPanelsType) {
+  localStorage.setItem(LABELS_PANEL_TYPES, panelType);
+}
+
 // Collapsible filters
 const COLLAPSIBLE_FILTERS_KEY = `${pluginJson.id}.filters.collapsed`;
 export function getCollapsibleFiltersState(): boolean {
