@@ -45,7 +45,7 @@
     "@commitlint/cli": "20.5.3",
     "@commitlint/config-conventional": "19.8.1",
     "@eslint/eslintrc": "3.3.5",
-    "@grafana/eslint-config": "9.0.0",
+    "@grafana/eslint-config": "10.0.0",
     "@grafana/faro-webpack-plugin": "0.12.0",
     "@grafana/plugin-e2e": "3.9.1",
     "@grafana/plugin-types-bundler": "0.6.0",
