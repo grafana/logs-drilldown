@@ -42,8 +42,8 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@babel/core": "7.29.7",
-    "@commitlint/cli": "20.5.3",
-    "@commitlint/config-conventional": "19.8.1",
+    "@commitlint/cli": "21.1.0",
+    "@commitlint/config-conventional": "21.1.0",
     "@eslint/eslintrc": "3.3.5",
     "@grafana/eslint-config": "9.0.0",
     "@grafana/faro-webpack-plugin": "0.12.0",
