@@ -2,6 +2,16 @@
 
 Instructions for AI agents working on the Grafana Logs Drilldown plugin.
 
+## Related documentation
+
+| File                                 | What it's for                                                                                                        |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **`AGENTS.md`** (this file)          | **Entry point.** Loki & LogQL workflow, expected vs bug, Scenes patterns, security. Points to every other doc below. |
+| **`CONTRIBUTING.md`**                | **Human contributors.** Dev setup, issues vs PRs, i18n, PR checklist, link to GenAI policy.                          |
+| **`docs/genai.md`**                  | **AI-assisted contributions.** Disclosure, acceptable use, Logs Drilldown-specific pitfalls.                         |
+| **`.config/AGENTS/instructions.md`** | **Plugin tooling only** — webpack, `plugin.json`, E2E, rules about `.config`.                                        |
+| **`docs/sources/`**                  | **Shipped user docs** — patterns, labels, fields, troubleshooting.                                                   |
+
 ## Before Investigating Issues or Bugs
 
 **Read relevant documentation before making code changes or proposing fixes.**
@@ -60,3 +70,9 @@ Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) fo
 - **Write tests against `testIds`** — In Playwright specs, use `page.getByTestId(testIds.some.path)` (or the project’s equivalent) instead of brittle locators such as concatenated visible text (`FieldAll`), placeholder-only queries, or `getByText` for strings that depend on layout or i18n.
 - **When to add IDs** — Add or extend `testIds` when you introduce new UI that should be covered by E2E, or when a test would otherwise rely on implementation details of `@grafana/ui` (e.g. tooltip vs dialog, label + value split across nodes).
 - **Naming** — Keep the same string style as existing entries (e.g. `'data-testid search-fields'`). Prefer descriptive, stable slugs over feature-coupled names that will churn on every copy change.
+
+## Usage
+
+Start with the **Related documentation** table above, then open the doc that matches your task.
+
+**Human contributors:** follow [CONTRIBUTING.md](CONTRIBUTING.md) for how to file issues, open pull requests, run local checks, and use AI tools responsibly. The full GenAI policy is in [docs/genai.md](docs/genai.md).

@@ -37,7 +37,7 @@
       },
       {
         "name": "Report bug",
-        "url": "https://github.com/grafana/explore-logs/issues/new"
+        "url": "https://github.com/grafana/explore-logs/issues/new?template=bug_report.md"
       }
     ]
   },
