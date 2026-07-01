@@ -8,14 +8,14 @@ If your change is minor, please feel free to submit a [pull request](https://hel
 
 ## Filing issues
 
-Use [GitHub Issues](https://github.com/grafana/explore-logs/issues/new) to report bugs, ask questions, or propose larger changes.
+Use [GitHub Issues](https://github.com/grafana/logs-drilldown/issues/new) to report bugs, ask questions, or propose larger changes.
 
-| Situation                                                        | What to do                                                                                                                                                                                                            |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Bug** — something is broken or regressed                       | [Open a bug report](https://github.com/grafana/explore-logs/issues/new?template=bug_report.md) with reproduction steps, expected vs actual behavior, Grafana/Loki versions, and screenshots or recordings if helpful. |
-| **Small fix** — typo, clear one-file change, docs tweak          | Open a pull request directly; link a related issue if one exists.                                                                                                                                                     |
-| **Feature or larger change** — new UI, behavior change, refactor | [Open a feature request](https://github.com/grafana/explore-logs/issues/new?template=feature_request.md) to discuss scope, or open a draft PR with context in the description.                                        |
-| **Documentation only**                                           | Open a PR and add the `type/doc` label.                                                                                                                                                                               |
+| Situation                                                        | What to do                                                                                                                                                                                                              |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bug** — something is broken or regressed                       | [Open a bug report](https://github.com/grafana/logs-drilldown/issues/new?template=bug_report.md) with reproduction steps, expected vs actual behavior, Grafana/Loki versions, and screenshots or recordings if helpful. |
+| **Small fix** — typo, clear one-file change, docs tweak          | Open a pull request directly; link a related issue if one exists.                                                                                                                                                       |
+| **Feature or larger change** — new UI, behavior change, refactor | [Open a feature request](https://github.com/grafana/logs-drilldown/issues/new?template=feature_request.md) to discuss scope, or open a draft PR with context in the description.                                        |
+| **Documentation only**                                           | Open a PR and add the `type/doc` label.                                                                                                                                                                                 |
 
 For bugs, check [Loki](https://grafana.com/docs/loki/latest/) and [LogQL](https://grafana.com/docs/loki/latest/query/) behavior first — for example, the Patterns API only supports stream selectors (indexed labels), so a label filter not applied to Patterns may be expected, not a plugin bug.
 

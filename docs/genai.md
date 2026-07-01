@@ -72,4 +72,4 @@ If you use an agentic tool, point it at [AGENTS.md][agents] first. Agents should
 [user-docs]: sources/
 [loki-docs]: https://grafana.com/docs/loki/latest/
 [logql-docs]: https://grafana.com/docs/loki/latest/query/
-[new-issue]: https://github.com/grafana/explore-logs/issues/new
+[new-issue]: https://github.com/grafana/logs-drilldown/issues/new
