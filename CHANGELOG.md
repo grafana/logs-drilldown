@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.2.0](https://github.com/grafana/logs-drilldown/compare/v2.1.5...v2.2.0) (2026-07-01)
+
+
+### 🎉 Features
+
+* **Fields:** Add support for optional parsers ([#1975](https://github.com/grafana/logs-drilldown/issues/1975)) ([a8f10be](https://github.com/grafana/logs-drilldown/commit/a8f10befca364368d7b1b224b41d9d6a6270bb16))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update all non-major dependencies ([#1982](https://github.com/grafana/logs-drilldown/issues/1982)) ([971957a](https://github.com/grafana/logs-drilldown/commit/971957ad9ad02e8f7959cda65380734beb9aabb6))
+
+
+### 📝 Documentation
+
+* add GenAI policy, contributor guide, and issue template updates ([#1983](https://github.com/grafana/logs-drilldown/issues/1983)) ([1a4d93d](https://github.com/grafana/logs-drilldown/commit/1a4d93df23605e3fd9d5bb70c8c25e73d2b0e137))
+
 ## [2.1.5](https://github.com/grafana/logs-drilldown/compare/v2.1.4...v2.1.5) (2026-06-24)
 
 
