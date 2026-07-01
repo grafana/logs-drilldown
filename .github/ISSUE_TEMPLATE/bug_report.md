@@ -27,6 +27,6 @@ Grafana version, Loki version, Logs Drilldown plugin version, and browser (if re
 If applicable, add screenshots to help explain your problem.
 
 **AI disclosure** (optional)
-See the [Generative AI Contribution Policy](https://github.com/grafana/explore-logs/blob/main/docs/genai.md).
+See the [Generative AI Contribution Policy](https://github.com/grafana/logs-drilldown/blob/main/docs/genai.md).
 
 - [ ] This issue was substantially generated with AI assistance.

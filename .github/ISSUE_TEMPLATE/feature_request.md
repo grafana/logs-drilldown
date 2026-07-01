@@ -13,6 +13,6 @@ What problem does this feature solve? What are the pain points or missing capabi
 A concise description of requirements.
 
 **AI disclosure** (optional)
-See the [Generative AI Contribution Policy](https://github.com/grafana/explore-logs/blob/main/docs/genai.md).
+See the [Generative AI Contribution Policy](https://github.com/grafana/logs-drilldown/blob/main/docs/genai.md).
 
 - [ ] This feature request was substantially generated with AI assistance.

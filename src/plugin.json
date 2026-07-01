@@ -33,11 +33,11 @@
     "links": [
       {
         "name": "Github",
-        "url": "https://github.com/grafana/explore-logs"
+        "url": "https://github.com/grafana/logs-drilldown"
       },
       {
         "name": "Report bug",
-        "url": "https://github.com/grafana/explore-logs/issues/new?template=bug_report.md"
+        "url": "https://github.com/grafana/logs-drilldown/issues/new?template=bug_report.md"
       }
     ]
   },
