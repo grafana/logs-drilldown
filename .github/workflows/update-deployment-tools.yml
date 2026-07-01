@@ -104,7 +104,7 @@ jobs:
 
       - name: Commit update
         id: commit-update
-        uses: grafana/github-api-commit-action@ccf9b520c5698380ad3b9619c5add427369b7ef1 # v0.2.0
+        uses: grafana/github-api-commit-action@4358a03ee8d55bc7b2e1dd0d9e89ab7233ff014b # v0.4.3
         with:
           token: ${{ steps.get-github-app-token.outputs.token }}
           commit-message: ${{ steps.commit-msg.outputs.message }}

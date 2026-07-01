@@ -6,9 +6,31 @@
     "github>grafana/grafana-renovate-config//presets/labels",
     "github>grafana/grafana-renovate-config//presets/docker"
   ],
-  "extends": ["config:recommended", "group:allNonMajor"],
+  "extends": ["config:recommended"],
   "schedule": ["on the first day of the month"],
   "prCreation": "not-pending",
   "internalChecksFilter": "strict",
-  "rebaseWhen": "behind-base-branch"
+  "rebaseWhen": "behind-base-branch",
+  "packageRules": [
+    {
+      "description": "Group all non-major npm updates into one PR",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major npm dependencies",
+      "groupSlug": "all-minor-patch-npm"
+    },
+    {
+      "description": "Group all non-major Go updates into one PR",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major Go dependencies",
+      "groupSlug": "all-minor-patch-go"
+    },
+    {
+      "description": "loki/pkg/push is a nested module with no matching semver tags; keep the go.mod pseudo-version and don't let Renovate bump it (v0.4.0 is an unknown revision).",
+      "matchManagers": ["gomod"],
+      "matchPackageNames": ["github.com/grafana/loki/pkg/push"],
+      "enabled": false
+    }
+  ]
 }

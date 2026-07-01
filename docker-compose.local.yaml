@@ -15,7 +15,7 @@ services:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
         grafana_version: ${GRAFANA_VERSION:-main}
   loki:
-    image: grafana/loki:3.6@sha256:9db961170b729dc38277963cbb4a79941626388562cc455db61bf85564aa8945
+    image: grafana/loki:3.7@sha256:70b9f699fc9bb868b62f1cfd4f787dfa50242f1fd92e6089787d5d7daea75fe8
     environment:
       LOG_CLUSTER_DEPTH: '8'
       LOG_SIM_TH: '0.3'
@@ -51,7 +51,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   tempo:
-    image: grafana/tempo:2.6.0@sha256:f55a8a1937fff0af3a760d376b476c8327fb30e432d5e7630d7938b67691e822
+    image: grafana/tempo:2.10.7@sha256:032b3acb51ed02c4b801473d54bb63e9e9f13738d215126d9843c30283794f4b
     command: -config.file=/etc/tempo.yaml
     volumes:
       - ./config/tempo.yaml:/etc/tempo.yaml
@@ -61,7 +61,7 @@ services:
       - '4317:4317' # otlp grpc
       - '4318:4318' # otlp http
   prometheus:
-    image: prom/prometheus:v2.54.1@sha256:f6639335d34a77d9d9db382b92eeb7fc00934be8eae81dbc03b31cfe90411a94
+    image: prom/prometheus:v2.55.1@sha256:2659f4c2ebb718e7695cb9b25ffa7d6be64db013daba13e05c875451cf51b0d3
     ports:
       - '9090:9090'
     extra_hosts:
