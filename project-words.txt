@@ -142,6 +142,7 @@ gcfg
 gdev
 gemnasium
 gengo
+genai
 genny
 genproto
 getkin
@@ -444,6 +445,7 @@ typeurl
 udpa
 ufuzzy
 ugorji
+unreviewed
 unsub
 unsubs
 Unsubscribable
