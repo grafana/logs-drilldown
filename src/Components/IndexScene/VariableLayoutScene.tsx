@@ -15,9 +15,10 @@ import {
   setCollapsibleFiltersState,
 } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
+import { PluginHeaderToolbar } from '../App/header/PluginHeaderToolbar';
+import { PluginInfo } from '../App/header/PluginInfo';
 import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
-import { GiveFeedbackButton } from './GiveFeedbackButton';
 import { IndexScene } from './IndexScene';
 import {
   CONTROLS_JSON_FIELDS,
@@ -27,6 +28,7 @@ import {
 } from './LayoutScene';
 import { PatternControls } from './PatternControls';
 import { ResetFiltersButton } from './ResetFiltersButton';
+import { ToolbarScene } from './ToolbarScene';
 import { PageSlugs } from 'services/enums';
 import { getDrilldownSlug } from 'services/routing';
 
@@ -109,7 +111,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 {embedded && <ResetFiltersButton indexScene={indexScene} />}
               </div>
               <div className={styles.controlsWrapper}>
-                {!indexScene.state.embedded && <GiveFeedbackButton />}
                 <div className={styles.timeRangeDatasource}>
                   {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
@@ -136,11 +137,22 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                   <div className={styles.timeRange}>
                     {controls.map((control) => {
                       return !(control instanceof CustomVariableValueSelectors) &&
-                        !(control instanceof SceneFlexLayout) ? (
+                        !(control instanceof SceneFlexLayout) &&
+                        !(control instanceof ToolbarScene) ? (
                         <control.Component key={control.state.key} model={control} />
                       ) : null;
                     })}
                   </div>
+                  {!indexScene.state.embedded && (
+                    <PluginHeaderToolbar>
+                      {controls.map((control) => {
+                        return control instanceof ToolbarScene ? (
+                          <control.Component key={control.state.key} model={control} />
+                        ) : null;
+                      })}
+                      <PluginInfo variant="canvas" />
+                    </PluginHeaderToolbar>
+                  )}
                 </div>
               </div>
             </div>

@@ -52,6 +52,8 @@ export const testIds = {
     search: 'data-testid search-services',
   },
   header: {
+    pluginHeaderToolbar: 'data-testid plugin-header-toolbar',
+    pluginInfoButton: 'data-testid plugin-info-button',
     refreshPicker: 'data-testid RefreshPicker run button',
   },
 

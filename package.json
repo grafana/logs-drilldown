@@ -106,6 +106,7 @@
     "webpack-bundle-analyzer": "4.10.2",
     "webpack-cli": "6.0.1",
     "webpack-livereload-plugin": "3.0.2",
+    "webpack-merge": "6.0.1",
     "webpack-subresource-integrity": "5.1.0",
     "webpack-virtual-modules": "0.6.2"
   },
