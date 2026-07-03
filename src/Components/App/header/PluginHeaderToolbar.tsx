@@ -45,9 +45,7 @@ function getStyles(theme: GrafanaTheme2) {
         height: 100%;
         box-shadow: none;
 
-        &:hover,
-        &:focus,
-        &:focus-visible {
+        &:hover {
           border: none;
           box-shadow: none;
         }

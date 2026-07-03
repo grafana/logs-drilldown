@@ -136,11 +136,12 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
                   <div className={styles.timeRange}>
                     {controls.map((control) => {
-                      return !(control instanceof CustomVariableValueSelectors) &&
-                        !(control instanceof SceneFlexLayout) &&
-                        !(control instanceof ToolbarScene) ? (
-                        <control.Component key={control.state.key} model={control} />
-                      ) : null;
+                      const skipControl =
+                        control instanceof CustomVariableValueSelectors ||
+                        control instanceof SceneFlexLayout ||
+                        (control instanceof ToolbarScene && !indexScene.state.embedded);
+
+                      return !skipControl ? <control.Component key={control.state.key} model={control} /> : null;
                     })}
                   </div>
                   {!indexScene.state.embedded && (

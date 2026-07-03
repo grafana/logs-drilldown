@@ -888,6 +888,26 @@
     "title": "Attribute Explorer",
     "too-many-values": "Too many values to display"
   },
+  "plugin-info": {
+    "button": {
+      "title": "Plugin info",
+      "tooltip": "Plugin info"
+    },
+    "header": {
+      "last-update": "Last update: {{updated}}",
+      "title": "Grafana Logs Drilldown v{{version}}"
+    },
+    "menu": {
+      "changelog": "Changelog",
+      "commit-sha": "Commit SHA: {{shortCommitSha}}",
+      "configuration": "Plugin configuration",
+      "contribute": "Contribute",
+      "documentation": "Documentation",
+      "give-feedback": "Give feedback",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "Report an issue"
+    }
+  },
   "services": {
     "create-annotation-layers": {
       "severities": {
@@ -995,26 +1015,6 @@
       "title": {
         "success": "Success"
       }
-    }
-  },
-  "plugin-info": {
-    "button": {
-      "title": "Plugin info",
-      "tooltip": "Plugin info"
-    },
-    "header": {
-      "last-update": "Last update: {{updated}}",
-      "title": "Grafana Logs Drilldown v{{version}}"
-    },
-    "menu": {
-      "changelog": "Changelog",
-      "commit-sha": "Commit SHA: {{shortCommitSha}}",
-      "configuration": "Plugin configuration",
-      "contribute": "Contribute",
-      "documentation": "Documentation",
-      "give-feedback": "Give feedback",
-      "grafana-version": "Grafana {{edition}} ({{env}})",
-      "report-issue": "Report an issue"
     }
   }
 }
