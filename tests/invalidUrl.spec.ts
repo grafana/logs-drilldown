@@ -50,7 +50,7 @@ test.describe('invalid drilldown URL state (#1976)', () => {
       `&var-metadata=&var-all-fields=&var-lineFilterV2=&var-lineFilters=` +
       `&urlColumns=%5B%5D&visualizationType=%22logs%22&displayedFields=%5B%5D&sortOrder=%22Descending%22&wrapLogMessage=true`;
 
-    // 1. Land directly on the bad URL: the logs view loads instead of crashing with a malformed query.
+    // Land directly on the bad URL: the logs view loads instead of crashing with a malformed query.
     await page.goto(invalidUrl);
     await expect(page.getByTestId(testIds.exploreServiceDetails.tabLogs)).toBeVisible();
     await explorePage.assertNotLoading();
