@@ -49,7 +49,7 @@ import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { getConfigQueryRunner } from '../../services/panel';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
-import { buildServicesUrl, getDrilldownSlug, ROUTES, SERVICE_URL_EXCLUDED_KEYS } from '../../services/routing';
+import { getDrilldownSlug, SERVICE_URL_EXCLUDED_KEYS } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
@@ -287,17 +287,20 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     if (!this.state.embedded && this.userInServiceSelection()) {
       const searchParams = urlUtil.getUrlSearchParams();
-      const hasExcludedServiceUrlKey = SERVICE_URL_EXCLUDED_KEYS.some((key) =>
-        Object.prototype.hasOwnProperty.call(searchParams, key)
-      );
+      const hasExcludedServiceUrlKey = SERVICE_URL_EXCLUDED_KEYS.some((key) => Object.hasOwn(searchParams, key));
 
       if (hasExcludedServiceUrlKey) {
-        const cleanExploreUrl = buildServicesUrl(ROUTES.explore());
+        // Strip only the stuck drilldown-only keys, keeping the rest of the service-selection URL
+        // state intact (filters, primary label, patterns, time range, ...).
         const location = locationService.getLocation();
+        const cleanSearchParams = { ...searchParams };
+        SERVICE_URL_EXCLUDED_KEYS.forEach((key) => delete cleanSearchParams[key]);
+
+        const cleanUrl = urlUtil.renderUrl(location.pathname, cleanSearchParams);
         const currentUrl = location.pathname + location.search;
 
-        if (cleanExploreUrl !== currentUrl) {
-          locationService.replace(cleanExploreUrl);
+        if (cleanUrl !== currentUrl) {
+          locationService.replace(cleanUrl);
         }
       }
     }
