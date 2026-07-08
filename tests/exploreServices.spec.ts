@@ -65,9 +65,9 @@ test.describe('explore services page', () => {
       // Assert nginx is showing as a favorite
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
 
-      // Returning to service selection resets the search, so the full (unfiltered) service
-      // list is shown again with the favorited service pinned to the top.
-      await expect(explorePage.servicesSearch).toHaveValue('');
+      // The search filter persists when returning to service selection, so clear it to reveal
+      // the full (unfiltered) list with the favorited service pinned to the top.
+      await page.getByRole('button', { name: 'Clear value' }).first().click();
 
       // Assert there is more than one result now
       await expect(explorePage.getPanelHeaderLocator().nth(1)).toBeVisible();
