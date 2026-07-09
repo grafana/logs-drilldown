@@ -53,8 +53,11 @@ export const logsLabelLevelsMatches: Record<string, RegExp> = {
 };
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
+  // Info is a neutral level, not a success signal, so use a neutral blue rather
+  // than green. Kept brighter than debug's semi-dark-blue so the two remain
+  // distinguishable within the neutral-blue family.
   overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'semi-dark-green',
+    fixedColor: 'blue',
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
