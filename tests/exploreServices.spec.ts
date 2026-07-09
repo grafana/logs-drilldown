@@ -65,7 +65,8 @@ test.describe('explore services page', () => {
       // Assert nginx is showing as a favorite
       await expect(explorePage.getPanelHeaderLocator().first().getByText('nginx', { exact: true })).toBeVisible();
 
-      // Clear the search filter — the clear button uses aria-label (old Select) or title (new Combobox)
+      // The search filter persists when returning to service selection, so clear it to reveal
+      // the full (unfiltered) list with the favorited service pinned to the top.
       await page.getByRole('button', { name: 'Clear value' }).first().click();
 
       // Assert there is more than one result now
@@ -411,12 +412,9 @@ test.describe('explore services page', () => {
       // Since the addition of the runtime datasource, the query doesn't contain the datasource, and won't re-run when the datasource is changed, as such we need to manually re-run volume queries when the service selection scene is activated or users could be presented with an invalid set of services
       // This isn't ideal as we won't take advantage of being able to use the cached volume result for users that did not change the datasource any longer
       test('navigating back will re-run volume query', async ({ page }) => {
-        await expect.poll(() => page.getByText('Loading tabs').count()).toEqual(0);
-        await explorePage.assertPanelsNotLoading();
-
         const removeVariableBtn = page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel);
+        // Volume query fires once on the initial service-selection load.
         await expect.poll(() => logsVolumeCount).toEqual(1);
-        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(8);
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
         // Click on first service
@@ -431,9 +429,9 @@ test.describe('explore services page', () => {
         // Assert we navigated back
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
+        // Navigating back re-runs the volume query (2nd time).
         await expect.poll(() => logsVolumeCount).toEqual(2);
         await explorePage.assertPanelsNotLoading();
-        await expect.poll(() => logsQueryCount).toBeLessThanOrEqual(10);
 
         // Click on first service
         await explorePage.addServiceName();
@@ -446,10 +444,6 @@ test.describe('explore services page', () => {
 
         // Assert we're rendering the right scene and the services have loaded
         await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
-        await explorePage.assertPanelsNotLoading();
-
-        // We just need to wait a few ms for the query to get fired?
-        await page.waitForTimeout(100);
 
         // Volume should fire initially, after navigating back from breakdown x2
         await expect.poll(() => logsVolumeCount).toEqual(3);

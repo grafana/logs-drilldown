@@ -49,7 +49,7 @@ import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { lineFilterOperators, operators } from '../../services/operators';
 import { getConfigQueryRunner } from '../../services/panel';
 import { renderPatternFilters } from '../../services/renderPatternFilters';
-import { getDrilldownSlug } from '../../services/routing';
+import { getDrilldownSlug, SERVICE_URL_EXCLUDED_KEYS } from '../../services/routing';
 import { getLokiDatasource } from '../../services/scenes';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
@@ -61,6 +61,7 @@ import {
   getJSONFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
+  getLineFiltersVariable,
   getLineFormatVariable,
   getMetadataVariable,
   getPatternsVariable,
@@ -284,6 +285,26 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
 
+    if (!this.state.embedded && this.userInServiceSelection()) {
+      const searchParams = urlUtil.getUrlSearchParams();
+      const hasExcludedServiceUrlKey = SERVICE_URL_EXCLUDED_KEYS.some((key) => Object.hasOwn(searchParams, key));
+
+      if (hasExcludedServiceUrlKey) {
+        // Strip only the stuck drilldown-only keys, keeping the rest of the service-selection URL
+        // state intact (filters, primary label, patterns, time range, ...).
+        const location = locationService.getLocation();
+        const cleanSearchParams = { ...searchParams };
+        SERVICE_URL_EXCLUDED_KEYS.forEach((key) => delete cleanSearchParams[key]);
+
+        const cleanUrl = urlUtil.renderUrl(location.pathname, cleanSearchParams);
+        const currentUrl = location.pathname + location.search;
+
+        if (cleanUrl !== currentUrl) {
+          locationService.replace(cleanUrl);
+        }
+      }
+    }
+
     // Show "show logs" button
     const showLogsButton = sceneGraph.findByKeyAndType(this, showLogsButtonSceneKey, ShowLogsButtonScene);
     showLogsButton.setState({ hidden: false });
@@ -296,6 +317,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     if (!this.state.embedded) {
       this.resetVariablesIfNotInUrl(getFieldsVariable(this), getUrlParamNameForVariable(VAR_FIELDS));
       this.resetVariablesIfNotInUrl(getLevelsVariable(this), getUrlParamNameForVariable(VAR_LEVELS));
+      this.resetVariablesIfNotInUrl(getLineFiltersVariable(this), getUrlParamNameForVariable(VAR_LINE_FILTERS));
+      this.resetVariablesIfNotInUrl(getJSONFieldsVariable(this), getUrlParamNameForVariable(VAR_JSON_FIELDS));
+      this.resetVariablesIfNotInUrl(getLineFormatVariable(this), getUrlParamNameForVariable(VAR_LINE_FORMAT));
     }
 
     this._subs.add(
@@ -853,10 +877,13 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private resetVariablesIfNotInUrl(variable: AdHocFiltersVariable, urlParamName: string) {
     const location = locationService.getLocation();
     const search = new URLSearchParams(location.search);
-    const filtersFromUrl = search.get(urlParamName);
 
-    // If the filters aren't in the URL, then they're coming from the cache, set the state to sync with url
-    if (filtersFromUrl === null) {
+    // Treat an absent OR empty param as "no filters in the URL". SceneAppPage caches scenes by pathname
+    // (not query string), so navigating away and back re-shows a scene whose variables still hold stale
+    // values while the URL now says empty (e.g. `var-jsonFields=`). Those filters are coming from the cache,
+    // so clear them to sync with the URL. A non-empty value is a real filter and is left alone.
+    const hasValueInUrl = search.getAll(urlParamName).some((value) => value !== '');
+    if (!hasValueInUrl && variable.state.filters.length > 0) {
       variable.setState({ filters: [] });
     }
   }
