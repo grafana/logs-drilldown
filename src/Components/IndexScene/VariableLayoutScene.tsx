@@ -15,9 +15,9 @@ import {
   setCollapsibleFiltersState,
 } from '../../services/store';
 import { AppliedPattern } from '../../services/variables';
-import { PluginHeaderToolbar } from '../App/header/PluginHeaderToolbar';
-import { PluginInfo } from '../App/header/PluginInfo';
 import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
+import { PluginHeaderToolbar } from '../Header/PluginHeaderToolbar';
+import { PluginInfo } from '../Header/PluginInfo';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { IndexScene } from './IndexScene';
 import {

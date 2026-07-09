@@ -7,10 +7,10 @@ import { t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
 import { Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
 
-import { plugin } from '../../../module';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { getPluginConfigPageLocation } from '../../../services/plugin';
-import { testIds } from '../../../services/testIds';
+import { plugin } from '../../module';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
+import { getPluginConfigPageLocation } from '../../services/plugin';
+import { testIds } from '../../services/testIds';
 import { LokiLogo } from './LokiLogo';
 
 const PLUGIN_REPO = 'https://github.com/grafana/logs-drilldown';
@@ -140,12 +140,12 @@ export function PluginInfo({ variant = 'canvas' }: { variant?: ComponentProps<ty
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  menuHeader: css`
-    padding: ${theme.spacing(0.5, 1)};
-    white-space: nowrap;
-  `,
-  subTitle: css`
-    color: ${theme.colors.text.secondary};
-    font-size: ${theme.typography.bodySmall.fontSize};
-  `,
+  menuHeader: css({
+    padding: theme.spacing(0.5, 1),
+    whiteSpace: 'nowrap',
+  }),
+  subTitle: css({
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.bodySmall.fontSize,
+  }),
 });
