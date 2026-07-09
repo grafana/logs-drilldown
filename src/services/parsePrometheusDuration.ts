@@ -7,7 +7,7 @@ enum TimeOptions {
   years = 'y',
 }
 
-const DURATION_REGEXP = new RegExp('^(?:(?<value>\\d+)(?<type>ms|s|m|h|d|w|y))|0$');
+const DURATION_REGEXP = /^(?:(?<value>\d+)(?<type>ms|s|m|h|d|w|y))|0$/;
 const INVALID_FORMAT = new Error(
   `Must be of format "(number)(unit)", for example "1m", or just "0". Available units: ${Object.values(
     TimeOptions
