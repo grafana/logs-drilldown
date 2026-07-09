@@ -181,10 +181,6 @@
           }
         }
       },
-      "give-feedback-button": {
-        "give-feedback": "Give feedback",
-        "title-share-thoughts-about-grafana": "Share your thoughts about Logs in Grafana."
-      },
       "intercept-banner": {
         "body": "Check out our <2>Get started doc</2>, or see <5>recent changes</5>.<br/>Help us shape the future of the app. <10>Send us feedback</10> or engage with us on <14>GitHub</14>.",
         "title-welcome-to-grafana-logs-drilldown": "Welcome to Grafana Logs Drilldown!"
@@ -891,6 +887,26 @@
     "show-more-fields_other": "Show {{count}} more fields",
     "title": "Attribute Explorer",
     "too-many-values": "Too many values to display"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "Plugin info",
+      "tooltip": "Plugin info"
+    },
+    "header": {
+      "last-update": "Last update: {{updated}}",
+      "title": "Grafana Logs Drilldown v{{version}}"
+    },
+    "menu": {
+      "changelog": "Changelog",
+      "commit-sha": "Commit SHA: {{shortCommitSha}}",
+      "configuration": "Plugin configuration",
+      "contribute": "Contribute",
+      "documentation": "Documentation",
+      "give-feedback": "Give feedback",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "Report an issue"
+    }
   },
   "services": {
     "create-annotation-layers": {

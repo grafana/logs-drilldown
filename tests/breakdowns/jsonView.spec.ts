@@ -387,11 +387,12 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       const clipboardContent = await handle.jsonValue();
       // Navigate to url from clipboard
       await page.goto(clipboardContent);
-      // Short default viewport (see setDefaultViewportSize) leaves the linked row below the fold;
-      // scroll before asserting visibility in the viewport.
+      // JSON viz scrolls within its own overflow container (not the page viewport), so assert
+      // the app scrolled to the linked line via the selectedLine URL param instead of
+      // Playwright's toBeInViewport(), which fails with nested scroll + sticky headers.
       const restoredLine = page.getByText(selectedLogLineText ?? '').first();
-      await restoredLine.scrollIntoViewIfNeeded();
-      await expect(restoredLine).toBeInViewport();
+      await expect(restoredLine).toHaveAttribute('data-scrolled', 'true');
+      await expect(restoredLine).toBeVisible();
     });
 
     test('derived field links', async ({ page, context }) => {

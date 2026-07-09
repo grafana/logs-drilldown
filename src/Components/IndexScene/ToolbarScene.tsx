@@ -17,7 +17,6 @@ import { getFeatureFlag } from 'featureFlags/openFeature';
 const AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY = `${pluginJson.id}.serviceSelection.aggregatedMetrics`;
 
 export interface ToolbarSceneState extends SceneObjectState {
-  isOpen: boolean;
   options: {
     aggregatedMetrics: {
       active: boolean;
@@ -32,7 +31,6 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
     const active = getFeatureFlag('exploreLogsAggregatedMetrics') && userOverride !== 'false';
 
     super({
-      isOpen: false,
       options: {
         aggregatedMetrics: {
           active: active ?? false,
@@ -68,12 +66,8 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
     });
   };
 
-  public onToggleOpen = (isOpen: boolean) => {
-    this.setState({ isOpen });
-  };
-
   static Component = ({ model }: SceneComponentProps<ToolbarScene>) => {
-    const { isOpen, options } = model.useState();
+    const { options } = model.useState();
     const styles = useStyles2(getStyles);
 
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
@@ -83,13 +77,15 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
 
     const renderPopover = () => {
       return (
-        // This is already keyboard accessible, and removing the onClick stopPropagation will break click interactions. Telling eslint to sit down.
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events
         <div
           className={styles.popover}
           role="dialog"
           aria-modal="true"
-          aria-label={t('components.index-scene.toolbar-scene.render-popover.aria-label-query-options', 'Query options')}
+          aria-label={t(
+            'components.index-scene.toolbar-scene.render-popover.aria-label-query-options',
+            'Query options'
+          )}
           onClick={(evt) => evt.stopPropagation()}
         >
           <div className={styles.heading}>
@@ -156,13 +152,12 @@ export class ToolbarScene extends SceneObjectBase<ToolbarSceneState> {
       );
     };
 
-    if (options.aggregatedMetrics || kgAnnotationToggle) {
+    if (exploreLogsAggregatedMetrics || kgAnnotationToggle) {
       return (
-        <Dropdown overlay={renderPopover} placement="bottom" onVisibleChange={model.onToggleOpen}>
+        <Dropdown overlay={renderPopover} placement="bottom">
           <ToolbarButton
             icon="cog"
             variant="canvas"
-            isOpen={isOpen}
             aria-label={t('components.index-scene.toolbar-scene.aria-label-query-options', 'Query options')}
             data-testid={testIds.index.aggregatedMetricsMenu}
           />

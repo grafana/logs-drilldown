@@ -181,10 +181,6 @@
           }
         }
       },
-      "give-feedback-button": {
-        "give-feedback": "",
-        "title-share-thoughts-about-grafana": ""
-      },
       "intercept-banner": {
         "body": "",
         "title-welcome-to-grafana-logs-drilldown": ""

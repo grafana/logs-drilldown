@@ -240,7 +240,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     ) {
       controls.push(
         new ToolbarScene({
-          isOpen: false,
           key: CONTROLS_VARS_TOOLBAR,
         })
       );

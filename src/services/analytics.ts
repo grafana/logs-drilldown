@@ -142,6 +142,9 @@ export const USER_EVENTS_ACTIONS = {
     open_in_explore_menu_clicked: 'open_in_explore_menu_clicked',
     // Toggling LogQL parsers on/off from the header query options. Props: enabled
     parsers_toggled: 'parsers_toggled',
+    documentation_link_clicked: 'documentation_link_clicked',
+    feedback_link_clicked: 'feedback_link_clicked',
+    plugin_configuration_clicked: 'plugin_configuration_clicked',
   },
   [USER_EVENTS_PAGES.default_columns_config]: {
     add_record: 'add_record',
