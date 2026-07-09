@@ -12,9 +12,13 @@ distributor:
     zipkin:
     otlp:
       protocols:
+        # Newer OTel Collector versions (bundled in Tempo 2.10.x) default the OTLP receiver to
+        # localhost, which is unreachable from other containers (e.g. the generator). Bind to
+        # 0.0.0.0 so cross-container trace push works.
         http:
+          endpoint: 0.0.0.0:4318
         grpc:
-    opencensus:
+          endpoint: 0.0.0.0:4317
 
 compactor:
   compaction:
