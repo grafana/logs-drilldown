@@ -391,7 +391,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       // the app scrolled to the linked line via the selectedLine URL param instead of
       // Playwright's toBeInViewport(), which fails with nested scroll + sticky headers.
       const restoredLine = page.getByText(selectedLogLineText ?? '').first();
-      await expect(restoredLine).toHaveAttribute('data-scrolled', 'true', { timeout: 30_000 });
+      await expect(restoredLine).toHaveAttribute('data-scrolled', 'true');
       await expect(restoredLine).toBeVisible();
     });
 
