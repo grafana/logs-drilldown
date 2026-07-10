@@ -171,7 +171,7 @@ export const getLogsHighlightStyles = (theme: GrafanaTheme2) => {
     critical: '#B877D9',
     debug: '#6E9FFF',
     error: theme.colors.error.text,
-    info: '#6CCF8E',
+    info: '#6E9FFF',
     metadata: theme.colors.text.primary,
     parsedField: theme.colors.text.primary,
     trace: '#6ed0e0',
