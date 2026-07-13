@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.2.1](https://github.com/grafana/logs-drilldown/compare/v2.2.0...v2.2.1) (2026-07-10)
+
+
+### 🐛 Bug Fixes
+
+* **generator:** add otel address ([#1986](https://github.com/grafana/logs-drilldown/issues/1986)) ([c092087](https://github.com/grafana/logs-drilldown/commit/c09208701d7f5375dbafb2d005135873b7f8ec9a))
+* **levels:** use neutral blue for info level instead of green ([#1990](https://github.com/grafana/logs-drilldown/issues/1990)) ([6b61807](https://github.com/grafana/logs-drilldown/commit/6b6180773fc6a4a34cd3b9245bcfb035787f2219))
+* **parsePrometheusDuration:** fix regexp builder. ([#1987](https://github.com/grafana/logs-drilldown/issues/1987)) ([1e3dcdf](https://github.com/grafana/logs-drilldown/commit/1e3dcdf6a975776a908e59b89d4c5abde8947fd3))
+* **url:** update scenes, remove json and line filter from service url ([#1977](https://github.com/grafana/logs-drilldown/issues/1977)) ([ee5a651](https://github.com/grafana/logs-drilldown/commit/ee5a651eb2fad17ec6f593e316256ab1e2b39f20))
+
 ## [2.2.0](https://github.com/grafana/logs-drilldown/compare/v2.1.5...v2.2.0) (2026-07-01)
 
 
