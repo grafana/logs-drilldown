@@ -135,7 +135,7 @@ describe('getExpandedLogsView', () => {
       expect(getExpandedLogsView(sceneRef)).toBe(false);
     });
 
-    it('returns false and logs when the stored value is not valid JSON', () => {
+    it('returns false the stored value is not valid JSON', () => {
       localStorage.setItem(NON_EMBEDDED_KEY, 'not-json');
       expect(getExpandedLogsView(sceneRef)).toBe(false);
     });
