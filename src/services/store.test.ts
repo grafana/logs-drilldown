@@ -1,11 +1,22 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
+import { SceneObject } from '@grafana/scenes';
 
-import { getDefaultDatasourceFromDatasourceSrv } from './store';
+import pluginJson from '../plugin.json';
+import { isEmbeddedLogs } from './extensions/embedding';
+import { getDefaultDatasourceFromDatasourceSrv, getExpandedLogsView } from './store';
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
   getDataSourceSrv: jest.fn(),
+}));
+
+jest.mock('./extensions/embedding', () => ({
+  isEmbeddedLogs: jest.fn(),
+}));
+
+jest.mock('./logger', () => ({
+  logger: { error: jest.fn(), info: jest.fn(), warn: jest.fn() },
 }));
 
 function makeDs(overrides: Partial<DataSourceInstanceSettings>): DataSourceInstanceSettings {
@@ -93,5 +104,58 @@ describe('getDefaultDatasourceFromDatasourceSrv', () => {
     } as any);
 
     expect(getDefaultDatasourceFromDatasourceSrv()).toBe('grafanacloud-mystack-logs');
+  });
+});
+
+describe('getExpandedLogsView', () => {
+  // isEmbeddedLogs walks the scene graph, so mock its result. Everything else uses real localStorage (jsdom).
+  const sceneRef = {} as SceneObject;
+  const NON_EMBEDDED_KEY = `${pluginJson.id}.logs.expanded`;
+  const EMBEDDED_KEY = `${pluginJson.id}.logs.embedded.expanded`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+
+  describe('when not embedded', () => {
+    beforeEach(() => jest.mocked(isEmbeddedLogs).mockReturnValue(false));
+
+    it('returns false when nothing is stored', () => {
+      expect(getExpandedLogsView(sceneRef)).toBe(false);
+    });
+
+    it('returns true when stored value is "true"', () => {
+      localStorage.setItem(NON_EMBEDDED_KEY, 'true');
+      expect(getExpandedLogsView(sceneRef)).toBe(true);
+    });
+
+    it('returns false when stored value is "false"', () => {
+      localStorage.setItem(NON_EMBEDDED_KEY, 'false');
+      expect(getExpandedLogsView(sceneRef)).toBe(false);
+    });
+
+    it('returns false and logs when the stored value is not valid JSON', () => {
+      localStorage.setItem(NON_EMBEDDED_KEY, 'not-json');
+      expect(getExpandedLogsView(sceneRef)).toBe(false);
+    });
+  });
+
+  describe('when embedded', () => {
+    beforeEach(() => jest.mocked(isEmbeddedLogs).mockReturnValue(true));
+
+    it('defaults to true when nothing is stored', () => {
+      expect(getExpandedLogsView(sceneRef)).toBe(true);
+    });
+
+    it('respects a stored "false" preference over the embedded default', () => {
+      localStorage.setItem(EMBEDDED_KEY, 'false');
+      expect(getExpandedLogsView(sceneRef)).toBe(false);
+    });
+
+    it('respects a stored "true" preference over the embedded default', () => {
+      localStorage.setItem(EMBEDDED_KEY, 'true');
+      expect(getExpandedLogsView(sceneRef)).toBe(true);
+    });
   });
 });
