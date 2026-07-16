@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/grafana/logs-drilldown/compare/v2.2.1...v2.3.0) (2026-07-16)
+
+
+### 🎉 Features
+
+* **store:** refactor expanded/collapsed logs storage ([#1991](https://github.com/grafana/logs-drilldown/issues/1991)) ([072e886](https://github.com/grafana/logs-drilldown/commit/072e88655e9b1f260a9490dcd5ec1161939ffe44))
+
 ## [2.2.1](https://github.com/grafana/logs-drilldown/compare/v2.2.0...v2.2.1) (2026-07-10)
 
 
