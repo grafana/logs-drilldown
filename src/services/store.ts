@@ -7,6 +7,7 @@ import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/
 import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
 import { SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
 import pluginJson from '../plugin.json';
+import { isEmbeddedLogs } from './extensions/embedding';
 import { escapePrimaryLabel } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
@@ -570,9 +571,14 @@ export function setTableLogLine(value: LogLineState) {
 
 // Logs view size
 export function getExpandedLogsView(sceneRef: SceneObject) {
-  const PREFIX = getExplorationPrefix(sceneRef);
+  const embedded = isEmbeddedLogs(sceneRef);
+  const stored = localStorage.getItem(`${pluginJson.id}.logs${embedded ? '.embedded' : ''}.expanded`);
+  // When embedded, default to an expanded logs view unless the user has set a preference.
+  if (stored === null && embedded) {
+    return true;
+  }
   try {
-    return Boolean(JSON.parse(String(localStorage.getItem(`${pluginJson.id}.${PREFIX}.logs.expanded`))));
+    return Boolean(JSON.parse(String(stored)));
   } catch (e) {
     logger.error(e);
   }
@@ -580,6 +586,6 @@ export function getExpandedLogsView(sceneRef: SceneObject) {
 }
 
 export function setExpandedLogsView(sceneRef: SceneObject, expanded: boolean) {
-  const PREFIX = getExplorationPrefix(sceneRef);
-  localStorage.setItem(`${pluginJson.id}.${PREFIX}.logs.expanded`, JSON.stringify(expanded));
+  const embedded = isEmbeddedLogs(sceneRef);
+  localStorage.setItem(`${pluginJson.id}.logs${embedded ? '.embedded' : ''}.expanded`, JSON.stringify(expanded));
 }
