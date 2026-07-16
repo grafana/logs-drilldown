@@ -29,3 +29,4 @@ overrides:
   '@opentelemetry/core@<2.8.0': 2.8.0
   tar@<=7.5.15: 7.5.19
   webpack: 5.108.1
+  'websocket-driver@<0.7.5': 0.7.5
