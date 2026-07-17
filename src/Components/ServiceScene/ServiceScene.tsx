@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
@@ -40,7 +39,7 @@ import { getMetadataService } from '../../services/metadata';
 import { migrateLineFilterV1 } from '../../services/migrations';
 import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from '../../services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
-import { isOperatorInclusive, isOperatorRegex } from '../../services/operatorHelpers';
+import { isOperatorInclusive } from '../../services/operatorHelpers';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
 import { findObjectOfType } from '../../services/scenes';
 import {
@@ -85,12 +84,10 @@ import { getLogOption, getMaxLines } from 'services/store';
 import {
   DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
-  isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
   LOG_STREAM_SELECTOR_EXPR,
   SERVICE_NAME,
   SERVICE_UI_LABEL,
-  stripAdHocFilterUserInputPrefix,
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_LABELS,
@@ -315,6 +312,9 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private setDefaultColumns() {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
+    if (!indexScene.state.defaultColumnsRecords) {
+      return;
+    }
     this.setState({
       backendDisplayedFields: getDefaultColumnsForActiveFilters(indexScene.state.defaultColumnsRecords, indexScene),
     });
