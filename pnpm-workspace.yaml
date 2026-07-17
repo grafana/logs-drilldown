@@ -30,4 +30,3 @@ overrides:
   tar@<=7.5.15: 7.5.19
   webpack: 5.108.1
   'websocket-driver@<0.7.5': 0.7.5
-  websocket-driver: '>=0.7.5'
