@@ -40,7 +40,7 @@ import { getMetadataService } from '../../services/metadata';
 import { migrateLineFilterV1 } from '../../services/migrations';
 import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from '../../services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
+import { isOperatorInclusive, isOperatorRegex } from '../../services/operatorHelpers';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
 import { findObjectOfType } from '../../services/scenes';
 import {
@@ -76,6 +76,7 @@ import {
   CreateAlertData,
   CreateAlertEvent,
 } from 'Components/Panels/PanelMenu';
+import { getDefaultColumnsForActiveFilters } from 'services/defaultColumns';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
@@ -84,10 +85,12 @@ import { getLogOption, getMaxLines } from 'services/store';
 import {
   DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
+  isAdHocFilterValueUserInput,
   LEVEL_VARIABLE_VALUE,
   LOG_STREAM_SELECTOR_EXPR,
   SERVICE_NAME,
   SERVICE_UI_LABEL,
+  stripAdHocFilterUserInputPrefix,
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_LABELS,
@@ -312,42 +315,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private setDefaultColumns() {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    const records = indexScene.state.defaultColumnsRecords;
-    const labelsVariable = getLabelsVariable(this);
-    const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
-    // Remove records that are more specific than our current label set
-    const filteredRecords = records?.filter((f) => f.labels.length <= inclusiveFilters.length);
-
-    // init map
-    const filtersMap = new Set<string>();
-    inclusiveFilters.forEach((f) => filtersMap.add(f.key + f.value));
-
-    // Assign a score to each record
-    const recordsScore: Array<LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord & { score: number }> | undefined =
-      filteredRecords?.map((r) => {
-        const score = r.labels.reduce((accumulator, label) => {
-          const usedInQuery = filtersMap.has(label.key + label.value);
-          if (usedInQuery) {
-            return accumulator + 1;
-          }
-          return accumulator;
-        }, 0);
-        return { ...r, score };
-      });
-
-    let highScore = 0;
-    let highScoreIdx = -1;
-    recordsScore?.forEach((r, idx) => {
-      if (r.score > highScore) {
-        highScore = r.score;
-        highScoreIdx = idx;
-      }
-    });
-
-    const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
-
     this.setState({
-      backendDisplayedFields: bestMatch?.columns,
+      backendDisplayedFields: getDefaultColumnsForActiveFilters(indexScene.state.defaultColumnsRecords, indexScene),
     });
   }
 
