@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 
 import { css } from '@emotion/css';
 
-import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import {
@@ -76,6 +75,7 @@ import {
   CreateAlertData,
   CreateAlertEvent,
 } from 'Components/Panels/PanelMenu';
+import { getDefaultColumnsForActiveFilters } from 'services/defaultColumns';
 import { LokiQueryDirection } from 'services/lokiQuery';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
@@ -312,42 +312,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private setDefaultColumns() {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    const records = indexScene.state.defaultColumnsRecords;
-    const labelsVariable = getLabelsVariable(this);
-    const inclusiveFilters = labelsVariable.state.filters.filter((f) => isOperatorInclusive(f.operator));
-    // Remove records that are more specific than our current label set
-    const filteredRecords = records?.filter((f) => f.labels.length <= inclusiveFilters.length);
-
-    // init map
-    const filtersMap = new Set<string>();
-    inclusiveFilters.forEach((f) => filtersMap.add(f.key + f.value));
-
-    // Assign a score to each record
-    const recordsScore: Array<LogsDrilldownDefaultColumnsLogsDefaultColumnsRecord & { score: number }> | undefined =
-      filteredRecords?.map((r) => {
-        const score = r.labels.reduce((accumulator, label) => {
-          const usedInQuery = filtersMap.has(label.key + label.value);
-          if (usedInQuery) {
-            return accumulator + 1;
-          }
-          return accumulator;
-        }, 0);
-        return { ...r, score };
-      });
-
-    let highScore = 0;
-    let highScoreIdx = -1;
-    recordsScore?.forEach((r, idx) => {
-      if (r.score > highScore) {
-        highScore = r.score;
-        highScoreIdx = idx;
-      }
-    });
-
-    const bestMatch = highScoreIdx !== -1 ? recordsScore?.[highScoreIdx] : undefined;
-
+    if (!indexScene.state.defaultColumnsRecords) {
+      return;
+    }
     this.setState({
-      backendDisplayedFields: bestMatch?.columns,
+      backendDisplayedFields: getDefaultColumnsForActiveFilters(indexScene.state.defaultColumnsRecords, indexScene),
     });
   }
 
