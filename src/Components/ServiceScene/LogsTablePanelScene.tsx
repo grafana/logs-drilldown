@@ -151,7 +151,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
     });
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    const panel = new VizPanel({ title: this.getTitle(serviceScene.state.logsCount), ...panelBuilder.build() });
+    const panel = new VizPanel({ ...panelBuilder.build(), title: this.getTitle(serviceScene.state.logsCount) });
     const defaultOnFieldConfigChange = panel.onFieldConfigChange.bind(panel);
     panel.onFieldConfigChange = (fieldConfigUpdate: FieldConfigSource, replace?: boolean) => {
       storeTableFieldConfig(fieldConfigUpdate, this);
