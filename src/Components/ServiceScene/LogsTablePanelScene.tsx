@@ -2,7 +2,14 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { FieldConfig, FieldConfigSource, GrafanaTheme2, LogsSortOrder, shallowCompare } from '@grafana/data';
+import {
+  FieldConfig,
+  FieldConfigSource,
+  getValueFormat,
+  GrafanaTheme2,
+  LogsSortOrder,
+  shallowCompare,
+} from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   DeepPartial,
@@ -143,7 +150,8 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
       setTableFieldOverrides(builder, this);
     });
 
-    const panel = new VizPanel({ ...panelBuilder.build() });
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const panel = new VizPanel({ ...panelBuilder.build(), title: this.getTitle(serviceScene.state.logsCount) });
     const defaultOnFieldConfigChange = panel.onFieldConfigChange.bind(panel);
     panel.onFieldConfigChange = (fieldConfigUpdate: FieldConfigSource, replace?: boolean) => {
       storeTableFieldConfig(fieldConfigUpdate, this);
@@ -190,6 +198,16 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
       })
     );
 
+    this._subs.add(
+      serviceScene.subscribeToState((newState, prevState) => {
+        if (newState.logsCount !== prevState.logsCount) {
+          this.state.panel?.setState({
+            title: this.getTitle(newState.logsCount),
+          });
+        }
+      })
+    );
+
     this.onLoadSyncDisplayedFieldsWithUrlColumns();
 
     reportAppInteraction(
@@ -225,6 +243,12 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
   };
   private getParentScene() {
     return sceneGraph.getAncestor(this, LogsListScene);
+  }
+
+  private getTitle(logsCount: number | undefined) {
+    const valueFormatter = getValueFormat('short');
+    const formattedCount = logsCount !== undefined ? valueFormatter(logsCount, 0) : undefined;
+    return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
   }
 
   onLoadSyncDisplayedFieldsWithUrlColumns = () => {
