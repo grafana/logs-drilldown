@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.0](https://github.com/grafana/logs-drilldown/compare/v2.3.0...v2.4.0) (2026-07-20)
+
+
+### 🎉 Features
+
+* **DefaultColumns:** add support for stored multiple values of the same label as a regex ([#1997](https://github.com/grafana/logs-drilldown/issues/1997)) ([ddb5e1f](https://github.com/grafana/logs-drilldown/commit/ddb5e1fbe9f2c63b82e6b1d58a2609f9d4d54650))
+
+
+### 🐛 Bug Fixes
+
+* **LogsTablePanelScene:** fix missing title in Table NG ([#1998](https://github.com/grafana/logs-drilldown/issues/1998)) ([6515f41](https://github.com/grafana/logs-drilldown/commit/6515f41671d2314467ab69391c1b1ff00b5c7afc))
+
 ## [2.3.0](https://github.com/grafana/logs-drilldown/compare/v2.2.1...v2.3.0) (2026-07-16)
 
 
