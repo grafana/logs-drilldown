@@ -49,7 +49,7 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
 
   static Component = ({ model }: SceneComponentProps<LayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { contentScene } = indexScene.useState();
+    const { contentScene, embedded } = indexScene.useState();
     const { interceptDismissed, variableLayout } = model.useState();
     const styles = useStyles2(getStyles);
 
@@ -60,7 +60,7 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
     return (
       <div className={styles.bodyContainer}>
         <div className={styles.container}>
-          {!interceptDismissed && (
+          {!embedded && !interceptDismissed && (
             <InterceptBanner
               onRemove={() => {
                 model.dismiss();
