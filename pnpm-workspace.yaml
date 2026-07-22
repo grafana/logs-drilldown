@@ -1,6 +1,20 @@
 packages:
   - '.'
 
+# https://pnpm.io/supply-chain-security
+# Same as passing --frozen-lockfile on every pnpm install (CI uses this via plugin-ci-workflows too).
+frozenLockfile: true
+# Disable package lifecycle scripts (postinstall, etc.) on install.
+ignoreScripts: true
+# Five days in minutes (5 × 24 × 60).
+minimumReleaseAge: 7200
+# Fail install if a package's trust evidence is weaker than an earlier release (e.g. lost trusted publisher).
+trustPolicy: no-downgrade
+# Transitive deps must come from the registry/workspace; block git/tarball URLs except on direct deps.
+blockExoticSubdeps: true
+# Requires every dependency with a lifecycle script to be listed in allowBuilds
+strictDepBuilds: true
+
 allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
