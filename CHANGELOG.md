@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.4.1](https://github.com/grafana/logs-drilldown/compare/v2.4.0...v2.4.1) (2026-07-22)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** bump brace-expansion pnpm overrides for CVE remediation ([#2002](https://github.com/grafana/logs-drilldown/issues/2002)) ([5132ae2](https://github.com/grafana/logs-drilldown/commit/5132ae2a482c269e05815bd935a5087e8594cd22))
+* **deps:** resolve pnpm audit vulnerabilities ([#2005](https://github.com/grafana/logs-drilldown/issues/2005)) ([2568a22](https://github.com/grafana/logs-drilldown/commit/2568a2237c975dbcb0f8baad2c1b81e014c0b3cc))
+* **embed:** do not show the welcome banner in embed ([#2003](https://github.com/grafana/logs-drilldown/issues/2003)) ([1a8ac7f](https://github.com/grafana/logs-drilldown/commit/1a8ac7f563a62ead0411ee193c8446c06eed7415))
+
 ## [2.4.0](https://github.com/grafana/logs-drilldown/compare/v2.3.0...v2.4.0) (2026-07-20)
 
 
