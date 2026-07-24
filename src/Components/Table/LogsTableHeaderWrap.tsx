@@ -6,12 +6,12 @@ import { Field } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { Icon } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { getBodyName } from '../../services/logsFrame';
 import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { LogsTableHeader, LogsTableHeaderProps } from 'Components/Table/LogsTableHeader';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getBodyName } from 'services/logsFrame';
 import { setTableLogLine } from 'services/store';
 import { useSharedStyles } from 'styles/shared-styles';
 
@@ -182,7 +182,9 @@ export function LogsTableHeaderWrap(props: {
             }}
           >
             <Icon className={styles.icon} name={'arrows-h'} size={'md'} />
-            <Trans i18nKey="components.table.logs-table-header-wrap.menu.reset-column-widths">Reset column widths</Trans>
+            <Trans i18nKey="components.table.logs-table-header-wrap.menu.reset-column-widths">
+              Reset column widths
+            </Trans>
           </button>
         </div>
       )}

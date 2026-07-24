@@ -11,11 +11,11 @@ import {
   setUrlParameter,
   setUrlParamsFromLabelFilters,
   UrlParameters,
-} from '../../services/extensions/links';
-import { getMatcherFromQuery } from '../../services/logqlMatchers';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { ensureValidTimeRangeForLink } from '../../services/text';
-import { SERVICE_NAME } from '../../services/variables';
+} from 'services/extensions/links';
+import { getMatcherFromQuery } from 'services/logqlMatchers';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { ensureValidTimeRangeForLink } from 'services/text';
+import { SERVICE_NAME } from 'services/variables';
 
 // Resolves the service slug and base URL params from a fully-interpolated Loki query.
 // Returns undefined when the query has no inclusive label selector (cannot determine service).
@@ -54,7 +54,10 @@ export function buildFieldLinkFromQuery(
   if (!base) {
     return undefined;
   }
-  return createAppUrl(`/explore/${base.labelName}/${base.labelValue}/field/${escapePrimaryLabel(fieldName)}`, base.params);
+  return createAppUrl(
+    `/explore/${base.labelName}/${base.labelValue}/field/${escapePrimaryLabel(fieldName)}`,
+    base.params
+  );
 }
 
 // Builds a URL to the Logs Drilldown logs tab for the service derived from the query.

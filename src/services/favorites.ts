@@ -1,10 +1,10 @@
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { FavoriteServiceHeaderActionScene } from '../Components/ServiceSelectionScene/FavoriteServiceHeaderActionScene';
-import { ServiceSelectionScene } from '../Components/ServiceSelectionScene/ServiceSelectionScene';
 import { addToFavoriteLabelValueInStorage, removeFromFavoritesInStorage } from './store';
 import { getDataSourceVariable } from './variableGetters';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { FavoriteServiceHeaderActionScene } from 'Components/ServiceSelectionScene/FavoriteServiceHeaderActionScene';
+import { ServiceSelectionScene } from 'Components/ServiceSelectionScene/ServiceSelectionScene';
 
 export function rerenderFavorites(sceneRef: SceneObject) {
   // Find all FavoriteServiceHeaderActionScene and re-render

@@ -8,7 +8,7 @@ import { reportInteraction } from '@grafana/runtime';
 import { sceneGraph, SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Combobox, ComboboxOption, InlineField, useStyles2 } from '@grafana/ui';
 
-import { IndexScene } from '../IndexScene/IndexScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LOKI_CONFIG_API_NOT_SUPPORTED } from 'services/datasourceTypes';
 import { runSceneQueries } from 'services/query';
 import { getMaxLines, setMaxLines } from 'services/store';

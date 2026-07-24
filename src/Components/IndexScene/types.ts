@@ -2,14 +2,14 @@ import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/a
 import { AdHocVariableFilter } from '@grafana/data';
 import { SceneObject, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 
-import { LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
-import { LineFilterType } from '../../services/filterTypes';
-import { KgAnnotationToggle } from '../../services/KgAnnotationToggle';
-import { LokiDatasource } from '../../services/lokiQuery';
-import { AdHocFiltersWithLabelsAndMeta, AppliedPattern } from '../../services/variables';
-import { OptionalRouteMatch } from '../Pages';
 import { LayoutScene } from './LayoutScene';
 import { EmbeddedLogsOptions } from 'Components/EmbeddedLogsExploration/types';
+import { OptionalRouteMatch } from 'Components/Pages';
+import { LokiConfig, LokiConfigNotSupported } from 'services/datasourceTypes';
+import { LineFilterType } from 'services/filterTypes';
+import { KgAnnotationToggle } from 'services/KgAnnotationToggle';
+import { LokiDatasource } from 'services/lokiQuery';
+import { AdHocFiltersWithLabelsAndMeta, AppliedPattern } from 'services/variables';
 
 export interface IndexSceneState extends SceneObjectState {
   $lokiConfig: SceneQueryRunner;

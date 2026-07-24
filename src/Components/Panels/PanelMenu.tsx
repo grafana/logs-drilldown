@@ -19,28 +19,28 @@ import {
 } from '@grafana/scenes';
 import { Panel } from '@grafana/schema';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { logger } from '../../services/logger';
-import { getQueryExpression } from '../../services/queryRunner';
-import { findObjectOfType, getDataSource, toggleLogsListPanelSize } from '../../services/scenes';
-import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from '../../services/store';
-import { DetectedFieldType } from '../../services/variables';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { FieldsAggregatedBreakdownScene } from '../ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
-import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
-import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { FieldsAggregatedBreakdownScene } from 'Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
+import { FieldsVizPanelWrapper } from 'Components/ServiceScene/Breakdowns/FieldsVizPanelWrapper';
+import { setValueSummaryHeight } from 'Components/ServiceScene/Breakdowns/Panels/ValueSummary';
 import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
+import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { logger } from 'services/logger';
 import { isLogsQuery } from 'services/logql';
+import { getQueryExpression } from 'services/queryRunner';
+import { findObjectOfType, getDataSource, toggleLogsListPanelSize } from 'services/scenes';
+import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from 'services/store';
+import { DetectedFieldType } from 'services/variables';
 
 export enum TimeSeriesPanelType {
-  'timeseries' = 'timeseries',
-  'histogram' = 'histogram',
+  timeseries = 'timeseries',
+  histogram = 'histogram',
 }
 
 export enum TimeSeriesQueryType {
-  'avg' = 'avg',
-  'count' = 'count',
+  avg = 'avg',
+  count = 'count',
 }
 
 export enum CollapsablePanelText {

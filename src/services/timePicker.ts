@@ -1,11 +1,11 @@
 import { AppPluginMeta, getTimeZone, rangeUtil, TimeOption } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
-import { JsonData } from '../Components/AppConfig/AppConfig';
 import { plugin } from '../module';
 import { LokiConfig } from './datasourceTypes';
 import { logger } from './logger';
 import { parsePrometheusDuration } from './parsePrometheusDuration';
+import { JsonData } from 'Components/AppConfig/AppConfig';
 
 /**
  * Filters TimeOptions that are more than the max query duration, the retention period, or duration defined in plugin admin config

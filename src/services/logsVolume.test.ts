@@ -1,8 +1,8 @@
 import { FieldType, LoadingState, toDataFrame } from '@grafana/data';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { LogsVolumePanel } from '../Components/ServiceScene/LogsVolume/LogsVolumePanel';
 import { readLevelsFromCompletedLogsVolumePanel, getLevelsFromLogsVolume } from './logsVolume';
+import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
 
 describe('readLevelsFromCompletedLogsVolumePanel', () => {
   it('returns null when the panel is collapsed', () => {

@@ -6,9 +6,9 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { useTheme2 } from '@grafana/ui';
 
-import { FieldNameMeta } from '../TableTypes';
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
+import { FieldNameMeta } from 'Components/Table/TableTypes';
 import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'services/logFieldNames';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });

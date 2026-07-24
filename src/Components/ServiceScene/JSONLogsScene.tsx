@@ -10,25 +10,20 @@ import {
   SceneObjectUrlValues,
 } from '@grafana/scenes';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import {
-  clearJSONParserFields,
-  getDetectedFieldsJSONPathField,
-  getDetectedFieldsParserField,
-} from '../../services/fields';
-import { preProcessJSONDataFrame } from '../../services/JSONDataFrame';
-import { narrowLogsSortOrder } from '../../services/narrowing';
-import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import { clearVariables } from '../../services/variableHelpers';
-import { PanelMenu } from '../Panels/PanelMenu';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LineLimitScene } from './LineLimitScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType } from './LogsPanelError';
 import { getDetectedFieldsFrameFromQueryRunnerState, ServiceScene } from './ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { PanelMenu } from 'Components/Panels/PanelMenu';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { clearJSONParserFields, getDetectedFieldsJSONPathField, getDetectedFieldsParserField } from 'services/fields';
+import { preProcessJSONDataFrame } from 'services/JSONDataFrame';
 import { logger } from 'services/logger';
+import { narrowLogsSortOrder } from 'services/narrowing';
 import { runSceneQueries } from 'services/query';
+import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
 import {
   getBooleanLogOption,
   getJSONHighlightState,
@@ -37,6 +32,7 @@ import {
   getLogOption,
   setLogOption,
 } from 'services/store';
+import { clearVariables } from 'services/variableHelpers';
 
 const LogsJSONComponent = lazy(() => import('./JSONPanel/LogsJSONComponent'));
 

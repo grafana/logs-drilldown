@@ -37,20 +37,20 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
   const message = useMemo(() => {
     if (noFieldsAndParsersDisabled) {
       return t(
-          'components.service-scene.breakdowns.empty-layout-scene.parsed-fields',
-          'We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.',
-          {
-            type,
-          }
-        );
+        'components.service-scene.breakdowns.empty-layout-scene.parsed-fields',
+        'We did not find any {{type}} for the given time range. Try enabling extracted fields from the log lines.',
+        {
+          type,
+        }
+      );
     }
     return t(
-          'components.service-scene.breakdowns.empty-layout-scene.title',
-          'We did not find any {{type}} for the given time range.',
-          {
-            type,
-          }
-        )
+      'components.service-scene.breakdowns.empty-layout-scene.title',
+      'We did not find any {{type}} for the given time range.',
+      {
+        type,
+      }
+    );
   }, [noFieldsAndParsersDisabled, type]);
 
   const enableParsers = useCallback(() => {
@@ -59,10 +59,7 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
 
   return (
     <div className={sharedStyles.emptyStateWrap}>
-      <EmptyState
-        variant="not-found"
-        message={message}
-      >
+      <EmptyState variant="not-found" message={message}>
         {t('components.service-scene.breakdowns.empty-layout-scene.prefix', 'Please')}{' '}
         <a
           className={emptyStateStyles.link}
@@ -81,14 +78,12 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
                 onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
                 icon="ai-sparkle"
               >
-                {embeddedOptions?.promptCTA ?? t('components.service-scene.breakdowns.empty-layout-scene.ask-assistant', 'Ask Grafana Assistant')}
+                {embeddedOptions?.promptCTA ??
+                  t('components.service-scene.breakdowns.empty-layout-scene.ask-assistant', 'Ask Grafana Assistant')}
               </Button>
             )}
             {noFieldsAndParsersDisabled && (
-              <Button
-                variant="primary"
-                onClick={enableParsers}
-              >
+              <Button variant="primary" onClick={enableParsers}>
                 {t('components.service-scene.breakdowns.empty-layout-scene.enable-parsers', 'Enable extracted fields')}
               </Button>
             )}

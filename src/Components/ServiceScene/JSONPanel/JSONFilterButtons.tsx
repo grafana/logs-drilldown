@@ -4,15 +4,15 @@ import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
-import { JSONLogsScene } from '../JSONLogsScene';
 import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
 import { FilterOp } from 'services/filterTypes';
 import { addJSONFieldFilter, addJSONMetadataFilter } from 'services/JSONFilter';
 import { VAR_FIELDS } from 'services/variables';
 
-const ImgButton = lazy(() => import('../../UI/ImgButton'));
+const ImgButton = lazy(() => import('Components/UI/ImgButton'));
 
 interface JsonFilterProps {
   existingFilter?: AdHocFilterWithLabels;
@@ -64,8 +64,14 @@ export const JSONFieldValueButton = memo(
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={
             type === 'include'
-              ? t('components.service-scene.json-panel.json-filter-buttons.field-value.aria-label.include', 'include filter')
-              : t('components.service-scene.json-panel.json-filter-buttons.field-value.aria-label.exclude', 'exclude filter')
+              ? t(
+                  'components.service-scene.json-panel.json-filter-buttons.field-value.aria-label.include',
+                  'include filter'
+                )
+              : t(
+                  'components.service-scene.json-panel.json-filter-buttons.field-value.aria-label.exclude',
+                  'exclude filter'
+                )
           }
         />
       ),
@@ -124,8 +130,14 @@ export const JSONMetadataButton = memo(
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={
             type === 'include'
-              ? t('components.service-scene.json-panel.json-filter-buttons.metadata.aria-label.include', 'include filter')
-              : t('components.service-scene.json-panel.json-filter-buttons.metadata.aria-label.exclude', 'exclude filter')
+              ? t(
+                  'components.service-scene.json-panel.json-filter-buttons.metadata.aria-label.include',
+                  'include filter'
+                )
+              : t(
+                  'components.service-scene.json-panel.json-filter-buttons.metadata.aria-label.exclude',
+                  'exclude filter'
+                )
           }
         />
       ),

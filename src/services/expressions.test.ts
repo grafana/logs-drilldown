@@ -4,12 +4,7 @@ import { getTimeSeriesExpr } from './expressions';
 import { getParserFromFieldsFilters } from './fields';
 import { getParserEnabled } from './parserToggle';
 import { getFieldsVariable } from './variableGetters';
-import {
-  JSON_FORMAT_EXPR,
-  LEVEL_VARIABLE_VALUE,
-  LOGS_FORMAT_EXPR,
-  MIXED_FORMAT_EXPR,
-} from './variables';
+import { JSON_FORMAT_EXPR, LEVEL_VARIABLE_VALUE, LOGS_FORMAT_EXPR, MIXED_FORMAT_EXPR } from './variables';
 
 jest.mock('./parserToggle');
 jest.mock('./fields');

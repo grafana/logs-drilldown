@@ -6,15 +6,15 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { PageSlugs } from '../../services/enums';
-import { logger } from '../../services/logger';
-import { PLUGIN_ID } from '../../services/plugin';
-import { getDrilldownSlug } from '../../services/routing';
 import { IndexScene } from './IndexScene';
 import { InterceptBanner } from './InterceptBanner';
 import { LevelsVariableScene } from './LevelsVariableScene';
 import { LineFilterVariablesScene } from './LineFilter/LineFilterVariablesScene';
 import { VariableLayoutScene } from './VariableLayoutScene';
+import { PageSlugs } from 'services/enums';
+import { logger } from 'services/logger';
+import { PLUGIN_ID } from 'services/plugin';
+import { getDrilldownSlug } from 'services/routing';
 
 interface LayoutSceneState extends SceneObjectState {
   interceptDismissed: boolean;

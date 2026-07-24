@@ -2,9 +2,9 @@ import { DataSourceInstanceSettings } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
 
-import pluginJson from '../plugin.json';
 import { isEmbeddedLogs } from './extensions/embedding';
 import { getDefaultDatasourceFromDatasourceSrv, getExpandedLogsView } from './store';
+import pluginJson from 'plugin.json';
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),

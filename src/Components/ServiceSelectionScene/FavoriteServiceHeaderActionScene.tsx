@@ -6,9 +6,9 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Icon, ToolbarButton, useStyles2 } from '@grafana/ui';
 
-import { addToFavorites, removeFromFavorites } from '../../services/favorites';
-import { getFavoriteLabelValuesFromStorage } from '../../services/store';
+import { addToFavorites, removeFromFavorites } from 'services/favorites';
 import { getMetadataService } from 'services/metadata';
+import { getFavoriteLabelValuesFromStorage } from 'services/store';
 
 export interface FavoriteServiceHeaderActionSceneState extends SceneObjectState {
   ds: string;

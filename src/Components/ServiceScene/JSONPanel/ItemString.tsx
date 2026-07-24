@@ -6,20 +6,20 @@ import { Field, FieldType, GrafanaTheme2, Labels } from '@grafana/data';
 import { AdHocFiltersVariable } from '@grafana/scenes';
 import { Icon, useStyles2 } from '@grafana/ui';
 
-import { isLabelsField } from '../../../services/fields';
-import { rootNodeItemString } from '../../../services/JSONViz';
-import { hasProp } from '../../../services/narrowing';
-import { LEVEL_VARIABLE_VALUE } from '../../../services/variables';
+import { JSONLineItemType } from './JSONLineItemType';
+import { JSONLogLineActionButtons } from './JSONLogLineActionButtons';
+import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 import {
   JSONDataFrameLineName,
   JSONDataFrameLinksName,
   JSONDataFrameTimeName,
   JSONLogsScene,
   JSONVizRootName,
-} from '../JSONLogsScene';
-import { JSONLineItemType } from './JSONLineItemType';
-import { JSONLogLineActionButtons } from './JSONLogLineActionButtons';
-import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
+} from 'Components/ServiceScene/JSONLogsScene';
+import { isLabelsField } from 'services/fields';
+import { rootNodeItemString } from 'services/JSONViz';
+import { hasProp } from 'services/narrowing';
+import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 interface ItemStringProps {
   data: unknown;

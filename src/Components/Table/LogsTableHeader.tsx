@@ -6,12 +6,12 @@ import { Field, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { IconButton, Popover, useTheme2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { getBodyName } from '../../services/logsFrame';
 import { useQueryContext } from './Context/QueryContext';
 import { LogLineState, useTableColumnContext } from './Context/TableColumnsContext';
 import { LogsTableHeaderMenu } from './LogsTableHeaderMenu';
 import { useTableHeaderContext } from 'Components/Table/Context/TableHeaderContext';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getBodyName } from 'services/logsFrame';
 import { setTableLogLine } from 'services/store';
 
 export interface LogsTableHeaderProps extends PropsWithChildren<CustomHeaderRendererProps> {

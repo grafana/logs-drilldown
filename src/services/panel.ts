@@ -26,7 +26,6 @@ import {
 import { HideSeriesConfig } from '@grafana/schema';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
-import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from '../Components/ServiceScene/ServiceScene';
 import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
@@ -34,6 +33,7 @@ import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LokiQuery } from './lokiQuery';
 import { buildResourceQuery } from './query';
 import { maxSeriesReached } from './shardQuerySplitting';
+import { LOGS_COUNT_QUERY_REFID, LOGS_PANEL_QUERY_REFID } from 'Components/ServiceScene/ServiceScene';
 
 export const UNKNOWN_LEVEL_LOGS = 'logs';
 export const INFO_LEVEL_FIELD_NAME_REGEX = /^(info|information)$/i;

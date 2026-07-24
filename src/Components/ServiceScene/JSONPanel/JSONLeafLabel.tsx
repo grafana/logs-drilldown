@@ -4,21 +4,21 @@ import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
-import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
+import { JSONLabelText } from './JSONLabelText';
+import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
+import { JSONMetadataButtons } from './JSONMetadataButtons';
+import { getFullKeyPath } from './JSONRootNodeNavigation';
+import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import {
   getKeyPathString,
   JSONDataFrameLabelsName,
   JSONDataFrameStructuredMetadataName,
   JSONLogsScene,
   JSONVizRootName,
-} from '../JSONLogsScene';
-import { JSONLabelText } from './JSONLabelText';
-import { JSONLeafNodeLabelButtons } from './JSONLeafNodeLabelButtons';
-import { JSONMetadataButtons } from './JSONMetadataButtons';
-import { getFullKeyPath } from './JSONRootNodeNavigation';
-import { KeyPath } from '@gtk-grafana/react-json-tree';
+} from 'Components/ServiceScene/JSONLogsScene';
 import { getJSONKey } from 'services/filters';
+import { JSONHighlightLineFilterMatches } from 'services/JSONHighlightLineFilterMatches';
 import { getJSONLabelWrapStyles, getJSONVizNestedProperty } from 'services/JSONViz';
 import { hasFieldParentNode } from 'services/JSONVizNodes';
 import { getAdHocFiltersVariable, getValueFromFieldsFilter } from 'services/variableGetters';

@@ -5,8 +5,8 @@ import { Navigate } from 'react-router-dom';
 import { config } from '@grafana/runtime';
 import { SceneApp, useSceneApp } from '@grafana/scenes';
 
-import { initializeMetadataService } from '../services/metadata';
 import { makeEmbeddedPage, makeIndexPage, makeRedirectPage } from './Pages';
+import { initializeMetadataService } from 'services/metadata';
 
 const getSceneApp = () =>
   new SceneApp({

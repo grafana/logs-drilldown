@@ -6,9 +6,9 @@ import userEvent from '@testing-library/user-event';
 import { BusEvent, createDataFrame, Field, FieldType, LoadingState, PanelData } from '@grafana/data';
 import { AdHocFiltersVariable, sceneGraph, SceneObject, SceneQueryRunner } from '@grafana/scenes';
 
-import { UNKNOWN_LEVEL_LOGS } from '../../../services/panel';
-import { ServiceScene, ServiceSceneState } from '../ServiceScene';
 import { addAdHocFilter, addToFilters, AddToFiltersButton, FilterType } from './AddToFiltersButton';
+import { ServiceScene, ServiceSceneState } from 'Components/ServiceScene/ServiceScene';
+import { UNKNOWN_LEVEL_LOGS } from 'services/panel';
 import {
   EMPTY_VARIABLE_VALUE,
   FieldValue,

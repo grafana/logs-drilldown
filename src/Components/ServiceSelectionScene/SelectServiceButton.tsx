@@ -7,13 +7,13 @@ import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LinkButton, useStyles2 } from '@grafana/ui';
 
-import { addToFavorites } from '../../services/favorites';
-import { FilterOp } from '../../services/filterTypes';
-import { getDrillDownIndexLink, pushUrlHandler } from '../../services/navigate';
-import { testIds } from '../../services/testIds';
-import { getLabelsVariable } from '../../services/variableGetters';
-import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { addToFavorites } from 'services/favorites';
+import { FilterOp } from 'services/filterTypes';
+import { getDrillDownIndexLink, pushUrlHandler } from 'services/navigate';
+import { testIds } from 'services/testIds';
+import { getLabelsVariable } from 'services/variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from 'services/variables';
 
 export interface SelectServiceButtonState extends SceneObjectState {
   hidden?: boolean;

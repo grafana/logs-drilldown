@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Icon, IconButton, Input, Tooltip, useStyles2 } from '@grafana/ui';
 
-import { narrowErrorMessage } from '../../../services/narrowing';
+import { narrowErrorMessage } from 'services/narrowing';
 
 interface Props extends Omit<HTMLProps<HTMLInputElement>, 'invalid' | 'onInvalid' | 'prefix' | 'width'> {
   onClear?: () => void;
@@ -75,8 +75,14 @@ export const LineFilterInput = ({ onChange, onClear, placeholder, regex, suffix,
           <span className={styles.suffixWrapper}>
             {onClear && value ? (
               <IconButton
-                aria-label={t('components.service-scene.breakdowns.line-filter-input.aria-label-clear-line-filter', 'Clear line filter')}
-                tooltip={t('components.service-scene.breakdowns.line-filter-input.tooltip-clear-line-filter', 'Clear line filter')}
+                aria-label={t(
+                  'components.service-scene.breakdowns.line-filter-input.aria-label-clear-line-filter',
+                  'Clear line filter'
+                )}
+                tooltip={t(
+                  'components.service-scene.breakdowns.line-filter-input.tooltip-clear-line-filter',
+                  'Clear line filter'
+                )}
                 onClick={onClear}
                 name="times"
                 className={styles.clearIcon}

@@ -6,8 +6,8 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { ClipboardButton, IconButton, Modal, useTheme2 } from '@grafana/ui';
 
-import { testIds } from '../../services/testIds';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
+import { testIds } from 'services/testIds';
 import { generateLogRowShortlink, getPermalinkLogRowFromDataFrame } from 'services/text';
 
 export const getStyles = (theme: GrafanaTheme2, isNumber?: boolean) => ({

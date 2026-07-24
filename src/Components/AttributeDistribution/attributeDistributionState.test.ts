@@ -74,7 +74,12 @@ describe('reducer', () => {
         data: { browser: { error: 'Failed to load', expanded: true, loading: false, values: [val('Chrome', 5, 100)] } },
       };
       const state = reducer(initial, { field: 'browser', type: 'LOADING' });
-      expect(state.data['browser']).toEqual({ error: false, expanded: true, loading: true, values: [val('Chrome', 5, 100)] });
+      expect(state.data['browser']).toEqual({
+        error: false,
+        expanded: true,
+        loading: true,
+        values: [val('Chrome', 5, 100)],
+      });
     });
 
     it('preserves expanded state from existing data', () => {
@@ -108,8 +113,6 @@ describe('reducer', () => {
       const state = reducer(initial, { field: 'browser', message: 'Failed to load', type: 'ERROR' });
       expect(state.data['browser']).toEqual({ error: 'Failed to load', expanded: true, loading: false, values: [] });
     });
-
-
   });
 
   describe('TOGGLE_EXPANDED', () => {

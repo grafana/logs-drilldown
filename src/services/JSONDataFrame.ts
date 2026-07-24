@@ -9,6 +9,12 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 
+import { getJSONDerivedFieldsLinks } from './derivedFields';
+import { isLabelsField, isLabelTypesField, isLogLineField } from './fields';
+import { LabelType } from './fieldsTypes';
+import { LABELS_TO_REMOVE } from './filters';
+import { renderJSONVizTimeStamp } from './JSONViz';
+import { getLineFormatVariable } from './variableGetters';
 import {
   JSONDataFrameLabelsName,
   JSONDataFrameLineName,
@@ -16,14 +22,8 @@ import {
   JSONDataFrameStructuredMetadataName,
   JSONDataFrameTimeName,
   JSONLogsScene,
-} from '../Components/ServiceScene/JSONLogsScene';
-import { getLogsPanelFrame } from '../Components/ServiceScene/ServiceScene';
-import { getJSONDerivedFieldsLinks } from './derivedFields';
-import { isLabelsField, isLabelTypesField, isLogLineField } from './fields';
-import { LabelType } from './fieldsTypes';
-import { LABELS_TO_REMOVE } from './filters';
-import { renderJSONVizTimeStamp } from './JSONViz';
-import { getLineFormatVariable } from './variableGetters';
+} from 'Components/ServiceScene/JSONLogsScene';
+import { getLogsPanelFrame } from 'Components/ServiceScene/ServiceScene';
 
 type ParsedJsonLogLineValue = string | string[] | Record<string, string> | Array<Record<string, string>>;
 type ParsedJsonLogLine = Record<string, ParsedJsonLogLineValue> | Array<Record<string, string>>;

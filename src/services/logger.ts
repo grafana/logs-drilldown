@@ -2,9 +2,9 @@ import { LogContext, LogLevel } from '@grafana/faro-web-sdk';
 import { FetchError } from '@grafana/runtime';
 
 import packageJson from '../../package.json';
-import { getFaro } from '../faro/faroInstance';
-import pluginJson from '../plugin.json';
 import { isRecord } from './narrowing';
+import { getFaro } from 'faro/faroInstance';
+import pluginJson from 'plugin.json';
 
 const defaultContext = {
   app: pluginJson.id,

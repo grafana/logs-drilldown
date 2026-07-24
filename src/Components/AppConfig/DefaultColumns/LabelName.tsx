@@ -7,13 +7,13 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
-import { testIds } from '../../../services/testIds';
 import { useDefaultColumnsContext } from './Context';
 import { mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
 import { getDatasource } from './State';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabels } from './types';
 import { logger } from 'services/logger';
 import { getLabelsKeys } from 'services/TagKeysProviders';
+import { testIds } from 'services/testIds';
 import { SERVICE_NAME } from 'services/variables';
 
 interface ValueProps {
@@ -44,7 +44,10 @@ export const LabelName = ({ recordIndex, labelIndex }: ValueProps) => {
         value={labelName}
         invalid={!labelName}
         data-testid={testIds.appConfig.defaultColumns.labels.key}
-        placeholder={t('components.app-config.default-columns.label-name.placeholder-select-label-name', 'Select label name')}
+        placeholder={t(
+          'components.app-config.default-columns.label-name.placeholder-select-label-name',
+          'Select label name'
+        )}
         width={'auto'}
         minWidth={30}
         maxWidth={90}

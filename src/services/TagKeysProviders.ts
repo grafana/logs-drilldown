@@ -10,7 +10,6 @@ import {
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
 import { LABELS_TO_REMOVE } from './filters';
 import { logger } from './logger';
@@ -19,6 +18,7 @@ import { getParserEnabled } from './parserToggle';
 import { getDataSource } from './scenes';
 import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
+import { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export const getLabelsKeys = async (
   labelFilters: AdHocFilterWithLabels[],

@@ -11,8 +11,8 @@ import {
 } from '@grafana/scenes';
 import { ButtonGroup, Dropdown, IconName, Menu, MenuGroup, ToolbarButton } from '@grafana/ui';
 
-import { constructAbsoluteUrl, createAndCopyShortLink } from '../../services/links';
-import { copyText } from '../../services/text';
+import { constructAbsoluteUrl, createAndCopyShortLink } from 'services/links';
+import { copyText } from 'services/text';
 
 interface ShortLinkMenuItemData {
   absTime: boolean;
@@ -77,7 +77,10 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             getUrl: () => undefined,
             icon: 'link',
             key: 'copy-shortened-link',
-            label: t('components.index-scene.share-button-scene.menu-options.label.copy-shortened-url', 'Copy shortened URL'),
+            label: t(
+              'components.index-scene.share-button-scene.menu-options.label.copy-shortened-url',
+              'Copy shortened URL'
+            ),
             shorten: true,
           },
           {
@@ -122,7 +125,10 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             },
             icon: 'clock-nine',
             key: 'copy-link-abs-time',
-            label: t('components.index-scene.share-button-scene.menu-options.label.copy-absolute-url', 'Copy absolute URL'),
+            label: t(
+              'components.index-scene.share-button-scene.menu-options.label.copy-absolute-url',
+              'Copy absolute URL'
+            ),
             shorten: false,
           },
         ],
@@ -176,7 +182,10 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             const url = lastSelected.getUrl();
             model.onCopyLink(lastSelected.shorten, lastSelected.absTime, url);
           }}
-          aria-label={t('components.index-scene.share-button-scene.aria-label-copy-shortened-url', 'Copy shortened URL')}
+          aria-label={t(
+            'components.index-scene.share-button-scene.aria-label-copy-shortened-url',
+            'Copy shortened URL'
+          )}
         >
           <span>
             <Trans i18nKey="components.index-scene.share-button-scene.share">Share</Trans>
@@ -191,7 +200,10 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
             narrow={true}
             variant={'canvas'}
             isOpen={isOpen}
-            aria-label={t('components.index-scene.share-button-scene.aria-label-open-copy-link-options', 'Open copy link options')}
+            aria-label={t(
+              'components.index-scene.share-button-scene.aria-label-open-copy-link-options',
+              'Open copy link options'
+            )}
           />
         </Dropdown>
       </ButtonGroup>

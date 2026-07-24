@@ -3,8 +3,8 @@ import React from 'react';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Button, Icon } from '@grafana/ui';
 
-import { JSONDataFrameLineName, JSONVizRootName } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { JSONDataFrameLineName, JSONVizRootName } from 'Components/ServiceScene/JSONLogsScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { clearJSONParserFields, isLogLineField } from 'services/fields';
 import { addJsonParserFieldValue, EMPTY_AD_HOC_FILTER_VALUE, removeLineFormatFilters } from 'services/filters';

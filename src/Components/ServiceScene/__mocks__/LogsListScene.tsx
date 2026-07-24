@@ -2,10 +2,10 @@ import React from 'react';
 
 import { SceneComponentProps, SceneFlexLayout, SceneObjectBase } from '@grafana/scenes';
 
-import { LineLimitScene } from '../LineLimitScene';
-import { LogOptionsButtonsScene } from '../LogOptionsButtonsScene';
-import { LogOptionsScene } from '../LogOptionsScene';
-import { LogsListSceneState } from '../LogsListScene';
+import { LineLimitScene } from 'Components/ServiceScene/LineLimitScene';
+import { LogOptionsButtonsScene } from 'Components/ServiceScene/LogOptionsButtonsScene';
+import { LogOptionsScene } from 'Components/ServiceScene/LogOptionsScene';
+import { LogsListSceneState } from 'Components/ServiceScene/LogsListScene';
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   constructor(state: Partial<LogsListSceneState>) {

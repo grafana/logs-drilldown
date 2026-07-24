@@ -1,6 +1,5 @@
 import { SceneObject } from '@grafana/scenes';
 
-import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { getParserFromFieldsFilters } from './fields';
 import { logger } from './logger';
 import { getParserEnabled } from './parserToggle';
@@ -21,6 +20,7 @@ import {
   VAR_METADATA_EXPR,
   VAR_PATTERNS_EXPR,
 } from './variables';
+import { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 /**
  * Crafts count over time query that excludes empty values for stream selector name

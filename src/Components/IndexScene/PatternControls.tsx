@@ -6,11 +6,11 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Text, useStyles2 } from '@grafana/ui';
 
-import { addCurrentUrlToHistory } from '../../services/navigate';
-import { AppliedPattern } from '../../services/variables';
 import { PatternTag } from './PatternTag';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { addCurrentUrlToHistory } from 'services/navigate';
 import { testIds } from 'services/testIds';
+import { AppliedPattern } from 'services/variables';
 
 type Props = {
   onRemove: (patterns: AppliedPattern[]) => void;

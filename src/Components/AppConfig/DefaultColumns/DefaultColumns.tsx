@@ -83,7 +83,11 @@ export const DefaultColumns = ({}: Props) => {
   ]);
 
   if (isLoading) {
-    return <LoadingPlaceholder text={t('components.app-config.default-columns.default-columns.text-loading', 'Loading...')} />;
+    return (
+      <LoadingPlaceholder
+        text={t('components.app-config.default-columns.default-columns.text-loading', 'Loading...')}
+      />
+    );
   }
 
   return <Records />;

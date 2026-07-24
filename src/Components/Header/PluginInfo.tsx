@@ -8,10 +8,10 @@ import { config, locationService } from '@grafana/runtime';
 import { Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { plugin } from '../../module';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { getPluginConfigPageLocation } from '../../services/plugin';
-import { testIds } from '../../services/testIds';
 import { LokiLogo } from './LokiLogo';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getPluginConfigPageLocation } from 'services/plugin';
+import { testIds } from 'services/testIds';
 
 const PLUGIN_REPO = 'https://github.com/grafana/logs-drilldown';
 const DOCUMENTATION_URL = 'https://grafana.com/docs/grafana/latest/visualizations/simplified-exploration/logs/';

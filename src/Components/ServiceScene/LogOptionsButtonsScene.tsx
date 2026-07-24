@@ -5,10 +5,10 @@ import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, Tooltip } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from '../../services/logFieldNames';
 import { LogsListScene } from './LogsListScene';
 import { ServiceScene } from './ServiceScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'services/logFieldNames';
 
 interface ShowDefaultFieldsButtonSceneState extends SceneObjectState {}
 export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsButtonSceneState> {
@@ -72,9 +72,13 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
       )}
       {hasBackendDisplayedFields && !shallowCompare(displayedFields, backendDisplayedFields) && (
         <Tooltip
-          content={t('components.service-scene.log-options-buttons-scene.tooltip.show-default-fields', 'Show default fields: {{fields}}', {
-            fields: backendFieldsNames,
-          })}
+          content={t(
+            'components.service-scene.log-options-buttons-scene.tooltip.show-default-fields',
+            'Show default fields: {{fields}}',
+            {
+              fields: backendFieldsNames,
+            }
+          )}
         >
           <Button size={'sm'} variant="secondary" fill="outline" onClick={model.showBackendFields}>
             <Trans i18nKey="components.service-scene.log-options-buttons-scene.show-default-fields">

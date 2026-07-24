@@ -1,8 +1,8 @@
 import { LoadingState } from '@grafana/data';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { LogsVolumePanel } from '../Components/ServiceScene/LogsVolume/LogsVolumePanel';
 import { getLevelLabelsFromSeries } from './levels';
+import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
 
 /**
  * Reads distinct detected_level names from a completed logs volume (range) query.

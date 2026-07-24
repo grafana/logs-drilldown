@@ -1,10 +1,10 @@
 import { locationService } from '@grafana/runtime';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { ServiceScene, ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
 import { PageSlugs, ValueSlugs } from './enums';
 import { getMetadataService, initializeMetadataService } from './metadata';
 import { getDrillDownIndexLink, navigateToDrilldownPage, navigateToValueBreakdown } from './navigate';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene, ServiceSceneCustomState } from 'Components/ServiceScene/ServiceScene';
 
 const locationSpy = jest.spyOn(locationService, 'push');
 let mockIndexScene: IndexScene;

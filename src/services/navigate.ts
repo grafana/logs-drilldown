@@ -2,15 +2,15 @@ import { UrlQueryMap, urlUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
-import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceSceneConstants';
 import { PageSlugs, ValueSlugs } from './enums';
 import { escapePrimaryLabel } from './extensions/links';
 import { getMetadataService } from './metadata';
 import { prefixRoute } from './plugin';
 import { buildServicesUrl, DRILLDOWN_URL_KEYS, ROUTES } from './routing';
 import { ALL_VARIABLE_VALUE } from './variables';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from 'Components/ServiceScene/ServiceSceneConstants';
 
 let previousRoute: string | undefined = undefined;
 

@@ -1,6 +1,6 @@
 import { reportInteraction } from '@grafana/runtime';
 
-import pluginJson from '../plugin.json';
+import pluginJson from 'plugin.json';
 
 // Helper function to create a unique interaction name for analytics
 const createInteractionName = (page: UserEventPagesType, action: string) => {

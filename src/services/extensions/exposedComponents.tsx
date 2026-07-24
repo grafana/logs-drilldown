@@ -3,10 +3,10 @@ import React, { lazy, Suspense } from 'react';
 import { Trans } from '@grafana/i18n';
 import { LinkButton } from '@grafana/ui';
 
-import pluginJson from '../../plugin.json';
 import type { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
 import type { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
+import pluginJson from 'plugin.json';
 
 const initI18n = async () => {
   const { lt } = await import('semver');
@@ -16,7 +16,7 @@ const initI18n = async () => {
   const { loadResources: scenesLoadResources } = await import('@grafana/scenes');
   await initPluginTranslations('grafana-scenes', [scenesLoadResources]);
 
-  const { loadResources } = await import('../../i18n/loadResources');
+  const { loadResources } = await import('i18n/loadResources');
   const pluginLoaders = lt(config?.buildInfo?.version || '0.0.0', '12.1.0') ? [loadResources] : [];
   await initPluginTranslations(pluginJson.id, pluginLoaders);
 };

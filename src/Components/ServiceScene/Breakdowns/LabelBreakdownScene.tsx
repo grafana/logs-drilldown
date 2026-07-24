@@ -18,14 +18,6 @@ import {
 } from '@grafana/scenes';
 import { Alert, Stack, useStyles2 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../services/comparison';
-import { CustomConstantVariable, CustomConstantVariableState } from '../../../services/CustomConstantVariable';
-import { ValueSlugs } from '../../../services/enums';
-import { navigateToValueBreakdown } from '../../../services/navigate';
-import { getLabelGroupByVariable, getLabelsVariable } from '../../../services/variableGetters';
-import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
-import { IndexScene } from '../../IndexScene/IndexScene';
-import { getDetectedLabelsFrame, ServiceScene } from '../ServiceScene';
 import { BreakdownSearchReset, BreakdownSearchScene } from './BreakdownSearchScene';
 import { ByFrameRepeater } from './ByFrameRepeater';
 import { EmptyLayoutScene } from './EmptyLayoutScene';
@@ -35,11 +27,19 @@ import { LabelValuesBreakdownScene } from './LabelValuesBreakdownScene';
 import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
 import { SortByScene, SortCriteriaChanged } from './SortByScene';
 import { StatusWrapper } from './StatusWrapper';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { getDetectedLabelsFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual } from 'services/comparison';
+import { CustomConstantVariable, CustomConstantVariableState } from 'services/CustomConstantVariable';
+import { ValueSlugs } from 'services/enums';
 import { getLabelOptions } from 'services/filters';
+import { navigateToValueBreakdown } from 'services/navigate';
 import { getRouteParams } from 'services/routing';
 import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
+import { getLabelGroupByVariable, getLabelsVariable } from 'services/variableGetters';
+import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
 import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
 
 export interface LabelBreakdownSceneState extends SceneObjectState {
