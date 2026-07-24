@@ -16,11 +16,11 @@ import {
 } from '@grafana/scenes';
 import { ComboboxOption, MultiCombobox, useStyles2 } from '@grafana/ui';
 
-import { FilterOp } from '../../services/filterTypes';
-import { addCurrentUrlToHistory } from '../../services/navigate';
-import { testIds } from '../../services/testIds';
-import { getLevelsVariable } from '../../services/variableGetters';
-import { LEVEL_VARIABLE_VALUE } from '../../services/variables';
+import { FilterOp } from 'services/filterTypes';
+import { addCurrentUrlToHistory } from 'services/navigate';
+import { testIds } from 'services/testIds';
+import { getLevelsVariable } from 'services/variableGetters';
+import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 type ChipOption = MetricFindValue & { operator?: string; selected?: boolean };
 export interface LevelsVariableSceneState extends SceneObjectState {

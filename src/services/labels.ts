@@ -4,7 +4,6 @@ import { DataFrame } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { ComboboxOption } from '@grafana/ui';
 
-import { addToFilters, FilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { getParserForField, getParserFromFieldsFilters } from './fields';
 import { LabelFilterOp } from './filterTypes';
 import { getLabelValueFromDataFrame } from './levels';
@@ -22,6 +21,7 @@ import {
 } from './variableGetters';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
 import { getDatasource } from 'Components/AppConfig/DefaultColumns/State';
+import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 
 export const LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';

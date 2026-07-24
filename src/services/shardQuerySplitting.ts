@@ -2,13 +2,13 @@ import { Observable, Subscriber, Subscription } from 'rxjs';
 
 import { DataFrame, DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
 
-import { MaxSeriesRegex } from '../Components/ServiceScene/Breakdowns/QueryErrorAlert';
-import pluginJson from '../plugin.json';
 import { combineResponses } from './combineResponses';
 import { logger } from './logger';
 import { addShardingPlaceholderSelector, getSelectorForShardValues, interpolateShardingSelector } from './logql';
 import { isValidQuery } from './logqlMatchers';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
+import { MaxSeriesRegex } from 'Components/ServiceScene/Breakdowns/QueryErrorAlert';
+import pluginJson from 'plugin.json';
 
 /**
  * Query splitting by stream shards.

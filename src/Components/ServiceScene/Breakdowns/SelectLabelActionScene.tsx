@@ -25,28 +25,28 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { ValueSlugs } from '../../../services/enums';
-import { calculateSparsity, getDetectedFieldType } from '../../../services/fields';
-import { FilterOp } from '../../../services/filterTypes';
-import { logger } from '../../../services/logger';
-import { LokiQuery } from '../../../services/lokiQuery';
-import { getValueBreakdownLink } from '../../../services/navigate';
-import { isQueryAvg } from '../../../services/query';
-import { getRouteParams } from '../../../services/routing';
-import { findObjectOfType } from '../../../services/scenes';
-import { testIds } from '../../../services/testIds';
+import { addToFilters, clearFilters, InterpolatedFilterType } from './AddToFiltersButton';
+import { NumericFilterPopoverScene } from './NumericFilterPopoverScene';
+import { syncLevelsVariable } from 'Components/IndexScene/LevelsVariableScene';
+import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { ValueSlugs } from 'services/enums';
+import { calculateSparsity, getDetectedFieldType } from 'services/fields';
+import { FilterOp } from 'services/filterTypes';
+import { logger } from 'services/logger';
+import { LokiQuery } from 'services/lokiQuery';
+import { getValueBreakdownLink } from 'services/navigate';
+import { isQueryAvg } from 'services/query';
+import { getRouteParams } from 'services/routing';
+import { findObjectOfType } from 'services/scenes';
+import { testIds } from 'services/testIds';
 import {
   getFieldsVariable,
   getLabelsVariable,
   getLevelsVariable,
   getValueFromAdHocVariableFilter,
   getValueFromFieldsFilter,
-} from '../../../services/variableGetters';
-import { EMPTY_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE, VAR_FIELDS } from '../../../services/variables';
-import { syncLevelsVariable } from '../../IndexScene/LevelsVariableScene';
-import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../ServiceScene';
-import { addToFilters, clearFilters, InterpolatedFilterType } from './AddToFiltersButton';
-import { NumericFilterPopoverScene } from './NumericFilterPopoverScene';
+} from 'services/variableGetters';
+import { EMPTY_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
 
 interface SelectLabelActionSceneState extends SceneObjectState {
   // Custom description

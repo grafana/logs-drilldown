@@ -1,12 +1,12 @@
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject, SceneVariables } from '@grafana/scenes';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
 import { runSceneQueries } from './query';
 import { getRouteParams } from './routing';
 import { clearMaxLines, getMaxLines } from './store';
 import { areLabelFiltersEqual, clearVariables, getVariablesThatCanBeCleared } from './variableHelpers';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS, VAR_LINE_FILTERS } from './variables';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { LineLimitScene } from 'Components/ServiceScene/LineLimitScene';
 
 // Mock dependencies
 jest.mock('./store');

@@ -1,9 +1,9 @@
 import { sceneGraph, SceneObjectState } from '@grafana/scenes';
 
-import { logger } from '../../../../services/logger';
-import { addCurrentUrlToHistory } from '../../../../services/navigate';
-import { IndexScene } from '../../../IndexScene/IndexScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { logger } from 'services/logger';
+import { addCurrentUrlToHistory } from 'services/navigate';
 
 export interface FilterByPatternsButtonState extends SceneObjectState {
   pattern: string;

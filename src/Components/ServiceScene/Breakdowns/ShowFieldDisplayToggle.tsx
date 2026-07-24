@@ -4,10 +4,10 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps } from '@grafana/scenes';
 import { Stack, Switch, Tooltip } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { setFieldsPanelTypes } from '../../../services/store';
 import { FieldsAggregatedBreakdownScene } from './FieldsAggregatedBreakdownScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { setParserEnabled, getParserEnabled } from 'services/parserToggle';
+import { setFieldsPanelTypes } from 'services/store';
 
 export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
   const { fieldsPanelsType } = model.useState();

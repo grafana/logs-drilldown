@@ -1,13 +1,13 @@
 import { LogsSortOrder, RawTimeRange, UrlQueryMap } from '@grafana/data';
 
-import { drilldownLabelUrlKey, pageSlugUrlKey } from '../Components/ServiceScene/ServiceSceneConstants';
-import { SelectedTableRow } from '../Components/Table/LogLineCellComponent';
 import { JSONDerivedFieldLink } from './derivedFields';
 import { PageSlugs, TabNames, ValueSlugs } from './enums';
 import { LabelFilterOp, NumericFilterOp } from './filterTypes';
 import { SavedSearch } from './saveSearch';
 import { LogsVisualizationType } from './store';
 import { FieldValue, ParserType } from './variables';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from 'Components/ServiceScene/ServiceSceneConstants';
+import { SelectedTableRow } from 'Components/Table/LogLineCellComponent';
 
 const isObj = (o: unknown): o is object => typeof o === 'object' && o !== null;
 

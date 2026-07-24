@@ -16,21 +16,21 @@ import {
 } from '@grafana/scenes';
 import { Alert, Button } from '@grafana/ui';
 
-import { logger } from '../../../../services/logger';
-import { LokiQuery } from '../../../../services/lokiQuery';
-import { getQueryRunner } from '../../../../services/panel';
-import { buildDataQuery } from '../../../../services/query';
-import { renderPatternFilters } from '../../../../services/renderPatternFilters';
-import { getFieldsVariable, getLevelsVariable, getLineFiltersVariable } from '../../../../services/variableGetters';
+import { PatternsViewTableScene } from './PatternsViewTableScene';
+import { emptyStateStyles } from 'Components/ServiceScene/Breakdowns/FieldsBreakdownScene';
+import { logger } from 'services/logger';
+import { LokiQuery } from 'services/lokiQuery';
+import { getQueryRunner } from 'services/panel';
+import { buildDataQuery } from 'services/query';
+import { renderPatternFilters } from 'services/renderPatternFilters';
+import { LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY } from 'services/store';
+import { getFieldsVariable, getLevelsVariable, getLineFiltersVariable } from 'services/variableGetters';
 import {
   AppliedPattern,
   LOG_STREAM_SELECTOR_EXPR,
   PATTERNS_SAMPLE_SELECTOR_EXPR,
   VAR_PATTERNS_EXPR,
-} from '../../../../services/variables';
-import { emptyStateStyles } from '../FieldsBreakdownScene';
-import { PatternsViewTableScene } from './PatternsViewTableScene';
-import { LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY } from 'services/store';
+} from 'services/variables';
 
 interface PatternsLogsSampleSceneState extends SceneObjectState {
   body?: SceneFlexLayout;
@@ -243,7 +243,10 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
                   The logs returned by this pattern do not match the current query filters.
                 </Trans>
                 <Button className={emptyStateStyles.button} onClick={() => this.clearFilters()}>
-                  {t('components.service-scene.breakdowns.patterns.patterns-logs-sample-scene.clear-filters', 'Clear filters')}
+                  {t(
+                    'components.service-scene.breakdowns.patterns.patterns-logs-sample-scene.clear-filters',
+                    'Clear filters'
+                  )}
                 </Button>
               </Alert>
             ),

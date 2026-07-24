@@ -1,4 +1,4 @@
-import { loadResources } from '../loadResources';
+import { loadResources } from 'i18n/loadResources';
 
 describe('loadResources', () => {
   describe('default language short-circuit', () => {

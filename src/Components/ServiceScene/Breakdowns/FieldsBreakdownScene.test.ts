@@ -7,9 +7,9 @@ import {
   DETECTED_FIELDS_PARSER_NAME,
   DETECTED_FIELDS_PATH_NAME,
   DETECTED_FIELDS_TYPE_NAME,
-} from '../../../services/datasource';
-import { buildFieldsQueryString } from '../../../services/fields';
-import { VAR_FIELDS, VAR_METADATA } from '../../../services/variables';
+} from 'services/datasource';
+import { buildFieldsQueryString } from 'services/fields';
+import { VAR_FIELDS, VAR_METADATA } from 'services/variables';
 
 describe('buildFieldsQueryString', () => {
   test('should build logfmt-parser query', () => {

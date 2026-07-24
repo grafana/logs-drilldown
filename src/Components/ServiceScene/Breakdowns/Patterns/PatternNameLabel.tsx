@@ -7,12 +7,12 @@ import { Trans } from '@grafana/i18n';
 import { AdHocFiltersVariable, sceneGraph } from '@grafana/scenes';
 import { Spinner, Toggletip, useStyles2 } from '@grafana/ui';
 
-import { getLabelsVariable } from '../../../../services/variableGetters';
 import { PatternFieldLabelStats } from './PatternFieldLabelStats';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { buildDataQuery } from 'services/query';
 import { getLokiDatasource } from 'services/scenes';
+import { getLabelsVariable } from 'services/variableGetters';
 
 interface PatternNameLabelProps {
   exploration: IndexScene;

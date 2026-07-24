@@ -19,11 +19,11 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { LogsVolumeActions } from '../LogsVolumeActions';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { LogsVolumeActions } from 'Components/ServiceScene/LogsVolumeActions';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';

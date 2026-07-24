@@ -16,9 +16,6 @@ import {
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../../services/comparison';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { ServiceScene } from '../../ServiceScene';
 import { PatternsFrameScene } from './PatternsFrameScene';
 import {
   PatternsNoMatchingFilters,
@@ -27,7 +24,10 @@ import {
   PatternsTooOld,
 } from './PatternsNotDetected';
 import { PatternsViewTextSearch } from './PatternsViewTextSearch';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { StatusWrapper } from 'Components/ServiceScene/Breakdowns/StatusWrapper';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { areArraysEqual } from 'services/comparison';
 import { VAR_LABEL_GROUP_BY } from 'services/variables';
 
 export interface PatternsBreakdownSceneState extends SceneObjectState {

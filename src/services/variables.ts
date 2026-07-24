@@ -2,7 +2,7 @@
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
+import { TimeSeriesQueryType } from 'Components/Panels/PanelMenu';
 
 export interface FieldValue {
   parser: ParserType;

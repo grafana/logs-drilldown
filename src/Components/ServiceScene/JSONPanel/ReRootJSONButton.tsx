@@ -8,7 +8,7 @@ import { getJSONFilterButtonStyles } from './JSONNestedNodeFilterButton';
 import { setNewRootNode } from './JSONRootNodeNavigation';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
 
-const ImgButton = lazy(() => import('../../UI/ImgButton'));
+const ImgButton = lazy(() => import('Components/UI/ImgButton'));
 
 const ReRootJSONButton = memo(({ keyPath, sceneRef }: { keyPath: KeyPath; sceneRef: SceneObject }) => {
   const styles = useStyles2(getJSONFilterButtonStyles, false);
@@ -16,13 +16,17 @@ const ReRootJSONButton = memo(({ keyPath, sceneRef }: { keyPath: KeyPath; sceneR
     () => (
       <ImgButton
         className={styles.button}
-        tooltip={t('components.service-scene.json-panel.re-root-json-button.tooltip', 'Set {{key}} as root node', { key: keyPath[0] })}
+        tooltip={t('components.service-scene.json-panel.re-root-json-button.tooltip', 'Set {{key}} as root node', {
+          key: keyPath[0],
+        })}
         onClick={(e) => {
           e.stopPropagation();
           setNewRootNode(keyPath, sceneRef);
         }}
         name={'eye'}
-        aria-label={t('components.service-scene.json-panel.re-root-json-button.aria-label', 'drilldown into {{key}}', { key: keyPath[0] })}
+        aria-label={t('components.service-scene.json-panel.re-root-json-button.aria-label', 'drilldown into {{key}}', {
+          key: keyPath[0],
+        })}
       />
     ),
     [keyPath, sceneRef, styles.button]

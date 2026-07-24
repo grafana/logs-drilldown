@@ -6,9 +6,6 @@ import { DataQueryResponse, DataFrame, DataQueryRequest, TimeRange, dateTime, Fi
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 
-import { ExpressionBuilder } from '../../services/ExpressionBuilder';
-import { LokiDatasource, LokiQuery } from '../../services/lokiQuery';
-import { isRecord } from '../../services/narrowing';
 import {
   ActiveFilter,
   AttributeConfig,
@@ -17,6 +14,9 @@ import {
   DatasetContext,
 } from './AttributeDistribution';
 import { buildFieldLinkFromQuery, buildServiceLinkFromQuery } from './fieldLinks';
+import { ExpressionBuilder } from 'services/ExpressionBuilder';
+import { LokiDatasource, LokiQuery } from 'services/lokiQuery';
+import { isRecord } from 'services/narrowing';
 
 interface LokiLike {
   getResource(path: string, params: Record<string, string>, options: Record<string, string>): Promise<unknown>;

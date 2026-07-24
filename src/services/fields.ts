@@ -11,9 +11,6 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, StackingMode } from '@grafana/ui';
 
-import { PanelMenu, TimeSeriesQueryType } from '../Components/Panels/PanelMenu';
-import { SortByScene } from '../Components/ServiceScene/Breakdowns/SortByScene';
-import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { LabelType } from './fieldsTypes';
 import { logger } from './logger';
 import {
@@ -43,7 +40,10 @@ import {
   VAR_LEVELS,
   VAR_METADATA,
 } from './variables';
+import { PanelMenu, TimeSeriesQueryType } from 'Components/Panels/PanelMenu';
 import { AddToFiltersButton, InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { SortByScene } from 'Components/ServiceScene/Breakdowns/SortByScene';
+import { getDetectedFieldsFrame, getLogsPanelFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
 
 export type DetectedLabel = {
   cardinality: number;

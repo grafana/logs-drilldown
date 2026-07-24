@@ -8,13 +8,13 @@ import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { Combobox, ComboboxOption, useStyles2 } from '@grafana/ui';
 
-import { testIds } from '../../../services/testIds';
 import { useDefaultColumnsContext } from './Context';
 import { mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
 import { getDatasource } from './State';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsLabel } from './types';
 import { LabelFilterOp } from 'services/filterTypes';
 import { getLabelValues } from 'services/TagValuesProviders';
+import { testIds } from 'services/testIds';
 
 interface Props {
   labelIndex: number;
@@ -81,7 +81,10 @@ export function LabelValue({ recordIndex, labelIndex }: Props) {
       <Combobox<string>
         data-testid={testIds.appConfig.defaultColumns.labels.value}
         invalid={!label?.value}
-        placeholder={t('components.app-config.default-columns.label-value.placeholder-select-label-value', 'Select label value')}
+        placeholder={t(
+          'components.app-config.default-columns.label-value.placeholder-select-label-value',
+          'Select label value'
+        )}
         width={'auto'}
         minWidth={30}
         value={label?.value}

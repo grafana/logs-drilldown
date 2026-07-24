@@ -1,17 +1,17 @@
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
-import {
-  addToFilters,
-  FilterType,
-  InterpolatedFilterType,
-} from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
-import { JSONLogsScene } from '../Components/ServiceScene/JSONLogsScene';
-import { LogsListScene } from '../Components/ServiceScene/LogsListScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from './analytics';
 import { addJsonParserFieldValue } from './filters';
 import { LABEL_NAME_INVALID_CHARS } from './labels';
 import { addCurrentUrlToHistory } from './navigate';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import {
+  addToFilters,
+  FilterType,
+  InterpolatedFilterType,
+} from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
+import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 
 interface JsonFilterProps {
   filterType: FilterType;

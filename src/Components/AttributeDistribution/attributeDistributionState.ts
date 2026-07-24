@@ -109,7 +109,12 @@ export function reducer(state: State, action: Action): State {
         data: {
           ...state.data,
           // Keep existing values so bars remain visible during reload instead of collapsing.
-          [action.field]: { error: false, expanded: existing?.expanded ?? false, loading: true, values: existing?.values ?? [] },
+          [action.field]: {
+            error: false,
+            expanded: existing?.expanded ?? false,
+            loading: true,
+            values: existing?.values ?? [],
+          },
         },
       };
     }

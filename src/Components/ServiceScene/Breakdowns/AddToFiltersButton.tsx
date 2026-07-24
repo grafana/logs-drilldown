@@ -10,22 +10,22 @@ import {
 } from '@grafana/scenes';
 import { VariableHide } from '@grafana/schema';
 
-import { areArraysEqual } from '../../../services/comparison';
-import { addToFavorites } from '../../../services/favorites';
-import { getParserForField } from '../../../services/fields';
-import { isFilterMetadata } from '../../../services/filters';
-import { FilterOp, NumericFilterOp } from '../../../services/filterTypes';
-import { normalizeLevelName } from '../../../services/levels';
-import { logger } from '../../../services/logger';
-import { addCurrentUrlToHistory } from '../../../services/navigate';
+import { FilterButton } from 'Components/FilterButton';
+import { getDetectedLabelsFrame } from 'Components/ServiceScene/ServiceScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual } from 'services/comparison';
+import { addToFavorites } from 'services/favorites';
+import { getParserForField } from 'services/fields';
+import { isFilterMetadata } from 'services/filters';
+import { FilterOp, NumericFilterOp } from 'services/filterTypes';
+import { normalizeLevelName } from 'services/levels';
+import { logger } from 'services/logger';
+import { addCurrentUrlToHistory } from 'services/navigate';
 import {
   getAdHocFiltersVariable,
   getFieldsAndMetadataVariable,
   getValueFromAdHocVariableFilter,
-} from '../../../services/variableGetters';
-import { getDetectedLabelsFrame } from '../ServiceScene';
-import { FilterButton } from 'Components/FilterButton';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+} from 'services/variableGetters';
 import {
   LEVEL_VARIABLE_VALUE,
   VAR_FIELDS,

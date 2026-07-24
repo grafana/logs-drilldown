@@ -7,7 +7,10 @@ export const NoServiceSearchResults = () => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('components.service-selection-scene.no-service-search-results.title', 'No service matched your search.')}
+      message={t(
+        'components.service-selection-scene.no-service-search-results.title',
+        'No service matched your search.'
+      )}
     />
   );
 };

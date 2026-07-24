@@ -16,21 +16,6 @@ import {
   VizPanelMenu,
 } from '@grafana/scenes';
 
-import { reportAppInteraction } from '../../services/analytics';
-import { isLogsQuery } from '../../services/logql';
-import { interpolateExpression } from '../../services/query';
-import {
-  findObjectOfType,
-  getDataSource,
-  getQueryRunnerFromChildren,
-  toggleLogsListPanelSize,
-} from '../../services/scenes';
-import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from '../../services/store';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { FieldsVizPanelWrapper } from '../ServiceScene/Breakdowns/FieldsVizPanelWrapper';
-import { setValueSummaryHeight } from '../ServiceScene/Breakdowns/Panels/ValueSummary';
-import { LogsListScene } from '../ServiceScene/LogsListScene';
-import { onExploreLinkClick } from '../ServiceScene/OnExploreLinkClick';
 import {
   CollapsablePanelText,
   getAddToDashboardPayload,
@@ -40,21 +25,31 @@ import {
   TimeSeriesPanelType,
   TimeSeriesQueryType,
 } from './PanelMenu';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { FieldsVizPanelWrapper } from 'Components/ServiceScene/Breakdowns/FieldsVizPanelWrapper';
+import { setValueSummaryHeight } from 'Components/ServiceScene/Breakdowns/Panels/ValueSummary';
+import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
+import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
+import { reportAppInteraction } from 'services/analytics';
+import { isLogsQuery } from 'services/logql';
+import { interpolateExpression } from 'services/query';
+import { findObjectOfType, getDataSource, getQueryRunnerFromChildren, toggleLogsListPanelSize } from 'services/scenes';
+import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from 'services/store';
 
 // Mock external dependencies
 jest.mock('@grafana/assistant');
 jest.mock('@grafana/runtime');
-jest.mock('../../services/analytics');
-jest.mock('../../services/query');
-jest.mock('../../services/scenes', () => ({
+jest.mock('services/analytics');
+jest.mock('services/query');
+jest.mock('services/scenes', () => ({
   getDataSource: jest.fn(),
   getQueryRunnerFromChildren: jest.fn(),
   findObjectOfType: jest.fn(),
   toggleLogsListPanelSize: jest.fn(),
 }));
-jest.mock('../../services/store');
-jest.mock('../ServiceScene/Breakdowns/Panels/ValueSummary');
-jest.mock('../ServiceScene/OnExploreLinkClick');
+jest.mock('services/store');
+jest.mock('Components/ServiceScene/Breakdowns/Panels/ValueSummary');
+jest.mock('Components/ServiceScene/OnExploreLinkClick');
 jest.mock('services/logql', () => ({
   isLogsQuery: jest.fn(),
 }));

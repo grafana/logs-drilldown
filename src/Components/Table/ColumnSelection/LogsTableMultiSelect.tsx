@@ -6,9 +6,9 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { useTheme2 } from '@grafana/ui';
 
-import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
 import { LogsTableActiveFields } from 'Components/Table/ColumnSelection/LogsTableActiveFields';
 import { LogsTableAvailableFields } from 'Components/Table/ColumnSelection/LogsTableAvailableFields';
+import { FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 
 function getStyles(theme: GrafanaTheme2) {
   return {
@@ -61,7 +61,9 @@ export const LogsTableMultiSelect = (props: {
       {/* Sidebar columns */}
       <>
         <div className={styles.columnHeader}>
-          <Trans i18nKey="components.table.column-selection.logs-table-multi-select.header.selected-fields">Selected fields</Trans>
+          <Trans i18nKey="components.table.column-selection.logs-table-multi-select.header.selected-fields">
+            Selected fields
+          </Trans>
           <button onClick={props.clear} className={styles.columnHeaderButton}>
             {t('components.table.column-selection.logs-table-multi-select.button.reset', 'Reset')}
           </button>

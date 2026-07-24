@@ -2,8 +2,8 @@ import React, { createContext, ReactNode, useContext } from 'react';
 
 import { AdHocVariableFilter, TimeRange } from '@grafana/data';
 
-import { LogsFrame } from '../../../services/logsFrame';
-import { SelectedTableRow } from '../LogLineCellComponent';
+import { SelectedTableRow } from 'Components/Table/LogLineCellComponent';
+import { LogsFrame } from 'services/logsFrame';
 
 export type Label = { indexed: boolean; name: string; values: string[] };
 

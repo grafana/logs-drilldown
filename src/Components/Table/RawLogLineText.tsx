@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
-import { testIds } from '../../services/testIds';
+import { testIds } from 'services/testIds';
 
 export function RawLogLineText(props: { value: string | number | ReactElement }) {
   const theme = useTheme2();

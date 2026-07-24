@@ -6,12 +6,12 @@ import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { FilterOp } from '../../services/filterTypes';
-import { testIds } from '../../services/testIds';
-import { getLabelsVariable, getValueFromAdHocVariableFilter } from '../../services/variableGetters';
-import { VAR_LABELS } from '../../services/variables';
-import { addToFilters, FilterType } from '../ServiceScene/Breakdowns/AddToFiltersButton';
+import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { FilterOp } from 'services/filterTypes';
+import { testIds } from 'services/testIds';
+import { getLabelsVariable, getValueFromAdHocVariableFilter } from 'services/variableGetters';
+import { VAR_LABELS } from 'services/variables';
 
 export interface AddLabelToFiltersHeaderActionSceneState extends SceneObjectState {
   included: boolean | null;
@@ -69,8 +69,16 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
         <Button
           tooltip={
             included === true
-              ? t('components.service-selection-scene.add-label-to-filters-header-action-scene.tooltip.remove', 'Remove {{value}} from filters', { value })
-              : t('components.service-selection-scene.add-label-to-filters-header-action-scene.tooltip.add', 'Add {{value}} to filters', { value })
+              ? t(
+                  'components.service-selection-scene.add-label-to-filters-header-action-scene.tooltip.remove',
+                  'Remove {{value}} from filters',
+                  { value }
+                )
+              : t(
+                  'components.service-selection-scene.add-label-to-filters-header-action-scene.tooltip.add',
+                  'Add {{value}} to filters',
+                  { value }
+                )
           }
           variant={included ? 'destructive' : 'secondary'}
           fill={'outline'}
@@ -80,9 +88,13 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >
           {included ? (
-            <Trans i18nKey="components.service-selection-scene.add-label-to-filters-header-action-scene.button.remove">Remove</Trans>
+            <Trans i18nKey="components.service-selection-scene.add-label-to-filters-header-action-scene.button.remove">
+              Remove
+            </Trans>
           ) : (
-            <Trans i18nKey="components.service-selection-scene.add-label-to-filters-header-action-scene.button.include">Include</Trans>
+            <Trans i18nKey="components.service-selection-scene.add-label-to-filters-header-action-scene.button.include">
+              Include
+            </Trans>
           )}
         </Button>
       </span>

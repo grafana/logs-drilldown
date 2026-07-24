@@ -3,14 +3,14 @@ import React, { memo } from 'react';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
-import { JSONHighlightLineFilterMatches } from '../../../services/JSONHighlightLineFilterMatches';
-import { getJSONLabelWrapStyles } from '../../../services/JSONViz';
-import { getKeyPathString, JSONLogsScene } from '../JSONLogsScene';
 import { JSONNestedNodeFilterButton } from './JSONNestedNodeFilterButton';
 import { getFullKeyPath } from './JSONRootNodeNavigation';
 import ReRootJSONButton from './ReRootJSONButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { getKeyPathString, JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
 import { getJSONKey } from 'services/filters';
+import { JSONHighlightLineFilterMatches } from 'services/JSONHighlightLineFilterMatches';
+import { getJSONLabelWrapStyles } from 'services/JSONViz';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 import { getValueFromFieldsFilter } from 'services/variableGetters';
 import { EMPTY_VARIABLE_VALUE } from 'services/variables';

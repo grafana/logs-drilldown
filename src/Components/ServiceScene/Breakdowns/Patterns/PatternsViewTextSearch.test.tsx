@@ -15,7 +15,7 @@ const mockGetFieldsVariable = jest.fn();
 const mockGetMetadataVariable = jest.fn();
 const mockGetLineFiltersVariable = jest.fn();
 
-jest.mock('../../../../services/variableGetters', () => ({
+jest.mock('services/variableGetters', () => ({
   getFieldsVariable: (...args: unknown[]) => mockGetFieldsVariable(...args),
   getMetadataVariable: (...args: unknown[]) => mockGetMetadataVariable(...args),
   getLineFiltersVariable: (...args: unknown[]) => mockGetLineFiltersVariable(...args),

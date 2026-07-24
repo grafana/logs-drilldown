@@ -20,13 +20,23 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../services/comparison';
-import { getFilterBreakdownValueScene } from '../../../services/fields';
-import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
-import { logger } from '../../../services/logger';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
-import { renderLevelsFilter, renderLogQLLabelFilters } from '../../../services/query';
-import { getSortByPreference } from '../../../services/store';
+import { ByFrameRepeater } from './ByFrameRepeater';
+import { EmptyLayoutScene } from './EmptyLayoutScene';
+import { LabelBreakdownScene } from './LabelBreakdownScene';
+import { LayoutSwitcher } from './LayoutSwitcher';
+import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
+import { ValueSummaryPanelScene } from './Panels/ValueSummary';
+import { getLabelValue } from './SortByScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
+import { areArraysEqual } from 'services/comparison';
+import { getFilterBreakdownValueScene } from 'services/fields';
+import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from 'services/labels';
+import { logger } from 'services/logger';
+import { getQueryRunner, setLevelColorOverrides } from 'services/panel';
+import { renderLevelsFilter, renderLogQLLabelFilters } from 'services/query';
+import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
+import { getSortByPreference } from 'services/store';
 import {
   getFieldsVariable,
   getLabelGroupByVariable,
@@ -35,25 +45,15 @@ import {
   getLineFiltersVariable,
   getMetadataVariable,
   getPatternsVariable,
-} from '../../../services/variableGetters';
-import { clearVariables, getVariablesThatCanBeCleared } from '../../../services/variableHelpers';
+} from 'services/variableGetters';
+import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
 import {
   ALL_VARIABLE_VALUE,
   LEVEL_VARIABLE_VALUE,
   VAR_LABEL_GROUP_BY_EXPR,
   VAR_LABELS,
   VAR_LEVELS,
-} from '../../../services/variables';
-import { IndexScene } from '../../IndexScene/IndexScene';
-import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
-import { ByFrameRepeater } from './ByFrameRepeater';
-import { EmptyLayoutScene } from './EmptyLayoutScene';
-import { LabelBreakdownScene } from './LabelBreakdownScene';
-import { LayoutSwitcher } from './LayoutSwitcher';
-import { NoMatchingLabelsScene } from './NoMatchingLabelsScene';
-import { ValueSummaryPanelScene } from './Panels/ValueSummary';
-import { getLabelValue } from './SortByScene';
-import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
+} from 'services/variables';
 
 type DisplayError = DataQueryError & { displayed: boolean };
 type DisplayErrors = Record<string, DisplayError>;
@@ -394,7 +394,12 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                   new SceneFlexItem({
                     body: new SceneReactObject({
                       reactNode: (
-                        <LoadingPlaceholder text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')} />
+                        <LoadingPlaceholder
+                          text={t(
+                            'components.service-scene.breakdowns.label-values-breakdown-scene.loading',
+                            'Loading...'
+                          )}
+                        />
                       ),
                     }),
                   }),
@@ -428,7 +433,12 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
                   new SceneFlexItem({
                     body: new SceneReactObject({
                       reactNode: (
-                        <LoadingPlaceholder text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')} />
+                        <LoadingPlaceholder
+                          text={t(
+                            'components.service-scene.breakdowns.label-values-breakdown-scene.loading',
+                            'Loading...'
+                          )}
+                        />
                       ),
                     }),
                   }),
@@ -451,8 +461,14 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
         }),
       ],
       options: [
-        { label: t('components.service-scene.breakdowns.label-values-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('components.service-scene.breakdowns.label-values-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
+        {
+          label: t('components.service-scene.breakdowns.label-values-breakdown-scene.layout.grid', 'Grid'),
+          value: 'grid',
+        },
+        {
+          label: t('components.service-scene.breakdowns.label-values-breakdown-scene.layout.rows', 'Rows'),
+          value: 'rows',
+        },
       ],
     });
   }
@@ -489,17 +505,26 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       <div key={key}>
         {err.status && (
           <>
-            <strong>{t('components.service-scene.breakdowns.label-values-breakdown-scene.error.status', 'Status')}</strong>: {err.status} <br />
+            <strong>
+              {t('components.service-scene.breakdowns.label-values-breakdown-scene.error.status', 'Status')}
+            </strong>
+            : {err.status} <br />
           </>
         )}
         {err.message && (
           <>
-            <strong>{t('components.service-scene.breakdowns.label-values-breakdown-scene.error.message', 'Message')}</strong>: {err.message} <br />
+            <strong>
+              {t('components.service-scene.breakdowns.label-values-breakdown-scene.error.message', 'Message')}
+            </strong>
+            : {err.message} <br />
           </>
         )}
         {err.traceId && (
           <>
-            <strong>{t('components.service-scene.breakdowns.label-values-breakdown-scene.error.trace-id', 'TraceId')}</strong>: {err.traceId}
+            <strong>
+              {t('components.service-scene.breakdowns.label-values-breakdown-scene.error.trace-id', 'TraceId')}
+            </strong>
+            : {err.traceId}
           </>
         )}
       </div>
@@ -518,6 +543,10 @@ export class LabelValuesBreakdownScene extends SceneObjectBase<LabelValueBreakdo
       return <div className={styles.panelWrapper}>{body && <body.Component model={body} />}</div>;
     }
 
-    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')} />;
+    return (
+      <LoadingPlaceholder
+        text={t('components.service-scene.breakdowns.label-values-breakdown-scene.loading', 'Loading...')}
+      />
+    );
   };
 }

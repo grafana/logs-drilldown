@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
-import { testIds } from '../../services/testIds';
+import { testIds } from 'services/testIds';
 
 export function PluginHeaderToolbar({ children }: { children: React.ReactNode }) {
   const styles = useStyles2(getStyles);

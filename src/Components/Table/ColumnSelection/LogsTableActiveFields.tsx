@@ -6,10 +6,10 @@ import { DragDropContext, Draggable, DraggableProvided, Droppable, DropResult } 
 import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 
-import { FieldNameMeta, FieldNameMetaStore } from '../TableTypes';
 import { LogsTableEmptyFields } from './LogsTableEmptyFields';
 import { LogsTableNavField } from './LogsTableNavField';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
+import { FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 
 export function getLogsFieldsStyles(theme: GrafanaTheme2) {
   return {

@@ -15,11 +15,14 @@ import {
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../module';
-import { PageSlugs, ValueSlugs } from '../services/enums';
-import { getKgSceneProps } from '../services/kgAnnotations';
-import { logger } from '../services/logger';
-import { navigateToIndex } from '../services/navigate';
-import { PLUGIN_BASE_URL, prefixRoute } from '../services/plugin';
+import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
+import { IndexScene } from './IndexScene/IndexScene';
+import { IndexSceneState } from './IndexScene/types';
+import { PageSlugs, ValueSlugs } from 'services/enums';
+import { getKgSceneProps } from 'services/kgAnnotations';
+import { logger } from 'services/logger';
+import { navigateToIndex } from 'services/navigate';
+import { PLUGIN_BASE_URL, prefixRoute } from 'services/plugin';
 import {
   CHILD_ROUTE_DEFINITIONS,
   ChildDrilldownSlugs,
@@ -31,11 +34,8 @@ import {
   SERVICE_URL_KEYS,
   SERVICE_URL_KEYS_NO_TIMERANGE,
   SUB_ROUTES,
-} from '../services/routing';
-import { capitalizeFirstLetter } from '../services/text';
-import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
-import { IndexScene } from './IndexScene/IndexScene';
-import { IndexSceneState } from './IndexScene/types';
+} from 'services/routing';
+import { capitalizeFirstLetter } from 'services/text';
 
 export type RouteProps = { breakdownLabel?: string; labelName: string; labelValue: string };
 export type RouteMatch = SceneRouteMatch<RouteProps>;

@@ -3,10 +3,6 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { CollapsablePanelText, TimeSeriesPanelType } from '../Components/Panels/PanelMenu';
-import { FieldsPanelsType } from '../Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
-import { SortDirection } from '../Components/ServiceScene/Breakdowns/SortByScene';
-import pluginJson from '../plugin.json';
 import { isEmbeddedLogs } from './extensions/embedding';
 import { escapePrimaryLabel } from './extensions/links';
 import { isDedupStrategy } from './guards';
@@ -17,7 +13,11 @@ import { SortBy } from './sorting';
 import { getDataSourceName } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL } from './variables';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { CollapsablePanelText, TimeSeriesPanelType } from 'Components/Panels/PanelMenu';
+import { FieldsPanelsType } from 'Components/ServiceScene/Breakdowns/FieldsAggregatedBreakdownScene';
+import { SortDirection } from 'Components/ServiceScene/Breakdowns/SortByScene';
 import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
+import pluginJson from 'plugin.json';
 
 const FAVORITE_PRIMARY_LABEL_VALUES_LOCALSTORAGE_KEY = `${pluginJson.id}.services.favorite`;
 const FAVORITE_PRIMARY_LABEL_NAME_LOCALSTORAGE_KEY = `${pluginJson.id}.primarylabels.tabs.favorite`;

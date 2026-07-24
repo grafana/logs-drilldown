@@ -7,13 +7,13 @@ import { t, Trans } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState, sceneGraph } from '@grafana/scenes';
 import { Dropdown, Icon, Switch, ToolbarButton, Tooltip, useStyles2 } from '@grafana/ui';
 
-import pluginJson from '../../plugin.json';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { KG_INSIGHTS_DESCRIPTION } from '../../services/KgAnnotationToggle';
-import { testIds } from '../../services/testIds';
-import { AGGREGATED_METRIC_START_DATE } from '../ServiceSelectionScene/ServiceSelectionScene';
 import { IndexScene } from './IndexScene';
+import { AGGREGATED_METRIC_START_DATE } from 'Components/ServiceSelectionScene/ServiceSelectionScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
+import pluginJson from 'plugin.json';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { KG_INSIGHTS_DESCRIPTION } from 'services/KgAnnotationToggle';
+import { testIds } from 'services/testIds';
 const AGGREGATED_METRICS_USER_OVERRIDE_LOCALSTORAGE_KEY = `${pluginJson.id}.serviceSelection.aggregatedMetrics`;
 
 export interface ToolbarSceneState extends SceneObjectState {

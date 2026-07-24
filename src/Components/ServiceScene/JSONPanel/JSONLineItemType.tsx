@@ -7,8 +7,8 @@ import { t } from '@grafana/i18n';
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 import { Tooltip, useStyles2 } from '@grafana/ui';
 
-import { addToFilters } from '../Breakdowns/AddToFiltersButton';
 import { JSON_VIZ_LINE_HEIGHT } from './LogsJSONComponent';
+import { addToFilters } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { FilterOp } from 'services/filterTypes';
 import { logsLabelLevelsMatches } from 'services/panel';
 import { LEVEL_VARIABLE_VALUE, VAR_LEVELS } from 'services/variables';
@@ -35,8 +35,16 @@ function LineItemType({
       <Tooltip
         content={
           existingFilter
-            ? t('components.service-scene.json-panel.json-line-item-type.detected-level-toggle-button.remove', 'Remove {{detectedLevel}} filter', { detectedLevel })
-            : t('components.service-scene.json-panel.json-line-item-type.detected-level-toggle-button.include', 'Include logs with {{detectedLevel}} level', { detectedLevel })
+            ? t(
+                'components.service-scene.json-panel.json-line-item-type.detected-level-toggle-button.remove',
+                'Remove {{detectedLevel}} filter',
+                { detectedLevel }
+              )
+            : t(
+                'components.service-scene.json-panel.json-line-item-type.detected-level-toggle-button.include',
+                'Include logs with {{detectedLevel}} level',
+                { detectedLevel }
+              )
         }
       >
         <button
