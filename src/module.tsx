@@ -33,7 +33,6 @@ const App = lazy(async () => {
   // Initialize i18n for this plugin
   await initPluginI18n();
 
-  const { logger } = await import('services/logger');
   const { setWasmSortInit, wasmSupported } = await import('services/sorting');
 
   const { default: initRuntimeDs } = await import('services/datasource');
@@ -43,13 +42,8 @@ const App = lazy(async () => {
   initRuntimeDs();
 
   if (wasmSupported()) {
-    try {
-      await Promise.all([initChangepoint(), initOutlier()]);
-      setWasmSortInit(true);
-    } catch (e) {
-      logger.warn('WebAssembly init failed, ML sorting disabled.');
-      setWasmSortInit(false);
-    }
+    await Promise.all([initChangepoint(), initOutlier()]);
+    setWasmSortInit(true);
   }
 
   return import('Components/App');
