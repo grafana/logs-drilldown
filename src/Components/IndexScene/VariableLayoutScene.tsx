@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { ToolbarButton, useStyles2 } from '@grafana/ui';
+import { ButtonGroup, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { syncLogsListPanelHeightFromScene } from '../../services/scenes';
 import {
@@ -14,9 +14,9 @@ import {
   getJsonParserVariableVisibility,
   setCollapsibleFiltersState,
 } from '../../services/store';
+import { testIds } from '../../services/testIds';
 import { AppliedPattern } from '../../services/variables';
 import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
-import { PluginHeaderToolbar } from '../Header/PluginHeaderToolbar';
 import { PluginInfo } from '../Header/PluginInfo';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { IndexScene } from './IndexScene';
@@ -145,14 +145,14 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                     })}
                   </div>
                   {!indexScene.state.embedded && (
-                    <PluginHeaderToolbar>
+                    <ButtonGroup data-testid={testIds.header.pluginHeaderToolbar}>
                       {controls.map((control) => {
                         return control instanceof ToolbarScene ? (
                           <control.Component key={control.state.key} model={control} />
                         ) : null;
                       })}
                       <PluginInfo variant="canvas" />
-                    </PluginHeaderToolbar>
+                    </ButtonGroup>
                   )}
                 </div>
               </div>
