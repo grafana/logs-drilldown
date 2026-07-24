@@ -18,7 +18,7 @@ import { getParserEnabled } from './parserToggle';
 import { getDataSource } from './scenes';
 import { DetectedFieldsResult, LokiLanguageProviderWithDetectedLabelValues } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, ParserType, VAR_FIELDS_AND_METADATA, VAR_LEVELS } from './variables';
-import { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import type { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export const getLabelsKeys = async (
   labelFilters: AdHocFilterWithLabels[],

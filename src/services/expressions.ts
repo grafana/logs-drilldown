@@ -20,7 +20,7 @@ import {
   VAR_METADATA_EXPR,
   VAR_PATTERNS_EXPR,
 } from './variables';
-import { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import type { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 /**
  * Crafts count over time query that excludes empty values for stream selector name
