@@ -8,13 +8,13 @@ import { locationService } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { InlineField, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
-import { logger } from '../../services/logger';
-import { narrowLogsSortOrder } from '../../services/narrowing';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { LineLimitScene } from './LineLimitScene';
 import { LogOptionsButtonsScene } from './LogOptionsButtonsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
+import { logger } from 'services/logger';
+import { narrowLogsSortOrder } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 import { LogsVisualizationType, setLogOption } from 'services/store';
 
@@ -193,4 +193,4 @@ export {
   getNormalizedFieldName,
   LOG_LINE_BODY_FIELD_NAME,
   OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME,
-} from '../../services/logFieldNames';
+} from 'services/logFieldNames';

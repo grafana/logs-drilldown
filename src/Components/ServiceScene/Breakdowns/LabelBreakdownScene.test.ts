@@ -1,7 +1,7 @@
 import { AdHocFiltersVariable, sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { buildLabelsQuery } from '../../../services/labels';
-import { VAR_FIELDS, VAR_LABEL_GROUP_BY_EXPR } from '../../../services/variables';
+import { buildLabelsQuery } from 'services/labels';
+import { VAR_FIELDS, VAR_LABEL_GROUP_BY_EXPR } from 'services/variables';
 
 describe('buildLabelsQuery', () => {
   test('should build no-parser query with no filters', () => {

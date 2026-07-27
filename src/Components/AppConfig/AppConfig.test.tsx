@@ -6,8 +6,8 @@ import { of } from 'rxjs';
 import { AppPluginMeta, GrafanaPlugin, PluginConfigPage, PluginMeta, PluginType } from '@grafana/data';
 import { getBackendSrv, locationService } from '@grafana/runtime';
 
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 import AppConfig, { updatePlugin, type JsonData } from './AppConfig';
+import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -43,12 +43,12 @@ jest.mock('@grafana/data', () => ({
   getTimeZone: jest.fn(() => 'utc'),
 }));
 
-jest.mock('../../services/store', () => ({
+jest.mock('services/store', () => ({
   getDefaultDatasourceFromDatasourceSrv: jest.fn(),
   getLastUsedDataSourceFromStorage: jest.fn(),
 }));
 
-jest.mock('../../services/logger', () => ({
+jest.mock('services/logger', () => ({
   logger: { error: jest.fn() },
 }));
 

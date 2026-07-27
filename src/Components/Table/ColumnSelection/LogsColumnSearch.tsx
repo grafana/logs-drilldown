@@ -7,9 +7,9 @@ import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Field, IconButton, Input, useStyles2 } from '@grafana/ui';
 
-import { debouncedFuzzySearch } from '../../../services/search';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
 import { FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { debouncedFuzzySearch } from 'services/search';
 
 function getStyles(theme: GrafanaTheme2) {
   return {
@@ -92,7 +92,10 @@ export function LogsColumnSearch({
           <Input
             value={searchValue}
             type={'text'}
-            placeholder={t('components.table.column-selection.logs-column-search.placeholder-search-fields-by-name', 'Search fields by name')}
+            placeholder={t(
+              'components.table.column-selection.logs-column-search.placeholder-search-fields-by-name',
+              'Search fields by name'
+            )}
             onChange={onSearchInputChange}
           />
         </Field>

@@ -5,9 +5,11 @@ import { Trans } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, sceneUtils } from '@grafana/scenes';
 import { LinkButton } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { logger } from '../../services/logger';
-import { ROUTES } from '../../services/routing';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { logger } from 'services/logger';
+import { ROUTES } from 'services/routing';
 import {
   getFieldsVariable,
   getLabelsVariable,
@@ -15,10 +17,8 @@ import {
   getLineFiltersVariable,
   getMetadataVariable,
   getPatternsVariable,
-} from '../../services/variableGetters';
-import { getPrimaryLabelFromEmbeddedScene } from '../../services/variableHelpers';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { ServiceScene } from '../ServiceScene/ServiceScene';
+} from 'services/variableGetters';
+import { getPrimaryLabelFromEmbeddedScene } from 'services/variableHelpers';
 
 export class EmbeddedLinkScene extends SceneObjectBase {
   public static Component = ({ model }: SceneComponentProps<EmbeddedLinkScene>) => {

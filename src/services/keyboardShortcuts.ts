@@ -3,11 +3,11 @@ import { getAppEvents, locationService } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VizPanel } from '@grafana/scenes';
 import { OptionsWithLegend } from '@grafana/ui';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { getExploreLink } from '../Components/Panels/PanelMenu';
 import { KeybindingSet } from './KeybindingSet';
 import { narrowTimeRange } from './narrowing';
 import { getTimePicker } from './scenes';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { getExploreLink } from 'Components/Panels/PanelMenu';
 
 const appEvents = getAppEvents();
 

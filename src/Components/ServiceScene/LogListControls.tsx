@@ -131,7 +131,10 @@ export const LogListControls = ({
           onClick={() => onToggleStructuredMetadataClick(!showMetadata)}
           tooltip={
             showMetadata
-              ? t('components.service-scene.log-list-controls.json.tooltip.metadata.disable', 'Hide structured metadata')
+              ? t(
+                  'components.service-scene.log-list-controls.json.tooltip.metadata.disable',
+                  'Hide structured metadata'
+                )
               : t('components.service-scene.log-list-controls.json.tooltip.metadata.enable', 'Show structured metadata')
           }
           label={

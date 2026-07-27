@@ -2,11 +2,11 @@ import React, { useMemo } from 'react';
 
 import { AdHocVariableFilter, DataFrame, FieldType, LogsSortOrder, sortDataFrame, TimeRange } from '@grafana/data';
 
-import { parseLogsFrame } from '../../services/logsFrame';
 import { LogLineState } from './Context/TableColumnsContext';
 import { SelectedTableRow } from './LogLineCellComponent';
 import { QueryContextProvider } from 'Components/Table/Context/QueryContext';
 import { TableWrap } from 'Components/Table/TableWrap';
+import { parseLogsFrame } from 'services/logsFrame';
 
 interface TableProviderProps {
   addFilter: (filter: AdHocVariableFilter) => void;

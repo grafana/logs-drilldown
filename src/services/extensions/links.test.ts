@@ -1,12 +1,6 @@
 import { dateTime, PluginExtensionPanelContext, CustomVariableModel, VariableHide, LoadingState } from '@grafana/data';
 
 import {
-  ValidByteUnitValues,
-  validDurationValues,
-} from '../../Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
-import { LokiQuery } from '../lokiQuery';
-import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from '../variables';
-import {
   interpolateQueryExpr,
   LinkConfigs,
   linkConfigs,
@@ -14,6 +8,9 @@ import {
   restoreLabelValueFromUrlParam,
 } from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
+import { ValidByteUnitValues, validDurationValues } from 'Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
+import { LokiQuery } from 'services/lokiQuery';
+import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from 'services/variables';
 
 // Mocking templateSrv is such a pain, if you are fighting variable interpolation start here.
 jest.mock('@grafana/runtime', () => ({
@@ -1110,4 +1107,3 @@ describe('restoreLabelValueFromUrlParam', () => {
     expect(restoreLabelValueFromUrlParam(encoded)).toBe('user?input');
   });
 });
-

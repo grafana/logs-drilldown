@@ -6,10 +6,10 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { Button, Combobox, Field, useStyles2 } from '@grafana/ui';
 
-import { LineFilterInput } from '../../ServiceScene/Breakdowns/LineFilterInput';
 import { LineFilterCaseSensitivityButton } from './LineFilterCaseSensitivityButton';
 import { LineFilterProps } from './LineFilterVariable';
 import { RegexIconButton } from './RegexIconButton';
+import { LineFilterInput } from 'Components/ServiceScene/Breakdowns/LineFilterInput';
 import { testIds } from 'services/testIds';
 
 export interface LineFilterEditorProps extends LineFilterProps {

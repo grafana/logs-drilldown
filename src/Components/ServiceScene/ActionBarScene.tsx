@@ -6,17 +6,17 @@ import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { narrowPageSlug } from '../../services/narrowing';
-import { getDrillDownTabLink } from '../../services/navigate';
-import { LINE_LIMIT } from '../../services/query';
-import { getDrilldownSlug, getDrilldownValueSlug } from '../../services/routing';
-import { ShareButtonScene } from '../IndexScene/ShareButtonScene';
-import { SaveSearchButton } from '../SavedSearches/SaveSearchButton';
 import { BreakdownViewDefinition, breakdownViewsDefinitions } from './BreakdownViews';
 import { ServiceScene, ServiceSceneCustomState } from './ServiceScene';
+import { ShareButtonScene } from 'Components/IndexScene/ShareButtonScene';
 import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
+import { SaveSearchButton } from 'Components/SavedSearches/SaveSearchButton';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { PageSlugs, TabNames, ValueSlugs } from 'services/enums';
+import { narrowPageSlug } from 'services/narrowing';
+import { getDrillDownTabLink } from 'services/navigate';
+import { LINE_LIMIT } from 'services/query';
+import { getDrilldownSlug, getDrilldownValueSlug } from 'services/routing';
 import { getMaxLines } from 'services/store';
 
 export interface ActionBarSceneState extends SceneObjectState {

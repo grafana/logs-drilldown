@@ -23,34 +23,6 @@ import {
 } from '@grafana/schema/dist/esm/raw/composable/timeseries/panelcfg/x/TimeSeriesPanelCfg_types.gen';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { ValueSlugs } from '../../../services/enums';
-import {
-  buildFieldsQueryString,
-  extractParserFromArray,
-  getDetectedFieldType,
-  isAvgField,
-} from '../../../services/fields';
-import { logger } from '../../../services/logger';
-import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from '../../../services/panel';
-import { buildDataQuery, isQueryAvg } from '../../../services/query';
-import { getQueryExpression } from '../../../services/queryRunner';
-import { getFieldsPanelTypes, getPanelOption, getShowErrorPanels, setShowErrorPanels } from '../../../services/store';
-import {
-  getFieldGroupByVariable,
-  getFieldsVariable,
-  getJSONFieldsVariable,
-  getValueFromFieldsFilter,
-} from '../../../services/variableGetters';
-import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from '../../../services/variables';
-import { getPanelWrapperStyles, PanelMenu, TimeSeriesPanelType, TimeSeriesQueryType } from '../../Panels/PanelMenu';
-import {
-  getDetectedFieldsFrame,
-  getDetectedFieldsFrameFromQueryRunnerState,
-  getDetectedFieldsNamesFromQueryRunnerState,
-  getDetectedFieldsParsersFromQueryRunnerState,
-  ServiceScene,
-} from '../ServiceScene';
 import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { FieldsVizPanelWrapper } from './FieldsVizPanelWrapper';
 import { LayoutSwitcher } from './LayoutSwitcher';
@@ -58,7 +30,35 @@ import { SelectLabelActionScene } from './SelectLabelActionScene';
 import { ShowErrorPanelToggle } from './ShowErrorPanelToggle';
 import { ShowFieldDisplayToggle } from './ShowFieldDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import {
+  getPanelWrapperStyles,
+  PanelMenu,
+  TimeSeriesPanelType,
+  TimeSeriesQueryType,
+} from 'Components/Panels/PanelMenu';
+import {
+  getDetectedFieldsFrame,
+  getDetectedFieldsFrameFromQueryRunnerState,
+  getDetectedFieldsNamesFromQueryRunnerState,
+  getDetectedFieldsParsersFromQueryRunnerState,
+  ServiceScene,
+} from 'Components/ServiceScene/ServiceScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { ValueSlugs } from 'services/enums';
+import { buildFieldsQueryString, extractParserFromArray, getDetectedFieldType, isAvgField } from 'services/fields';
+import { logger } from 'services/logger';
+import { getQueryRunner, setLevelColorOverrides, setPanelNotices } from 'services/panel';
 import { cancelInFlightQueries } from 'services/queries';
+import { buildDataQuery, isQueryAvg } from 'services/query';
+import { getQueryExpression } from 'services/queryRunner';
+import { getFieldsPanelTypes, getPanelOption, getShowErrorPanels, setShowErrorPanels } from 'services/store';
+import {
+  getFieldGroupByVariable,
+  getFieldsVariable,
+  getJSONFieldsVariable,
+  getValueFromFieldsFilter,
+} from 'services/variableGetters';
+import { ALL_VARIABLE_VALUE, DetectedFieldType, ParserType } from 'services/variables';
 
 export type FieldsPanelsType = 'text' | 'timeseries';
 
@@ -561,8 +561,7 @@ export class FieldsAggregatedBreakdownScene extends SceneObjectBase<FieldsAggreg
 
   private getActiveGridLayouts() {
     return (this.state.body?.state.layouts.find((l) => l.isActive) ?? this.state.body?.state.layouts[0]) as
-      | SceneCSSGridLayout
-      | undefined;
+      SceneCSSGridLayout | undefined;
   }
 
   private updateFieldCount() {

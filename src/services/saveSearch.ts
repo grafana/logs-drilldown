@@ -5,10 +5,10 @@ import semver from 'semver/preload';
 import { config } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 
-import { getFeatureFlag } from '../featureFlags/openFeature';
-import pluginJson from '../plugin.json';
 import { logger } from './logger';
 import { narrowSavedSearches } from './narrowing';
+import { getFeatureFlag } from 'featureFlags/openFeature';
+import pluginJson from 'plugin.json';
 
 const MIN_VERSION = '12.4.0-21256324731';
 

@@ -9,7 +9,10 @@ export const PatternsNotConfigured = () => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('components.service-scene.breakdowns.patterns.patterns-not-detected.error-title', 'There are no pattern matches.')}
+      message={t(
+        'components.service-scene.breakdowns.patterns.patterns-not-detected.error-title',
+        'There are no pattern matches.'
+      )}
     >
       {t(
         'components.service-scene.breakdowns.patterns.patterns-not-detected.error-message',
@@ -38,7 +41,10 @@ export const PatternsNotDetected = () => {
           'Check back later or reach out to the team in the'
         )}{' '}
         <TextLink href="https://slack.grafana.com/" external>
-          {t('components.service-scene.breakdowns.patterns.patterns-not-detected.not-detected-help-link', 'Grafana Labs community Slack channel')}
+          {t(
+            'components.service-scene.breakdowns.patterns.patterns-not-detected.not-detected-help-link',
+            'Grafana Labs community Slack channel'
+          )}
         </TextLink>
         .{' '}
         {t(
@@ -54,7 +60,10 @@ export const PatternsNoMatchingFilters = () => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('components.service-scene.breakdowns.patterns.patterns-not-detected.no-match-filters-title', 'No patterns match these filters.')}
+      message={t(
+        'components.service-scene.breakdowns.patterns.patterns-not-detected.no-match-filters-title',
+        'No patterns match these filters.'
+      )}
     />
   );
 };

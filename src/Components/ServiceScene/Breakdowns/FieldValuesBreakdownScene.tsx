@@ -19,18 +19,27 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../services/comparison';
+import { ByFrameRepeater } from './ByFrameRepeater';
+import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
+import { LayoutSwitcher } from './LayoutSwitcher';
+import { ValueSummaryPanelScene } from './Panels/ValueSummary';
+import { QueryErrorAlert } from './QueryErrorAlert';
+import { getLabelValue } from './SortByScene';
+import { getPanelWrapperStyles } from 'Components/Panels/PanelMenu';
+import { getDetectedFieldsFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { areArraysEqual } from 'services/comparison';
 import {
   buildFieldsQueryString,
   getFilterBreakdownValueScene,
   getParserForField,
   getParserFromFieldsFilters,
-} from '../../../services/fields';
-import { logger } from '../../../services/logger';
-import { LokiQuery } from '../../../services/lokiQuery';
-import { getQueryRunner } from '../../../services/panel';
-import { buildDataQuery, renderLogQLFieldFilters, renderLogQLMetadataFilters } from '../../../services/query';
-import { getSortByPreference } from '../../../services/store';
+} from 'services/fields';
+import { logger } from 'services/logger';
+import { LokiQuery } from 'services/lokiQuery';
+import { getQueryRunner } from 'services/panel';
+import { buildDataQuery, renderLogQLFieldFilters, renderLogQLMetadataFilters } from 'services/query';
+import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
+import { getSortByPreference } from 'services/store';
 import {
   getFieldGroupByVariable,
   getFieldsVariable,
@@ -40,17 +49,8 @@ import {
   getLineFiltersVariable,
   getMetadataVariable,
   getPatternsVariable,
-} from '../../../services/variableGetters';
-import { ParserType, VAR_FIELDS, VAR_METADATA } from '../../../services/variables';
-import { getPanelWrapperStyles } from '../../Panels/PanelMenu';
-import { getDetectedFieldsFrame, ServiceScene } from '../ServiceScene';
-import { ByFrameRepeater } from './ByFrameRepeater';
-import { FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS, FieldsBreakdownScene } from './FieldsBreakdownScene';
-import { LayoutSwitcher } from './LayoutSwitcher';
-import { ValueSummaryPanelScene } from './Panels/ValueSummary';
-import { QueryErrorAlert } from './QueryErrorAlert';
-import { getLabelValue } from './SortByScene';
-import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
+} from 'services/variableGetters';
+import { ParserType, VAR_FIELDS, VAR_METADATA } from 'services/variables';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
   $data?: SceneDataProvider;
@@ -101,7 +101,11 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
       );
     }
 
-    return <LoadingPlaceholder text={t('components.service-scene.breakdowns.field-values-breakdown-scene.loading', 'Loading...')} />;
+    return (
+      <LoadingPlaceholder
+        text={t('components.service-scene.breakdowns.field-values-breakdown-scene.loading', 'Loading...')}
+      />
+    );
   };
 
   private getTagKey() {
@@ -458,8 +462,14 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
         }),
       ],
       options: [
-        { label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.grid', 'Grid'), value: 'grid' },
-        { label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.rows', 'Rows'), value: 'rows' },
+        {
+          label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.grid', 'Grid'),
+          value: 'grid',
+        },
+        {
+          label: t('components.service-scene.breakdowns.field-values-breakdown-scene.layout.rows', 'Rows'),
+          value: 'rows',
+        },
       ],
     });
   }

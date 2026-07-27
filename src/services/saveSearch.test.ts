@@ -2,7 +2,6 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { config } from '@grafana/runtime';
 
-import { getFeatureFlag } from '../featureFlags/openFeature';
 import { narrowSavedSearches } from './narrowing';
 import {
   isQueryLibrarySupported,
@@ -12,6 +11,7 @@ import {
   useHasSavedSearches,
   useSavedSearches,
 } from './saveSearch';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
@@ -22,7 +22,7 @@ jest.mock('@grafana/runtime', () => ({
   },
 }));
 
-jest.mock('../featureFlags/openFeature', () => ({
+jest.mock('featureFlags/openFeature', () => ({
   getFeatureFlag: jest.fn(),
 }));
 jest.unmock('semver/preload');

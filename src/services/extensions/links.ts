@@ -10,15 +10,21 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 
-import pluginJson from '../../plugin.json';
-import { LabelType } from '../fieldsTypes';
-import { FieldFilter, IndexedLabelFilter, LineFilterType, PatternFilterOp, PatternFilterType } from '../filterTypes';
-import { getLabelFormatIdentifiersFromQuery, getMatcherFromQuery } from '../logqlMatchers';
-import { LokiQuery } from '../lokiQuery';
-import { isOperatorInclusive } from '../operatorHelpers';
-import { renderPatternFilters } from '../renderPatternFilters';
-import { ensureValidTimeRangeForLink } from '../text';
 import { escapeLabelValueInExactSelector, lokiSpecialRegexEscape } from './scenesMethods';
+import pluginJson from 'plugin.json';
+import { LabelType } from 'services/fieldsTypes';
+import {
+  FieldFilter,
+  IndexedLabelFilter,
+  LineFilterType,
+  PatternFilterOp,
+  PatternFilterType,
+} from 'services/filterTypes';
+import { getLabelFormatIdentifiersFromQuery, getMatcherFromQuery } from 'services/logqlMatchers';
+import { LokiQuery } from 'services/lokiQuery';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { renderPatternFilters } from 'services/renderPatternFilters';
+import { ensureValidTimeRangeForLink } from 'services/text';
 import {
   addAdHocFilterUserInputPrefix,
   AdHocFieldValue,

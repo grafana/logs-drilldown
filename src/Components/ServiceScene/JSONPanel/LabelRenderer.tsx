@@ -6,6 +6,10 @@ import { Field } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
+import { JSONLeafLabel } from './JSONLeafLabel';
+import { JSONParentNodeFilterButtons } from './JSONParentNodeFilterButtons';
+import JSONRootNodeNavigation from './JSONRootNodeNavigation';
+import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
 import {
   JSONDataFrameLabelsName,
   JSONDataFrameLinksName,
@@ -17,11 +21,7 @@ import {
   JSONLogsScene,
   NodeType,
   JSONStructuredMetadataDisplayName,
-} from '../JSONLogsScene';
-import { JSONLeafLabel } from './JSONLeafLabel';
-import { JSONParentNodeFilterButtons } from './JSONParentNodeFilterButtons';
-import JSONRootNodeNavigation from './JSONRootNodeNavigation';
-import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
+} from 'Components/ServiceScene/JSONLogsScene';
 import { isLogLineField } from 'services/fields';
 import { getJSONLabelWrapStyles, JSONLabelWrapStylesPrimary } from 'services/JSONViz';
 import { isTimeLabelNode } from 'services/JSONVizNodes';

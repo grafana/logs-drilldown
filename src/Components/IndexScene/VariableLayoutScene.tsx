@@ -8,16 +8,6 @@ import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
 import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { ButtonGroup, ToolbarButton, useStyles2 } from '@grafana/ui';
 
-import { syncLogsListPanelHeightFromScene } from '../../services/scenes';
-import {
-  getCollapsibleFiltersState,
-  getJsonParserVariableVisibility,
-  setCollapsibleFiltersState,
-} from '../../services/store';
-import { testIds } from '../../services/testIds';
-import { AppliedPattern } from '../../services/variables';
-import { EmbeddedLinkScene } from '../EmbeddedLogsExploration/EmbeddedLinkScene';
-import { PluginInfo } from '../Header/PluginInfo';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import { IndexScene } from './IndexScene';
 import {
@@ -29,8 +19,18 @@ import {
 import { PatternControls } from './PatternControls';
 import { ResetFiltersButton } from './ResetFiltersButton';
 import { ToolbarScene } from './ToolbarScene';
+import { EmbeddedLinkScene } from 'Components/EmbeddedLogsExploration/EmbeddedLinkScene';
+import { PluginInfo } from 'Components/Header/PluginInfo';
 import { PageSlugs } from 'services/enums';
 import { getDrilldownSlug } from 'services/routing';
+import { syncLogsListPanelHeightFromScene } from 'services/scenes';
+import {
+  getCollapsibleFiltersState,
+  getJsonParserVariableVisibility,
+  setCollapsibleFiltersState,
+} from 'services/store';
+import { testIds } from 'services/testIds';
+import { AppliedPattern } from 'services/variables';
 
 type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {

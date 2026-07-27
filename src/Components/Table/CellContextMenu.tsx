@@ -6,8 +6,8 @@ import { GrafanaTheme2, LinkModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Icon, useTheme2 } from '@grafana/ui';
 
-import { FilterOp } from '../../services/filterTypes';
 import { useQueryContext } from './Context/QueryContext';
+import { FilterOp } from 'services/filterTypes';
 
 interface Props {
   fieldType?: 'derived';

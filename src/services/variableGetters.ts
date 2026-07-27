@@ -8,7 +8,6 @@ import {
   SceneVariableState,
 } from '@grafana/scenes';
 
-import { AdHocFilterTypes, InterpolatedFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { isFilterMetadata } from './filters';
 import { logger } from './logger';
@@ -47,6 +46,7 @@ import {
   VAR_PRIMARY_LABEL,
   VAR_PRIMARY_LABEL_SEARCH,
 } from './variables';
+import { AdHocFilterTypes, InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 export function getLogsStreamSelector(options: LogsQueryOptions) {
   const {

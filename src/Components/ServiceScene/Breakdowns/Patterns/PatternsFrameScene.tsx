@@ -17,15 +17,15 @@ import {
 } from '@grafana/scenes';
 import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../../services/comparison';
-import { logger } from '../../../../services/logger';
-import { isOperatorInclusive } from '../../../../services/operatorHelpers';
-import { getLevelsVariable } from '../../../../services/variableGetters';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { ServiceScene } from '../../ServiceScene';
 import { onPatternClick } from './FilterByPatternsButton';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 import { PatternsViewTableScene } from './PatternsViewTableScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { areArraysEqual } from 'services/comparison';
+import { logger } from 'services/logger';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { getLevelsVariable } from 'services/variableGetters';
 
 const palette = config.theme2.visualization.palette;
 

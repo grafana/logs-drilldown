@@ -17,9 +17,9 @@ import { t, Trans } from '@grafana/i18n';
 import { DataSourcePicker, getBackendSrv, locationService } from '@grafana/runtime';
 import { Alert, Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 
-import { logger } from '../../services/logger';
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from '../../services/store';
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
+import { logger } from 'services/logger';
+import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
 import { isValidTimeRange } from 'services/utils';
 
 export type JsonData = {

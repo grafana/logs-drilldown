@@ -7,16 +7,16 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState, SceneQueryRunner } from '@grafana/scenes';
 import { Icon, Popover, PopoverController, Tab, TabsBar, Tooltip, useStyles2 } from '@grafana/ui';
 
-import { getSceneQueryRunner } from '../../services/panel';
-import { buildResourceQuery } from '../../services/query';
-import { getFavoriteTabsFromStorage, removeTabFromLocalStorage } from '../../services/store';
-import { truncateText } from '../../services/text';
-import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from '../../services/variableGetters';
-import { SERVICE_NAME, SERVICE_UI_LABEL } from '../../services/variables';
 import { ServiceSelectionScene } from './ServiceSelectionScene';
 import { TabPopoverScene } from './TabPopoverScene';
 import { DefaultLabel } from 'services/api';
 import { getMetadataService } from 'services/metadata';
+import { getSceneQueryRunner } from 'services/panel';
+import { buildResourceQuery } from 'services/query';
+import { getFavoriteTabsFromStorage, removeTabFromLocalStorage } from 'services/store';
+import { truncateText } from 'services/text';
+import { getDataSourceVariable, getServiceSelectionPrimaryLabel } from 'services/variableGetters';
+import { SERVICE_NAME, SERVICE_UI_LABEL } from 'services/variables';
 
 export interface TabOption extends SelectableValue<string> {
   active?: boolean;

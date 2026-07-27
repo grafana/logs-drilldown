@@ -25,8 +25,6 @@ import { getTemplateSrv, locationService } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
 import { Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
-import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
-import { testIds } from '../../services/testIds';
 import { useQueryContext } from './Context/QueryContext';
 import {
   ColumnSelectionDrawerWrap,
@@ -41,6 +39,8 @@ import { CustomHeaderRendererProps } from 'Components/Table/LogsTableHeader';
 import { LogsTableHeaderWrap } from 'Components/Table/LogsTableHeaderWrap';
 import { FieldName, FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 import { guessLogsFieldTypeForValue } from 'Components/Table/TableWrap';
+import { getBodyName, getIdName, LogsFrame } from 'services/logsFrame';
+import { testIds } from 'services/testIds';
 
 interface Props {
   height: number;

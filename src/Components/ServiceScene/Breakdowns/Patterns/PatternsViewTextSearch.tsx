@@ -7,11 +7,11 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Alert, Field, useStyles2 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../../services/comparison';
-import { debouncedFuzzySearch, fuzzySearch } from '../../../../services/search';
-import { getFieldsVariable, getLineFiltersVariable, getMetadataVariable } from '../../../../services/variableGetters';
-import { SearchInput } from '../SearchInput';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+import { SearchInput } from 'Components/ServiceScene/Breakdowns/SearchInput';
+import { areArraysEqual } from 'services/comparison';
+import { debouncedFuzzySearch, fuzzySearch } from 'services/search';
+import { getFieldsVariable, getLineFiltersVariable, getMetadataVariable } from 'services/variableGetters';
 
 export interface PatternsViewTextSearchState extends SceneObjectState {}
 
@@ -171,7 +171,10 @@ export function PatternTextSearchComponent({ model }: SceneComponentProps<Patter
           onChange={model.handleSearchChange}
           onClear={model.clearSearch}
           value={patternFilter}
-          placeholder={t('components.service-scene.breakdowns.patterns.patterns-view-text-search.placeholder-search-patterns', 'Search patterns')}
+          placeholder={t(
+            'components.service-scene.breakdowns.patterns.patterns-view-text-search.placeholder-search-patterns',
+            'Search patterns'
+          )}
         />
       </Field>
       {hasNonIndexedFilters && (

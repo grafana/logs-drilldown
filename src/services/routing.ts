@@ -2,8 +2,6 @@ import { UrlQueryMap, urlUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { RouteMatch, RouteProps } from '../Components/Pages';
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { PageSlugs, ValueSlugs } from './enums';
 import { escapePrimaryLabel, restoreLabelValueFromUrlParam } from './extensions/links';
 import { narrowValueSlug } from './narrowing';
@@ -25,14 +23,11 @@ import {
   VAR_METADATA,
   VAR_PATTERNS,
 } from './variables';
+import { RouteMatch, RouteProps } from 'Components/Pages';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 
 export type ParentDrilldownSlugs =
-  | PageSlugs.explore
-  | PageSlugs.fields
-  | PageSlugs.logs
-  | PageSlugs.labels
-  | PageSlugs.patterns
-  | PageSlugs.embed;
+  PageSlugs.explore | PageSlugs.fields | PageSlugs.logs | PageSlugs.labels | PageSlugs.patterns | PageSlugs.embed;
 export type ChildDrilldownSlugs = ValueSlugs.field | ValueSlugs.label;
 
 export const ROUTES = {

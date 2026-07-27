@@ -1,13 +1,13 @@
 import { behaviors, SceneFlexItem, SceneFlexLayout, SceneObject } from '@grafana/scenes';
 import { DashboardCursorSync } from '@grafana/schema';
 
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { testIds } from '../../services/testIds';
 import { FieldsBreakdownScene } from './Breakdowns/FieldsBreakdownScene';
 import { LabelBreakdownScene } from './Breakdowns/LabelBreakdownScene';
 import { PatternsBreakdownScene } from './Breakdowns/Patterns/PatternsBreakdownScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsVolumeContainerScene } from './LogsVolume/LogsVolumeContainerScene';
+import { PageSlugs, TabNames, ValueSlugs } from 'services/enums';
+import { testIds } from 'services/testIds';
 
 interface ValueBreakdownViewDefinition {
   displayName: string;

@@ -18,21 +18,21 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, LoadingPlaceholder, StackingMode, useStyles2 } from '@grafana/ui';
 
-import { ValueSlugs } from '../../../services/enums';
-import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from '../../../services/labels';
-import { getQueryRunner, setLevelColorOverrides } from '../../../services/panel';
-import { getLabelsPanelType } from '../../../services/store';
-import { getFieldsVariable, getLabelGroupByVariable } from '../../../services/variableGetters';
-import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from '../../../services/variables';
-import { getPanelWrapperStyles, PanelMenu } from '../../Panels/PanelMenu';
-import { ServiceScene } from '../ServiceScene';
 import { FieldsPanelsType } from './FieldsAggregatedBreakdownScene';
 import { LabelBreakdownScene } from './LabelBreakdownScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { SelectLabelActionScene } from './SelectLabelActionScene';
 import { ShowLabelDisplayToggle } from './ShowLabelDisplayToggle';
 import { MAX_NUMBER_OF_TIME_SERIES } from './TimeSeriesLimit';
+import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { ValueSlugs } from 'services/enums';
+import { buildLabelsQuery, LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS } from 'services/labels';
+import { getQueryRunner, setLevelColorOverrides } from 'services/panel';
 import { cancelInFlightQueries } from 'services/queries';
+import { getLabelsPanelType } from 'services/store';
+import { getFieldsVariable, getLabelGroupByVariable } from 'services/variableGetters';
+import { ALL_VARIABLE_VALUE, LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LabelsAggregatedBreakdownSceneState extends SceneObjectState {
   body?: LayoutSwitcher;

@@ -41,11 +41,40 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { areArraysEqual } from '../../services/comparison';
-import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { escapeLabelValueInExactSelector } from '../../services/extensions/scenesMethods';
-import { getDrillDownIndexLink, pushUrlHandler } from '../../services/navigate';
-import { getQueryRunnerFromChildren } from '../../services/scenes';
+import { AddLabelToFiltersHeaderActionScene } from './AddLabelToFiltersHeaderActionScene';
+import { ConfigureVolumeError } from './ConfigureVolumeError';
+import { FavoriteServiceHeaderActionScene } from './FavoriteServiceHeaderActionScene';
+import { NoServiceSearchResults } from './NoServiceSearchResults';
+import { NoServiceVolume } from './NoServiceVolume';
+import { goToLabelDrillDownLink, SelectServiceButton } from './SelectServiceButton';
+import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationScene';
+import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
+import { IndexScene, showLogsButtonSceneKey } from 'Components/IndexScene/IndexScene';
+import { ShowLogsButtonScene } from 'Components/IndexScene/ShowLogsButtonScene';
+import { ToolbarScene } from 'Components/IndexScene/ToolbarScene';
+import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
+import { ServiceFieldSelector } from 'Components/ServiceScene/Breakdowns/FieldSelector';
+import { getFeatureFlag } from 'featureFlags/openFeature';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual } from 'services/comparison';
+import { CustomConstantVariable } from 'services/CustomConstantVariable';
+import { escapeLabelValueInExactSelector } from 'services/extensions/scenesMethods';
+import { LabelType } from 'services/fieldsTypes';
+import { FieldFilter, FilterOp, LineFilterCaseSensitive, LineFilterOp, LineFilterType } from 'services/filterTypes';
+import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
+import { getMetadataService } from 'services/metadata';
+import { getDrillDownIndexLink, pushUrlHandler } from 'services/navigate';
+import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
+import {
+  buildDataQuery,
+  buildVolumeQuery,
+  renderLogQLLabelFilters,
+  unwrapWildcardSearch,
+  wrapWildcardSearch,
+} from 'services/query';
+import { getQueryRunnerFromChildren } from 'services/scenes';
+import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
+import { generateLinkFromFilters, getLogLinePermalinkFilterParams, resolveRowTimeRangeForSharing } from 'services/text';
 import {
   clearServiceSelectionSearchVariable,
   getAggregatedMetricsVariable,
@@ -55,36 +84,7 @@ import {
   getServiceSelectionPrimaryLabel,
   getServiceSelectionSearchVariable,
   setServiceSelectionPrimaryLabelKey,
-} from '../../services/variableGetters';
-import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
-import { ToolbarScene } from '../IndexScene/ToolbarScene';
-import { ServiceFieldSelector } from '../ServiceScene/Breakdowns/FieldSelector';
-import { AddLabelToFiltersHeaderActionScene } from './AddLabelToFiltersHeaderActionScene';
-import { ConfigureVolumeError } from './ConfigureVolumeError';
-import { FavoriteServiceHeaderActionScene } from './FavoriteServiceHeaderActionScene';
-import { NoServiceSearchResults } from './NoServiceSearchResults';
-import { NoServiceVolume } from './NoServiceVolume';
-import { goToLabelDrillDownLink, SelectServiceButton } from './SelectServiceButton';
-import { ServiceSelectionPaginationScene } from './ServiceSelectionPaginationScene';
-import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
-import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
-import { getFeatureFlag } from 'featureFlags/openFeature';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
-import { LabelType } from 'services/fieldsTypes';
-import { FieldFilter, FilterOp, LineFilterCaseSensitive, LineFilterOp, LineFilterType } from 'services/filterTypes';
-import { getLevelLabelsFromSeries, toggleLevelVisibility } from 'services/levels';
-import { getMetadataService } from 'services/metadata';
-import { getQueryRunner, getSceneQueryRunner, setLevelColorOverrides, UNKNOWN_LEVEL_LOGS } from 'services/panel';
-import {
-  buildDataQuery,
-  buildVolumeQuery,
-  renderLogQLLabelFilters,
-  unwrapWildcardSearch,
-  wrapWildcardSearch,
-} from 'services/query';
-import { addTabToLocalStorage, getFavoriteLabelValuesFromStorage, getServiceSelectionPageCount } from 'services/store';
-import { generateLinkFromFilters, getLogLinePermalinkFilterParams, resolveRowTimeRangeForSharing } from 'services/text';
+} from 'services/variableGetters';
 import {
   DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS,
   EXPLORATION_DS,

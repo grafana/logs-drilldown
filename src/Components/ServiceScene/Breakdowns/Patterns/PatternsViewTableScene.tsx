@@ -26,20 +26,20 @@ import {
   EmptyState,
 } from '@grafana/ui';
 
-import { isOperatorInclusive } from '../../../../services/operatorHelpers';
-import { LINE_LIMIT } from '../../../../services/query';
-import { testIds } from '../../../../services/testIds';
-import { getLevelsVariable } from '../../../../services/variableGetters';
-import { AppliedPattern, LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../../services/variables';
-import { FilterButton } from '../../../FilterButton';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { addToFilters } from '../AddToFiltersButton';
 import { onPatternClick } from './FilterByPatternsButton';
 import { PatternNameLabel } from './PatternNameLabel';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 import { PatternsFrameScene } from './PatternsFrameScene';
 import { PatternsTableExpandedRow } from './PatternsTableExpandedRow';
+import { FilterButton } from 'Components/FilterButton';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { addToFilters } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { LINE_LIMIT } from 'services/query';
 import { getExplorationFor } from 'services/scenes';
+import { testIds } from 'services/testIds';
+import { getLevelsVariable } from 'services/variableGetters';
+import { AppliedPattern, LEVEL_VARIABLE_VALUE, VAR_LEVELS } from 'services/variables';
 
 // copied from from grafana repository packages/grafana-data/src/valueFormats/categories.ts
 // that is used in Grafana codebase for "short" units
@@ -388,7 +388,10 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     return (
       <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
         <EmptyState
-          message={t('components.service-scene.breakdowns.patterns.patterns-view-table-scene.no-patterns-title', 'No patterns to display')}
+          message={t(
+            'components.service-scene.breakdowns.patterns.patterns-view-table-scene.no-patterns-title',
+            'No patterns to display'
+          )}
           variant="not-found"
         >
           {filters.length > 0

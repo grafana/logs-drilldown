@@ -7,8 +7,8 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Combobox, ComboboxOption, IconButton, Pagination, useStyles2 } from '@grafana/ui';
 
-import { setServiceSelectionPageCount } from '../../services/store';
 import { ServiceSelectionScene } from './ServiceSelectionScene';
+import { setServiceSelectionPageCount } from 'services/store';
 
 export interface ServiceSelectionPaginationSceneState extends SceneObjectState {}
 

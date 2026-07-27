@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
-import { PLUGIN_ID } from '../../services/plugin';
+import { PLUGIN_ID } from 'services/plugin';
 
 function LokiLogoComponent() {
   const styles = useStyles2(getStyles);

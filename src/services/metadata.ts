@@ -1,8 +1,8 @@
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
 
-import { ServiceSceneCustomState } from '../Components/ServiceScene/ServiceScene';
 import { DefaultLabelsSettings } from './api';
 import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
+import { ServiceSceneCustomState } from 'Components/ServiceScene/ServiceScene';
 
 let metadataService: MetadataService;
 
