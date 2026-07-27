@@ -30,7 +30,7 @@ overrides:
   # 5.0.8 with no 1.x/2.x backport, and v5 changed the CJS export shape, so forcing the
   # whole tree onto v5 breaks minimatch 3/9 ("expand is not a function"). The 1.x/2.x
   # pins below stay flagged by `pnpm audit` until minimatch's consumers move to v10.
-  'brace-expansion@^1': 1.1.16
+  'brace-expansion@^1': 5.0.8
   'brace-expansion@^2': 2.1.2
   'brace-expansion@^5': 5.0.8
   'ws@^8': 8.21.0
