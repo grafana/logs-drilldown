@@ -1,6 +1,7 @@
 import { ReactNode, useCallback, useState } from 'react';
 
 import semver from 'semver/preload';
+import { v4 as uuidv4 } from 'uuid';
 
 import { config } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
@@ -85,7 +86,7 @@ function saveInLocalStorage({ query, title, description, dsUid }: Omit<SavedSear
     query,
     timestamp: new Date().getTime(),
     title,
-    uid: crypto.randomUUID(),
+    uid: uuidv4(),
   });
 
   localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(stored));

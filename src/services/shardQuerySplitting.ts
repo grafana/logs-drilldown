@@ -1,4 +1,5 @@
 import { Observable, Subscriber, Subscription } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 import { DataFrame, DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
 
@@ -62,7 +63,7 @@ function splitQueriesByStreamShard(
   splittingTargets: LokiQuery[]
 ) {
   let shouldStop = false;
-  let mergedResponse: DataQueryResponse = { data: [], key: crypto.randomUUID(), state: LoadingState.Streaming };
+  let mergedResponse: DataQueryResponse = { data: [], key: uuidv4(), state: LoadingState.Streaming };
   let subquerySubscription: Subscription | null = null;
   let retriesMap = new Map<number, number>();
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
