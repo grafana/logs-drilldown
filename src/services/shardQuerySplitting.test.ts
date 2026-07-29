@@ -6,9 +6,9 @@ import { getMockFrames } from './combineResponses.test';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { runShardSplitQuery } from './shardQuerySplitting';
 
-beforeAll(() => {
-  jest.spyOn(crypto, 'randomUUID').mockReturnValue('00000000-0000-4000-8000-000000000000');
-});
+jest.mock('uuid', () => ({
+  v4: jest.fn().mockReturnValue('uuid'),
+}));
 
 const originalLog = console.log;
 const originalWarn = console.warn;
