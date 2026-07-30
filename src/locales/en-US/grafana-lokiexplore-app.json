@@ -936,7 +936,7 @@
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": "Range from oldest to newest logs in display"
+          "range-oldest-newest-display": "Current time range for the logs in display"
         }
       }
     },

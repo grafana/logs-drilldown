@@ -10,6 +10,11 @@ services:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
     ports: !override
       - 3001:3000/tcp
+    environment:
+      # Force Query Library off so the Playwright e2e suite deterministically exercises the local
+      # saved-search fallback across all Grafana versions. Nightly ships queryLibrary enabled by
+      # default, which swaps in Grafana's Saved Queries UI and breaks the savedSearches tests.
+      GF_FEATURE_TOGGLES_queryLibrary: 'false'
     extra_hosts:
       # This allows us to connect to other services running on the host machine.
       # 172.17.0.1 is the default Docker bridge network gateway IP address
