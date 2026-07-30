@@ -143,7 +143,6 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const isCollapsed = getLogsVolumeOption('collapsed');
     // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
-      .setOption('annotations', { multiLane: true })
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', {
         calcs: ['sum'],

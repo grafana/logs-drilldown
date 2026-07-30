@@ -10,6 +10,7 @@ import {
   Labels,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { config } from '@grafana/runtime';
 
 // these are like Labels, but their values can be
 // arbitrary structures, not just strings
@@ -214,11 +215,11 @@ export const VISIBLE_RANGE_NAME = 'Visible range';
 export function getVisibleRangeFrame(start: number, end: number) {
   const frame = arrayToDataFrame([
     {
-      color: 'rgba(58, 113, 255, 0.3)',
+      color: config.theme2.colors.text.primary,
       isRegion: true,
       text: t(
         'services.get-visible-range-frame.frame.text.range-oldest-newest-display',
-        'Range from oldest to newest logs in display'
+        'Current time range for the logs in display'
       ),
       time: start,
       timeEnd: end,
