@@ -70,7 +70,7 @@ export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<Fi
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: '#705da0',
+    fixedColor: 'semi-dark-purple',
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({

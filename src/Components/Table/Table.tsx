@@ -448,43 +448,43 @@ export const getFieldMappings = (): ValueMap => {
   return {
     options: {
       crit: {
-        color: '#705da0',
+        color: 'semi-dark-purple',
         index: 1,
       },
       critical: {
-        color: '#705da0',
+        color: 'semi-dark-purple',
         index: 0,
       },
       debug: {
-        color: '#1f78c1',
+        color: 'semi-dark-blue',
         index: 8,
       },
       eror: {
-        color: '#e24d42',
+        color: 'semi-dark-red',
         index: 4,
       },
       err: {
-        color: '#e24d42',
+        color: 'semi-dark-red',
         index: 3,
       },
       error: {
-        color: '#e24d42',
+        color: 'semi-dark-red',
         index: 2,
       },
       info: {
-        color: '#7eb26d',
+        color: 'green',
         index: 7,
       },
       trace: {
-        color: '#6ed0e0',
+        color: 'light-blue',
         index: 9,
       },
       warn: {
-        color: '#FF9900',
+        color: 'orange',
         index: 6,
       },
       warning: {
-        color: '#FF9900',
+        color: 'orange',
         index: 5,
       },
     },
