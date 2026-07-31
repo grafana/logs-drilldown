@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
 
-import { css, cx } from '@emotion/css';
+import { css } from '@emotion/css';
 import { CellProps } from 'react-table';
 
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
 import {
   AdHocFilterWithLabels,
   PanelBuilders,
@@ -161,7 +160,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       {
         cell: (props: CellProps<PatternsTableCellData>) => {
           return (
-            <div className={cx(getTablePatternTextStyles(), styles.tablePatternTextDefault)}>
+            <div className={styles.tablePatternText}>
               <PatternNameLabel
                 exploration={getExplorationFor(this)}
                 pattern={props.cell.row.original.pattern}
@@ -277,16 +276,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
   }
 }
 
-const theme = config.theme2;
-
-const getTablePatternTextStyles = () => {
-  return css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    minWidth: '200px',
-    overflow: 'hidden',
-    overflowWrap: 'break-word',
-  });
-};
+export const PATTERNS_TABLE_HEIGHT = '470px';
 
 const getTableStyles = (theme: GrafanaTheme2) => {
   return {
@@ -296,16 +286,17 @@ const getTableStyles = (theme: GrafanaTheme2) => {
     tableWrap: css({
       // Override interactive table style
       '> div': {
-        // Need to define explicit height for overflowX
-        height: 'calc(100vh - 450px)',
-        minHeight: '470px',
+        height: '100%',
       },
+      height: '100%',
+      minHeight: 0,
+      overflow: 'hidden',
       // Make table headers sticky
       th: {
         backgroundColor: theme.colors.background.canvas,
         position: 'sticky',
         top: 0,
-        zIndex: theme.zIndex.navbarFixed,
+        zIndex: 1,
       },
     }),
   };
@@ -322,7 +313,7 @@ const getColumnStyles = (theme: GrafanaTheme2) => {
     countTextWrap: css({
       fontSize: theme.typography.bodySmall.fontSize,
     }),
-    tablePatternTextDefault: css({
+    tablePatternText: css({
       fontFamily: theme.typography.fontFamilyMonospace,
       fontSize: theme.typography.bodySmall.fontSize,
       maxWidth: '100%',
