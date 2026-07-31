@@ -456,7 +456,7 @@ export const getFieldMappings = (): ValueMap => {
         index: 0,
       },
       debug: {
-        color: '#1f78c1',
+        color: '#DEB6F2',
         index: 8,
       },
       eror: {
@@ -472,7 +472,7 @@ export const getFieldMappings = (): ValueMap => {
         index: 2,
       },
       info: {
-        color: '#7eb26d',
+        color: '#1f78c1',
         index: 7,
       },
       trace: {
