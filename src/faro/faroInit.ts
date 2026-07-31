@@ -3,6 +3,7 @@ import { config, getAppPluginVersion } from '@grafana/runtime';
 import packageJson from '../../package.json';
 import { getFaro, setFaro } from './faroInstance';
 import { getFaroEnvironment } from './getFaroEnv';
+import { registerFaroInteractionEchoBackend } from './interactionEchoBackend';
 import { logger } from 'services/logger';
 import { PLUGIN_BASE_URL, PLUGIN_ID } from 'services/plugin';
 
@@ -52,6 +53,10 @@ export const initFaro = async () => {
         },
       })
     );
+
+    // mirror this plugin's reportInteraction events into faro
+    registerFaroInteractionEchoBackend();
+
     logger.info('Plugin loaded successfully', { pluginId: PLUGIN_ID, appName, environment, pluginVersion });
   } catch (error) {
     logger.error(error instanceof Error ? error : new Error(String(error)), {
