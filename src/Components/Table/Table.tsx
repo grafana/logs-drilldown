@@ -17,9 +17,7 @@ import {
   FieldWithIndex,
   GrafanaTheme2,
   Labels,
-  MappingType,
   transformDataFrame,
-  ValueMap,
 } from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
@@ -443,54 +441,6 @@ function guessLogsFieldTypeForField(field: Field): FieldType | undefined {
   // Could not find anything
   return undefined;
 }
-
-export const getFieldMappings = (): ValueMap => {
-  return {
-    options: {
-      crit: {
-        color: 'semi-dark-purple',
-        index: 1,
-      },
-      critical: {
-        color: 'semi-dark-purple',
-        index: 0,
-      },
-      debug: {
-        color: 'semi-dark-blue',
-        index: 8,
-      },
-      eror: {
-        color: 'semi-dark-red',
-        index: 4,
-      },
-      err: {
-        color: 'semi-dark-red',
-        index: 3,
-      },
-      error: {
-        color: 'semi-dark-red',
-        index: 2,
-      },
-      info: {
-        color: 'green',
-        index: 7,
-      },
-      trace: {
-        color: 'light-blue',
-        index: 9,
-      },
-      warn: {
-        color: 'orange',
-        index: 6,
-      },
-      warning: {
-        color: 'orange',
-        index: 5,
-      },
-    },
-    type: MappingType.ValueToText,
-  };
-};
 
 function buildColumnsWithMeta(columnsWithMeta: Record<FieldName, FieldNameMeta>) {
   // Create object of label filters to include columns selected by the user

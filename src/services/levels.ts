@@ -1,4 +1,4 @@
-import { DataFrame, FieldType } from '@grafana/data';
+import { DataFrame, FieldType, GrafanaTheme2, MappingType, ValueMap } from '@grafana/data';
 import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
@@ -84,6 +84,70 @@ export function normalizeLevelName(level: string) {
     return UNKNOWN_LEVEL_LOGS;
   }
   return level;
+}
+
+export const getFieldMappings = (): ValueMap => {
+  return {
+    options: {
+      crit: {
+        color: 'semi-dark-purple',
+        index: 1,
+      },
+      critical: {
+        color: 'semi-dark-purple',
+        index: 0,
+      },
+      debug: {
+        color: 'super-light-purple',
+        index: 8,
+      },
+      eror: {
+        color: 'semi-dark-red',
+        index: 4,
+      },
+      err: {
+        color: 'semi-dark-red',
+        index: 3,
+      },
+      error: {
+        color: 'semi-dark-red',
+        index: 2,
+      },
+      info: {
+        color: 'blue',
+        index: 7,
+      },
+      // Matches UNKNOWN_LEVEL_FIELD_NAME_REGEX in panel.ts, which colors these darkgray
+      [UNKNOWN_LEVEL_LOGS]: {
+        color: 'darkgray',
+        index: 10,
+      },
+      trace: {
+        color: 'light-blue',
+        index: 9,
+      },
+      unknown: {
+        color: 'darkgray',
+        index: 11,
+      },
+      warn: {
+        color: 'orange',
+        index: 6,
+      },
+      warning: {
+        color: 'orange',
+        index: 5,
+      },
+    },
+    type: MappingType.ValueToText,
+  };
+};
+
+// The mappings hold Grafana named colors, which Grafana resolves for field configs but which are
+// not valid CSS. Resolve through the theme before using one as a style value.
+export function getLevelColor(level: string, theme: GrafanaTheme2): string | undefined {
+  const color = getFieldMappings().options[normalizeLevelName(level)]?.color;
+  return color ? theme.visualization.getColorByName(color) : undefined;
 }
 
 /**

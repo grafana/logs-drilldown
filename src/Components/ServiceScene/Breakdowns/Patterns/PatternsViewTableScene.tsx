@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import { CellProps } from 'react-table';
 
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
@@ -33,6 +33,7 @@ import { PatternsTableExpandedRow } from './PatternsTableExpandedRow';
 import { FilterButton } from 'Components/FilterButton';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { addToFilters } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { getLevelColor } from 'services/levels';
 import { isOperatorInclusive } from 'services/operatorHelpers';
 import { LINE_LIMIT } from 'services/query';
 import { getExplorationFor } from 'services/scenes';
@@ -207,24 +208,24 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
         // @todo custom sort method?
         cell: (props: CellProps<PatternsTableCellData>) => {
           props.cell.row.original.levels.sort();
-          return props.cell.row.original.levels.map((level) => (
-            <Button
-              key={level}
-              size={'sm'}
-              variant={
-                filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level)
-                  ? 'primary'
-                  : 'secondary'
-              }
-              fill={'outline'}
-              className={styles.levelWrap}
-              onClick={() => {
-                props.cell.row.original.togglePatternLevel(level);
-              }}
-            >
-              {level}
-            </Button>
-          ));
+          return props.cell.row.original.levels.map((level) => {
+            const isSelected = filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level);
+            const levelColor = getLevelColor(level, theme);
+            return (
+              <Button
+                key={level}
+                size={'sm'}
+                variant={isSelected ? 'primary' : 'secondary'}
+                fill={'outline'}
+                className={cx(styles.levelWrap, levelColor && getLevelStyles(theme, levelColor, isSelected))}
+                onClick={() => {
+                  props.cell.row.original.togglePatternLevel(level);
+                }}
+              >
+                {level}
+              </Button>
+            );
+          });
         },
       });
     }
@@ -301,6 +302,25 @@ const getTableStyles = (theme: GrafanaTheme2) => {
     }),
   };
 };
+// Filled with the level color to match the log line pills. Selected levels add a ring, since the
+// fill is no longer available to signal the active filter.
+const getLevelStyles = (theme: GrafanaTheme2, levelColor: string, isSelected: boolean) =>
+  css({
+    '&:hover': {
+      backgroundColor: levelColor,
+      borderColor: levelColor,
+      color: theme.colors.getContrastText(levelColor),
+    },
+    backgroundColor: levelColor,
+    borderColor: levelColor,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.getContrastText(levelColor),
+    ...(isSelected && {
+      outline: `2px solid ${theme.colors.text.primary}`,
+      outlineOffset: '1px',
+    }),
+  });
+
 const getColumnStyles = (theme: GrafanaTheme2) => {
   return {
     levelWrap: css({
