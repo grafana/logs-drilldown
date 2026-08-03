@@ -497,10 +497,11 @@ test.describe('explore services page', () => {
           // Click "New" tab
           await addNewTab.click();
 
-          // Dropdown should be open
-          await expect(selectNewLabelSelect).toContainText('Search labels');
+          // Popover should be open with the combobox dropdown auto-opened
+          await expect(selectNewLabelSelect.getByPlaceholder('Search labels')).toBeVisible();
+          await expect(page.getByRole('listbox')).toBeVisible();
 
-          // Add "namespace" as a new tab — type to filter the dropdown so the option is in viewport
+          // Add "namespace" as a new tab — type to filter the dropdown so the option is rendered
           await page.keyboard.type('namespace');
           await page.getByRole('option', { name: 'namespace', exact: true }).click();
           await expect(newNamespaceTabLoc).toHaveCount(1);
@@ -508,10 +509,13 @@ test.describe('explore services page', () => {
           // Click "New" tab
           await addNewTab.click();
 
-          // Dropdown should be open
-          await expect(selectNewLabelSelect).toContainText('Search labels');
-          await page.getByRole('option', { name: 'level' }).click();
-          // await page.getByText(/level/, { exact: true }).click();
+          // Popover should be open with the combobox dropdown auto-opened
+          await expect(selectNewLabelSelect.getByPlaceholder('Search labels')).toBeVisible();
+          await expect(page.getByRole('listbox')).toBeVisible();
+
+          // Type to filter the dropdown so the option is rendered
+          await page.keyboard.type('level');
+          await page.getByRole('option', { name: 'level', exact: true }).click();
 
           // Assert we have 4 tabs open
           await expect(allTabLoc).toHaveCount(4);
@@ -674,12 +678,14 @@ test.describe('explore services page', () => {
         await expect(addNewTab).toHaveCount(1);
         await addNewTab.click();
 
-        // Dropdown should be open
+        // Popover should be open with the combobox dropdown auto-opened
         const selectNewLabelSelect = page.locator('[role="tooltip"]');
-        await expect(selectNewLabelSelect).toContainText('Search labels');
+        await expect(selectNewLabelSelect.getByPlaceholder('Search labels')).toBeVisible();
+        await expect(page.getByRole('listbox')).toBeVisible();
 
-        // Add "namespace" as a new tab
-        await page.getByText('namespace', { exact: true }).click();
+        // Add "namespace" as a new tab — type to filter the dropdown so the option is rendered
+        await page.keyboard.type('namespace');
+        await page.getByRole('option', { name: 'namespace', exact: true }).click();
         const newNamespaceTabLoc = page.getByTestId('data-testid Tab namespace');
         await expect(newNamespaceTabLoc).toHaveCount(1);
 
