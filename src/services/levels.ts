@@ -86,61 +86,79 @@ export function normalizeLevelName(level: string) {
   return level;
 }
 
+// Single source of truth for log level colors, shared by the value mappings below and the
+// timeseries field overrides in panel.ts (setLevelColorOverrides). Grafana named colors, which
+// resolve per theme.
+export const LEVEL_COLORS = {
+  critical: 'semi-dark-purple',
+  debug: 'semi-dark-blue',
+  error: 'semi-dark-red',
+  info: 'semi-dark-blue',
+  trace: 'light-blue',
+  unknown: 'darkgray',
+  warn: 'semi-dark-orange',
+} as const;
+
+// Built lazily: levels.ts and panel.ts import each other, so UNKNOWN_LEVEL_LOGS may not be
+// initialized yet at module scope.
+let fieldMappings: ValueMap | undefined;
+
 export const getFieldMappings = (): ValueMap => {
-  return {
+  fieldMappings ??= {
     options: {
       crit: {
-        color: 'semi-dark-purple',
+        color: LEVEL_COLORS.critical,
         index: 1,
       },
       critical: {
-        color: 'semi-dark-purple',
+        color: LEVEL_COLORS.critical,
         index: 0,
       },
       debug: {
-        color: 'super-light-purple',
+        color: LEVEL_COLORS.debug,
         index: 8,
       },
       eror: {
-        color: 'semi-dark-red',
+        color: LEVEL_COLORS.error,
         index: 4,
       },
       err: {
-        color: 'semi-dark-red',
+        color: LEVEL_COLORS.error,
         index: 3,
       },
       error: {
-        color: 'semi-dark-red',
+        color: LEVEL_COLORS.error,
         index: 2,
       },
       info: {
-        color: 'blue',
+        color: LEVEL_COLORS.info,
         index: 7,
       },
       // Matches UNKNOWN_LEVEL_FIELD_NAME_REGEX in panel.ts, which colors these darkgray
       [UNKNOWN_LEVEL_LOGS]: {
-        color: 'darkgray',
+        color: LEVEL_COLORS.unknown,
         index: 10,
       },
       trace: {
-        color: 'light-blue',
+        color: LEVEL_COLORS.trace,
         index: 9,
       },
       unknown: {
-        color: 'darkgray',
+        color: LEVEL_COLORS.unknown,
         index: 11,
       },
       warn: {
-        color: 'orange',
+        color: LEVEL_COLORS.warn,
         index: 6,
       },
       warning: {
-        color: 'orange',
+        color: LEVEL_COLORS.warn,
         index: 5,
       },
     },
     type: MappingType.ValueToText,
   };
+  return fieldMappings;
 };
 
 // The mappings hold Grafana named colors, which Grafana resolves for field configs but which are

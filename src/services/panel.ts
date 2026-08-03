@@ -29,7 +29,7 @@ import { DrawStyle, StackingMode } from '@grafana/ui';
 import { WRAPPED_LOKI_DS_UID } from './datasource';
 import { getParserForField } from './fields';
 import { getLabelsFromSeries, getVisibleFields, getVisibleLabels, getVisibleMetadata } from './labels';
-import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
+import { getLevelLabelsFromSeries, getVisibleLevels, LEVEL_COLORS } from './levels';
 import { LokiQuery } from './lokiQuery';
 import { buildResourceQuery } from './query';
 import { maxSeriesReached } from './shardQuerySplitting';
@@ -54,27 +54,27 @@ export const logsLabelLevelsMatches: Record<string, RegExp> = {
 
 export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<FieldConfig>) {
   overrides.matchFieldsWithNameByRegex(INFO_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'semi-dark-blue',
+    fixedColor: LEVEL_COLORS.info,
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'semi-dark-blue',
+    fixedColor: LEVEL_COLORS.debug,
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'semi-dark-orange',
+    fixedColor: LEVEL_COLORS.warn,
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(ERROR_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'semi-dark-red',
+    fixedColor: LEVEL_COLORS.error,
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'semi-dark-purple',
+    fixedColor: LEVEL_COLORS.critical,
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'darkgray',
+    fixedColor: LEVEL_COLORS.unknown,
     mode: 'fixed',
   });
 }
