@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { css, cx } from '@emotion/css';
+import { useResizeObserver } from '@react-aria/utils';
 import { CellProps } from 'react-table';
 
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
@@ -205,7 +206,6 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       columns.splice(1, 0, {
         header: 'Levels',
         id: 'levels',
-        // @todo custom sort method?
         cell: (props: CellProps<PatternsTableCellData>) => {
           props.cell.row.original.levels.sort();
           return props.cell.row.original.levels.map((level) => {
@@ -277,7 +277,9 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
   }
 }
 
-export const PATTERNS_TABLE_HEIGHT = '470px';
+// Small guard only — a large floor pushes the wrapper past the viewport bottom on short windows,
+// stacking a page scrollbar on top of the table's own.
+const PATTERNS_TABLE_MIN_HEIGHT = '200px';
 
 const getTableStyles = (theme: GrafanaTheme2) => {
   return {
@@ -289,8 +291,7 @@ const getTableStyles = (theme: GrafanaTheme2) => {
       '> div': {
         height: '100%',
       },
-      height: '100%',
-      minHeight: 0,
+      minHeight: PATTERNS_TABLE_MIN_HEIGHT,
       overflow: 'hidden',
       // Make table headers sticky
       th: {
@@ -359,6 +360,24 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   const theme = useTheme2();
   const styles = getTableStyles(theme);
 
+  // Fill the viewport below the table's rendered position (same approach as LogsListScene), so the
+  // visible row count adapts to the screen instead of a fixed height.
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [height, setHeight] = useState<string | undefined>(undefined);
+  const syncHeight = () => {
+    if (!wrapperRef.current) {
+      return;
+    }
+    const dimensions = wrapperRef.current.getBoundingClientRect();
+    if (dimensions.height === 0) {
+      return;
+    }
+    const offset = dimensions.y + window.scrollY;
+    setHeight(`calc(100vh - ${offset + 16}px)`);
+  };
+  useLayoutEffect(syncHeight);
+  useResizeObserver({ onResize: syncHeight, ref: wrapperRef });
+
   // Get state from parent
   const patternsFrameScene = sceneGraph.getAncestor(model, PatternsFrameScene);
   const { legendSyncPatterns } = patternsFrameScene.useState();
@@ -397,7 +416,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
 
   if (patternFrames.length === 0) {
     return (
-      <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+      <div ref={wrapperRef} style={{ height }} data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
         <EmptyState
           message={t(
             'components.service-scene.breakdowns.patterns.patterns-view-table-scene.no-patterns-title',
@@ -420,7 +439,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   }
 
   return (
-    <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+    <div ref={wrapperRef} style={{ height }} data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
       <InteractiveTable
         columns={columns}
         data={tableData}

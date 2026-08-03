@@ -20,7 +20,7 @@ import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode } from '@gr
 
 import { onPatternClick } from './FilterByPatternsButton';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
-import { PATTERNS_TABLE_HEIGHT, PatternsViewTableScene } from './PatternsViewTableScene';
+import { PatternsViewTableScene } from './PatternsViewTableScene';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from 'services/comparison';
@@ -113,7 +113,6 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
     patternFrames = this.filterPatternFramesByLevel(patternFrames);
 
     // The layout doesn't need rebuilding, just the children need the updated dataframe
-    // @todo we should probably be setting the state on this scene and subscribing to it from the children
     this.state.body?.forEachChild((child) => {
       const body = child instanceof SceneFlexItem ? child.state.body : child;
       if (body instanceof VizPanel) {
@@ -214,7 +213,8 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
           body: new PatternsViewTableScene({
             patternFrames,
           }),
-          height: PATTERNS_TABLE_HEIGHT,
+          // The table component sizes itself to fill the viewport below its rendered position
+          ySizing: 'content',
         }),
       ],
       direction: 'column',
