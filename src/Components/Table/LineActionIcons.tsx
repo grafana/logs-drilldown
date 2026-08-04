@@ -39,7 +39,7 @@ export const getStyles = (theme: GrafanaTheme2, isNumber?: boolean) => ({
     padding: '5px 3px',
   }),
   inspectButton: css({
-    borderRadius: '5px',
+    borderRadius: theme.shape.radius.default,
     display: 'inline-flex',
     margin: 0,
     overflow: 'hidden',

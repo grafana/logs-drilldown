@@ -302,8 +302,8 @@ const getStyles = (theme: GrafanaTheme2, wrapLogMessage: boolean) => {
       contain: 'content',
     }),
     highlight: css({
-      backgroundColor: 'rgb(255, 153, 0)',
-      color: 'black',
+      backgroundColor: theme.components.textHighlight.background,
+      color: theme.components.textHighlight.text,
     }),
 
     JSONTreeWrap: css`
