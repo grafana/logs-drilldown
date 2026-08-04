@@ -58,7 +58,7 @@ export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<Fi
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(DEBUG_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
-    fixedColor: 'super-light-purple',
+    fixedColor: 'dimgray',
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(WARNING_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
