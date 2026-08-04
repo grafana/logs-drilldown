@@ -1,18 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Select, Stack, useStyles2 } from '@grafana/ui';
+import { Combobox, ComboboxOption, Stack, useStyles2 } from '@grafana/ui';
 
 import { ServiceSelectionScene } from './ServiceSelectionScene';
-import { ServiceSelectionTabsScene, TabOption } from './ServiceSelectionTabsScene';
+import { ServiceSelectionTabsScene } from './ServiceSelectionTabsScene';
 
 export interface TabPopoverSceneState extends SceneObjectState {}
 
-// TODO: update combobox to auto open in grafana/ui the update the select here to combobox
 export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
   public static Component = ({ model }: SceneComponentProps<TabPopoverScene>) => {
     const serviceSelectionScene = sceneGraph.getAncestor(model, ServiceSelectionScene);
@@ -20,40 +19,41 @@ export class TabPopoverScene extends SceneObjectBase<TabPopoverSceneState> {
     const { showPopover, tabOptions } = serviceSelectionTabsScene.useState();
     const popoverStyles = useStyles2(getPopoverStyles);
 
-    const tabOptionsWithIcon: TabOption[] = tabOptions.map((opt) => {
+    // Combobox never positions a dropdown that is open on first render (0x0 menu), so mount closed and open a render later
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    const comboboxOptions: Array<ComboboxOption<string>> = tabOptions.map((opt) => {
       return {
-        ...opt,
         icon: opt.saved ? 'save' : undefined,
-        label: `${opt.label}`,
+        label: opt.label,
+        value: opt.value,
       };
     });
 
     return (
       <Stack direction="column" gap={0} role="tooltip">
         <div className={popoverStyles.card.body}>
-          {/* eslint-disable-next-line @typescript-eslint/no-deprecated -- TODO: Combobox when grafana/ui supports open-on-focus in this popover */}
-          <Select<string, { options: TabOption[] }>
-            menuShouldPortal={false}
-            menuPosition={'absolute'}
+          <Combobox<string>
             width={50}
-            onBlur={() => {
-              serviceSelectionTabsScene.toggleShowPopover();
-            }}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
-            isOpen={showPopover}
+            isOpen={mounted && showPopover}
+            onIsOpenChange={(isOpen) => {
+              serviceSelectionTabsScene.setShowPopover(isOpen);
+            }}
             placeholder={t(
               'components.service-selection-scene.tab-popover-scene.placeholder-search-labels',
               'Search labels'
             )}
-            options={tabOptionsWithIcon}
-            isSearchable={true}
-            openMenuOnFocus={true}
+            options={comboboxOptions}
             onChange={(option) => {
               // Add value to variable
               if (option.value) {
                 // Hide the popover
-                serviceSelectionTabsScene.toggleShowPopover();
+                serviceSelectionTabsScene.setShowPopover(false);
                 // Set new tab
                 serviceSelectionScene.setSelectedTab(option.value);
               }

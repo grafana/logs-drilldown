@@ -208,6 +208,12 @@ export class ServiceSelectionTabsScene extends SceneObjectBase<ServiceSelectionT
     });
   };
 
+  setShowPopover = (showPopover: boolean) => {
+    if (showPopover !== this.state.showPopover) {
+      this.setState({ showPopover });
+    }
+  };
+
   getLabelsFromQueryRunnerState(state = this.state.$labelsData?.state): LabelOptions[] | undefined {
     return state.data?.series?.[0]?.fields.map((f) => {
       return {
