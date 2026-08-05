@@ -43,7 +43,7 @@ describe('assistant', () => {
     type: 'loki',
   };
 
-  // The expected shape of the query context item appended to every non-empty context
+  // The expected shape of the query context item appended whenever a datasource resolves, even with no filters
   const expectedQueryContext = {
     node: {
       data: {
