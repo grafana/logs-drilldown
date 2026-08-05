@@ -394,6 +394,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
+      // Scenes re-activates this pathname-cached instance — reset so we re-register.
+      this.assistantInitialized = false;
     };
   }
 
@@ -543,6 +545,9 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
 
+    // Set the initial context right away — the subscriptions below only fire on changes.
+    updateAssistantContext(this, setAssistantContext);
+
     this._subs.add(
       getDataSourceVariable(this).subscribeToState(async () => {
         await updateAssistantContext(this, setAssistantContext);
@@ -561,6 +566,28 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     this._subs.add(
       getFieldsVariable(this).subscribeToState(async () => {
         await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this._subs.add(
+      getMetadataVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this._subs.add(
+      getLineFiltersVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this._subs.add(
+      getPatternsVariable(this).subscribeToState(async () => {
+        await updateAssistantContext(this, setAssistantContext);
+      })
+    );
+    this._subs.add(
+      sceneGraph.getTimeRange(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this.assistantInitialized = true;

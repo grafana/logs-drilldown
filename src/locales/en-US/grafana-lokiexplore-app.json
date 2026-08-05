@@ -1004,6 +1004,7 @@
     },
     "update-assistant-context": {
       "title": {
+        "current-logs-query-and-time-range": "Current logs query and time range",
         "parsed-fields-filters": "Parsed fields filters",
         "structured-metadata-filters": "Structured metadata filters"
       }
