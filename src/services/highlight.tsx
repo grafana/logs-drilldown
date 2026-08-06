@@ -4,6 +4,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
 import { LineFilterOp } from './filterTypes';
+import { LEVEL_COLORS } from './levels';
 import { logger } from './logger';
 
 export type TextWithHighlightedValue = Array<React.JSX.Element | string>;
@@ -167,13 +168,13 @@ export const mergeOverlapping = (matchIndices: number[][]) => {
 
 export const getLogsHighlightStyles = (theme: GrafanaTheme2) => {
   const colors = {
-    critical: theme.visualization.getColorByName('purple'),
-    debug: theme.visualization.getColorByName('dimgray'),
+    critical: theme.visualization.getColorByName(LEVEL_COLORS.critical),
+    debug: theme.visualization.getColorByName(LEVEL_COLORS.debug),
     error: theme.colors.error.text,
-    info: theme.visualization.getColorByName('blue'),
+    info: theme.visualization.getColorByName(LEVEL_COLORS.info),
     metadata: theme.colors.text.primary,
     parsedField: theme.colors.text.primary,
-    trace: '#6ed0e0',
+    trace: theme.visualization.getColorByName(LEVEL_COLORS.trace),
     warning: theme.colors.warning.text,
   };
 
