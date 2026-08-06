@@ -394,7 +394,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
-      // Scenes re-activates this pathname-cached instance — reset so we re-register.
       this.assistantInitialized = false;
     };
   }
