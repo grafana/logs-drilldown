@@ -544,7 +544,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
 
-    // Set the initial context right away (fire-and-forget) — the subscriptions below only fire on changes.
     updateAssistantContext(this, setAssistantContext).catch((error) => {
       logger.error(error, { msg: 'Failed to set initial assistant context' });
     });
