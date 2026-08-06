@@ -549,38 +549,52 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     });
 
     this._subs.add(
-      getDataSourceVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getDataSourceVariable(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLabelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLabelsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLevelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLevelsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getFieldsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getFieldsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getMetadataVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getMetadataVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLineFiltersVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLineFiltersVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getPatternsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getPatternsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
