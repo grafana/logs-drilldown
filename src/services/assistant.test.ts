@@ -1,13 +1,18 @@
 import { createAssistantContextItem } from '@grafana/assistant';
-import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
+import { AdHocFiltersVariable, SceneFlexLayout, SceneObject, SceneTimeRange } from '@grafana/scenes';
 
 import { updateAssistantContext } from './assistant';
 import { FilterOp } from './filterTypes';
+import { interpolateExpression } from './query';
 import { getLokiDatasource } from './scenes';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable, getMetadataVariable } from './variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_LEVELS, VAR_METADATA } from './variables';
 
 jest.mock('./scenes');
+// No requireActual: pulling the real ./query module drags in a circular import graph that fails at init
+jest.mock('./query', () => ({
+  interpolateExpression: jest.fn(() => '{service_name="frontend"} | logfmt'),
+}));
 jest.mock('./variableGetters', () => ({
   ...jest.requireActual('./variableGetters'),
   getFieldsVariable: jest.fn(),
@@ -38,9 +43,32 @@ describe('assistant', () => {
     type: 'loki',
   };
 
+  // The expected shape of the query context item appended whenever a datasource resolves, even with no filters
+  const expectedQueryContext = {
+    node: {
+      data: {
+        bypassLimits: true,
+        data: {
+          datasourceUid: 'loki-uid-123',
+          instructions: expect.any(String),
+          logqlQuery: '{service_name="frontend"} | logfmt',
+          timeRangeFromMs: expect.any(Number),
+          timeRangeToMs: expect.any(Number),
+        },
+        hidden: true,
+        title: 'Current logs query and time range',
+      },
+    },
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
-    mockModel = {} as SceneObject;
+    jest.mocked(interpolateExpression).mockReturnValue('{service_name="frontend"} | logfmt');
+    // A real scene with a time range so sceneGraph.getTimeRange resolves
+    mockModel = new SceneFlexLayout({
+      $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
+      children: [],
+    }) as SceneObject;
     mockSetAssistantContext = jest.fn();
     jest.mocked(getLabelsVariable).mockReturnValue(
       new AdHocFiltersVariable({
@@ -121,11 +149,13 @@ describe('assistant', () => {
         datasourceUid: 'loki-uid-123',
         labelName: 'service',
         labelValue: 'frontend',
+        operator: FilterOp.Equal,
       });
       expect(mockCreateAssistantContextItem).toHaveBeenCalledWith('label_value', {
         datasourceUid: 'loki-uid-123',
         labelName: 'environment',
         labelValue: 'production',
+        operator: FilterOp.Equal,
       });
     });
 
@@ -147,6 +177,7 @@ describe('assistant', () => {
         datasourceUid: 'loki-uid-123',
         labelName: 'app',
         labelValue: 'api-server',
+        operator: FilterOp.Equal,
       });
     });
 
@@ -242,6 +273,7 @@ describe('assistant', () => {
               datasourceUid: 'loki-uid-123',
               labelName: 'label',
               labelValue: 'value',
+              operator: '=',
             },
           },
         },
@@ -251,6 +283,7 @@ describe('assistant', () => {
               datasourceUid: 'loki-uid-123',
               labelName: 'detected_level',
               labelValue: 'error',
+              operator: '=',
             },
           },
         },
@@ -260,6 +293,7 @@ describe('assistant', () => {
               datasourceUid: 'loki-uid-123',
               labelName: 'detected_level',
               labelValue: 'warning',
+              operator: '=',
             },
           },
         },
@@ -271,7 +305,8 @@ describe('assistant', () => {
                 fieldName: 'metadata1',
                 fieldValue: 'value1',
                 instructions:
-                  'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
+                  'Do not use this in stream selectors, use this with a pipe filter: `| fieldName operator "fieldValue"`',
+                operator: '=',
               },
               hidden: true,
               title: 'Structured metadata filters',
@@ -284,9 +319,10 @@ describe('assistant', () => {
               data: {
                 datasourceUid: 'loki-uid-123',
                 fieldName: 'metadata2',
-                fieldValue: '!=value2',
+                fieldValue: 'value2',
                 instructions:
-                  'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
+                  'Do not use this in stream selectors, use this with a pipe filter: `| fieldName operator "fieldValue"`',
+                operator: '!=',
               },
               hidden: true,
               title: 'Structured metadata filters',
@@ -300,6 +336,7 @@ describe('assistant', () => {
                 datasourceUid: 'loki-uid-123',
                 fieldName: 'field1',
                 fieldValue: 'value1',
+                operator: '=',
                 parser: 'logfmt',
               },
               hidden: true,
@@ -313,7 +350,8 @@ describe('assistant', () => {
               data: {
                 datasourceUid: 'loki-uid-123',
                 fieldName: 'field2',
-                fieldValue: '!=value2',
+                fieldValue: 'value2',
+                operator: '!=',
                 parser: 'json',
               },
               hidden: true,
@@ -321,6 +359,7 @@ describe('assistant', () => {
             },
           },
         },
+        expectedQueryContext,
       ]);
     });
   });

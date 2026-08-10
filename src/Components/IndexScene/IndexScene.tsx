@@ -394,6 +394,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
+      this.assistantInitialized = false;
     };
   }
 
@@ -543,24 +544,64 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
 
+    updateAssistantContext(this, setAssistantContext).catch((error) => {
+      logger.error(error, { msg: 'Failed to set initial assistant context' });
+    });
+
     this._subs.add(
-      getDataSourceVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getDataSourceVariable(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLabelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLabelsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLevelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLevelsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getFieldsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getFieldsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      getMetadataVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      getLineFiltersVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      getPatternsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      sceneGraph.getTimeRange(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this.assistantInitialized = true;
