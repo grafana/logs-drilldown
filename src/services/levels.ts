@@ -1,4 +1,5 @@
 import { DataFrame, FieldType, GrafanaTheme2, MappingType, ValueMap } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
@@ -91,11 +92,13 @@ export function normalizeLevelName(level: string) {
 // resolve per theme.
 export const LEVEL_COLORS = {
   critical: 'semi-dark-purple',
-  debug: 'semi-dark-blue',
+  // dimgray fails WCAG AA contrast (~3.2:1) on dark backgrounds, so use a lighter gray in dark theme
+  debug: config.theme2.isDark ? '#9e9e9e' : 'dimgray',
   error: 'semi-dark-red',
   info: 'semi-dark-blue',
   trace: 'light-blue',
-  unknown: 'darkgray',
+  // matches LogLevelColor for unknown in grafana core logsModel.ts
+  unknown: config.theme2.isDark ? '#8e8e8e' : '#bdc4cd',
   warn: 'semi-dark-orange',
 } as const;
 
