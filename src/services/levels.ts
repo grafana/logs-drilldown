@@ -97,7 +97,8 @@ export const LEVEL_COLORS = {
   error: 'semi-dark-red',
   info: 'semi-dark-blue',
   trace: 'light-blue',
-  unknown: 'darkgray',
+  // matches LogLevelColor for unknown in grafana core logsModel.ts
+  unknown: config.theme2.isDark ? '#8e8e8e' : '#bdc4cd',
   warn: 'semi-dark-orange',
 } as const;
 
