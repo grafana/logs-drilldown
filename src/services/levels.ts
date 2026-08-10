@@ -1,4 +1,5 @@
 import { DataFrame, FieldType, GrafanaTheme2, MappingType, ValueMap } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
@@ -91,7 +92,8 @@ export function normalizeLevelName(level: string) {
 // resolve per theme.
 export const LEVEL_COLORS = {
   critical: 'semi-dark-purple',
-  debug: 'dimgray',
+  // dimgray fails WCAG AA contrast (~3.2:1) on dark backgrounds, so use a lighter gray in dark theme
+  debug: config.theme2.isDark ? '#9e9e9e' : 'dimgray',
   error: 'semi-dark-red',
   info: 'semi-dark-blue',
   trace: 'light-blue',
