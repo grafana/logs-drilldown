@@ -10,6 +10,15 @@ ignoreScripts: true
 minimumReleaseAge: 7200
 # Fail install if a package's trust evidence is weaker than an earlier release (e.g. lost trusted publisher).
 trustPolicy: no-downgrade
+# Exemptions for entries that cannot resolve to an attested version: each is a
+# transitive dep whose parent range can't reach one. Pinned to exact versions so
+# any new version has to be re-reviewed. Re-audit as these trees move.
+trustPolicyExclude:
+  - 'chokidar@4.0.3' # fork-ts-checker-webpack-plugin wants ^4; 4.0.3 is last 4.x (3.6.0 was attested)
+  - 'react-redux@8.1.3 || 9.2.0' # @hello-pangea/dnd wants ^8 (8.1.2 attested) or ^9 via @grafana/ui
+  - 'semver@6.3.1' # @babel/core (via jest tooling) wants ^6; 6.3.1 is last 6.x
+  - 'ua-parser-js@1.0.41' # @grafana/faro-web-sdk pins this exact version
+  - '@reduxjs/toolkit@2.10.1' # @grafana/api-clients pins this exact version
 # Transitive deps must come from the registry/workspace; block git/tarball URLs except on direct deps.
 blockExoticSubdeps: true
 # Requires every dependency with a lifecycle script to be listed in allowBuilds
