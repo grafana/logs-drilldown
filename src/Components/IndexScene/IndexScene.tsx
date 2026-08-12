@@ -33,47 +33,6 @@ import { VariableHide } from '@grafana/schema';
 import { LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../../module';
-import { reportAppInteraction } from '../../services/analytics';
-import { areArraysEqual } from '../../services/comparison';
-import { CustomConstantVariable } from '../../services/CustomConstantVariable';
-import { LOKI_CONFIG_API_NOT_SUPPORTED } from '../../services/datasourceTypes';
-import { PageSlugs } from '../../services/enums';
-import { getFieldsTagValuesExpression } from '../../services/expressions';
-import { isFilterMetadata } from '../../services/filters';
-import { FilterOp, LineFilterType } from '../../services/filterTypes';
-import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from '../../services/keyboardShortcuts';
-import { logger } from '../../services/logger';
-import { getMetadataService } from '../../services/metadata';
-import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from '../../services/narrowing';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { lineFilterOperators, operators } from '../../services/operators';
-import { getConfigQueryRunner } from '../../services/panel';
-import { renderPatternFilters } from '../../services/renderPatternFilters';
-import { getDrilldownSlug, SERVICE_URL_EXCLUDED_KEYS } from '../../services/routing';
-import { getLokiDatasource } from '../../services/scenes';
-import { getFieldsKeysProvider, getLabelsTagKeysProvider } from '../../services/TagKeysProviders';
-import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from '../../services/TagValuesProviders';
-import { filterInvalidTimeOptions, getQuickOptions } from '../../services/timePicker';
-import {
-  getDataSourceVariable,
-  getFieldsAndMetadataVariable,
-  getFieldsVariable,
-  getJSONFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-  getLineFiltersVariable,
-  getLineFormatVariable,
-  getMetadataVariable,
-  getPatternsVariable,
-  getUrlParamNameForVariable,
-} from '../../services/variableGetters';
-import { areLabelFiltersEqual, operatorFunction } from '../../services/variableHelpers';
-import { JsonData } from '../AppConfig/AppConfig';
-import { isDefaultColumnsSupported } from '../AppConfig/DefaultColumns/isSupported';
-import { NoLokiSplash } from '../NoLokiSplash';
-import { DEFAULT_TIME_RANGE } from '../Pages';
-import { ServiceScene } from '../ServiceScene/ServiceScene';
-import { ServiceSelectionScene } from '../ServiceSelectionScene/ServiceSelectionScene';
 import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
 import {
   CONTROLS_JSON_FIELDS,
@@ -91,15 +50,36 @@ import {
 import { ShowLogsButtonScene } from './ShowLogsButtonScene';
 import { ToolbarScene } from './ToolbarScene';
 import { IndexSceneState } from './types';
+import { JsonData } from 'Components/AppConfig/AppConfig';
+import { isDefaultColumnsSupported } from 'Components/AppConfig/DefaultColumns/isSupported';
 import { isDefaultLabelsSupported } from 'Components/AppConfig/ServiceSelection/isSupported';
+import { NoLokiSplash } from 'Components/NoLokiSplash';
+import { DEFAULT_TIME_RANGE } from 'Components/Pages';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { ServiceSelectionScene } from 'Components/ServiceSelectionScene/ServiceSelectionScene';
 import { getFeatureFlag } from 'featureFlags/openFeature';
+import { reportAppInteraction } from 'services/analytics';
 import { getDefaultLabelSettings } from 'services/api';
 import {
   provideServiceBreakdownQuestions,
   provideServiceSelectionQuestions,
   updateAssistantContext,
 } from 'services/assistant';
+import { areArraysEqual } from 'services/comparison';
+import { CustomConstantVariable } from 'services/CustomConstantVariable';
+import { LOKI_CONFIG_API_NOT_SUPPORTED } from 'services/datasourceTypes';
+import { PageSlugs } from 'services/enums';
+import { getFieldsTagValuesExpression } from 'services/expressions';
+import { isFilterMetadata } from 'services/filters';
+import { FilterOp, LineFilterType } from 'services/filterTypes';
+import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from 'services/keyboardShortcuts';
+import { logger } from 'services/logger';
 import { getLevelsFromLogsVolume } from 'services/logsVolume';
+import { getMetadataService } from 'services/metadata';
+import { narrowDrilldownLabelFromSearchParams, narrowPageSlugFromSearchParams } from 'services/narrowing';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { lineFilterOperators, operators } from 'services/operators';
+import { getConfigQueryRunner } from 'services/panel';
 import {
   getJsonParserSegment,
   getLogfmtParserSegment,
@@ -119,11 +99,31 @@ import {
   renderLogQLLineFilter,
   renderLogQLMetadataFilters,
 } from 'services/query';
+import { renderPatternFilters } from 'services/renderPatternFilters';
+import { getDrilldownSlug, SERVICE_URL_EXCLUDED_KEYS } from 'services/routing';
+import { getLokiDatasource } from 'services/scenes';
 import {
   addLastUsedDataSourceToStorage,
   getDefaultDatasourceFromDatasourceSrv,
   getLastUsedDataSourceFromStorage,
 } from 'services/store';
+import { getFieldsKeysProvider, getLabelsTagKeysProvider } from 'services/TagKeysProviders';
+import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from 'services/TagValuesProviders';
+import { filterInvalidTimeOptions, getQuickOptions } from 'services/timePicker';
+import {
+  getDataSourceVariable,
+  getFieldsAndMetadataVariable,
+  getFieldsVariable,
+  getJSONFieldsVariable,
+  getLabelsVariable,
+  getLevelsVariable,
+  getLineFiltersVariable,
+  getLineFormatVariable,
+  getMetadataVariable,
+  getPatternsVariable,
+  getUrlParamNameForVariable,
+} from 'services/variableGetters';
+import { areLabelFiltersEqual, operatorFunction } from 'services/variableHelpers';
 import {
   AdHocFiltersWithLabelsAndMeta,
   AppliedPattern,
@@ -394,6 +394,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     return () => {
       clearKeyBindings();
       assistantUnregister.forEach((callback) => callback.unregister());
+      this.assistantInitialized = false;
     };
   }
 
@@ -543,24 +544,64 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private provideAssistantContext() {
     const setAssistantContext = providePageContext(`${PLUGIN_BASE_URL}/**`, []);
 
+    updateAssistantContext(this, setAssistantContext).catch((error) => {
+      logger.error(error, { msg: 'Failed to set initial assistant context' });
+    });
+
     this._subs.add(
-      getDataSourceVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getDataSourceVariable(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLabelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLabelsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getLevelsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getLevelsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this._subs.add(
-      getFieldsVariable(this).subscribeToState(async () => {
-        await updateAssistantContext(this, setAssistantContext);
+      getFieldsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      getMetadataVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      getLineFiltersVariable(this).subscribeToState(async (newState, prevState) => {
+        if (!areArraysEqual(newState.filters, prevState.filters)) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      getPatternsVariable(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
+      })
+    );
+    this._subs.add(
+      sceneGraph.getTimeRange(this).subscribeToState(async (newState, prevState) => {
+        if (newState.value !== prevState.value) {
+          await updateAssistantContext(this, setAssistantContext);
+        }
       })
     );
     this.assistantInitialized = true;

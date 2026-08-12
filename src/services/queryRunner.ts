@@ -1,10 +1,10 @@
 import { sceneGraph, SceneObject, SceneQueryRunner } from '@grafana/scenes';
 
-import { FieldValuesBreakdownScene } from '../Components/ServiceScene/Breakdowns/FieldValuesBreakdownScene';
-import { LabelValuesBreakdownScene } from '../Components/ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 import { logger } from './logger';
 import { interpolateExpression } from './query';
 import { getQueryRunnerFromChildren } from './scenes';
+import { FieldValuesBreakdownScene } from 'Components/ServiceScene/Breakdowns/FieldValuesBreakdownScene';
+import { LabelValuesBreakdownScene } from 'Components/ServiceScene/Breakdowns/LabelValuesBreakdownScene';
 
 export function getQueryRunnerFromSceneGraph(sceneRef: SceneObject) {
   const $data = sceneGraph.getData(sceneRef);

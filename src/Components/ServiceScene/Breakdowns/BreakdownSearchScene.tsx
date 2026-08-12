@@ -6,11 +6,11 @@ import { BusEventBase } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 
-import { logger } from '../../../services/logger';
 import { ByFrameRepeater } from './ByFrameRepeater';
 import { FieldsBreakdownScene } from './FieldsBreakdownScene';
 import { LabelBreakdownScene } from './LabelBreakdownScene';
 import { SearchInput } from './SearchInput';
+import { logger } from 'services/logger';
 
 export class BreakdownSearchReset extends BusEventBase {
   public static type = 'breakdown-search-reset';
@@ -39,7 +39,10 @@ export class BreakdownSearchScene extends SceneObjectBase<BreakdownSearchSceneSt
           value={filter}
           onChange={model.onValueFilterChange}
           onClear={model.clearValueFilter}
-          placeholder={t('components.service-scene.breakdowns.breakdown-search-scene.placeholder-search-for-value', 'Search for value')}
+          placeholder={t(
+            'components.service-scene.breakdowns.breakdown-search-scene.placeholder-search-for-value',
+            'Search for value'
+          )}
         />
       </div>
     );

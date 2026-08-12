@@ -6,9 +6,9 @@ import { DataQueryError, GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { Alert, EmptyState, LinkButton, useStyles2 } from '@grafana/ui';
 
-import { PageSlugs } from '../../../services/enums';
-import { getDrillDownTabLink } from '../../../services/navigate';
-import { ServiceScene } from '../ServiceScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { PageSlugs } from 'services/enums';
+import { getDrillDownTabLink } from 'services/navigate';
 
 export const MaxSeriesRegex = /maximum of series \(\d+\) reached for a single query/;
 
@@ -97,7 +97,9 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
           <>
             <p>
               <strong>
-                <Trans i18nKey="components.service-scene.breakdowns.query-error-alert.max-series-limit-exceeded">Max series limit exceeded</Trans>
+                <Trans i18nKey="components.service-scene.breakdowns.query-error-alert.max-series-limit-exceeded">
+                  Max series limit exceeded
+                </Trans>
               </strong>
               : {props.err.message}.
             </p>
@@ -116,7 +118,10 @@ function ErrorMessage(props: { err: DataQueryError; label: string }) {
               </Trans>
             </p>
             <p>
-              <Trans i18nKey="components.service-scene.breakdowns.query-error-alert.tip-reduce-range" values={{ label: props.label }}>
+              <Trans
+                i18nKey="components.service-scene.breakdowns.query-error-alert.tip-reduce-range"
+                values={{ label: props.label }}
+              >
                 <strong>Tip:</strong> Reduce the time range, or add additional filters to reduce the number of unique
                 values in the {'{{label}}'} field.
               </Trans>

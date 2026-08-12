@@ -46,7 +46,10 @@ export function LabelList() {
                       <Box paddingBottom={1}>
                         <div {...provided.dragHandleProps}>
                           <Icon
-                            aria-label={t('components.app-config.service-selection.label-list.aria-label-drag-and-drop-icon', 'Drag and drop icon')}
+                            aria-label={t(
+                              'components.app-config.service-selection.label-list.aria-label-drag-and-drop-icon',
+                              'Drag and drop icon'
+                            )}
                             title={t(
                               'components.app-config.service-selection.label-list.title-drag-and-drop-to-reorder',
                               'Drag and drop to reorder'
@@ -107,7 +110,9 @@ export function Label({ label, labels }: LabelProps) {
           <div className={styles.label}>{label.label}</div>
           <IconButton
             variant="destructive"
-            tooltip={t('components.app-config.service-selection.label-list.tooltip-remove-label', 'Remove {{label}}', { label: label.label })}
+            tooltip={t('components.app-config.service-selection.label-list.tooltip-remove-label', 'Remove {{label}}', {
+              label: label.label,
+            })}
             name="trash-alt"
             size="lg"
             onClick={handleRemove}
@@ -142,9 +147,17 @@ function LabelValues({ label, onRemoveValue }: LabelValuesProps) {
             <Stack alignItems="center" justifyContent="space-between">
               <Tag name={value} />
               <IconButton
-                aria-label={t('components.app-config.service-selection.label-list.aria-label-remove-value', 'Remove {{value}}', { value })}
+                aria-label={t(
+                  'components.app-config.service-selection.label-list.aria-label-remove-value',
+                  'Remove {{value}}',
+                  { value }
+                )}
                 variant="destructive"
-                tooltip={t('components.app-config.service-selection.label-list.tooltip-remove-value', 'Remove {{value}}', { value })}
+                tooltip={t(
+                  'components.app-config.service-selection.label-list.tooltip-remove-value',
+                  'Remove {{value}}',
+                  { value }
+                )}
                 name="trash-alt"
                 size="sm"
                 onClick={() => onRemoveValue(value)}

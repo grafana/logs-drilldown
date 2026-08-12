@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { css, cx } from '@emotion/css';
+import { useResizeObserver } from '@react-aria/utils';
 import { CellProps } from 'react-table';
 
 import { DataFrame, GrafanaTheme2, LoadingState, PanelData, scaledUnits } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
 import {
   AdHocFilterWithLabels,
   PanelBuilders,
@@ -26,20 +26,21 @@ import {
   EmptyState,
 } from '@grafana/ui';
 
-import { isOperatorInclusive } from '../../../../services/operatorHelpers';
-import { LINE_LIMIT } from '../../../../services/query';
-import { testIds } from '../../../../services/testIds';
-import { getLevelsVariable } from '../../../../services/variableGetters';
-import { AppliedPattern, LEVEL_VARIABLE_VALUE, VAR_LEVELS } from '../../../../services/variables';
-import { FilterButton } from '../../../FilterButton';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { addToFilters } from '../AddToFiltersButton';
 import { onPatternClick } from './FilterByPatternsButton';
 import { PatternNameLabel } from './PatternNameLabel';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 import { PatternsFrameScene } from './PatternsFrameScene';
 import { PatternsTableExpandedRow } from './PatternsTableExpandedRow';
+import { FilterButton } from 'Components/FilterButton';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { addToFilters } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { getLevelColor } from 'services/levels';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { LINE_LIMIT } from 'services/query';
 import { getExplorationFor } from 'services/scenes';
+import { testIds } from 'services/testIds';
+import { getLevelsVariable } from 'services/variableGetters';
+import { AppliedPattern, LEVEL_VARIABLE_VALUE, VAR_LEVELS } from 'services/variables';
 
 // copied from from grafana repository packages/grafana-data/src/valueFormats/categories.ts
 // that is used in Grafana codebase for "short" units
@@ -161,7 +162,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       {
         cell: (props: CellProps<PatternsTableCellData>) => {
           return (
-            <div className={cx(getTablePatternTextStyles(), styles.tablePatternTextDefault)}>
+            <div className={styles.tablePatternText}>
               <PatternNameLabel
                 exploration={getExplorationFor(this)}
                 pattern={props.cell.row.original.pattern}
@@ -205,27 +206,26 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       columns.splice(1, 0, {
         header: 'Levels',
         id: 'levels',
-        // @todo custom sort method?
         cell: (props: CellProps<PatternsTableCellData>) => {
           props.cell.row.original.levels.sort();
-          return props.cell.row.original.levels.map((level) => (
-            <Button
-              key={level}
-              size={'sm'}
-              variant={
-                filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level)
-                  ? 'primary'
-                  : 'secondary'
-              }
-              fill={'outline'}
-              className={styles.levelWrap}
-              onClick={() => {
-                props.cell.row.original.togglePatternLevel(level);
-              }}
-            >
-              {level}
-            </Button>
-          ));
+          return props.cell.row.original.levels.map((level) => {
+            const isSelected = filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level);
+            const levelColor = getLevelColor(level, theme);
+            return (
+              <Button
+                key={level}
+                size={'sm'}
+                variant={isSelected ? 'primary' : 'secondary'}
+                fill={'outline'}
+                className={cx(styles.levelWrap, levelColor && getLevelStyles(theme, levelColor, isSelected))}
+                onClick={() => {
+                  props.cell.row.original.togglePatternLevel(level);
+                }}
+              >
+                {level}
+              </Button>
+            );
+          });
         },
       });
     }
@@ -277,16 +277,9 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
   }
 }
 
-const theme = config.theme2;
-
-const getTablePatternTextStyles = () => {
-  return css({
-    fontFamily: theme.typography.fontFamilyMonospace,
-    minWidth: '200px',
-    overflow: 'hidden',
-    overflowWrap: 'break-word',
-  });
-};
+// Small guard only — a large floor pushes the wrapper past the viewport bottom on short windows,
+// stacking a page scrollbar on top of the table's own.
+const PATTERNS_TABLE_MIN_HEIGHT = '200px';
 
 const getTableStyles = (theme: GrafanaTheme2) => {
   return {
@@ -296,20 +289,39 @@ const getTableStyles = (theme: GrafanaTheme2) => {
     tableWrap: css({
       // Override interactive table style
       '> div': {
-        // Need to define explicit height for overflowX
-        height: 'calc(100vh - 450px)',
-        minHeight: '470px',
+        height: '100%',
       },
+      minHeight: PATTERNS_TABLE_MIN_HEIGHT,
+      overflow: 'hidden',
       // Make table headers sticky
       th: {
         backgroundColor: theme.colors.background.canvas,
         position: 'sticky',
         top: 0,
-        zIndex: theme.zIndex.navbarFixed,
+        zIndex: 1,
       },
     }),
   };
 };
+// Filled with the level color to match the log line pills. Selected levels add a ring, since the
+// fill is no longer available to signal the active filter.
+const getLevelStyles = (theme: GrafanaTheme2, levelColor: string, isSelected: boolean) =>
+  css({
+    '&:hover': {
+      backgroundColor: levelColor,
+      borderColor: levelColor,
+      color: theme.colors.getContrastText(levelColor),
+    },
+    backgroundColor: levelColor,
+    borderColor: levelColor,
+    borderRadius: theme.shape.radius.default,
+    color: theme.colors.getContrastText(levelColor),
+    ...(isSelected && {
+      outline: `2px solid ${theme.colors.text.primary}`,
+      outlineOffset: '1px',
+    }),
+  });
+
 const getColumnStyles = (theme: GrafanaTheme2) => {
   return {
     levelWrap: css({
@@ -322,7 +334,7 @@ const getColumnStyles = (theme: GrafanaTheme2) => {
     countTextWrap: css({
       fontSize: theme.typography.bodySmall.fontSize,
     }),
-    tablePatternTextDefault: css({
+    tablePatternText: css({
       fontFamily: theme.typography.fontFamilyMonospace,
       fontSize: theme.typography.bodySmall.fontSize,
       maxWidth: '100%',
@@ -347,6 +359,24 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   const { patterns: appliedPatterns } = indexScene.useState();
   const theme = useTheme2();
   const styles = getTableStyles(theme);
+
+  // Fill the viewport below the table's rendered position (same approach as LogsListScene), so the
+  // visible row count adapts to the screen instead of a fixed height.
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [height, setHeight] = useState<string | undefined>(undefined);
+  const syncHeight = () => {
+    if (!wrapperRef.current) {
+      return;
+    }
+    const dimensions = wrapperRef.current.getBoundingClientRect();
+    if (dimensions.height === 0) {
+      return;
+    }
+    const offset = dimensions.y + window.scrollY;
+    setHeight(`calc(100vh - ${offset + 16}px)`);
+  };
+  useLayoutEffect(syncHeight);
+  useResizeObserver({ onResize: syncHeight, ref: wrapperRef });
 
   // Get state from parent
   const patternsFrameScene = sceneGraph.getAncestor(model, PatternsFrameScene);
@@ -386,9 +416,12 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
 
   if (patternFrames.length === 0) {
     return (
-      <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+      <div ref={wrapperRef} style={{ height }} data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
         <EmptyState
-          message={t('components.service-scene.breakdowns.patterns.patterns-view-table-scene.no-patterns-title', 'No patterns to display')}
+          message={t(
+            'components.service-scene.breakdowns.patterns.patterns-view-table-scene.no-patterns-title',
+            'No patterns to display'
+          )}
           variant="not-found"
         >
           {filters.length > 0
@@ -406,7 +439,7 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   }
 
   return (
-    <div data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+    <div ref={wrapperRef} style={{ height }} data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
       <InteractiveTable
         columns={columns}
         data={tableData}

@@ -15,24 +15,6 @@ import {
 } from '@grafana/scenes';
 import { PanelChrome, useStyles2 } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysStrictlyEqual } from '../../services/comparison';
-import { getVariableForLabel } from '../../services/fields';
-import { getAllLabelsFromDataFrame } from '../../services/labels';
-import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from '../../services/logFieldNames';
-import { setControlsExpandedStateFromLocalStorage } from '../../services/scenes';
-import {
-  getLogOption,
-  getTableLogLine,
-  setDisplayedFieldsInStorage,
-  setLogOption,
-  setTableLogLine,
-} from '../../services/store';
-import { clearVariables } from '../../services/variableHelpers';
-import { PanelMenu } from '../Panels/PanelMenu';
-import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from '../Table/constants';
-import { LogLineState } from '../Table/Context/TableColumnsContext';
-import { LogsPanelHeaderActions } from '../Table/LogsHeaderActions';
 import { addAdHocFilter } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LineLimitScene } from './LineLimitScene';
@@ -40,13 +22,31 @@ import { LogListControls } from './LogListControls';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame } from './ServiceScene';
+import { PanelMenu } from 'Components/Panels/PanelMenu';
+import { DEFAULT_URL_COLUMNS, DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
+import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
+import { LogsPanelHeaderActions } from 'Components/Table/LogsHeaderActions';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysStrictlyEqual } from 'services/comparison';
+import { getVariableForLabel } from 'services/fields';
+import { getAllLabelsFromDataFrame } from 'services/labels';
+import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'services/logFieldNames';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
+import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
+import {
+  getLogOption,
+  getTableLogLine,
+  setDisplayedFieldsInStorage,
+  setLogOption,
+  setTableLogLine,
+} from 'services/store';
+import { clearVariables } from 'services/variableHelpers';
 
-const TableProvider = lazy(() => import('../Table/TableProvider'));
+const TableProvider = lazy(() => import('Components/Table/TableProvider'));
 
 interface LogsTableSceneState extends SceneObjectState {
   canClearFilters?: boolean;

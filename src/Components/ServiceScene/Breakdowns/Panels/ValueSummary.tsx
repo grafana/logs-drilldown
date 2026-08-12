@@ -15,27 +15,22 @@ import {
 } from '@grafana/scenes';
 import { DrawStyle, PanelContext, SeriesVisibilityChangeMode, StackingMode } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../../services/analytics';
-import { toggleFieldFromFilter, toggleLabelFromFilter } from '../../../../services/labels';
-import { toggleLevelFromFilter } from '../../../../services/levels';
-import { logger } from '../../../../services/logger';
+import { CollapsablePanelText, PanelMenu } from 'Components/Panels/PanelMenu';
+import { FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { toggleFieldFromFilter, toggleLabelFromFilter } from 'services/labels';
+import { toggleLevelFromFilter } from 'services/levels';
+import { logger } from 'services/logger';
 import {
   setLevelColorOverrides,
   setPanelNotices,
   syncFieldsValueSummaryVisibleSeries,
   syncLabelsValueSummaryVisibleSeries,
   syncLevelsVisibleSeries,
-} from '../../../../services/panel';
-import { getPanelOption, setPanelOption } from '../../../../services/store';
-import {
-  getFieldsVariable,
-  getLabelsVariable,
-  getLevelsVariable,
-  getMetadataVariable,
-} from '../../../../services/variableGetters';
-import { LEVEL_VARIABLE_VALUE } from '../../../../services/variables';
-import { CollapsablePanelText, PanelMenu } from '../../../Panels/PanelMenu';
-import { FilterType } from '../AddToFiltersButton';
+} from 'services/panel';
+import { getPanelOption, setPanelOption } from 'services/store';
+import { getFieldsVariable, getLabelsVariable, getLevelsVariable, getMetadataVariable } from 'services/variableGetters';
+import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 const SUMMARY_PANEL_SERIES_LIMIT = 100;
 

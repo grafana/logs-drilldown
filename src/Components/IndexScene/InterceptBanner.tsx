@@ -9,7 +9,7 @@ import { Alert, useStyles2 } from '@grafana/ui';
 export function InterceptBanner(props: { onRemove: () => void }) {
   const styles = useStyles2(getStyles);
   return (
-    <>
+    <div className={styles.bannerContainer}>
       <Alert
         className={styles.alert}
         severity={'info'}
@@ -57,7 +57,7 @@ export function InterceptBanner(props: { onRemove: () => void }) {
           </Trans>
         </div>
       </Alert>
-    </>
+    </div>
   );
 }
 
@@ -65,6 +65,9 @@ function getStyles(theme: GrafanaTheme2) {
   return {
     alert: css({
       flex: 'none',
+    }),
+    bannerContainer: css({
+      padding: theme.spacing(2, 2, 0, 2),
     }),
   };
 }

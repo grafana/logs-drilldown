@@ -2,7 +2,7 @@ import React from 'react';
 
 import { SceneComponentProps, SceneObjectBase, SceneObjectState, VizPanel } from '@grafana/scenes';
 
-import { TimeSeriesQueryType } from '../../Panels/PanelMenu';
+import { TimeSeriesQueryType } from 'Components/Panels/PanelMenu';
 
 export interface FieldsVizPanelWrapperState extends SceneObjectState {
   queryType: TimeSeriesQueryType;

@@ -2,13 +2,10 @@ import React from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import {
-  JSONHighlightLineFilterMatches,
-  JSONHighlightRegexMatches,
-} from '../../../services/JSONHighlightLineFilterMatches';
-import { JSONDataFrameLinksName, JSONLogsScene } from '../JSONLogsScene';
 import JSONLinkNodeButton from './JSONLinkNodeButton';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
+import { JSONDataFrameLinksName, JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
+import { JSONHighlightLineFilterMatches, JSONHighlightRegexMatches } from 'services/JSONHighlightLineFilterMatches';
 import { hasFieldParentNode, isTimeLabelNode } from 'services/JSONVizNodes';
 import { logsSyntaxMatches } from 'services/logsSyntaxMatches';
 

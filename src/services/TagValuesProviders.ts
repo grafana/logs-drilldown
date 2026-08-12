@@ -4,7 +4,6 @@ import { DataSourceGetTagValuesOptions, GetTagResponse, MetricFindValue, ScopedV
 import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { UIVariableFilterType } from '../Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { ExpressionBuilder } from './ExpressionBuilder';
 import { FilterOp } from './filterTypes';
 import { logger } from './logger';
@@ -14,6 +13,7 @@ import { getDataSource } from './scenes';
 import { getFavoriteLabelValuesFromStorage } from './store';
 import { getDataSourceVariable, getValueFromFieldsFilter } from './variableGetters';
 import { AdHocFiltersWithLabelsAndMeta, DetectedFieldType, VAR_LEVELS } from './variables';
+import type { UIVariableFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 
 type FetchDetectedLabelValuesOptions = {
   expr?: string;

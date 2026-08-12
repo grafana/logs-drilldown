@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 
 import { reportInteraction } from '@grafana/runtime';
 
-import { logger } from '../../../services/logger';
-import { FieldNameMetaStore } from '../TableTypes';
 import { LogsColumnSearch } from 'Components/Table/ColumnSelection/LogsColumnSearch';
 import { LogsTableMultiSelect } from 'Components/Table/ColumnSelection/LogsTableMultiSelect';
 import { LEVEL, DETECTED_LEVEL } from 'Components/Table/constants';
 import { useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
+import { FieldNameMetaStore } from 'Components/Table/TableTypes';
+import { logger } from 'services/logger';
 
 export function getReorderColumn(setColumns: (cols: FieldNameMetaStore) => void) {
   return (columns: FieldNameMetaStore, sourceIndex: number, destinationIndex: number) => {

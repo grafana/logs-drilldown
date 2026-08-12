@@ -23,7 +23,7 @@ cards:
       height: 24
     - title: Get started
       href: ./get-started/
-      description: Install Grafana Logs Drilldown and take a tour of Grafana Logs Drilldown using your own data.
+      description: Install Grafana Logs Drilldown and take a tour of Logs Drilldown using your own data.
       height: 24
     - title: Learn about Labels and Fields
       href: ./labels-and-fields/
@@ -53,7 +53,7 @@ Welcome to our new experience for Loki. Grafana Logs Drilldown lets you automati
 
 {{< docs/learning-journeys title="Explore logs using Logs Drilldown" url="https://grafana.com/docs/learning-journeys/drilldown-logs/" >}}
 
-Using Grafana Logs Drilldown you can:
+Using Logs Drilldown you can:
 
 - Easily find logs and log volumes for all of your services.
 - Effortlessly filter logs based on their labels, fields, or patterns.
@@ -67,11 +67,11 @@ Using Grafana Logs Drilldown you can:
 
 ## Who is Grafana Logs Drilldown for?
 
-Grafana Logs Drilldown is for engineers of all levels of operational expertise. You no longer need to be an SRE wizard to get value from your logs.
+Logs Drilldown is for engineers of all levels of operational expertise. You no longer need to be an SRE wizard to get value from your logs.
 
 Traditionally, you'd need a deep understanding of your systems and Loki's query language, LogQL, in order to get the most out of Loki.
 
-With Grafana Logs Drilldown, you get the same powerful insights, by just viewing and clicking in visualizations which are automatically generated from your log data.
+With Logs Drilldown, you get the same powerful insights, by just viewing and clicking in visualizations which are automatically generated from your log data.
 
 ## Explore
 
@@ -79,10 +79,10 @@ With Grafana Logs Drilldown, you get the same powerful insights, by just viewing
 
 ## Share your feedback
 
-Use the **Give feedback** link on each Grafana Logs Drilldown page to share your thoughts with the team building Grafana Logs Drilldown.
+Use the **Give feedback** link on each Logs Drilldown page to share your thoughts with the team building Logs Drilldown.
 
-You can also fill out [this Google form](https://forms.gle/1sYWCTPvD72T1dPH9) to send your thoughts directly to the team building Grafana Logs Drilldown.
+You can also fill out [this Google form](https://forms.gle/1sYWCTPvD72T1dPH9) to send your thoughts directly to the team building Logs Drilldown.
 
 ## What's next?
 
-Dive into [Get started with Grafana Logs Drilldown](get-started/) to learn how to set up Grafana Logs Drilldown and take a tour of the feature using your own data.
+Dive into [Get started with Grafana Logs Drilldown](get-started/) to learn how to set up Logs Drilldown and take a tour of the feature using your own data.

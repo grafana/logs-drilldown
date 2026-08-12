@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react';
 
 import { AdHocFilterWithLabels, SceneTimeRange, UrlSyncContextProvider } from '@grafana/scenes';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { isOperatorRegex } from '../../services/operatorHelpers';
-import { AdHocFiltersWithLabelsAndMeta, FieldValue } from '../../services/variables';
-import { drilldownLabelUrlKey, pageSlugUrlKey } from '../ServiceScene/ServiceSceneConstants';
 import { EmbeddedLogsExplorationProps } from './types';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from 'Components/ServiceScene/ServiceSceneConstants';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import initRuntimeDs from 'services/datasource';
 import { getKgSceneProps } from 'services/kgAnnotations';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
-import { addAdHocFilterUserInputPrefix } from 'services/variables';
+import { isOperatorRegex } from 'services/operatorHelpers';
+import { AdHocFiltersWithLabelsAndMeta, FieldValue, addAdHocFilterUserInputPrefix } from 'services/variables';
 
 export function buildLogsExplorationFromState({
   onTimeRangeChange,

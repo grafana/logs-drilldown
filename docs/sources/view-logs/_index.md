@@ -8,38 +8,64 @@ weight: 500
 
 The logs visualization in Grafana Logs Drilldown displays log lines from your Loki data source with filtering options and controls to customize how data is displayed.
 
+A line filter search field appears at the top of the page. Enter text to filter your logs to lines that contain, or exclude, that text.
+
+## Visualization types
+
+On the **Logs** tab, use the radio buttons in the panel header to switch how your logs are displayed:
+
+- **Logs**: The default log line list, with the [log controls](#log-controls) and [log details](#log-details).
+- **Table**: Displays logs in a table with a column for each displayed field. You can add or remove columns, sort by a column, resize columns, and wrap text. Your column selection and sizes are remembered.
+- **JSON**: Opens the dedicated JSON viewer for logs formatted as JSON. For more information, refer to [Logs Drilldown JSON viewer](../viewing-json-logs/).
+
+{{< docs/public-preview product="the native logs table" featureFlag="logsTablePanelNG" >}}
+
+When the `logsTablePanelNG` feature flag is enabled, the **Table** view renders your logs using Grafana's native logs table panel.
+
 ## Log controls
 
 The controls component provides options to interact with and customize the log list. You can jump to the top or bottom, change sort order, filter by string or level, use deduplication, and choose display options such as timestamp format or color highlighting.
 
 From top to bottom, the log controls include:
 
-* **Expand/collapse controls**: Show or hide the full controls toolbar.
-* **Scroll to the bottom**: Jump to the last log line in the view.
-* **Sort direction**: Toggle between ascending (oldest logs first) or descending (newest logs first) order.
-* **Client-side string search**: Click to open or close client-side string search for displayed results.
-* **Deduplication**: Hide duplicate log lines using a few different deduplication algorithms.
-  * **None**: Disables deduplication.
-  * **Exact**: Matches on the whole line except for date fields.
-  * **Numbers**: Matches after stripping out numbers such as durations, IP addresses, and so on.
-  * **Signature**: The most aggressive deduplication as it strips all letters and numbers and matches on the remaining whitespace and punctuation.
-* **Filter logs by log level**: Filter logs by level, such as All levels, Info, Warn, and Error.
-* **Set timestamp format**: Hide timestamps, show millisecond timestamps, or show nanosecond timestamps.
-* **Line wrapping control**:
-  * **Disabled**: Log lines are truncated.
-  * **Enabled**: Log lines wrap to multiple lines.
-  * **Enabled with JSON formatting**: Pretty-prints JSON log lines.
-* **Logs highlighting**: Toggle between plain text and color highlighting.
-* **Font size control**: Toggle between small (default) and large font.
-* **Unescape newlines**: Displayed when logs contain escaped new lines. Click to render escaped new lines as new lines.
-* **Download logs**: Download in plain text (txt), JavaScript Object Notation (JSON), or Comma-separated values (CSV) format.
-* **Scroll to the top**: Jump to the first log line in the view.
+- **Expand/collapse controls**: Show or hide the full controls toolbar.
+- **Scroll to the bottom**: Jump to the last log line in the view.
+- **Sort direction**: Toggle between ascending (oldest logs first) or descending (newest logs first) order.
+- **Client-side string search**: Click to open or close client-side string search for displayed results.
+- **Deduplication**: Hide duplicate log lines using a few different deduplication algorithms.
+  - **None**: Disables deduplication.
+  - **Exact**: Matches on the whole line except for date fields.
+  - **Numbers**: Matches after stripping out numbers such as durations, IP addresses, and so on.
+  - **Signature**: The most aggressive deduplication as it strips all letters and numbers and matches on the remaining whitespace and punctuation.
+- **Filter logs by log level**: Filter logs by level, such as All levels, Info, Warn, and Error.
+- **Set timestamp format**: Hide timestamps, show millisecond timestamps, or show nanosecond timestamps.
+- **Line wrapping control**:
+  - **Disabled**: Log lines are truncated.
+  - **Enabled**: Log lines wrap to multiple lines.
+  - **Enabled with JSON formatting**: Pretty-prints JSON log lines.
+- **Logs highlighting**: Toggle between plain text and color highlighting.
+- **Font size control**: Toggle between small (default) and large font.
+- **Unescape newlines**: Displayed when logs contain escaped new lines. Click to render escaped new lines as new lines.
+- **Download logs**: Download in plain text (txt), JavaScript Object Notation (JSON), or Comma-separated values (CSV) format.
+- **Scroll to the top**: Jump to the first log line in the view.
 
 {{< admonition type="note" >}}
 When you are in [JSON view](../viewing-json-logs/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
 {{< /admonition >}}
 
-## Log Details
+## Panel menu
+
+Most panels in Logs Drilldown have a menu that you open by clicking the menu icon (three vertical dots) in the panel header. The available options depend on the panel and your Grafana configuration:
+
+- **Explore**: Opens Grafana Explore with a query based on your current selections.
+- **Add to Dashboard**: Adds the panel to a new or existing dashboard.
+- **Create alert**: Creates an alert rule from the panel's query.
+- **Expand logs view** or **Condense logs view**: On the logs panel, toggles the logs list between fitting the available height and expanding to fill the screen.
+- **Explain in Assistant**: Sends the panel's query to Grafana Assistant for an explanation.
+
+Some options, such as **Add to Dashboard**, **Create alert**, and **Explain in Assistant**, appear only when the corresponding Grafana feature is available.
+
+## Log details
 
 The **Log details** component is displayed when you click a log line. It shows additional information from that log line in collapsible sections, including fields (usually key-value pairs) and links (derived fields, correlations, and more).
 
@@ -47,8 +73,8 @@ The **Log details** component is displayed when you click a log line. It shows a
 
 Within the Log details view, you have the ability to filter the displayed fields in two ways:
 
-* **Positive filter**: Focuses on a specific field
-* **Negative filter**: Excludes certain fields
+- **Positive filter**: Focuses on a specific field
+- **Negative filter**: Excludes certain fields
 
 These filters modify the corresponding query that generated the log line, incorporating equality and inequality expressions accordingly.
 
@@ -66,7 +92,7 @@ Grafana provides data links or correlations, allowing you to convert any part of
 
 ### Log details modes
 
-There are two modes available to view log details: 
+There are two modes available to view log details:
 
 - **Inline log details** display the log details below the log line within the log list.
 
@@ -77,6 +103,8 @@ No matter which display mode you are currently viewing, you can change it by cli
 ## Highlighting
 
 The logs visualization implements a predefined set of rules to apply subtle colors to the log lines, to help with readability and help with identifying important information faster. This is an optional feature that can be disabled in the controls or in the panel options.
+
+Log levels are also color-coded to help you scan for errors and warnings. For example, `debug` lines use a neutral gray and `info` lines use a neutral blue.
 
 ## Log Context
 

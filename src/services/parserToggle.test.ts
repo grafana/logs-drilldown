@@ -142,7 +142,9 @@ describe('setParserEnabled', () => {
 
     expect(logfmtParserVariable.state.value).toBe(LOGFMT_PARSER_SEGMENT);
     expect(logfmtParserVariable.state.text).toBe(LOGFMT_PARSER_SEGMENT);
-    expect(logfmtParserVariable.state.options).toEqual([{ label: LOGFMT_PARSER_SEGMENT, value: LOGFMT_PARSER_SEGMENT }]);
+    expect(logfmtParserVariable.state.options).toEqual([
+      { label: LOGFMT_PARSER_SEGMENT, value: LOGFMT_PARSER_SEGMENT },
+    ]);
   });
 
   test('clears the parser variables with empty segments when disabled', () => {
@@ -176,9 +178,9 @@ describe('setParserEnabled', () => {
   });
 
   test('does not touch variables that are not CustomConstantVariable instances', () => {
-    jest.mocked(sceneGraph.lookupVariable).mockReturnValue({ setState: jest.fn() } as unknown as ReturnType<
-      typeof sceneGraph.lookupVariable
-    >);
+    jest
+      .mocked(sceneGraph.lookupVariable)
+      .mockReturnValue({ setState: jest.fn() } as unknown as ReturnType<typeof sceneGraph.lookupVariable>);
 
     expect(() => setParserEnabled(true, sceneRef)).not.toThrow();
   });

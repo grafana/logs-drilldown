@@ -7,8 +7,8 @@ import { useTheme2 } from '@grafana/ui';
 
 import { CellContextMenu } from 'Components/Table/CellContextMenu';
 import { useTableCellContext } from 'Components/Table/Context/TableCellContext';
-import { getFieldMappings } from 'Components/Table/Table';
 import { isLabelLevel } from 'services/labels';
+import { getLevelColor } from 'services/levels';
 
 interface DefaultPillProps {
   field: Field;
@@ -67,11 +67,8 @@ export const DefaultPill = (props: DefaultPillProps) => {
   const { cellIndex } = useTableCellContext();
   let levelColor;
 
-  if (isLabelLevel(label)) {
-    const mappings = getFieldMappings().options;
-    if (typeof value === 'string' && value in mappings) {
-      levelColor = mappings[value].color;
-    }
+  if (isLabelLevel(label) && typeof value === 'string') {
+    levelColor = getLevelColor(value, theme);
   }
 
   const isPillActive = cellIndex.index === props.rowIndex && props.field.name === cellIndex.fieldName;

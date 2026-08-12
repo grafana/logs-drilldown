@@ -936,7 +936,7 @@
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": "Range from oldest to newest logs in display"
+          "range-oldest-newest-display": "Current time range for the logs in display"
         }
       }
     },
@@ -1004,6 +1004,7 @@
     },
     "update-assistant-context": {
       "title": {
+        "current-logs-query-and-time-range": "Current logs query and time range",
         "parsed-fields-filters": "Parsed fields filters",
         "structured-metadata-filters": "Structured metadata filters"
       }

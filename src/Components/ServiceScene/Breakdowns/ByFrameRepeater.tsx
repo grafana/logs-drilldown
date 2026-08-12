@@ -20,12 +20,12 @@ import {
 } from '@grafana/scenes';
 import { Alert, Button } from '@grafana/ui';
 
-import { logger } from '../../../services/logger';
-import { fuzzySearch } from '../../../services/search';
 import { BreakdownSearchReset } from './BreakdownSearchScene';
 import { LayoutSwitcher } from './LayoutSwitcher';
 import { VALUE_SUMMARY_PANEL_KEY } from './Panels/ValueSummary';
 import { getLabelValue } from './SortByScene';
+import { logger } from 'services/logger';
+import { fuzzySearch } from 'services/search';
 import { sortSeries } from 'services/sorting';
 
 interface ByFrameRepeaterState extends SceneObjectState {
@@ -201,11 +201,16 @@ function buildNoResultsScene(filter: string, clearFilter: () => void) {
           reactNode: (
             <div className={styles.alertContainer}>
               <Alert title="" severity="info" className={styles.noResultsAlert}>
-                <Trans i18nKey="components.service-scene.breakdowns.by-frame-repeater.no-values-found" values={{ filter }}>
+                <Trans
+                  i18nKey="components.service-scene.breakdowns.by-frame-repeater.no-values-found"
+                  values={{ filter }}
+                >
                   No values found matching &ldquo;{'{{filter}}'}&rdquo;
                 </Trans>
                 <Button className={styles.clearButton} onClick={clearFilter}>
-                  <Trans i18nKey="components.service-scene.breakdowns.by-frame-repeater.clear-filter">Clear filter</Trans>
+                  <Trans i18nKey="components.service-scene.breakdowns.by-frame-repeater.clear-filter">
+                    Clear filter
+                  </Trans>
                 </Button>
               </Alert>
             </div>

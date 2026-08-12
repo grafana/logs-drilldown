@@ -6,7 +6,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
-import { LineLimitScene } from '../ServiceScene/LineLimitScene';
+import { LineLimitScene } from 'Components/ServiceScene/LineLimitScene';
 import { LogsVisualizationType } from 'services/store';
 
 export interface LogsPanelHeaderActionsProps {

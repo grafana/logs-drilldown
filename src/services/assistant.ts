@@ -1,9 +1,9 @@
 import { createAssistantContextItem, providePageContext, provideQuestions } from '@grafana/assistant';
 import { t } from '@grafana/i18n';
-import { SceneObject } from '@grafana/scenes';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { FilterOp } from './filterTypes';
 import { PLUGIN_BASE_URL } from './plugin';
+import { interpolateExpression } from './query';
 import { getLokiDatasource } from './scenes';
 import {
   getFieldsVariable,
@@ -12,7 +12,7 @@ import {
   getMetadataVariable,
   getValueFromFieldsFilter,
 } from './variableGetters';
-import { stripAdHocFilterUserInputPrefix } from './variables';
+import { LOG_STREAM_SELECTOR_EXPR, stripAdHocFilterUserInputPrefix } from './variables';
 
 export const updateAssistantContext = async (
   model: SceneObject,
@@ -38,7 +38,8 @@ export const updateAssistantContext = async (
         createAssistantContextItem('label_value', {
           datasourceUid: ds.uid,
           labelName: filter.key,
-          labelValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(filter.value)}`,
+          labelValue: stripAdHocFilterUserInputPrefix(filter.value),
+          operator: filter.operator,
         })
       )
     );
@@ -52,6 +53,7 @@ export const updateAssistantContext = async (
           datasourceUid: ds.uid,
           labelName: filter.key,
           labelValue: filter.value,
+          operator: filter.operator,
         })
       )
     );
@@ -70,9 +72,10 @@ export const updateAssistantContext = async (
           data: {
             datasourceUid: ds.uid,
             fieldName: filter.key,
-            fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(filter.value)}`,
+            fieldValue: stripAdHocFilterUserInputPrefix(filter.value),
+            operator: filter.operator,
             instructions:
-              'Do not use this in stream selectors, use this with a pipe filter: `| fieldName="fieldValue"`',
+              'Do not use this in stream selectors, use this with a pipe filter: `| fieldName operator "fieldValue"`',
           },
         });
       })
@@ -91,19 +94,37 @@ export const updateAssistantContext = async (
             datasourceUid: ds.uid,
             fieldName: filter.key,
             parser: parsedFilter.parser,
-            fieldValue: `${inequalityPrefix(filter.operator)}${stripAdHocFilterUserInputPrefix(parsedFilter.value)}`,
+            fieldValue: stripAdHocFilterUserInputPrefix(parsedFilter.value),
+            operator: filter.operator,
           },
         });
       })
     );
   }
 
+  // No assistant context types exist for time range, line filters, or patterns — ship the rendered query and window instead.
+  const timeRange = sceneGraph.getTimeRange(model).state.value;
+  contexts.push(
+    createAssistantContextItem('structured', {
+      title: t(
+        'services.update-assistant-context.title.current-logs-query-and-time-range',
+        'Current logs query and time range'
+      ),
+      hidden: true,
+      bypassLimits: true,
+      data: {
+        datasourceUid: ds.uid,
+        logqlQuery: interpolateExpression(model, LOG_STREAM_SELECTOR_EXPR),
+        timeRangeFromMs: timeRange.from.valueOf(),
+        timeRangeToMs: timeRange.to.valueOf(),
+        instructions:
+          'The exact LogQL query and time range for the logs the user is currently viewing in Logs Drilldown. timeRangeFromMs/timeRangeToMs are unix millisecond timestamps — pass them directly as the start/end parameters of Loki tools without converting them. Prefer this query and time range when reading, querying, or summarizing the logs.',
+      },
+    })
+  );
+
   setAssistantContext(contexts);
 };
-
-function inequalityPrefix(operator: string) {
-  return operator !== FilterOp.Equal ? operator : '';
-}
 
 export function provideServiceSelectionQuestions() {
   return provideQuestions(`${PLUGIN_BASE_URL}/**`, [

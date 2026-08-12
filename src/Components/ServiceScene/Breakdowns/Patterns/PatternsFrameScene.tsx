@@ -8,8 +8,9 @@ import { config } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
-  SceneCSSGridLayout,
   SceneDataNode,
+  SceneFlexItem,
+  SceneFlexLayout,
   sceneGraph,
   SceneObjectBase,
   SceneObjectState,
@@ -17,20 +18,20 @@ import {
 } from '@grafana/scenes';
 import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode } from '@grafana/ui';
 
-import { areArraysEqual } from '../../../../services/comparison';
-import { logger } from '../../../../services/logger';
-import { isOperatorInclusive } from '../../../../services/operatorHelpers';
-import { getLevelsVariable } from '../../../../services/variableGetters';
-import { IndexScene } from '../../../IndexScene/IndexScene';
-import { ServiceScene } from '../../ServiceScene';
 import { onPatternClick } from './FilterByPatternsButton';
 import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
 import { PatternsViewTableScene } from './PatternsViewTableScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import { areArraysEqual } from 'services/comparison';
+import { logger } from 'services/logger';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { getLevelsVariable } from 'services/variableGetters';
 
-const palette = config.theme2.visualization.palette;
+const PATTERNS_TIMESERIES_HEIGHT = '200px';
 
 export interface PatternsFrameSceneState extends SceneObjectState {
-  body?: SceneCSSGridLayout;
+  body?: SceneFlexLayout;
   legendSyncPatterns: Set<string>;
   loading?: boolean;
 }
@@ -111,16 +112,16 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
   private async updatePatterns(patternFrames: PatternFrame[] = []) {
     patternFrames = this.filterPatternFramesByLevel(patternFrames);
 
-    // CSS Grid doesn't need rebuilding, just the children need the updated dataframe
-    // @todo we should probably be setting the state on this scene and subscribing to it from the children
+    // The layout doesn't need rebuilding, just the children need the updated dataframe
     this.state.body?.forEachChild((child) => {
-      if (child instanceof VizPanel) {
-        child.setState({
+      const body = child instanceof SceneFlexItem ? child.state.body : child;
+      if (body instanceof VizPanel) {
+        body.setState({
           $data: this.getTimeseriesDataNode(patternFrames),
         });
       }
-      if (child instanceof PatternsViewTableScene) {
-        child.setState({
+      if (body instanceof PatternsViewTableScene) {
+        body.setState({
           patternFrames,
         });
       }
@@ -202,17 +203,21 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
 
     const timeSeries = this.getTimeSeries(patternFrames);
 
-    return new SceneCSSGridLayout({
-      autoRows: '200px',
+    return new SceneFlexLayout({
       children: [
-        timeSeries,
-        new PatternsViewTableScene({
-          patternFrames,
+        new SceneFlexItem({
+          body: timeSeries,
+          height: PATTERNS_TIMESERIES_HEIGHT,
+        }),
+        new SceneFlexItem({
+          body: new PatternsViewTableScene({
+            patternFrames,
+          }),
+          // The table component sizes itself to fill the viewport below its rendered position
+          ySizing: 'content',
         }),
       ],
-      isLazy: true,
-
-      templateColumns: '100%',
+      direction: 'column',
     });
   }
 
@@ -290,9 +295,10 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
   }
 }
 
-export function overrideToFixedColor(key: keyof typeof palette): FieldColor {
+export function overrideToFixedColor(index: number): FieldColor {
+  const { palette } = config.theme2.visualization;
   return {
-    fixedColor: palette[key] as string,
+    fixedColor: palette[index % palette.length],
     mode: 'fixed',
   };
 }

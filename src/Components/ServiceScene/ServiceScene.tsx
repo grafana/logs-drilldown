@@ -27,21 +27,49 @@ import { LogsSortOrder, VariableHide } from '@grafana/schema';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../../module';
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysEqual } from '../../services/comparison';
-import { LOKI_CONFIG_API_NOT_SUPPORTED, LokiConfig, LokiConfigNotSupported } from '../../services/datasourceTypes';
-import { PageSlugs, TabNames, ValueSlugs } from '../../services/enums';
-import { escapePrimaryLabel } from '../../services/extensions/links';
-import { clearJSONParserFields } from '../../services/fields';
-import { filterUnusedJSONFilters } from '../../services/filters';
-import { logger } from '../../services/logger';
-import { getMetadataService } from '../../services/metadata';
-import { migrateLineFilterV1 } from '../../services/migrations';
-import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from '../../services/narrowing';
-import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from '../../services/navigate';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from '../../services/routing';
-import { findObjectOfType } from '../../services/scenes';
+import { ActionBarScene } from './ActionBarScene';
+import { AddToDashboardModal } from './AddToDashboardModal';
+import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
+import { CreateAlertModal } from './CreateAlertModal';
+import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
+import { LogsListScene } from './LogsListScene';
+import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
+import { JsonData } from 'Components/AppConfig/AppConfig';
+import { IndexScene, showLogsButtonSceneKey } from 'Components/IndexScene/IndexScene';
+import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
+import {
+  LINE_FILTER_VARIABLES_SCENE_KEY,
+  LineFilterVariablesScene,
+} from 'Components/IndexScene/LineFilter/LineFilterVariablesScene';
+import { ResetFiltersButton } from 'Components/IndexScene/ResetFiltersButton';
+import { ShowLogsButtonScene } from 'Components/IndexScene/ShowLogsButtonScene';
+import {
+  AddToDashboardData,
+  AddToDashboardEvent,
+  CreateAlertData,
+  CreateAlertEvent,
+} from 'Components/Panels/PanelMenu';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual } from 'services/comparison';
+import { LOKI_CONFIG_API_NOT_SUPPORTED, LokiConfig, LokiConfigNotSupported } from 'services/datasourceTypes';
+import { getDefaultColumnsForActiveFilters } from 'services/defaultColumns';
+import { PageSlugs, TabNames, ValueSlugs } from 'services/enums';
+import { escapePrimaryLabel } from 'services/extensions/links';
+import { clearJSONParserFields } from 'services/fields';
+import { filterUnusedJSONFilters } from 'services/filters';
+import { logger } from 'services/logger';
+import { LokiQueryDirection } from 'services/lokiQuery';
+import { getMetadataService } from 'services/metadata';
+import { migrateLineFilterV1 } from 'services/migrations';
+import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from 'services/narrowing';
+import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from 'services/navigate';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
+import { getPatternsCount } from 'services/patterns';
+import { buildDataQuery, buildResourceQuery } from 'services/query';
+import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from 'services/routing';
+import { findObjectOfType } from 'services/scenes';
+import { getLogOption, getMaxLines } from 'services/store';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -52,35 +80,7 @@ import {
   getLineFormatVariable,
   getMetadataVariable,
   getPatternsVariable,
-} from '../../services/variableGetters';
-import { JsonData } from '../AppConfig/AppConfig';
-import { IndexScene, showLogsButtonSceneKey } from '../IndexScene/IndexScene';
-import { LEVELS_VARIABLE_SCENE_KEY, LevelsVariableScene } from '../IndexScene/LevelsVariableScene';
-import {
-  LINE_FILTER_VARIABLES_SCENE_KEY,
-  LineFilterVariablesScene,
-} from '../IndexScene/LineFilter/LineFilterVariablesScene';
-import { ResetFiltersButton } from '../IndexScene/ResetFiltersButton';
-import { ShowLogsButtonScene } from '../IndexScene/ShowLogsButtonScene';
-import { ActionBarScene } from './ActionBarScene';
-import { AddToDashboardModal } from './AddToDashboardModal';
-import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
-import { CreateAlertModal } from './CreateAlertModal';
-import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
-import { LogsListScene } from './LogsListScene';
-import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
-import {
-  AddToDashboardData,
-  AddToDashboardEvent,
-  CreateAlertData,
-  CreateAlertEvent,
-} from 'Components/Panels/PanelMenu';
-import { getDefaultColumnsForActiveFilters } from 'services/defaultColumns';
-import { LokiQueryDirection } from 'services/lokiQuery';
-import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
-import { getPatternsCount } from 'services/patterns';
-import { buildDataQuery, buildResourceQuery } from 'services/query';
-import { getLogOption, getMaxLines } from 'services/store';
+} from 'services/variableGetters';
 import {
   DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,

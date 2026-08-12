@@ -19,17 +19,6 @@ import {
 } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../services/analytics';
-import { areArraysEqual, areArraysStrictlyEqual } from '../../services/comparison';
-import { logger } from '../../services/logger';
-import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from '../../services/narrowing';
-import { getRouteParams } from '../../services/routing';
-import { getLabelsVariable } from '../../services/variableGetters';
-import { getVariablesThatCanBeCleared } from '../../services/variableHelpers';
-import { IndexScene } from '../IndexScene/IndexScene';
-import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from '../Table/constants';
-import { LogLineState } from '../Table/Context/TableColumnsContext';
-import { SelectedTableRow } from '../Table/LogLineCellComponent';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { ErrorType } from './LogsPanelError';
@@ -38,8 +27,17 @@ import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
 import { ServiceScene } from './ServiceScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { DEFAULT_URL_COLUMNS, DEFAULT_URL_COLUMNS_LEVELS } from 'Components/Table/constants';
+import { LogLineState } from 'Components/Table/Context/TableColumnsContext';
+import { SelectedTableRow } from 'Components/Table/LogLineCellComponent';
 import { getFeatureFlag } from 'featureFlags/openFeature';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { areArraysEqual, areArraysStrictlyEqual } from 'services/comparison';
+import { logger } from 'services/logger';
 import { isEmptyLogsResult } from 'services/logsFrame';
+import { narrowLogsVisualizationType, narrowSelectedTableRow, unknownToStrings } from 'services/narrowing';
+import { getRouteParams } from 'services/routing';
 import {
   getBooleanLogOption,
   getDisplayedFieldsInStorage,
@@ -51,6 +49,8 @@ import {
   setDisplayedFieldsInStorage,
   setLogsVisualizationType,
 } from 'services/store';
+import { getLabelsVariable } from 'services/variableGetters';
+import { getVariablesThatCanBeCleared } from 'services/variableHelpers';
 
 export interface LogsListSceneState extends SceneObjectState {
   $timeRange?: SceneTimeRangeLike;

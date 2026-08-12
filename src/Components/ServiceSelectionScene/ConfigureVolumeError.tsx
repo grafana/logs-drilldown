@@ -7,7 +7,10 @@ export const ConfigureVolumeError = () => {
   return (
     <EmptyState
       variant="not-found"
-      message={t('components.service-selection-scene.configure-volume-error.title', 'Log volume has not been configured.')}
+      message={t(
+        'components.service-selection-scene.configure-volume-error.title',
+        'Log volume has not been configured.'
+      )}
     >
       <p>
         <TextLink href="https://grafana.com/docs/loki/latest/reference/api/#query-log-volume" external>

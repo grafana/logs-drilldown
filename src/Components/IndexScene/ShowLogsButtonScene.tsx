@@ -7,10 +7,10 @@ import { Trans } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { LinkButton, useStyles2 } from '@grafana/ui';
 
-import { getDrillDownIndexLink } from '../../services/navigate';
-import { isOperatorInclusive } from '../../services/operatorHelpers';
-import { testIds } from '../../services/testIds';
-import { getLabelsVariable } from '../../services/variableGetters';
+import { getDrillDownIndexLink } from 'services/navigate';
+import { isOperatorInclusive } from 'services/operatorHelpers';
+import { testIds } from 'services/testIds';
+import { getLabelsVariable } from 'services/variableGetters';
 
 export interface ShowLogsButtonSceneState extends SceneObjectState {
   disabled?: boolean;

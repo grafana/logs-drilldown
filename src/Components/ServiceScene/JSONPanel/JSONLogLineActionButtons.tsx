@@ -5,13 +5,13 @@ import { isNumber } from 'lodash';
 import { DataFrame, Field } from '@grafana/data';
 import { SceneDataProvider, sceneGraph } from '@grafana/scenes';
 
-import { isLogLineField, isLogsIdField } from '../../../services/fields';
-import { logger } from '../../../services/logger';
-import { copyText, generateLogRowShortlink, getPermalinkLogRowFromDataFrame } from '../../../services/text';
-import CopyToClipboardButton from '../../Buttons/CopyToClipboardButton';
-import { JSONLogsScene } from '../JSONLogsScene';
-import { getLogsPanelFrame } from '../ServiceScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
+import CopyToClipboardButton from 'Components/Buttons/CopyToClipboardButton';
+import { JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
+import { getLogsPanelFrame } from 'Components/ServiceScene/ServiceScene';
+import { isLogLineField, isLogsIdField } from 'services/fields';
+import { logger } from 'services/logger';
+import { copyText, generateLogRowShortlink, getPermalinkLogRowFromDataFrame } from 'services/text';
 
 interface Props {
   keyPath: KeyPath;

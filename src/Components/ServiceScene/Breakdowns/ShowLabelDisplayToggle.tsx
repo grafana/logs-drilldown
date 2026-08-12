@@ -4,9 +4,9 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps } from '@grafana/scenes';
 import { Stack, Switch, Tooltip } from '@grafana/ui';
 
-import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from '../../../services/analytics';
-import { setLabelsPanelType } from '../../../services/store';
 import { LabelsAggregatedBreakdownScene } from './LabelsAggregatedBreakdownScene';
+import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { setLabelsPanelType } from 'services/store';
 
 export function ShowLabelDisplayToggle({ model }: SceneComponentProps<LabelsAggregatedBreakdownScene>) {
   const { labelsPanelsType } = model.useState();

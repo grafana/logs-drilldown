@@ -34,9 +34,13 @@ function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabe
     <div className={sharedStyles.emptyStateWrap}>
       <EmptyState
         variant="not-found"
-        message={t('components.service-scene.breakdowns.no-matching-labels-scene.title', 'No {{type}} match these filters.', {
-          type,
-        })}
+        message={t(
+          'components.service-scene.breakdowns.no-matching-labels-scene.title',
+          'No {{type}} match these filters.',
+          {
+            type,
+          }
+        )}
       >
         <Stack justifyContent="center">
           <Button className={emptyStateStyles.button} onClick={() => clearCallback()}>

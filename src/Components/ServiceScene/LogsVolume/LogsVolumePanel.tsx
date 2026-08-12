@@ -19,11 +19,11 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { LogsVolumeActions } from '../LogsVolumeActions';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { LogsVolumeActions } from 'Components/ServiceScene/LogsVolumeActions';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
@@ -143,7 +143,6 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const isCollapsed = getLogsVolumeOption('collapsed');
     // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
-      .setOption('annotations', { multiLane: true })
       .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
       .setOption('legend', {
         calcs: ['sum'],

@@ -1,9 +1,9 @@
+import { KeyPath } from '@gtk-grafana/react-json-tree';
 import {
   JSONDataFrameLabelsName,
   JSONDataFrameStructuredMetadataName,
   JSONDataFrameTimeName,
-} from '../Components/ServiceScene/JSONLogsScene';
-import { KeyPath } from '@gtk-grafana/react-json-tree';
+} from 'Components/ServiceScene/JSONLogsScene';
 
 /**
  * Determines if the current node is the timestamp label

@@ -11,7 +11,7 @@
     { "section": "🏗️ Builds", "type": "build" },
     { "section": "🤖 Continuous Integrations", "type": "ci" },
     { "section": "⏪ Reverts", "type": "revert" },
-    { "section": "🧹 Chore", "type": "chore", "hidden": true },
+    { "section": "🧹 Chore", "type": "chore" },
     { "section": "🚫 Omit", "type": "omit", "hidden": true },
     { "section": "🚫 Skip", "type": "skip", "hidden": true },
     { "section": "🔒 Internal", "type": "internal", "hidden": true }

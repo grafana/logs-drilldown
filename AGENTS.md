@@ -43,6 +43,10 @@ Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. N
 
 - **Frontend security** — Follow workspace rules for HTML sanitization (DOMPurify), URLs (`textUtil.sanitizeUrl`), and avoiding unsafe DOM APIs.
 
+### Code comments
+
+- **One line max** — Keep code comments to a single line. State the constraint or workaround the code can't express by itself; move longer explanations to the commit message or PR description.
+
 ### TypeScript and DOM events
 
 - **No `unknown` double-casts for events** — Do not recover legacy fields with `(e as unknown as { srcElement?: … }).srcElement`. Prefer `event.currentTarget`, typed handlers, `instanceof` checks, or a small well-named helper with a real type guard.

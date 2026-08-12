@@ -1,9 +1,6 @@
 import { AdHocVariableFilter } from '@grafana/data';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { getMaxLinesLimit, getMaxLinesOptions, LineLimitScene } from '../Components/ServiceScene/LineLimitScene';
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from './comparison';
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { FilterOp } from './filterTypes';
@@ -14,6 +11,9 @@ import { getRouteParams } from './routing';
 import { clearMaxLines, getMaxLines } from './store';
 import { getLabelsVariable } from './variableGetters';
 import { SERVICE_NAME, SERVICE_UI_LABEL, VAR_FIELDS, VAR_LABELS } from './variables';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { getMaxLinesLimit, getMaxLinesOptions, LineLimitScene } from 'Components/ServiceScene/LineLimitScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 
 type ClearableVariable = AdHocFiltersVariable | CustomConstantVariable;
 export function getVariablesThatCanBeCleared(

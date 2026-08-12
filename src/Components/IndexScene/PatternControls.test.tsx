@@ -3,8 +3,8 @@ import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { AppliedPattern } from '../../services/variables';
 import { PatternControls } from './PatternControls';
+import { AppliedPattern } from 'services/variables';
 
 const originalWidth = global.window.innerWidth;
 beforeAll(() => {

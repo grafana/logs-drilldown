@@ -6,7 +6,6 @@ import { ScrollSyncPane } from 'react-scroll-sync';
 import { FieldType, formattedValueToString, GrafanaTheme2, Labels } from '@grafana/data';
 import { CustomCellRendererProps, useTheme2 } from '@grafana/ui';
 
-import { getBodyName } from '../../services/logsFrame';
 import { DETECTED_LEVEL } from './constants';
 import { useQueryContext } from 'Components/Table/Context/QueryContext';
 import { LogLineState, useTableColumnContext } from 'Components/Table/Context/TableColumnsContext';
@@ -16,6 +15,7 @@ import { LogLinePill } from 'Components/Table/LogLinePill';
 import { RawLogLineText } from 'Components/Table/RawLogLineText';
 import { Scroller } from 'Components/Table/Scroller';
 import { OTEL_LOG_LINE_ATTRIBUTES_FIELD_NAME } from 'services/logFieldNames';
+import { getBodyName } from 'services/logsFrame';
 
 export type SelectedTableRow = {
   id: string;

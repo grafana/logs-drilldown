@@ -18,7 +18,10 @@ jest.mock('./scenes', () => ({
 }));
 jest.mock('./variableGetters', () => ({
   ...jest.requireActual('./variableGetters'),
-  getDataSourceVariable: jest.fn(),
+  // Default return value so callers get a valid variable regardless of which mocked
+  // module instance jest resolves under its circular-dependency module graph
+  // (individual tests may still override via mockReturnValue).
+  getDataSourceVariable: jest.fn(() => ({ getValue: () => 'ds-uid' })),
 }));
 
 function mockDsMethod(ds: object): LokiDatasource {

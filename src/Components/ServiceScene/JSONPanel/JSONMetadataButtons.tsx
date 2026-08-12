@@ -2,8 +2,8 @@ import React from 'react';
 
 import { AdHocFilterWithLabels, SceneObject } from '@grafana/scenes';
 
-import { InterpolatedFilterType } from '../Breakdowns/AddToFiltersButton';
 import { JSONMetadataButton } from './JSONFilterButtons';
+import { InterpolatedFilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { isOperatorExclusive, isOperatorInclusive } from 'services/operatorHelpers';
 
 interface Props {

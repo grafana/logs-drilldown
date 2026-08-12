@@ -11,7 +11,10 @@ export const NoServiceVolume = (props: { labelName: string }) => {
         labelName: props.labelName,
       })}
     >
-      {t('components.service-selection-scene.no-service-volume.help', 'Please adjust time range or select another label.')}
+      {t(
+        'components.service-selection-scene.no-service-volume.help',
+        'Please adjust time range or select another label.'
+      )}
     </EmptyState>
   );
 };

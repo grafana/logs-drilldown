@@ -60,7 +60,10 @@ export function Fields({ recordIndex }: Props) {
             ? invalidColumnsLogLineOnlyText
             : !recordHasValues
               ? t('components.app-config.default-columns.fields.invalid-columns', 'Invalid columns')
-              : t('components.app-config.default-columns.fields.add-column-tooltip', 'Add a default column to display in the logs')
+              : t(
+                  'components.app-config.default-columns.fields.add-column-tooltip',
+                  'Add a default column to display in the logs'
+                )
         }
         variant={'secondary'}
         fill={'outline'}

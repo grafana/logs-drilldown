@@ -2,9 +2,9 @@ import React, { ReactNode } from 'react';
 
 import { AdHocFilterWithLabels } from '@grafana/scenes';
 
-import { JSONLogsScene } from '../JSONLogsScene';
 import { JSONFieldValueButton } from './JSONFilterButtons';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
 
 interface Props {
   elements: ReactNode[];

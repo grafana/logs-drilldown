@@ -19,7 +19,7 @@ To use Grafana Logs Drilldown to view your log data, you can either access it in
 
 ## Access in Grafana and Grafana Cloud
 
-Grafana Logs Drilldown is installed by default in both Grafana and Grafana Cloud. To access Grafana Logs Drilldown:
+Logs Drilldown is installed by default in both Grafana and Grafana Cloud. To access Logs Drilldown:
 
 1. Open your Grafana stack in a web browser.
 1. In the main menu, select **Drilldown** > **Logs**.
@@ -32,7 +32,7 @@ Logs Drilldown is installed by default in current Grafana releases. If you are u
 
 ### Install via Plugins catalog
 
-For Enterprise and OSS Grafana users, you can install Grafana Logs Drilldown via the [Grafana Plugins catalog](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/).
+For Enterprise and OSS Grafana users, you can install Logs Drilldown via the [Grafana Plugins catalog](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/).
 
 1. Open [https://grafana.com/grafana/plugins/grafana-lokiexplore-app/](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/) in a web browser
 1. Click the **Installation** tab.
@@ -72,7 +72,7 @@ GF_INSTALL_PLUGINS="https://storage.googleapis.com/integration-artifacts/grafana
 
 ### Install using Grafana CLI
 
-You can install Grafana Logs Drilldown in your own Grafana instance using the Grafana CLI. For more information, refer to the [Grafana CLI documentation](https://grafana.com/docs/grafana/latest/cli/).
+You can install Logs Drilldown in your own Grafana instance using the Grafana CLI. For more information, refer to the [Grafana CLI documentation](https://grafana.com/docs/grafana/latest/cli/).
 
 Run the following command:
 
@@ -86,7 +86,7 @@ All the Grafana Drilldown apps require the `datasources:explore` permission in G
 
 ## Test with Docker Compose
 
-You can test the app using the following command to spin up Grafana, Loki, and the Grafana Logs Drilldown App:
+You can test the app using the following command to spin up Grafana, Loki, and the Logs Drilldown App:
 
 ```sh
 curl -L https://github.com/grafana/explore-logs/raw/main/scripts/run.sh | sh
@@ -96,7 +96,7 @@ This will download the [run.sh](https://github.com/grafana/explore-logs/blob/mai
 
 That shell file will download some configuration files into your `/tmp/explore-logs` directory and start the Docker containers via `docker compose` from there.
 
-Once the Docker container has started, navigate to `http://localhost:3000/a/grafana-lokiexplore-app/explore` to access Grafana Logs Drilldown.
+Once the Docker container has started, navigate to `http://localhost:3000/a/grafana-lokiexplore-app/explore` to access Logs Drilldown.
 
 ## Having trouble?
 
@@ -104,7 +104,7 @@ Refer to the [troubleshooting guide](../troubleshooting/) for tips on how to sol
 
 ## What next?
 
-Before you can use Grafana Logs Drilldown, an administrator must configure a Loki data source in order to access your logs in Grafana Logs Drilldown.
+Before you can use Logs Drilldown, an administrator must configure a Loki data source in order to access your logs in Logs Drilldown.
 Refer to the [Loki data source documentation](https://grafana.com/docs/grafana-cloud/connect-externally-hosted/data-sources/loki/) for instructions.
 
 After installing, you can customize default settings such as time range, data source, and display fields. Refer to [Configure Logs Drilldown](./configure/) for details.

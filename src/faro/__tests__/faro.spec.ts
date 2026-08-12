@@ -1,10 +1,10 @@
 import { getWebInstrumentations, initializeFaro } from '@grafana/faro-web-sdk';
 
-import { initFaro } from '../faroInit';
-import { setFaro } from '../faroInstance';
-import { getFaroEnvironment } from '../getFaroEnv';
+import { initFaro } from 'faro/faroInit';
+import { setFaro } from 'faro/faroInstance';
+import { getFaroEnvironment } from 'faro/getFaroEnv';
 
-jest.mock('../getFaroEnv');
+jest.mock('faro/getFaroEnv');
 jest.mock('@grafana/faro-web-sdk');
 jest.mock('@grafana/faro-web-tracing');
 

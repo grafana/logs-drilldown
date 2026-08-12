@@ -7,7 +7,6 @@ import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Combobox, Icon, MenuItem, Spinner, Tooltip, WithContextMenu, useStyles2, useTheme2 } from '@grafana/ui';
 
-import { logger } from '../../services/logger';
 import {
   ActiveFilter,
   AttributeConfig,
@@ -19,6 +18,7 @@ import {
   orderByPriority,
   reducer,
 } from './attributeDistributionState';
+import { logger } from 'services/logger';
 
 export type { ActiveFilter, AttributeConfig, AttributeValueCount } from './attributeDistributionState';
 
@@ -88,18 +88,14 @@ export function AttributeDistribution({
 }: AttributeDistributionProps) {
   const styles = useStyles2(getStyles);
   const [extraFieldsShown, setExtraFieldsShown] = useState(0);
-  const [state, dispatch] = useReducer(
-    reducer,
-    selectedFiltersProp ?? [],
-    (initFilters): State => ({
-      attributes: [],
-      data: {},
-      detecting: false,
-      selectedFilters: initFilters,
-      userPinnedAttributes: [],
-      valueSnapshot: null,
-    })
-  );
+  const [state, dispatch] = useReducer(reducer, selectedFiltersProp ?? [], (initFilters): State => ({
+    attributes: [],
+    data: {},
+    detecting: false,
+    selectedFilters: initFilters,
+    userPinnedAttributes: [],
+    valueSnapshot: null,
+  }));
 
   // Always-current ref so that the initial-load effect can build the effective
   // query without adding selectedFilters to its deps (which would cause

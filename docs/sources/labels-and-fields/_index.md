@@ -19,7 +19,7 @@ Grafana Logs Drilldown visualizes log volume for labels attached to your log lin
 The type of data being expressed in a label or field may require different treatments. For example, fields expressing `bytes` are visualized differently than other types of data. [Share your feedback](https://forms.gle/1sYWCTPvD72T1dPH9) if you have suggestions for how to improve this experience.
 {{< /admonition >}}
 
-Grafana Logs Drilldown adds a special `detected_level` label to all log lines where Loki assigns a level of the log line, including `debug`, `info`, `warn`, `error`, `fatal`, `critical`, `trace`, or `unknown` if no level could be determined.
+Logs Drilldown adds a special `detected_level` label to all log lines where Loki assigns a level of the log line, including `debug`, `info`, `warn`, `error`, `fatal`, `critical`, `trace`, or `unknown` if no level could be determined.
 
 Label visualizations are helpful for:
 
@@ -49,7 +49,7 @@ Labels tab user interface:
 - **Label** filter: Lets you search for or select label names from the menu.
 - **Grid / Rows**: Lets you select how labels are displayed.
 - **Select** or **Include** button: Click to access a breakdown of the label's values, seeing the log volumes visualized along the way.
-- **Menu** (three dots): Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
+- **Menu** (three dots): Opens the panel menu, where you can navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/) and access other options. For details, refer to [View logs](../view-logs/#panel-menu).
 
 ## Filtering logs by label
 
@@ -81,9 +81,10 @@ Fields tab user interface:
 - **Field** filter: Lets you search for or select field names from the menu.
 - **Grid / Rows**: Lets you select how fields are displayed.
 - **Volume / Names**: Lets you toggle between showing field volume graphs and showing field names only.
+- **Extract fields from logs**: Toggle on to apply logfmt and JSON parsers to your queries so that fields detected in the log lines appear alongside indexed labels and structured metadata.
 - **Include** or **Add to filter** button: Lets you filter log results by a specific field value. The button label varies depending on the field type.
 - **Select** button (value breakdown): Click to access a breakdown of the field's values, seeing the log volumes visualized along the way.
-- **Menu** (three dots): Click to navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/).
+- **Menu** (three dots): Opens the panel menu, where you can navigate to [Grafana Explore](https://grafana.com/docs/grafana-cloud/visualizations/explore/) and access other options. For details, refer to [View logs](../view-logs/#panel-menu).
 
 ## Filtering logs by field
 

@@ -6,11 +6,11 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { useStyles2 } from '@grafana/ui';
 
-import { JSONLogsScene } from '../JSONLogsScene';
 import { KeyPath } from '@gtk-grafana/react-json-tree';
+import { JSONLogsScene } from 'Components/ServiceScene/JSONLogsScene';
 import { addJSONFieldFilter } from 'services/JSONFilter';
 import { EMPTY_VARIABLE_VALUE, VAR_FIELDS } from 'services/variables';
-const ImgButton = lazy(() => import('../../UI/ImgButton'));
+const ImgButton = lazy(() => import('Components/UI/ImgButton'));
 
 interface Props {
   active: boolean;
@@ -28,12 +28,20 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         className={styles.button}
         tooltip={
           type === 'include'
-            ? t('components.service-scene.json-panel.json-nested-node-filter-button.tooltip.include', 'Include log lines that contain {{key}}', {
-                key: keyPath[0],
-              })
-            : t('components.service-scene.json-panel.json-nested-node-filter-button.tooltip.exclude', 'Exclude log lines that contain {{key}}', {
-                key: keyPath[0],
-              })
+            ? t(
+                'components.service-scene.json-panel.json-nested-node-filter-button.tooltip.include',
+                'Include log lines that contain {{key}}',
+                {
+                  key: keyPath[0],
+                }
+              )
+            : t(
+                'components.service-scene.json-panel.json-nested-node-filter-button.tooltip.exclude',
+                'Exclude log lines that contain {{key}}',
+                {
+                  key: keyPath[0],
+                }
+              )
         }
         onClick={(e) => {
           e.stopPropagation();
@@ -51,8 +59,14 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
         name={type === 'include' ? 'search-plus' : 'search-minus'}
         aria-label={
           type === 'include'
-            ? t('components.service-scene.json-panel.json-nested-node-filter-button.aria-label.include', 'include filter')
-            : t('components.service-scene.json-panel.json-nested-node-filter-button.aria-label.exclude', 'exclude filter')
+            ? t(
+                'components.service-scene.json-panel.json-nested-node-filter-button.aria-label.include',
+                'include filter'
+              )
+            : t(
+                'components.service-scene.json-panel.json-nested-node-filter-button.aria-label.exclude',
+                'exclude filter'
+              )
         }
       />
     ),

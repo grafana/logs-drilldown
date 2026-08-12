@@ -1,7 +1,7 @@
 import { sceneGraph } from '@grafana/scenes';
 
-import { IndexScene } from '../IndexScene/IndexScene';
 import { getMaxLinesOptions, LineLimitScene } from './LineLimitScene';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { runSceneQueries } from 'services/query';
 import { setMaxLines } from 'services/store';
 

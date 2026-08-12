@@ -1,4 +1,4 @@
-import { getEnvironment, resolveEnvironmentFromHost } from '../getEnv';
+import { getEnvironment, resolveEnvironmentFromHost } from 'faro/getEnv';
 
 describe('resolveEnvironmentFromHost()', () => {
   test.each([

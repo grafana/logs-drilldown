@@ -4,11 +4,11 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Icon, ToolbarButton, useStyles2 } from '@grafana/ui';
+import { Icon, ToolbarButton, useStyles2, useTheme2 } from '@grafana/ui';
 
-import { addToFavorites, removeFromFavorites } from '../../services/favorites';
-import { getFavoriteLabelValuesFromStorage } from '../../services/store';
+import { addToFavorites, removeFromFavorites } from 'services/favorites';
 import { getMetadataService } from 'services/metadata';
+import { getFavoriteLabelValuesFromStorage } from 'services/store';
 
 export interface FavoriteServiceHeaderActionSceneState extends SceneObjectState {
   ds: string;
@@ -26,6 +26,7 @@ export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteSe
       [ds, labelName, labelValue]
     );
     const styles = useStyles2((theme) => getStyles(theme, isFavorite, hover));
+    const theme = useTheme2();
     const tooltipCopy = isFavorite ? `Remove ${labelValue} from favorites` : `Add ${labelValue} to favorites`;
 
     if (isDefaultLabelValue) {
@@ -42,7 +43,7 @@ export class FavoriteServiceHeaderActionScene extends SceneObjectBase<FavoriteSe
             model.setHover(false);
           }}
           icon={<Icon name={isFavorite ? 'favorite' : 'star'} size="lg" type={isFavorite ? 'mono' : 'default'} />}
-          color={isFavorite ? 'rgb(235, 123, 24)' : '#ccc'}
+          color={isFavorite ? theme.visualization.getColorByName('semi-dark-orange') : theme.colors.text.secondary}
           onClick={() => model.onClick(isFavorite)}
           name={'star'}
           aria-label={tooltipCopy}

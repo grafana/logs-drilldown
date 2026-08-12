@@ -1,4 +1,5 @@
-import { DataFrame, FieldType } from '@grafana/data';
+import { DataFrame, FieldType, GrafanaTheme2, MappingType, ValueMap } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
 import { SeriesVisibilityChangeMode } from '@grafana/ui';
 
@@ -84,6 +85,90 @@ export function normalizeLevelName(level: string) {
     return UNKNOWN_LEVEL_LOGS;
   }
   return level;
+}
+
+// Single source of truth for log level colors, shared by the value mappings below and the
+// timeseries field overrides in panel.ts (setLevelColorOverrides). Grafana named colors, which
+// resolve per theme.
+export const LEVEL_COLORS = {
+  critical: 'semi-dark-purple',
+  // dimgray fails WCAG AA contrast (~3.2:1) on dark backgrounds, so use a lighter gray in dark theme
+  debug: config.theme2.isDark ? '#9e9e9e' : 'dimgray',
+  error: 'semi-dark-red',
+  info: 'semi-dark-blue',
+  trace: 'light-blue',
+  // matches LogLevelColor for unknown in grafana core logsModel.ts
+  unknown: config.theme2.isDark ? '#8e8e8e' : '#bdc4cd',
+  warn: 'semi-dark-orange',
+} as const;
+
+// Built lazily: levels.ts and panel.ts import each other, so UNKNOWN_LEVEL_LOGS may not be
+// initialized yet at module scope.
+let fieldMappings: ValueMap | undefined;
+
+export const getFieldMappings = (): ValueMap => {
+  fieldMappings ??= {
+    options: {
+      crit: {
+        color: LEVEL_COLORS.critical,
+        index: 1,
+      },
+      critical: {
+        color: LEVEL_COLORS.critical,
+        index: 0,
+      },
+      debug: {
+        color: LEVEL_COLORS.debug,
+        index: 8,
+      },
+      eror: {
+        color: LEVEL_COLORS.error,
+        index: 4,
+      },
+      err: {
+        color: LEVEL_COLORS.error,
+        index: 3,
+      },
+      error: {
+        color: LEVEL_COLORS.error,
+        index: 2,
+      },
+      info: {
+        color: LEVEL_COLORS.info,
+        index: 7,
+      },
+      // Matches UNKNOWN_LEVEL_FIELD_NAME_REGEX in panel.ts, which colors these darkgray
+      [UNKNOWN_LEVEL_LOGS]: {
+        color: LEVEL_COLORS.unknown,
+        index: 10,
+      },
+      trace: {
+        color: LEVEL_COLORS.trace,
+        index: 9,
+      },
+      unknown: {
+        color: LEVEL_COLORS.unknown,
+        index: 11,
+      },
+      warn: {
+        color: LEVEL_COLORS.warn,
+        index: 6,
+      },
+      warning: {
+        color: LEVEL_COLORS.warn,
+        index: 5,
+      },
+    },
+    type: MappingType.ValueToText,
+  };
+  return fieldMappings;
+};
+
+// The mappings hold Grafana named colors, which Grafana resolves for field configs but which are
+// not valid CSS. Resolve through the theme before using one as a style value.
+export function getLevelColor(level: string, theme: GrafanaTheme2): string | undefined {
+  const color = getFieldMappings().options[normalizeLevelName(level)]?.color;
+  return color ? theme.visualization.getColorByName(color) : undefined;
 }
 
 /**

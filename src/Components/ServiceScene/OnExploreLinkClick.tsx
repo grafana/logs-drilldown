@@ -2,9 +2,9 @@ import { LogsSortOrder, toURLRange, urlUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 
-import { DATAPLANE_LABELS_NAME } from '../../services/logsFrame';
-import { unknownToStrings } from '../../services/narrowing';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { DATAPLANE_LABELS_NAME } from 'services/logsFrame';
+import { unknownToStrings } from 'services/narrowing';
 import { getDataSource, getQueryExpr } from 'services/scenes';
 import { getDisplayedFieldsInStorage, getLogOption, getLogsVisualizationType } from 'services/store';
 

@@ -17,16 +17,12 @@ import {
   FieldWithIndex,
   GrafanaTheme2,
   Labels,
-  MappingType,
   transformDataFrame,
-  ValueMap,
 } from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 import { LogsSortOrder, TableCellHeight, TableColoredBackgroundCellOptions } from '@grafana/schema';
 import { Table as GrafanaTable, TableCellDisplayMode, TableCustomCellOptions, useTheme2 } from '@grafana/ui';
 
-import { getBodyName, getIdName, LogsFrame } from '../../services/logsFrame';
-import { testIds } from '../../services/testIds';
 import { useQueryContext } from './Context/QueryContext';
 import {
   ColumnSelectionDrawerWrap,
@@ -41,6 +37,8 @@ import { CustomHeaderRendererProps } from 'Components/Table/LogsTableHeader';
 import { LogsTableHeaderWrap } from 'Components/Table/LogsTableHeaderWrap';
 import { FieldName, FieldNameMeta, FieldNameMetaStore } from 'Components/Table/TableTypes';
 import { guessLogsFieldTypeForValue } from 'Components/Table/TableWrap';
+import { getBodyName, getIdName, LogsFrame } from 'services/logsFrame';
+import { testIds } from 'services/testIds';
 
 interface Props {
   height: number;
@@ -443,54 +441,6 @@ function guessLogsFieldTypeForField(field: Field): FieldType | undefined {
   // Could not find anything
   return undefined;
 }
-
-export const getFieldMappings = (): ValueMap => {
-  return {
-    options: {
-      crit: {
-        color: '#705da0',
-        index: 1,
-      },
-      critical: {
-        color: '#705da0',
-        index: 0,
-      },
-      debug: {
-        color: '#1f78c1',
-        index: 8,
-      },
-      eror: {
-        color: '#e24d42',
-        index: 4,
-      },
-      err: {
-        color: '#e24d42',
-        index: 3,
-      },
-      error: {
-        color: '#e24d42',
-        index: 2,
-      },
-      info: {
-        color: '#7eb26d',
-        index: 7,
-      },
-      trace: {
-        color: '#6ed0e0',
-        index: 9,
-      },
-      warn: {
-        color: '#FF9900',
-        index: 6,
-      },
-      warning: {
-        color: '#FF9900',
-        index: 5,
-      },
-    },
-    type: MappingType.ValueToText,
-  };
-};
 
 function buildColumnsWithMeta(columnsWithMeta: Record<FieldName, FieldNameMeta>) {
   // Create object of label filters to include columns selected by the user

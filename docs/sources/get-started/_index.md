@@ -14,7 +14,7 @@ weight: 300
 # Get started with Grafana Logs Drilldown
 
 The best way to see what Grafana Logs Drilldown can do for you is to use it to explore your own log data.
-If you have a Grafana Cloud account, you can access Grafana Logs Drilldown by selecting **Drilldown** > **Logs**, or you can [install Grafana Logs Drilldown](../access/) in your own Grafana instance.
+If you have a Grafana Cloud account, you can access Logs Drilldown by selecting **Drilldown** > **Logs**, or you can [install Logs Drilldown](../access/) in your own Grafana instance.
 
 <!-- Comment - NEEDS TO BE REPLACED WITH UPDATED VIDEO
 To learn more, check out our overview video:
@@ -23,13 +23,13 @@ To learn more, check out our overview video:
 
 ## Guided tour
 
-While you are browsing your log data in Grafana Logs Drilldown, watch for any unexpected spikes in your logs. Or perhaps one of your services is down and has stopped logging. Maybe you're seeing an increase in errors after a recent release.
+While you are browsing your log data in Logs Drilldown, watch for any unexpected spikes in your logs. Or perhaps one of your services is down and has stopped logging. Maybe you're seeing an increase in errors after a recent release.
 
 <!-- Make updating the screenshots easier by putting the Logs Drilldown version in the file name. This lets everyone know the last time the screenshots were updated.-->
 
 {{< figure alt="Grafana Logs Drilldown Service overview page" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-overview.png" caption="Overview page" >}}
 
-To take a tour of Grafana Logs Drilldown, follow these steps:
+To take a tour of Logs Drilldown, follow these steps:
 
 1. Open your Grafana stack in a web browser.
 1. From the Grafana main menu, select **Drilldown** > **Logs**.
@@ -39,6 +39,13 @@ To take a tour of Grafana Logs Drilldown, follow these steps:
    - With the standard time range picker on the top right.
    - By clicking and dragging the time range on any time series visualization.
 1. Services are shown based on log volume. You can use the service search field to find a service by name.
+1. Each service panel shows a preview of recent log lines. Click a log line to open its menu, where you can:
+   - **Show context**: View the log line in the context of the logs that occurred before and after it.
+   - **Go to log line**: Open the service details page focused on that specific log line.
+   - **Show similar logs**: Open the service details page filtered to log lines like the one you selected.
+
+   You can also click a value in a preview log line to add it as a line filter and open the service details page with that filter applied.
+
 1. If you want to view services by label instead of by service name, click **(+) Add label** and either select a label from the menu or search for a label.
 
    {{< admonition type="tip" >}}
@@ -59,11 +66,11 @@ To take a tour of Grafana Logs Drilldown, follow these steps:
    - Use line wrapping controls to adapt the log display for easier reading, choosing between disabled, enabled, and enabled with JSON formatting.
 1. On the service details page, click the **Labels** tab to see visualizations of log volume for each label. ([No labels?](../troubleshooting/#there-are-no-labels))
 1. On the **Labels** tab, to select a label to see the log volume for each value of that label, click the **Select** button.
-   Grafana Logs Drilldown shows you the volume of logs with specific labels and fields. Refer to [Labels and Fields](../labels-and-fields/).
+   Logs Drilldown shows you the volume of logs with specific labels and fields. Refer to [Labels and Fields](../labels-and-fields/).
 1. Select the **Fields** tab to see visualizations of log volume for each field. To drill down into details the same way as labels, click **Select** for a field.
 1. Click the **Patterns** tab to see log volume for each automatically detected pattern.
    Log patterns let you work with groups of similar log lines. You can hide log patterns that are noisy, or focus only on the patterns that are most useful. Refer to [Log Patterns](../patterns/).
-1. Click the **Logs** tab. Click the menu icon (three vertical dots) on either panel and select **Explore**. Grafana displays the Explore page, with a query based on the selections you made in Logs Drilldown.
+1. Click the **Logs** tab. Click the menu icon (three vertical dots) on either panel to open the panel menu, then select **Explore**. Grafana displays the Explore page, with a query based on the selections you made in Logs Drilldown. The panel menu also includes options such as **Add to Dashboard** and **Create alert**. For details, refer to [View logs](../view-logs/#panel-menu).
 
 ## Further resources
 

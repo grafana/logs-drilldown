@@ -2,10 +2,10 @@ import { urlUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import { sceneGraph } from '@grafana/scenes';
 
-import { IndexScene } from '../Components/IndexScene/IndexScene';
-import { ServiceScene } from '../Components/ServiceScene/ServiceScene';
 import { LineFilterCaseSensitive, LineFilterOp } from './filterTypes';
 import { getLineFiltersVariable } from './variableGetters';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 
 function removeEscapeChar(value: string, caseSensitive: boolean) {
   const charsEscapedByEscapeRegExp = ['^', '$', '.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|'];
