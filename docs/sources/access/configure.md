@@ -51,7 +51,7 @@ The **Configuration** tab has four settings, all aimed at an administrator setti
 
 To view the **Configuration** tab:
 
-1. Open the Grafana Logs Drilldown app's settings by navigating to **Administration** > **Plugins and data** > **Plugins** > **Grafana Logs Drilldown**.
+1. Open the Logs Drilldown app's settings by navigating to **Administration** > **Plugins and data** > **Plugins** > **Grafana Logs Drilldown**.
 1. Select the **Configuration** tab.
 
 {{< admonition type="note" >}}
@@ -81,6 +81,8 @@ Default fields requires Grafana 12.4 or later. If this version requirement is no
 ### How Default fields work
 
 Default field rules are scoped to a specific data source and one or more label and value pairs. When a user views logs for a service that matches all configured labels in a rule, the specified fields are displayed by default in the logs table view. The configured fields can replace the full log line or be displayed next to it.
+
+When a rule stores multiple values for the same label, those values are matched as a regular expression, so a rule can apply to several label values at once.
 
 ### Configure Default fields
 

@@ -99,7 +99,7 @@ You can follow these steps to perform some common use cases using your own insta
 
 ### Browse log volumes by type
 
-Grafana Logs Drilldown proactively visualizes your log volume data per detected pattern, broken down in various ways. At a glance you can immediately spot spikes or other changes.
+Logs Drilldown proactively visualizes your log volume data per detected pattern, broken down in various ways. At a glance you can immediately spot spikes or other changes.
 
 For example, if your HTTP service is suffering from a DDoS attack, the relevant graphs will clearly show the spikes. From here you can drill down to discover enough details about the attack to counter it.
 

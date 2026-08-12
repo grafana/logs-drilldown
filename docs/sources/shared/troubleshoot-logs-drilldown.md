@@ -18,13 +18,13 @@ This page addresses common issues when getting started and using Grafana Logs Dr
 
 Grafana Explore Logs is installed by default in Grafana versions v11.3.0 through v11.5.
 
-Grafana Logs Drilldown is installed by default in Grafana versions v11.6.11 and later.
+Logs Drilldown is installed by default in Grafana versions v11.6.11 and later.
 
 In Grafana v12 and later, the **Drilldown** menu includes all Drilldown apps by default.
 
 For more information about the name change for this feature, see this [blog post](https://grafana.com/blog/2025/02/20/grafana-drilldown-apps-the-improved-queryless-experience-formerly-known-as-the-explore-apps/).
 
-If you do not see Logs Drilldown under either name, then check to make sure you have the [Grafana Logs Drilldown plugin](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/) installed and configured.
+If you do not see Logs Drilldown under either name, then check to make sure you have the [Logs Drilldown plugin](https://grafana.com/grafana/plugins/grafana-lokiexplore-app/) installed and configured.
 
 {{< admonition type="note" >}}
 Your instance needs internet connection in order to download the Logs Drilldown plugin. If you are working in an offline environment, you can download the Logs Drilldown plugin separately and add it to your Grafana `/plugins` repository.
@@ -34,7 +34,7 @@ Check with your Grafana administrator. All the Grafana Drilldown apps require th
 
 ## Ensure Loki is properly configured
 
-To use Grafana Logs Drilldown, you need to have Loki properly configured. You can find full instructions in [Access or install Grafana Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/).
+To use Logs Drilldown, you need to have Loki properly configured. You can find full instructions in [Access or install Grafana Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/).
 
 ## Service selection errors
 
@@ -42,7 +42,7 @@ This section covers errors on the service selection page.
 
 ### There are no services
 
-If everything is presented as an `unknown_service` when you access Grafana Logs Drilldown, you can try the following fixes:
+If everything is presented as an `unknown_service` when you access Logs Drilldown, you can try the following fixes:
 
 1. Ensure the Volume API is enabled by setting the [`volume_enabled` configuration value](https://grafana.com/docs/loki/latest/configure/#:~:text=volume_enabled) in Loki. Enabled by default in Loki 3.1 and later.
 1. Specify the label to use to identify services by setting the [`discover_service_name` configuration value](https://grafana.com/docs/loki/latest/configure/#:~:text=discover_service_name) in Loki.
@@ -82,7 +82,7 @@ Try the following fixes:
 
 ## There are no detected levels
 
-If you do not see `detected_level` values in Grafana Logs Drilldown, you can try the following fixes:
+If you do not see `detected_level` values in Logs Drilldown, you can try the following fixes:
 
 1. Ensure level detection is enabled by setting the [`discover_log_levels` configuration value](https://grafana.com/docs/loki/latest/configure/#:~:text=discover_log_levels). Enabled by default in Loki 3.1 and later.
 
@@ -92,7 +92,7 @@ This section covers errors related to labels and fields in Logs Drilldown.
 
 ### There are no labels
 
-If you do not see any labels in Grafana Logs Drilldown, you can try the following fixes:
+If you do not see any labels in Logs Drilldown, you can try the following fixes:
 
 1. Ensure your collector is properly configured to attach them.
 
