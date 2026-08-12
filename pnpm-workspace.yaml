@@ -38,15 +38,20 @@ overrides:
   # react-router itself is deliberately not overridden. The 6.30.4 copy comes from
   # @grafana/ui -> react-router-dom-v5-compat@6.30.4, which imports UNSAFE_useRoutesImpl,
   # UNSAFE_useRouteId and UNSAFE_logV6DeprecationWarnings — none of which react-router 7
-  # exports. The 7.x advisory is only patched in 8.3.0, which requires React >= 19.2.7
-  # (this plugin is on 18.3.1). Both need an upstream bump, not an override here.
-  react-router-dom: 7.18.1
+  # exports. A bare `react-router` override would collapse both majors onto 7.x and break
+  # @grafana/ui at runtime.
+  # The 7.x advisory (GHSA-qwww-vcr4-c8h2, <7.18.2) is fixed below: react-router-dom@7.18.2
+  # pins react-router 7.18.2 exactly, so the core fix arrives transitively.
+  # Still flagged: GHSA-wrjc-x8rr-h8h6 / GHSA-337j-9hxr-rhxg (>=6.0.0 <7.18.0) match the
+  # 6.30.4 copy. The react-router 6.x line ends at 6.30.4 — there is no 6.x patch, so this
+  # needs an upstream @grafana/ui bump off v5-compat, not an override here.
+  react-router-dom: 7.18.2
   uuid: 14.0.1
   immutable: 5.1.8
-  dompurify: 3.4.12
+  dompurify: 3.4.13
   serialize-javascript: 7.0.6
   strip-ansi: 6.0.1
-  js-yaml: 4.3.0
+  js-yaml: 4.3.1
   # Security patches for transitive vulnerabilities (pnpm audit)
   fast-uri: 3.1.5
   undici: 8.9.0
@@ -69,3 +74,4 @@ overrides:
   webpack: 5.108.1
   'websocket-driver@<0.7.5': 0.7.5
   'postcss@<8.5.18': 8.5.23
+  nanoid: 3.3.17
