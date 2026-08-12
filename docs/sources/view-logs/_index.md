@@ -14,13 +14,9 @@ A line filter search field appears at the top of the page. Enter text to filter 
 
 On the **Logs** tab, use the radio buttons in the panel header to switch how your logs are displayed:
 
-- **Logs**: The default log line list, with the [log controls](#log-controls) and [log details](#log-details).
-- **Table**: Displays logs in a table with a column for each displayed field. You can add or remove columns, sort by a column, resize columns, and wrap text. Your column selection and sizes are remembered.
-- **JSON**: Opens the dedicated JSON viewer for logs formatted as JSON. For more information, refer to [Logs Drilldown JSON viewer](../viewing-json-logs/).
-
-{{< docs/public-preview product="the native logs table" featureFlag="logsTablePanelNG" >}}
-
-When the `logsTablePanelNG` feature flag is enabled, the **Table** view renders your logs using Grafana's native logs table panel.
+- **Logs**: The default log line list, with the [log controls](#log-controls), the [log line menu](#log-line-menu), and [log details](#log-details), described on this page.
+- **Table**: Displays logs in a table with a column for each displayed field. You can add or remove columns, sort by a column, resize columns, and wrap text. For more information, refer to [Logs Drilldown table view](./table/).
+- **JSON**: Opens the dedicated JSON viewer for logs formatted as JSON. For more information, refer to [Logs Drilldown JSON viewer](./json/).
 
 ## Log controls
 
@@ -46,11 +42,11 @@ From top to bottom, the log controls include:
 - **Logs highlighting**: Toggle between plain text and color highlighting.
 - **Font size control**: Toggle between small (default) and large font.
 - **Unescape newlines**: Displayed when logs contain escaped new lines. Click to render escaped new lines as new lines.
-- **Download logs**: Download in plain text (txt), JavaScript Object Notation (JSON), or Comma-separated values (CSV) format.
+- **Download logs**: Download in plain text (`txt`), JavaScript Object Notation (JSON), or Comma-separated values (CSV) format.
 - **Scroll to the top**: Jump to the first log line in the view.
 
 {{< admonition type="note" >}}
-When you are in [JSON view](../viewing-json-logs/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
+When you are in [JSON view](./json/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
 {{< /admonition >}}
 
 ## Panel menu
@@ -65,40 +61,54 @@ Most panels in Logs Drilldown have a menu that you open by clicking the menu ico
 
 Some options, such as **Add to Dashboard**, **Create alert**, and **Explain in Assistant**, appear only when the corresponding Grafana feature is available.
 
+## Log line menu
+
+Click the menu icon (three vertical dots) at the start of a log line to open the log line menu.
+
+{{< figure alt="A log line menu open over the log list, showing the Show log details, Show context, and Pin log options, followed by copy options and Explain log line in Assistant" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-logs-ellipsis-menu.png" caption="The log line menu" >}}
+
+The menu includes the following options:
+
+- **Show log details**: Opens [log details](#log-details) for the log line. When details are already open, the option reads **Hide log details**.
+- **Show context**: Displays the log lines that arrived before and after the selected line. Refer to [Log context](#log-context) for more information.
+- **Pin log**: Keeps the log line pinned in the log list. To remove the pin, select **Unpin log**.
+- **Copy log line message**: Copies the log line text to your clipboard.
+- **Copy log line contents as JSON**: Copies the log line, including its fields, as a JSON object.
+- **Copy link to log line**: Copies a short link that opens Logs Drilldown focused on this log line, so you can share it.
+- **Explain log line in Assistant**: Sends the log line to Grafana Assistant for an explanation. This option only appears when Grafana Assistant is available.
+
 ## Log details
 
-The **Log details** component is displayed when you click a log line. It shows additional information from that log line in collapsible sections, including fields (usually key-value pairs) and links (derived fields, correlations, and more).
+Log details show all the information attached to a single log line. To open log details, click a log line, or select **Show log details** from the log line menu.
 
-### Fields
+{{< figure alt="The log details sidebar next to the log list, with the copy menu open and collapsible sections for the log line, links to tracing data sources, a trace, and indexed labels" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-logs-details-copy-menu.png" caption="Log details in sidebar mode" >}}
 
-Within the Log details view, you have the ability to filter the displayed fields in two ways:
+At the top of log details, use the **Search field names and values** field to narrow down what's displayed. The copy icon opens a menu with **Copy log line message** and **Copy log contents as JSON** options.
 
-- **Positive filter**: Focuses on a specific field
-- **Negative filter**: Excludes certain fields
+Log details organize the information in collapsible sections:
 
-These filters modify the corresponding query that generated the log line, incorporating equality and inequality expressions accordingly.
+- **Log line**: The raw log line.
+- **Links**: Data links and correlations, which turn parts of the log line into links to related data or external resources, for example a trace ID linking to your tracing data source.
+- **Trace**: A preview of the trace, when a trace link is detected in the log line.
+- Fields, grouped by type for data sources that support it. For Loki, the groups are **Indexed labels**, **Structured metadata**, and **Parsed fields**.
 
-For supported data sources like Loki and Elasticsearch, log details will verify whether the field is already included in the current query, indicating an active state for positive filters. This enables you to toggle it off from the query or convert the filter expression from positive to negative as necessary.
+### Work with fields
 
-Click the eye icon to select a subset of fields to visualize in the logs list instead of the complete log line.
+Each field row has icons to act on that field:
 
-Each field has a stats icon, which displays ad-hoc statistics in relation to all displayed logs.
-
-For data sources that support log types, such as Loki, instead of a single view containing all fields, different groups of fields will be displayed grouping them by their type: Indexed Labels, Structured Metadata, and Parsed fields.
-
-### Links
-
-Grafana provides data links or correlations, allowing you to convert any part of a log message into an internal or external link. These links enable you to navigate to related data or external resources, offering a seamless and convenient way to explore additional information.
+- **Filter for value** and **Filter out value**: Add the field to your query as an equality or inequality expression. When a filter is already active, you can toggle it off or flip it from positive to negative.
+- The eye icon: Shows the field in the log list instead of the complete log line, or hides it again.
+- **Ad-hoc statistics**: Displays how the field's values are distributed across the displayed logs.
+- The copy icon: Copies the field's value to your clipboard.
 
 ### Log details modes
 
-There are two modes available to view log details:
+There are two modes to view log details:
 
-- **Inline log details** display the log details below the log line within the log list.
+- **Inline** displays the log details below the log line within the log list.
+- **Sidebar** displays the log details in a panel to the side of the log list.
 
-- **Sidebar log details** display the log details in a panel to the side of the log list.
-
-No matter which display mode you are currently viewing, you can change it by clicking the mode control icon.
+To switch modes, use the mode icon in the log details header: **Anchor to the right** switches to the sidebar, and **Display inline** moves the details back into the list.
 
 ## Highlighting
 
@@ -116,4 +126,4 @@ Change the **Context time window** option to look for logs within a specific tim
 
 ## Infinite scroll
 
-When you reach the bottom of the list of logs, if you continue scrolling and the displayed logs are within the selected time interval, you can request to load more logs. When the sort order is "newest first" you will receive older logs, and when the sort order is "oldest first" you will get newer logs.
+When you reach the bottom of the list of logs, if you continue scrolling and the displayed logs are within the selected time interval, you can request to load more logs. When the sort order is "newest first" you receive older logs, and when the sort order is "oldest first" you get newer logs.

@@ -38,7 +38,7 @@ cards:
       description: Find solutions to common issues you might encounter when using Grafana Logs Drilldown.
       height: 24
     - title: Engage with your JSON log lines
-      href: ./viewing-json-logs/
+      href: ./view-logs/json/
       description: Drill down into your JSON log lines to better understand your log line data.
       height: 24
     - title: Give feedback

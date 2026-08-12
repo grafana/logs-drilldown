@@ -1,13 +1,15 @@
 ---
-canonical: https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/viewing-json-logs/
+aliases:
+  - ../../viewing-json-logs/ # old URL before this page moved under view-logs/
+canonical: https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/view-logs/json/
 description: Learn how to view JSON formatted logs in Logs Drilldown.
 keywords:
   - Logs
   - JSON
   - Formatting
-menuTitle: Viewing JSON logs
+menuTitle: JSON
 title: Logs Drilldown JSON viewer
-weight: 800
+weight: 300
 ---
 
 # Logs Drilldown JSON viewer
@@ -28,7 +30,7 @@ On the **Logs** tab, select the **JSON** radio button in the panel header (next 
 
 {{< figure alt="Logs Drilldown JSON viewer with structured log rows" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-json-viewer.png" caption="The JSON viewer" >}}
 
-The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but does not open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../view-logs/).
+The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but does not open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../).
 
 ## Filtering log lines with the JSON view
 
