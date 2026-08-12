@@ -48,7 +48,7 @@ Paths the agent should check when validating documentation claims against code.
 | Plugin metadata and requirements                            | `src/plugin.json`, `README.md` (Loki v3.2+, Grafana v11.6+ requirements)                                                     |
 | Patterns and pattern filters                                | `src/services/patterns.ts`, `src/services/renderPatternFilters.ts`                                                           |
 
-## Frontmatter and site conventions
+## Front matter and site conventions
 
 - Each page uses a `canonical` URL pointing at `https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/...`, plus `description`, `keywords`, `menuTitle`, `title`, and `weight`.
 - Weight / ordering rules: lower `weight` sorts first (for example landing `_index.md` = 100, `access/configure.md` = 200, `labels-and-fields/` = 600). Increment weights to control menu order.
