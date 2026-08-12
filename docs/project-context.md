@@ -1,5 +1,7 @@
 # Project context (local)
 
+This file contains context about the Logs Drilldown project. The file is used to help the agent understand the project and its context.
+
 ## Identity
 
 - **Product name (short):** Logs Drilldown
