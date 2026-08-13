@@ -30,7 +30,7 @@ On the **Logs** tab, select the **JSON** radio button in the panel header (next 
 
 {{< figure alt="Logs Drilldown JSON viewer with structured log rows" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-json-viewer.png" caption="The JSON viewer" >}}
 
-The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but does not open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../).
+The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but doesn't open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../view-logs/).
 
 ## Filtering log lines with the JSON view
 
