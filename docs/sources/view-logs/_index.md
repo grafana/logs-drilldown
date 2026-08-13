@@ -6,13 +6,13 @@ weight: 500
 
 # View logs
 
-The logs visualization in Grafana Logs Drilldown displays log lines from your Loki data source with filtering options and controls to customize how data is displayed.
+The logs visualization in Grafana Logs Drilldown displays log lines from your Loki data source, with filtering options and controls to customize the display.
 
 A line filter search field appears at the top of the page. Enter text to filter your logs to lines that contain, or exclude, that text.
 
 ## Visualization types
 
-On the **Logs** tab, use the radio buttons in the panel header to switch how your logs are displayed:
+On the **Logs** tab, use the radio buttons in the panel header to switch how Logs Drilldown displays your logs:
 
 - **Logs**: The default log line list, with the [log controls](#log-controls), the [log line menu](#log-line-menu), and [log details](#log-details), described on this page.
 - **Table**: Displays logs in a table with a column for each displayed field. You can add or remove columns, sort by a column, resize columns, and wrap text. For more information, refer to [Logs Drilldown table view](./table/).
@@ -46,7 +46,7 @@ From top to bottom, the log controls include:
 - **Scroll to the top**: Jump to the first log line in the view.
 
 {{< admonition type="note" >}}
-When you are in [JSON view](../json/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
+When you're in [JSON view](./json/), these controls aren't available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
 {{< /admonition >}}
 
 ## Panel menu
@@ -79,9 +79,9 @@ The menu includes the following options:
 
 ## Log details
 
-Log details show all the information attached to a single log line. 
+Log details show all the information attached to a single log line.
 
-To open log details, lick a log line or select **Show log details** from the log line menu.
+To open log details, click a log line or select **Show log details** from the log line menu.
 
 {{< figure alt="The log details sidebar next to the log list, with the copy menu open and collapsible sections for the log line, links to tracing data sources, a trace, and indexed labels" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-logs-details-copy-menu.png" caption="Log details in sidebar mode" >}}
 
@@ -91,7 +91,7 @@ Log details organize the information in collapsible sections:
 
 - **Log line**: The raw log line.
 - **Links**: Data links and correlations, which turn parts of the log line into links to related data or external resources, for example a trace ID linking to your tracing data source.
-- **Trace**: A preview of the trace, when a trace link is detected in the log line.
+- **Trace**: A preview of the trace, when the log line contains a trace link.
 - Fields, grouped by type for data sources that support it. For Loki, the groups are **Indexed labels**, **Structured metadata**, and **Parsed fields**.
 
 ### Work with fields
@@ -114,7 +114,7 @@ To switch modes, use the mode icon in the log details header: **Anchor to the ri
 
 ## Highlighting
 
-The logs visualization implements a predefined set of rules to apply subtle colors to the log lines, to help with readability and help with identifying important information faster. This is an optional feature that can be disabled in the controls or in the panel options.
+The logs visualization implements a predefined set of rules to apply subtle colors to the log lines, to help with readability and help with identifying important information faster. You can disable this optional feature in the controls or in the panel options.
 
 Log levels are also color-coded to help you scan for errors and warnings. For example, `debug` lines use a neutral gray and `info` lines use a neutral blue.
 

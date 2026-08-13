@@ -26,7 +26,7 @@ To interact with the JSON view, select **Show logs** for your service in Logs Dr
 
 {{< figure alt="Logs Drilldown service panel with Show logs highlighted" caption="Show logs button" width="500px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-show-logs.png" >}}
 
-On the **Logs** tab, select the **JSON** radio button in the panel header (next to **Logs** and **Table**) to switch to the JSON viewer. Your logs are displayed in a structured, collapsible tree view, enabling you to browse, expand, and collapse JSON fields.
+On the **Logs** tab, select the **JSON** radio button in the panel header (next to **Logs** and **Table**) to switch to the JSON viewer. The JSON viewer displays your logs in a structured, collapsible tree view, so you can browse, expand, and collapse JSON fields.
 
 {{< figure alt="Logs Drilldown JSON viewer with structured log rows" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-json-viewer.png" caption="The JSON viewer" >}}
 
@@ -48,4 +48,4 @@ To include filtered log data again, remove the excluded data from the **Fields**
 
 Log lines entirely formatted as JSON are supported.
 
-Log lines with only certain fields or metadata structured as JSON are not currently supported.
+Log lines with only certain fields or metadata structured as JSON aren't currently supported.

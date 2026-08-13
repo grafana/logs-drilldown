@@ -14,25 +14,35 @@ weight: 200
 
 The **Table** view in Grafana Logs Drilldown displays your logs in a table with a column for each displayed field, so you can scan structured logs the way you'd read a spreadsheet.
 
+Use the table view when you want to scan, compare, and sort log data. For example, you can sort by duration to find the slowest requests, compare status codes or Pod names across many log lines.
+
 To open the table view, select **Show logs** for your service in Logs Drilldown, then select the **Table** radio button in the panel header, next to **Logs** and **JSON**.
 
 ## The Logs Table visualization
 
 {{< docs/public-preview product="The Logs Table visualization" featureFlag="logsTablePanelNG" >}}
 
-When the feature toggle is enabled, the **Table** view renders your logs with Grafana's native Logs Table visualization, described on this page.
+When you enable the feature toggle, the **Table** view renders your logs with the native Grafana Logs Table visualization, described on this page.
 
 ## Select and organize columns
 
-The sidebar on the left of the table controls which fields appear as columns:
+Use the sidebar on the left of the table to choose which fields appear as columns. For example, to build a table with only the fields you care about:
 
-- Use the **Search fields by name** field to find a field.
-- Select a field's checkbox to add it as a column, or clear the checkbox to remove it.
-- **Selected fields** lists the current columns. Drag fields in this list to reorder the columns.
-- **Suggested** offers likely useful fields, and **Fields** lists everything else. The percentage next to a field shows how many of the displayed log lines contain it.
-- Select **Reset** to restore the default columns: the time, level, and log line fields.
+1. Select the **Table** view in the panel header.
+1. Click **Search fields by name** and enter a full or partial field name.
+1. Select the field's checkbox to add it as a column, and clear the checkboxes of any columns you don't need.
 
-To give the table more room, collapse the sidebar with the **Collapse sidebar** icon. You can also resize the sidebar, the columns, and the log details sidebar by dragging their edges. Your column selection and sizes are remembered.
+The sidebar offers the following controls:
+
+| Action                  | UI element                   | Description                                                                                                                                                           |
+| ----------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Find a field            | **Search fields by name**    | Type a field name to filter the list of available fields.                                                                                                             |
+| Add or remove a column  | Field checkbox               | Select a field's checkbox to add it as a column, or clear the checkbox to remove it.                                                                                  |
+| Reorder columns         | **Selected fields**          | Lists the current columns. Drag fields in this list to reorder the columns.                                                                                           |
+| Browse available fields | **Suggested** and **Fields** | **Suggested** offers likely useful fields, and **Fields** lists everything else. The percentage next to a field shows how many of the displayed log lines contain it. |
+| Restore defaults        | **Reset**                    | Restores the default columns: the time, level, and log line fields.                                                                                                   |
+
+To give the table more room, collapse the sidebar with the **Collapse sidebar** icon. You can also resize the sidebar, the columns, and the log details sidebar by dragging their edges. Logs Drilldown remembers your column selection and sizes.
 
 ## View log details
 
@@ -57,7 +67,7 @@ The table view uses the columns themselves for filtering, plus a controls rail o
 
 Every column header has a **Filter** icon, which opens a list of that column's values to filter by. To filter by log level, use the **Filter** icon on the level column, for example `detected_level`.
 
-You can also hover over any cell and use **Filter for value** or **Filter out value** to add that value to your query, or filter from within [log details](#log-details). The **Log levels** filter in the Logs Drilldown toolbar applies to the table view as well.
+You can also hover over any cell and use **Filter for value** or **Filter out value** to add that value to your query, or filter from within [log details](#view-log-details). The **Log levels** filter in the Logs Drilldown toolbar applies to the table view as well.
 
 ### Sort
 
@@ -69,9 +79,9 @@ Select the wrap control in the rail to toggle text wrapping for long log lines a
 
 ### Download
 
-Use the **Download logs** control in the rail to export the displayed logs as `txt`, `json`, or `csv`. 
+Use the **Download logs** control in the rail to export the displayed logs as `txt`, `json`, or `csv`.
 
-The export includes the columns you've selected. In dashboards, the download control appears when the **Display download control** panel option is enabled.
+The export includes the columns you've selected. In dashboards, the download control appears when you enable the **Display download control** panel option.
 
 ## Where features moved
 
@@ -79,7 +89,7 @@ If you're coming from the previous table view in Logs Drilldown or Grafana Explo
 
 | Task                  | Previous table view                                                                 | Logs Table visualization                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Inspect a log line    | The **View log line** eye icon opened an **Inspect value** dialog with the raw line | The **Show details** eye icon opens the full [log details sidebar](#log-details)               |
+| Inspect a log line    | The **View log line** eye icon opened an **Inspect value** dialog with the raw line | The **Show details** eye icon opens the full [log details sidebar](#view-log-details)          |
 | Add or remove columns | Fields sidebar with checkboxes                                                      | Same sidebar, unchanged                                                                        |
 | Reorder columns       | Column menu with **Move left** and **Move right** (Logs Drilldown)                  | Drag fields in the **Selected fields** list                                                    |
 | Remove a column       | **Remove column** in the column menu (Logs Drilldown)                               | Clear the field's checkbox in the sidebar                                                      |
