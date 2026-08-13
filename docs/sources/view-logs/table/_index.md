@@ -75,7 +75,7 @@ The export includes the columns you've selected. In dashboards, the download con
 
 ## Where features moved
 
-If you're coming from the previous table view in Logs Drilldown or Grafana Explore, here's where familiar features live in the Logs Table visualization:
+If you're coming from the previous table view in Logs Drilldown or Grafana Explore, here's where features moved in the Logs table visualization:
 
 | Task                  | Previous table view                                                                 | Logs Table visualization                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
