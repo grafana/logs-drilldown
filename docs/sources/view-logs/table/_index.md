@@ -34,7 +34,7 @@ The sidebar on the left of the table controls which fields appear as columns:
 
 To give the table more room, collapse the sidebar with the **Collapse sidebar** icon. You can also resize the sidebar, the columns, and the log details sidebar by dragging their edges. Your column selection and sizes are remembered.
 
-## Log details
+## View log details
 
 Each row has a **Show details** eye icon at the start of the line.
 
