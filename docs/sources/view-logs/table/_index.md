@@ -69,7 +69,9 @@ Select the wrap control in the rail to toggle text wrapping for long log lines a
 
 ### Download
 
-The **Download logs** control in the rail exports the displayed logs as `txt`, `json`, or `csv`. The export includes the columns you've selected. In dashboards, the download control appears when the **Display download control** panel option is enabled.
+Use the **Download logs** control in the rail to export the displayed logs as `txt`, `json`, or `csv`. 
+
+The export includes the columns you've selected. In dashboards, the download control appears when the **Display download control** panel option is enabled.
 
 ## Where features moved
 
