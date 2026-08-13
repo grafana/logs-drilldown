@@ -79,7 +79,9 @@ The menu includes the following options:
 
 ## Log details
 
-Log details show all the information attached to a single log line. To open log details, click a log line, or select **Show log details** from the log line menu.
+Log details show all the information attached to a single log line. 
+
+To open log details, lick a log line or select **Show log details** from the log line menu.
 
 {{< figure alt="The log details sidebar next to the log list, with the copy menu open and collapsible sections for the log line, links to tracing data sources, a trace, and indexed labels" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-logs-details-copy-menu.png" caption="Log details in sidebar mode" >}}
 
