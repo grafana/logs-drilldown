@@ -10,6 +10,7 @@ import {
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
 import { functionConfigs, linkConfigs } from 'services/extensions/links';
+import { LOG_RESOURCE_ATTRIBUTE_LINKS, makeLogResourceAttributeLink } from 'services/extensions/resourceAttributes';
 
 // Anything imported in this file is included in the main bundle which is pre-loaded in Grafana
 // Don't add imports to this file without lazy loading
@@ -94,6 +95,10 @@ export const plugin = new AppPlugin<JsonData>()
 
 for (const linkConfig of linkConfigs) {
   plugin.addLink(linkConfig);
+}
+
+for (const config of LOG_RESOURCE_ATTRIBUTE_LINKS) {
+  plugin.addLink(makeLogResourceAttributeLink(config));
 }
 
 for (const functionConfig of functionConfigs) {

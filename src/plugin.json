@@ -86,6 +86,11 @@
         ],
         "title": "Open in Grafana Logs Drilldown",
         "description": "Open current query in the Grafana Logs Drilldown view"
+      },
+      {
+        "targets": ["grafana/traceview/resource-attributes"],
+        "title": "Logs Drilldown",
+        "description": "Logs Drilldown"
       }
     ],
     "exposedComponents": [
