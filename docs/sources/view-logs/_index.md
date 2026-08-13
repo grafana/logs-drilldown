@@ -46,7 +46,7 @@ From top to bottom, the log controls include:
 - **Scroll to the top**: Jump to the first log line in the view.
 
 {{< admonition type="note" >}}
-When you are in [JSON view](./json/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
+When you are in [JSON view](../json/), these controls are not available: client-side string search, deduplication, filter by log level, timestamp format, font size control, and download logs. JSON view includes additional toggles for showing structured metadata and labels.
 {{< /admonition >}}
 
 ## Panel menu
