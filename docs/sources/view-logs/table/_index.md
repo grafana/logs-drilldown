@@ -65,7 +65,7 @@ Click a column header to sort by that column, and click again to flip the direct
 
 ### Wrap text
 
-The wrap control in the rail toggles text wrapping for long log lines and cell values.
+Select the wrap control in the rail to toggle text wrapping for long log lines and cell values.
 
 ### Download
 
