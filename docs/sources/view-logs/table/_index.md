@@ -89,7 +89,7 @@ The export includes the columns you've selected. In dashboards, the download con
 
 If you're coming from the previous table view in Logs Drilldown or Grafana Explore, here's where features moved in the Logs table visualization:
 
-| Task                  | Previous table view                                                                 | Logs Table visualization                                                                       |
+| Task                  | Previous table view                                                                 | Logs table visualization                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | Inspect a log line    | The **View log line** eye icon opened an **Inspect value** dialog with the raw line | The **Show details** eye icon opens the full [log details sidebar](#view-log-details)          |
 | Add or remove columns | Fields sidebar with checkboxes                                                      | Same sidebar, unchanged                                                                        |
