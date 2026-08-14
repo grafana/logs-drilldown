@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css, cx } from '@emotion/css';
 
-import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
 
@@ -13,15 +13,14 @@ import { LoadSearchScene } from 'Components/SavedSearches/LoadSearchScene';
 import { SaveSearchButton } from 'Components/SavedSearches/SaveSearchButton';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { PageSlugs, TabNames, ValueSlugs } from 'services/enums';
+import { formatLogsCount, getDisplayedLogsCount } from 'services/logsCount';
 import { narrowPageSlug } from 'services/narrowing';
 import { getDrillDownTabLink } from 'services/navigate';
-import { LINE_LIMIT } from 'services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from 'services/routing';
 import { getMaxLines } from 'services/store';
 
 export interface ActionBarSceneState extends SceneObjectState {
   loadSearchScene?: LoadSearchScene;
-  maxLines?: number;
   shareButtonScene?: ShareButtonScene;
 }
 
@@ -33,10 +32,6 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
   }
 
   onActivate() {
-    this.setState({
-      maxLines: getMaxLines(this),
-    });
-
     if (!this.state.shareButtonScene) {
       this.setState({
         shareButtonScene: new ShareButtonScene({}),
@@ -85,7 +80,8 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     }
 
     const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
-    const { maxLines } = model.useState();
+    // Read the line limit fresh on every render; a snapshot goes stale when the user changes it
+    const displayedLogsCount = getDisplayedLogsCount(totalLogsCount, logsCount, getMaxLines(model));
 
     const loadingStates = state.loadingStates;
 
@@ -118,7 +114,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
                   counter={loadingStates[tab.displayName] ? undefined : getCounter(tab, state)}
                   suffix={
                     tab.displayName === TabNames.logs
-                      ? ({ className }) => LogsCount(className, totalLogsCount, logsCount, maxLines ?? LINE_LIMIT)
+                      ? ({ className }) => LogsCount(className, displayedLogsCount)
                       : undefined
                   }
                   icon={loadingStates[tab.displayName] ? 'spinner' : undefined}
@@ -181,35 +177,14 @@ function getStyles(theme: GrafanaTheme2) {
   };
 }
 
-function LogsCount(
-  className: string | undefined,
-  totalCount: number | undefined,
-  logsCount: number | undefined,
-  maxLines: number
-) {
+function LogsCount(className: string | undefined, count: number | undefined) {
   const styles = useStyles2(getLogsCountStyles);
-  const valueFormatter = getValueFormat('short');
 
-  // The instant query (totalCount) doesn't return good results for small result sets, if we're below the max number of lines, use the logs query result instead.
-  if (totalCount === undefined && logsCount !== undefined && logsCount < maxLines) {
-    const formattedCount = valueFormatter(logsCount, 0);
-    return (
-      <span className={cx(className, styles.logsCountStyles)}>
-        {formattedCount.text}
-        {formattedCount.suffix?.trim()}
-      </span>
-    );
-  } else if (totalCount !== undefined) {
-    const formattedTotalCount = valueFormatter(totalCount, 0);
-    return (
-      <span className={cx(className, styles.logsCountStyles)}>
-        {formattedTotalCount.text}
-        {formattedTotalCount.suffix?.trim()}
-      </span>
-    );
+  if (count === undefined) {
+    return <span className={cx(className, styles.emptyCountStyles)}></span>;
   }
 
-  return <span className={cx(className, styles.emptyCountStyles)}></span>;
+  return <span className={cx(className, styles.logsCountStyles)}>{formatLogsCount(count)}</span>;
 }
 
 function getLogsCountStyles(theme: GrafanaTheme2) {

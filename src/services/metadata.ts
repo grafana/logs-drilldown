@@ -1,8 +1,11 @@
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
+import { sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { DefaultLabelsSettings } from './api';
 import { LokiConfig, LokiConfigNotSupported } from './datasourceTypes';
 import { ServiceSceneCustomState } from 'Components/ServiceScene/ServiceScene';
+
+export type CountsTimeRange = { from: string; to: string };
 
 let metadataService: MetadataService;
 
@@ -18,6 +21,8 @@ export function initializeMetadataService(force = false): void {
  */
 export class MetadataService {
   private serviceSceneState: ServiceSceneCustomState | undefined = undefined;
+  // The raw time range (e.g. `now-1h`/`now`) the stored counts were computed for, see #2049
+  private countsTimeRange: CountsTimeRange | undefined = undefined;
   private lokiConfig: LokiConfigState;
   private defaultColumns: Record<string, LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords> = {};
   private defaultLabels: DefaultLabelsSettings | null = null;
@@ -26,20 +31,38 @@ export class MetadataService {
     return this.serviceSceneState;
   }
 
-  public setPatternsCount(count: number) {
+  public getCountsTimeRange() {
+    return this.countsTimeRange;
+  }
+
+  // Drop all counts, e.g. when the time range changes and every count is about to be recomputed
+  public clearCounts() {
+    if (!this.serviceSceneState) {
+      return;
+    }
+    this.serviceSceneState.fieldsCount = undefined;
+    this.serviceSceneState.labelsCount = undefined;
+    this.serviceSceneState.logsCount = undefined;
+    this.serviceSceneState.patternsCount = undefined;
+    this.serviceSceneState.totalLogsCount = undefined;
+  }
+
+  public setPatternsCount(count: number, range: CountsTimeRange) {
     if (!this.serviceSceneState) {
       this.serviceSceneState = {};
     }
 
     this.serviceSceneState.patternsCount = count;
+    this.countsTimeRange = range;
   }
 
-  public setLabelsCount(count: number) {
+  public setLabelsCount(count: number, range: CountsTimeRange) {
     if (!this.serviceSceneState) {
       this.serviceSceneState = {};
     }
 
     this.serviceSceneState.labelsCount = count;
+    this.countsTimeRange = range;
   }
 
   public setEmbedded(embedded: boolean) {
@@ -49,23 +72,34 @@ export class MetadataService {
     this.serviceSceneState.embedded = embedded;
   }
 
-  public setFieldsCount(count: number) {
+  public setFieldsCount(count: number, range: CountsTimeRange) {
     if (!this.serviceSceneState) {
       this.serviceSceneState = {};
     }
 
     this.serviceSceneState.fieldsCount = count;
+    this.countsTimeRange = range;
   }
 
-  public setTotalLogsCount(count: number) {
+  public setTotalLogsCount(count: number | undefined, range: CountsTimeRange) {
     if (!this.serviceSceneState) {
       this.serviceSceneState = {};
     }
 
     this.serviceSceneState.totalLogsCount = count;
+    this.countsTimeRange = range;
   }
 
-  public setServiceSceneState(state: ServiceSceneCustomState) {
+  public setLogsCount(count: number | undefined, range: CountsTimeRange) {
+    if (!this.serviceSceneState) {
+      this.serviceSceneState = {};
+    }
+
+    this.serviceSceneState.logsCount = count;
+    this.countsTimeRange = range;
+  }
+
+  public setServiceSceneState(state: ServiceSceneCustomState, range: CountsTimeRange) {
     this.serviceSceneState = {
       embedded: state.embedded,
       fieldsCount: state.fieldsCount,
@@ -75,6 +109,7 @@ export class MetadataService {
       patternsCount: state.patternsCount,
       totalLogsCount: state.totalLogsCount,
     };
+    this.countsTimeRange = range;
   }
 
   public setLokiConfig(lokiConfig: LokiConfig | LokiConfigNotSupported) {
@@ -118,4 +153,10 @@ export class MetadataService {
 
 export function getMetadataService(): MetadataService {
   return metadataService;
+}
+
+// The raw scene time range, passed with every count write so restores can detect counts from another range
+export function getRawTimeRange(sceneRef: SceneObject): CountsTimeRange {
+  const { from, to } = sceneGraph.getTimeRange(sceneRef).state;
+  return { from, to };
 }

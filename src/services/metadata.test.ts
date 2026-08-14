@@ -8,6 +8,8 @@ const mockDefaultColumns = {
   records: [],
 } as unknown as LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords;
 
+const range = { from: 'now-1h', to: 'now' };
+
 describe('MetadataService', () => {
   let service: MetadataService;
 
@@ -21,12 +23,12 @@ describe('MetadataService', () => {
     });
 
     it('initializes state and sets patternsCount', () => {
-      service.setPatternsCount(5);
+      service.setPatternsCount(5, range);
       expect(service.getServiceSceneState()).toEqual({ patternsCount: 5 });
     });
 
     it('initializes state and sets labelsCount', () => {
-      service.setLabelsCount(3);
+      service.setLabelsCount(3, range);
       expect(service.getServiceSceneState()).toEqual({ labelsCount: 3 });
     });
 
@@ -36,18 +38,18 @@ describe('MetadataService', () => {
     });
 
     it('initializes state and sets fieldsCount', () => {
-      service.setFieldsCount(10);
+      service.setFieldsCount(10, range);
       expect(service.getServiceSceneState()).toEqual({ fieldsCount: 10 });
     });
 
     it('initializes state and sets totalLogsCount', () => {
-      service.setTotalLogsCount(100);
+      service.setTotalLogsCount(100, range);
       expect(service.getServiceSceneState()).toEqual({ totalLogsCount: 100 });
     });
 
     it('merges multiple setters into same state', () => {
-      service.setPatternsCount(2);
-      service.setLabelsCount(4);
+      service.setPatternsCount(2, range);
+      service.setLabelsCount(4, range);
       service.setEmbedded(false);
       expect(service.getServiceSceneState()).toEqual({
         patternsCount: 2,
@@ -56,16 +58,52 @@ describe('MetadataService', () => {
       });
     });
 
-    it('setServiceSceneState replaces state with full snapshot', () => {
-      service.setServiceSceneState({
+    it('count setters record the time range the counts were computed for', () => {
+      expect(service.getCountsTimeRange()).toBeUndefined();
+      service.setTotalLogsCount(100, range);
+      expect(service.getCountsTimeRange()).toEqual(range);
+      service.setLogsCount(50, { from: 'now-6h', to: 'now' });
+      expect(service.getCountsTimeRange()).toEqual({ from: 'now-6h', to: 'now' });
+    });
+
+    it('clearCounts drops every count but keeps non-count state', () => {
+      service.setServiceSceneState(
+        {
+          embedded: true,
+          fieldsCount: 1,
+          labelsCount: 2,
+          loading: false,
+          logsCount: 50,
+          patternsCount: 3,
+          totalLogsCount: 100,
+        },
+        range
+      );
+      service.clearCounts();
+      expect(service.getServiceSceneState()).toEqual({
         embedded: true,
-        fieldsCount: 1,
-        labelsCount: 2,
+        fieldsCount: undefined,
+        labelsCount: undefined,
         loading: false,
-        logsCount: 50,
-        patternsCount: 3,
-        totalLogsCount: 100,
+        logsCount: undefined,
+        patternsCount: undefined,
+        totalLogsCount: undefined,
       });
+    });
+
+    it('setServiceSceneState replaces state with full snapshot', () => {
+      service.setServiceSceneState(
+        {
+          embedded: true,
+          fieldsCount: 1,
+          labelsCount: 2,
+          loading: false,
+          logsCount: 50,
+          patternsCount: 3,
+          totalLogsCount: 100,
+        },
+        range
+      );
       expect(service.getServiceSceneState()).toEqual({
         embedded: true,
         fieldsCount: 1,
@@ -197,7 +235,7 @@ describe('initializeMetadataService', () => {
 
   it('force=true replaces existing service', () => {
     const first = getMetadataService();
-    first.setPatternsCount(42);
+    first.setPatternsCount(42, range);
     initializeMetadataService(true);
     const second = getMetadataService();
     expect(second).toBeInstanceOf(MetadataService);

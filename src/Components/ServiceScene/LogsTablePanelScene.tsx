@@ -2,14 +2,7 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import {
-  FieldConfig,
-  FieldConfigSource,
-  getValueFormat,
-  GrafanaTheme2,
-  LogsSortOrder,
-  shallowCompare,
-} from '@grafana/data';
+import { FieldConfig, FieldConfigSource, GrafanaTheme2, LogsSortOrder, shallowCompare } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import {
   DeepPartial,
@@ -42,6 +35,7 @@ import { areArraysEqual } from 'services/comparison';
 import { getVariableForLabel, isLogsIdField } from 'services/fields';
 import { FilterOp } from 'services/filterTypes';
 import { logger } from 'services/logger';
+import { formatLogsCount } from 'services/logsCount';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTable';
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
@@ -246,9 +240,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
   }
 
   private getTitle(logsCount: number | undefined) {
-    const valueFormatter = getValueFormat('short');
-    const formattedCount = logsCount !== undefined ? valueFormatter(logsCount, 0) : undefined;
-    return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
+    return logsCount === undefined ? 'Logs' : `Logs (${formatLogsCount(logsCount)})`;
   }
 
   onLoadSyncDisplayedFieldsWithUrlColumns = () => {

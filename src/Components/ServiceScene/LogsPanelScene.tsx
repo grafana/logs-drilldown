@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react';
 
-import { DataFrame, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
+import { DataFrame, LogRowModel, shallowCompare } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
@@ -34,6 +34,7 @@ import { getVariableForLabel } from 'services/fields';
 import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
 import { logger } from 'services/logger';
+import { formatLogsCount } from 'services/logsCount';
 import { narrowLogsSortOrder } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
@@ -300,9 +301,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   private getTitle(logsCount: number | undefined) {
-    const valueFormatter = getValueFormat('short');
-    const formattedCount = logsCount !== undefined ? valueFormatter(logsCount, 0) : undefined;
-    return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
+    return logsCount === undefined ? 'Logs' : `Logs (${formatLogsCount(logsCount)})`;
   }
 
   private getLogsPanel = () => {
