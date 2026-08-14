@@ -44,9 +44,7 @@ export const initFaro = async () => {
           new TracingInstrumentation(),
         ],
         isolate: true,
-        // Benign browser noise, filtered by Grafana core's own faro config as well
-        // (GrafanaJavascriptAgentBackend): the ResizeObserver messages fire when a resize
-        // callback changes layout and delivery rolls to the next frame — no user impact.
+        // Benign browser noise; Grafana core's faro config ignores the same messages
         ignoreErrors: ['ResizeObserver loop limit exceeded', 'ResizeObserver loop completed'],
         beforeSend: (event) => {
           if ((event.meta.page?.url ?? '').includes(PLUGIN_BASE_URL)) {
