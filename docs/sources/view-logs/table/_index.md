@@ -50,7 +50,9 @@ Each row has a **Show details** eye icon at the start of the line.
 
 {{< figure alt="The table view with the Show details icon highlighted on a row and the log details sidebar open, showing the copy menu, the raw log line, and its fields" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-table-show-details-copy-menu.png" caption="Log details in the table view" >}}
 
-Select **Show details** to open the log details sidebar, where you can search fields, copy the log line, filter for or out field values, and view field statistics. Refer to [View logs](../#log-details) for everything log details can do. In the table view:
+Select **Show details** to open the log details sidebar, where you can search fields, copy the log line, filter for or out field values, and view field statistics. Refer to [View logs](../#log-details) for explanations. 
+
+In the table view:
 
 - Log details always open as a sidebar on the right, which you can resize or close with the **Close log details sidebar** icon or the Escape key.
 - The copy icon at the top of the sidebar opens a menu with **Copy log line message** and **Copy log contents as JSON** options, as shown in the previous image.
