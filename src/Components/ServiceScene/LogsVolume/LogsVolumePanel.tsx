@@ -31,13 +31,14 @@ import { toggleLevelFromFilter } from 'services/levels';
 import { formatLogsCount, getDisplayedLogsCount } from 'services/logsCount';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
-import { buildDataQuery } from 'services/query';
+import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
 import { getLogsVolumeOption, getMaxLines, setLogsVolumeOption } from 'services/store';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
+  maxLines?: number;
   panel?: VizPanel;
 }
 
@@ -54,6 +55,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private onActivate() {
+    // Snapshot at activation: getMaxLines parses the route and throws off-route, so never call it in subscriptions
+    this.setState({ maxLines: getMaxLines(this) });
+
     if (!this.state.panel) {
       const panel = this.getVizPanel();
       this.setState({
@@ -102,7 +106,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getTitle(totalLogsCount: number | undefined, logsCount: number | undefined) {
-    const count = getDisplayedLogsCount(totalLogsCount, logsCount, getMaxLines(this));
+    const count = getDisplayedLogsCount(totalLogsCount, logsCount, this.state.maxLines ?? LINE_LIMIT);
     return count === undefined ? 'Log volume' : `Log volume (${formatLogsCount(count)})`;
   }
 

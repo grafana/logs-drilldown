@@ -16,11 +16,13 @@ import { PageSlugs, TabNames, ValueSlugs } from 'services/enums';
 import { formatLogsCount, getDisplayedLogsCount } from 'services/logsCount';
 import { narrowPageSlug } from 'services/narrowing';
 import { getDrillDownTabLink } from 'services/navigate';
+import { LINE_LIMIT } from 'services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from 'services/routing';
 import { getMaxLines } from 'services/store';
 
 export interface ActionBarSceneState extends SceneObjectState {
   loadSearchScene?: LoadSearchScene;
+  maxLines?: number;
   shareButtonScene?: ShareButtonScene;
 }
 
@@ -32,6 +34,9 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
   }
 
   onActivate() {
+    // Snapshot at activation: getMaxLines parses the route and throws off-route, so never call it in render
+    this.setState({ maxLines: getMaxLines(this) });
+
     if (!this.state.shareButtonScene) {
       this.setState({
         shareButtonScene: new ShareButtonScene({}),
@@ -80,8 +85,8 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     }
 
     const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
-    // Read the line limit fresh on every render; a snapshot goes stale when the user changes it
-    const displayedLogsCount = getDisplayedLogsCount(totalLogsCount, logsCount, getMaxLines(model));
+    const { maxLines } = model.useState();
+    const displayedLogsCount = getDisplayedLogsCount(totalLogsCount, logsCount, maxLines ?? LINE_LIMIT);
 
     const loadingStates = state.loadingStates;
 

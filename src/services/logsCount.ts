@@ -6,11 +6,7 @@ export function formatLogsCount(count: number): string {
   return `${formatted.text}${formatted.suffix?.trim() ?? ''}`;
 }
 
-/**
- * Picks the logs count to display in the tab badge and log volume title.
- * Prefers the exact returned-line count when under the line limit (the query returned everything);
- * falls back to the instant count query total, which is approximate (see #2049).
- */
+// Count shown in tab badge and volume title: exact when under the line limit, else the approximate instant total (#2049)
 export function getDisplayedLogsCount(
   totalLogsCount: number | undefined,
   logsCount: number | undefined,
