@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css, cx } from '@emotion/css';
 
-import { getValueFormat, GrafanaTheme2 } from '@grafana/data';
+import { formattedValueToString, getValueFormat, GrafanaTheme2 } from '@grafana/data';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Box, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
 
@@ -188,25 +188,15 @@ function LogsCount(
   maxLines: number
 ) {
   const styles = useStyles2(getLogsCountStyles);
-  const valueFormatter = getValueFormat('short');
+  const valueFormatter = getValueFormat('locale');
 
   // The instant query (totalCount) doesn't return good results for small result sets, if we're below the max number of lines, use the logs query result instead.
   if (totalCount === undefined && logsCount !== undefined && logsCount < maxLines) {
     const formattedCount = valueFormatter(logsCount, 0);
-    return (
-      <span className={cx(className, styles.logsCountStyles)}>
-        {formattedCount.text}
-        {formattedCount.suffix?.trim()}
-      </span>
-    );
+    return <span className={cx(className, styles.logsCountStyles)}>{formattedValueToString(formattedCount)}</span>;
   } else if (totalCount !== undefined) {
     const formattedTotalCount = valueFormatter(totalCount, 0);
-    return (
-      <span className={cx(className, styles.logsCountStyles)}>
-        {formattedTotalCount.text}
-        {formattedTotalCount.suffix?.trim()}
-      </span>
-    );
+    return <span className={cx(className, styles.logsCountStyles)}>{formattedValueToString(formattedTotalCount)}</span>;
   }
 
   return <span className={cx(className, styles.emptyCountStyles)}></span>;

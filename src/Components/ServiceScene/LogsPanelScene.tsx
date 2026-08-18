@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react';
 
-import { DataFrame, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
+import { DataFrame, formattedValueToString, getValueFormat, LogRowModel, shallowCompare } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
 import {
@@ -300,9 +300,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   }
 
   private getTitle(logsCount: number | undefined) {
-    const valueFormatter = getValueFormat('short');
+    const valueFormatter = getValueFormat('locale');
     const formattedCount = logsCount !== undefined ? valueFormatter(logsCount, 0) : undefined;
-    return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
+    return formattedCount !== undefined ? `Logs (${formattedValueToString(formattedCount)})` : 'Logs';
   }
 
   private getLogsPanel = () => {

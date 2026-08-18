@@ -5,6 +5,7 @@ import { css } from '@emotion/css';
 import {
   FieldConfig,
   FieldConfigSource,
+  formattedValueToString,
   getValueFormat,
   GrafanaTheme2,
   LogsSortOrder,
@@ -246,9 +247,9 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
   }
 
   private getTitle(logsCount: number | undefined) {
-    const valueFormatter = getValueFormat('short');
+    const valueFormatter = getValueFormat('locale');
     const formattedCount = logsCount !== undefined ? valueFormatter(logsCount, 0) : undefined;
-    return formattedCount !== undefined ? `Logs (${formattedCount.text}${formattedCount.suffix?.trim()})` : 'Logs';
+    return formattedCount !== undefined ? `Logs (${formattedValueToString(formattedCount)})` : 'Logs';
   }
 
   onLoadSyncDisplayedFieldsWithUrlColumns = () => {
