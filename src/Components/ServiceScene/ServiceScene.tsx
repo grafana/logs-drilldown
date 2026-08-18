@@ -59,7 +59,7 @@ import { clearJSONParserFields } from 'services/fields';
 import { filterUnusedJSONFilters } from 'services/filters';
 import { logger } from 'services/logger';
 import { LokiQueryDirection } from 'services/lokiQuery';
-import { getMetadataService } from 'services/metadata';
+import { getMetadataService, getRawTimeRange } from 'services/metadata';
 import { migrateLineFilterV1 } from 'services/migrations';
 import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from 'services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from 'services/navigate';
@@ -410,7 +410,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         patternsCount: undefined,
         totalLogsCount: undefined,
       });
-      getMetadataService().setServiceSceneState(this.state);
+      getMetadataService().setServiceSceneState(this.state, getRawTimeRange(this));
       this._subs.unsubscribe();
 
       // Redirect to root with updated params, which will trigger history push back to index route, preventing empty page or empty service query bugs
@@ -442,11 +442,20 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     const metadataService = getMetadataService();
     const state = metadataService.getServiceSceneState();
 
-    if (state) {
-      this.setState({
-        ...state,
-      });
+    if (!state) {
+      return;
     }
+
+    const countsRange = metadataService.getCountsTimeRange();
+    const currentRange = sceneGraph.getTimeRange(this).state;
+    if (countsRange && countsRange.from === currentRange.from && countsRange.to === currentRange.to) {
+      this.setState({ ...state });
+      return;
+    }
+
+    // Counts were computed for a different time range; restore everything else and let the gated queries re-run
+    const { fieldsCount, labelsCount, logsCount, patternsCount, totalLogsCount, ...rest } = state;
+    this.setState({ ...rest });
   }
 
   getUrlState() {
@@ -629,7 +638,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       patternsCount: undefined,
     });
 
-    getMetadataService().setServiceSceneState(this.state);
+    getMetadataService().setServiceSceneState(this.state, getRawTimeRange(this));
   }
 
   private subscribeToFieldsVariable() {
@@ -702,7 +711,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       this.setState({
         patternsCount,
       });
-      getMetadataService().setPatternsCount(patternsCount);
+      getMetadataService().setPatternsCount(patternsCount, getRawTimeRange(this));
     });
   }
 
@@ -724,9 +733,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     if (slug === PageSlugs.fields || parentSlug === ValueSlugs.field || this.state.fieldsCount === undefined) {
       this.state.$detectedFieldsData?.runQueries();
     }
-    if (this.state.logsCount === undefined) {
-      this.state.$logsCount?.runQueries();
-    }
+    // Always refresh: counts restored from metadata can belong to an older time range (#2049)
+    this.state.$logsCount?.runQueries();
   }
 
   private subscribeToPatternsQuery() {
@@ -737,7 +745,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         this.setState({
           patternsCount,
         });
-        getMetadataService().setPatternsCount(patternsCount);
+        getMetadataService().setPatternsCount(patternsCount, getRawTimeRange(this));
       }
     });
   }
@@ -757,7 +765,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           this.setState({
             labelsCount: removeSpecialFields.length + 1, // Add one for detected_level
           });
-          getMetadataService().setLabelsCount(detectedLabelsFields.length);
+          getMetadataService().setLabelsCount(detectedLabelsFields.length, getRawTimeRange(this));
         }
       }
     });
@@ -780,7 +788,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           this.setState({
             logsCount: resultCount,
           });
+          getMetadataService().setLogsCount(resultCount, getRawTimeRange(this));
         }
+      } else if (newState.data?.state === LoadingState.Loading && this.state.logsCount !== undefined) {
+        // Clear instead of showing the previous range's count while the query re-runs (#2049)
+        this.setState({ logsCount: undefined });
+        getMetadataService().setLogsCount(undefined, getRawTimeRange(this));
       }
 
       onQuery(newState, this);
@@ -795,7 +808,11 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
         this.setState({
           totalLogsCount: value,
         });
-        getMetadataService().setTotalLogsCount(value ?? 0);
+        getMetadataService().setTotalLogsCount(value, getRawTimeRange(this));
+      } else if (newState.data?.state === LoadingState.Loading && this.state.totalLogsCount !== undefined) {
+        // Clear instead of showing the previous range's count while the query re-runs (#2049)
+        this.setState({ totalLogsCount: undefined });
+        getMetadataService().setTotalLogsCount(undefined, getRawTimeRange(this));
       }
     });
   }
@@ -811,7 +828,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           this.setState({
             fieldsCount: detectedFieldsFrame.length,
           });
-          getMetadataService().setFieldsCount(detectedFieldsFrame.length);
+          getMetadataService().setFieldsCount(detectedFieldsFrame.length, getRawTimeRange(this));
         }
       }
     });
@@ -819,6 +836,15 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
   private subscribeToTimeRange() {
     return sceneGraph.getTimeRange(this).subscribeToState(() => {
+      // Every count is about to be recomputed; clear them so a mid-flight navigation can't restore mixed-range values (#2049)
+      this.setState({
+        fieldsCount: undefined,
+        labelsCount: undefined,
+        logsCount: undefined,
+        patternsCount: undefined,
+        totalLogsCount: undefined,
+      });
+      getMetadataService().clearCounts();
       this.state.$patternsData?.runQueries();
       this.state.$detectedLabelsData?.runQueries();
       this.state.$detectedFieldsData?.runQueries();

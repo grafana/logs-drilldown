@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DataFrame, getValueFormat, LoadingState } from '@grafana/data';
+import { DataFrame, LoadingState } from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -19,7 +19,6 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
@@ -29,15 +28,17 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'se
 import { areArraysEqual } from 'services/comparison';
 import { getTimeSeriesExpr } from 'services/expressions';
 import { toggleLevelFromFilter } from 'services/levels';
+import { formatLogsCount, getDisplayedLogsCount } from 'services/logsCount';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
-import { getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
+import { getLogsVolumeOption, getMaxLines, setLogsVolumeOption } from 'services/store';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
+  maxLines?: number;
   panel?: VizPanel;
 }
 
@@ -54,6 +55,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private onActivate() {
+    // Snapshot at activation: getMaxLines parses the route and throws off-route, so never call it in subscriptions
+    this.setState({ maxLines: getMaxLines(this) });
+
     if (!this.state.panel) {
       const panel = this.getVizPanel();
       this.setState({
@@ -102,20 +106,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getTitle(totalLogsCount: number | undefined, logsCount: number | undefined) {
-    const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    const maxLines = indexScene.state.ds?.maxLines ?? LINE_LIMIT;
-    const valueFormatter = getValueFormat('short');
-    const formattedTotalCount = totalLogsCount !== undefined ? valueFormatter(totalLogsCount, 0) : undefined;
-    // The instant query (totalLogsCount) doesn't return good results for small result sets, if we're below the max number of lines, use the logs query result instead.
-    if (totalLogsCount === undefined && logsCount !== undefined && logsCount < maxLines) {
-      const formattedCount = valueFormatter(logsCount, 0);
-      return formattedCount !== undefined
-        ? `Log volume (${formattedCount.text}${formattedCount.suffix?.trim()})`
-        : 'Log volume';
-    }
-    return formattedTotalCount !== undefined
-      ? `Log volume (${formattedTotalCount.text}${formattedTotalCount.suffix?.trim()})`
-      : 'Log volume';
+    const count = getDisplayedLogsCount(totalLogsCount, logsCount, this.state.maxLines ?? LINE_LIMIT);
+    return count === undefined ? 'Log volume' : `Log volume (${formatLogsCount(count)})`;
   }
 
   private setCollapsed(collapsed: boolean | undefined, panel: VizPanel) {
@@ -200,7 +192,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
 
     this._subs.add(
       serviceScene.subscribeToState((newState, prevState) => {
-        if (newState.totalLogsCount !== prevState.totalLogsCount || newState.logsCount !== undefined) {
+        if (newState.totalLogsCount !== prevState.totalLogsCount || newState.logsCount !== prevState.logsCount) {
           if (!this.state.panel) {
             this.setState({
               panel: this.getVizPanel(),

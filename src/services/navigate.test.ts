@@ -12,6 +12,7 @@ jest.mock('@grafana/scenes', () => ({
   ...jest.requireActual('@grafana/scenes'),
   sceneGraph: {
     getAncestor: () => mockIndexScene,
+    getTimeRange: () => ({ state: { from: 'now-1h', to: 'now' } }),
   },
 }));
 describe('navigate', () => {

@@ -4,7 +4,7 @@ import { sceneGraph } from '@grafana/scenes';
 
 import { PageSlugs, ValueSlugs } from './enums';
 import { escapePrimaryLabel } from './extensions/links';
-import { getMetadataService } from './metadata';
+import { getMetadataService, getRawTimeRange } from './metadata';
 import { prefixRoute } from './plugin';
 import { buildServicesUrl, DRILLDOWN_URL_KEYS, ROUTES } from './routing';
 import { ALL_VARIABLE_VALUE } from './variables';
@@ -62,7 +62,7 @@ export function getValueBreakdownLink(newPath: ValueSlugs, label: string, servic
     // If we're going to navigate, we need to share the state between this instantiation of the service scene
     if (serviceScene) {
       const metadataService = getMetadataService();
-      metadataService.setServiceSceneState(serviceScene.state);
+      metadataService.setServiceSceneState(serviceScene.state, getRawTimeRange(serviceScene));
     }
 
     return fullUrl;
@@ -133,7 +133,7 @@ export function navigateToDrilldownPage(path: PageSlugs, serviceScene: ServiceSc
     // If we're going to navigate, we need to share the state between this instantiation of the service scene
     if (serviceScene) {
       const metadataService = getMetadataService();
-      metadataService.setServiceSceneState(serviceScene.state);
+      metadataService.setServiceSceneState(serviceScene.state, getRawTimeRange(serviceScene));
     }
 
     pushUrlHandler(drilldownLink);
