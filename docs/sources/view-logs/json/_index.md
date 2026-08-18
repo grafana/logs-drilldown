@@ -1,13 +1,15 @@
 ---
-canonical: https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/viewing-json-logs/
+aliases:
+  - ../../viewing-json-logs/ # old URL before this page moved under view-logs/
+canonical: https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/view-logs/json/
 description: Learn how to view JSON formatted logs in Logs Drilldown.
 keywords:
   - Logs
   - JSON
   - Formatting
-menuTitle: Viewing JSON logs
+menuTitle: JSON
 title: Logs Drilldown JSON viewer
-weight: 800
+weight: 300
 ---
 
 # Logs Drilldown JSON viewer
@@ -24,11 +26,11 @@ To interact with the JSON view, select **Show logs** for your service in Logs Dr
 
 {{< figure alt="Logs Drilldown service panel with Show logs highlighted" caption="Show logs button" width="500px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-show-logs.png" >}}
 
-On the **Logs** tab, select the **JSON** radio button in the panel header (next to **Logs** and **Table**) to switch to the JSON viewer. Your logs are displayed in a structured, collapsible tree view, enabling you to browse, expand, and collapse JSON fields.
+On the **Logs** tab, select the **JSON** radio button in the panel header (next to **Logs** and **Table**) to switch to the JSON viewer. The JSON viewer displays your logs in a structured, collapsible tree view, so you can browse, expand, and collapse JSON fields.
 
 {{< figure alt="Logs Drilldown JSON viewer with structured log rows" width="900px" align="center" src="/media/docs/explore-logs/v2/logs-drilldown-json-viewer.png" caption="The JSON viewer" >}}
 
-The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but does not open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../view-logs/).
+The **Line wrapping** control in the log controls panel also offers an **Enabled with JSON formatting** option. This pretty-prints JSON within the standard Logs view but doesn't open the dedicated JSON viewer. For more information about line wrapping, refer to [View logs](../view-logs/).
 
 ## Filtering log lines with the JSON view
 
@@ -46,4 +48,4 @@ To include filtered log data again, remove the excluded data from the **Fields**
 
 Log lines entirely formatted as JSON are supported.
 
-Log lines with only certain fields or metadata structured as JSON are not currently supported.
+Log lines with only certain fields or metadata structured as JSON aren't currently supported.

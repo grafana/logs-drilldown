@@ -87,7 +87,7 @@ Patterns tab user interface:
 
 When you expand a pattern row to view log lines with that pattern, each row has a menu with the following options:
 
-- **Show/Hide log details**: Select from the menu for the individual log line to view the log line, index labels, parsed fields, and structured metadata. For more information, refer to [View logs](../view-logs/).
+- **Show/Hide log details**: Select from the menu for the individual log line to view the log line, index labels, parsed fields, and structured metadata. For more information, refer to [View logs](../view-logs/#log-details).
 - **Show context**: Select from the menu to view the log line in the context of the logs that occurred before and after that specific log.
 - **Copy log line**: Select from the menu to copy individual log lines to the clipboard.
 
