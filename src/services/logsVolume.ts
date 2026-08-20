@@ -1,8 +1,27 @@
-import { LoadingState } from '@grafana/data';
+import { DataFrame, FieldType, LoadingState } from '@grafana/data';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { getLevelLabelsFromSeries } from './levels';
 import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
+
+/**
+ * Sums every numeric sample across logs volume range series (all levels / buckets).
+ */
+export function sumLogsVolumeSeries(series: DataFrame[]): number {
+  let total = 0;
+  for (const frame of series) {
+    const valueField = frame.fields.find((field) => field.type === FieldType.number);
+    if (!valueField) {
+      continue;
+    }
+    for (const value of valueField.values) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        total += value;
+      }
+    }
+  }
+  return total;
+}
 
 /**
  * Reads distinct detected_level names from a completed logs volume (range) query.
