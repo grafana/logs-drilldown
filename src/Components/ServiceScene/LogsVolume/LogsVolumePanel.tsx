@@ -30,6 +30,7 @@ import { areArraysEqual } from 'services/comparison';
 import { getTimeSeriesExpr } from 'services/expressions';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
+import { sumLogsVolumeSeries } from 'services/logsVolume';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
@@ -101,13 +102,21 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     );
   }
 
-  private getTitle(totalLogsCount: number | undefined, logsCount: number | undefined) {
+  private getTitle() {
+    const isCollapsed = getLogsVolumeOption('collapsed');
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    // Instant query or logs volume count
+    const totalLogsCount = this.getVolumeOrInstantQueryCount();
+    // Logs Panel response count
+    const logsCount = serviceScene.state.logsCount;
+
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const maxLines = indexScene.state.ds?.maxLines ?? LINE_LIMIT;
-    const valueFormatter = getValueFormat('locale');
+    // The instant query can be inaccurate, so we show a short version of the number. A full-range logs volume query will return the correct count.
+    const valueFormatter = getValueFormat(isCollapsed ? 'short' : 'locale');
     const formattedTotalCount = totalLogsCount !== undefined ? valueFormatter(totalLogsCount, 0) : undefined;
     // The instant query (totalLogsCount) doesn't return good results for small result sets, if we're below the max number of lines, use the logs query result instead.
-    if (totalLogsCount === undefined && logsCount !== undefined && logsCount < maxLines) {
+    if (logsCount !== undefined && logsCount < maxLines) {
       const formattedCount = valueFormatter(logsCount, 0);
       return formattedCount !== undefined ? `Log volume (${formattedValueToString(formattedCount)})` : 'Log volume';
     }
@@ -115,6 +124,16 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       ? `Log volume (${formattedValueToString(formattedTotalCount)})`
       : 'Log volume';
   }
+
+  private getVolumeOrInstantQueryCount = () => {
+    const panelData = this.state.panel?.state.$data?.state.data;
+    if (panelData?.state === LoadingState.Done && panelData.series) {
+      return sumLogsVolumeSeries(panelData.series);
+    }
+
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    return serviceScene.state.totalLogsCount;
+  };
 
   private setCollapsed(collapsed: boolean | undefined, panel: VizPanel) {
     if (collapsed) {
@@ -141,7 +160,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const isCollapsed = getLogsVolumeOption('collapsed');
     // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
-      .setTitle(this.getTitle(serviceScene.state.totalLogsCount, serviceScene.state.logsCount))
+      .setTitle(this.getTitle())
       .setOption('legend', {
         calcs: ['sum'],
         displayMode: LegendDisplayMode.List,
@@ -205,7 +224,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
             });
           } else {
             this.state.panel.setState({
-              title: this.getTitle(newState.totalLogsCount, newState.logsCount),
+              title: this.getTitle(),
             });
           }
         }
@@ -228,6 +247,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
           this.displayVisibleRange();
         }
         syncLevelsVisibleSeries(panel, newState.data.series, this);
+        panel.setState({
+          title: this.getTitle(),
+        });
       })
     );
   }
