@@ -1,6 +1,13 @@
 import React from 'react';
 
-import { DataFrame, formattedValueToString, getValueFormat, LoadingState } from '@grafana/data';
+import {
+  DataFrame,
+  FormattedValue,
+  formattedValueToString,
+  getValueFormat,
+  LoadingState,
+  ValueFormatter,
+} from '@grafana/data';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -112,22 +119,31 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
 
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const maxLines = indexScene.state.ds?.maxLines ?? LINE_LIMIT;
-    // The instant query can be inaccurate, so we show a short version of the number. A full-range logs volume query will return the correct count.
-    const valueFormatter = getValueFormat(isCollapsed ? 'short' : 'locale');
-    const formattedTotalCount = totalLogsCount !== undefined ? valueFormatter(totalLogsCount, 0) : undefined;
+
+    // Potentially inaccurate, wait for logsCount
+    if (totalLogsCount !== undefined && totalLogsCount < maxLines && logsCount === undefined) {
+      return 'Log volume';
+    }
+
+    let valueFormatter: ValueFormatter;
+    let formattedCount: FormattedValue | undefined = undefined;
+
     // The instant query (totalLogsCount) doesn't return good results for small result sets, if we're below the max number of lines, use the logs query result instead.
     if (logsCount !== undefined && logsCount < maxLines) {
-      const formattedCount = valueFormatter(logsCount, 0);
-      return formattedCount !== undefined ? `Log volume (${formattedValueToString(formattedCount)})` : 'Log volume';
+      valueFormatter = getValueFormat('locale');
+      formattedCount = valueFormatter(logsCount, 0);
+    } else if (totalLogsCount !== undefined) {
+      // The instant query can be inaccurate, so we show a short version of the number. A full-range logs volume query will return the correct count.
+      valueFormatter = getValueFormat(isCollapsed ? 'short' : 'locale');
+      formattedCount = valueFormatter(totalLogsCount, 0);
     }
-    return formattedTotalCount !== undefined
-      ? `Log volume (${formattedValueToString(formattedTotalCount)})`
-      : 'Log volume';
+
+    return formattedCount !== undefined ? `Log volume (${formattedValueToString(formattedCount)})` : 'Log volume';
   }
 
   private getVolumeOrInstantQueryCount = () => {
     const panelData = this.state.panel?.state.$data?.state.data;
-    if (panelData?.state === LoadingState.Done && panelData.series) {
+    if (panelData?.series) {
       return sumLogsVolumeSeries(panelData.series);
     }
 
