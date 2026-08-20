@@ -144,7 +144,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private getVolumeOrInstantQueryCount = () => {
     const panelData = this.state.panel?.state.$data?.state.data;
     if (panelData?.series) {
-      return sumLogsVolumeSeries(panelData.series);
+      return sumLogsVolumeSeries(panelData.series, this);
     }
 
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
@@ -244,6 +244,17 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
             });
           }
         }
+      })
+    );
+
+    this._subs.add(
+      getLevelsVariable(this).subscribeToState((newState, prevState) => {
+        if (areArraysEqual(newState.filters, prevState.filters) || !this.state.panel) {
+          return;
+        }
+        this.state.panel.setState({
+          title: this.getTitle(),
+        });
       })
     );
 
