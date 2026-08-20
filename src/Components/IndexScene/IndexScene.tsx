@@ -260,10 +260,6 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this._subs.add(unsub);
     this.addActivationHandler(this.onActivate.bind(this));
-
-    getLokiDatasource(this).then((ds) => {
-      this.setState({ ds });
-    });
   }
 
   static Component = ({ model }: SceneComponentProps<IndexScene>) => {
@@ -387,6 +383,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     this._subs.add(this.subscribeToLokiConfigAPI());
     this._subs.add(this.subscribeToDataSourceChange());
+    this.updateDatasource();
 
     this.getDefaultColumnsFromAppPlatform();
     this.getDefaultLabelsAndSetContentScene();
@@ -498,9 +495,16 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     }
   }
 
+  private updateDatasource() {
+    getLokiDatasource(this).then((ds) => {
+      this.setState({ ds });
+    });
+  }
+
   private subscribeToDataSourceChange() {
     return getDataSourceVariable(this).subscribeToState((newState, prevState) => {
       if (newState.value !== prevState.value) {
+        this.updateDatasource();
         this.state.$lokiConfig.runQueries();
         this.getDefaultColumnsFromAppPlatform();
       }
