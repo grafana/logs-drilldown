@@ -272,8 +272,6 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       },
     }),
     stickyControlsContainer: css({
-      background: theme.colors.background.canvas,
-      boxShadow: theme.shadows.z1,
       gap: theme.spacing(0),
       left: 0,
       position: 'sticky',
