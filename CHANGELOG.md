@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.2](https://github.com/grafana/logs-drilldown/compare/v2.5.1...v2.5.2) (2026-08-18)
+
+
+### 📝 Documentation
+
+* **table:** add logs table and update logs panel docs with images ([#2047](https://github.com/grafana/logs-drilldown/issues/2047)) ([7f77b97](https://github.com/grafana/logs-drilldown/commit/7f77b97d9c36692669067f349e37cc3ddf820a7a))
+
 ## [2.5.1](https://github.com/grafana/logs-drilldown/compare/v2.5.0...v2.5.1) (2026-08-12)
 
 
