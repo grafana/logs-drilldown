@@ -1,44 +1,38 @@
-import React from "react";
+import React from 'react';
 
-import { css, cx } from "@emotion/css";
+import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2 } from "@grafana/data";
-import { t } from "@grafana/i18n";
-import { reportInteraction, useChromeHeaderHeight } from "@grafana/runtime";
-import {
-  SceneComponentProps,
-  SceneFlexLayout,
-  sceneGraph,
-  SceneObjectBase,
-  SceneObjectState,
-} from "@grafana/scenes";
-import { ButtonGroup, ToolbarButton, useStyles2 } from "@grafana/ui";
+import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
+import { reportInteraction, useChromeHeaderHeight } from '@grafana/runtime';
+import { SceneComponentProps, SceneFlexLayout, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { ButtonGroup, ToolbarButton, useStyles2 } from '@grafana/ui';
 
-import { CustomVariableValueSelectors } from "./CustomVariableValueSelectors";
-import { IndexScene } from "./IndexScene";
+import { CustomVariableValueSelectors } from './CustomVariableValueSelectors';
+import { IndexScene } from './IndexScene';
 import {
   CONTROLS_JSON_FIELDS,
   CONTROLS_VARS_DATASOURCE,
   CONTROLS_VARS_FIELDS_COMBINED,
   LayoutScene,
-} from "./LayoutScene";
-import { PatternControls } from "./PatternControls";
-import { ResetFiltersButton } from "./ResetFiltersButton";
-import { ToolbarScene } from "./ToolbarScene";
-import { EmbeddedLinkScene } from "Components/EmbeddedLogsExploration/EmbeddedLinkScene";
-import { PluginInfo } from "Components/Header/PluginInfo";
-import { PageSlugs } from "services/enums";
-import { getDrilldownSlug } from "services/routing";
-import { syncLogsListPanelHeightFromScene } from "services/scenes";
+} from './LayoutScene';
+import { PatternControls } from './PatternControls';
+import { ResetFiltersButton } from './ResetFiltersButton';
+import { ToolbarScene } from './ToolbarScene';
+import { EmbeddedLinkScene } from 'Components/EmbeddedLogsExploration/EmbeddedLinkScene';
+import { PluginInfo } from 'Components/Header/PluginInfo';
+import { PageSlugs } from 'services/enums';
+import { getDrilldownSlug } from 'services/routing';
+import { syncLogsListPanelHeightFromScene } from 'services/scenes';
 import {
   getCollapsibleFiltersState,
   getJsonParserVariableVisibility,
   setCollapsibleFiltersState,
-} from "services/store";
-import { testIds } from "services/testIds";
-import { AppliedPattern } from "services/variables";
+} from 'services/store';
+import { testIds } from 'services/testIds';
+import { AppliedPattern } from 'services/variables';
 
-type HeaderPosition = "relative" | "sticky";
+type HeaderPosition = 'relative' | 'sticky';
 interface VariableLayoutSceneState extends SceneObjectState {
   collapsed?: boolean;
   embeddedLink?: EmbeddedLinkScene;
@@ -55,7 +49,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
     this.addActivationHandler(this.onActivate.bind(this));
 
-    reportInteraction("grafana_logs_app_filters_collapse_state", {
+    reportInteraction('grafana_logs_app_filters_collapse_state', {
       collapsed,
     });
   }
@@ -75,7 +69,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
       collapsed,
     });
     setCollapsibleFiltersState(collapsed);
-    reportInteraction("grafana_logs_app_filters_collapse_toggled", {
+    reportInteraction('grafana_logs_app_filters_collapse_toggled', {
       collapsed,
     });
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
@@ -87,24 +81,19 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns, embedded, kgAnnotationToggle } =
-      indexScene.useState();
+    const { controls, patterns, embedded, kgAnnotationToggle } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
     const { collapsed } = model.useState();
-    const styles = useStyles2((theme) =>
-      getStyles(theme, height ?? 40, collapsed),
-    );
+    const styles = useStyles2((theme) => getStyles(theme, height ?? 40, collapsed));
     const slug = getDrilldownSlug();
 
     return (
       <div
         className={cx(
           styles.controlsContainer,
-          model.state.position === "sticky"
-            ? styles.stickyControlsContainer
-            : undefined,
+          model.state.position === 'sticky' ? styles.stickyControlsContainer : undefined
         )}
       >
         <>
@@ -115,10 +104,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                 <div className={cx(styles.filters, styles.firstRowWrapper)}>
                   {controls.map((control) => {
                     return control instanceof SceneFlexLayout ? (
-                      <control.Component
-                        key={control.state.key}
-                        model={control}
-                      />
+                      <control.Component key={control.state.key} model={control} />
                     ) : null;
                   })}
                 </div>
@@ -126,39 +112,24 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               </div>
               <div className={styles.controlsWrapper}>
                 <div className={styles.timeRangeDatasource}>
-                  {model.state.embeddedLink && (
-                    <model.state.embeddedLink.Component
-                      model={model.state.embeddedLink}
-                    />
-                  )}
+                  {model.state.embeddedLink && <model.state.embeddedLink.Component model={model.state.embeddedLink} />}
 
                   {controls.map((control) => {
                     return control.state.key === CONTROLS_VARS_DATASOURCE ? (
-                      <control.Component
-                        key={control.state.key}
-                        model={control}
-                      />
+                      <control.Component key={control.state.key} model={control} />
                     ) : null;
                   })}
 
                   {slug !== PageSlugs.explore && (
                     <ToolbarButton
-                      className={
-                        collapsed ? styles.iconCollapsed : styles.iconExpanded
-                      }
-                      variant={collapsed ? "active" : "canvas"}
+                      className={collapsed ? styles.iconCollapsed : styles.iconExpanded}
+                      variant={collapsed ? 'active' : 'canvas'}
                       icon="arrow-from-right"
                       onClick={model.toggleCollapsedState}
                       tooltip={
                         collapsed
-                          ? t(
-                              "components.index-scene.variable-layout-scene.expand",
-                              "Expand filters",
-                            )
-                          : t(
-                              "components.index-scene.variable-layout-scene.collapse",
-                              "Collapse filters",
-                            )
+                          ? t('components.index-scene.variable-layout-scene.expand', 'Expand filters')
+                          : t('components.index-scene.variable-layout-scene.collapse', 'Collapse filters')
                       }
                     />
                   )}
@@ -168,27 +139,16 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                       const skipControl =
                         control instanceof CustomVariableValueSelectors ||
                         control instanceof SceneFlexLayout ||
-                        (control instanceof ToolbarScene &&
-                          !indexScene.state.embedded);
+                        (control instanceof ToolbarScene && !indexScene.state.embedded);
 
-                      return !skipControl ? (
-                        <control.Component
-                          key={control.state.key}
-                          model={control}
-                        />
-                      ) : null;
+                      return !skipControl ? <control.Component key={control.state.key} model={control} /> : null;
                     })}
                   </div>
                   {!indexScene.state.embedded && (
-                    <ButtonGroup
-                      data-testid={testIds.header.pluginHeaderToolbar}
-                    >
+                    <ButtonGroup data-testid={testIds.header.pluginHeaderToolbar}>
                       {controls.map((control) => {
                         return control instanceof ToolbarScene ? (
-                          <control.Component
-                            key={control.state.key}
-                            model={control}
-                          />
+                          <control.Component key={control.state.key} model={control} />
                         ) : null;
                       })}
                       <PluginInfo variant="canvas" />
@@ -201,27 +161,20 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
           {/* 2nd row — Log levels, Fields (+ metadata), Line filters (same row); KG toggle when shown */}
           <div className={styles.controlsRowContainer}>
-            {levelsRenderer && (
-              <levelsRenderer.Component model={levelsRenderer} />
-            )}
+            {levelsRenderer && <levelsRenderer.Component model={levelsRenderer} />}
             {controls && (
               <div className={styles.filtersWrap}>
                 <div className={styles.filters}>
                   {controls.map((control) => {
                     return control instanceof CustomVariableValueSelectors &&
                       control.state.key === CONTROLS_VARS_FIELDS_COMBINED ? (
-                      <control.Component
-                        key={control.state.key}
-                        model={control}
-                      />
+                      <control.Component key={control.state.key} model={control} />
                     ) : null;
                   })}
                 </div>
               </div>
             )}
-            {lineFilterRenderer && (
-              <lineFilterRenderer.Component model={lineFilterRenderer} />
-            )}
+            {lineFilterRenderer && <lineFilterRenderer.Component model={lineFilterRenderer} />}
             {kgAnnotationToggle && slug !== PageSlugs.explore && (
               <kgAnnotationToggle.Component model={kgAnnotationToggle} />
             )}
@@ -236,10 +189,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
                     {controls.map((control) => {
                       return control instanceof CustomVariableValueSelectors &&
                         control.state.key === CONTROLS_JSON_FIELDS ? (
-                        <control.Component
-                          key={control.state.key}
-                          model={control}
-                        />
+                        <control.Component key={control.state.key} model={control} />
                       ) : null;
                     })}
                   </div>
@@ -252,9 +202,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
           <div className={styles.controlsRowContainer}>
             <PatternControls
               patterns={patterns}
-              onRemove={(patterns: AppliedPattern[]) =>
-                indexScene.setState({ patterns })
-              }
+              onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
             />
           </div>
         </>
@@ -263,98 +211,94 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
   };
 }
 
-function getStyles(
-  theme: GrafanaTheme2,
-  height: number,
-  headerCollapsed = false,
-) {
+function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false) {
   return {
     controlsContainer: css({
-      display: "flex",
-      flexDirection: "column",
+      display: 'flex',
+      flexDirection: 'column',
       gap: theme.spacing(1),
-      label: "controlsContainer",
+      label: 'controlsContainer',
       padding: theme.spacing(2),
     }),
     controlsFirstRowContainer: css({
-      [theme.breakpoints.down("md")]: {
-        flexDirection: "column-reverse",
+      [theme.breakpoints.down('md')]: {
+        flexDirection: 'column-reverse',
       },
-      alignItems: "flex-start",
-      display: "flex",
+      alignItems: 'flex-start',
+      display: 'flex',
       gap: theme.spacing(2),
-      justifyContent: "space-between",
-      label: "controls-first-row",
+      justifyContent: 'space-between',
+      label: 'controls-first-row',
     }),
     controlsRowContainer: css({
-      [theme.breakpoints.down("lg")]: {
-        flexDirection: "column",
+      [theme.breakpoints.down('lg')]: {
+        flexDirection: 'column',
       },
-      "&:empty": {
-        display: "none",
+      '&:empty': {
+        display: 'none',
       },
-      alignItems: "flex-start",
-      display: headerCollapsed ? "none" : "flex",
-      flexWrap: "wrap",
+      alignItems: 'flex-start',
+      display: headerCollapsed ? 'none' : 'flex',
+      flexWrap: 'wrap',
       gap: theme.spacing(2),
-      label: "controls-row",
+      label: 'controls-row',
     }),
     controlsWrapper: css({
-      display: "flex",
-      flexDirection: "column",
-      label: "controlsWrapper",
+      display: 'flex',
+      flexDirection: 'column',
+      label: 'controlsWrapper',
       marginTop: theme.spacing(0.375),
     }),
     filters: css({
-      display: "flex",
-      label: "filters",
+      display: 'flex',
+      label: 'filters',
     }),
     filtersWrap: css({
-      alignItems: "flex-end",
-      display: "flex",
-      flexWrap: "wrap",
+      alignItems: 'flex-end',
+      display: 'flex',
+      flexWrap: 'wrap',
       gap: theme.spacing(2),
-      label: "filtersWrap",
+      label: 'filtersWrap',
     }),
     firstRowWrapper: css({
-      "& > div > div": {
-        [theme.breakpoints.down("lg")]: {
-          flexDirection: "column",
+      '& > div > div': {
+        [theme.breakpoints.down('lg')]: {
+          flexDirection: 'column',
         },
-        gap: "16px",
+        gap: '16px',
 
         // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        label: "first-row-wrapper",
+        label: 'first-row-wrapper',
       },
     }),
     stickyControlsContainer: css({
       gap: theme.spacing(0),
       left: 0,
-      position: "sticky",
+      position: 'sticky',
       top: height,
       zIndex: theme.zIndex.navbarFixed,
     }),
     timeRange: css({
-      display: "flex",
-      flexDirection: "row",
+      display: 'flex',
+      flexDirection: 'row',
       gap: theme.spacing(1),
-      label: "timeRange",
+      label: 'timeRange',
     }),
     timeRangeDatasource: css({
-      display: "flex",
-      flexWrap: "wrap",
+      display: 'flex',
+      flexWrap: 'wrap',
       gap: theme.spacing(1),
-      justifyContent: "flex-end",
-      label: "timeRangeDatasource",
+      justifyContent: 'flex-end',
+      label: 'timeRangeDatasource',
     }),
     iconCollapsed: css({
       svg: {
-        transform: "rotate(90deg)",
+        transform: 'rotate(90deg)',
       },
     }),
     iconExpanded: css({
       svg: {
-        transform: "rotate(-90deg)",
+        transform: 'rotate(-90deg)',
       },
     }),
   };
