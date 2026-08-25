@@ -8,6 +8,7 @@ import {
   LoadingState,
   ValueFormatter,
 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -120,9 +121,11 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const maxLines = indexScene.state.ds?.maxLines ?? LINE_LIMIT;
 
+    const title = t('components.service-scene.logs-volume.logs-volume-panel.title', 'Log volume');
+
     // Potentially inaccurate, wait for logsCount
     if (totalLogsCount !== undefined && totalLogsCount < maxLines && logsCount === undefined) {
-      return 'Log volume';
+      return title;
     }
 
     let valueFormatter: ValueFormatter;
@@ -138,7 +141,15 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       formattedCount = valueFormatter(totalLogsCount, 0);
     }
 
-    return formattedCount !== undefined ? `Log volume (${formattedValueToString(formattedCount)})` : 'Log volume';
+    return formattedCount !== undefined
+      ? t(
+          'components.service-scene.logs-volume.logs-volume-panel.title-with-count',
+          'Log volume ({{formattedCount}})',
+          {
+            formattedCount: formattedValueToString(formattedCount),
+          }
+        )
+      : title;
   }
 
   private getVolumeOrInstantQueryCount = () => {
