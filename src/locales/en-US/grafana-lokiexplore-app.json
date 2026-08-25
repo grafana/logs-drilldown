@@ -725,6 +725,12 @@
         },
         "text-loading": "Loading..."
       },
+      "logs-volume": {
+        "logs-volume-panel": {
+          "title": "Log volume",
+          "title-with-count": "Log volume ({{formattedCount}})"
+        }
+      },
       "text-loading": "Loading..."
     },
     "service-selection-scene": {
