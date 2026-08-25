@@ -1,7 +1,7 @@
 import { DataFrame, FieldType, GrafanaTheme2, MappingType, ValueMap } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
-import { SeriesVisibilityChangeMode } from '@grafana/ui';
+import { colors, SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import { isOperatorExclusive, isOperatorInclusive } from './operatorHelpers';
 import { UNKNOWN_LEVEL_LOGS } from './panel';
@@ -96,7 +96,7 @@ export const LEVEL_COLORS = {
   debug: config.theme2.isDark ? '#9e9e9e' : 'dimgray',
   error: 'semi-dark-red',
   info: 'semi-dark-blue',
-  trace: 'light-blue',
+  trace: colors[2],
   // matches LogLevelColor for unknown in grafana core logsModel.ts
   unknown: config.theme2.isDark ? '#8e8e8e' : '#bdc4cd',
   warn: 'semi-dark-orange',

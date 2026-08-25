@@ -41,6 +41,7 @@ export const DEBUG_LEVEL_FIELD_NAME_REGEX = /^debug$/i;
 export const WARNING_LEVEL_FIELD_NAME_REGEX = /^(warn|warning)$/i;
 export const ERROR_LEVEL_FIELD_NAME_REGEX = /^(error|errors)$/i;
 export const CRITICAL_LEVEL_FIELD_NAME_REGEX = /^(crit|critical|fatal|severe)$/i;
+export const TRACE_LEVEL_FIELD_NAME_REGEX = /^trace$/i;
 export const UNKNOWN_LEVEL_FIELD_NAME_REGEX = /^(logs|unknown)$/i;
 
 export const logsLabelLevelsMatches: Record<string, RegExp> = {
@@ -71,6 +72,10 @@ export function setLevelColorOverrides(overrides: FieldConfigOverridesBuilder<Fi
   });
   overrides.matchFieldsWithNameByRegex(CRITICAL_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
     fixedColor: LEVEL_COLORS.critical,
+    mode: 'fixed',
+  });
+  overrides.matchFieldsWithNameByRegex(TRACE_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
+    fixedColor: LEVEL_COLORS.trace,
     mode: 'fixed',
   });
   overrides.matchFieldsWithNameByRegex(UNKNOWN_LEVEL_FIELD_NAME_REGEX.toString()).overrideColor({
