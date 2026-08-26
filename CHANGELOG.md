@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.5.2](https://github.com/grafana/logs-drilldown/compare/v2.5.1...v2.5.2) (2026-08-26)
+
+
+### 🐛 Bug Fixes
+
+* **LogList:** show the exact log count in volume and logs panels ([#2056](https://github.com/grafana/logs-drilldown/issues/2056)) ([16a8e69](https://github.com/grafana/logs-drilldown/commit/16a8e69ea4a31a4a796cedbd77c81a9664f970fa))
+* **LogsVolumePanel:** improve accuracy of results in the panel title displayed count ([#2057](https://github.com/grafana/logs-drilldown/issues/2057)) ([b96afa3](https://github.com/grafana/logs-drilldown/commit/b96afa3236e185c0e04d6ab60cd3992f12763791))
+* **panels:** add mapping for trace color ([#2059](https://github.com/grafana/logs-drilldown/issues/2059)) ([7462da7](https://github.com/grafana/logs-drilldown/commit/7462da78e9a58456411eda023c5b6561d83c0e96))
+* **VisualRefresh:** Fixes background in controls header ([#2058](https://github.com/grafana/logs-drilldown/issues/2058)) ([4418b4d](https://github.com/grafana/logs-drilldown/commit/4418b4d6f1048100b3475be69df057ce0b3eb09e))
+
+
+### 📝 Documentation
+
+* **table:** add logs table and update logs panel docs with images ([#2047](https://github.com/grafana/logs-drilldown/issues/2047)) ([7f77b97](https://github.com/grafana/logs-drilldown/commit/7f77b97d9c36692669067f349e37cc3ddf820a7a))
+
+
+### 🧹 Chore
+
+* update release please ([#2060](https://github.com/grafana/logs-drilldown/issues/2060)) ([614386f](https://github.com/grafana/logs-drilldown/commit/614386ffa365255914bad68b6264f4a78cd91fda))
+
 ## [2.5.1](https://github.com/grafana/logs-drilldown/compare/v2.5.0...v2.5.1) (2026-08-12)
 
 
