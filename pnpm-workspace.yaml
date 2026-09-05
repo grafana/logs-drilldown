@@ -33,6 +33,14 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - brace-expansion@1.1.18
+  # Renovate security update: fast-uri@3.1.6
+  - fast-uri@3.1.6
+  # Renovate security update: nanoid@3.3.18
+  - nanoid@3.3.18
+  # Renovate security update: protobufjs@8.6.6
+  - protobufjs@8.6.6
+  # Renovate security update: qs@6.16.0
+  - qs@6.16.0
 
 overrides:
   # react-router itself is deliberately not overridden. The 6.30.4 copy comes from
@@ -45,19 +53,19 @@ overrides:
   # Still flagged: GHSA-wrjc-x8rr-h8h6 / GHSA-337j-9hxr-rhxg (>=6.0.0 <7.18.0) match the
   # 6.30.4 copy. The react-router 6.x line ends at 6.30.4 — there is no 6.x patch, so this
   # needs an upstream @grafana/ui bump off v5-compat, not an override here.
-  react-router-dom: 7.18.2
-  uuid: 14.0.1
-  immutable: 5.1.8
-  dompurify: 3.4.13
-  serialize-javascript: 7.0.6
+  react-router-dom: 7.18.3
+  uuid: 14.0.2
+  immutable: 5.1.9
+  dompurify: 3.4.14
+  serialize-javascript: 7.1.1
   strip-ansi: 6.0.1
-  js-yaml: 4.3.1
+  js-yaml: 4.3.2
   # Security patches for transitive vulnerabilities (pnpm audit)
-  fast-uri: 3.1.5
-  undici: 8.9.0
-  protobufjs: 8.6.5
+  fast-uri: 3.1.6
+  undici: 8.10.1
+  protobufjs: 8.6.6
   js-cookie: 3.0.8
-  '@ungap/structured-clone': 1.3.2
+  '@ungap/structured-clone': 1.4.0
   # Each line is pinned to its newest release. GHSA-mh99-v99m-4gvg is only patched in
   # 5.0.8 with no 1.x/2.x backport, and v5 changed the CJS export shape, so forcing the
   # whole tree onto v5 breaks minimatch 3/9 ("expand is not a function"). The 1.x/2.x
@@ -65,13 +73,13 @@ overrides:
   'brace-expansion@^1': 1.1.18
   'brace-expansion@^2': 2.1.4
   'brace-expansion@^5': 5.0.9
-  'ws@^8': 8.21.0
-  'ws@>=7.0.0 <7.5.11': 7.5.11
-  qs: 6.15.3
+  'ws@^8': 8.21.3
+  'ws@>=7.0.0 <7.5.11': 7.5.13
+  qs: 6.16.0
   '@babel/core@<=7.29.0': 7.29.7
-  '@opentelemetry/core@<2.8.0': 2.8.0
+  '@opentelemetry/core@<2.8.0': 2.11.0
   tar@<=7.5.20: 7.5.22
-  webpack: 5.108.1
+  webpack: 5.110.3
   'websocket-driver@<0.7.5': 0.7.5
-  'postcss@<8.5.18': 8.5.23
-  nanoid: 3.3.17
+  'postcss@<8.5.18': 8.5.26
+  nanoid: 3.3.18
