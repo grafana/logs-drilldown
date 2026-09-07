@@ -47,19 +47,40 @@ import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'service
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
+  aggregateBy: string;
   panel?: VizPanel;
 }
 
 export const logsVolumePanelKey = 'logs-volume-panel';
 export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private updatedLogSeries: DataFrame[] | null = null;
-  constructor(state: LogsVolumePanelState) {
+  constructor(state: Omit<LogsVolumePanelState, 'aggregateBy'>) {
     super({
+      aggregateBy: LEVEL_VARIABLE_VALUE,
       ...state,
       key: logsVolumePanelKey,
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  public isAggregatingByLevel() {
+    return this.state.aggregateBy === LEVEL_VARIABLE_VALUE;
+  }
+
+  public setAggregateBy(field: string) {
+    if (field === this.state.aggregateBy) {
+      return;
+    }
+    this.setState({ aggregateBy: field });
+    this.setState({ panel: this.getVizPanel() });
+  }
+
+  private getVolumeQuery() {
+    const aggregateBy = this.state.aggregateBy;
+    return buildDataQuery(getTimeSeriesExpr(this, aggregateBy, false), {
+      legendFormat: `{{${aggregateBy}}}`,
+    });
   }
 
   private onActivate() {
@@ -162,23 +183,13 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     return serviceScene.state.totalLogsCount;
   };
 
-  private setCollapsed(collapsed: boolean | undefined, panel: VizPanel) {
-    if (collapsed) {
-      panel.setState({
-        $data: undefined,
-      });
-    } else {
-      panel.setState({
-        $data: getQueryRunner([
-          buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-            legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
-          }),
-        ]),
-      });
-      this.subscribeToVisibleRange(panel);
-    }
-    this.updateContainerHeight(panel);
+  private setCollapsed(collapsed: boolean | undefined) {
     setLogsVolumeOption('collapsed', collapsed ? 'true' : undefined);
+
+    const panel = this.getVizPanel();
+    this.setState({ panel });
+    this.updateContainerHeight(panel);
+
     syncLogsListPanelHeightFromScene(sceneGraph.getAncestor(this, ServiceScene));
   }
 
@@ -205,17 +216,14 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setMenu(new PanelMenu({}))
       .setCollapsible(true)
       .setCollapsed(isCollapsed)
-      .setHeaderActions(new LogsVolumeActions({}))
+      .setHeaderActions(
+        new LogsVolumeActions({
+          aggregateBy: this.state.aggregateBy,
+          onAggregateByChange: (field) => this.setAggregateBy(field),
+        })
+      )
       .setShowMenuAlways(true)
-      .setData(
-        isCollapsed
-          ? undefined
-          : getQueryRunner([
-              buildDataQuery(getTimeSeriesExpr(this, LEVEL_VARIABLE_VALUE, false), {
-                legendFormat: `{{${LEVEL_VARIABLE_VALUE}}}`,
-              }),
-            ])
-      );
+      .setData(isCollapsed ? undefined : getQueryRunner([this.getVolumeQuery()]));
 
     setLogsVolumeFieldConfigOverrides(viz);
 
@@ -227,7 +235,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     this._subs.add(
       panel.subscribeToState((newState, prevState) => {
         if (newState.collapsed !== prevState.collapsed) {
-          this.setCollapsed(newState.collapsed, panel);
+          this.setCollapsed(newState.collapsed);
         }
       })
     );
@@ -284,7 +292,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         } else {
           this.displayVisibleRange();
         }
-        syncLevelsVisibleSeries(panel, newState.data.series, this);
+        if (this.isAggregatingByLevel()) {
+          syncLevelsVisibleSeries(panel, newState.data.series, this);
+        }
         panel.setState({
           title: this.getTitle(),
         });
@@ -336,12 +346,14 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
           return;
         }
 
-        syncLevelsVisibleSeries(panel, panel?.state.$data?.state.data?.series, this);
+        if (this.isAggregatingByLevel()) {
+          syncLevelsVisibleSeries(panel, panel?.state.$data?.state.data?.series, this);
+        }
       })
     );
 
     context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
-      if (label == null || Array.isArray(label)) {
+      if (label == null || Array.isArray(label) || !this.isAggregatingByLevel()) {
         return;
       }
       const action = toggleLevelFromFilter(label, this);

@@ -4,19 +4,32 @@ import { sceneGraph, SceneObject } from '@grafana/scenes';
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
 
+function shouldFilterLogsVolumeByLevel(sceneRef: SceneObject): boolean {
+  if (sceneRef instanceof LogsVolumePanel) {
+    return sceneRef.isAggregatingByLevel();
+  }
+  return true;
+}
+
 /**
- * Sums volume samples for series that match active level filters.
+ * Sums volume samples. When grouped by detected_level, only series matching active level filters are included.
  */
 export function sumLogsVolumeSeries(series: DataFrame[], sceneRef: SceneObject): number {
-  const levelsByFrame = getLevelLabelsFromSeries(series);
-  const visibleLevels = new Set(getVisibleLevels(levelsByFrame, sceneRef));
+  const filterByLevel = shouldFilterLogsVolumeByLevel(sceneRef);
+  const levelsByFrame = filterByLevel ? getLevelLabelsFromSeries(series) : [];
+  const visibleLevels = filterByLevel ? new Set(getVisibleLevels(levelsByFrame, sceneRef)) : null;
 
   let total = 0;
   for (let i = 0; i < series.length; i++) {
     const frame = series[i];
-    const level = levelsByFrame[i];
-    if (frame == null || level == null || !visibleLevels.has(level)) {
+    if (frame == null) {
       continue;
+    }
+    if (visibleLevels) {
+      const level = levelsByFrame[i];
+      if (level == null || !visibleLevels.has(level)) {
+        continue;
+      }
     }
     const valueField = frame.fields.find((field) => field.type === FieldType.number);
     if (!valueField) {
@@ -35,6 +48,9 @@ export function sumLogsVolumeSeries(series: DataFrame[], sceneRef: SceneObject):
  * Reads distinct detected_level names from a completed logs volume (range) query.
  */
 export function readLevelsFromCompletedLogsVolumePanel(volumePanel: LogsVolumePanel): string[] | null {
+  if (!volumePanel.isAggregatingByLevel()) {
+    return null;
+  }
   const vizPanel = volumePanel.state.panel;
   if (!vizPanel || vizPanel.state.collapsed) {
     return null;
