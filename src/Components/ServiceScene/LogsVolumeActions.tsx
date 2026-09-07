@@ -2,10 +2,10 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { AdHocVariableFilter } from '@grafana/data';
+import { AdHocVariableFilter, DataFrame } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { usePluginComponent } from '@grafana/runtime';
-import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Combobox, ComboboxOption, InlineField, Stack, useStyles2 } from '@grafana/ui';
 
 import { getDetectedFieldsFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
@@ -57,7 +57,7 @@ export class LogsVolumeActions extends SceneObjectBase<LogsVolumeActionsState> {
   }
 
   private updateOptions() {
-    this.setState({ options: getAggregateByOptions(this, this.state.aggregateBy) });
+    this.setState({ options: getAggregateByOptions(getDetectedFieldsFrame(this), this.state.aggregateBy) });
   }
 
   public onChange = (option: ComboboxOption<string> | null) => {
@@ -126,8 +126,10 @@ function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
   );
 }
 
-function getAggregateByOptions(sceneRef: SceneObject, selected: string): Array<ComboboxOption<string>> {
-  const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
+export function getAggregateByOptions(
+  detectedFieldsFrame: DataFrame | undefined,
+  selected: string
+): Array<ComboboxOption<string>> {
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
   const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);

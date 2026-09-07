@@ -80,6 +80,24 @@ describe('readLevelsFromCompletedLogsVolumePanel', () => {
     });
     expect(readLevelsFromCompletedLogsVolumePanel(volume)).toEqual(['error', 'warn']);
   });
+
+  it('returns null when the volume is not aggregated by detected_level', () => {
+    const volume = new LogsVolumePanel({});
+    volume.setState({
+      aggregateBy: 'pod',
+      panel: {
+        state: {
+          collapsed: false,
+          $data: {
+            state: {
+              data: { state: LoadingState.Done, series: [] },
+            },
+          },
+        },
+      } as unknown as LogsVolumePanel['state']['panel'],
+    });
+    expect(readLevelsFromCompletedLogsVolumePanel(volume)).toBeNull();
+  });
 });
 
 describe('getLevelsFromLogsVolume', () => {
@@ -185,5 +203,18 @@ describe('sumLogsVolumeSeries', () => {
   it('returns 0 for empty series', () => {
     setup([]);
     expect(sumLogsVolumeSeries([], scene)).toBe(0);
+  });
+
+  it('sums every series when the volume is not aggregated by detected_level', () => {
+    setup([
+      {
+        key: 'detected_level',
+        operator: FilterOp.Equal,
+        value: 'error',
+      },
+    ]);
+    const volume = new LogsVolumePanel({});
+    volume.setState({ aggregateBy: 'pod' });
+    expect(sumLogsVolumeSeries(series, volume)).toBe(10);
   });
 });
