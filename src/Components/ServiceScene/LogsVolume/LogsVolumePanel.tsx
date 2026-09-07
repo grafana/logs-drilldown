@@ -233,7 +233,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setCollapsed(isCollapsed)
       .setHeaderActions(
         new LogsVolumeActions({
-          aggregateBy: this.state.aggregateBy,
+          aggregateBy: this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE,
           onAggregateByChange: (field) => this.setAggregateBy(field),
         })
       )
