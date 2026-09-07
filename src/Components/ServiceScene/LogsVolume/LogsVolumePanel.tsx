@@ -70,7 +70,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   public isAggregatingByLevel() {
-    return this.state.aggregateBy === LEVEL_VARIABLE_VALUE;
+    return this.state.aggregateBy == null || this.state.aggregateBy === LEVEL_VARIABLE_VALUE;
   }
 
   public setAggregateBy(field: string) {
