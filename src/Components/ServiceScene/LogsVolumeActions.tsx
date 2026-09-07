@@ -9,7 +9,15 @@ import { SceneComponentProps, sceneGraph, SceneObject, SceneObjectBase, SceneObj
 import { Combobox, ComboboxOption, InlineField, Stack, useStyles2 } from '@grafana/ui';
 
 import { getDetectedFieldsFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
-import { extractParserFromString, getDetectedFieldsNamesField, getDetectedFieldsParserField } from 'services/fields';
+import {
+  extractFieldTypeFromString,
+  extractParserFromString,
+  getDetectedFieldType,
+  getDetectedFieldsNamesField,
+  getDetectedFieldsParserField,
+  getDetectedFieldsTypeField,
+  isAvgField,
+} from 'services/fields';
 import { FIELDS_TO_REMOVE } from 'services/filters';
 import { getParserEnabled } from 'services/parserToggle';
 import { getDataSource } from 'services/scenes';
@@ -42,7 +50,6 @@ export class LogsVolumeActions extends SceneObjectBase<LogsVolumeActionsState> {
     if (detectedFieldsData) {
       this._subs.add(
         detectedFieldsData.subscribeToState((state) => {
-          console.log(state);
           this.updateOptions();
         })
       );
@@ -123,12 +130,16 @@ function getAggregateByOptions(sceneRef: SceneObject, selected: string): Array<C
   const detectedFieldsFrame = getDetectedFieldsFrame(sceneRef);
   const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
   const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
   const parserEnabled = getParserEnabled();
   const names = new Set<string>();
 
   namesField?.values.forEach((name, index) => {
     const fieldName = String(name);
     if (!fieldName || FIELDS_TO_REMOVE.includes(fieldName)) {
+      return;
+    }
+    if (isAvgField(extractFieldTypeFromString(typesField?.values?.[index]))) {
       return;
     }
     if (!parserEnabled) {
@@ -146,7 +157,9 @@ function getAggregateByOptions(sceneRef: SceneObject, selected: string): Array<C
   ];
 
   if (selected && !options.some((option) => option.value === selected)) {
-    options.unshift({ label: selected, value: selected });
+    if (!isAvgField(getDetectedFieldType(selected, detectedFieldsFrame))) {
+      options.unshift({ label: selected, value: selected });
+    }
   }
 
   return options;
