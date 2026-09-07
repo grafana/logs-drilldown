@@ -8,8 +8,12 @@ import {
   PARSER_ENABLED_LOCALSTORAGE_KEY,
   setParserEnabled,
 } from './parserToggle';
-import { getLogsVolumeAggregateBy, setLogsVolumeOption } from './store';
+import { setLogsVolumeAggregateBy } from './store';
 import { JSON_PARSER_SEGMENT, LOGFMT_PARSER_SEGMENT, VAR_JSON_PARSER, VAR_LOGFMT_PARSER } from './variables';
+
+jest.mock('./store', () => ({
+  setLogsVolumeAggregateBy: jest.fn(),
+}));
 
 jest.mock('@grafana/scenes', () => ({
   ...jest.requireActual('@grafana/scenes'),
@@ -166,14 +170,11 @@ describe('setParserEnabled', () => {
   });
 
   test('clears the stored logs volume aggregateBy when disabling', () => {
-    setLogsVolumeOption('aggregateBy', 'caller');
-    expect(getLogsVolumeAggregateBy()).toBe('caller');
-
     setParserEnabled(true, sceneRef);
-    expect(getLogsVolumeAggregateBy()).toBe('caller');
+    expect(setLogsVolumeAggregateBy).not.toHaveBeenCalled();
 
     setParserEnabled(false, sceneRef);
-    expect(getLogsVolumeAggregateBy()).toBeNull();
+    expect(setLogsVolumeAggregateBy).toHaveBeenCalledWith(sceneRef, undefined);
   });
 
   test('re-runs parser-dependent queries on the service scene', () => {

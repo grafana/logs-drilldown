@@ -40,32 +40,28 @@ import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { sumLogsVolumeSeries } from 'services/logsVolume';
 import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
-import { getParserEnabled } from 'services/parserToggle';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
-import { getLogsVolumeAggregateBy, getLogsVolumeOption, setLogsVolumeOption } from 'services/store';
+import {
+  getLogsVolumeAggregateBy,
+  getLogsVolumeOption,
+  setLogsVolumeAggregateBy,
+  setLogsVolumeOption,
+} from 'services/store';
 import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
-  aggregateBy: string;
+  aggregateBy?: string;
   panel?: VizPanel;
 }
 
 export const logsVolumePanelKey = 'logs-volume-panel';
 
-function getStoredAggregateBy() {
-  if (!getParserEnabled()) {
-    return LEVEL_VARIABLE_VALUE;
-  }
-  return getLogsVolumeAggregateBy() || LEVEL_VARIABLE_VALUE;
-}
-
 export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private updatedLogSeries: DataFrame[] | null = null;
   constructor(state: Omit<LogsVolumePanelState, 'aggregateBy'>) {
     super({
-      aggregateBy: getStoredAggregateBy(),
       ...state,
       key: logsVolumePanelKey,
     });
@@ -81,23 +77,27 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     if (field === this.state.aggregateBy) {
       return;
     }
-    setLogsVolumeOption('aggregateBy', field === LEVEL_VARIABLE_VALUE ? undefined : field);
+    setLogsVolumeAggregateBy(this, field === LEVEL_VARIABLE_VALUE ? undefined : field);
     this.setState({ aggregateBy: field });
     this.setState({ panel: this.getVizPanel() });
   }
 
+  private restoreAggregateBy() {
+    const aggregateBy = getLogsVolumeAggregateBy(this) ?? LEVEL_VARIABLE_VALUE;
+    if (aggregateBy !== this.state.aggregateBy) {
+      this.setState({ aggregateBy });
+    }
+  }
+
   private getVolumeQuery() {
-    const aggregateBy = this.state.aggregateBy;
+    const aggregateBy = this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE;
     return buildDataQuery(getTimeSeriesExpr(this, aggregateBy, false), {
       legendFormat: `{{${aggregateBy}}}`,
     });
   }
 
   private onActivate() {
-    if (!getParserEnabled()) {
-      setLogsVolumeOption('aggregateBy', undefined);
-      this.setAggregateBy(LEVEL_VARIABLE_VALUE);
-    }
+    this.restoreAggregateBy();
 
     if (!this.state.panel) {
       const panel = this.getVizPanel();
