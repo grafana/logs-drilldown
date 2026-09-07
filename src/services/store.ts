@@ -354,7 +354,7 @@ export function setLogOption(
 
 // Logs volume options
 const LOGS_VOLUME_LOCALSTORAGE_KEY = 'grafana.explore.logs.logsVolume';
-export function setLogsVolumeOption(option: 'collapsed', value: string | undefined) {
+export function setLogsVolumeOption(option: 'aggregateBy' | 'collapsed', value: string | undefined) {
   const key = `${LOGS_VOLUME_LOCALSTORAGE_KEY}.${option}`;
   if (value === undefined) {
     localStorage.removeItem(key);
@@ -365,6 +365,10 @@ export function setLogsVolumeOption(option: 'collapsed', value: string | undefin
 
 export function getLogsVolumeOption(option: 'collapsed') {
   return Boolean(localStorage.getItem(`${LOGS_VOLUME_LOCALSTORAGE_KEY}.${option}`));
+}
+
+export function getLogsVolumeAggregateBy() {
+  return localStorage.getItem(`${LOGS_VOLUME_LOCALSTORAGE_KEY}.aggregateBy`);
 }
 
 // Log visualization options
