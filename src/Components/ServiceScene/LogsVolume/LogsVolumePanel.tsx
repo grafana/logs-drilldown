@@ -52,7 +52,7 @@ import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'service
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
-  aggregateBy?: string;
+  aggregateBy: string;
   panel?: VizPanel;
 }
 
@@ -63,6 +63,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   constructor(state: Omit<LogsVolumePanelState, 'aggregateBy'>) {
     super({
       ...state,
+      aggregateBy: LEVEL_VARIABLE_VALUE,
       key: logsVolumePanelKey,
     });
 
@@ -70,7 +71,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   public isAggregatingByLevel() {
-    return this.state.aggregateBy == null || this.state.aggregateBy === LEVEL_VARIABLE_VALUE;
+    return this.state.aggregateBy === LEVEL_VARIABLE_VALUE;
   }
 
   public setAggregateBy(field: string) {
@@ -90,9 +91,8 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getVolumeQuery() {
-    const aggregateBy = this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE;
-    return buildDataQuery(getTimeSeriesExpr(this, aggregateBy, false), {
-      legendFormat: `{{${aggregateBy}}}`,
+    return buildDataQuery(getTimeSeriesExpr(this, this.state.aggregateBy, false), {
+      legendFormat: `{{${this.state.aggregateBy}}}`,
     });
   }
 
@@ -233,7 +233,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setCollapsed(isCollapsed)
       .setHeaderActions(
         new LogsVolumeActions({
-          aggregateBy: this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE,
+          aggregateBy: this.state.aggregateBy,
           onAggregateByChange: (field) => this.setAggregateBy(field),
         })
       )
