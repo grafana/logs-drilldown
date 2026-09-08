@@ -75,6 +75,27 @@ Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) fo
 - **When to add IDs** — Add or extend `testIds` when you introduce new UI that should be covered by E2E, or when a test would otherwise rely on implementation details of `@grafana/ui` (e.g. tooltip vs dialog, label + value split across nodes).
 - **Naming** — Keep the same string style as existing entries (e.g. `'data-testid search-fields'`). Prefer descriptive, stable slugs over feature-coupled names that will churn on every copy change.
 
+### Verify runtime/behavioral claims, don't trust static reading alone
+
+Scenes wiring (activation lifecycles, subscriptions, async query runners) is easy to reason about incorrectly from source alone — code that _looks_ like it should re-run a query, reset some state, or leak a subscription often doesn't, because a sibling scene object gets torn down first, or an assertion collides with an unrelated feature's coincidentally-identical query shape. **Before asserting a behavioral claim as fact** (in a PR review, a bug investigation, or your own fix) **that a real dev stack could confirm or refute, write a small Playwright test and run it**, rather than relying solely on tracing subscriptions through the diff.
+
+- **Run a single spec against a running Grafana** (`docker ps` should show `grafana-logsapp`/`logs-drilldown-*` containers, or an equivalent local dev stack):
+
+  ```bash
+  npx playwright test tests/path/to.spec.ts --project=chromium --reporter=list --retries=0
+  ```
+
+  The `auth` project dependency (login + storage state) runs automatically; no separate setup step needed.
+
+- **Local dev stack vs. the E2E fixture data** — A general local dev stack (started via `docker compose`, with a live log **generator** container continuously producing data) is _not_ the same as the static, pre-baked Loki snapshot (`tests/static-loki/`) that CI and the full Playwright suite are built against. Tests that use the fixed `STATIC_FROM`/`STATIC_TO` window (`tests/config/constants.ts`) will show **zero data** against a live-generator stack. To manually verify a test locally, temporarily point navigation at a live window instead (e.g. `gotoServicesBreakdownOldUrl(service, 'now-1h', 'now')`), confirm it behaves as expected, then **revert to `STATIC_FROM`/`STATIC_TO`** (or the helper's defaults) before committing — the live window will find no data at all in CI.
+
+- **Gotchas worth knowing up front** (each cost real debugging time to rediscover):
+  - `ExplorePage.blockAllQueriesExcept`'s `requests`/`responses` capture arrays populate **asynchronously**, after `route.fetch()` resolves — poll (`expect.poll(...)`) rather than reading the array immediately after the action that should have triggered a request.
+  - Register `blockAllQueriesExcept` **after** the initial page navigation/bootstrap has completed, not before — blocking too early can starve a bootstrap-critical query and hang the app on "Loading...".
+  - Panel header actions can be conditionally rendered (e.g. a collapsed panel hides its header controls entirely) — assert the control is visible before interacting with it, and expand/toggle whatever's needed first.
+  - A control's accessible name can come from a wrapping element (e.g. `InlineField`'s visible label via `aria-labelledby`) rather than its own `aria-label` prop — verify the real accessible name with a snapshot or `page.getByRole(...).count()`, don't assume it matches what the JSX sets.
+  - Different features can coincidentally reuse the same `legendFormat`/`refId` convention (e.g. a per-field breakdown panel and an unrelated grouped-by panel both legend-formatting as `{{fieldName}}}`). When asserting on a specific panel's query, disambiguate by the query's actual `expr` shape, not just `legendFormat`/`refId`.
+
 ## Usage
 
 Start with the **Related documentation** table above, then open the doc that matches your task.
