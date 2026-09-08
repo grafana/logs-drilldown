@@ -22,4 +22,4 @@ jobs:
       - uses: grafana/plugin-actions/create-plugin-update@18c6da61002740639bf0322e1a756366d98f5b81 # create-plugin-update/v2.0.4 (2026-08-25)
         with:
           token: ${{ steps.get-github-token.outputs.token }}
-          node-version: '22'
+          node-version: '24'
