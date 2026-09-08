@@ -428,7 +428,7 @@ describe('combineResponses', () => {
     });
   });
 
-  it('does not combine frames with different refId', () => {
+  it('does not combine frames with different name', () => {
     const { metricFrameA, metricFrameB } = getMockFrames();
     metricFrameA.name = 'A';
     metricFrameB.name = 'B';
