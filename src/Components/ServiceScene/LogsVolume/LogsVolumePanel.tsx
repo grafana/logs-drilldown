@@ -100,7 +100,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getVolumeQuery() {
-    return buildDataQuery(getLogsVolumeQuery(this, this.state.aggregateBy, false), {
+    return buildDataQuery(getLogsVolumeQuery(this, this.state.aggregateBy), {
       legendFormat: `{{${this.state.aggregateBy}}}`,
     });
   }
