@@ -103,7 +103,7 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const totalFields = Math.max(dest.fields.length, source.fields.length);
 
   const fieldPairs = dest.fields.map((field, idx) => (field ? findSourceField(field, source.fields, idx) : undefined));
-  const outValues: unknown[][] = dest.fields.map(() => []);
+  const outValues: number[][] = dest.fields.map(() => []);
 
   const emitDest = (j: number) => {
     for (let f = 0; f < totalFields; f++) {
