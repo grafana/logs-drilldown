@@ -92,11 +92,11 @@ function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
 
   const dataSourceUid = getDataSource(model);
 
-  const lostVolumeCollapsed = getLogsVolumeOption('collapsed');
+  const logsVolumeCollapsed = getLogsVolumeOption('collapsed');
 
   return (
     <Stack alignItems="center" gap={1}>
-      {!lostVolumeCollapsed && (
+      {!logsVolumeCollapsed && (
         <InlineField
           className={styles.aggregateByField}
           transparent
