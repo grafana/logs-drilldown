@@ -87,11 +87,7 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
 }
 
 /**
- * Given two time-series data frames, merge their values with a linear two-pointer merge
- * (both time fields are assumed sorted ascending). A frame may carry multiple number fields
- * (e.g. several aggregations disambiguated by labels); each is matched between dest and
- * source by name, then by labels, falling back to positional index. Overlapping timestamps
- * have their number fields summed.
+ * Given two data frames, merge their values. Overlapping values will be added together.
  */
 export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const destTimeField = dest.fields.find((field) => field.type === FieldType.time);
@@ -106,7 +102,6 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceTime = sourceTimeField.values;
   const totalFields = Math.max(dest.fields.length, source.fields.length);
 
-  // Computed once, not per row.
   const fieldPairs = dest.fields.map((field, idx) => (field ? findSourceField(field, source.fields, idx) : undefined));
   const outValues: unknown[][] = dest.fields.map(() => []);
 
