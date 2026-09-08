@@ -35,11 +35,18 @@ import { LogsVolumeActions } from 'Components/ServiceScene/LogsVolumeActions';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
-import { getLogsVolumeQuery } from 'services/expressions';
+import { excludeAggregateByFromLogsVolumeQuery, getLogsVolumeQuery } from 'services/expressions';
+import { getParserForField } from 'services/fields';
+import { toggleFieldFromFilter } from 'services/labels';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { sumLogsVolumeSeries } from 'services/logsVolume';
-import { getQueryRunner, setLogsVolumeFieldConfigOverrides, syncLevelsVisibleSeries } from 'services/panel';
+import {
+  getQueryRunner,
+  setLogsVolumeFieldConfigOverrides,
+  syncLevelsVisibleSeries,
+  syncLogsVolumeVisibleSeries,
+} from 'services/panel';
 import { buildDataQuery, LINE_LIMIT } from 'services/query';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
 import {
@@ -48,7 +55,7 @@ import {
   setLogsVolumeAggregateBy,
   setLogsVolumeOption,
 } from 'services/store';
-import { getFieldsVariable, getLabelsVariable, getLevelsVariable } from 'services/variableGetters';
+import { getFieldsVariable, getLabelsVariable, getLevelsVariable, getMetadataVariable } from 'services/variableGetters';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 export interface LogsVolumePanelState extends SceneObjectState {
@@ -100,9 +107,17 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getVolumeQuery() {
-    return buildDataQuery(getLogsVolumeQuery(this, this.state.aggregateBy), {
+    return buildDataQuery(this.getVolumeQueryExpr(), {
       legendFormat: `{{${this.state.aggregateBy}}}`,
     });
+  }
+
+  private getVolumeQueryExpr() {
+    return excludeAggregateByFromLogsVolumeQuery(
+      getLogsVolumeQuery(this, this.state.aggregateBy),
+      this.state.aggregateBy,
+      this
+    );
   }
 
   private onActivate() {
@@ -130,10 +145,24 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       })
     );
 
-    // Set Panel on fields variable filter update
+    // Recreate the panel when other field filters change; the grouped-by field is focused instead.
     this._subs.add(
       fields.subscribeToState((newState, prevState) => {
-        if (!areArraysEqual(newState.filters, prevState.filters)) {
+        if (this.filtersChangedExcept(newState.filters, prevState.filters, this.state.aggregateBy)) {
+          this.setState({
+            panel: this.getVizPanel(),
+          });
+        }
+      })
+    );
+
+    // Recreate when other metadata filters change; the grouped-by field is excluded from the query.
+    this._subs.add(
+      getMetadataVariable(this).subscribeToState((newState, prevState) => {
+        if (this.isAggregatingByLevel() || getParserForField(this.state.aggregateBy, this) !== 'structuredMetadata') {
+          return;
+        }
+        if (this.filtersChangedExcept(newState.filters, prevState.filters, this.state.aggregateBy)) {
           this.setState({
             panel: this.getVizPanel(),
           });
@@ -316,9 +345,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         } else {
           this.displayVisibleRange();
         }
-        if (this.isAggregatingByLevel()) {
-          syncLevelsVisibleSeries(panel, newState.data.series, this);
-        }
+        this.syncVisibleSeries(panel, newState.data.series);
         panel.setState({
           title: this.getTitle(),
         });
@@ -361,34 +388,70 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     });
   }
 
-  private extendTimeSeriesLegendBus = (context: PanelContext) => {
-    const levelFilter = getLevelsVariable(this);
-    this._subs.add(
-      levelFilter?.subscribeToState(() => {
-        const panel = this.state.panel;
-        if (!panel?.state.$data?.state.data?.series) {
-          return;
-        }
-
-        if (this.isAggregatingByLevel()) {
-          syncLevelsVisibleSeries(panel, panel?.state.$data?.state.data?.series, this);
-        }
-      })
+  private filtersChangedExcept(
+    newFilters: Array<{ key: string }>,
+    prevFilters: Array<{ key: string }>,
+    exceptKey: string
+  ) {
+    return !areArraysEqual(
+      newFilters.filter((filter) => filter.key !== exceptKey),
+      prevFilters.filter((filter) => filter.key !== exceptKey)
     );
+  }
 
-    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
-      if (label == null || Array.isArray(label) || !this.isAggregatingByLevel()) {
+  private syncVisibleSeries(panel: VizPanel, series: DataFrame[]) {
+    if (this.isAggregatingByLevel()) {
+      syncLevelsVisibleSeries(panel, series, this);
+      return;
+    }
+    syncLogsVolumeVisibleSeries(this.state.aggregateBy, panel, series, this);
+  }
+
+  private extendTimeSeriesLegendBus = (context: PanelContext) => {
+    const syncFromFilters = () => {
+      const panel = this.state.panel;
+      const series = panel?.state.$data?.state.data?.series;
+      if (!panel || !series) {
         return;
       }
-      const action = toggleLevelFromFilter(label, this);
-      this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, label), true);
+      this.syncVisibleSeries(panel, series);
+    };
+
+    this._subs.add(getLevelsVariable(this)?.subscribeToState(syncFromFilters));
+    this._subs.add(getFieldsVariable(this)?.subscribeToState(syncFromFilters));
+    this._subs.add(getMetadataVariable(this)?.subscribeToState(syncFromFilters));
+
+    context.onToggleSeriesVisibility = (label: string | string[] | null, mode: SeriesVisibilityChangeMode) => {
+      if (label == null || Array.isArray(label)) {
+        return;
+      }
+
+      if (this.isAggregatingByLevel()) {
+        const action = toggleLevelFromFilter(label, this);
+        this.publishEvent(new AddFilterEvent('legend', 'include', LEVEL_VARIABLE_VALUE, label), true);
+
+        reportAppInteraction(
+          USER_EVENTS_PAGES.service_details,
+          USER_EVENTS_ACTIONS.service_details.level_in_logs_volume_clicked,
+          {
+            action,
+            level: label,
+          }
+        );
+        return;
+      }
+
+      const field = this.state.aggregateBy;
+      const action = toggleFieldFromFilter(field, label, this);
+      this.publishEvent(new AddFilterEvent('legend', 'include', field, label), true);
 
       reportAppInteraction(
         USER_EVENTS_PAGES.service_details,
         USER_EVENTS_ACTIONS.service_details.level_in_logs_volume_clicked,
         {
           action,
-          level: label,
+          field,
+          value: label,
         }
       );
     };

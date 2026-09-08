@@ -1,9 +1,10 @@
 import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
 
-import { getFieldsTagValuesExpression, getLogsVolumeQuery } from './expressions';
+import { excludeAggregateByFromLogsVolumeQuery, getFieldsTagValuesExpression, getLogsVolumeQuery } from './expressions';
 import { getParserForField, getParserFromFieldsFilters } from './fields';
 import { logger } from './logger';
-import { getFieldsVariable } from './variableGetters';
+import { renderLogQLFieldFilters, renderLogQLMetadataFilters } from './query';
+import { getFieldsVariable, getMetadataVariable } from './variableGetters';
 import {
   DETECTED_FIELD_AND_METADATA_VALUES_EXPR,
   DETECTED_LEVELS_VALUES_EXPR,
@@ -25,10 +26,17 @@ import {
 jest.mock('./fields');
 jest.mock('./variableGetters');
 jest.mock('./logger');
+jest.mock('./query', () => ({
+  renderLogQLFieldFilters: jest.fn(() => '| cluster="eu"'),
+  renderLogQLMetadataFilters: jest.fn(() => '| namespace="prod"'),
+}));
 
 const getParserFromFieldsFiltersMock = jest.mocked(getParserFromFieldsFilters);
 const getParserForFieldMock = jest.mocked(getParserForField);
 const getFieldsVariableMock = jest.mocked(getFieldsVariable);
+const getMetadataVariableMock = jest.mocked(getMetadataVariable);
+const renderLogQLFieldFiltersMock = jest.mocked(renderLogQLFieldFilters);
+const renderLogQLMetadataFiltersMock = jest.mocked(renderLogQLMetadataFilters);
 const loggerErrorMock = jest.mocked(logger.error);
 
 const sceneRef = {} as SceneObject;
@@ -124,6 +132,63 @@ describe('getLogsVolumeQuery', () => {
       expect(getParserForFieldMock).not.toHaveBeenCalled();
       expect(getParserFromFieldsFiltersMock).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('excludeAggregateByFromLogsVolumeQuery', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    renderLogQLFieldFiltersMock.mockReturnValue('| cluster="eu"');
+    renderLogQLMetadataFiltersMock.mockReturnValue('| namespace="prod"');
+  });
+
+  it('leaves the level query unchanged', () => {
+    const expr = baseQuery(LEVEL_VARIABLE_VALUE);
+
+    expect(excludeAggregateByFromLogsVolumeQuery(expr, LEVEL_VARIABLE_VALUE, sceneRef)).toBe(expr);
+    expect(getParserForFieldMock).not.toHaveBeenCalled();
+    expect(renderLogQLFieldFiltersMock).not.toHaveBeenCalled();
+    expect(renderLogQLMetadataFiltersMock).not.toHaveBeenCalled();
+  });
+
+  it('replaces ${fields} with field filters excluding the grouped-by field', () => {
+    const fieldFilters = [
+      { key: 'pod', operator: '=', value: '{"parser":"logfmt","value":"api-1"}' },
+      { key: 'cluster', operator: '=', value: '{"parser":"logfmt","value":"eu"}' },
+    ];
+    getParserForFieldMock.mockReturnValue('logfmt');
+    getFieldsVariableMock.mockReturnValue({
+      state: { filters: fieldFilters },
+    } as unknown as AdHocFiltersVariable);
+
+    const expr = queryWithParser('pod', LOGS_FORMAT_EXPR);
+    const result = excludeAggregateByFromLogsVolumeQuery(expr, 'pod', sceneRef);
+
+    expect(getParserForFieldMock).toHaveBeenCalledWith('pod', sceneRef);
+    expect(renderLogQLFieldFiltersMock).toHaveBeenCalledWith(fieldFilters, ['pod']);
+    expect(renderLogQLMetadataFiltersMock).not.toHaveBeenCalled();
+    expect(result).toBe(expr.replace(VAR_FIELDS_EXPR, '| cluster="eu"'));
+    expect(result).toContain(VAR_METADATA_EXPR);
+  });
+
+  it('replaces ${metadata} when the grouped-by field is structured metadata', () => {
+    const metadataFilters = [
+      { key: 'cluster', operator: '=', value: 'eu' },
+      { key: 'namespace', operator: '=', value: 'prod' },
+    ];
+    getParserForFieldMock.mockReturnValue('structuredMetadata');
+    getMetadataVariableMock.mockReturnValue({
+      state: { filters: metadataFilters },
+    } as unknown as AdHocFiltersVariable);
+
+    const expr = baseQuery('cluster');
+    const result = excludeAggregateByFromLogsVolumeQuery(expr, 'cluster', sceneRef);
+
+    expect(getParserForFieldMock).toHaveBeenCalledWith('cluster', sceneRef);
+    expect(renderLogQLMetadataFiltersMock).toHaveBeenCalledWith(metadataFilters, ['cluster']);
+    expect(renderLogQLFieldFiltersMock).not.toHaveBeenCalled();
+    expect(result).toBe(expr.replace(VAR_METADATA_EXPR, '| namespace="prod"'));
+    expect(result).toContain(VAR_FIELDS_EXPR);
   });
 });
 

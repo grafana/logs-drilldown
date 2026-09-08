@@ -133,9 +133,27 @@ export function setLabelSeriesOverrides(labels: string[], overrideConfig: FieldC
  * WARNING: Overwrites any fieldConfig overrides set in the panel builder!
  */
 export function syncLevelsVisibleSeries(panel: VizPanel, series: DataFrame[], sceneRef: SceneObject) {
-  const focusedLevels = getVisibleLevels(getLevelLabelsFromSeries(series), sceneRef);
+  applyLogsVolumeSeriesVisibility(panel, getVisibleLevels(getLevelLabelsFromSeries(series), sceneRef));
+}
+
+/**
+ * Sets field or metadata series visibility in the logs volume panel.
+ * WARNING: Overwrites any fieldConfig overrides set in the panel builder!
+ */
+export function syncLogsVolumeVisibleSeries(key: string, panel: VizPanel, series: DataFrame[], sceneRef: SceneObject) {
+  const allLabels = getLabelsFromSeries(series);
+  const detectedFieldType = getParserForField(key, sceneRef);
+  const focusedLabels =
+    detectedFieldType === 'structuredMetadata'
+      ? getVisibleMetadata(key, allLabels, sceneRef)
+      : getVisibleFields(key, allLabels, sceneRef);
+
+  applyLogsVolumeSeriesVisibility(panel, focusedLabels);
+}
+
+function applyLogsVolumeSeriesVisibility(panel: VizPanel, focusedLabels: string[]) {
   const config = setLogsVolumeFieldConfigOverrides(FieldConfigBuilders.timeseries()).setOverrides(
-    setLabelSeriesOverrides.bind(null, focusedLevels)
+    setLabelSeriesOverrides.bind(null, focusedLabels)
   );
 
   if (config instanceof FieldConfigBuilder && panel.getPlugin()) {

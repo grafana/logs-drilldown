@@ -3,7 +3,8 @@ import { SceneObject } from '@grafana/scenes';
 import { getParserForField, getParserFromFieldsFilters } from './fields';
 import { logger } from './logger';
 import { getParserEnabled } from './parserToggle';
-import { getFieldsVariable } from './variableGetters';
+import { renderLogQLFieldFilters, renderLogQLMetadataFilters } from './query';
+import { getFieldsVariable, getMetadataVariable } from './variableGetters';
 import {
   DETECTED_FIELD_AND_METADATA_VALUES_EXPR,
   DETECTED_LEVELS_VALUES_EXPR,
@@ -51,6 +52,22 @@ export function getLogsVolumeQuery(sceneRef: SceneObject, fieldName: string): st
   }
 
   return `sum(count_over_time({${VAR_LABELS_EXPR}} ${VAR_METADATA_EXPR} ${VAR_PATTERNS_EXPR} ${VAR_LINE_FILTERS_EXPR} ${VAR_FIELDS_EXPR} ${VAR_LINE_FORMAT_EXPR} [$__auto])) by (${fieldName})`;
+}
+
+/**
+ * Drops the grouped-by field from volume interpolation so focusing a series does not re-query.
+ */
+export function excludeAggregateByFromLogsVolumeQuery(expr: string, fieldName: string, sceneRef: SceneObject): string {
+  if (fieldName === LEVEL_VARIABLE_VALUE) {
+    return expr;
+  }
+  if (getParserForField(fieldName, sceneRef) === 'structuredMetadata') {
+    return expr.replace(
+      VAR_METADATA_EXPR,
+      renderLogQLMetadataFilters(getMetadataVariable(sceneRef).state.filters, [fieldName])
+    );
+  }
+  return expr.replace(VAR_FIELDS_EXPR, renderLogQLFieldFilters(getFieldsVariable(sceneRef).state.filters, [fieldName]));
 }
 
 /**
