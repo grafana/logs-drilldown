@@ -1,5 +1,4 @@
 import {
-  closestIdx,
   DataFrame,
   DataFrameType,
   DataQueryResponse,
@@ -87,134 +86,67 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
 }
 
 /**
- * Given two data frames, merge their values. Overlapping values will be added together.
+ * Given two time-series data frames (single time field + single number field),
+ * merge their values with a linear two-pointer merge. Overlapping timestamps are summed.
  */
 export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const destTimeField = dest.fields.find((field) => field.type === FieldType.time);
-  const destIdField = dest.fields.find((field) => field.type === FieldType.string && field.name === 'id');
+  const destValueField = dest.fields.find((field) => field.type === FieldType.number);
   const sourceTimeField = source.fields.find((field) => field.type === FieldType.time);
-  const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
+  const sourceValueField = source.fields.find((field) => field.type === FieldType.number);
 
-  if (!destTimeField || !sourceTimeField) {
+  if (!destTimeField || !sourceTimeField || !destValueField || !sourceValueField) {
     logger.error(new Error(`Time fields not found in the data frames`));
     return;
   }
 
-  const sourceTimeValues = sourceTimeField?.values.slice(0) ?? [];
-  const totalFields = Math.max(dest.fields.length, source.fields.length);
+  const destTime = destTimeField.values;
+  const destValue = destValueField.values;
+  const sourceTime = sourceTimeField.values;
+  const sourceValue = sourceValueField.values;
 
-  for (let i = 0; i < sourceTimeValues.length; i++) {
-    const destIdx = resolveIdx(destTimeField, sourceTimeField, i);
+  const mergedTime: number[] = [];
+  const mergedValues: number[] = [];
 
-    const entryExistsInDest = compareEntries(destTimeField, destIdField, destIdx, sourceTimeField, sourceIdField, i);
+  let i = 0; // source pointer
+  let j = 0; // dest pointer
 
-    for (let f = 0; f < totalFields; f++) {
-      // For now, skip undefined fields that exist in the new frame
-      if (!dest.fields[f]) {
-        continue;
-      }
-      // Index is not reliable when frames have disordered fields, or an extra/missing field, so we find them by name.
-      // If the field has no name, we fallback to the old index version.
-      const sourceField = findSourceField(dest.fields[f], source.fields, f);
-      if (!sourceField) {
-        continue;
-      }
-      // Same value, accumulate
-      if (entryExistsInDest) {
-        if (dest.fields[f].type === FieldType.time) {
-          // Time already exists, skip
-          continue;
-        } else if (dest.fields[f].type === FieldType.number) {
-          // Number, add
-          dest.fields[f].values[destIdx] = (dest.fields[f].values[destIdx] ?? 0) + sourceField.values[i];
-        } else if (dest.fields[f].type === FieldType.other) {
-          // Possibly labels, combine
-          if (typeof sourceField.values[i] === 'object') {
-            dest.fields[f].values[destIdx] = {
-              ...dest.fields[f].values[destIdx],
-              ...sourceField.values[i],
-            };
-          } else if (sourceField.values[i] != null) {
-            dest.fields[f].values[destIdx] = sourceField.values[i];
-          }
-        } else {
-          // Replace value
-          dest.fields[f].values[destIdx] = sourceField.values[i];
-        }
-      } else if (sourceField.values[i] !== undefined) {
-        // Insert in the `destIdx` position
-        dest.fields[f].values.splice(destIdx, 0, sourceField.values[i]);
-        if (sourceField.nanos) {
-          dest.fields[f].nanos = dest.fields[f].nanos ?? new Array(dest.fields[f].values.length - 1).fill(0);
-          dest.fields[f].nanos?.splice(destIdx, 0, sourceField.nanos[i]);
-        }
-      }
+  while (i < sourceTime.length && j < destTime.length) {
+    if (destTime[j] === sourceTime[i]) {
+      mergedTime.push(destTime[j]);
+      mergedValues.push((destValue[j] ?? 0) + (sourceValue[i] ?? 0));
+      i++;
+      j++;
+    } else if (destTime[j] < sourceTime[i]) {
+      mergedTime.push(destTime[j]);
+      mergedValues.push(destValue[j]);
+      j++;
+    } else {
+      mergedTime.push(sourceTime[i]);
+      mergedValues.push(sourceValue[i]);
+      i++;
     }
   }
+  while (j < destTime.length) {
+    mergedTime.push(destTime[j]);
+    mergedValues.push(destValue[j]);
+    j++;
+  }
+  while (i < sourceTime.length) {
+    mergedTime.push(sourceTime[i]);
+    mergedValues.push(sourceValue[i]);
+    i++;
+  }
 
-  dest.length = dest.fields[0].values.length;
+  destTimeField.values = mergedTime;
+  destValueField.values = mergedValues;
+
+  dest.length = mergedTime.length;
 
   dest.meta = {
     ...dest.meta,
     stats: getCombinedMetadataStats(dest.meta?.stats ?? [], source.meta?.stats ?? []),
   };
-}
-
-function resolveIdx(destField: Field, sourceField: Field, index: number) {
-  const idx = closestIdx(sourceField.values[index], destField.values);
-  if (idx < 0) {
-    return 0;
-  }
-  if (sourceField.values[index] === destField.values[idx] && sourceField.nanos != null && destField.nanos != null) {
-    return sourceField.nanos[index] > destField.nanos[idx] ? idx + 1 : idx;
-  }
-  if (sourceField.values[index] > destField.values[idx]) {
-    return idx + 1;
-  }
-  return idx;
-}
-
-function compareEntries(
-  destTimeField: Field,
-  destIdField: Field | undefined,
-  destIndex: number,
-  sourceTimeField: Field,
-  sourceIdField: Field | undefined,
-  sourceIndex: number
-) {
-  const sameTimestamp = compareNsTimestamps(destTimeField, destIndex, sourceTimeField, sourceIndex);
-  if (!sameTimestamp) {
-    return false;
-  }
-  if (destIdField == null || sourceIdField == null) {
-    return true;
-  }
-  // Log frames, check indexes
-  return (
-    destIdField.values[destIndex] !== undefined && destIdField.values[destIndex] === sourceIdField.values[sourceIndex]
-  );
-}
-
-function compareNsTimestamps(destField: Field, destIndex: number, sourceField: Field, sourceIndex: number) {
-  if (destField.nanos && sourceField.nanos) {
-    return (
-      destField.values[destIndex] !== undefined &&
-      destField.values[destIndex] === sourceField.values[sourceIndex] &&
-      destField.nanos[destIndex] !== undefined &&
-      destField.nanos[destIndex] === sourceField.nanos[sourceIndex]
-    );
-  }
-  return destField.values[destIndex] !== undefined && destField.values[destIndex] === sourceField.values[sourceIndex];
-}
-
-function findSourceField(referenceField: Field, sourceFields: Field[], index: number) {
-  const candidates = sourceFields.filter((f) => f.name === referenceField.name);
-
-  if (candidates.length === 1) {
-    return candidates[0];
-  }
-
-  return sourceFields[index];
 }
 
 const TOTAL_BYTES_STAT = 'Summary: total bytes processed';

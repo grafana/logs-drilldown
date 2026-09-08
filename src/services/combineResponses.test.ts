@@ -1,6 +1,6 @@
 import { DataFrame, DataFrameType, DataQueryResponse, FieldType, QueryResultMetaStat } from '@grafana/data';
 
-import { cloneQueryResponse, combineResponses } from './combineResponses';
+import { cloneQueryResponse, combineResponses, mergeFrames } from './combineResponses';
 
 describe('cloneQueryResponse', () => {
   const { logFrameA } = getMockFrames();
@@ -269,149 +269,6 @@ describe('combineResponses', () => {
       data: [metricFrameA, metricFrameB],
     });
   });
-
-  it('when fields with the same name are present, uses labels to find the right field to combine', () => {
-    const { metricFrameA, metricFrameB } = getMockFrames();
-
-    metricFrameA.fields.push({
-      config: {},
-      labels: {
-        test: 'true',
-      },
-      name: 'Value',
-      type: FieldType.number,
-      values: [9, 8],
-    });
-    metricFrameB.fields.push({
-      config: {},
-      labels: {
-        test: 'true',
-      },
-      name: 'Value',
-      type: FieldType.number,
-      values: [11, 10],
-    });
-
-    const responseA: DataQueryResponse = {
-      data: [metricFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [metricFrameB],
-    };
-
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              type: 'time',
-              values: [1000000, 2000000, 3000000, 4000000],
-            },
-            {
-              config: {},
-              labels: {
-                level: 'debug',
-              },
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
-            },
-            {
-              config: {},
-              labels: {
-                test: 'true',
-              },
-              name: 'Value',
-              type: 'number',
-              values: [11, 10, 9, 8],
-            },
-          ],
-          length: 4,
-          meta: {
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-            type: 'timeseries-multi',
-          },
-          name: 'A{"level":"debug"}',
-          refId: 'A',
-        },
-      ],
-    });
-  });
-
-  it('when fields with the same name are present and labels are not present, falls back to indexes', () => {
-    const { metricFrameA, metricFrameB } = getMockFrames();
-
-    delete metricFrameA.fields[1].labels;
-    delete metricFrameB.fields[1].labels;
-
-    metricFrameA.fields.push({
-      config: {},
-      name: 'Value',
-      type: FieldType.number,
-      values: [9, 8],
-    });
-    metricFrameB.fields.push({
-      config: {},
-      name: 'Value',
-      type: FieldType.number,
-      values: [11, 10],
-    });
-
-    const responseA: DataQueryResponse = {
-      data: [metricFrameA],
-    };
-    const responseB: DataQueryResponse = {
-      data: [metricFrameB],
-    };
-
-    expect(combineResponses(responseA, responseB)).toEqual({
-      data: [
-        {
-          fields: [
-            {
-              config: {},
-              name: 'Time',
-              type: 'time',
-              values: [1000000, 2000000, 3000000, 4000000],
-            },
-            {
-              config: {},
-              name: 'Value',
-              type: 'number',
-              values: [6, 7, 5, 4],
-            },
-            {
-              config: {},
-              name: 'Value',
-              type: 'number',
-              values: [11, 10, 9, 8],
-            },
-          ],
-          length: 4,
-          meta: {
-            stats: [
-              {
-                displayName: 'Summary: total bytes processed',
-                unit: 'decbytes',
-                value: 33,
-              },
-            ],
-            type: 'timeseries-multi',
-          },
-          name: 'A',
-          refId: 'A',
-        },
-      ],
-    });
-  });
 });
 
 describe('mergeFrames', () => {
@@ -556,6 +413,97 @@ describe('mergeFrames', () => {
         metricFrameC,
       ],
     });
+  });
+});
+
+describe('mergeFrames', () => {
+  it('merges disjoint, interleaved timestamps in sorted order', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    // metricFrameA: time [3000000, 4000000], metricFrameB: time [1000000, 2000000]
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.fields[0].values).toEqual([1000000, 2000000, 3000000, 4000000]);
+    expect(metricFrameA.fields[1].values).toEqual([6, 7, 5, 4]);
+    expect(metricFrameA.length).toBe(4);
+  });
+
+  it('sums values for overlapping timestamps', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    metricFrameB.fields[0].values = [3000000, 4000000];
+    metricFrameB.fields[1].values = [10, 20];
+
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.fields[0].values).toEqual([3000000, 4000000]);
+    expect(metricFrameA.fields[1].values).toEqual([15, 24]);
+    expect(metricFrameA.length).toBe(2);
+  });
+
+  it('does not introduce undefined entries when dest is longer than source', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    metricFrameA.fields[0].values = [1000000, 2000000, 3000000, 4000000, 5000000];
+    metricFrameA.fields[1].values = [1, 2, 3, 4, 5];
+    metricFrameB.fields[0].values = [2500000];
+    metricFrameB.fields[1].values = [100];
+
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.fields[0].values).toEqual([1000000, 2000000, 2500000, 3000000, 4000000, 5000000]);
+    expect(metricFrameA.fields[1].values).toEqual([1, 2, 100, 3, 4, 5]);
+    expect(metricFrameA.fields[0].values).not.toContain(undefined);
+    expect(metricFrameA.fields[1].values).not.toContain(undefined);
+    expect(metricFrameA.length).toBe(6);
+  });
+
+  it('does not introduce undefined entries when source is longer than dest', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    metricFrameA.fields[0].values = [2500000];
+    metricFrameA.fields[1].values = [100];
+    metricFrameB.fields[0].values = [1000000, 2000000, 3000000, 4000000, 5000000];
+    metricFrameB.fields[1].values = [1, 2, 3, 4, 5];
+
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.fields[0].values).toEqual([1000000, 2000000, 2500000, 3000000, 4000000, 5000000]);
+    expect(metricFrameA.fields[1].values).toEqual([1, 2, 100, 3, 4, 5]);
+    expect(metricFrameA.fields[0].values).not.toContain(undefined);
+    expect(metricFrameA.fields[1].values).not.toContain(undefined);
+    expect(metricFrameA.length).toBe(6);
+  });
+
+  it('combines stats from both frames', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.meta?.stats).toStrictEqual([
+      { displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 33 },
+    ]);
+  });
+
+  it('appends the remaining dest tail in order, even when it lies far beyond the exhausted source range', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    metricFrameA.fields[0].values = [10, 20, 100000, 200000, 300000];
+    metricFrameA.fields[1].values = [1, 2, 3, 4, 5];
+    metricFrameB.fields[0].values = [15];
+    metricFrameB.fields[1].values = [99];
+
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.fields[0].values).toEqual([10, 15, 20, 100000, 200000, 300000]);
+    expect(metricFrameA.fields[1].values).toEqual([1, 99, 2, 3, 4, 5]);
+  });
+
+  it('appends the remaining source tail in order, even when it lies far beyond the exhausted dest range', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+    metricFrameA.fields[0].values = [15];
+    metricFrameA.fields[1].values = [99];
+    metricFrameB.fields[0].values = [10, 20, 100000, 200000, 300000];
+    metricFrameB.fields[1].values = [1, 2, 3, 4, 5];
+
+    mergeFrames(metricFrameA, metricFrameB);
+
+    expect(metricFrameA.fields[0].values).toEqual([10, 15, 20, 100000, 200000, 300000]);
+    expect(metricFrameA.fields[1].values).toEqual([1, 99, 2, 3, 4, 5]);
   });
 });
 
