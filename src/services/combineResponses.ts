@@ -6,6 +6,7 @@ import {
   Field,
   FieldType,
   QueryResultMetaStat,
+  shallowCompare,
 } from '@grafana/data';
 
 import { logger } from './logger';
@@ -86,67 +87,115 @@ export function combineResponses(currentResult: DataQueryResponse | null, newRes
 }
 
 /**
- * Given two time-series data frames (single time field + single number field),
- * merge their values with a linear two-pointer merge. Overlapping timestamps are summed.
+ * Given two time-series data frames, merge their values with a linear two-pointer merge
+ * (both time fields are assumed sorted ascending). A frame may carry multiple number fields
+ * (e.g. several aggregations disambiguated by labels); each is matched between dest and
+ * source by name, then by labels, falling back to positional index. Overlapping timestamps
+ * have their number fields summed.
  */
 export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const destTimeField = dest.fields.find((field) => field.type === FieldType.time);
-  const destValueField = dest.fields.find((field) => field.type === FieldType.number);
   const sourceTimeField = source.fields.find((field) => field.type === FieldType.time);
-  const sourceValueField = source.fields.find((field) => field.type === FieldType.number);
 
-  if (!destTimeField || !sourceTimeField || !destValueField || !sourceValueField) {
+  if (!destTimeField || !sourceTimeField) {
     logger.error(new Error(`Time fields not found in the data frames`));
     return;
   }
 
   const destTime = destTimeField.values;
-  const destValue = destValueField.values;
   const sourceTime = sourceTimeField.values;
-  const sourceValue = sourceValueField.values;
+  const totalFields = Math.max(dest.fields.length, source.fields.length);
 
-  const mergedTime: number[] = [];
-  const mergedValues: number[] = [];
+  // Computed once, not per row.
+  const fieldPairs = dest.fields.map((field, idx) => (field ? findSourceField(field, source.fields, idx) : undefined));
+  const outValues: unknown[][] = dest.fields.map(() => []);
+
+  const emitDest = (j: number) => {
+    for (let f = 0; f < totalFields; f++) {
+      if (!dest.fields[f]) {
+        continue;
+      }
+      outValues[f].push(dest.fields[f].values[j]);
+    }
+  };
+
+  const emitMerged = (j: number, i: number) => {
+    for (let f = 0; f < totalFields; f++) {
+      if (!dest.fields[f]) {
+        continue;
+      }
+      const sourceField = fieldPairs[f];
+      const destVal = dest.fields[f].values[j];
+      let merged = destVal;
+      if (sourceField) {
+        if (dest.fields[f].type === FieldType.number) {
+          merged = (destVal ?? 0) + sourceField.values[i];
+        } else if (dest.fields[f].type !== FieldType.time) {
+          merged = sourceField.values[i] ?? destVal;
+        }
+      }
+      outValues[f].push(merged);
+    }
+  };
+
+  const emitSource = (i: number) => {
+    for (let f = 0; f < totalFields; f++) {
+      if (!dest.fields[f]) {
+        continue;
+      }
+      const sourceField = fieldPairs[f];
+      outValues[f].push(sourceField ? sourceField.values[i] : undefined);
+    }
+  };
 
   let i = 0; // source pointer
   let j = 0; // dest pointer
 
   while (i < sourceTime.length && j < destTime.length) {
     if (destTime[j] === sourceTime[i]) {
-      mergedTime.push(destTime[j]);
-      mergedValues.push((destValue[j] ?? 0) + (sourceValue[i] ?? 0));
+      emitMerged(j, i);
       i++;
       j++;
     } else if (destTime[j] < sourceTime[i]) {
-      mergedTime.push(destTime[j]);
-      mergedValues.push(destValue[j]);
+      emitDest(j);
       j++;
     } else {
-      mergedTime.push(sourceTime[i]);
-      mergedValues.push(sourceValue[i]);
+      emitSource(i);
       i++;
     }
   }
   while (j < destTime.length) {
-    mergedTime.push(destTime[j]);
-    mergedValues.push(destValue[j]);
+    emitDest(j);
     j++;
   }
   while (i < sourceTime.length) {
-    mergedTime.push(sourceTime[i]);
-    mergedValues.push(sourceValue[i]);
+    emitSource(i);
     i++;
   }
 
-  destTimeField.values = mergedTime;
-  destValueField.values = mergedValues;
-
-  dest.length = mergedTime.length;
+  dest.fields.forEach((field, f) => {
+    field.values = outValues[f];
+  });
+  dest.length = dest.fields[0].values.length;
 
   dest.meta = {
     ...dest.meta,
     stats: getCombinedMetadataStats(dest.meta?.stats ?? [], source.meta?.stats ?? []),
   };
+}
+
+function findSourceField(referenceField: Field, sourceFields: Field[], index: number) {
+  const candidates = sourceFields.filter((f) => f.name === referenceField.name);
+
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+
+  if (referenceField.labels) {
+    return candidates.find((candidate) => shallowCompare(referenceField.labels ?? {}, candidate.labels ?? {}));
+  }
+
+  return sourceFields[index];
 }
 
 const TOTAL_BYTES_STAT = 'Summary: total bytes processed';

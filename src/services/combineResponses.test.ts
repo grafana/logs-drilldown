@@ -240,6 +240,179 @@ describe('combineResponses', () => {
     });
   });
 
+  it('when fields with the same name are present, uses labels to find the right field to combine', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+
+    metricFrameA.fields.push({
+      config: {},
+      labels: {
+        test: 'true',
+      },
+      name: 'Value',
+      type: FieldType.number,
+      values: [9, 8],
+    });
+    metricFrameB.fields.push({
+      config: {},
+      labels: {
+        test: 'true',
+      },
+      name: 'Value',
+      type: FieldType.number,
+      values: [11, 10],
+    });
+
+    const responseA: DataQueryResponse = {
+      data: [metricFrameA],
+    };
+    const responseB: DataQueryResponse = {
+      data: [metricFrameB],
+    };
+
+    expect(combineResponses(responseA, responseB)).toEqual({
+      data: [
+        {
+          fields: [
+            {
+              config: {},
+              name: 'Time',
+              type: 'time',
+              values: [1000000, 2000000, 3000000, 4000000],
+            },
+            {
+              config: {},
+              labels: {
+                level: 'debug',
+              },
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
+            },
+            {
+              config: {},
+              labels: {
+                test: 'true',
+              },
+              name: 'Value',
+              type: 'number',
+              values: [11, 10, 9, 8],
+            },
+          ],
+          length: 4,
+          meta: {
+            stats: [
+              {
+                displayName: 'Summary: total bytes processed',
+                unit: 'decbytes',
+                value: 33,
+              },
+            ],
+            type: 'timeseries-multi',
+          },
+          name: 'A{"level":"debug"}',
+          refId: 'A',
+        },
+      ],
+    });
+  });
+
+  it('when fields with the same name are present and labels are not present, falls back to indexes', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+
+    delete metricFrameA.fields[1].labels;
+    delete metricFrameB.fields[1].labels;
+
+    metricFrameA.fields.push({
+      config: {},
+      name: 'Value',
+      type: FieldType.number,
+      values: [9, 8],
+    });
+    metricFrameB.fields.push({
+      config: {},
+      name: 'Value',
+      type: FieldType.number,
+      values: [11, 10],
+    });
+
+    const responseA: DataQueryResponse = {
+      data: [metricFrameA],
+    };
+    const responseB: DataQueryResponse = {
+      data: [metricFrameB],
+    };
+
+    expect(combineResponses(responseA, responseB)).toEqual({
+      data: [
+        {
+          fields: [
+            {
+              config: {},
+              name: 'Time',
+              type: 'time',
+              values: [1000000, 2000000, 3000000, 4000000],
+            },
+            {
+              config: {},
+              name: 'Value',
+              type: 'number',
+              values: [6, 7, 5, 4],
+            },
+            {
+              config: {},
+              name: 'Value',
+              type: 'number',
+              values: [11, 10, 9, 8],
+            },
+          ],
+          length: 4,
+          meta: {
+            stats: [
+              {
+                displayName: 'Summary: total bytes processed',
+                unit: 'decbytes',
+                value: 33,
+              },
+            ],
+            type: 'timeseries-multi',
+          },
+          name: 'A',
+          refId: 'A',
+        },
+      ],
+    });
+  });
+
+  it('matches same-named fields by labels rather than position when their order differs between dest and source', () => {
+    const { metricFrameA, metricFrameB } = getMockFrames();
+
+    // dest: [Time, Value(debug), Value(error)]
+    metricFrameA.fields.push({
+      config: {},
+      labels: { level: 'error' },
+      name: 'Value',
+      type: FieldType.number,
+      values: [100, 200],
+    });
+
+    // source: same two series, but in the OPPOSITE field order: [Time, Value(error), Value(debug)]
+    metricFrameB.fields = [
+      metricFrameB.fields[0],
+      { config: {}, labels: { level: 'error' }, name: 'Value', type: FieldType.number, values: [1, 2] },
+      { config: {}, labels: { level: 'debug' }, name: 'Value', type: FieldType.number, values: [10, 20] },
+    ];
+
+    mergeFrames(metricFrameA, metricFrameB);
+
+    const debugField = metricFrameA.fields.find((f) => f.labels?.level === 'debug');
+    const errorField = metricFrameA.fields.find((f) => f.labels?.level === 'error');
+
+    // Had this matched positionally instead of by labels, debug (dest.fields[1]) would incorrectly
+    // pair with source.fields[1] (labeled error, values [1, 2]) instead of the actual debug field.
+    expect(debugField?.values).toEqual([10, 20, 5, 4]);
+    expect(errorField?.values).toEqual([1, 2, 100, 200]);
+  });
+
   it('does not combine frames with different refId', () => {
     const { metricFrameA, metricFrameB } = getMockFrames();
     metricFrameA.refId = 'A';
