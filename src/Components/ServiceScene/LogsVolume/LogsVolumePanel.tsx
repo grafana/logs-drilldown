@@ -31,6 +31,7 @@ import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+import { MAX_NUMBER_OF_TIME_SERIES } from 'Components/ServiceScene/Breakdowns/TimeSeriesLimit';
 import { LogsVolumeActions } from 'Components/ServiceScene/LogsVolumeActions';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
@@ -276,6 +277,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         })
       )
       .setShowMenuAlways(true)
+      .setSeriesLimit(MAX_NUMBER_OF_TIME_SERIES)
       .setData(isCollapsed ? undefined : getQueryRunner([this.getVolumeQuery()]));
 
     setLogsVolumeFieldConfigOverrides(viz);
