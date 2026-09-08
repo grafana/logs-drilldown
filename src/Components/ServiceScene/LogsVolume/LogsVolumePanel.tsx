@@ -35,7 +35,7 @@ import { LogsVolumeActions } from 'Components/ServiceScene/LogsVolumeActions';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
-import { getTimeSeriesExpr } from 'services/expressions';
+import { getLogsVolumeQuery } from 'services/expressions';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
 import { sumLogsVolumeSeries } from 'services/logsVolume';
@@ -78,9 +78,18 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     if (field === this.state.aggregateBy) {
       return;
     }
+    const previousField = this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE;
     setLogsVolumeAggregateBy(this, field === LEVEL_VARIABLE_VALUE ? undefined : field);
     this.setState({ aggregateBy: field });
     this.setState({ panel: this.getVizPanel() });
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.logs_volume_aggregate_by_changed,
+      {
+        field,
+        previousField,
+      }
+    );
   }
 
   private restoreAggregateBy() {
@@ -91,7 +100,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getVolumeQuery() {
-    return buildDataQuery(getTimeSeriesExpr(this, this.state.aggregateBy, false), {
+    return buildDataQuery(getLogsVolumeQuery(this, this.state.aggregateBy, false), {
       legendFormat: `{{${this.state.aggregateBy}}}`,
     });
   }
