@@ -43,8 +43,8 @@ overrides:
   # The 7.x advisory (GHSA-qwww-vcr4-c8h2, <7.18.2) is fixed below: react-router-dom@7.18.2
   # pins react-router 7.18.2 exactly, so the core fix arrives transitively.
   # Still flagged: GHSA-wrjc-x8rr-h8h6 / GHSA-337j-9hxr-rhxg (>=6.0.0 <7.18.0) match the
-  # 6.30.4 copy. The react-router 6.x line ends at 6.30.4 — there is no 6.x patch, so this
-  # needs an upstream @grafana/ui bump off v5-compat, not an override here.
+  # 6.30.4 copy. No react-router 6.x release contains the patch, so this needs an upstream
+  # @grafana/ui bump off v5-compat, not an override here.
   react-router-dom: 7.18.2
   uuid: 14.0.1
   immutable: 5.1.8
@@ -53,7 +53,7 @@ overrides:
   strip-ansi: 6.0.1
   js-yaml: 4.3.1
   # Security patches for transitive vulnerabilities (pnpm audit)
-  fast-uri: 3.1.5
+  fast-uri: 3.1.6
   undici: 8.9.0
   protobufjs: 8.6.5
   js-cookie: 3.0.8
@@ -67,11 +67,14 @@ overrides:
   'brace-expansion@^5': 5.0.9
   'ws@^8': 8.21.0
   'ws@>=7.0.0 <7.5.11': 7.5.11
-  qs: 6.15.3
+  qs: 6.16.0
   '@babel/core@<=7.29.0': 7.29.7
   '@opentelemetry/core@<2.8.0': 2.8.0
   tar@<=7.5.20: 7.5.22
   webpack: 5.108.1
   'websocket-driver@<0.7.5': 0.7.5
   'postcss@<8.5.18': 8.5.23
-  nanoid: 3.3.17
+  nanoid: 3.3.18
+  '@humanfs/node': '>=0.16.8'
+  browserslist: '>=4.28.7'
+  postcss-selector-parser: '>=7.1.3'
