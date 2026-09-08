@@ -82,7 +82,7 @@ Scenes wiring (activation lifecycles, subscriptions, async query runners) is eas
 - **Run a single spec against a running Grafana** (`docker ps` should show `grafana-logsapp`/`logs-drilldown-*` containers, or an equivalent local dev stack):
 
   ```bash
-  npx playwright test tests/path/to.spec.ts --project=chromium --reporter=list --retries=0
+  pnpm exec playwright test tests/path/to.spec.ts --project=chromium --reporter=list --retries=0
   ```
 
   The `auth` project dependency (login + storage state) runs automatically; no separate setup step needed.
