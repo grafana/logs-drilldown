@@ -2,7 +2,6 @@ import { SceneObject } from '@grafana/scenes';
 
 import { getParserForField, getParserFromFieldsFilters } from './fields';
 import { logger } from './logger';
-import { getParserEnabled } from './parserToggle';
 import { renderLogQLFieldFilters, renderLogQLMetadataFilters } from './query';
 import { getFieldsVariable, getMetadataVariable } from './variableGetters';
 import {
