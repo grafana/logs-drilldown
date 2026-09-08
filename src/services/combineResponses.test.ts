@@ -587,9 +587,7 @@ describe('mergeFrames', () => {
       ],
     });
   });
-});
 
-describe('mergeFrames', () => {
   it('merges disjoint, interleaved timestamps in sorted order', () => {
     const { metricFrameA, metricFrameB } = getMockFrames();
     // metricFrameA: time [3000000, 4000000], metricFrameB: time [1000000, 2000000]
