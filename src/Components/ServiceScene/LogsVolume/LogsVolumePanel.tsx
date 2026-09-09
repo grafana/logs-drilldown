@@ -27,7 +27,6 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
-import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
@@ -48,11 +47,12 @@ import {
   syncLevelsVisibleSeries,
   syncLogsVolumeVisibleSeries,
 } from 'services/panel';
-import { buildDataQuery, LINE_LIMIT } from 'services/query';
+import { buildDataQuery } from 'services/query';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
 import {
   getLogsVolumeAggregateBy,
   getLogsVolumeOption,
+  getMaxLines,
   setLogsVolumeAggregateBy,
   setLogsVolumeOption,
 } from 'services/store';
@@ -223,8 +223,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     // Logs Panel response count
     const logsCount = serviceScene.state.logsCount;
 
-    const indexScene = sceneGraph.getAncestor(this, IndexScene);
-    const maxLines = indexScene.state.ds?.maxLines ?? LINE_LIMIT;
+    const maxLines = getMaxLines(this);
 
     const title = t('components.service-scene.logs-volume.logs-volume-panel.title', 'Log volume');
 
