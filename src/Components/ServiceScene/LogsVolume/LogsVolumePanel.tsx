@@ -183,6 +183,36 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         }
       })
     );
+
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this._subs.add(
+      serviceScene.state.$data?.subscribeToState((newState) => {
+        if (newState.data?.state === LoadingState.Done) {
+          this.updateVisibleRange(newState.data.series);
+        }
+      })
+    );
+
+    this._subs.add(
+      serviceScene.subscribeToState((newState, prevState) => {
+        if (newState.totalLogsCount !== prevState.totalLogsCount || newState.logsCount !== undefined) {
+          this.state.panel?.setState({
+            title: this.getTitle(),
+          });
+        }
+      })
+    );
+
+    this._subs.add(
+      getLevelsVariable(this).subscribeToState((newState, prevState) => {
+        if (areArraysEqual(newState.filters, prevState.filters) || !this.state.panel) {
+          return;
+        }
+        this.state.panel.setState({
+          title: this.getTitle(),
+        });
+      })
+    );
   }
 
   private getTitle() {
@@ -248,7 +278,6 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private getVizPanel() {
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     const isCollapsed = getLogsVolumeOption('collapsed');
     // Overrides are defined by setLogsVolumeFieldConfigOverrides, any overrides added here will be overwritten!
     const viz = PanelBuilders.timeseries()
@@ -296,41 +325,6 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     );
 
     this.subscribeToVisibleRange(panel);
-
-    this._subs.add(
-      serviceScene.state.$data?.subscribeToState((newState) => {
-        if (newState.data?.state === LoadingState.Done) {
-          this.updateVisibleRange(newState.data.series);
-        }
-      })
-    );
-
-    this._subs.add(
-      serviceScene.subscribeToState((newState, prevState) => {
-        if (newState.totalLogsCount !== prevState.totalLogsCount || newState.logsCount !== undefined) {
-          if (!this.state.panel) {
-            this.setState({
-              panel: this.getVizPanel(),
-            });
-          } else {
-            this.state.panel.setState({
-              title: this.getTitle(),
-            });
-          }
-        }
-      })
-    );
-
-    this._subs.add(
-      getLevelsVariable(this).subscribeToState((newState, prevState) => {
-        if (areArraysEqual(newState.filters, prevState.filters) || !this.state.panel) {
-          return;
-        }
-        this.state.panel.setState({
-          title: this.getTitle(),
-        });
-      })
-    );
 
     return panel;
   }
