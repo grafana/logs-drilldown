@@ -559,3 +559,6 @@ DSUID
 newrecords
 logsdrilldowndefaultlabels
 logstable
+cprc
+codemods
+hookz

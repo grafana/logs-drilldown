@@ -39,7 +39,9 @@ Before proposing a fix, verify whether the reported behavior is:
 
 ## Project Conventions
 
-Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. Never modify anything inside the `.config` folder; It is managed by Grafana plugin tools.
+Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. Never modify anything inside the `.config` folder; It is managed by Grafana plugin tools. To legitimately update it (including `docker-compose-base.yaml`'s default Grafana version), run `npx @grafana/create-plugin@latest update` — never hand-edit the files directly. Note this runs *all* pending scaffold migrations for the plugin (per `.config/.cprc.json`'s version), not just a targeted version bump, so review its diff before committing; it also requires `node_modules` to already be installed (its codemods shell out to the project's own `prettier`).
+
+  **Known exception:** `docker-compose-base.yaml`'s `grafana_version` default has no corresponding `create-plugin` migration, so it silently drifts behind the `@grafana/ui` devDependency on every Grafana core bump. Until upstream adds a migration for it, hand-edit that one line directly (with a comment explaining why) rather than leaving local dev on a stale Grafana version.
 
 - **Frontend security** — Follow workspace rules for HTML sanitization (DOMPurify), URLs (`textUtil.sanitizeUrl`), and avoiding unsafe DOM APIs.
 
@@ -74,6 +76,7 @@ Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) fo
 - **Write tests against `testIds`** — In Playwright specs, use `page.getByTestId(testIds.some.path)` (or the project’s equivalent) instead of brittle locators such as concatenated visible text (`FieldAll`), placeholder-only queries, or `getByText` for strings that depend on layout or i18n.
 - **When to add IDs** — Add or extend `testIds` when you introduce new UI that should be covered by E2E, or when a test would otherwise rely on implementation details of `@grafana/ui` (e.g. tooltip vs dialog, label + value split across nodes).
 - **Naming** — Keep the same string style as existing entries (e.g. `'data-testid search-fields'`). Prefer descriptive, stable slugs over feature-coupled names that will churn on every copy change.
+- **Keep `GRAFANA_LATEST_SUPPORTED_VERSION` in sync** — When bumping the `@grafana/{data,runtime,schema,ui,api-clients,i18n}` core package family, also update `GRAFANA_LATEST_SUPPORTED_VERSION` in `tests/config/grafana-versions-supported.ts` to match. It gates E2E tests that should only run on the latest Grafana version, and drifts silently if left behind.
 
 ## Usage
 

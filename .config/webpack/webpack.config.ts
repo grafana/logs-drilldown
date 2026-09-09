@@ -11,7 +11,7 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import path from 'path';
 import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
-import { SubresourceIntegrityPlugin } from "webpack-subresource-integrity";
+import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity';
 import webpack, { type Configuration } from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 import VirtualModulesPlugin from 'webpack-virtual-modules';
@@ -130,13 +130,18 @@ const config = async (env: Env): Promise<Configuration> => {
       minimize: Boolean(env.production),
       minimizer: [
         new TerserPlugin({
+          extractComments: {
+            banner: false,
+            filename: 'LICENSE.txt',
+          },
+
           terserOptions: {
             format: {
               comments: (_, { type, value }) => type === 'comment2' && value.trim().startsWith('[create-plugin]'),
             },
             compress: {
-              drop_console: ['log', 'info']
-            }
+              drop_console: ['log', 'info'],
+            },
           },
         }),
       ],
@@ -192,23 +197,25 @@ const config = async (env: Env): Promise<Configuration> => {
         },
       ]),
       new SubresourceIntegrityPlugin({
-        hashFuncNames: ["sha256"],
+        hashFuncNames: ['sha256'],
       }),
-      ...(env.development ? [
-        new LiveReloadPlugin(),
-        new ForkTsCheckerWebpackPlugin({
-          async: Boolean(env.development),
-          issue: {
-            include: [{ file: '**/*.{ts,tsx}' }],
-          },
-          typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
-        }),
-        new ESLintPlugin({
-          extensions: ['.ts', '.tsx'],
-          lintDirtyModulesOnly: Boolean(env.development), // don't lint on start, only lint changed files
-          failOnError: Boolean(env.production),
-        }),
-      ] : []),
+      ...(env.development
+        ? [
+            new LiveReloadPlugin(),
+            new ForkTsCheckerWebpackPlugin({
+              async: Boolean(env.development),
+              issue: {
+                include: [{ file: '**/*.{ts,tsx}' }],
+              },
+              typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
+            }),
+            new ESLintPlugin({
+              extensions: ['.ts', '.tsx'],
+              lintDirtyModulesOnly: Boolean(env.development), // don't lint on start, only lint changed files
+              failOnError: Boolean(env.production),
+            }),
+          ]
+        : []),
     ],
 
     resolve: {
