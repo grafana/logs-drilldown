@@ -80,7 +80,7 @@
     "eslint-plugin-sort": "4.0.0",
     "eslint-webpack-plugin": "5.0.3",
     "fork-ts-checker-webpack-plugin": "9.1.0",
-    "glob": "11.1.0",
+    "glob": "13.0.6",
     "husky": "9.1.7",
     "i18next-cli": "1.64.2",
     "identity-obj-proxy": "3.0.0",
