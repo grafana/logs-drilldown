@@ -37,17 +37,10 @@ minimumReleaseAgeExclude:
   - protobufjs@8.6.6
 
 overrides:
-  # react-router itself is deliberately not overridden. The 6.30.4 copy comes from
-  # @grafana/ui -> react-router-dom-v5-compat@6.30.4, which imports UNSAFE_useRoutesImpl,
-  # UNSAFE_useRouteId and UNSAFE_logV6DeprecationWarnings — none of which react-router 7
-  # exports. A bare `react-router` override would collapse both majors onto 7.x and break
-  # @grafana/ui at runtime.
-  # The 7.x advisory (GHSA-qwww-vcr4-c8h2, <7.18.2) is fixed below: react-router-dom@7.18.2
-  # pins react-router 7.18.2 exactly, so the core fix arrives transitively.
-  # Still flagged: GHSA-wrjc-x8rr-h8h6 / GHSA-337j-9hxr-rhxg (>=6.0.0 <7.18.0) match the
-  # 6.30.4 copy. No react-router 6.x release contains the patch, so this needs an upstream
-  # @grafana/ui bump off v5-compat, not an override here.
-  react-router-dom: 7.18.3
+  # v6 to match the router core supplies at runtime (externalized "react-router").
+  # Bumps the react-router-dom-v5-compat transitive copy to the 6.30.6 GHSA-jjmj-jmhj-qwj2
+  # backport without touching @grafana/ui's own v5 + v5-compat pairing.
+  react-router@^6: ^6.30.6
   uuid: 14.0.2
   immutable: 5.1.9
   dompurify: 3.4.14
