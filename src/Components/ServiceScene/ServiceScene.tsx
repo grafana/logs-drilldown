@@ -721,8 +721,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     }
 
     if (
-      this.state.$detectedFieldsData?.state.data?.state !== LoadingState.Loading &&
-      this.state.$detectedFieldsData?.state.data?.state !== LoadingState.Done
+      slug === PageSlugs.fields ||
+      slug === PageSlugs.logs ||
+      parentSlug === ValueSlugs.field ||
+      this.state.fieldsCount === undefined
     ) {
       this.state.$detectedFieldsData?.runQueries();
     }
@@ -1030,9 +1032,10 @@ function getDetectedLabelsQueryRunner() {
 }
 
 function getDetectedFieldsQueryRunner() {
-  return getResourceQueryRunner([
-    buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID }),
-  ]);
+  return getResourceQueryRunner(
+    [buildResourceQuery(DETECTED_FIELD_VALUES_EXPR, 'detected_fields', { refId: DETECTED_FIELDS_QUERY_REFID })],
+    { runQueriesMode: 'manual' }
+  );
 }
 
 function getLogsQueryQueryRunner(sceneRef: SceneObject) {
