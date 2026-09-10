@@ -79,6 +79,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     }
 
     const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
+    const { loadSearchScene, shareButtonScene } = model.useState();
     const maxLines = getMaxLines(model);
 
     const loadingStates = state.loadingStates;
@@ -87,13 +88,9 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       <Box paddingY={0}>
         <div className={styles.actions}>
           <Stack gap={1}>
-            {model.state.shareButtonScene && (
-              <model.state.shareButtonScene.Component model={model.state.shareButtonScene} />
-            )}
+            {shareButtonScene && <shareButtonScene.Component model={shareButtonScene} />}
             <SaveSearchButton sceneRef={model} />
-            {model.state.loadSearchScene && (
-              <model.state.loadSearchScene.Component model={model.state.loadSearchScene} />
-            )}
+            {loadSearchScene && <loadSearchScene.Component model={loadSearchScene} />}
           </Stack>
         </div>
 
