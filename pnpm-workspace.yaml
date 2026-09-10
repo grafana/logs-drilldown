@@ -35,12 +35,14 @@ minimumReleaseAgeExclude:
   - brace-expansion@1.1.18
   # Renovate security update: protobufjs@8.6.6
   - protobufjs@8.6.6
+  # Renovate security update: react-router@8.3.1
+  - react-router@8.3.1
 
 overrides:
   # v6 to match the router core supplies at runtime (externalized "react-router").
   # Bumps the react-router-dom-v5-compat transitive copy to the 6.30.6 GHSA-jjmj-jmhj-qwj2
   # backport without touching @grafana/ui's own v5 + v5-compat pairing.
-  react-router@^6: ^6.30.6
+  react-router@^6: ^8.0.0
   uuid: 14.0.2
   immutable: 5.1.9
   dompurify: 3.4.14
