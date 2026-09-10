@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Unsubscribable } from 'rxjs';
+
 import {
   DataFrame,
   FormattedValue,
@@ -68,6 +70,7 @@ export const logsVolumePanelKey = 'logs-volume-panel';
 
 export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   private updatedLogSeries: DataFrame[] | null = null;
+  private visibleRangeSub?: Unsubscribable;
   constructor(state: Omit<LogsVolumePanelState, 'aggregateBy'>) {
     super({
       ...state,
@@ -89,7 +92,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
     const previousField = this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE;
     setLogsVolumeAggregateBy(this, field === LEVEL_VARIABLE_VALUE ? undefined : field);
     this.setState({ aggregateBy: field });
-    this.setState({ panel: this.getVizPanel() });
+    this.updateVolumeQuery();
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
       USER_EVENTS_ACTIONS.service_details.logs_volume_aggregate_by_changed,
@@ -98,6 +101,21 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         previousField,
       }
     );
+  }
+
+  private updateVolumeQuery() {
+    const panel = this.state.panel;
+    if (!panel) {
+      return;
+    }
+
+    const actions = panel.state.headerActions;
+    if (actions instanceof LogsVolumeActions) {
+      actions.setState({ aggregateBy: this.state.aggregateBy });
+    }
+
+    panel.setState({ $data: getQueryRunner([this.getVolumeQuery()]) });
+    this.subscribeToVisibleRange(panel);
   }
 
   private restoreAggregateBy() {
@@ -123,13 +141,23 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
 
   private onActivate() {
     this.restoreAggregateBy();
+    this._subs.add(() => this.visibleRangeSub?.unsubscribe());
 
-    if (!this.state.panel) {
-      const panel = this.getVizPanel();
-      this.setState({
-        panel,
-      });
-      this.updateContainerHeight(panel);
+    // No need to wait for detectedFields.
+    if (this.state.aggregateBy === LEVEL_VARIABLE_VALUE) {
+      this.setPanel();
+    }
+
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    const detectedFieldsData = serviceScene.state.$detectedFieldsData;
+    if (detectedFieldsData) {
+      this._subs.add(
+        detectedFieldsData.subscribeToState((state) => {
+          if (!this.state.panel && state.data?.state === LoadingState.Done) {
+            this.setPanel();
+          }
+        })
+      );
     }
 
     const labels = getLabelsVariable(this);
@@ -184,7 +212,6 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       })
     );
 
-    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this._subs.add(
       serviceScene.state.$data?.subscribeToState((newState) => {
         if (newState.data?.state === LoadingState.Done) {
@@ -213,6 +240,14 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
         });
       })
     );
+  }
+
+  private setPanel() {
+    const panel = this.getVizPanel();
+    this.setState({
+      panel,
+    });
+    this.updateContainerHeight(panel);
   }
 
   private getTitle() {
@@ -268,11 +303,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
 
   private setCollapsed(collapsed: boolean | undefined) {
     setLogsVolumeOption('collapsed', collapsed ? 'true' : undefined);
-
-    const panel = this.getVizPanel();
-    this.setState({ panel });
-    this.updateContainerHeight(panel);
-
+    this.setPanel();
     syncLogsListPanelHeightFromScene(sceneGraph.getAncestor(this, ServiceScene));
   }
 
@@ -329,23 +360,22 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private subscribeToVisibleRange(panel: VizPanel) {
+    this.visibleRangeSub?.unsubscribe();
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
-    this._subs.add(
-      panel.state.$data?.subscribeToState((newState) => {
-        if (newState.data?.state !== LoadingState.Done) {
-          return;
-        }
-        if (serviceScene.state.$data?.state.data?.state === LoadingState.Done && !newState.data.annotations?.length) {
-          this.updateVisibleRange(serviceScene.state.$data?.state.data?.series);
-        } else {
-          this.displayVisibleRange();
-        }
-        this.syncVisibleSeries(panel, newState.data.series);
-        panel.setState({
-          title: this.getTitle(),
-        });
-      })
-    );
+    this.visibleRangeSub = panel.state.$data?.subscribeToState((newState) => {
+      if (newState.data?.state !== LoadingState.Done) {
+        return;
+      }
+      if (serviceScene.state.$data?.state.data?.state === LoadingState.Done && !newState.data.annotations?.length) {
+        this.updateVisibleRange(serviceScene.state.$data?.state.data?.series);
+      } else {
+        this.displayVisibleRange();
+      }
+      this.syncVisibleSeries(panel, newState.data.series);
+      panel.setState({
+        title: this.getTitle(),
+      });
+    });
   }
 
   public updateContainerHeight(panel: VizPanel) {
@@ -454,10 +484,10 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
 
   public static Component = ({ model }: SceneComponentProps<LogsVolumePanel>) => {
     const { panel } = model.useState();
+    const styles = useStyles2(getPanelWrapperStyles);
     if (!panel) {
       return;
     }
-    const styles = useStyles2(getPanelWrapperStyles);
 
     return (
       <div className={styles.panelWrapper}>
