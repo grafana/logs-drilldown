@@ -77,4 +77,5 @@ overrides:
   'websocket-driver@<0.7.5': 0.7.5
   'postcss@<8.5.18': 8.5.28
   nanoid: 3.3.18
+  csv-parse: 7.0.2
   '@humanfs/node': '>=0.16.8'

@@ -30,6 +30,7 @@ overrides:
   websocket-driver@<0.7.5: 0.7.5
   postcss@<8.5.18: 8.5.28
   nanoid: 3.3.18
+  csv-parse: 7.0.2
   '@humanfs/node': '>=0.16.8'
 
 importers:
@@ -4266,9 +4267,9 @@ packages:
     resolution:
       { integrity: sha512-w/T+rqR0vwvHqWs/1ZyMDWtHHSJaN06klRqJXBEpDJaM/+dZkso0OKh1VcuuYvK3XM53KysVNq8Ko/epCK8wOw== }
 
-  csv-parse@4.16.3:
+  csv-parse@7.0.2:
     resolution:
-      { integrity: sha512-cO1I/zmz4w2dcKHVvpCr7JVRu8/FymG5OEpmvsZYlccYolPBLoVGKUHgNoc4ZGkFeFlWGEDmMyBM+TTqRdW/wg== }
+      { integrity: sha512-uKZghv9UmPkMVLYy//KZ9HFAIJsl7wkhoEdIL0+rhuSY9pZQlhaeGEDPIe+/w7eh81MOql8Q/9+inAGWG6ZHYA== }
 
   csv-stringify@5.6.5:
     resolution:
@@ -12228,14 +12229,14 @@ snapshots:
 
   csv-generate@3.4.3: {}
 
-  csv-parse@4.16.3: {}
+  csv-parse@7.0.2: {}
 
   csv-stringify@5.6.5: {}
 
   csv@5.5.3:
     dependencies:
       csv-generate: 3.4.3
-      csv-parse: 4.16.3
+      csv-parse: 7.0.2
       csv-stringify: 5.6.5
       stream-transform: 2.1.3
 
