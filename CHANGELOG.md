@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.6.0](https://github.com/grafana/logs-drilldown/compare/v2.5.2...v2.6.0) (2026-09-11)
+
+
+### 🎉 Features
+
+* **LosgVolume:** Support aggregation by other log fields ([#2071](https://github.com/grafana/logs-drilldown/issues/2071)) ([de19e4d](https://github.com/grafana/logs-drilldown/commit/de19e4d02e2ec3f395cb159f54d16e60b08aacb3))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** bump pnpm overrides for CVE remediation ([#2073](https://github.com/grafana/logs-drilldown/issues/2073)) ([41ec5dd](https://github.com/grafana/logs-drilldown/commit/41ec5dd563dc65294a334a080c24351f21f7e515))
+* **deps:** downgrade react-router-dom to 6.30.6 ([#2080](https://github.com/grafana/logs-drilldown/issues/2080)) ([37e1cff](https://github.com/grafana/logs-drilldown/commit/37e1cff97fa60c248de987a519f54a9cc472cec0))
+* **deps:** remediate open Dependabot CVEs (grpc-go, csv-parse) ([#2079](https://github.com/grafana/logs-drilldown/issues/2079)) ([0af19dd](https://github.com/grafana/logs-drilldown/commit/0af19dd15144bd269ddaed76fd49a17162db938c))
+
+
+### 🧹 Chore
+
+* **ci:** use GitHub App token broker for cp-update workflow ([#2076](https://github.com/grafana/logs-drilldown/issues/2076)) ([c0735b5](https://github.com/grafana/logs-drilldown/commit/c0735b594c379ef6f9d5e90f53e87d52e2ffb01c))
+* **deps:** combine open Renovate PRs, create-plugin update, and pnpm audit CVE fixes ([#2077](https://github.com/grafana/logs-drilldown/issues/2077)) ([70926e8](https://github.com/grafana/logs-drilldown/commit/70926e8fcdeb4ed7ec36086de00af870e8f3cec8))
+* **faro:** ignore benign ResizeObserver loop errors like core ([#2050](https://github.com/grafana/logs-drilldown/issues/2050)) ([e460529](https://github.com/grafana/logs-drilldown/commit/e4605299b39f4eaf2644f5af38ee79cdf75dc3a6))
+* move codeowners to whole drilldown squad ([#2078](https://github.com/grafana/logs-drilldown/issues/2078)) ([2a3f080](https://github.com/grafana/logs-drilldown/commit/2a3f080daad30b67a8cf184dea7956293862058a))
+
 ## [2.5.2](https://github.com/grafana/logs-drilldown/compare/v2.5.1...v2.5.2) (2026-08-26)
 
 
