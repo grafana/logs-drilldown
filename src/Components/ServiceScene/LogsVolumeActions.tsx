@@ -1,17 +1,75 @@
 import React from 'react';
 
-import { AdHocVariableFilter } from '@grafana/data';
+import { css } from '@emotion/css';
+
+import { AdHocVariableFilter, DataFrame } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { usePluginComponent } from '@grafana/runtime';
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { Combobox, ComboboxOption, InlineField, Stack, useStyles2 } from '@grafana/ui';
 
+import { getDetectedFieldsFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
+import {
+  extractFieldTypeFromString,
+  extractParserFromString,
+  getDetectedFieldType,
+  getDetectedFieldsNamesField,
+  getDetectedFieldsParserField,
+  getDetectedFieldsTypeField,
+  isAvgField,
+} from 'services/fields';
+import { FIELDS_TO_REMOVE } from 'services/filters';
+import { isLogsVolumeByFieldEnabled } from 'services/logsVolume';
+import { getParserEnabled } from 'services/parserToggle';
 import { getDataSource } from 'services/scenes';
+import { getLogsVolumeOption } from 'services/store';
 import { getAdHocFiltersVariable } from 'services/variableGetters';
-import { VAR_LABELS } from 'services/variables';
+import { LEVEL_VARIABLE_VALUE, VAR_LABELS } from 'services/variables';
 
-interface LogsVolumeActionsState extends SceneObjectState {}
+interface LogsVolumeActionsState extends SceneObjectState {
+  aggregateBy: string;
+  onAggregateByChange: (field: string) => void;
+  options: Array<ComboboxOption<string>>;
+}
 
 export class LogsVolumeActions extends SceneObjectBase<LogsVolumeActionsState> {
   static Component = Component;
+
+  constructor(state: Omit<LogsVolumeActionsState, 'options'> & { options?: Array<ComboboxOption<string>> }) {
+    super({
+      ...state,
+      options: state.options ?? [],
+    });
+
+    this.addActivationHandler(this.onActivate.bind(this));
+  }
+
+  private onActivate() {
+    if (!isLogsVolumeByFieldEnabled()) {
+      return;
+    }
+    const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
+    this.updateOptions();
+    const detectedFieldsData = serviceScene.state.$detectedFieldsData;
+    if (detectedFieldsData) {
+      this._subs.add(
+        detectedFieldsData.subscribeToState((state) => {
+          this.updateOptions();
+        })
+      );
+    }
+  }
+
+  private updateOptions() {
+    this.setState({ options: getAggregateByOptions(getDetectedFieldsFrame(this), this.state.aggregateBy) });
+  }
+
+  public onChange = (option: ComboboxOption<string> | null) => {
+    if (option == null) {
+      return;
+    }
+    this.state.onAggregateByChange(option.value);
+  };
 }
 
 type StreamSelector = Pick<AdHocVariableFilter, 'key' | 'operator' | 'value'>;
@@ -26,6 +84,8 @@ type TemporaryExemptionsProps = {
 };
 
 function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
+  const { aggregateBy, options } = model.useState();
+  const styles = useStyles2(getStyles);
   const { component: TemporaryExemptionsButton, isLoading } = usePluginComponent<TemporaryExemptionsProps>(
     'grafana-adaptivelogs-app/temporary-exemptions/v1'
   );
@@ -36,15 +96,86 @@ function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
 
   const dataSourceUid = getDataSource(model);
 
-  if (isLoading || !TemporaryExemptionsButton) {
-    return null;
-  }
+  const logsVolumeCollapsed = getLogsVolumeOption('collapsed');
+  const logsVolumeByField = isLogsVolumeByFieldEnabled();
 
   return (
-    <TemporaryExemptionsButton
-      dataSourceUid={dataSourceUid}
-      streamSelector={streamSelector}
-      contextHints={['explorelogs', 'logvolumepanel', 'headeraction']}
-    />
+    <Stack alignItems="center" gap={1}>
+      {logsVolumeByField && !logsVolumeCollapsed && (
+        <InlineField
+          className={styles.aggregateByField}
+          transparent
+          label={t('components.service-scene.logs-volume.logs-volume-actions.label-group-by', 'Group by')}
+        >
+          <Combobox<string>
+            aria-label={t(
+              'components.service-scene.logs-volume.logs-volume-actions.aria-label-group-by',
+              'Group log volume by field'
+            )}
+            minWidth={16}
+            onChange={model.onChange}
+            options={options}
+            value={aggregateBy}
+            width="auto"
+          />
+        </InlineField>
+      )}
+      {!isLoading && TemporaryExemptionsButton && (
+        <TemporaryExemptionsButton
+          dataSourceUid={dataSourceUid}
+          streamSelector={streamSelector}
+          contextHints={['explorelogs', 'logvolumepanel', 'headeraction']}
+        />
+      )}
+    </Stack>
   );
 }
+
+export function getAggregateByOptions(
+  detectedFieldsFrame: DataFrame | undefined,
+  selected: string
+): Array<ComboboxOption<string>> {
+  const namesField = getDetectedFieldsNamesField(detectedFieldsFrame);
+  const parserField = getDetectedFieldsParserField(detectedFieldsFrame);
+  const typesField = getDetectedFieldsTypeField(detectedFieldsFrame);
+  const parserEnabled = getParserEnabled();
+  const names = new Set<string>();
+
+  namesField?.values.forEach((name, index) => {
+    const fieldName = String(name);
+    if (!fieldName || FIELDS_TO_REMOVE.includes(fieldName)) {
+      return;
+    }
+    if (isAvgField(extractFieldTypeFromString(typesField?.values?.[index]))) {
+      return;
+    }
+    if (!parserEnabled) {
+      const parser = extractParserFromString(parserField?.values?.[index] ?? '');
+      if (parser !== 'structuredMetadata') {
+        return;
+      }
+    }
+    names.add(fieldName);
+  });
+
+  const options: Array<ComboboxOption<string>> = [
+    { label: LEVEL_VARIABLE_VALUE, value: LEVEL_VARIABLE_VALUE },
+    ...[...names].sort().map((name) => ({ label: name, value: name })),
+  ];
+
+  if (selected && !options.some((option) => option.value === selected)) {
+    if (!isAvgField(getDetectedFieldType(selected, detectedFieldsFrame))) {
+      options.unshift({ label: selected, value: selected });
+    }
+  }
+
+  return options;
+}
+
+const getStyles = () => ({
+  aggregateByField: css({
+    label: 'logs-volume-aggregate-by',
+    marginBottom: 0,
+    marginRight: 0,
+  }),
+});

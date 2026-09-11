@@ -76,6 +76,8 @@ export const USER_EVENTS_ACTIONS = {
     layout_type_changed: 'layout_type_changed',
     // Clicking on one of the levels in the Logs Volume panel
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
+    // Changing the logs volume group-by field. Props: field, previousField
+    logs_volume_aggregate_by_changed: 'logs_volume_aggregate_by_changed',
     // Clear all displayed fields (show original log line)
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
     // Show default (backend) columns

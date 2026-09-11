@@ -1,10 +1,32 @@
 import { VAR_FIELD_NAME } from '@grafana/data';
-import { AdHocFiltersVariable } from '@grafana/scenes';
+import { AdHocFiltersVariable, SceneObject } from '@grafana/scenes';
 
 import SpyInstance = jest.SpyInstance;
+import { getParserForField } from './fields';
 import { FilterOp } from './filterTypes';
-import { getVisibleFilters } from './labels';
+import { getVisibleFilters, toggleFieldFromFilter } from './labels';
+import { getFieldsAndMetadataVariable } from './variableGetters';
 import { VAR_FIELDS, VAR_LABELS, VAR_METADATA } from './variables';
+import { addToFilters } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
+
+jest.mock('./fields', () => ({
+  getParserForField: jest.fn(),
+  getParserFromFieldsFilters: jest.fn(),
+}));
+jest.mock('./variableGetters', () => {
+  const actual = jest.requireActual('./variableGetters');
+  return {
+    ...actual,
+    getFieldsAndMetadataVariable: jest.fn(),
+  };
+});
+jest.mock('Components/ServiceScene/Breakdowns/AddToFiltersButton', () => ({
+  addToFilters: jest.fn(),
+}));
+
+const getParserForFieldMock = jest.mocked(getParserForField);
+const getFieldsAndMetadataVariableMock = jest.mocked(getFieldsAndMetadataVariable);
+const addToFiltersMock = jest.mocked(addToFilters);
 
 describe('getVisibleFilters', () => {
   let logSpy: SpyInstance;
@@ -397,5 +419,77 @@ describe('getVisibleFilters', () => {
       });
       expect(getVisibleFilters('detected_level', ['error'], labelsVariable)).toEqual(['error']);
     });
+  });
+});
+
+describe('toggleFieldFromFilter', () => {
+  const scene = {} as SceneObject;
+
+  function setup(options: {
+    filters?: AdHocFiltersVariable['state']['filters'];
+    parser?: 'logfmt' | 'structuredMetadata';
+  }) {
+    getParserForFieldMock.mockReturnValue(options.parser ?? 'logfmt');
+    getFieldsAndMetadataVariableMock.mockReturnValue({
+      state: { filters: options.filters ?? [] },
+    } as AdHocFiltersVariable);
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('includes a parsed field when there are no filters', () => {
+    setup({ filters: [] });
+
+    expect(toggleFieldFromFilter('pod', 'api-1', scene)).toBe('include');
+    expect(addToFiltersMock).toHaveBeenCalledWith('pod', 'api-1', 'include', scene, VAR_FIELDS);
+  });
+
+  it('includes structured metadata on the metadata variable', () => {
+    setup({ filters: [], parser: 'structuredMetadata' });
+
+    expect(toggleFieldFromFilter('cluster', 'eu', scene)).toBe('include');
+    expect(addToFiltersMock).toHaveBeenCalledWith('cluster', 'eu', 'include', scene, VAR_METADATA);
+  });
+
+  it('toggles an existing inclusive parsed-field filter', () => {
+    setup({
+      filters: [
+        {
+          key: 'pod',
+          operator: FilterOp.Equal,
+          value: JSON.stringify({ parser: 'logfmt', value: 'api-1' }),
+        },
+      ],
+    });
+
+    expect(toggleFieldFromFilter('pod', 'api-1', scene)).toBe('toggle');
+    expect(addToFiltersMock).toHaveBeenCalledWith('pod', 'api-1', 'toggle', scene, VAR_FIELDS);
+  });
+
+  it('includes when a different value is already filtered', () => {
+    setup({
+      filters: [
+        {
+          key: 'pod',
+          operator: FilterOp.Equal,
+          value: JSON.stringify({ parser: 'logfmt', value: 'api-2' }),
+        },
+      ],
+    });
+
+    expect(toggleFieldFromFilter('pod', 'api-1', scene)).toBe('include');
+    expect(addToFiltersMock).toHaveBeenCalledWith('pod', 'api-1', 'include', scene, VAR_FIELDS);
+  });
+
+  it('toggles an existing inclusive metadata filter', () => {
+    setup({
+      filters: [{ key: 'cluster', operator: FilterOp.Equal, value: 'eu' }],
+      parser: 'structuredMetadata',
+    });
+
+    expect(toggleFieldFromFilter('cluster', 'eu', scene)).toBe('toggle');
+    expect(addToFiltersMock).toHaveBeenCalledWith('cluster', 'eu', 'toggle', scene, VAR_METADATA);
   });
 });

@@ -166,8 +166,6 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       } else {
         this.setVizFlags(detectedFieldFrame);
       }
-    } else if (serviceScene.state?.$detectedFieldsData?.state.data?.state === undefined) {
-      serviceScene.state?.$detectedFieldsData?.runQueries();
     }
 
     // Subscribe to detected fields

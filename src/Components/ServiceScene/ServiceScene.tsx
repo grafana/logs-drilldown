@@ -720,8 +720,12 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       this.state.$detectedLabelsData?.runQueries();
     }
 
-    // If we don't have a detected fields count, or we are activating the fields scene, run the detected fields query
-    if (slug === PageSlugs.fields || parentSlug === ValueSlugs.field || this.state.fieldsCount === undefined) {
+    if (
+      slug === PageSlugs.fields ||
+      slug === PageSlugs.logs ||
+      parentSlug === ValueSlugs.field ||
+      this.state.fieldsCount === undefined
+    ) {
       this.state.$detectedFieldsData?.runQueries();
     }
     if (this.state.logsCount === undefined) {

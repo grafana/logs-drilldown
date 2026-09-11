@@ -15,13 +15,11 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'se
 import { PageSlugs, TabNames, ValueSlugs } from 'services/enums';
 import { narrowPageSlug } from 'services/narrowing';
 import { getDrillDownTabLink } from 'services/navigate';
-import { LINE_LIMIT } from 'services/query';
 import { getDrilldownSlug, getDrilldownValueSlug } from 'services/routing';
 import { getMaxLines } from 'services/store';
 
 export interface ActionBarSceneState extends SceneObjectState {
   loadSearchScene?: LoadSearchScene;
-  maxLines?: number;
   shareButtonScene?: ShareButtonScene;
 }
 
@@ -33,10 +31,6 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
   }
 
   onActivate() {
-    this.setState({
-      maxLines: getMaxLines(this),
-    });
-
     if (!this.state.shareButtonScene) {
       this.setState({
         shareButtonScene: new ShareButtonScene({}),
@@ -85,7 +79,8 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
     }
 
     const { $data, loading, logsCount, totalLogsCount, ...state } = serviceScene.useState();
-    const { maxLines } = model.useState();
+    const { loadSearchScene, shareButtonScene } = model.useState();
+    const maxLines = getMaxLines(model);
 
     const loadingStates = state.loadingStates;
 
@@ -93,13 +88,9 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
       <Box paddingY={0}>
         <div className={styles.actions}>
           <Stack gap={1}>
-            {model.state.shareButtonScene && (
-              <model.state.shareButtonScene.Component model={model.state.shareButtonScene} />
-            )}
+            {shareButtonScene && <shareButtonScene.Component model={shareButtonScene} />}
             <SaveSearchButton sceneRef={model} />
-            {model.state.loadSearchScene && (
-              <model.state.loadSearchScene.Component model={model.state.loadSearchScene} />
-            )}
+            {loadSearchScene && <loadSearchScene.Component model={loadSearchScene} />}
           </Stack>
         </div>
 
@@ -118,7 +109,7 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
                   counter={loadingStates[tab.displayName] ? undefined : getCounter(tab, state)}
                   suffix={
                     tab.displayName === TabNames.logs
-                      ? ({ className }) => LogsCount(className, totalLogsCount, logsCount, maxLines ?? LINE_LIMIT)
+                      ? ({ className }) => LogsCount(className, totalLogsCount, logsCount, maxLines)
                       : undefined
                   }
                   icon={loadingStates[tab.displayName] ? 'spinner' : undefined}

@@ -1,6 +1,7 @@
 import { sceneGraph, SceneQueryRunner, type SceneObject } from '@grafana/scenes';
 
 import { CustomConstantVariable } from './CustomConstantVariable';
+import { setLogsVolumeAggregateBy } from './store';
 import { JSON_PARSER_SEGMENT, LOGFMT_PARSER_SEGMENT, VAR_JSON_PARSER, VAR_LOGFMT_PARSER } from './variables';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
@@ -38,6 +39,7 @@ export function setParserEnabled(enabled: boolean, sceneRef: SceneObject): void 
   // to avoid sending invalid queries.
   if (!enabled) {
     indexScene.clearParserDependentFilters();
+    setLogsVolumeAggregateBy(sceneRef, undefined);
   }
 
   // Re-run the parser-dependent queries so the new setting is applied immediately.

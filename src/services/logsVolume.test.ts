@@ -2,12 +2,32 @@ import { AdHocVariableFilter, FieldType, LoadingState, toDataFrame } from '@graf
 import { AdHocFiltersVariable, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { FilterOp } from './filterTypes';
-import { readLevelsFromCompletedLogsVolumePanel, getLevelsFromLogsVolume, sumLogsVolumeSeries } from './logsVolume';
+import {
+  getLevelsFromLogsVolume,
+  isLogsVolumeByFieldEnabled,
+  readLevelsFromCompletedLogsVolumePanel,
+  sumLogsVolumeSeries,
+} from './logsVolume';
 import { getLevelsVariable } from './variableGetters';
 import { VAR_LEVELS } from './variables';
 import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 
 jest.mock('./variableGetters');
+jest.mock('featureFlags/openFeature', () => ({
+  getFeatureFlag: jest.fn(() => false),
+}));
+
+describe('isLogsVolumeByFieldEnabled', () => {
+  it('returns the drilldown.logs.logsVolumeByField flag value', () => {
+    jest.mocked(getFeatureFlag).mockReturnValue(true);
+    expect(isLogsVolumeByFieldEnabled()).toBe(true);
+    expect(getFeatureFlag).toHaveBeenCalledWith('drilldown.logs.logsVolumeByField');
+
+    jest.mocked(getFeatureFlag).mockReturnValue(false);
+    expect(isLogsVolumeByFieldEnabled()).toBe(false);
+  });
+});
 
 describe('readLevelsFromCompletedLogsVolumePanel', () => {
   it('returns null when the panel is collapsed', () => {
@@ -79,6 +99,24 @@ describe('readLevelsFromCompletedLogsVolumePanel', () => {
       } as unknown as LogsVolumePanel['state']['panel'],
     });
     expect(readLevelsFromCompletedLogsVolumePanel(volume)).toEqual(['error', 'warn']);
+  });
+
+  it('returns null when the volume is not aggregated by detected_level', () => {
+    const volume = new LogsVolumePanel({});
+    volume.setState({
+      aggregateBy: 'pod',
+      panel: {
+        state: {
+          collapsed: false,
+          $data: {
+            state: {
+              data: { state: LoadingState.Done, series: [] },
+            },
+          },
+        },
+      } as unknown as LogsVolumePanel['state']['panel'],
+    });
+    expect(readLevelsFromCompletedLogsVolumePanel(volume)).toBeNull();
   });
 });
 
@@ -185,5 +223,18 @@ describe('sumLogsVolumeSeries', () => {
   it('returns 0 for empty series', () => {
     setup([]);
     expect(sumLogsVolumeSeries([], scene)).toBe(0);
+  });
+
+  it('sums every series when the volume is not aggregated by detected_level', () => {
+    setup([
+      {
+        key: 'detected_level',
+        operator: FilterOp.Equal,
+        value: 'error',
+      },
+    ]);
+    const volume = new LogsVolumePanel({});
+    volume.setState({ aggregateBy: 'pod' });
+    expect(sumLogsVolumeSeries(series, volume)).toBe(10);
   });
 });
