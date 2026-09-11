@@ -129,6 +129,12 @@ const goffFeatureFlags = {
     reason: 'static provider evaluation result',
     variant: 'default',
   },
+  'drilldown.logs.logsVolumeByField': {
+    valueType: 'boolean',
+    value: false,
+    reason: 'static provider evaluation result',
+    variant: 'default',
+  },
   logsTablePanelNG: {
     valueType: 'boolean',
     value: false,

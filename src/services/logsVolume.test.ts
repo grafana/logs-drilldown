@@ -2,12 +2,32 @@ import { AdHocVariableFilter, FieldType, LoadingState, toDataFrame } from '@graf
 import { AdHocFiltersVariable, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { FilterOp } from './filterTypes';
-import { readLevelsFromCompletedLogsVolumePanel, getLevelsFromLogsVolume, sumLogsVolumeSeries } from './logsVolume';
+import {
+  getLevelsFromLogsVolume,
+  isLogsVolumeByFieldEnabled,
+  readLevelsFromCompletedLogsVolumePanel,
+  sumLogsVolumeSeries,
+} from './logsVolume';
 import { getLevelsVariable } from './variableGetters';
 import { VAR_LEVELS } from './variables';
 import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 
 jest.mock('./variableGetters');
+jest.mock('featureFlags/openFeature', () => ({
+  getFeatureFlag: jest.fn(() => false),
+}));
+
+describe('isLogsVolumeByFieldEnabled', () => {
+  it('returns the drilldown.logs.logsVolumeByField flag value', () => {
+    jest.mocked(getFeatureFlag).mockReturnValue(true);
+    expect(isLogsVolumeByFieldEnabled()).toBe(true);
+    expect(getFeatureFlag).toHaveBeenCalledWith('drilldown.logs.logsVolumeByField');
+
+    jest.mocked(getFeatureFlag).mockReturnValue(false);
+    expect(isLogsVolumeByFieldEnabled()).toBe(false);
+  });
+});
 
 describe('readLevelsFromCompletedLogsVolumePanel', () => {
   it('returns null when the panel is collapsed', () => {

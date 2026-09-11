@@ -42,7 +42,7 @@ import { getParserForField } from 'services/fields';
 import { toggleFieldFromFilter } from 'services/labels';
 import { toggleLevelFromFilter } from 'services/levels';
 import { getSeriesVisibleRange, getVisibleRangeFrame } from 'services/logsFrame';
-import { sumLogsVolumeSeries } from 'services/logsVolume';
+import { isLogsVolumeByFieldEnabled, sumLogsVolumeSeries } from 'services/logsVolume';
 import {
   getQueryRunner,
   setLogsVolumeFieldConfigOverrides,
@@ -86,7 +86,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   public setAggregateBy(field: string) {
-    if (field === this.state.aggregateBy) {
+    if (!isLogsVolumeByFieldEnabled() || field === this.state.aggregateBy) {
       return;
     }
     const previousField = this.state.aggregateBy ?? LEVEL_VARIABLE_VALUE;
@@ -119,6 +119,9 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
   }
 
   private restoreAggregateBy() {
+    if (!isLogsVolumeByFieldEnabled()) {
+      return;
+    }
     const aggregateBy = getLogsVolumeAggregateBy(this) ?? LEVEL_VARIABLE_VALUE;
     if (aggregateBy !== this.state.aggregateBy) {
       this.setState({ aggregateBy });

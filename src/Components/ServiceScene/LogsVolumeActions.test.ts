@@ -1,18 +1,24 @@
 import { createDataFrame, Field, FieldType } from '@grafana/data';
+import { sceneGraph } from '@grafana/scenes';
 
-import { getAggregateByOptions } from './LogsVolumeActions';
+import { LogsVolumeActions, getAggregateByOptions } from './LogsVolumeActions';
 import {
   DETECTED_FIELDS_CARDINALITY_NAME,
   DETECTED_FIELDS_NAME_FIELD,
   DETECTED_FIELDS_PARSER_NAME,
   DETECTED_FIELDS_TYPE_NAME,
 } from 'services/datasource';
+import { isLogsVolumeByFieldEnabled } from 'services/logsVolume';
 import { getParserEnabled } from 'services/parserToggle';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
 
 jest.mock('services/parserToggle', () => ({
   ...jest.requireActual('services/parserToggle'),
   getParserEnabled: jest.fn(() => true),
+}));
+
+jest.mock('services/logsVolume', () => ({
+  isLogsVolumeByFieldEnabled: jest.fn(() => true),
 }));
 
 const getParserEnabledMock = jest.mocked(getParserEnabled);
@@ -58,6 +64,26 @@ const mixedFields = detectedFieldsFrame([
   { name: 'cluster', parser: '', type: 'string' },
   { name: 'level', parser: '', type: 'string' },
 ]);
+
+describe('LogsVolumeActions', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('does not load aggregate-by options when the feature flag is disabled', () => {
+    jest.mocked(isLogsVolumeByFieldEnabled).mockReturnValue(false);
+    const getAncestor = jest.spyOn(sceneGraph, 'getAncestor');
+    const actions = new LogsVolumeActions({
+      aggregateBy: LEVEL_VARIABLE_VALUE,
+      onAggregateByChange: () => {},
+    });
+
+    actions.activate();
+
+    expect(getAncestor).not.toHaveBeenCalled();
+    expect(actions.state.options).toEqual([]);
+  });
+});
 
 describe('getAggregateByOptions', () => {
   beforeEach(() => {

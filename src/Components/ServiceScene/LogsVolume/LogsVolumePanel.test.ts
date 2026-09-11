@@ -2,9 +2,14 @@ import { sceneGraph, VizPanel } from '@grafana/scenes';
 
 import { LogsVolumePanel } from './LogsVolumePanel';
 import { LogsVolumeActions } from 'Components/ServiceScene/LogsVolumeActions';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { getQueryRunnerFromProvider } from 'services/panel';
 import { setLogsVolumeAggregateBy } from 'services/store';
 import { LEVEL_VARIABLE_VALUE } from 'services/variables';
+
+jest.mock('featureFlags/openFeature', () => ({
+  getFeatureFlag: jest.fn(() => true),
+}));
 
 jest.mock('services/expressions', () => ({
   getLogsVolumeQuery: jest.fn(
@@ -42,6 +47,7 @@ function createPanel(aggregateBy: string) {
 describe('LogsVolumePanel.setAggregateBy', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(getFeatureFlag).mockReturnValue(true);
     jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
       state: { $data: undefined },
     } as never);
@@ -67,6 +73,21 @@ describe('LogsVolumePanel.setAggregateBy', () => {
     const query = queryRunner.state.queries[0];
     expect(query.legendFormat).toBe('{{pod}}');
     expect(query.expr).toContain('by (pod)');
+  });
+
+  it('does not change aggregation when the feature flag is disabled', () => {
+    jest.mocked(getFeatureFlag).mockReturnValue(false);
+    const volume = new LogsVolumePanel({});
+    const { actions, panel } = createPanel(LEVEL_VARIABLE_VALUE);
+    volume.setState({ panel });
+    const dataBefore = panel.state.$data;
+
+    volume.setAggregateBy('pod');
+
+    expect(volume.state.aggregateBy).toBe(LEVEL_VARIABLE_VALUE);
+    expect(actions.state.aggregateBy).toBe(LEVEL_VARIABLE_VALUE);
+    expect(panel.state.$data).toBe(dataBefore);
+    expect(setLogsVolumeAggregateBy).not.toHaveBeenCalled();
   });
 
   it('does not replace the panel when the field is unchanged', () => {

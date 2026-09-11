@@ -3,6 +3,11 @@ import { sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { getLevelLabelsFromSeries, getVisibleLevels } from './levels';
 import { LogsVolumePanel } from 'Components/ServiceScene/LogsVolume/LogsVolumePanel';
+import { getFeatureFlag } from 'featureFlags/openFeature';
+
+export function isLogsVolumeByFieldEnabled(): boolean {
+  return getFeatureFlag('drilldown.logs.logsVolumeByField');
+}
 
 function shouldFilterLogsVolumeByLevel(sceneRef: SceneObject): boolean {
   if (sceneRef instanceof LogsVolumePanel) {

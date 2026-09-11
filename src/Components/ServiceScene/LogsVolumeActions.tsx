@@ -19,6 +19,7 @@ import {
   isAvgField,
 } from 'services/fields';
 import { FIELDS_TO_REMOVE } from 'services/filters';
+import { isLogsVolumeByFieldEnabled } from 'services/logsVolume';
 import { getParserEnabled } from 'services/parserToggle';
 import { getDataSource } from 'services/scenes';
 import { getLogsVolumeOption } from 'services/store';
@@ -44,6 +45,9 @@ export class LogsVolumeActions extends SceneObjectBase<LogsVolumeActionsState> {
   }
 
   private onActivate() {
+    if (!isLogsVolumeByFieldEnabled()) {
+      return;
+    }
     const serviceScene = sceneGraph.getAncestor(this, ServiceScene);
     this.updateOptions();
     const detectedFieldsData = serviceScene.state.$detectedFieldsData;
@@ -93,10 +97,11 @@ function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
   const dataSourceUid = getDataSource(model);
 
   const logsVolumeCollapsed = getLogsVolumeOption('collapsed');
+  const logsVolumeByField = isLogsVolumeByFieldEnabled();
 
   return (
     <Stack alignItems="center" gap={1}>
-      {!logsVolumeCollapsed && (
+      {logsVolumeByField && !logsVolumeCollapsed && (
         <InlineField
           className={styles.aggregateByField}
           transparent
