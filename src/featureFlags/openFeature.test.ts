@@ -150,6 +150,68 @@ describe('evaluateFeatureFlag', () => {
 
     config.featureToggles.queryLibrary = false;
   });
+
+  describe('featureToggle override for local dev', () => {
+    afterEach(() => {
+      const { config } = require('@grafana/runtime');
+      delete config.featureToggles.logsVolumeByField;
+    });
+
+    it('short-circuits to the enabled dev feature toggle without consulting the OpenFeature client', async () => {
+      const { config } = require('@grafana/runtime');
+      config.featureToggles.logsVolumeByField = true;
+
+      const result = await evaluateFeatureFlag('drilldown.logs.logsVolumeByField');
+
+      expect(result).toBe(true);
+      expect(getBooleanValue).not.toHaveBeenCalled();
+    });
+
+    it('short-circuits to the disabled dev feature toggle without consulting the OpenFeature client', async () => {
+      const { config } = require('@grafana/runtime');
+      config.featureToggles.logsVolumeByField = false;
+
+      const result = await evaluateFeatureFlag('drilldown.logs.logsVolumeByField');
+
+      expect(result).toBe(false);
+      expect(getBooleanValue).not.toHaveBeenCalled();
+    });
+
+    it('falls through to the OpenFeature client when the dev feature toggle is unset', async () => {
+      getBooleanValue.mockReturnValue(true);
+
+      const result = await evaluateFeatureFlag('drilldown.logs.logsVolumeByField');
+
+      expect(getBooleanValue).toHaveBeenCalledWith('drilldown.logs.logsVolumeByField', false);
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('featureToggle override for kgAnnotationsInLokiExplore', () => {
+    afterEach(() => {
+      const { config } = require('@grafana/runtime');
+      delete config.featureToggles.kgAnnotationsInLokiExplore;
+    });
+
+    it('short-circuits to the enabled dev feature toggle without consulting the OpenFeature client', async () => {
+      const { config } = require('@grafana/runtime');
+      config.featureToggles.kgAnnotationsInLokiExplore = true;
+
+      const result = await evaluateFeatureFlag('drilldown.logs.kgAnnotationsInLokiExplore');
+
+      expect(result).toBe(true);
+      expect(getBooleanValue).not.toHaveBeenCalled();
+    });
+
+    it('falls through to the OpenFeature client when the dev feature toggle is unset', async () => {
+      getBooleanValue.mockReturnValue(true);
+
+      const result = await evaluateFeatureFlag('drilldown.logs.kgAnnotationsInLokiExplore');
+
+      expect(getBooleanValue).toHaveBeenCalledWith('drilldown.logs.kgAnnotationsInLokiExplore', false);
+      expect(result).toBe(true);
+    });
+  });
 });
 
 describe('initOpenFeatureProvider', () => {
