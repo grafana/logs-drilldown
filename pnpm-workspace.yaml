@@ -37,10 +37,8 @@ minimumReleaseAgeExclude:
   - protobufjs@8.6.6
 
 overrides:
-  # v6 to match the router core supplies at runtime (externalized "react-router").
-  # Bumps the react-router-dom-v5-compat transitive copy to the 6.30.6 GHSA-jjmj-jmhj-qwj2
-  # backport without touching @grafana/ui's own v5 + v5-compat pairing.
-  react-router@^6: ^6.30.6
+  # Force vulnerable v6 requests onto the patched v7 line while leaving @grafana/ui's v5 copy unchanged.
+  react-router@^6: ^7.18.0
   uuid: 14.0.2
   immutable: 5.1.9
   dompurify: 3.4.14
