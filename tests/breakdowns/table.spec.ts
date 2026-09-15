@@ -27,7 +27,9 @@ test.describe('Table', () => {
     await explorePage.goToLogsTab();
     // Switch to table view
     await explorePage.clickTableToggle();
-    const panelMenu = page.getByTestId('data-testid Panel menu Logs');
+    // Grafana core includes a live row count in the panel-menu testid on some versions
+    // (e.g. "Panel menu Logs (1,000)"), so match by prefix rather than an exact string.
+    const panelMenu = page.getByTestId(/^data-testid Panel menu Logs/);
     const panelMenuItem = page.getByTestId('data-testid Panel menu item Explore');
 
     await expect(panelMenu).toHaveCount(1);
