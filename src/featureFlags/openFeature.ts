@@ -32,6 +32,8 @@ type ValueTypeMap = {
  * ```
  */
 type CoreFeatureFlag<VT extends keyof ValueTypeMap> = {
+  /** Local-only `GF_FEATURE_TOGGLES_ENABLE` name that overrides this flag, bypassing GoFF entirely. */
+  featureToggle?: string;
   reason: string;
   value: ValueTypeMap[VT];
   valueType: VT;
@@ -57,6 +59,8 @@ type ExperimentFeatureFlag<
   Values extends ReadonlyArray<ValueTypeMap[VT]> = ReadonlyArray<ValueTypeMap[VT]>,
 > = {
   defaultValue: Values[number];
+  /** Local-only `GF_FEATURE_TOGGLES_ENABLE` name that overrides this flag, bypassing GoFF entirely. */
+  featureToggle?: string;
   trackingKey?: string;
   values: Values;
   valueType: VT;
@@ -128,12 +132,14 @@ const goffFeatureFlags = {
     value: false,
     reason: 'static provider evaluation result',
     variant: 'default',
+    featureToggle: 'kgAnnotationsInLokiExplore',
   },
   'drilldown.logs.logsVolumeByField': {
     valueType: 'boolean',
     value: false,
     reason: 'static provider evaluation result',
     variant: 'default',
+    featureToggle: 'logsVolumeByField',
   },
   logsTablePanelNG: {
     valueType: 'boolean',
@@ -303,16 +309,28 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
   if (flagName === 'exploreLogsShardSplitting') {
     return config.featureToggles.exploreLogsShardSplitting;
   }
-  if (
-    flagName === 'drilldown.logs.kgAnnotationsInLokiExplore' &&
-    'kgAnnotationsInLokiExplore' in config.featureToggles
-  ) {
-    return Boolean(config.featureToggles.kgAnnotationsInLokiExplore);
-  }
   if (flagName === 'logsTablePanelNG') {
     return config.featureToggles.logsTablePanelNG;
   }
   return undefined;
+}
+
+// Maps a `featureToggle` boolean override to the flag's real value type, or undefined if the toggle isn't set.
+function resolveFeatureToggleOverride<T extends FeatureFlagName>(flagDef: FeatureFlag): FlagValue<T> | undefined {
+  if (!('featureToggle' in flagDef) || !flagDef.featureToggle) {
+    return undefined;
+  }
+
+  const toggle = (config.featureToggles as Record<string, boolean | undefined>)[flagDef.featureToggle];
+  if (toggle === undefined) {
+    return undefined;
+  }
+
+  if (flagDef.valueType === 'string') {
+    return (toggle ? 'treatment' : 'control') as FlagValue<T>;
+  }
+
+  return toggle as FlagValue<T>;
 }
 
 /**
@@ -322,6 +340,11 @@ function getConfigToggleFallback(flagName: string): boolean | undefined {
  * @returns The value of the feature flag.
  */
 export async function evaluateFeatureFlag<T extends keyof typeof goffFeatureFlags>(flagName: T): Promise<FlagValue<T>> {
+  const override = resolveFeatureToggleOverride<T>(goffFeatureFlags[flagName] as FeatureFlag);
+  if (override !== undefined) {
+    return override;
+  }
+
   try {
     const client = OpenFeature.getClient(OPEN_FEATURE_DOMAIN);
     await waitForClientReady(client);
