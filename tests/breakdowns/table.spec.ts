@@ -8,9 +8,11 @@ import { fieldName, levelName, setupServiceBreakdownTest, teardownServiceBreakdo
 
 test.describe('Table', () => {
   let explorePage: ExplorePage;
+  let tableNGEnabled: boolean;
 
-  test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
+  test.beforeEach(async ({ page, grafanaVersion, isLegacyFeatureToggleEnabled }, testInfo) => {
     explorePage = await setupServiceBreakdownTest(page, grafanaVersion, testInfo);
+    tableNGEnabled = await isLegacyFeatureToggleEnabled('logsTablePanelNG');
   });
 
   test.afterEach(async () => {
@@ -40,7 +42,9 @@ test.describe('Table', () => {
     await expect(page.getByText(`drop __error__, __error_details__`)).toBeVisible();
   });
 
+  // Legacy Logs Table Scene, remove when Logs Table Panel becomes the default
   test(`sync log panel displayed fields with table url columns`, async ({ page }) => {
+    test.skip(tableNGEnabled);
     await explorePage.goToLogsTab();
 
     // Open log details
@@ -66,6 +70,7 @@ test.describe('Table', () => {
   });
 
   test('table should show detected_level column when log data contains detected_level', async ({ page }) => {
+    test.skip(tableNGEnabled);
     await explorePage.goToLogsTab();
 
     // Switch to table view
@@ -79,6 +84,7 @@ test.describe('Table', () => {
   });
 
   test('table should support table column sorting with URL persistence', async ({ page }) => {
+    test.skip(tableNGEnabled);
     await explorePage.goToLogsTab();
 
     // Switch to table view
@@ -106,6 +112,7 @@ test.describe('Table', () => {
   });
 
   test('table should show log line by default', async ({ page }) => {
+    test.skip(tableNGEnabled);
     await explorePage.goToLogsTab();
 
     // Switch to table view
@@ -119,6 +126,7 @@ test.describe('Table', () => {
   });
 
   test(`should persist column ordering`, async ({ page }) => {
+    test.skip(tableNGEnabled);
     const table = page.getByTestId(testIds.table.wrapper);
     await explorePage.goToLogsTab();
     // Switch to table view
@@ -141,6 +149,7 @@ test.describe('Table', () => {
   });
 
   test(`should add ${levelName} filter on table click`, async ({ page }) => {
+    test.skip(tableNGEnabled);
     // Switch to table view
     await explorePage.clickTableToggle();
 
@@ -162,6 +171,7 @@ test.describe('Table', () => {
   });
 
   test('table log line state should persist in the url', async ({ page }) => {
+    test.skip(tableNGEnabled);
     explorePage.blockAllQueriesExcept({
       refIds: ['logsPanelQuery'],
     });
@@ -186,6 +196,7 @@ test.describe('Table', () => {
   });
 
   test('table urlColumns should be reset on log panel show original line click', async ({ page }) => {
+    test.skip(tableNGEnabled);
     await explorePage.goToLogsTab();
 
     // open log details
@@ -211,11 +222,41 @@ test.describe('Table', () => {
   });
 
   test('should show inspect modal', async ({ page }) => {
+    test.skip(tableNGEnabled);
     await explorePage.clickTableToggle();
     // Expect table to be rendered
     await expect(page.getByTestId(testIds.table.wrapper)).toBeVisible();
 
     await page.getByTestId(testIds.table.inspectLine).last().click();
     await expect(page.getByRole('dialog', { name: 'Inspect value' })).toBeVisible();
+  });
+
+  // TableNG gated by logsTablePanelNG, remove the flag when it's the default
+  test('table NG should load with data', async ({ page }) => {
+    test.skip(!tableNGEnabled);
+    await explorePage.clickTableToggle();
+
+    const grid = page.getByRole('grid');
+    await expect(grid.getByRole('row')).not.toHaveCount(0);
+  });
+
+  test('table NG should filter rows by column value', async ({ page }) => {
+    test.skip(!tableNGEnabled);
+    await explorePage.clickTableToggle();
+
+    const grid = page.getByRole('grid');
+
+    // Filter by detected_level error
+    await page.getByRole('button', { name: 'Filter detected_level', exact: true }).click();
+    await page.getByRole('checkbox', { name: 'error', exact: true }).click({ force: true });
+    await page.getByRole('button', { name: 'Ok', exact: true }).click();
+
+    await expect
+      .poll(async () => {
+        const rowTexts = await grid.getByRole('row').allInnerTexts();
+        // Skip the header row; every remaining visible row should now be an "error" level row.
+        return rowTexts.slice(1).every((rowText) => rowText.includes('error'));
+      })
+      .toBe(true);
   });
 });

@@ -15,10 +15,6 @@ services:
       # saved-search fallback across all Grafana versions. Nightly ships queryLibrary enabled by
       # default, which swaps in Grafana's Saved Queries UI and breaks the savedSearches tests.
       GF_FEATURE_TOGGLES_queryLibrary: 'false'
-      # Force the NG logs table off so table.spec.ts deterministically exercises the classic
-      # LogsTableScene (data-testid table-wrapper) across all Grafana versions. Nightly ships
-      # logsTablePanelNG enabled by default, which swaps in LogsTablePanelScene and breaks these tests.
-      GF_FEATURE_TOGGLES_logsTablePanelNG: 'false'
     extra_hosts:
       # This allows us to connect to other services running on the host machine.
       # 172.17.0.1 is the default Docker bridge network gateway IP address
