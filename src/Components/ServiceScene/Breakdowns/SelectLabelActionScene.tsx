@@ -218,7 +218,6 @@ export class SelectLabelActionScene extends SceneObjectBase<SelectLabelActionSce
               <Button
                 data-testid={testIds.breakdowns.common.filterButton}
                 ref={popoverRef}
-                className={styles.button}
                 onClick={() => model.onChange(selectedValue ?? defaultOption)}
                 size={'sm'}
                 fill={'outline'}
@@ -494,18 +493,20 @@ const getSelectableValueComponentStyles = (theme: GrafanaTheme2) => {
   };
 };
 
+const isVisualDesignRefreshEnabled = (theme: GrafanaTheme2) =>
+  Boolean((theme.flags as { visualDesignRefresh?: boolean } | undefined)?.visualDesignRefresh);
+
 const getStyles = (theme: GrafanaTheme2) => {
+  // Mirrors Button's own outline border color for variant="secondary"
+  const outlineBorderColor = isVisualDesignRefreshEnabled(theme)
+    ? theme.colors.secondary.text
+    : theme.colors.border.strong;
+
   return {
-    button: css({
-      borderRight: '1px solid red',
-    }),
     buttonSelect: css({
-      border: `1px solid ${theme.colors.border.strong}`,
-      borderBottomLeftRadius: 0,
-      borderLeft: 'none',
-      borderTopLeftRadius: 0,
+      border: `1px solid ${outlineBorderColor}`,
       height: '24px',
-      padding: 1,
+      padding: theme.spacing(0.5),
     }),
     description: css({
       fontSize: theme.typography.pxToRem(12),
