@@ -214,7 +214,6 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false) {
   return {
     controlsContainer: css({
-      backgroundColor: theme.colors.background.canvas,
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(1),
