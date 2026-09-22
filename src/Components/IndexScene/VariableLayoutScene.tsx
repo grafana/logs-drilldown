@@ -30,7 +30,6 @@ import {
   setCollapsibleFiltersState,
 } from 'services/store';
 import { testIds } from 'services/testIds';
-import { isVisualDesignRefreshEnabled } from 'services/theme';
 import { AppliedPattern } from 'services/variables';
 
 type HeaderPosition = 'relative' | 'sticky';
@@ -273,9 +272,10 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       },
     }),
     stickyControlsContainer: css({
-      backgroundColor: isVisualDesignRefreshEnabled(theme)
-        ? theme.colors.background.primary
-        : theme.colors.background.canvas,
+      backgroundColor: theme.colors.background.canvas,
+      // Matches Page.tsx's page-wrapper radius (theme.shape.radius.lg), which this sits flush against.
+      borderTopLeftRadius: theme.shape.radius.lg,
+      borderTopRightRadius: theme.shape.radius.lg,
       gap: theme.spacing(0),
       left: 0,
       position: 'sticky',
