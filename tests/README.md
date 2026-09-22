@@ -58,7 +58,7 @@ This ensures that:
 
 ### Smoke Tests (`smoke-tests/`)
 
-Smoke tests in the `smoke-tests/` directory are designed to run on **all supported Grafana versions** (>= 11.6).
+Smoke tests in the `smoke-tests/` directory are designed to run on **all supported Grafana versions** (>= 13.2.1).
 
 These tests:
 - Verify basic functionality across different Grafana versions
@@ -68,14 +68,14 @@ These tests:
 
 ## CI Configuration
 
-In CI, tests are configured to run against Grafana versions `>=11.6`:
+In CI, tests are configured to run against Grafana versions `>=13.2.1`:
 
 - **Full test suite**: Only executes on the latest supported version 
-- **Smoke tests**: Execute on all versions >= 11.6
+- **Smoke tests**: Execute on all versions >= 13.2.1
 
 This is configured in `.github/workflows/ci.yml` with:
 ```yaml
-run-playwright-with-grafana-dependency: '>=11.6'
+run-playwright-with-grafana-dependency: '>=13.2.1'
 ```
 
 ## Version Support
@@ -83,7 +83,7 @@ run-playwright-with-grafana-dependency: '>=11.6'
 The latest supported Grafana version is defined in `tests/config/grafana-versions-supported.ts`:
 
 ```typescript
-export const GRAFANA_LATEST_SUPPORTED_VERSION = '12.3.1';
+export const GRAFANA_LATEST_SUPPORTED_VERSION = '13.2.1';
 ```
 
 To update the supported version, modify this constant and ensure all tests pass on the new version.
