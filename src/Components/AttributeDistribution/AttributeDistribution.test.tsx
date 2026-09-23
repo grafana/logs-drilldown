@@ -3,7 +3,12 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { of } from 'rxjs';
 
-import { ActiveFilter, AttributeDistribution, DatasetContext } from './AttributeDistribution';
+import {
+  ActiveFilter,
+  AttributeDistribution,
+  AttributeExplorerAnalyticsEvent,
+  DatasetContext,
+} from './AttributeDistribution';
 
 jest.mock('services/logger', () => ({
   logger: { error: jest.fn(), warn: jest.fn() },
@@ -12,7 +17,17 @@ jest.mock('services/logger', () => ({
 // Simplified @grafana/ui stubs. WithContextMenu renders its children plus the menu
 // inline so filter menu items are immediately accessible in tests.
 jest.mock('@grafana/ui', () => ({
-  Combobox: () => null,
+  Combobox: ({
+    options,
+    onChange,
+  }: {
+    onChange: (option: unknown) => void;
+    options: Array<{ label: string; value: string }>;
+  }) => (
+    <button data-testid="pin-attribute" onClick={() => onChange(options[0])}>
+      Pin attribute
+    </button>
+  ),
   Icon: () => null,
   MenuItem: ({ label, onClick }: { label: string; onClick: () => void }) => (
     <button data-testid={`menu-item-${label}`} onClick={onClick}>
@@ -157,5 +172,50 @@ describe('AttributeDistribution snapshot stability', () => {
     // Firefox must still be present in the sidebar as a retained (0%) value.
     // If the snapshot was cleared by a spurious DETECTING, Firefox would disappear.
     expect(screen.getByText('Firefox')).toBeInTheDocument();
+  });
+});
+
+describe('AttributeDistribution analytics', () => {
+  it('reports filter, expand, pin, and field visibility interactions', async () => {
+    const analyticsEvents: AttributeExplorerAnalyticsEvent[] = [];
+    const attributes = Array.from({ length: 11 }, (_, index) => ({
+      attribute: `field-${index}`,
+      attribute_name: `Field ${index}`,
+    }));
+    const fetchAttributes = jest.fn().mockResolvedValue(attributes);
+    const fetchDistribution = jest.fn().mockReturnValue(
+      of([
+        { count: 80, percentage: 80, value: 'Chrome' },
+        { count: 20, percentage: 20, value: 'Firefox' },
+      ])
+    );
+
+    render(
+      <AttributeDistribution
+        context={context}
+        fetchAttributes={fetchAttributes}
+        fetchDistribution={fetchDistribution}
+        onAnalyticsEvent={(event) => analyticsEvents.push(event)}
+        priorityAttributes={[]}
+      />
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Expand' })[0]);
+    fireEvent.click(screen.getAllByTestId('menu-item-Filter for value')[0]);
+    fireEvent.click(screen.getByTitle('Show 1 more fields'));
+    fireEvent.click(screen.getByTitle('Collapse extra fields'));
+    fireEvent.click(screen.getByTestId('pin-attribute'));
+
+    expect(analyticsEvents).toEqual([
+      { type: 'attribute_expanded', attribute: 'field-0' },
+      { type: 'filter_applied', attribute: 'field-0', operator: '=' },
+      { type: 'fields_toggled', action: 'show_more', fields: 1 },
+      { type: 'fields_toggled', action: 'collapse', fields: 1 },
+      { type: 'attribute_pinned', attribute: 'field-0' },
+    ]);
   });
 });

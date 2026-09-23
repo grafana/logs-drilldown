@@ -43,6 +43,12 @@ export interface DatasetContext {
   timeRange: { from: number; to: number };
 }
 
+export type AttributeExplorerAnalyticsEvent =
+  | { attribute: string; operator: '!=' | '='; type: 'filter_applied' }
+  | { attribute: string; type: 'attribute_expanded' }
+  | { attribute: string; type: 'attribute_pinned' }
+  | { action: 'collapse' | 'show_more'; fields: number; type: 'fields_toggled' };
+
 export interface AttributeDistributionProps {
   // Display name overrides for raw attribute names. Applied to detected and undetected priority attributes alike.
   attributeLabels?: Record<string, string>;
@@ -61,6 +67,7 @@ export interface AttributeDistributionProps {
   getFieldLink?: (attribute: string) => string | undefined;
   // Replaces the default header. Pass null to hide the header entirely.
   header?: React.ReactNode;
+  onAnalyticsEvent?: (event: AttributeExplorerAnalyticsEvent) => void;
   // Called whenever the active filter set changes.
   onFiltersChange?: (filters: ActiveFilter[]) => void;
   // Attributes pinned to the top of the list. Absent priority attributes are still shown.
@@ -81,6 +88,7 @@ export function AttributeDistribution({
   getFieldLink,
   header,
   selectedFilters: selectedFiltersProp,
+  onAnalyticsEvent,
   onFiltersChange,
   priorityAttributes = EMPTY_PRIORITY_ATTRIBUTES,
   queryLimitLabel,
@@ -279,12 +287,14 @@ export function AttributeDistribution({
 
   function handleToggleFilter(field: string, value: string, operator: '!=' | '=') {
     const newFilters = computeNextFilters(state.selectedFilters, field, value, operator);
+    onAnalyticsEvent?.({ type: 'filter_applied', attribute: field, operator });
     dispatch({ type: 'TOGGLE_FILTER', field, value, operator });
     loadDistributions(visibleAttributes, context, newFilters);
     onFiltersChange?.(newFilters);
   }
 
   function handlePinAttribute(attribute: string) {
+    onAnalyticsEvent?.({ type: 'attribute_pinned', attribute });
     dispatch({ type: 'PIN_ATTRIBUTE', attribute });
   }
 
@@ -414,7 +424,12 @@ export function AttributeDistribution({
               excludedValues={excludedValues}
               snapshotValues={snapshotValues}
               onToggleFilter={(value, operator) => handleToggleFilter(attr.attribute, value, operator)}
-              onToggle={() => dispatch({ type: 'TOGGLE_EXPANDED', field: attr.attribute })}
+              onToggle={() => {
+                if (!attrState.expanded) {
+                  onAnalyticsEvent?.({ type: 'attribute_expanded', attribute: attr.attribute });
+                }
+                dispatch({ type: 'TOGGLE_EXPANDED', field: attr.attribute });
+              }}
             />
           );
         })}
@@ -434,7 +449,10 @@ export function AttributeDistribution({
                       : t('errors-analysis.show-more-fields', 'Show {{count}} more fields', { count: nextBatch })
                   }
                   type="button"
-                  onClick={() => setExtraFieldsShown(extraFieldsShown + nextBatch)}
+                  onClick={() => {
+                    onAnalyticsEvent?.({ type: 'fields_toggled', action: 'show_more', fields: nextBatch });
+                    setExtraFieldsShown(extraFieldsShown + nextBatch);
+                  }}
                 >
                   <Icon name="angle-down" size="sm" />
                 </button>
@@ -448,7 +466,10 @@ export function AttributeDistribution({
                       : t('errors-analysis.collapse-extra-fields', 'Collapse extra fields')
                   }
                   type="button"
-                  onClick={() => setExtraFieldsShown(0)}
+                  onClick={() => {
+                    onAnalyticsEvent?.({ type: 'fields_toggled', action: 'collapse', fields: extraFieldsShown });
+                    setExtraFieldsShown(0);
+                  }}
                 >
                   <Icon name="angle-up" size="sm" />
                 </button>
