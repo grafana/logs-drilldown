@@ -53,7 +53,7 @@
   ],
   "roles": [],
   "dependencies": {
-    "grafanaDependency": ">=13.2.1",
+    "grafanaDependency": ">=13.1.0-0",
     "plugins": [],
     "extensions": {
       "exposedComponents": [

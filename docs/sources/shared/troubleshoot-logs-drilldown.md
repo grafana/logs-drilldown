@@ -18,7 +18,7 @@ This page addresses common issues when getting started and using Grafana Logs Dr
 
 Grafana Explore Logs is installed by default in Grafana versions v11.3.0 through v11.5.
 
-Logs Drilldown was installed by default starting in Grafana v11.6.11. Logs Drilldown now requires Grafana v13.2.1 or later.
+Logs Drilldown was installed by default starting in Grafana v11.6.11. Logs Drilldown now requires Grafana v13.1.0 or later.
 
 In Grafana v12 and later, the **Drilldown** menu includes all Drilldown apps by default.
 

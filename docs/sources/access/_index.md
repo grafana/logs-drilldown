@@ -42,7 +42,7 @@ For Enterprise and OSS Grafana users, you can install Logs Drilldown via the [Gr
 
 The following Loki and Grafana version and configuration are required:
 
-- Grafana v13.2.1 or later
+- Grafana v13.1.0 or later
 - Loki v3.2.0 or later
 
   {{< admonition type="note" >}}
