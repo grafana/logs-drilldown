@@ -76,8 +76,6 @@ After configuring a setting, click **Save settings** to apply the changes.
 
 The **Default fields** tab lets administrators configure which fields appear by default in log visualizations instead of, or alongside, the full log line.
 
-Default fields requires Grafana 12.4 or later. If this version requirement is not met, the **Default fields** tab displays an unsupported message.
-
 ### How Default fields work
 
 Default field rules are scoped to a specific data source and one or more label and value pairs. When a user views logs for a service that matches all configured labels in a rule, the specified fields are displayed by default in the logs table view. The configured fields can replace the full log line or be displayed next to it.
@@ -98,15 +96,11 @@ To configure Default fields:
 
 You can add multiple records to configure different columns for different label and value combinations. Each data source can have its own set of rules.
 
-<!-- Uncomment the following section when Grafana 13.0 is released.
-
 ## Landing Page default labels (Beta)
 
 {{< docs/public-preview product="Landing Page default labels" featureFlag="kubernetesLogsDrilldown" >}}
 
 The **Landing Page** tab lets administrators configure which labels and label values appear by default on the Logs Drilldown landing page.
-
-Landing Page default labels requires Grafana 13.0 or later. If this version requirement is not met, the **Landing Page** tab displays an unsupported message.
 
 ### How Landing Page default labels work
 
@@ -137,8 +131,6 @@ To configure Landing Page default labels:
 1. Drag and drop labels using the grip handle to reorder them. The first label in the list becomes the default active tab on the landing page.
 1. To remove a label, click the trash icon next to it. To remove an individual pinned value, expand the label and click the trash icon next to the value.
 1. Click **Save changes** to persist your configuration. Click **Reset** to discard unsaved changes (a confirmation prompt appears before resetting).
-
-End section for Grafana 13 requirement -->
 
 ## Related pages
 

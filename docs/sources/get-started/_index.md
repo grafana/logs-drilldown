@@ -52,11 +52,9 @@ To take a tour of Logs Drilldown, follow these steps:
    Administrators can configure default fields to display in log visualizations. Refer to [Configure Logs Drilldown](../access/configure/) for details.
    {{< /admonition >}}
 
-   <!-- Uncomment when Grafana 13.0 is released:
    {{< admonition type="tip" >}}
    Administrators can configure which labels appear by default on the landing page. Refer to [Configure Logs Drilldown](../access/configure/) for details.
    {{< /admonition >}}
-   -->
 
 1. To explore logs for a service, click **Show logs** on the service panel. Grafana opens the service details page on the **Logs** tab.
 1. On the Logs tab, you can:

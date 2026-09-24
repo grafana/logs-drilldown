@@ -18,7 +18,7 @@ This page addresses common issues when getting started and using Grafana Logs Dr
 
 Grafana Explore Logs is installed by default in Grafana versions v11.3.0 through v11.5.
 
-Logs Drilldown is installed by default in Grafana versions v11.6.11 and later.
+Logs Drilldown was installed by default starting in Grafana v11.6.11. Logs Drilldown now requires Grafana v13.1.0 or later.
 
 In Grafana v12 and later, the **Drilldown** menu includes all Drilldown apps by default.
 
@@ -151,27 +151,21 @@ Try the following fixes:
 
 If the **Default fields** tab does not appear in the Logs Drilldown plugin settings, or if it displays an unsupported message, check the following:
 
-1. Ensure you are running Grafana 12.4 or later. Default fields requires this minimum version.
 1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
 1. Confirm that you have the Org Admin role in your organization.
 
 For more information about configuring Default fields, refer to [Configure Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/#default-fields-beta).
 
-<!-- Uncomment when Grafana 13.0 is released:
-
 ### Landing page default labels not appearing
 
 If the **Landing Page** tab does not appear in the Logs Drilldown plugin settings, or if it displays an unsupported message, check the following:
 
-1. Ensure you are running Grafana 13.0 or later. Landing Page default labels requires this minimum version.
 1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
 1. Confirm that you have the Org Admin role in your organization.
 1. After saving changes, verify the correct Loki data source is selected. Landing page label configuration is per data source.
 1. Check that the labels you are configuring exist in the selected Loki data source.
 
 For more information about configuring Landing Page default labels, refer to [Configure Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/#landing-page-default-labels-beta).
-
--->
 
 ## There are no color levels
 
