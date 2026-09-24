@@ -58,7 +58,6 @@ Human contributions must use **signed commits** so they show as verified on GitH
 - Use a [conventional commit](https://www.conventionalcommits.org/) style PR title (enforced by CI).
 - Run `pnpm lint`, `pnpm typecheck`, and `pnpm test:ci` locally.
 - Add or update tests when behavior changes. Prefer focused unit tests (Jest) or Playwright E2E when UI flows are affected.
-- If the UI changed, attach **before/after screenshots** in the pull request.
 - Do not modify files under `.config/` unless you are following the plugin-tools guidance in `.config/AGENTS/instructions.md`.
 
 ### Internationalization (i18n)
