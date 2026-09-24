@@ -10,4 +10,4 @@ Related issue(s): <!-- Link to the issue this PR is related to but does not reso
 ### 🧪 How to test?
 
 <!-- Steps required to test the PR or pointer to the automated tests -->
-<!-- For UI changes, don't hesitate to provide before/after screenshots -->
+<!-- For UI changes, include before/after screenshots here -->

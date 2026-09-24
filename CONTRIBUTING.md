@@ -10,6 +10,8 @@ If your change is minor, please feel free to submit a [pull request](https://hel
 
 Use [GitHub Issues](https://github.com/grafana/logs-drilldown/issues/new) to report bugs, ask questions, or propose larger changes.
 
+**Use the issue templates.** Do not file a blank issue. Choose [bug report](.github/ISSUE_TEMPLATE/bug_report.md) or [feature request](.github/ISSUE_TEMPLATE/feature_request.md).
+
 | Situation                                                        | What to do                                                                                                                                                                                                              |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Bug** — something is broken or regressed                       | [Open a bug report](https://github.com/grafana/logs-drilldown/issues/new?template=bug_report.md) with reproduction steps, expected vs actual behavior, Grafana/Loki versions, and screenshots or recordings if helpful. |
@@ -45,12 +47,18 @@ the `grafana/docs` image which internally uses Hugo to generate the static site.
 
 See [AGENTS.md](AGENTS.md) for architecture, Scenes patterns, and Loki/LogQL expectations. Plugin build and E2E details live in [`.config/AGENTS/instructions.md`](.config/AGENTS/instructions.md).
 
+### Signed commits
+
+Human contributions must use **signed commits** so they show as verified on GitHub. Approved repository automation (Dependabot, release-please, and similar) is exempt.
+
 ### Before you open a pull request
 
-- Fill out the [pull request template](.github/pull_request_template.md) with a clear summary and test steps.
+- Fill out the [pull request template](.github/pull_request_template.md) with a clear summary and test steps. For UI changes, put **before/after screenshots** in the How to test section.
+- Sign every commit so it is verified on GitHub (see [Signed commits](#signed-commits)).
 - Use a [conventional commit](https://www.conventionalcommits.org/) style PR title (enforced by CI).
 - Run `pnpm lint`, `pnpm typecheck`, and `pnpm test:ci` locally.
 - Add or update tests when behavior changes. Prefer focused unit tests (Jest) or Playwright E2E when UI flows are affected.
+- If the UI changed, attach **before/after screenshots** in the pull request.
 - Do not modify files under `.config/` unless you are following the plugin-tools guidance in `.config/AGENTS/instructions.md`.
 
 ### Internationalization (i18n)
