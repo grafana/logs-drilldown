@@ -10,6 +10,7 @@ import {
   ActiveFilter,
   AttributeConfig,
   AttributeDistribution,
+  AttributeExplorerAnalyticsEvent,
   AttributeValueCount,
   DatasetContext,
 } from './AttributeDistribution';
@@ -174,6 +175,7 @@ export interface LokiFieldDistributionProps {
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
+  onAnalyticsEvent?: (event: AttributeExplorerAnalyticsEvent) => void;
   onFiltersChange?: (filters: Array<{ field: string; operator: '!=' | '='; value: string }>) => void;
   // Attributes pinned to the top of the list.
   priorityAttributes?: string[];
@@ -194,6 +196,7 @@ export default function LokiFieldDistribution({
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
   selectedFilters,
+  onAnalyticsEvent,
   onFiltersChange,
   priorityAttributes,
   query,
@@ -235,6 +238,7 @@ export default function LokiFieldDistribution({
       fetchDistribution={fetchDistribution}
       getFieldLink={getFieldLink}
       selectedFilters={selectedFilters}
+      onAnalyticsEvent={onAnalyticsEvent}
       onFiltersChange={onFiltersChange}
       priorityAttributes={priorityAttributes}
       queryLimitLabel={queryLimitLabel}
