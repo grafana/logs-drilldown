@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.0.0](https://github.com/grafana/logs-drilldown/compare/v2.6.0...v3.0.0) (2026-09-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** update Grafana compatibility to >=13.1.0-0 ([#2101](https://github.com/grafana/logs-drilldown/issues/2101))
+
+### 🎉 Features
+
+* **attribute-distribution:** emit explorer analytics events ([#2106](https://github.com/grafana/logs-drilldown/issues/2106)) ([cc8ffd3](https://github.com/grafana/logs-drilldown/commit/cc8ffd353875f1f26b08153b6c77843fcdf705a1))
+
+
+### 📝 Documentation
+
+* require signed commits in CONTRIBUTING and UI screenshots ([#2107](https://github.com/grafana/logs-drilldown/issues/2107)) ([6b9e331](https://github.com/grafana/logs-drilldown/commit/6b9e331291fb55bcbd590d7f76bccdf9c10049bd))
+
+
+### 🧹 Chore
+
+* **deps:** update Grafana compatibility to &gt;=13.1.0-0 ([#2101](https://github.com/grafana/logs-drilldown/issues/2101)) ([3837467](https://github.com/grafana/logs-drilldown/commit/38374673cd2b980312963b984f48ac47dba786b6))
+
 ## [2.6.0](https://github.com/grafana/logs-drilldown/compare/v2.5.2...v2.6.0) (2026-09-21)
 
 
