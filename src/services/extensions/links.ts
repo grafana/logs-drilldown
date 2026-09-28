@@ -23,6 +23,7 @@ import {
 import { getLabelFormatIdentifiersFromQuery, getMatcherFromQuery } from 'services/logqlMatchers';
 import { LokiQuery } from 'services/lokiQuery';
 import { isOperatorInclusive } from 'services/operatorHelpers';
+import { normalizeOrGroups, OrGroupAccessor } from 'services/orGroups';
 import { renderPatternFilters } from 'services/renderPatternFilters';
 import { ensureValidTimeRangeForLink } from 'services/text';
 import {
@@ -103,9 +104,15 @@ export function stringifyAdHocValueLabels(value?: string): string {
   return escapeURLDelimiters(replaceEscapeChars(value));
 }
 
+const fieldFilterOrGroupAccessor: OrGroupAccessor<FieldFilter> = {
+  get: (field) => field.orGroup,
+  set: (field, orGroup) => ({ ...field, orGroup }),
+};
+
 export function setUrlParamsFromFieldFilters(fields: FieldFilter[], params: URLSearchParams) {
-  for (const field of fields) {
-    if (field.type === LabelType.StructuredMetadata) {
+  for (const field of normalizeOrGroups(fields, fieldFilterOrGroupAccessor)) {
+    // OR groups are rendered as a single stage after the parsers, so grouped metadata is stored with the fields
+    if (field.type === LabelType.StructuredMetadata && field.orGroup === undefined) {
       if (field.key === LEVEL_VARIABLE_VALUE) {
         params = appendUrlParameter(
           UrlParameters.Levels,
@@ -122,9 +129,10 @@ export function setUrlParamsFromFieldFilters(fields: FieldFilter[], params: URLS
         );
       }
     } else {
-      const fieldValue: AdHocFieldValue = {
+      const fieldValue: AdHocFieldValue & { orGroup?: number } = {
         value: field.value,
-        parser: field.parser,
+        parser: field.type === LabelType.StructuredMetadata ? 'structuredMetadata' : field.parser,
+        orGroup: field.orGroup,
       };
 
       const adHocFilterURLString = `${field.key}|${field.operator}|${escapeURLDelimiters(

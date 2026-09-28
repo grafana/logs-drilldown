@@ -58,12 +58,14 @@ export function buildLogsExplorationFromState({
 
   const initialFields: AdHocFiltersWithLabelsAndMeta[] | undefined = fields?.map((f) => {
     const rawValue = f.value;
-    const fieldValue: FieldValue = {
+    const fieldValue: FieldValue & { orGroup?: number } = {
+      orGroup: f.orGroup,
       parser: f.parser ?? 'mixed',
       value: rawValue,
     };
 
-    const value = f.parser === 'structuredMetadata' ? rawValue : JSON.stringify(fieldValue);
+    // OR groups are encoded in the fields variable value, including grouped metadata
+    const value = f.parser === 'structuredMetadata' && f.orGroup === undefined ? rawValue : JSON.stringify(fieldValue);
     return {
       key: f.key,
       operator: f.operator,

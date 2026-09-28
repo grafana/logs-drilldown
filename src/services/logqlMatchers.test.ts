@@ -68,6 +68,74 @@ describe('getMatcherFromQuery', () => {
         },
       ]);
     });
+
+    describe('or', () => {
+      const field = (key: string, operator: string, value: string, orGroup?: number) => ({
+        key,
+        operator,
+        orGroup,
+        parser: 'logfmt',
+        type: 'P',
+        value,
+      });
+
+      test('Parses "or" between different fields into an OR group', () => {
+        const result = getMatcherFromQuery(
+          '{service_name="api"} | logfmt | status >= 500 or duration > 5s | level="error"'
+        );
+
+        expect(result.fields).toEqual([
+          field('status', '>=', '500', 1),
+          field('duration', '>', '5s', 1),
+          field('level', '=', 'error'),
+        ]);
+      });
+
+      test('Gives each pipeline stage its own OR group', () => {
+        const result = getMatcherFromQuery('{service_name="api"} | logfmt | a="1" or b="2" | c="3" or c="4"');
+
+        expect(result.fields).toEqual([
+          field('a', '=', '1', 1),
+          field('b', '=', '2', 1),
+          field('c', '=', '3', 2),
+          field('c', '=', '4', 2),
+        ]);
+      });
+
+      test('Binds "and" tighter than "or"', () => {
+        const result = getMatcherFromQuery('{service_name="api"} | logfmt | a="1" or b="2" and c="3"');
+
+        // a or (b and c) == (a or b) and (a or c)
+        expect(result.fields).toEqual([
+          field('a', '=', '1', 1),
+          field('b', '=', '2', 1),
+          field('a', '=', '1', 2),
+          field('c', '=', '3', 2),
+        ]);
+      });
+
+      test('Respects parentheses and commas', () => {
+        const result = getMatcherFromQuery('{service_name="api"} | logfmt | (a="1" or b="2"), c="3"');
+
+        expect(result.fields).toEqual([field('a', '=', '1', 1), field('b', '=', '2', 1), field('c', '=', '3')]);
+      });
+
+      test('Skips an OR clause that contains a filter that cannot be imported', () => {
+        const result = getMatcherFromQuery('{service_name="api"} | logfmt | __error__="" or a="1" | b="2"');
+
+        expect(result.fields).toEqual([field('b', '=', '2')]);
+      });
+
+      test('Skips label filter stages that are too complex to expand', () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const tooComplex = ['a', 'b', 'c', 'd', 'e', 'f'].map((key) => `(${key}="1" and ${key}="2")`).join(' or ');
+        const result = getMatcherFromQuery(`{service_name="api"} | logfmt | ${tooComplex} | b="2"`);
+
+        expect(result.fields).toEqual([field('b', '=', '2')]);
+        expect(warn).toHaveBeenCalled();
+        warn.mockRestore();
+      });
+    });
   });
 
   describe('Label filters', () => {

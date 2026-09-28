@@ -7,7 +7,7 @@ import { FilterOp, FilterOpType, LabelFilterOp, NumericFilterOp } from './filter
 import { narrowFilterOperator } from './narrowing';
 import { isOperatorExclusive, isOperatorInclusive, isOperatorNumeric, isOperatorRegex } from './operatorHelpers';
 import { getExpressionBuilderDebug } from './store';
-import { getValueFromFieldsFilter } from './variableGetters';
+import { getOrGroupFromFieldsFilterValue, getValueFromFieldsFilter } from './variableGetters';
 import { EMPTY_VARIABLE_VALUE, isAdHocFilterValueUserInput, stripAdHocFilterUserInputPrefix } from './variables';
 
 type Key = string;
@@ -97,6 +97,7 @@ export class ExpressionBuilder {
    * Merges multiple include matches into regex
    */
   protected getExpr(): string {
+    const { orGroups, standaloneFilters } = this.getOrGroups();
     let {
       equalsFilters,
       gteFilters,
@@ -106,7 +107,7 @@ export class ExpressionBuilder {
       notEqualsFilters,
       regexEqualFilters,
       regexNotEqualFilters,
-    } = this.getCombinedLabelFilters();
+    } = this.getCombinedLabelFilters(standaloneFilters);
 
     if (this.options.debug) {
       console.info('combined filters after merge', {
@@ -121,7 +122,7 @@ export class ExpressionBuilder {
       });
     }
 
-    const filtersString = this.buildLabelsLogQLFromFilters({
+    const standaloneFiltersString = this.buildLabelsLogQLFromFilters({
       equalsFilters,
       gteFilters,
       gtFilters,
@@ -131,6 +132,10 @@ export class ExpressionBuilder {
       regexEqualFilters,
       regexNotEqualFilters,
     });
+
+    const filtersString = [standaloneFiltersString, ...orGroups.map((orGroup) => this.buildOrGroupFilter(orGroup))]
+      .filter((filterString) => filterString)
+      .join(`${this.options.filterSeparator ?? ','} `);
 
     if (filtersString) {
       // Append prefix if defined
@@ -286,10 +291,54 @@ export class ExpressionBuilder {
     return allFiltersString;
   }
 
+  /** OR groups containing an ignored key are dropped entirely, as the remaining members alone would narrow the query */
+  private getOrGroups(): { orGroups: AdHocFilterWithLabels[][]; standaloneFilters: AdHocFilterWithLabels[] } {
+    if (!this.options.decodeFilters) {
+      return { orGroups: [], standaloneFilters: this.filters };
+    }
+
+    const standaloneFilters: AdHocFilterWithLabels[] = [];
+    const orGroupMembers = new Map<number, AdHocFilterWithLabels[]>();
+    this.filters.forEach((filter) => {
+      const orGroup = getOrGroupFromFieldsFilterValue(filter);
+      if (orGroup === undefined) {
+        standaloneFilters.push(filter);
+      } else {
+        orGroupMembers.set(orGroup, [...(orGroupMembers.get(orGroup) ?? []), filter]);
+      }
+    });
+
+    const orGroups: AdHocFilterWithLabels[][] = [];
+    orGroupMembers.forEach((members) => {
+      if (members.length < 2) {
+        standaloneFilters.push(...members);
+      } else if (!members.some((filter) => this.isFilterIgnored(filter))) {
+        orGroups.push(members);
+      }
+    });
+
+    return { orGroups, standaloneFilters };
+  }
+
+  private isFilterIgnored(filter: AdHocVariableFilter) {
+    return this.options.ignoreKeys?.includes(filter.key) === true && !isOperatorRegex(filter.operator);
+  }
+
+  /** Builds a single pipeline stage joining every filter in the OR group with "or" */
+  private buildOrGroupFilter(filters: AdHocFilterWithLabels[]): string {
+    return filters
+      .map((filter) => {
+        const operator = narrowFilterOperator(filter.operator);
+        const value = this.escapeFieldValue(operator, filter.value, filter.valueLabels ?? []);
+        return this.buildFilterString(filter.key, operator, value, isOperatorNumeric(operator) ? '' : '"');
+      })
+      .join(` ${this.positiveFilterValueSeparator} `);
+  }
+
   /**
    * Group filter values by key
    */
-  private getCombinedLabelFilters() {
+  private getCombinedLabelFilters(filters: AdHocFilterWithLabels[] = this.filters) {
     // Group filters by operator and key
     const {
       [LabelFilterOp.Equal]: equal,
@@ -300,7 +349,7 @@ export class ExpressionBuilder {
       [NumericFilterOp.lte]: lte,
       [NumericFilterOp.gt]: gt,
       [NumericFilterOp.gte]: gte,
-    } = this.groupFiltersByKey(this.filters);
+    } = this.groupFiltersByKey(filters);
 
     let equalsFilters: CombinedFiltersValuesByKey | undefined;
     let notEqualsFilters: CombinedFiltersValuesByKey | undefined;
@@ -627,9 +676,7 @@ export class ExpressionBuilder {
    * Groups all filters by operator and key
    */
   private groupFiltersByKey(filters: AdHocVariableFilter[]): Record<FilterOpType, Dictionary<AdHocFilterWithLabels[]>> {
-    let filteredFilters: AdHocVariableFilter[] = filters.filter(
-      (f) => !this.options.ignoreKeys?.includes(f.key) || isOperatorRegex(f.operator)
-    );
+    let filteredFilters: AdHocVariableFilter[] = filters.filter((f) => !this.isFilterIgnored(f));
 
     // We need at least one inclusive filter
     if (this.options.filterType === 'indexed') {

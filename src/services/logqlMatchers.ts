@@ -2,7 +2,7 @@
 
 import { NodeType, SyntaxNode, Tree } from '@lezer/common';
 
-import { PluginExtensionPanelContext } from '@grafana/data';
+import { DataFrame, PluginExtensionPanelContext } from '@grafana/data';
 import {
   Bytes,
   Duration,
@@ -271,95 +271,153 @@ function getStringFieldOperator(matcher: SyntaxNode) {
   return undefined;
 }
 
+function parseField(matcher: SyntaxNode, query: string, dataFrame?: DataFrame): FieldFilter | undefined {
+  const expression = NodePosition.fromNode(matcher).getExpression(query);
+
+  // Skip error expression, it will get added automatically when Grafana Logs Drilldown adds a parser
+  if (expression.substring(0, 9) === `__error__`) {
+    return undefined;
+  }
+
+  // @todo we need to use detected_fields API to get the "right" parser for a specific field
+  // Currently we just check to see if there is a parser before the current node, this means that queries that are placing metadata filters after the parser will query the metadata field as a parsed field, which will lead to degraded performance
+  const logFmtParser = getNodesFromQuery(query.substring(0, matcher.node.to), [Logfmt]);
+  const jsonParser = getNodesFromQuery(query.substring(0, matcher.node.to), [Json]);
+
+  // field filter key
+  const fieldNameNode = getAllPositionsInNodeByType(matcher, Identifier);
+  const fieldName = fieldNameNode[0]?.getExpression(query);
+
+  // field filter value
+  const fieldStringValue = getAllPositionsInNodeByType(matcher, String);
+  const fieldNumberValue = getAllPositionsInNodeByType(matcher, Number);
+  const fieldBytesValue = getAllPositionsInNodeByType(matcher, Bytes);
+  const fieldDurationValue = getAllPositionsInNodeByType(matcher, Duration);
+
+  let fieldValue: string, operator: FilterOpType | undefined;
+  if (fieldStringValue.length) {
+    operator = getStringFieldOperator(matcher);
+    // Strip out quotes
+    fieldValue = query.substring(fieldStringValue[0].from + 1, fieldStringValue[0].to - 1);
+  } else if (fieldNumberValue.length) {
+    fieldValue = fieldNumberValue[0].getExpression(query);
+    operator = getNumericFieldOperator(matcher);
+  } else if (fieldDurationValue.length) {
+    operator = getNumericFieldOperator(matcher);
+    fieldValue = fieldDurationValue[0].getExpression(query);
+  } else if (fieldBytesValue.length) {
+    operator = getNumericFieldOperator(matcher);
+    fieldValue = fieldBytesValue[0].getExpression(query);
+  } else {
+    return undefined;
+  }
+
+  if (!operator) {
+    return undefined;
+  }
+
+  let labelType: LabelType | undefined;
+  let parser: ParserType | undefined;
+
+  if (dataFrame) {
+    // @todo if the field label is not in the first line, we'll always add this filter as a field filter
+    // Also negative filters that exclude all values of a field will always fail to get a label type for that exclusion filter?
+    labelType = getLabelTypeFromFrame(fieldName, dataFrame) ?? undefined;
+
+    // If we have a label type from the dataframe, set the parser for metadata fields
+    if (labelType === LabelType.StructuredMetadata) {
+      parser = 'structuredMetadata';
+    }
+  }
+
+  if (!parser) {
+    if (logFmtParser.length && jsonParser.length) {
+      parser = 'mixed';
+    } else if (logFmtParser.length) {
+      parser = 'logfmt';
+    } else if (jsonParser.length) {
+      parser = 'json';
+    } else {
+      // If there is no parser in the query so far, the field would have to be metadata or an invalid query?
+      labelType = labelType ?? LabelType.StructuredMetadata;
+      parser = 'structuredMetadata';
+    }
+  }
+
+  return {
+    key: fieldName,
+    operator: operator,
+    parser,
+    type: labelType ?? LabelType.Parsed,
+    value: fieldValue,
+  };
+}
+
+// Distributing `or` over `and` grows exponentially, give up on label filter stages that would expand past this
+const MAX_LABEL_FILTER_CLAUSES = 32;
+
+/** Converts a label filter stage into an AND of clauses that each OR leaf filters, undefined if too complex to expand */
+function getLabelFilterClauses(labelFilter: SyntaxNode, query: string): SyntaxNode[][] | undefined {
+  const children = labelFilter.getChildren(LabelFilter);
+  const [left, right] = children;
+
+  if (left === undefined) {
+    return [[labelFilter]];
+  }
+  // A single child is a parenthesized expression
+  if (right === undefined) {
+    return getLabelFilterClauses(left, query);
+  }
+
+  const leftClauses = getLabelFilterClauses(left, query);
+  const rightClauses = getLabelFilterClauses(right, query);
+  if (!leftClauses || !rightClauses) {
+    return undefined;
+  }
+
+  // `and`, `,` and whitespace combine filters with AND, only `or` needs distributing
+  const isOr = query.substring(left.to, right.from).trim().toLowerCase() === 'or';
+  const clauses = isOr
+    ? leftClauses.flatMap((leftClause) => rightClauses.map((rightClause) => [...leftClause, ...rightClause]))
+    : [...leftClauses, ...rightClauses];
+
+  return clauses.length <= MAX_LABEL_FILTER_CLAUSES ? clauses : undefined;
+}
+
 function parseFields(query: string, context?: PluginExtensionPanelContext, lokiQuery?: LokiQuery) {
   const fields: FieldFilter[] = [];
   const dataFrame = context?.data?.series.find((frame) => frame.refId === lokiQuery?.refId);
-  // We do not currently support "or" in Grafana Logs Drilldown, so grab the left hand side LabelFilter leaf nodes as this will be the first filter expression in a given pipeline stage
-  const allFields = getNodesFromQuery(query, [LabelFilter]);
-  for (const matcher of allFields) {
-    const position = NodePosition.fromNode(matcher);
-    const expression = position.getExpression(query);
-    const isParentNode = matcher.getChild(LabelFilter);
+  // Each pipeline stage has a single root LabelFilter node, nested LabelFilter nodes are combined with and/or
+  const labelFilterStages = getNodesFromQuery(query, [LabelFilter]).filter(
+    (labelFilter) => labelFilter.parent?.type.id !== LabelFilter
+  );
 
-    // If the Label filter contains other Label Filter nodes, we want to skip this node so we only add the leaf LabelFilter nodes
-    if (isParentNode) {
-      continue;
-    }
-
-    // Skip error expression, it will get added automatically when Grafana Logs Drilldown adds a parser
-    if (expression.substring(0, 9) === `__error__`) {
-      continue;
-    }
-
-    // @todo we need to use detected_fields API to get the "right" parser for a specific field
-    // Currently we just check to see if there is a parser before the current node, this means that queries that are placing metadata filters after the parser will query the metadata field as a parsed field, which will lead to degraded performance
-    const logFmtParser = getNodesFromQuery(query.substring(0, matcher.node.to), [Logfmt]);
-    const jsonParser = getNodesFromQuery(query.substring(0, matcher.node.to), [Json]);
-
-    // field filter key
-    const fieldNameNode = getAllPositionsInNodeByType(matcher, Identifier);
-    const fieldName = fieldNameNode[0]?.getExpression(query);
-
-    // field filter value
-    const fieldStringValue = getAllPositionsInNodeByType(matcher, String);
-    const fieldNumberValue = getAllPositionsInNodeByType(matcher, Number);
-    const fieldBytesValue = getAllPositionsInNodeByType(matcher, Bytes);
-    const fieldDurationValue = getAllPositionsInNodeByType(matcher, Duration);
-
-    let fieldValue: string, operator: FilterOpType | undefined;
-    if (fieldStringValue.length) {
-      operator = getStringFieldOperator(matcher);
-      // Strip out quotes
-      fieldValue = query.substring(fieldStringValue[0].from + 1, fieldStringValue[0].to - 1);
-    } else if (fieldNumberValue.length) {
-      fieldValue = fieldNumberValue[0].getExpression(query);
-      operator = getNumericFieldOperator(matcher);
-    } else if (fieldDurationValue.length) {
-      operator = getNumericFieldOperator(matcher);
-      fieldValue = fieldDurationValue[0].getExpression(query);
-    } else if (fieldBytesValue.length) {
-      operator = getNumericFieldOperator(matcher);
-      fieldValue = fieldBytesValue[0].getExpression(query);
-    } else {
-      continue;
-    }
-
-    let labelType: LabelType | undefined;
-    let parser: ParserType | undefined;
-
-    if (dataFrame) {
-      // @todo if the field label is not in the first line, we'll always add this filter as a field filter
-      // Also negative filters that exclude all values of a field will always fail to get a label type for that exclusion filter?
-      labelType = getLabelTypeFromFrame(fieldName, dataFrame) ?? undefined;
-
-      // If we have a label type from the dataframe, set the parser for metadata fields
-      if (labelType === LabelType.StructuredMetadata) {
-        parser = 'structuredMetadata';
-      }
-    }
-
-    if (operator) {
-      if (!parser) {
-        if (logFmtParser.length && jsonParser.length) {
-          parser = 'mixed';
-        } else if (logFmtParser.length) {
-          parser = 'logfmt';
-        } else if (jsonParser.length) {
-          parser = 'json';
-        } else {
-          // If there is no parser in the query so far, the field would have to be metadata or an invalid query?
-          labelType = labelType ?? LabelType.StructuredMetadata;
-          parser = 'structuredMetadata';
-        }
-      }
-
-      fields.push({
-        key: fieldName,
-        operator: operator,
-        parser,
-        type: labelType ?? LabelType.Parsed,
-        value: fieldValue,
+  let orGroup = 0;
+  for (const labelFilterStage of labelFilterStages) {
+    const clauses = getLabelFilterClauses(labelFilterStage, query);
+    if (!clauses) {
+      console.warn('label filter expression is too complex to import', {
+        query: NodePosition.fromNode(labelFilterStage).getExpression(query),
       });
+      continue;
+    }
+
+    for (const clause of clauses) {
+      const clauseFields = clause
+        .map((leaf) => parseField(leaf, query, dataFrame))
+        .filter((field) => field !== undefined);
+
+      // Dropping part of an OR clause would narrow the results, so skip the whole clause instead
+      if (clauseFields.length !== clause.length) {
+        continue;
+      }
+
+      if (clauseFields.length > 1) {
+        orGroup++;
+        fields.push(...clauseFields.map((field) => ({ ...field, orGroup })));
+      } else {
+        fields.push(...clauseFields);
+      }
     }
   }
   return fields;

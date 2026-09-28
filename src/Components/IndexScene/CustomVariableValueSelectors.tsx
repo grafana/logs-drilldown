@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  AdHocFiltersVariable,
   ControlsLayout,
   SceneComponentProps,
   sceneGraph,
@@ -8,6 +9,9 @@ import {
   SceneObjectState,
   VariableValueSelectWrapper,
 } from '@grafana/scenes';
+
+import { FieldFilterConnectors } from './FieldFilterConnectors';
+import { VAR_FIELDS_AND_METADATA } from 'services/variables';
 
 export interface VariableValueSelectorsState extends SceneObjectState {
   exclude?: string[];
@@ -36,9 +40,15 @@ function CustomVariableValueSelectorsRenderer({ model }: SceneComponentProps<Cus
 
   return (
     <>
-      {variables.map((variable) => (
-        <VariableValueSelectWrapper key={variable.state.key} variable={variable} layout={model.state.layout} />
-      ))}
+      {variables.map((variable) =>
+        variable instanceof AdHocFiltersVariable && variable.state.name === VAR_FIELDS_AND_METADATA ? (
+          <FieldFilterConnectors key={variable.state.key} variable={variable}>
+            <VariableValueSelectWrapper variable={variable} layout={model.state.layout} />
+          </FieldFilterConnectors>
+        ) : (
+          <VariableValueSelectWrapper key={variable.state.key} variable={variable} layout={model.state.layout} />
+        )
+      )}
     </>
   );
 }

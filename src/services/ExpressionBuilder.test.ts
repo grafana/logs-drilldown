@@ -310,6 +310,60 @@ describe('renderLogQLFieldFilters', () => {
     ];
     expect(renderLogQLFieldFilters(filters)).toEqual('| bytes=""');
   });
+
+  describe('OR groups', () => {
+    const fieldValue = (value: string, orGroup?: number, parser = 'logfmt') =>
+      JSON.stringify({ orGroup, parser, value });
+
+    const filters: AdHocFilterWithLabels[] = [
+      { key: 'status', operator: FilterOp.gte, value: fieldValue('500', 1) },
+      { key: 'service', operator: FilterOp.Equal, value: fieldValue('api') },
+      { key: 'duration', operator: FilterOp.gt, value: fieldValue('5s', 1) },
+      {
+        key: 'level',
+        operator: FilterOp.Equal,
+        value: fieldValue('error', 2, 'structuredMetadata'),
+        valueLabels: ['error'],
+      },
+      {
+        key: 'path',
+        operator: FilterOp.RegexEqual,
+        value: addAdHocFilterUserInputPrefix(fieldValue('/api/.+', 2)),
+      },
+    ];
+
+    test('Renders each OR group as a single pipeline stage', () => {
+      expect(renderLogQLFieldFilters(filters)).toEqual(
+        '| service="api" | status>=500 or duration>5s | level="error" or path=~"/api/.+"'
+      );
+    });
+
+    test('Drops the whole OR group when one of its keys is ignored', () => {
+      expect(renderLogQLFieldFilters(filters, ['duration'])).toEqual(
+        '| service="api" | level="error" or path=~"/api/.+"'
+      );
+    });
+
+    test('Renders an OR group with a single member as a standalone filter', () => {
+      expect(
+        renderLogQLFieldFilters([
+          { key: 'status', operator: FilterOp.gte, value: fieldValue('500', 1) },
+          { key: 'service', operator: FilterOp.Equal, value: fieldValue('api') },
+        ])
+      ).toEqual('| service="api" | status>=500');
+    });
+
+    test('Keeps joining standalone filters with the same key', () => {
+      expect(
+        renderLogQLFieldFilters([
+          { key: 'pod', operator: FilterOp.Equal, value: fieldValue('a') },
+          { key: 'pod', operator: FilterOp.Equal, value: fieldValue('b') },
+          { key: 'status', operator: FilterOp.Equal, value: fieldValue('500', 1) },
+          { key: 'pod', operator: FilterOp.Equal, value: fieldValue('c', 1) },
+        ])
+      ).toEqual('| pod="a" or pod="b" | status="500" or pod="c"');
+    });
+  });
 });
 
 describe('renderLogQLLabelFilters', () => {

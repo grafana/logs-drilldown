@@ -50,7 +50,7 @@ import {
   getMetadataVariable,
   getPatternsVariable,
 } from 'services/variableGetters';
-import { ParserType, VAR_FIELDS, VAR_METADATA } from 'services/variables';
+import { ParserType, VAR_FIELDS, VAR_FIELDS_EXPR, VAR_METADATA, VAR_METADATA_EXPR } from 'services/variables';
 
 export interface FieldValuesBreakdownSceneState extends SceneObjectState {
   $data?: SceneDataProvider;
@@ -148,8 +148,7 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     const jsonVariable = getJSONFieldsVariable(this);
     const queryString = buildFieldsQueryString(tagKey, fieldsVariable, detectedFieldsFrame, jsonVariable);
     // Manually interpolate query so we don't pollute the variable interpolation for other queries
-    const { filterExpression, variableName } = this.removeFieldLabelFromVariableInterpolation();
-    const expression = sceneGraph.interpolate(this, queryString.replace(`$\{${variableName}}`, filterExpression));
+    const expression = sceneGraph.interpolate(this, this.removeFieldLabelFromVariableInterpolation(queryString));
 
     return buildDataQuery(expression, { legendFormat: `{{${tagKey}}}`, refId: tagKey });
   }
@@ -308,27 +307,20 @@ export class FieldValuesBreakdownScene extends SceneObjectBase<FieldValuesBreakd
     return undefined;
   }
 
-  /**
-   * Sets the expression builder to exclude the current field label
-   */
-  private removeFieldLabelFromVariableInterpolation() {
+  /** Replaces the filter variables in the query, excluding the current field label */
+  private removeFieldLabelFromVariableInterpolation(queryString: string) {
     const tagKey = this.getTagKey();
-    let filterExpression;
-    let variableName: typeof VAR_FIELDS | typeof VAR_METADATA;
+    // The fields variable can hold OR groups referencing metadata, so it is always re-rendered without this key
+    const fieldsFilterExpression = renderLogQLFieldFilters(getFieldsVariable(this).state.filters, [tagKey]);
+    const query = queryString.replace(VAR_FIELDS_EXPR, fieldsFilterExpression);
 
-    // We want the parser for this field, we only need to exclude keys for the variable type that matches this value breakdown
-    const parser = this.getQueryParser();
-    if (parser === 'structuredMetadata') {
-      const metadataVar = getMetadataVariable(this);
-      variableName = VAR_METADATA;
-      filterExpression = renderLogQLMetadataFilters(metadataVar.state.filters, [tagKey]);
-    } else {
-      variableName = VAR_FIELDS;
-      const fieldsVar = getFieldsVariable(this);
-      filterExpression = renderLogQLFieldFilters(fieldsVar.state.filters, [tagKey]);
+    // We want the parser for this field, we only need to exclude metadata keys if this value breakdown is for metadata
+    if (this.getQueryParser() === 'structuredMetadata') {
+      const metadataFilterExpression = renderLogQLMetadataFilters(getMetadataVariable(this).state.filters, [tagKey]);
+      return query.replace(VAR_METADATA_EXPR, metadataFilterExpression);
     }
 
-    return { filterExpression, variableName };
+    return query;
   }
 
   /**

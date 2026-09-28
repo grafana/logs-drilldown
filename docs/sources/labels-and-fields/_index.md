@@ -98,6 +98,22 @@ To explore fields with your own data, follow these steps:
 
 To remove the filter, select **All** from the **Field** search menu or click the **x** next to the selection in the Filter fields at the top of the page.
 
+### Combine field filters with AND or OR
+
+By default, logs must match every filter in the **Fields** filter bar.
+The **AND** / **OR** connector between two filters shows how they're combined. Click it to switch:
+
+- **AND**: logs must match both filters.
+- **OR**: logs can match either filter. For example, `status >= 500` **OR** `duration > 5s` returns logs that failed or were slow.
+
+Filters joined by **OR** form a group, and groups are combined with **AND**.
+For example, `status >= 500` **OR** `duration > 5s` **AND** `cluster = prod` returns slow or failed logs from the `prod` cluster.
+
+Adjacent filters on the same field that use the same `=` or `=~` operator are always combined with **OR**, so the connector between them can't be changed.
+
+When you open a query in Logs Drilldown from Explore or a dashboard, `or` and `and` in its label filter expressions are kept.
+Complex expressions that mix `and` and `or` are rewritten as OR groups combined with AND, which can repeat a filter in more than one group.
+
 ## What next?
 
 Learn how [Log patterns](../patterns/) can help you work with different types of log lines in bulk.

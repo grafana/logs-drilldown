@@ -171,24 +171,32 @@ describe('excludeAggregateByFromLogsVolumeQuery', () => {
     expect(result).toContain(VAR_METADATA_EXPR);
   });
 
-  it('replaces ${metadata} when the grouped-by field is structured metadata', () => {
+  it('replaces ${metadata} and ${fields} when the grouped-by field is structured metadata', () => {
     const metadataFilters = [
       { key: 'cluster', operator: '=', value: 'eu' },
       { key: 'namespace', operator: '=', value: 'prod' },
+    ];
+    // OR groups that include metadata are stored in the fields variable
+    const fieldFilters = [
+      { key: 'cluster', operator: '=', value: '{"orGroup":1,"parser":"structuredMetadata","value":"us"}' },
+      { key: 'status', operator: '=', value: '{"orGroup":1,"parser":"logfmt","value":"500"}' },
     ];
     getParserForFieldMock.mockReturnValue('structuredMetadata');
     getMetadataVariableMock.mockReturnValue({
       state: { filters: metadataFilters },
     } as unknown as AdHocFiltersVariable);
+    getFieldsVariableMock.mockReturnValue({
+      state: { filters: fieldFilters },
+    } as unknown as AdHocFiltersVariable);
+    renderLogQLFieldFiltersMock.mockReturnValue('');
 
     const expr = baseQuery('cluster');
     const result = excludeAggregateByFromLogsVolumeQuery(expr, 'cluster', sceneRef);
 
     expect(getParserForFieldMock).toHaveBeenCalledWith('cluster', sceneRef);
     expect(renderLogQLMetadataFiltersMock).toHaveBeenCalledWith(metadataFilters, ['cluster']);
-    expect(renderLogQLFieldFiltersMock).not.toHaveBeenCalled();
-    expect(result).toBe(expr.replace(VAR_METADATA_EXPR, '| namespace="prod"'));
-    expect(result).toContain(VAR_FIELDS_EXPR);
+    expect(renderLogQLFieldFiltersMock).toHaveBeenCalledWith(fieldFilters, ['cluster']);
+    expect(result).toBe(expr.replace(VAR_METADATA_EXPR, '| namespace="prod"').replace(VAR_FIELDS_EXPR, ''));
   });
 });
 

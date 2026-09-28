@@ -70,6 +70,12 @@ import { CustomConstantVariable } from 'services/CustomConstantVariable';
 import { LOKI_CONFIG_API_NOT_SUPPORTED } from 'services/datasourceTypes';
 import { PageSlugs } from 'services/enums';
 import { getFieldsTagValuesExpression } from 'services/expressions';
+import {
+  filterFieldsVariableFiltersDissolvingOrGroups,
+  filterFiltersDissolvingOrGroups,
+  joinFieldAndMetadataFilters,
+  splitFieldAndMetadataFilters,
+} from 'services/fieldFilterOrGroups';
 import { isFilterMetadata } from 'services/filters';
 import { FilterOp, LineFilterType } from 'services/filterTypes';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from 'services/keyboardShortcuts';
@@ -120,8 +126,10 @@ import {
   getLineFiltersVariable,
   getLineFormatVariable,
   getMetadataVariable,
+  getOrGroupFromFieldsFilterValue,
   getPatternsVariable,
   getUrlParamNameForVariable,
+  getValueFromFieldsFilter,
 } from 'services/variableGetters';
 import { areLabelFiltersEqual, operatorFunction } from 'services/variableHelpers';
 import {
@@ -345,7 +353,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     const fieldsAndMetadataVariable = getFieldsAndMetadataVariable(this);
 
     // Sync fields in query variables to support existing urls
-    fieldsAndMetadataVariable.updateFilters([...metadataFilters, ...fieldFilters]);
+    fieldsAndMetadataVariable.updateFilters(joinFieldAndMetadataFilters(fieldFilters, metadataFilters));
 
     // When opening a link that carries parser-dependent filters, make sure parsers are enabled so the
     // incoming filters produce valid queries (the user may have parsers disabled locally).
@@ -618,8 +626,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
     prevState?: AdHocFiltersVariable['state']
   ) => {
     if (!areArraysEqual(newState.filters, prevState?.filters)) {
-      const metadataFilters = newState.filters.filter((f: AdHocFiltersWithLabelsAndMeta) => isFilterMetadata(f));
-      const fieldFilters = newState.filters.filter((f: AdHocFiltersWithLabelsAndMeta) => !isFilterMetadata(f));
+      const { fieldFilters, metadataFilters } = splitFieldAndMetadataFilters(newState.filters);
 
       getFieldsVariable(this).updateFilters(fieldFilters);
       getMetadataVariable(this).updateFilters(metadataFilters);
@@ -634,9 +641,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
    */
   public clearParserDependentFilters() {
     const combinedVariable = getFieldsAndMetadataVariable(this);
-    const metadataFilters = combinedVariable.state.filters.filter((f: AdHocFiltersWithLabelsAndMeta) =>
-      isFilterMetadata(f)
-    );
+    // An OR group that includes a parsed field cannot be evaluated without parsers, so it is removed entirely
+    const metadataFilters = filterFiltersDissolvingOrGroups(combinedVariable.state.filters, isFilterMetadata);
     // Updating the combined variable propagates to the fields and metadata variables via
     // `subscribeToCombinedFieldsVariable`, clearing the parsed fields while keeping metadata.
     if (metadataFilters.length !== combinedVariable.state.filters.length) {
@@ -664,7 +670,11 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       return;
     }
 
-    const hasParsedFieldFilters = getFieldsVariable(this).state.filters.length > 0;
+    // OR groups of metadata filters are stored in the fields variable but don't need a parser
+    const hasParsedFieldFilters = getFieldsVariable(this).state.filters.some(
+      (f) =>
+        getOrGroupFromFieldsFilterValue(f) === undefined || getValueFromFieldsFilter(f).parser !== 'structuredMetadata'
+    );
     const hasJsonFieldFilters = getJSONFieldsVariable(this).state.filters.length > 0;
     const hasLineFormatFilters = getLineFormatVariable(this).state.filters.length > 0;
 
@@ -795,7 +805,10 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const uninterpolatedExpression = getFieldsTagValuesExpression(VAR_FIELDS_AND_METADATA);
 
       const metadataFilters = metadataVar.state.filters.filter((f) => f.key !== currentKey);
-      const fieldFilters = fieldVar.state.filters.filter((f) => f.key !== currentKey);
+      const fieldFilters = filterFieldsVariableFiltersDissolvingOrGroups(
+        fieldVar.state.filters,
+        (f) => f.key !== currentKey
+      );
       const otherFiltersString = this.renderVariableFilters(VAR_FIELDS, fieldFilters);
       const otherMetadataString = this.renderVariableFilters(VAR_METADATA, metadataFilters);
       const expr = uninterpolatedExpression
@@ -824,7 +837,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       const metadataFilters = metadataVar.state.filters.filter(
         (f) => f.key !== filter.key && isOperatorInclusive(f.operator)
       );
-      const fieldFilters = fieldVar.state.filters.filter(
+      const fieldFilters = filterFieldsVariableFiltersDissolvingOrGroups(
+        fieldVar.state.filters,
         (f) => f.key !== filter.key && isOperatorInclusive(f.operator)
       );
 
@@ -966,8 +980,11 @@ function getVariableSet(
   defaultLineFilters?: LineFilterType[],
   initialFieldFilters?: AdHocFiltersWithLabelsAndMeta[]
 ) {
-  const initialMetadataFilters = initialFieldFilters?.filter((f) => f.meta?.parser === 'structuredMetadata');
-  const initialParsedFieldFilters = initialFieldFilters?.filter((f) => f.meta?.parser !== 'structuredMetadata');
+  // Grouped metadata is encoded in the fields variable along with the rest of its OR group
+  const isInitialMetadataFilter = (f: AdHocFiltersWithLabelsAndMeta) =>
+    f.meta?.parser === 'structuredMetadata' && getOrGroupFromFieldsFilterValue(f) === undefined;
+  const initialMetadataFilters = initialFieldFilters?.filter(isInitialMetadataFilter);
+  const initialParsedFieldFilters = initialFieldFilters?.filter((f) => !isInitialMetadataFilter(f));
 
   const parsersEnabled = getParserEnabled();
   const jsonParserSegment = getJsonParserSegment(parsersEnabled);

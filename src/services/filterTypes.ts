@@ -33,6 +33,8 @@ export type IndexedLabelFilter = {
 export type FieldFilter = {
   key: string;
   operator: FilterOpType;
+  // Filters sharing an orGroup are combined with `or` in one pipeline stage
+  orGroup?: number;
   parser?: ParserType;
   type?: LabelType;
   value: string;

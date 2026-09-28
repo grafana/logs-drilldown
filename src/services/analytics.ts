@@ -71,6 +71,8 @@ export const USER_EVENTS_ACTIONS = {
     change_viz_type: 'change_viz_type',
     // Changing between avg_over_time and count queries (only supported for int fields)
     change_query_type: 'change_query_type',
+    // Switching the AND/OR connector between two filters in the fields filter bar. Props: connector, filtersLength
+    field_filter_connector_toggled: 'field_filter_connector_toggled',
     label_in_panel_summary_clicked: 'label_in_panel_summary_clicked',
     // Changing layout type (e.g. single/grid/rows). Used in multiple views. The view type is passed as a parameter. Props: layout, view
     layout_type_changed: 'layout_type_changed',

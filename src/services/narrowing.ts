@@ -80,6 +80,10 @@ export function narrowFieldValue(o: unknown): FieldValue | false {
   return false;
 }
 
+export function narrowFieldValueOrGroup(o: unknown): number | undefined {
+  return isObj(o) && hasProp(o, 'orGroup') && typeof o.orGroup === 'number' ? o.orGroup : undefined;
+}
+
 export function narrowRecordStringNumber(o: unknown): Record<string, number> | false {
   const narrowed = isObj(o) && isRecord(o) && o;
 

@@ -60,13 +60,18 @@ export function excludeAggregateByFromLogsVolumeQuery(expr: string, fieldName: s
   if (fieldName === LEVEL_VARIABLE_VALUE) {
     return expr;
   }
+  const exprWithoutField = expr.replace(
+    VAR_FIELDS_EXPR,
+    renderLogQLFieldFilters(getFieldsVariable(sceneRef).state.filters, [fieldName])
+  );
   if (getParserForField(fieldName, sceneRef) === 'structuredMetadata') {
-    return expr.replace(
+    // Metadata can also be part of an OR group in the fields variable, which is dropped above
+    return exprWithoutField.replace(
       VAR_METADATA_EXPR,
       renderLogQLMetadataFilters(getMetadataVariable(sceneRef).state.filters, [fieldName])
     );
   }
-  return expr.replace(VAR_FIELDS_EXPR, renderLogQLFieldFilters(getFieldsVariable(sceneRef).state.filters, [fieldName]));
+  return exprWithoutField;
 }
 
 /**

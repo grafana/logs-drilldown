@@ -88,6 +88,9 @@ export const testIds = {
     datasource: {
       label: 'data-testid Dashboard template variables submenu Label Data source',
     },
+    fields: {
+      filterConnector: 'data-testid fields-filter-connector',
+    },
     lineFilters: {
       addButton: 'data-testid line-filter-add',
     },

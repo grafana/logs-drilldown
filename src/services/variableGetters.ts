@@ -11,7 +11,7 @@ import {
 import { CustomConstantVariable } from './CustomConstantVariable';
 import { isFilterMetadata } from './filters';
 import { logger } from './logger';
-import { narrowFieldValue, NarrowingError } from './narrowing';
+import { narrowFieldValue, narrowFieldValueOrGroup, NarrowingError } from './narrowing';
 import { getParserEnabled } from './parserToggle';
 import {
   AdHocFieldValue,
@@ -260,6 +260,23 @@ export function getValueFromFieldsFilter(
       };
     }
     throw e;
+  }
+}
+
+/** Returns the OR group encoded in a fields variable value, see encodeOrGroupInFieldsFilter */
+export function getOrGroupFromFieldsFilterValue(filter: { value: string; valueLabels?: string[] }): number | undefined {
+  if (isFilterMetadata(filter)) {
+    return undefined;
+  }
+
+  const encodedValue = isAdHocFilterValueUserInput(filter.value)
+    ? stripAdHocFilterUserInputPrefix(filter.value)
+    : filter.value;
+  try {
+    return narrowFieldValueOrGroup(JSON.parse(encodedValue));
+  } catch (e) {
+    // Values from before fields were JSON encoded cannot be part of an OR group
+    return undefined;
   }
 }
 

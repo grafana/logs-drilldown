@@ -885,10 +885,14 @@ describe('contextToLink', () => {
         )}`;
         const expectedLineFiltersUrlString =
           `&var-fields=${encodeFilter(
-            `duration|<=|${addAdHocFilterUserInputPrefix('{"value":"10s"__gfc__"parser":"logfmt"}')},10s`
+            `duration|<=|${addAdHocFilterUserInputPrefix(
+              '{"value":"10s"__gfc__"parser":"logfmt"__gfc__"orGroup":1}'
+            )},10s`
           )}` +
           `&var-fields=${encodeFilter(
-            `duration|>|${addAdHocFilterUserInputPrefix('{"value":"10.2s"__gfc__"parser":"logfmt"}')},10.2s`
+            `duration|>|${addAdHocFilterUserInputPrefix(
+              '{"value":"10.2s"__gfc__"parser":"logfmt"__gfc__"orGroup":1}'
+            )},10.2s`
           )}`;
 
         expect(config).toEqual({
@@ -896,6 +900,72 @@ describe('contextToLink', () => {
             expectedLabelFiltersUrlString,
             expectedLineFiltersUrlString,
             expectedMetadataString,
+            slug: 'cluster/eu-west-1',
+          }),
+        });
+      });
+      it('should keep "or" from a traces to logs custom query in a single OR group', () => {
+        // tracesToLogsV2 custom query: '{${__tags}} | json | trace_id="${__span.traceId}" or traceID="${__span.traceId}"'
+        const target = getTestTarget({
+          expr: `{namespace="or-test"} | json | trace_id="abc123" or traceID="abc123"`,
+        });
+        const config = getTestConfig(linkConfigs, target);
+
+        const expectedLabelFiltersUrlString = `&var-filters=${encodeFilter(
+          `namespace|=|${addCustomInputPrefixAndValueLabels('or-test')}`
+        )}`;
+        const expectedLineFiltersUrlString = ['trace_id', 'traceID']
+          .map(
+            (key) =>
+              `&var-fields=${encodeFilter(
+                `${key}|=|${addAdHocFilterUserInputPrefix(
+                  '{"value":"abc123"__gfc__"parser":"json"__gfc__"orGroup":1}'
+                )},abc123`
+              )}`
+          )
+          .join('');
+
+        expect(config).toEqual({
+          path: getPath({
+            expectedLabelFiltersUrlString,
+            expectedLineFiltersUrlString,
+            slug: 'namespace/or-test',
+          }),
+        });
+      });
+      it('should keep "or" between metadata and parsed fields in a single OR group', () => {
+        const target = getTestTarget({
+          expr: `{cluster="eu-west-1"} | pod!=\`mimir-ingester-xjntw\` or trace_id="abc" | logfmt | status >= 500 or duration > 5s`,
+        });
+        const config = getTestConfig(linkConfigs, target);
+
+        const expectedLabelFiltersUrlString = `&var-filters=${encodeFilter(
+          `cluster|=|${addCustomInputPrefixAndValueLabels('eu-west-1')}`
+        )}`;
+        const expectedLineFiltersUrlString =
+          `&var-fields=${encodeFilter(
+            `pod|!=|${addAdHocFilterUserInputPrefix(
+              '{"value":"mimir-ingester-xjntw"__gfc__"parser":"structuredMetadata"__gfc__"orGroup":1}'
+            )},mimir-ingester-xjntw`
+          )}` +
+          `&var-fields=${encodeFilter(
+            `trace_id|=|${addAdHocFilterUserInputPrefix(
+              '{"value":"abc"__gfc__"parser":"structuredMetadata"__gfc__"orGroup":1}'
+            )},abc`
+          )}` +
+          `&var-fields=${encodeFilter(
+            `status|>=|${addAdHocFilterUserInputPrefix(
+              '{"value":"500"__gfc__"parser":"logfmt"__gfc__"orGroup":2}'
+            )},500`
+          )}` +
+          `&var-fields=${encodeFilter(
+            `duration|>|${addAdHocFilterUserInputPrefix('{"value":"5s"__gfc__"parser":"logfmt"__gfc__"orGroup":2}')},5s`
+          )}`;
+
+        expect(config).toEqual({
+          path: getPath({
+            expectedLabelFiltersUrlString,
+            expectedLineFiltersUrlString,
             slug: 'cluster/eu-west-1',
           }),
         });

@@ -147,6 +147,13 @@
       "include": "Include"
     },
     "index-scene": {
+      "field-filter-connectors": {
+        "and": "and",
+        "and-tooltip": "Matches logs that satisfy both filters. Click to require either (OR).",
+        "or": "or",
+        "or-tooltip": "Matches logs that satisfy either filter. Click to require both (AND).",
+        "same-field-tooltip": "Filters on the same field are always combined with OR"
+      },
       "get-variable-set": {
         "ds-variable": {
           "label": {
