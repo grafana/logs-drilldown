@@ -56,7 +56,8 @@ type PermalinkDataType =
  * also be constructed from a raw data frame row via {@link getPermalinkLogRowFromDataFrame},
  * which is what the Table and JSON visualizations use.
  */
-export type PermalinkLogRow = Pick<LogRowModel, 'dataFrame' | 'labels' | 'rowIndex' | 'timeEpochMs' | 'uniqueLabels'>;
+export type PermalinkLogRow = Pick<LogRowModel, 'dataFrame' | 'labels' | 'rowIndex' | 'timeEpochMs' | 'uniqueLabels'> &
+  Partial<Pick<LogRowModel, 'timeEpochNs'>>;
 
 export const generateLink = (relativeUrl: string): string => {
   return `${window.location.protocol}//${window.location.host}${config.appSubUrl}${relativeUrl}`;
@@ -74,12 +75,28 @@ export const generateLogShortlink = (paramName: string, data: PermalinkDataType,
 export const generateLogRowShortlink = (
   log: PermalinkLogRow,
   panelState?: PermalinkDataType,
-  paramName = 'panelState'
+  paramName = 'panelState',
+  sortOrder = panelState && 'logs' in panelState ? panelState.logs.sortOrder : LogsSortOrder.Descending
 ) => {
   const location = locationService.getLocation();
   const timeRange = resolveRowTimeRangeForSharing(log);
   let searchParams = new URLSearchParams(location.search);
   searchParams.set(paramName, JSON.stringify(panelState));
+  searchParams.delete('startNs');
+  searchParams.delete('endNs');
+  if (log.timeEpochNs) {
+    const forward = sortOrder === LogsSortOrder.Ascending;
+    const endNs = BigInt(log.timeEpochNs) + BigInt(1);
+    // Loki parses bounds as signed int64; its exclusive end must still be representable.
+    const maxInt64Ns = BigInt('9223372036854775807');
+    if (forward || endNs <= maxInt64Ns) {
+      searchParams.set('sortOrder', JSON.stringify(sortOrder));
+      searchParams.set(forward ? 'startNs' : 'endNs', forward ? log.timeEpochNs : endNs.toString());
+      timeRange.from = dateTime(forward ? log.timeEpochMs : log.timeEpochMs - MIN_SHARE_RANGE_MS);
+      timeRange.to = dateTime(forward ? log.timeEpochMs + MIN_SHARE_RANGE_MS : log.timeEpochMs + 1);
+      timeRange.raw = { from: timeRange.from, to: timeRange.to };
+    }
+  }
   const { fields } = getLogLinePermalinkFilterParams(log);
   return generateLinkFromFilters(`${location.pathname}?${searchParams.toString()}`, { fields, labels: [] }, timeRange);
 };
@@ -103,12 +120,19 @@ export function getPermalinkLogRowFromDataFrame(dataFrame: DataFrame, rowIndex: 
   // Use the row's full label set for both `labels` and `uniqueLabels`: `getLogLinePermalinkFilterParams`
   // reads the level from `labels` and derives field filters from `uniqueLabels`, skipping indexed labels.
   const labels = logsFrame.getLogFrameLabelsAsLabels()?.[rowIndex] ?? {};
+  const nanoseconds = logsFrame.timeField.nanos?.[rowIndex];
+  const timeEpochNs =
+    logsFrame.timeNanosecondField?.values[rowIndex] ??
+    (nanoseconds !== undefined
+      ? (BigInt(Math.floor(timeEpochMs)) * BigInt(1000000) + BigInt(nanoseconds)).toString()
+      : undefined);
 
   return {
     dataFrame,
     labels,
     rowIndex,
     timeEpochMs,
+    timeEpochNs,
     uniqueLabels: labels,
   };
 }

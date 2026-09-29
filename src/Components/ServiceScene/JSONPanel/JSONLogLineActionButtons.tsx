@@ -2,7 +2,7 @@ import React from 'react';
 
 import { isNumber } from 'lodash';
 
-import { DataFrame, Field } from '@grafana/data';
+import { DataFrame, Field, LogsSortOrder } from '@grafana/data';
 import { SceneDataProvider, sceneGraph } from '@grafana/scenes';
 
 import { KeyPath } from '@gtk-grafana/react-json-tree/dist/types';
@@ -21,7 +21,10 @@ export function JSONLogLineActionButtons({ model, keyPath }: Props) {
   return (
     <>
       <CopyToClipboardButton onClick={() => copyLogLine(keyPath, sceneGraph.getData(model))} />
-      <CopyToClipboardButton type={'share-alt'} onClick={() => getLinkToLog(keyPath, model.state.rawFrame)} />
+      <CopyToClipboardButton
+        type={'share-alt'}
+        onClick={() => getLinkToLog(keyPath, model.state.rawFrame, model.state.sortOrder)}
+      />
     </>
   );
 }
@@ -36,7 +39,7 @@ const copyLogLine = (keyPath: KeyPath, $data: SceneDataProvider) => {
   }
 };
 
-function getLinkToLog(keyPath: KeyPath, rawFrame: DataFrame | undefined) {
+function getLinkToLog(keyPath: KeyPath, rawFrame: DataFrame | undefined, sortOrder: LogsSortOrder) {
   const logLineIndex = keyPath[0];
   if (!isNumber(logLineIndex)) {
     const error = Error('Invalid line index');
@@ -55,6 +58,6 @@ function getLinkToLog(keyPath: KeyPath, rawFrame: DataFrame | undefined) {
   const idField: Field<string> | undefined = rawFrame.fields.find((f) => isLogsIdField(f.name));
   const logId = idField?.values[logLineIndex];
   // The JSON view scrolls to and highlights the line from the `selectedLine` url param.
-  const logLineLink = generateLogRowShortlink(row, { id: logId, row: logLineIndex }, 'selectedLine');
+  const logLineLink = generateLogRowShortlink(row, { id: logId, row: logLineIndex }, 'selectedLine', sortOrder);
   copyText(logLineLink);
 }

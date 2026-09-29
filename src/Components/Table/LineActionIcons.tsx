@@ -51,7 +51,7 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
   const isNumber = typeof props.value === 'string' && !isNaN(Number(props.value));
   const theme = useTheme2();
   const styles = getStyles(theme, isNumber);
-  const { logsFrame } = useQueryContext();
+  const { logsFrame, logsSortOrder } = useQueryContext();
   const logId = logsFrame?.idField?.values[props.rowIndex];
   const lineValue = logsFrame?.bodyField.values[props.rowIndex];
   const [isInspecting, setIsInspecting] = useState(false);
@@ -64,8 +64,8 @@ export function LineActionIcons(props: { rowIndex: number; value: unknown }) {
       return '';
     }
     // The Table view scrolls to and highlights the line from the `selectedLine` url param.
-    return generateLogRowShortlink(row, { id: logId, row: props.rowIndex }, 'selectedLine');
-  }, [logsFrame, logId, props.rowIndex]);
+    return generateLogRowShortlink(row, { id: logId, row: props.rowIndex }, 'selectedLine', logsSortOrder);
+  }, [logsFrame, logsSortOrder, logId, props.rowIndex]);
   return (
     <>
       <div className={styles.iconWrapper}>

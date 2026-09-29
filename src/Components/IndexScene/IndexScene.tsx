@@ -99,6 +99,7 @@ import {
   renderLogQLLineFilter,
   renderLogQLMetadataFilters,
 } from 'services/query';
+import { clearQueryRangeNsOnTimeChange } from 'services/queryRangeNs';
 import { renderPatternFilters } from 'services/renderPatternFilters';
 import { getDrilldownSlug, SERVICE_URL_EXCLUDED_KEYS } from 'services/routing';
 import { getLokiDatasource } from 'services/scenes';
@@ -336,6 +337,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
 
     const timeRange = sceneGraph.getTimeRange(this);
 
+    this._subs.add(clearQueryRangeNsOnTimeChange(timeRange));
     this._subs.add(timeRange.subscribeToState(this.limitMaxInterval(timeRange)));
     this._subs.add(this.subscribeToEvent(PasteTimeEvent, this.subscribeToPasteTimeEvent));
 

@@ -67,6 +67,7 @@ import { isOperatorInclusive } from 'services/operatorHelpers';
 import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
+import { getQueryRangeNs } from 'services/queryRangeNs';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from 'services/routing';
 import { findObjectOfType } from 'services/scenes';
 import { getLogOption, getMaxLines } from 'services/store';
@@ -1041,6 +1042,12 @@ function getDetectedFieldsQueryRunner() {
 function getLogsQueryQueryRunner(sceneRef: SceneObject) {
   const query = {
     ...buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID }),
+    get startNs() {
+      return getQueryRangeNs().startNs;
+    },
+    get endNs() {
+      return getQueryRangeNs().endNs;
+    },
     get direction() {
       const sortOrder =
         getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);

@@ -11,6 +11,7 @@ import {
   generateLogRowShortlink,
   generateLogShortlink,
   getLogLinePermalinkFilterParams,
+  getPermalinkLogRowFromDataFrame,
   PermalinkLogRow,
   resolveRowTimeRangeForSharing,
   truncateText,
@@ -131,6 +132,62 @@ describe('resolveRowTimeRangeForSharing', () => {
 });
 
 describe('generateLogRowShortlink', () => {
+  test.each([
+    [LogsSortOrder.Ascending, 'startNs', '1000000000123', '1970-01-01T00:16:40.000Z', '1970-01-01T00:16:41.000Z'],
+    [LogsSortOrder.Descending, 'endNs', '1000000000124', '1970-01-01T00:16:39.000Z', '1970-01-01T00:16:40.001Z'],
+  ])('copies a %s boundary with its row ID and matching millisecond range', (sortOrder, key, bound, from, to) => {
+    const log: PermalinkLogRow = {
+      dataFrame: toDataFrame({ fields: [] }),
+      labels: {},
+      rowIndex: 0,
+      timeEpochMs: 1000000,
+      timeEpochNs: '1000000000123',
+      uniqueLabels: {},
+    };
+    const panelState = { logs: { id: 'A_1000000000123_hash', displayedFields: [], sortOrder } };
+    const url = new URL(generateLogRowShortlink(log, panelState));
+    expect(url.searchParams.get(key)).toBe(bound);
+    expect(url.searchParams.get(key === 'startNs' ? 'endNs' : 'startNs')).toBeNull();
+    expect(url.searchParams.get('from')).toBe(from);
+    expect(url.searchParams.get('to')).toBe(to);
+    expect(JSON.parse(url.searchParams.get('panelState') ?? '{}')).toEqual(panelState);
+    expect(url.searchParams.get('sortOrder')).toBe(JSON.stringify(sortOrder));
+  });
+
+  test('preserves the supplied query order for a selectedLine link', () => {
+    const row = getPermalinkLogRowFromDataFrame(
+      toDataFrame({
+        fields: [
+          { name: 'Time', type: FieldType.time, values: [1000000], nanos: [123] },
+          { name: 'Line', type: FieldType.string, values: ['selected'] },
+        ],
+      }),
+      0
+    );
+    if (!row) {
+      throw new Error('Expected a log row');
+    }
+    const url = new URL(
+      generateLogRowShortlink(row, { id: '1000000000123_hash', row: 0 }, 'selectedLine', LogsSortOrder.Ascending)
+    );
+    expect(url.searchParams.get('startNs')).toBe('1000000000123');
+    expect(JSON.parse(url.searchParams.get('selectedLine') ?? '{}')).toEqual({ id: '1000000000123_hash', row: 0 });
+    expect(url.searchParams.get('sortOrder')).toBe(JSON.stringify(LogsSortOrder.Ascending));
+  });
+
+  test('uses the legacy tsNs field when building a table or JSON link', () => {
+    const row = getPermalinkLogRowFromDataFrame(
+      toDataFrame({
+        fields: [
+          { name: 'Time', type: FieldType.time, values: [1000000] },
+          { name: 'Line', type: FieldType.string, values: ['selected'] },
+          { name: 'tsNs', type: FieldType.string, values: ['1000000000123'] },
+        ],
+      }),
+      0
+    );
+    expect(row?.timeEpochNs).toBe('1000000000123');
+  });
   const timeEpochMs = 1_000_000;
 
   beforeEach(() => {

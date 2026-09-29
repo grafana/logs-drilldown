@@ -54,7 +54,13 @@ export default function TableProvider({
   }
 
   return (
-    <QueryContextProvider addFilter={addFilter} selectedLine={selectedLine} timeRange={timeRange} logsFrame={logsFrame}>
+    <QueryContextProvider
+      addFilter={addFilter}
+      selectedLine={selectedLine}
+      timeRange={timeRange}
+      logsFrame={logsFrame}
+      logsSortOrder={logsSortOrder}
+    >
       <TableWrap
         urlTableBodyState={urlTableBodyState}
         setUrlColumns={setUrlColumns}

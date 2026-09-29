@@ -24,11 +24,13 @@ export interface LokiQuery extends DataQuery {
   datasource?: DataSourceRef;
   direction?: LokiQueryDirection;
   editorMode?: string;
+  endNs?: string;
   expr: string;
   legendFormat?: string;
   maxLines?: number;
   queryType?: LokiQueryType;
   refId: string;
+  startNs?: string;
   step?: string;
   supportingQueryType?: string;
 }
