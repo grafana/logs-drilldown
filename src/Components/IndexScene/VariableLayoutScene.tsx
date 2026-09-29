@@ -272,7 +272,7 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       },
     }),
     stickyControlsContainer: css({
-      backgroundColor: theme.colors.background.canvas,
+      backgroundColor: theme.colors.background.page,
       // Matches Page.tsx's page-wrapper radius (theme.shape.radius.lg), which this sits flush against.
       borderTopLeftRadius: theme.shape.radius.lg,
       borderTopRightRadius: theme.shape.radius.lg,
