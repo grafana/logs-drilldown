@@ -12,8 +12,11 @@ const nodeModulesToTransform = (moduleNames) => `node_modules\/(?!.*(${moduleNam
 
 // Array of known nested grafana package dependencies that only bundle an ESM version
 const grafanaESModules = [
-  '.pnpm', // Support using pnpm symlinked packages
+  // Support using pnpm symlinked packages
+  '.pnpm',
   '@grafana/schema',
+  '@react-hookz/web',
+  '@ver0/deep-equal',
   '@wojtekmaj/date-utils',
   'd3',
   'd3-color',
