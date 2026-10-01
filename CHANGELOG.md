@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.0.0](https://github.com/grafana/logs-drilldown/compare/v2.6.0...v3.0.0) (2026-10-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** update Grafana compatibility to >=13.1.0-0 ([#2101](https://github.com/grafana/logs-drilldown/issues/2101))
+
+### 🎉 Features
+
+* **attribute-distribution:** emit explorer analytics events ([#2106](https://github.com/grafana/logs-drilldown/issues/2106)) ([cc8ffd3](https://github.com/grafana/logs-drilldown/commit/cc8ffd353875f1f26b08153b6c77843fcdf705a1))
+
+
+### 🐛 Bug Fixes
+
+* **LogsVolumePanel:** make detected_level easier to reach as an aggre… ([#2116](https://github.com/grafana/logs-drilldown/issues/2116)) ([c2940aa](https://github.com/grafana/logs-drilldown/commit/c2940aab9cdee24c7e7a8892f153b2c6880f7e77))
+
+
+### 📝 Documentation
+
+* require signed commits in CONTRIBUTING and UI screenshots ([#2107](https://github.com/grafana/logs-drilldown/issues/2107)) ([6b9e331](https://github.com/grafana/logs-drilldown/commit/6b9e331291fb55bcbd590d7f76bccdf9c10049bd))
+
+
+### 🧹 Chore
+
+* bump @grafana/create-plugin configuration to 7.11.0 ([#2113](https://github.com/grafana/logs-drilldown/issues/2113)) ([ed16b50](https://github.com/grafana/logs-drilldown/commit/ed16b504ccf15b8c905efd251222769d542a9de9))
+* cleanup overrides ([#2115](https://github.com/grafana/logs-drilldown/issues/2115)) ([97dcd44](https://github.com/grafana/logs-drilldown/commit/97dcd44995c0927f99289f4b041595c8286ece51))
+* **deps:** update Grafana compatibility to &gt;=13.1.0-0 ([#2101](https://github.com/grafana/logs-drilldown/issues/2101)) ([3837467](https://github.com/grafana/logs-drilldown/commit/38374673cd2b980312963b984f48ac47dba786b6))
+* **i18n:** expose all supported languages ([#2105](https://github.com/grafana/logs-drilldown/issues/2105)) ([db99927](https://github.com/grafana/logs-drilldown/commit/db9992718a73e471e365889e2f81cd2f3beecc86))
+
 ## [2.6.0](https://github.com/grafana/logs-drilldown/compare/v2.5.2...v2.6.0) (2026-09-21)
 
 
