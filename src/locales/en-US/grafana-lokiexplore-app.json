@@ -728,6 +728,7 @@
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Group log volume by field",
+          "group-fields": "Other fields",
           "label-group-by": "Group by"
         },
         "logs-volume-panel": {

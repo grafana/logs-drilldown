@@ -90,10 +90,13 @@ describe('getAggregateByOptions', () => {
     getParserEnabledMock.mockReturnValue(true);
   });
 
-  it('keeps categorical fields and always includes detected_level', () => {
+  it('keeps detected_level first and separates the other fields with a divider', () => {
     const options = getAggregateByOptions(mixedFields, LEVEL_VARIABLE_VALUE);
 
     expect(options.map((option) => option.value)).toEqual([LEVEL_VARIABLE_VALUE, 'caller', 'cluster', 'ok', 'status']);
+    expect(options[0]?.group).toBeUndefined();
+    const fieldGroups = options.slice(1).map((option) => option.group);
+    expect(fieldGroups.every((group) => group === fieldGroups[0] && group)).toBe(true);
   });
 
   it('drops float, duration, and bytes fields', () => {
@@ -113,10 +116,19 @@ describe('getAggregateByOptions', () => {
     ]);
   });
 
-  it('prepends a selected field that is not already in the list', () => {
+  it('keeps detected_level first when the selected field is not already in the list', () => {
     const options = getAggregateByOptions(mixedFields, 'namespace');
 
-    expect(options[0]).toEqual({ label: 'namespace', value: 'namespace' });
+    expect(options.map((option) => option.value)).toEqual([
+      LEVEL_VARIABLE_VALUE,
+      'caller',
+      'cluster',
+      'namespace',
+      'ok',
+      'status',
+    ]);
+    expect(options[0]?.group).toBeUndefined();
+    expect(options[1]?.group).toBeTruthy();
   });
 
   it('does not prepend a selected avg field', () => {

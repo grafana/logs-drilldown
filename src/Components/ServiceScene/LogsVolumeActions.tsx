@@ -158,16 +158,22 @@ export function getAggregateByOptions(
     names.add(fieldName);
   });
 
+  names.delete(LEVEL_VARIABLE_VALUE);
+  if (
+    selected &&
+    selected !== LEVEL_VARIABLE_VALUE &&
+    !names.has(selected) &&
+    !isAvgField(getDetectedFieldType(selected, detectedFieldsFrame))
+  ) {
+    names.add(selected);
+  }
+
+  // Ungrouped so it stays first; the next group's header is the divider under the recommended default.
+  const fieldsGroup = t('components.service-scene.logs-volume.logs-volume-actions.group-fields', 'Other fields');
   const options: Array<ComboboxOption<string>> = [
     { label: LEVEL_VARIABLE_VALUE, value: LEVEL_VARIABLE_VALUE },
-    ...[...names].sort().map((name) => ({ label: name, value: name })),
+    ...[...names].sort().map((name) => ({ group: fieldsGroup, label: name, value: name })),
   ];
-
-  if (selected && !options.some((option) => option.value === selected)) {
-    if (!isAvgField(getDetectedFieldType(selected, detectedFieldsFrame))) {
-      options.unshift({ label: selected, value: selected });
-    }
-  }
 
   return options;
 }
