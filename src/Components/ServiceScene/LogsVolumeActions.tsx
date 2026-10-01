@@ -12,7 +12,6 @@ import { getDetectedFieldsFrame, ServiceScene } from 'Components/ServiceScene/Se
 import {
   extractFieldTypeFromString,
   extractParserFromString,
-  getDetectedFieldType,
   getDetectedFieldsNamesField,
   getDetectedFieldsParserField,
   getDetectedFieldsTypeField,
@@ -158,16 +157,11 @@ export function getAggregateByOptions(
     names.add(fieldName);
   });
 
-  if (
-    selected &&
-    selected !== LEVEL_VARIABLE_VALUE &&
-    !names.has(selected) &&
-    !isAvgField(getDetectedFieldType(selected, detectedFieldsFrame))
-  ) {
+  if (selected && selected !== LEVEL_VARIABLE_VALUE && !names.has(selected)) {
     names.add(selected);
   }
 
-  // Ungrouped so it stays first; the next group's header is the divider under the recommended default.
+  // We want to show detected_level first and then group the other options, so resetting to the default is easier.
   const fieldsGroup = t('components.service-scene.logs-volume.logs-volume-actions.group-fields', 'Other fields');
   const options: Array<ComboboxOption<string>> = [
     { label: LEVEL_VARIABLE_VALUE, value: LEVEL_VARIABLE_VALUE },
