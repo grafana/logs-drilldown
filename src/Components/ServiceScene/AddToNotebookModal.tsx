@@ -1,4 +1,4 @@
-import React, { createElement } from 'react';
+import React from 'react';
 
 import { t } from '@grafana/i18n';
 import { reportInteraction, usePluginComponent } from '@grafana/runtime';
@@ -13,7 +13,9 @@ interface AddToNotebookFormProps {
 }
 
 export const AddToNotebookModal = ({ data, onClose }: { data: AddToDashboardData; onClose(): void }) => {
-  const { component: AddToNotebookComponent, isLoading } = usePluginComponent('grafana/add-to-notebook-form/v1');
+  const { component: AddToNotebookComponent, isLoading } = usePluginComponent<AddToNotebookFormProps>(
+    'grafana/add-to-notebook-form/v1'
+  );
 
   if (isLoading || !AddToNotebookComponent) {
     return;
@@ -25,13 +27,13 @@ export const AddToNotebookModal = ({ data, onClose }: { data: AddToDashboardData
       isOpen={true}
       onDismiss={onClose}
     >
-      {createElement(AddToNotebookComponent as React.ComponentType<AddToNotebookFormProps>, {
-        onClose: onClose,
-        buildPanel: () => {
+      <AddToNotebookComponent
+        onClose={onClose}
+        buildPanel={() => {
           reportInteraction('grafana_logs_app_add_panel_to_notebook', { type: data.panel.type });
           return data.panel;
-        },
-      })}
+        }}
+      />
     </Modal>
   );
 };
