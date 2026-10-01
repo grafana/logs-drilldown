@@ -241,8 +241,6 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
     useEffect(() => {
       const isAvailable = !isLoadingAddToNotebook && Boolean(AddToNotebookComponent);
 
-      console.log(isAvailable);
-
       if (!isLoadingAddToNotebook && !AddToNotebookComponent) {
         logger.warn(`Failed to load add to notebook component: grafana/add-to-notebook-form/v1`);
       }
