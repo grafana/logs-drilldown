@@ -39,7 +39,6 @@ import { isQueryAvg } from 'services/query';
 import { getRouteParams } from 'services/routing';
 import { findObjectOfType } from 'services/scenes';
 import { testIds } from 'services/testIds';
-import { isVisualDesignRefreshEnabled } from 'services/theme';
 import {
   getFieldsVariable,
   getLabelsVariable,
@@ -495,14 +494,9 @@ const getSelectableValueComponentStyles = (theme: GrafanaTheme2) => {
 };
 
 const getStyles = (theme: GrafanaTheme2) => {
-  // Mirrors Button's own outline border color for variant="secondary"
-  const outlineBorderColor = isVisualDesignRefreshEnabled(theme)
-    ? theme.colors.secondary.text
-    : theme.colors.border.strong;
-
   return {
     buttonSelect: css({
-      border: `1px solid ${outlineBorderColor}`,
+      border: `1px solid ${theme.colors.border.strong}`,
       height: '24px',
       padding: theme.spacing(0.5),
     }),
