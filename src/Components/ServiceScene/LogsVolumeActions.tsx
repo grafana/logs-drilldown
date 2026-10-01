@@ -158,7 +158,6 @@ export function getAggregateByOptions(
     names.add(fieldName);
   });
 
-  names.delete(LEVEL_VARIABLE_VALUE);
   if (
     selected &&
     selected !== LEVEL_VARIABLE_VALUE &&
