@@ -15,7 +15,7 @@ interface AddToNotebookFormProps {
 export const AddToNotebookModal = ({ data, onClose }: { data: AddToDashboardData; onClose(): void }) => {
   const { component: AddToNotebookComponent, isLoading } = usePluginComponent('grafana/add-to-notebook-form/v1');
 
-  if (isLoading) {
+  if (isLoading || !AddToNotebookComponent) {
     return;
   }
 
