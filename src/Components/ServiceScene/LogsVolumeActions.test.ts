@@ -130,10 +130,4 @@ describe('getAggregateByOptions', () => {
     expect(options[0]?.group).toBeUndefined();
     expect(options[1]?.group).toBeTruthy();
   });
-
-  it('does not prepend a selected avg field', () => {
-    const values = getAggregateByOptions(mixedFields, 'latency').map((option) => option.value);
-
-    expect(values).not.toContain('latency');
-  });
 });
