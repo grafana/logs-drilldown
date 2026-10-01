@@ -207,6 +207,9 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
     const { component: AddToDashboardComponent, isLoading: isLoadingAddToDashboard } = usePluginComponent(
       'grafana/add-to-dashboard-form/v1'
     );
+    const { component: AddToNotebookComponent, isLoading: isLoadingAddToNotebook } = usePluginComponent(
+      'grafana/add-to-notebook-form/v1'
+    );
     const { component: CreateAlertComponent, isLoading: isLoadingCreateAlert } = usePluginComponent(
       'grafana/alerting/create-alert-from-panel/v1'
     );
@@ -234,6 +237,28 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         );
       }
     }, [isLoadingAddToDashboard, AddToDashboardComponent, model]);
+
+    useEffect(() => {
+      const isAvailable = !isLoadingAddToNotebook && Boolean(AddToNotebookComponent);
+
+      if (!isLoadingAddToNotebook && !AddToNotebookComponent) {
+        logger.warn(`Failed to load add to notebook component: grafana/add-to-notebook-form/v1`);
+      }
+
+      if (isAvailable) {
+        addItemToGroup(
+          model,
+          {
+            text: t('components.panels.panel-menu.text.add-to-notebook', 'Add to Notebook'),
+            onClick: () => {
+              model.publishEvent(new AddToNotebookEvent(getAddToDashboardPayload(model)), true);
+            },
+            iconClassName: 'book',
+          },
+          'Navigation'
+        );
+      }
+    }, [isLoadingAddToNotebook, AddToNotebookComponent, model]);
 
     useEffect(() => {
       const isAvailable = !isLoadingCreateAlert && Boolean(CreateAlertComponent);
@@ -515,6 +540,13 @@ export class AddToDashboardEvent extends BusEventBase {
     super();
   }
   public static type = 'add-to-dashboard';
+}
+
+export class AddToNotebookEvent extends BusEventBase {
+  constructor(public payload: AddToDashboardData) {
+    super();
+  }
+  public static type = 'add-to-notebook';
 }
 
 export interface CreateAlertData {

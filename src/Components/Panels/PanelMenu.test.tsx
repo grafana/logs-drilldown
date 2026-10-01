@@ -677,6 +677,12 @@ describe('PanelMenu', () => {
           iconClassName: 'apps',
         })
       );
+      expect(items).not.toContainEqual(
+        expect.objectContaining({
+          text: 'Add to Notebook',
+          iconClassName: 'book',
+        })
+      );
     });
 
     it('should show the option if the exposed component exists', () => {
@@ -692,6 +698,12 @@ describe('PanelMenu', () => {
         expect.objectContaining({
           text: 'Add to Dashboard',
           iconClassName: 'apps',
+        })
+      );
+      expect(items).toContainEqual(
+        expect.objectContaining({
+          text: 'Add to Notebook',
+          iconClassName: 'book',
         })
       );
     });
