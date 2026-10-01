@@ -59,7 +59,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
   tempo:
-    image: grafana/tempo:2.10.7@sha256:032b3acb51ed02c4b801473d54bb63e9e9f13738d215126d9843c30283794f4b
+    image: grafana/tempo:2.10.8@sha256:f0561deb1c68ec44d6e6e7e4487f30106c4e5e768642077695b37958b105812a
     command: -config.file=/etc/tempo.yaml
     volumes:
       - ./config/tempo.yaml:/etc/tempo.yaml
