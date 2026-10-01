@@ -157,7 +157,7 @@ export function getAggregateByOptions(
     names.add(fieldName);
   });
 
-  if (selected && selected !== LEVEL_VARIABLE_VALUE && !names.has(selected)) {
+  if (selected && selected !== LEVEL_VARIABLE_VALUE) {
     names.add(selected);
   }
 
