@@ -28,47 +28,12 @@ allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
   esbuild: true
-  protobufjs: true
   unrs-resolver: true
 
-minimumReleaseAgeExclude:
-  - brace-expansion@1.1.18
-  # Renovate security update: protobufjs@8.6.6
-  - protobufjs@8.6.6
-
 overrides:
-  # v6 to match the router core supplies at runtime (externalized "react-router").
-  # Bumps the react-router-dom-v5-compat transitive copy to the 6.30.6 GHSA-jjmj-jmhj-qwj2
-  # backport without touching @grafana/ui's own v5 + v5-compat pairing.
-  react-router@^6: ^6.30.6
-  uuid: 14.0.2
-  immutable: 5.1.9
-  dompurify: 3.4.14
-  serialize-javascript: 7.1.1
-  strip-ansi: 6.0.1
-  js-yaml: 4.3.2
-  # Security patches for transitive vulnerabilities (pnpm audit)
-  fast-uri: 3.1.7
-  undici: 8.10.2
-  protobufjs: 8.6.6
-  js-cookie: 3.0.8
-  '@ungap/structured-clone': 1.4.0
-  # Each line is pinned to its newest release. GHSA-mh99-v99m-4gvg is only patched in
-  # 5.0.8 with no 1.x/2.x backport, and v5 changed the CJS export shape, so forcing the
-  # whole tree onto v5 breaks minimatch 3/9 ("expand is not a function"). The 1.x/2.x
-  # pins below stay flagged by `pnpm audit` until minimatch's consumers move to v10.
-  'brace-expansion@^1': 1.1.18
-  'brace-expansion@^2': 2.1.4
-  'brace-expansion@^5': 5.0.9
-  'ws@^8': 8.21.3
-  'ws@>=7.0.0 <7.5.11': 7.5.13
-  qs: 6.16.0
-  '@babel/core@<=7.29.0': 8.0.1
-  '@opentelemetry/core@<2.8.0': 2.11.0
-  tar@<=7.5.20: 7.5.22
-  webpack: 5.110.3
-  'websocket-driver@<0.7.5': 0.7.5
-  'postcss@<8.5.18': 8.5.28
-  nanoid: 3.3.18
-  csv-parse: 7.0.2
-  '@humanfs/node': '>=0.16.8'
+  # Grafana externalizes React Router v6 until https://github.com/grafana/grafana/issues/129933 lands.
+  # v6.30.6 has no package fix for GHSA-wrjc-x8rr-h8h6; this browser plugin only uses static internal routes.
+  # GHSA-337j-9hxr-rhxg affects SSR hydration, which this browser plugin does not use.
+  'react-router@^6': ^6.30.6
+  js-cookie: ^3.0.7
+  csv-parse: ^7.0.2
