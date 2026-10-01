@@ -293,6 +293,7 @@
         },
         "text": {
           "add-to-dashboard": "Add to Dashboard",
+          "add-to-notebook": "Add to Notebook",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "Create alert",
@@ -340,6 +341,9 @@
     "service-scene": {
       "add-to-dashboard-modal": {
         "title": "Add to Dashboard"
+      },
+      "add-to-notebook-modal": {
+        "title": "Add to Notebook"
       },
       "alert": {
         "invalid-labels-selected": "Invalid labels selected",
