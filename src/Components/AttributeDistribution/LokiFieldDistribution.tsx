@@ -35,9 +35,15 @@ function narrowDetectedFields(response: unknown): Array<{ label: string }> {
 
 // Appends a per-field metric aggregation around the base log query.
 // The base query must already include logfmt and any hash filters so that
-// [$__range] counts only events in this error group.
-function buildDistributionQuery(baseQuery: string, field: string): string {
-  return `sum by (${field}) (count_over_time(${baseQuery} | keep ${field} [$__range]))`;
+// [$__range] counts only records in this dataset.
+export function buildDistributionQuery(baseQuery: string, field: string, countDistinctField?: string): string {
+  const countOverTimeQuery = `count_over_time(${baseQuery} | keep ${field}${countDistinctField ? `, ${countDistinctField}` : ''} [$__range])`;
+  if (!countDistinctField) {
+    return `sum by (${field}) (${countOverTimeQuery})`;
+  }
+
+  // Collapse each field/session pair before counting by field so repeated events do not inflate the distribution.
+  return `count by (${field}) (count by (${field}, ${countDistinctField}) (${countOverTimeQuery}))`;
 }
 
 function makeFetchAttributes(
@@ -111,57 +117,59 @@ function processDistributionResponse(response: DataQueryResponse, field: string)
     .sort((a, b) => b.percentage - a.percentage);
 }
 
-function fetchDistribution(
-  context: DatasetContext,
-  field: string,
-  filters: ActiveFilter[]
-): Observable<AttributeValueCount[]> {
-  const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
+function makeFetchDistribution(countDistinctField?: string) {
+  return function fetchDistribution(
+    context: DatasetContext,
+    field: string,
+    filters: ActiveFilter[]
+  ): Observable<AttributeValueCount[]> {
+    const rangeSec = Math.max(1, Math.round((context.timeRange.to - context.timeRange.from) / 1000));
 
-  const effectiveQuery =
-    filters.length > 0
-      ? context.query +
-        new ExpressionBuilder(
-          filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))
-        ).getFieldsExpr({ decodeFilters: false, joinMatchFilters: true })
-      : context.query;
+    const effectiveQuery =
+      filters.length > 0
+        ? context.query +
+          new ExpressionBuilder(
+            filters.map((f) => ({ key: f.field, operator: f.operator, value: f.value }))
+          ).getFieldsExpr({ decodeFilters: false, joinMatchFilters: true })
+        : context.query;
 
-  const target: LokiQuery = {
-    datasource: { type: 'loki', uid: context.datasourceUid },
-    expr: buildDistributionQuery(effectiveQuery, field),
-    queryType: 'instant',
-    refId: field,
-  };
+    const target: LokiQuery = {
+      datasource: { type: 'loki', uid: context.datasourceUid },
+      expr: buildDistributionQuery(effectiveQuery, field, countDistinctField),
+      queryType: 'instant',
+      refId: field,
+    };
 
-  const request: DataQueryRequest<LokiQuery> = {
-    app: 'explore',
-    interval: `${rangeSec}s`,
-    intervalMs: rangeSec * 1000,
-    range: {
-      from: dateTime(context.timeRange.from),
-      raw: {
-        from: dateTime(context.timeRange.from).utc().toISOString(),
-        to: dateTime(context.timeRange.to).utc().toISOString(),
+    const request: DataQueryRequest<LokiQuery> = {
+      app: 'explore',
+      interval: `${rangeSec}s`,
+      intervalMs: rangeSec * 1000,
+      range: {
+        from: dateTime(context.timeRange.from),
+        raw: {
+          from: dateTime(context.timeRange.from).utc().toISOString(),
+          to: dateTime(context.timeRange.to).utc().toISOString(),
+        },
+        to: dateTime(context.timeRange.to),
       },
-      to: dateTime(context.timeRange.to),
-    },
-    requestId: `errors-breakdown-${context.datasourceUid}-${context.query.slice(0, 40)}-${field}`,
-    scopedVars: {},
-    startTime: Date.now(),
-    targets: [target],
-    timezone: 'browser',
-  };
+      requestId: `errors-breakdown-${context.datasourceUid}-${context.query.slice(0, 40)}-${field}`,
+      scopedVars: {},
+      startTime: Date.now(),
+      targets: [target],
+      timezone: 'browser',
+    };
 
-  return from(getDataSourceSrv().get(context.datasourceUid)).pipe(
-    switchMap((ds) => (ds as LokiDatasource).query(request)),
-    map((response) => {
-      const errMsg = response.error?.message ?? response.errors?.[0]?.message ?? '';
-      if (errMsg) {
-        throw new Error(errMsg);
-      }
-      return processDistributionResponse(response, field);
-    })
-  );
+    return from(getDataSourceSrv().get(context.datasourceUid)).pipe(
+      switchMap((ds) => (ds as LokiDatasource).query(request)),
+      map((response) => {
+        const errMsg = response.error?.message ?? response.errors?.[0]?.message ?? '';
+        if (errMsg) {
+          throw new Error(errMsg);
+        }
+        return processDistributionResponse(response, field);
+      })
+    );
+  };
 }
 
 const EMPTY_FIELDS_TO_EXCLUDE: string[] = [];
@@ -172,6 +180,8 @@ export interface LokiFieldDistributionProps {
   attributeLabels?: Record<string, string>;
   // Whether or not to apply unique colors to each value in the attribute explorer.
   colorBars?: boolean;
+  // Optional field whose distinct values should be counted instead of log entries.
+  countDistinctField?: string;
   datasourceUid: string;
   // Fields excluded from the distribution sidebar.
   fieldsToExclude?: string[];
@@ -195,6 +205,7 @@ export default function LokiFieldDistribution({
   colorBars,
   datasourceUid,
   fieldsToExclude = EMPTY_FIELDS_TO_EXCLUDE,
+  countDistinctField,
   selectedFilters,
   onAnalyticsEvent,
   onFiltersChange,
@@ -210,6 +221,7 @@ export default function LokiFieldDistribution({
   );
 
   const numericTimeRange = useMemo(() => ({ from: timeRange.from.valueOf(), to: timeRange.to.valueOf() }), [timeRange]);
+  const fetchDistribution = useMemo(() => makeFetchDistribution(countDistinctField), [countDistinctField]);
 
   const getFieldLink = useMemo(
     () => (attribute: string) => buildFieldLinkFromQuery(query, datasourceUid, numericTimeRange, attribute),
