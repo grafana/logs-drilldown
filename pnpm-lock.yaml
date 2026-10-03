@@ -8,6 +8,7 @@ overrides:
   react-router@^6: ^6.30.6
   js-cookie: ^3.0.7
   csv-parse: ^7.0.2
+  basic-ftp: '>=6.2.1'
 
 importers:
   .:
@@ -3828,9 +3829,9 @@ packages:
     engines: { node: '>=6.0.0' }
     hasBin: true
 
-  basic-ftp@5.3.1:
+  basic-ftp@6.2.1:
     resolution:
-      { integrity: sha512-bopVNp6ugyA150DDuZfPFdt1KZ5a94ZDiwX4hMgZDzF+GttD80lEy8kj98kbyhLXnPvhtIo93mdnLIjpCAeeOw== }
+      { integrity: sha512-bK67isD+lKq46AU8vNtjvMaT2ZqAOAmNCbxUHlFBRD4k15NWxyEjmaKtZPlgce58So4BNTjITGQOVTjL9y0ECA== }
     engines: { node: '>=10.0.0' }
 
   body@5.1.0:
@@ -11954,7 +11955,7 @@ snapshots:
 
   baseline-browser-mapping@2.11.20: {}
 
-  basic-ftp@5.3.1: {}
+  basic-ftp@6.2.1: {}
 
   body@5.1.0:
     dependencies:
@@ -13154,7 +13155,7 @@ snapshots:
 
   get-uri@8.0.0:
     dependencies:
-      basic-ftp: 5.3.1
+      basic-ftp: 6.2.1
       data-uri-to-buffer: 8.0.0
       debug: 4.4.3
     transitivePeerDependencies:
