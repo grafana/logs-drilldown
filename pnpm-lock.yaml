@@ -8,7 +8,7 @@ overrides:
   react-router@^6: ^6.30.6
   js-cookie: ^3.0.7
   csv-parse: ^7.0.2
-  basic-ftp: '>=6.2.1'
+  basic-ftp: ^6.2.1
 
 importers:
   .:
