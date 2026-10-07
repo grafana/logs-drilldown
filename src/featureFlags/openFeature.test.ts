@@ -1,8 +1,8 @@
-import { ClientProviderStatus, MultiProvider, OpenFeature, ProviderEvents } from '@openfeature/web-sdk';
+import { MultiProvider, OpenFeature } from '@openfeature/web-sdk';
 
 import { createOpenFeatureLocalStorageProvider, createOpenFeatureOFREPWebProvider } from '@grafana/runtime';
 
-import { evaluateFeatureFlag, initOpenFeatureProvider, OPEN_FEATURE_DOMAIN } from './openFeature';
+import { getFeatureFlag, initOpenFeatureProvider, OPEN_FEATURE_DOMAIN } from './openFeature';
 
 // Mock @grafana/runtime before it loads - it pulls in @openfeature/react-sdk which fails in Jest
 jest.mock('@grafana/runtime', () => ({
@@ -34,78 +34,49 @@ jest.mock('./tracking', () => ({
   TrackingHook: jest.fn().mockImplementation(() => ({})),
 }));
 
-describe('evaluateFeatureFlag', () => {
+describe('getFeatureFlag', () => {
   const getBooleanValue = jest.fn();
-  const addHandler = jest.fn();
   const addHooks = jest.fn();
-  let clientMock: any;
 
   beforeEach(() => {
     getBooleanValue.mockReset();
-    addHandler.mockReset();
     addHooks.mockReset();
+    (OpenFeature.getClient as jest.Mock).mockClear();
 
-    clientMock = {
+    (OpenFeature.getClient as jest.Mock).mockImplementation(() => ({
       getBooleanValue,
-      addHandler,
       addHooks,
-      providerStatus: ClientProviderStatus.READY,
-    };
-
-    (OpenFeature.getClient as jest.Mock).mockReturnValue(clientMock);
+    }));
   });
 
-  it('correctly evaluates a boolean flag using the OpenFeature client', async () => {
-    // This test verifies that evaluateFeatureFlag correctly delegates to the OpenFeature client
-    // and returns the value provided by the client.
+  it('evaluates a boolean flag using the OpenFeature client', () => {
     getBooleanValue.mockReturnValue(true);
 
-    // We use a known valid flag for the type check, but the test logic is generic for boolean flags
-    const result = await evaluateFeatureFlag('exploreLogsAggregatedMetrics');
+    const result = getFeatureFlag('exploreLogsAggregatedMetrics');
 
     expect(OpenFeature.getClient).toHaveBeenCalledWith(OPEN_FEATURE_DOMAIN);
-    expect(addHooks).toHaveBeenCalled(); // Verify hooks are added
-    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsAggregatedMetrics', false); // false is the default in definition
+    expect(addHooks).toHaveBeenCalledTimes(1);
+    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsAggregatedMetrics', false);
     expect(result).toBe(true);
   });
 
-  it('waits for the OpenFeature client to be ready before evaluating', async () => {
-    // This test verifies the "waitForClientReady" wrapper logic
-    clientMock.providerStatus = ClientProviderStatus.NOT_READY;
-    getBooleanValue.mockReturnValue(true);
+  it('uses the client evaluation method default when the provider is not ready', () => {
+    getBooleanValue.mockImplementation((_flagName, defaultValue) => defaultValue);
 
-    // Simulate event triggering
-    addHandler.mockImplementation((event, handler) => {
-      if (event === ProviderEvents.Ready) {
-        handler(); // Immediately resolve
-      }
-    });
+    const result = getFeatureFlag('exploreLogsAggregatedMetrics');
 
-    await evaluateFeatureFlag('exploreLogsAggregatedMetrics');
-
-    expect(addHandler).toHaveBeenCalledWith(ProviderEvents.Ready, expect.any(Function));
-    expect(getBooleanValue).toHaveBeenCalled();
+    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsAggregatedMetrics', false);
+    expect(result).toBe(false);
   });
 
-  it('returns the default value from definition when evaluation throws', async () => {
-    // This test verifies the error handling wrapper
-    getBooleanValue.mockImplementation(() => {
-      throw new Error('network');
-    });
-    // Suppress console.error for this test case
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    // false is the default value defined in openFeature.ts for this flag
-    await expect(evaluateFeatureFlag('exploreLogsAggregatedMetrics')).resolves.toBe(false);
-  });
-
-  it('correctly evaluates exploreLogsShardSplitting flag using the OpenFeature client', async () => {
+  it('adds the tracking hook to each client returned by OpenFeature', () => {
     getBooleanValue.mockReturnValue(true);
 
-    const result = await evaluateFeatureFlag('exploreLogsShardSplitting');
+    getFeatureFlag('exploreLogsShardSplitting');
+    getFeatureFlag('exploreLogsShardSplitting');
 
-    expect(getBooleanValue).toHaveBeenCalledWith('exploreLogsShardSplitting', false);
-    expect(result).toBe(true);
+    expect(OpenFeature.getClient).toHaveBeenCalledTimes(2);
+    expect(addHooks).toHaveBeenCalledTimes(2);
   });
 });
 
