@@ -1,5 +1,6 @@
-import { OFREPWebProvider } from '@openfeature/ofrep-web-provider';
-import { ClientProviderStatus, OpenFeature, ProviderEvents } from '@openfeature/web-sdk';
+import { ClientProviderStatus, MultiProvider, OpenFeature, ProviderEvents } from '@openfeature/web-sdk';
+
+import { createOpenFeatureLocalStorageProvider, createOpenFeatureOFREPWebProvider } from '@grafana/runtime';
 
 import { evaluateFeatureFlag, initOpenFeatureProvider, OPEN_FEATURE_DOMAIN } from './openFeature';
 
@@ -17,13 +18,17 @@ jest.mock('@grafana/runtime', () => ({
       queryLibrary: false,
     },
   },
+  createOpenFeatureLocalStorageProvider: jest.fn(),
+  createOpenFeatureOFREPWebProvider: jest.fn(),
 }));
 
 jest.mock('@openfeature/web-sdk', () => ({
   OpenFeature: {
     getClient: jest.fn(),
+    getProvider: jest.fn(),
     setProviderAndWait: jest.fn().mockResolvedValue(undefined),
   },
+  MultiProvider: jest.fn().mockImplementation((providers) => ({ providers })),
   ClientProviderStatus: {
     READY: 'READY',
     NOT_READY: 'NOT_READY',
@@ -34,10 +39,6 @@ jest.mock('@openfeature/web-sdk', () => ({
     Ready: 'PROVIDER_READY',
     Error: 'PROVIDER_ERROR',
   },
-}));
-
-jest.mock('@openfeature/ofrep-web-provider', () => ({
-  OFREPWebProvider: jest.fn().mockImplementation((providerConfig) => ({ providerConfig })),
 }));
 
 // Mock the tracking hook module since it's used in the function under test
@@ -215,21 +216,30 @@ describe('evaluateFeatureFlag', () => {
 });
 
 describe('initOpenFeatureProvider', () => {
+  const defaultProvider = {};
+
   beforeEach(() => {
     (OpenFeature.setProviderAndWait as jest.Mock).mockClear();
-    (OFREPWebProvider as jest.Mock).mockClear();
+    (OpenFeature.getProvider as jest.Mock).mockReturnValue(defaultProvider);
+    (MultiProvider as jest.Mock).mockClear();
+
+    (createOpenFeatureLocalStorageProvider as jest.Mock).mockReset();
+    (createOpenFeatureOFREPWebProvider as jest.Mock).mockReset();
   });
 
-  it('uses appSubUrl when building the feature flag API baseUrl', async () => {
-    const { config } = require('@grafana/runtime');
-    config.appSubUrl = '/grafana';
+  it('initializes a MultiProvider with Grafana shared providers', async () => {
+    const localStorageProvider = { name: 'local-storage' };
+    const ofrepProvider = { name: 'ofrep' };
+    (createOpenFeatureLocalStorageProvider as jest.Mock).mockReturnValue(localStorageProvider);
+    (createOpenFeatureOFREPWebProvider as jest.Mock).mockReturnValue(ofrepProvider);
 
     await initOpenFeatureProvider();
 
-    expect(OFREPWebProvider).toHaveBeenCalledWith(
-      expect.objectContaining({
-        baseUrl: '/grafana/apis/features.grafana.app/v0alpha1/namespaces/test-namespace',
-      })
-    );
+    expect(createOpenFeatureLocalStorageProvider).toHaveBeenCalledTimes(1);
+    expect(createOpenFeatureOFREPWebProvider).toHaveBeenCalledTimes(1);
+    expect(MultiProvider).toHaveBeenCalledWith([{ provider: localStorageProvider }, { provider: ofrepProvider }]);
+    expect(OpenFeature.setProviderAndWait).toHaveBeenCalledWith(OPEN_FEATURE_DOMAIN, {
+      providers: [{ provider: localStorageProvider }, { provider: ofrepProvider }],
+    });
   });
 });

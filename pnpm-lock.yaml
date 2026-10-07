@@ -70,9 +70,6 @@ importers:
       '@lezer/lr':
         specifier: 1.4.10
         version: 1.4.10
-      '@openfeature/ofrep-web-provider':
-        specifier: 0.4.3
-        version: 0.4.3(@openfeature/core@1.11.0)(@openfeature/web-sdk@1.10.0(@openfeature/core@1.11.0))
       '@openfeature/web-sdk':
         specifier: 1.10.0
         version: 1.10.0(@openfeature/core@1.11.0)
@@ -2003,23 +2000,11 @@ packages:
     peerDependencies:
       '@openfeature/core': ^1.6.0
 
-  '@openfeature/ofrep-core@2.3.0':
-    resolution:
-      { integrity: sha512-PgUoEp0nGDYUeZ2fIU2IczEe/5B+gQVDpGXc5o05wpo3sj69pbcpq/a3p8MT/mhv9fqODiqqwu29g/YEq/huaw== }
-    peerDependencies:
-      '@openfeature/core': ^1.6.0
-
   '@openfeature/ofrep-web-provider@0.4.1':
     resolution:
       { integrity: sha512-DoWFtDT+9r+KyqvOYLPTgPgZLKIlUejaUkM++y/VSmVwWZiuKuJP3c8bqBMV+Mi8GSQ9ihJETLzk/BLNXWChpg== }
     peerDependencies:
       '@openfeature/web-sdk': ^1.4.0
-
-  '@openfeature/ofrep-web-provider@0.4.3':
-    resolution:
-      { integrity: sha512-GwSQQP2ZjS9dICRFkey+zpW5eadDF4SIhNNV0VPpO6C5G3NyUEljmHAhqSykZTYilgNQR5c8APdRQnEgBvGxdg== }
-    peerDependencies:
-      '@openfeature/web-sdk': ^1.10.0
 
   '@openfeature/react-sdk@1.4.1':
     resolution:
@@ -10470,21 +10455,10 @@ snapshots:
     dependencies:
       '@openfeature/core': 1.11.0
 
-  '@openfeature/ofrep-core@2.3.0(@openfeature/core@1.11.0)':
-    dependencies:
-      '@openfeature/core': 1.11.0
-
   '@openfeature/ofrep-web-provider@0.4.1(@openfeature/core@1.11.0)(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))':
     dependencies:
       '@openfeature/ofrep-core': 2.2.0(@openfeature/core@1.11.0)
       '@openfeature/web-sdk': 1.9.0(@openfeature/core@1.11.0)
-    transitivePeerDependencies:
-      - '@openfeature/core'
-
-  '@openfeature/ofrep-web-provider@0.4.3(@openfeature/core@1.11.0)(@openfeature/web-sdk@1.10.0(@openfeature/core@1.11.0))':
-    dependencies:
-      '@openfeature/ofrep-core': 2.3.0(@openfeature/core@1.11.0)
-      '@openfeature/web-sdk': 1.10.0(@openfeature/core@1.11.0)
     transitivePeerDependencies:
       - '@openfeature/core'
 

@@ -1,7 +1,13 @@
-import { OFREPWebProvider } from '@openfeature/ofrep-web-provider';
-import { ClientProviderStatus, OpenFeature, ProviderEvents, type Client, type JsonValue } from '@openfeature/web-sdk';
+import {
+  ClientProviderStatus,
+  OpenFeature,
+  ProviderEvents,
+  MultiProvider,
+  type Client,
+  type JsonValue,
+} from '@openfeature/web-sdk';
 
-import { config } from '@grafana/runtime';
+import { config, createOpenFeatureLocalStorageProvider, createOpenFeatureOFREPWebProvider } from '@grafana/runtime';
 
 import { TrackingHook } from './tracking';
 import { logger } from 'services/logger';
@@ -232,30 +238,23 @@ export async function initializeFeatureFlags(): Promise<void> {
  * This prevents re-initialization if the app component re-renders.
  */
 export function initOpenFeatureProvider(): Promise<void> {
-  // Build the base URL to support subpaths
-  const subPath = config.appSubUrl ?? '';
-  const baseUrl = `${subPath}/apis/features.grafana.app/v0alpha1/namespaces/${config.namespace}`;
-
-  return OpenFeature.setProviderAndWait(
-    OPEN_FEATURE_DOMAIN,
-    new OFREPWebProvider({
-      baseUrl,
-      disableVisibilityRefresh: true, // Do not refresh
-      cacheMode: 'disabled', // Do not write to localStorage
-      timeoutMs: 10_000, // Timeout after 10 seconds
-    }),
-    {
-      targetingKey: config.namespace, // Dimension of uniqueness, to ensure flags are evaluated consistently for a given stack
-      namespace: config.namespace, // Required by the multi-tenant feature flag service
-      ...config.openFeatureContext,
-    }
-  ).catch((error) => {
-    // OpenFeature initialization may fail in environments without the feature flag service (e.g., Grafana 11.6).
-    // This is expected and the app will continue to work with config.featureToggles fallback or default flag values.
-    logger.warn('OpenFeature provider initialization failed, using config.featureToggles fallback', {
-      error: error instanceof Error ? error.message : String(error),
+  if (OpenFeature.getProvider(OPEN_FEATURE_DOMAIN) === OpenFeature.getProvider()) {
+    return OpenFeature.setProviderAndWait(
+      OPEN_FEATURE_DOMAIN,
+      new MultiProvider([
+        { provider: createOpenFeatureLocalStorageProvider() },
+        { provider: createOpenFeatureOFREPWebProvider() },
+      ])
+    ).catch((error) => {
+      // OpenFeature initialization may fail in environments without the feature flag service (e.g., Grafana 11.6).
+      // This is expected and the app will continue to work with config.featureToggles fallback or default flag values.
+      logger.warn('OpenFeature provider initialization failed, using config.featureToggles fallback', {
+        error: error instanceof Error ? error.message : String(error),
+      });
     });
-  });
+  }
+
+  return Promise.resolve();
 }
 
 /**
