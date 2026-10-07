@@ -1,7 +1,4 @@
 import { devices } from '@playwright/test';
-import { dirname } from 'node:path';
-
-const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
 /**
  * Base Playwright configuration with common settings
@@ -35,8 +32,14 @@ export const baseConfig = {
  */
 export const authProject = {
   name: 'auth',
-  testDir: pluginE2eAuth,
-  testMatch: [/.*\.js/],
+  testDir: './tests/auth',
+  testMatch: '**/*.setup.ts',
+  use: {
+    user: {
+      password: process.env.GRAFANA_ADMIN_PASSWORD ?? 'admin',
+      user: process.env.GRAFANA_ADMIN_USER ?? 'admin',
+    },
+  },
 };
 
 /**
@@ -50,22 +53,6 @@ export const chromiumProject = {
     // storage state file is the username used to authenticate
     // user env variable or admin
     storageState: `playwright/.auth/${process.env.GRAFANA_ADMIN_USER ?? 'admin'}.json`,
-  },
-};
-
-/**
- * Auth project with user credentials
- */
-export const authProjectWithUser = {
-  ...authProject,
-  use: {
-    user: {
-      password: process.env.GRAFANA_ADMIN_PASSWORD ?? 'admin',
-      role: 'Admin' as const,
-      // username and password passed via cli params
-      // available as environment variables
-      user: process.env.GRAFANA_ADMIN_USER ?? 'admin',
-    },
   },
 };
 
