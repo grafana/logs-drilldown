@@ -7,7 +7,7 @@ import {
   type JsonValue,
 } from '@openfeature/web-sdk';
 
-import { config, createOpenFeatureLocalStorageProvider, createOpenFeatureOFREPWebProvider } from '@grafana/runtime';
+import { createOpenFeatureLocalStorageProvider, createOpenFeatureOFREPWebProvider } from '@grafana/runtime';
 
 import { TrackingHook } from './tracking';
 import { logger } from 'services/logger';
@@ -38,8 +38,6 @@ type ValueTypeMap = {
  * ```
  */
 type CoreFeatureFlag<VT extends keyof ValueTypeMap> = {
-  /** Local-only `GF_FEATURE_TOGGLES_ENABLE` name that overrides this flag, bypassing GoFF entirely. */
-  featureToggle?: string;
   reason: string;
   value: ValueTypeMap[VT];
   valueType: VT;
@@ -65,8 +63,6 @@ type ExperimentFeatureFlag<
   Values extends ReadonlyArray<ValueTypeMap[VT]> = ReadonlyArray<ValueTypeMap[VT]>,
 > = {
   defaultValue: Values[number];
-  /** Local-only `GF_FEATURE_TOGGLES_ENABLE` name that overrides this flag, bypassing GoFF entirely. */
-  featureToggle?: string;
   trackingKey?: string;
   values: Values;
   valueType: VT;
@@ -138,14 +134,12 @@ const goffFeatureFlags = {
     value: false,
     reason: 'static provider evaluation result',
     variant: 'default',
-    featureToggle: 'kgAnnotationsInLokiExplore',
   },
   'drilldown.logs.logsVolumeByField': {
     valueType: 'boolean',
     value: false,
     reason: 'static provider evaluation result',
     variant: 'default',
-    featureToggle: 'logsVolumeByField',
   },
   logsTablePanelNG: {
     valueType: 'boolean',
@@ -247,8 +241,8 @@ export function initOpenFeatureProvider(): Promise<void> {
       ])
     ).catch((error) => {
       // OpenFeature initialization may fail in environments without the feature flag service (e.g., Grafana 11.6).
-      // This is expected and the app will continue to work with config.featureToggles fallback or default flag values.
-      logger.warn('OpenFeature provider initialization failed, using config.featureToggles fallback', {
+      // This is expected and the app will continue to work with default flag values.
+      logger.warn('OpenFeature provider initialization failed, using default flag values', {
         error: error instanceof Error ? error.message : String(error),
       });
     });
@@ -286,64 +280,12 @@ function getFlagDefaultValue(flagDef: FeatureFlag): boolean | number | string | 
 }
 
 /**
- * Gets a fallback value from config.featureToggles for flags that have equivalents there.
- * This is used when the OpenFeature provider fails to initialize (e.g., in older Grafana versions like 11.6).
- *
- * @param flagName - The name of the feature flag
- * @returns The value from config.featureToggles if available, undefined otherwise
- */
-function getConfigToggleFallback(flagName: string): boolean | undefined {
-  if (flagName === 'kubernetesLogsDrilldown') {
-    return config.featureToggles.kubernetesLogsDrilldown;
-  }
-  if (flagName === 'otelLogsFormatting') {
-    return config.featureToggles.otelLogsFormatting;
-  }
-  if (flagName === 'queryLibrary') {
-    return config.featureToggles.queryLibrary;
-  }
-  if (flagName === 'exploreLogsAggregatedMetrics') {
-    return config.featureToggles.exploreLogsAggregatedMetrics;
-  }
-  if (flagName === 'exploreLogsShardSplitting') {
-    return config.featureToggles.exploreLogsShardSplitting;
-  }
-  if (flagName === 'logsTablePanelNG') {
-    return config.featureToggles.logsTablePanelNG;
-  }
-  return undefined;
-}
-
-// Maps a `featureToggle` boolean override to the flag's real value type, or undefined if the toggle isn't set.
-function resolveFeatureToggleOverride<T extends FeatureFlagName>(flagDef: FeatureFlag): FlagValue<T> | undefined {
-  if (!('featureToggle' in flagDef) || !flagDef.featureToggle) {
-    return undefined;
-  }
-
-  const toggle = (config.featureToggles as Record<string, boolean | undefined>)[flagDef.featureToggle];
-  if (toggle === undefined) {
-    return undefined;
-  }
-
-  if (flagDef.valueType === 'string') {
-    return (toggle ? 'treatment' : 'control') as FlagValue<T>;
-  }
-
-  return toggle as FlagValue<T>;
-}
-
-/**
  * Evaluates a feature flag from the GoFF service.
  *
  * @param flagName - The name of the feature flag to evaluate.
  * @returns The value of the feature flag.
  */
 export async function evaluateFeatureFlag<T extends keyof typeof goffFeatureFlags>(flagName: T): Promise<FlagValue<T>> {
-  const override = resolveFeatureToggleOverride<T>(goffFeatureFlags[flagName] as FeatureFlag);
-  if (override !== undefined) {
-    return override;
-  }
-
   try {
     const client = OpenFeature.getClient(OPEN_FEATURE_DOMAIN);
     await waitForClientReady(client);
@@ -369,12 +311,8 @@ export async function evaluateFeatureFlag<T extends keyof typeof goffFeatureFlag
         throw new Error(`Invalid flag value type for flag ${flagName}`);
     }
   } catch (error) {
-    // On any error, try config.featureToggles fallback first, then default value
+    // On evaluation errors, use the flag's declared default value.
     logger.error(new Error(`Error evaluating ${flagName} flag.`, { cause: error }));
-    const configValue = getConfigToggleFallback(flagName);
-    if (configValue !== undefined) {
-      return configValue as FlagValue<T>;
-    }
     const flagDef = goffFeatureFlags[flagName] as FeatureFlag;
     return getFlagDefaultValue(flagDef) as FlagValue<T>;
   }
