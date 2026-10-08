@@ -1,5 +1,38 @@
 # Changelog
 
+## [3.0.0](https://github.com/grafana/logs-drilldown/compare/v2.6.0...v3.0.0) (2026-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** update Grafana compatibility to >=13.1.0-0 ([#2101](https://github.com/grafana/logs-drilldown/issues/2101))
+
+### 🎉 Features
+
+* **attribute-distribution:** emit explorer analytics events ([#2106](https://github.com/grafana/logs-drilldown/issues/2106)) ([cc8ffd3](https://github.com/grafana/logs-drilldown/commit/cc8ffd353875f1f26b08153b6c77843fcdf705a1))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** resolve pnpm audit vulnerabilities ([#2118](https://github.com/grafana/logs-drilldown/issues/2118)) ([0f53087](https://github.com/grafana/logs-drilldown/commit/0f530871bee1e7d2f6f4b7392a9bc23aa4d077b4))
+* **LogsVolumePanel:** make detected_level easier to reach as an aggre… ([#2116](https://github.com/grafana/logs-drilldown/issues/2116)) ([c2940aa](https://github.com/grafana/logs-drilldown/commit/c2940aab9cdee24c7e7a8892f153b2c6880f7e77))
+* **VariableLayoutScene:** match sticky filter bar background to Grafana Chrome ([#2104](https://github.com/grafana/logs-drilldown/issues/2104)) ([2acce63](https://github.com/grafana/logs-drilldown/commit/2acce6329754469fa197a19d6c05b291c5232dd2))
+
+
+### 📝 Documentation
+
+* require signed commits in CONTRIBUTING and UI screenshots ([#2107](https://github.com/grafana/logs-drilldown/issues/2107)) ([6b9e331](https://github.com/grafana/logs-drilldown/commit/6b9e331291fb55bcbd590d7f76bccdf9c10049bd))
+
+
+### 🧹 Chore
+
+* bump @grafana/create-plugin configuration to 7.11.0 ([#2113](https://github.com/grafana/logs-drilldown/issues/2113)) ([ed16b50](https://github.com/grafana/logs-drilldown/commit/ed16b504ccf15b8c905efd251222769d542a9de9))
+* cleanup overrides ([#2115](https://github.com/grafana/logs-drilldown/issues/2115)) ([97dcd44](https://github.com/grafana/logs-drilldown/commit/97dcd44995c0927f99289f4b041595c8286ece51))
+* **deps:** update dependency overrides ([#2122](https://github.com/grafana/logs-drilldown/issues/2122)) ([77beefe](https://github.com/grafana/logs-drilldown/commit/77beefe731a20924c6e70717befb4369839d1a8a))
+* **deps:** update Grafana compatibility to &gt;=13.1.0-0 ([#2101](https://github.com/grafana/logs-drilldown/issues/2101)) ([3837467](https://github.com/grafana/logs-drilldown/commit/38374673cd2b980312963b984f48ac47dba786b6))
+* **deps:** update OpenTelemetry Go dependencies in generator ([#2124](https://github.com/grafana/logs-drilldown/issues/2124)) ([5789f84](https://github.com/grafana/logs-drilldown/commit/5789f84fe167b3785f164d291176e57674ca02a9))
+* **i18n:** expose all supported languages ([#2105](https://github.com/grafana/logs-drilldown/issues/2105)) ([db99927](https://github.com/grafana/logs-drilldown/commit/db9992718a73e471e365889e2f81cd2f3beecc86))
+
 ## [2.6.0](https://github.com/grafana/logs-drilldown/compare/v2.5.2...v2.6.0) (2026-09-21)
 
 
