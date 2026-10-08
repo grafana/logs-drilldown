@@ -273,9 +273,13 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       },
     }),
     stickyControlsContainer: css({
+      // Newer Grafana defines background.page even with the old theme, where Chrome still uses canvas.
       backgroundColor: isVisualDesignRefreshEnabled(theme)
-        ? theme.colors.background.primary
+        ? theme.colors.background.page
         : theme.colors.background.canvas,
+      // Matches Page.tsx's page-wrapper radius (theme.shape.radius.lg), which this sits flush against.
+      borderTopLeftRadius: theme.shape.radius.lg,
+      borderTopRightRadius: theme.shape.radius.lg,
       gap: theme.spacing(0),
       left: 0,
       position: 'sticky',
