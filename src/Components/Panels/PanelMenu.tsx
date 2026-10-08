@@ -25,6 +25,7 @@ import { FieldsVizPanelWrapper } from 'Components/ServiceScene/Breakdowns/Fields
 import { setValueSummaryHeight } from 'Components/ServiceScene/Breakdowns/Panels/ValueSummary';
 import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 import { isLogsQuery } from 'services/logql';
@@ -245,7 +246,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         logger.warn(`Failed to load add to notebook component: grafana/add-to-notebook-form/v1`);
       }
 
-      if (isAvailable) {
+      if (isAvailable && getFeatureFlag('dashboard.notebooks')) {
         addItemToGroup(
           model,
           {
