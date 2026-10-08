@@ -30,6 +30,7 @@ import {
   setCollapsibleFiltersState,
 } from 'services/store';
 import { testIds } from 'services/testIds';
+import { isVisualDesignRefreshEnabled } from 'services/theme';
 import { AppliedPattern } from 'services/variables';
 
 type HeaderPosition = 'relative' | 'sticky';
@@ -272,8 +273,10 @@ function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false
       },
     }),
     stickyControlsContainer: css({
-      // Fallback for older Grafana versions where background.page might be missing.
-      backgroundColor: theme.colors.background.page ?? theme.colors.background.canvas,
+      // Newer Grafana defines background.page even with the old theme, where Chrome still uses canvas.
+      backgroundColor: isVisualDesignRefreshEnabled(theme)
+        ? theme.colors.background.page
+        : theme.colors.background.canvas,
       // Matches Page.tsx's page-wrapper radius (theme.shape.radius.lg), which this sits flush against.
       borderTopLeftRadius: theme.shape.radius.lg,
       borderTopRightRadius: theme.shape.radius.lg,
