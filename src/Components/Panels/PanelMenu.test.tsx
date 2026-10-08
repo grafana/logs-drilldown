@@ -19,6 +19,7 @@ import {
 import {
   CollapsablePanelText,
   getAddToDashboardPayload,
+  getAddToNotebookPayload,
   getCreateAlertPayload,
   getExploreLink,
   PanelMenu,
@@ -441,6 +442,22 @@ describe('PanelMenu', () => {
 
       expect(link).toBe('test-explore-link');
       expect(onExploreLinkClick).toHaveBeenCalledWith(mockIndexScene, 'test_query_expression');
+    });
+
+    it('should generate add to notebook payload with the current time range', () => {
+      const menu = new PanelMenu({});
+      mockSceneGraph.getTimeRange.mockReturnValue({
+        state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
+        getTimeZone: () => 'utc',
+      });
+
+      const payload = getAddToNotebookPayload(menu);
+
+      expect(payload.capturedTimeRange).toEqual({
+        from: 'now-1h',
+        to: 'now',
+        timeZone: 'utc',
+      });
     });
 
     it('should generate add to dashboard payload correctly', () => {

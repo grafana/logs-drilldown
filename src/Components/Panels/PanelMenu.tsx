@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { css } from '@emotion/css';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
+import { BusEventBase, GrafanaTheme2, PanelMenuItem, rangeUtil, TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
@@ -251,7 +251,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           {
             text: t('components.panels.panel-menu.text.add-to-notebook', 'Add to Notebook'),
             onClick: () => {
-              model.publishEvent(new AddToNotebookEvent(getAddToDashboardPayload(model)), true);
+              model.publishEvent(new AddToNotebookEvent(getAddToNotebookPayload(model)), true);
             },
             iconClassName: 'book',
           },
@@ -445,6 +445,21 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
   return { panel, timeRange };
 };
 
+export const getAddToNotebookPayload = (model: PanelMenu) => {
+  const timeRange = sceneGraph.getTimeRange(model);
+  // Keep the raw from/to so a relative range keeps re-evaluating in the notebook.
+  const { from, to } = rangeUtil.formatRawTimeRange(timeRange.state.value.raw);
+
+  return {
+    ...getAddToDashboardPayload(model),
+    capturedTimeRange: {
+      from: String(from),
+      to: String(to),
+      timeZone: timeRange.getTimeZone(),
+    },
+  };
+};
+
 export const getCreateAlertPayload = (model: PanelMenu) => {
   const indexScene = sceneGraph.getAncestor(model, IndexScene);
   let sourcePanel: VizPanel | undefined = undefined;
@@ -542,8 +557,18 @@ export class AddToDashboardEvent extends BusEventBase {
   public static type = 'add-to-dashboard';
 }
 
+export interface CapturedTimeRange {
+  from: string;
+  timeZone?: string;
+  to: string;
+}
+
+export interface AddToNotebookData extends AddToDashboardData {
+  capturedTimeRange: CapturedTimeRange;
+}
+
 export class AddToNotebookEvent extends BusEventBase {
-  constructor(public payload: AddToDashboardData) {
+  constructor(public payload: AddToNotebookData) {
     super();
   }
   public static type = 'add-to-notebook';

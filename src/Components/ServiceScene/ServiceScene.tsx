@@ -47,6 +47,7 @@ import { ShowLogsButtonScene } from 'Components/IndexScene/ShowLogsButtonScene';
 import {
   AddToDashboardData,
   AddToDashboardEvent,
+  AddToNotebookData,
   AddToNotebookEvent,
   CreateAlertData,
   CreateAlertEvent,
@@ -143,7 +144,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   // null implies it is not supported, undefined is not set yet
   $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
-  addToNotebookData?: AddToDashboardData;
+  addToNotebookData?: AddToNotebookData;
   backendDisplayedFields?: string[];
   body: SceneFlexLayout | undefined;
   createAlertData?: CreateAlertData;
