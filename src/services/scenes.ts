@@ -1,5 +1,6 @@
 import { urlUtil } from '@grafana/data';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { config } from '@grafana/runtime';
 import { sceneGraph, SceneObject, SceneObjectUrlValues, SceneQueryRunner, SceneTimePicker } from '@grafana/scenes';
 
 import { logger } from './logger';
@@ -45,7 +46,7 @@ export function getColorByIndex(index: number) {
 }
 
 export async function getLokiDatasource(sceneObject: SceneObject) {
-  const ds = (await getDataSourceSrv().get(VAR_DATASOURCE_EXPR, { __sceneObject: { value: sceneObject } })) as
+  const ds = (await getDataSourceInstance(VAR_DATASOURCE_EXPR, { __sceneObject: { value: sceneObject } })) as
     LokiDatasource | undefined;
   return ds;
 }

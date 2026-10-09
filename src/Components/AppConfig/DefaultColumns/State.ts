@@ -1,7 +1,8 @@
 import { flatten, memoize } from 'lodash';
 
 import { LogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { DataSourceWithBackend } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 
 import { getColumnsLabelsExpr, mapColumnsLabelsToAdHocFilters } from './LabelsQueries';
@@ -103,7 +104,7 @@ export const getKeys = async (
 };
 
 export const getDatasource = async (dsUID: string) => {
-  const ds = await getDataSourceSrv().get(dsUID);
+  const ds = await getDataSourceInstance(dsUID);
 
   if (!(ds instanceof DataSourceWithBackend)) {
     const err = new Error('DefaultColumnsState::getDatasource - Invalid datasource!');

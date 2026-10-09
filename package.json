@@ -124,6 +124,7 @@
     "@grafana/faro-web-tracing": "2.11.0",
     "@grafana/i18n": "13.2.1",
     "@grafana/lezer-logql": "0.4.1",
+    "@grafana/plugin-compat": "0.2.0",
     "@grafana/runtime": "13.2.1",
     "@grafana/scenes": "8.16.1",
     "@grafana/scenes-react": "8.16.1",

@@ -15,13 +15,8 @@ import { SceneDataQueryResourceRequest } from './datasourceTypes';
 import { DetectedFieldsResponse } from './fields';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  getDataSourceSrv: jest.fn(() => {
-    return {
-      get: (ds: DataSourceWithBackend) => Promise.resolve(ds),
-    };
-  }),
+jest.mock('@grafana/plugin-compat/datasources', () => ({
+  getDataSourceInstance: (ds: DataSourceWithBackend) => Promise.resolve(ds),
 }));
 
 let datasource = new DataSourceWithBackend<LokiQuery>({

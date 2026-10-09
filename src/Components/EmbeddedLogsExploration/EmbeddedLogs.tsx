@@ -7,6 +7,7 @@ import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from 'Components/ServiceScene/ServiceSceneConstants';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import initRuntimeDs from 'services/datasource';
+import { getInitialDatasourceInfo, resolveInitialDatasourceInfo } from 'services/initialDatasourceInfo';
 import { getKgSceneProps } from 'services/kgAnnotations';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
@@ -78,7 +79,7 @@ export function buildLogsExplorationFromState({
   // Report valid init
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_init);
 
-  const kg = getKgSceneProps();
+  const kg = getKgSceneProps(getInitialDatasourceInfo().kgAnnotationsAvailable);
 
   return new IndexScene({
     ...state,
@@ -100,10 +101,21 @@ export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationPr
   const [exploration, setExploration] = useState<IndexScene | null>(null);
 
   useEffect(() => {
-    if (!exploration) {
-      initializeMetadataService(true);
-      setExploration(buildLogsExplorationFromState(props));
+    if (exploration) {
+      return undefined;
     }
+
+    initializeMetadataService(true);
+    let cancelled = false;
+    void resolveInitialDatasourceInfo({ needsDefaultDatasource: !props.datasourceUid }).then(() => {
+      if (!cancelled) {
+        setExploration(buildLogsExplorationFromState(props));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [exploration, props]);
 
   if (!exploration) {

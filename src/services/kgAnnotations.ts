@@ -1,5 +1,5 @@
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { getDataSourceInstanceSettings } from '@grafana/plugin-compat/datasources';
 import {
   AdHocFiltersVariable,
   dataLayers,
@@ -24,12 +24,13 @@ interface KgSceneProps {
   controls: KgAnnotationToggle;
 }
 
-export function isKgAnnotationsAvailable(): boolean {
+export async function isKgAnnotationsAvailable(): Promise<boolean> {
   const featureEnabled = getFeatureFlag('drilldown.logs.kgAnnotationsInLokiExplore');
   if (!featureEnabled) {
     return false;
   }
-  return Object.values(config.datasources).some((d) => d.uid === KG_DATASOURCE_UID);
+  const settings = await getDataSourceInstanceSettings(KG_DATASOURCE_UID);
+  return settings?.uid === KG_DATASOURCE_UID;
 }
 
 function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string) {
@@ -147,8 +148,8 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
   }
 }
 
-export function getKgSceneProps(): KgSceneProps | undefined {
-  if (!isKgAnnotationsAvailable()) {
+export function getKgSceneProps(kgAnnotationsAvailable: boolean): KgSceneProps | undefined {
+  if (!kgAnnotationsAvailable) {
     return undefined;
   }
 
