@@ -3,17 +3,16 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { t } from '@grafana/i18n';
 import { LoadingPlaceholder } from '@grafana/ui';
 
-import { initializeFeatureFlags, initOpenFeatureProvider } from 'featureFlags/openFeature';
+import { initOpenFeatureProvider } from 'featureFlags/openFeature';
 import { logger } from 'services/logger';
 
-// Initialize OpenFeature provider and populate flag cache
-const featureFlagsReady = initOpenFeatureProvider().then(() => initializeFeatureFlags());
+// Initialize the OpenFeature provider before rendering components that evaluate flags.
+const featureFlagsReady = initOpenFeatureProvider();
 
 export const FeatureFlagContext = ({ children }: { children: ReactNode }) => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Initialize and cache the feature flags for use in the app
     featureFlagsReady
       .then(() => {
         setIsReady(true);
