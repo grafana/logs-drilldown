@@ -19,6 +19,7 @@ import {
 import {
   CollapsablePanelText,
   getAddToDashboardPayload,
+  getAddToNotebookPayload,
   getCreateAlertPayload,
   getExploreLink,
   PanelMenu,
@@ -30,6 +31,7 @@ import { FieldsVizPanelWrapper } from 'Components/ServiceScene/Breakdowns/Fields
 import { setValueSummaryHeight } from 'Components/ServiceScene/Breakdowns/Panels/ValueSummary';
 import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction } from 'services/analytics';
 import { isLogsQuery } from 'services/logql';
 import { interpolateExpression } from 'services/query';
@@ -55,6 +57,9 @@ jest.mock('services/logql', () => ({
 }));
 jest.mock('services/logger', () => ({
   logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn() },
+}));
+jest.mock('featureFlags/openFeature', () => ({
+  getFeatureFlag: jest.fn(() => false),
 }));
 
 // Type the mocked functions
@@ -165,6 +170,7 @@ beforeEach(() => {
   jest.mocked(onExploreLinkClick).mockReturnValue('test-explore-link');
   jest.mocked(isAssistantAvailable).mockReturnValue(of(false));
   jest.mocked(usePluginComponent).mockReturnValue({ component: null, isLoading: false });
+  jest.mocked(getFeatureFlag).mockReturnValue(false);
   jest.mocked(isLogsQuery).mockReturnValue(false);
 });
 
@@ -443,6 +449,22 @@ describe('PanelMenu', () => {
       expect(onExploreLinkClick).toHaveBeenCalledWith(mockIndexScene, 'test_query_expression');
     });
 
+    it('should generate add to notebook payload with the current time range', () => {
+      const menu = new PanelMenu({});
+      mockSceneGraph.getTimeRange.mockReturnValue({
+        state: { value: { from: 'now-1h', to: 'now', raw: { from: 'now-1h', to: 'now' } } },
+        getTimeZone: () => 'utc',
+      });
+
+      const payload = getAddToNotebookPayload(menu);
+
+      expect(payload.capturedTimeRange).toEqual({
+        from: 'now-1h',
+        to: 'now',
+        timeZone: 'utc',
+      });
+    });
+
     it('should generate add to dashboard payload correctly', () => {
       const menu = new PanelMenu({});
 
@@ -677,6 +699,12 @@ describe('PanelMenu', () => {
           iconClassName: 'apps',
         })
       );
+      expect(items).not.toContainEqual(
+        expect.objectContaining({
+          text: 'Add to Notebook',
+          iconClassName: 'book',
+        })
+      );
     });
 
     it('should show the option if the exposed component exists', () => {
@@ -692,6 +720,30 @@ describe('PanelMenu', () => {
         expect.objectContaining({
           text: 'Add to Dashboard',
           iconClassName: 'apps',
+        })
+      );
+      expect(items).not.toContainEqual(
+        expect.objectContaining({
+          text: 'Add to Notebook',
+          iconClassName: 'book',
+        })
+      );
+    });
+
+    it('should show add to notebook when dashboard.notebooks is enabled', () => {
+      jest.mocked(usePluginComponent).mockReturnValue({ component: () => null, isLoading: false });
+      jest.mocked(getFeatureFlag).mockImplementation((flag) => flag === 'dashboard.notebooks');
+
+      const menu = new PanelMenu({});
+      menu.activate();
+
+      render(<PanelMenu.Component model={menu} />);
+
+      const items = menu.state.body?.state.items;
+      expect(items).toContainEqual(
+        expect.objectContaining({
+          text: 'Add to Notebook',
+          iconClassName: 'book',
         })
       );
     });

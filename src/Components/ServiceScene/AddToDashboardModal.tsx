@@ -1,4 +1,4 @@
-import React, { createElement } from 'react';
+import React from 'react';
 
 import { TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -16,9 +16,11 @@ interface AddToDashboardFormProps {
 }
 
 export const AddToDashboardModal = ({ data, onClose }: { data: AddToDashboardData; onClose(): void }) => {
-  const { component: AddToDashboardComponent, isLoading } = usePluginComponent('grafana/add-to-dashboard-form/v1');
+  const { component: AddToDashboardComponent, isLoading } = usePluginComponent<AddToDashboardFormProps>(
+    'grafana/add-to-dashboard-form/v1'
+  );
 
-  if (isLoading) {
+  if (isLoading || !AddToDashboardComponent) {
     return;
   }
 
@@ -28,15 +30,15 @@ export const AddToDashboardModal = ({ data, onClose }: { data: AddToDashboardDat
       isOpen={true}
       onDismiss={onClose}
     >
-      {createElement(AddToDashboardComponent as React.ComponentType<AddToDashboardFormProps>, {
-        onClose: onClose,
-        buildPanel: () => {
+      <AddToDashboardComponent
+        onClose={onClose}
+        buildPanel={() => {
           reportInteraction('grafana_logs_app_add_panel_to_dashboard', { type: data.panel.type });
           return data.panel;
-        },
-        timeRange: data.timeRange,
-        options: { useAbsolutePath: true },
-      })}
+        }}
+        timeRange={data.timeRange}
+        options={{ useAbsolutePath: true }}
+      />
     </Modal>
   );
 };
