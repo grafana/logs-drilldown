@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import 'jest-canvas-mock';
 
 import Config from './Config';
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
+import { getDefaultDatasourceUid, getLastUsedDataSourceFromStorage } from 'services/store';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -126,8 +126,8 @@ describe('ServiceSelection Config', () => {
     jest.clearAllMocks();
     mockIsSupported.isDefaultLabelsFlagsSupported = true;
     mockIsSupported.isDefaultLabelsVersionSupported = true;
-    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
-    jest.mocked(getDefaultDatasourceFromDatasourceSrv).mockReturnValue(MOCK_DS_UID);
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(MOCK_DS_UID);
+    jest.mocked(getDefaultDatasourceUid).mockResolvedValue(undefined);
     mockGetQuery.mockReturnValue(defaultQueryReturn);
   });
 
@@ -138,13 +138,13 @@ describe('ServiceSelection Config', () => {
   });
 
   describe('when no datasource is available', () => {
-    it('shows NoLokiSplash', () => {
+    it('shows NoLokiSplash', async () => {
       jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
-      jest.mocked(getDefaultDatasourceFromDatasourceSrv).mockReturnValue(undefined);
+      jest.mocked(getDefaultDatasourceUid).mockResolvedValue(undefined);
 
       render(<Config />);
 
-      expect(screen.getByText(/welcome to grafana logs drilldown/i)).toBeInTheDocument();
+      expect(await screen.findByText(/welcome to grafana logs drilldown/i)).toBeInTheDocument();
       expect(screen.getByText(/no loki datasource configured/i)).toBeInTheDocument();
     });
   });
@@ -184,16 +184,36 @@ describe('ServiceSelection Config', () => {
       expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
     });
 
-    it('prefers last used datasource from storage over default from service', () => {
+    it('prefers last used datasource from storage over the default and skips the default lookup', () => {
       const storedUID = 'stored-ds-uid';
       jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(storedUID);
-      jest.mocked(getDefaultDatasourceFromDatasourceSrv).mockReturnValue(MOCK_DS_UID);
+      jest.mocked(getDefaultDatasourceUid).mockResolvedValue(MOCK_DS_UID);
 
       render(<Config />);
 
       // Config renders main content (would use stored UID in context)
       expect(screen.getByRole('heading', { name: /landing page default labels/i })).toBeInTheDocument();
       expect(getLastUsedDataSourceFromStorage).toHaveBeenCalled();
+      expect(getDefaultDatasourceUid).not.toHaveBeenCalled();
+    });
+
+    it('resolves the default datasource when nothing is stored', async () => {
+      jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
+      jest.mocked(getDefaultDatasourceUid).mockResolvedValue(MOCK_DS_UID);
+
+      render(<Config />);
+
+      expect(await screen.findByRole('heading', { name: /landing page default labels/i })).toBeInTheDocument();
+      expect(getDefaultDatasourceUid).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows NoLokiSplash when resolving the default datasource fails', async () => {
+      jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
+      jest.mocked(getDefaultDatasourceUid).mockRejectedValue(new Error('list failed'));
+
+      render(<Config />);
+
+      expect(await screen.findByText(/no loki datasource configured/i)).toBeInTheDocument();
     });
 
     describe('integration: label and value selection, save, remove', () => {

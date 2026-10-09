@@ -1,14 +1,14 @@
-import { DataSourceInstanceSettings } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { DataSourceInstanceListItem } from '@grafana/data';
+import { getDataSourceInstanceList, getDefaultDataSourceInstanceListItem } from '@grafana/plugin-compat/datasources';
 import { SceneObject } from '@grafana/scenes';
 
 import { isEmbeddedLogs } from './extensions/embedding';
-import { getDefaultDatasourceFromDatasourceSrv, getExpandedLogsView } from './store';
+import { getDefaultDatasourceUid, getExpandedLogsView } from './store';
 import pluginJson from 'plugin.json';
 
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  getDataSourceSrv: jest.fn(),
+jest.mock('@grafana/plugin-compat/datasources', () => ({
+  getDataSourceInstanceList: jest.fn(),
+  getDefaultDataSourceInstanceListItem: jest.fn(),
 }));
 
 jest.mock('./extensions/embedding', () => ({
@@ -19,91 +19,83 @@ jest.mock('./logger', () => ({
   logger: { error: jest.fn(), info: jest.fn(), warn: jest.fn() },
 }));
 
-function makeDs(overrides: Partial<DataSourceInstanceSettings>): DataSourceInstanceSettings {
+function makeDs(overrides: Partial<DataSourceInstanceListItem>): DataSourceInstanceListItem {
   return {
     uid: 'uid',
-    id: 1,
     name: 'ds',
     type: 'loki',
-    isDefault: false,
-    readOnly: false,
-    jsonData: {},
-    access: 'proxy',
     ...overrides,
-  } as DataSourceInstanceSettings;
+  } as DataSourceInstanceListItem;
 }
 
-describe('getDefaultDatasourceFromDatasourceSrv', () => {
-  beforeEach(() => jest.clearAllMocks());
-
-  it('returns the data source marked as default when present', () => {
-    const defaultDs = makeDs({ uid: 'default-uid', name: 'Default Loki', isDefault: true });
-    const otherDs = makeDs({ uid: 'other-uid', name: 'grafanacloud-mystack-logs', isDefault: false });
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: () => [otherDs, defaultDs],
-    } as any);
-
-    expect(getDefaultDatasourceFromDatasourceSrv()).toBe('default-uid');
+describe('getDefaultDatasourceUid', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getDefaultDataSourceInstanceListItem).mockResolvedValue(undefined);
   });
 
-  it('prefers grafanacloud-*-logs by name when no default is set', () => {
+  it('requests only Loki data sources', async () => {
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue([]);
+
+    await getDefaultDatasourceUid();
+
+    expect(getDataSourceInstanceList).toHaveBeenCalledWith({ type: 'loki' });
+  });
+
+  it('returns the data source marked as default when present', async () => {
+    const defaultDs = makeDs({ uid: 'default-uid', name: 'Default Loki' });
+    const otherDs = makeDs({ uid: 'other-uid', name: 'grafanacloud-mystack-logs' });
+    const items = [otherDs, defaultDs];
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue(items);
+    jest.mocked(getDefaultDataSourceInstanceListItem).mockResolvedValue(defaultDs);
+
+    await expect(getDefaultDatasourceUid()).resolves.toBe('default-uid');
+    expect(getDefaultDataSourceInstanceListItem).toHaveBeenCalledWith(items);
+  });
+
+  it('prefers grafanacloud-*-logs by name when no default is set', async () => {
     const firstInList = makeDs({ uid: 'first-uid', name: 'Some Other Loki' });
-    const grafanacloudDs = makeDs({
-      uid: 'grafanacloud-dev-logs',
-      name: 'grafanacloud-dev-logs',
-      isDefault: false,
-    });
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: () => [firstInList, grafanacloudDs],
-    } as any);
+    const grafanacloudDs = makeDs({ uid: 'grafanacloud-dev-logs', name: 'grafanacloud-dev-logs' });
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue([firstInList, grafanacloudDs]);
 
-    expect(getDefaultDatasourceFromDatasourceSrv()).toBe('grafanacloud-dev-logs');
+    await expect(getDefaultDatasourceUid()).resolves.toBe('grafanacloud-dev-logs');
   });
 
-  it('prefers grafanacloud-*-logs by uid when name is different', () => {
+  it('prefers grafanacloud-*-logs by uid when name is different', async () => {
     const firstInList = makeDs({ uid: 'first-uid', name: 'First' });
-    const grafanacloudDs = makeDs({
-      uid: 'grafanacloud-prod-logs',
-      name: 'Grafana Cloud Logs (prod)',
-      isDefault: false,
-    });
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: () => [firstInList, grafanacloudDs],
-    } as any);
+    const grafanacloudDs = makeDs({ uid: 'grafanacloud-prod-logs', name: 'Grafana Cloud Logs (prod)' });
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue([firstInList, grafanacloudDs]);
 
-    expect(getDefaultDatasourceFromDatasourceSrv()).toBe('grafanacloud-prod-logs');
+    await expect(getDefaultDatasourceUid()).resolves.toBe('grafanacloud-prod-logs');
   });
 
-  it('returns first in list when no default and no grafanacloud-*-logs match', () => {
+  it('returns first in list when no default and no grafanacloud-*-logs match', async () => {
     const firstDs = makeDs({ uid: 'first-uid', name: 'First Loki' });
     const secondDs = makeDs({ uid: 'second-uid', name: 'Second Loki' });
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: () => [firstDs, secondDs],
-    } as any);
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue([firstDs, secondDs]);
 
-    expect(getDefaultDatasourceFromDatasourceSrv()).toBe('first-uid');
+    await expect(getDefaultDatasourceUid()).resolves.toBe('first-uid');
   });
 
-  it('returns undefined when Loki list is empty', () => {
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: () => [],
-    } as any);
+  it('returns undefined when Loki list is empty', async () => {
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue([]);
 
-    expect(getDefaultDatasourceFromDatasourceSrv()).toBeUndefined();
+    await expect(getDefaultDatasourceUid()).resolves.toBeUndefined();
   });
 
-  it('does not match grafanacloud-logs without stack name (single dash)', () => {
-    const exactName = makeDs({ uid: 'grafanacloud-logs', name: 'grafanacloud-logs', isDefault: false });
-    const withStack = makeDs({
-      uid: 'grafanacloud-mystack-logs',
-      name: 'grafanacloud-mystack-logs',
-      isDefault: false,
-    });
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: () => [exactName, withStack],
-    } as any);
+  it('does not match grafanacloud-logs without stack name (single dash)', async () => {
+    const exactName = makeDs({ uid: 'grafanacloud-logs', name: 'grafanacloud-logs' });
+    const withStack = makeDs({ uid: 'grafanacloud-mystack-logs', name: 'grafanacloud-mystack-logs' });
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue([exactName, withStack]);
 
-    expect(getDefaultDatasourceFromDatasourceSrv()).toBe('grafanacloud-mystack-logs');
+    await expect(getDefaultDatasourceUid()).resolves.toBe('grafanacloud-mystack-logs');
+  });
+
+  it('propagates list loading errors', async () => {
+    const error = new Error('Failed to load data sources');
+    jest.mocked(getDataSourceInstanceList).mockRejectedValue(error);
+
+    await expect(getDefaultDatasourceUid()).rejects.toThrow(error);
   });
 });
 

@@ -1,5 +1,6 @@
-import { dateTime, TimeRange } from '@grafana/data';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { DataSourceApi, dateTime, TimeRange } from '@grafana/data';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { DataSourceWithBackend } from '@grafana/runtime';
 import { AdHocFiltersVariable, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { LokiDatasource } from './lokiQuery';
@@ -9,9 +10,8 @@ import { getFieldsKeysProvider, getLabelsKeys, getLabelsTagKeysProvider } from '
 import { DetectedFieldsResult } from './TagValuesProviders';
 import { LEVEL_VARIABLE_VALUE, VAR_FIELDS_AND_METADATA } from './variables';
 
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  getDataSourceSrv: jest.fn(),
+jest.mock('@grafana/plugin-compat/datasources', () => ({
+  getDataSourceInstance: jest.fn(),
 }));
 jest.mock('./scenes', () => ({
   ...jest.requireActual('./scenes'),
@@ -36,9 +36,7 @@ function mockFieldsDatasource(fields: DetectedFieldsResult): {
   });
 
   jest.mocked(getDataSource).mockReturnValue('loki-uid');
-  jest.mocked(getDataSourceSrv).mockReturnValue({
-    get: jest.fn().mockResolvedValue(datasource),
-  } as unknown as ReturnType<typeof getDataSourceSrv>);
+  jest.mocked(getDataSourceInstance).mockResolvedValue(datasource as unknown as DataSourceApi);
 
   return { datasource, fetchDetectedFields };
 }
@@ -96,9 +94,7 @@ describe('getLabelsTagKeysProvider', () => {
     const datasource = mockDsMethod({ getTagKeys });
 
     jest.mocked(getDataSource).mockReturnValue('loki-uid');
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      get: jest.fn().mockResolvedValue(datasource),
-    } as unknown as ReturnType<typeof getDataSourceSrv>);
+    jest.mocked(getDataSourceInstance).mockResolvedValue(datasource as unknown as DataSourceApi);
 
     const variable = new AdHocFiltersVariable({ name: 'labels', filters: [] });
 

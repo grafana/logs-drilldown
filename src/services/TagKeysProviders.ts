@@ -7,7 +7,8 @@ import {
   ScopedVars,
   TimeRange,
 } from '@grafana/data';
-import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { BackendSrvRequest, DataSourceWithBackend } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { ExpressionBuilder } from './ExpressionBuilder';
@@ -42,7 +43,7 @@ export async function getLabelsTagKeysProvider(variable: AdHocFiltersVariable): 
   replace?: boolean;
   values: GetTagResponse | MetricFindValue[];
 }> {
-  const datasource_ = await getDataSourceSrv().get(getDataSource(variable));
+  const datasource_ = await getDataSourceInstance(getDataSource(variable));
   if (!(datasource_ instanceof DataSourceWithBackend)) {
     logger.error(new Error('getTagKeysProvider: Invalid datasource!'));
     throw new Error('Invalid datasource!');
@@ -99,7 +100,7 @@ export async function getFieldsKeysProvider({
   replace?: boolean;
   values: MetricFindValue[];
 }> {
-  const datasource_ = await getDataSourceSrv().get(getDataSource(sceneRef));
+  const datasource_ = await getDataSourceInstance(getDataSource(sceneRef));
   if (!(datasource_ instanceof DataSourceWithBackend)) {
     logger.error(new Error('getTagKeysProvider: Invalid datasource!'));
     throw new Error('Invalid datasource!');

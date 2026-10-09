@@ -1,8 +1,7 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { isNumber } from 'lodash';
-import { lastValueFrom } from 'rxjs';
 
 import {
   AppPluginMeta,
@@ -14,12 +13,13 @@ import {
   rangeUtil,
 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { DataSourcePicker, getBackendSrv, locationService } from '@grafana/runtime';
+import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
+import { DataSourcePicker, locationService } from '@grafana/runtime';
 import { Alert, Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
 
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { logger } from 'services/logger';
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
+import { getDefaultDatasourceUid, getLastUsedDataSourceFromStorage } from 'services/store';
 import { isValidTimeRange } from 'services/utils';
 
 export type JsonData = {
@@ -77,8 +77,7 @@ const AppConfig = ({ plugin }: Props) => {
 
   const hasDefaultTimeRange = jsonData?.defaultTimeRange != null;
   const [state, setState] = useState<State>({
-    dataSource:
-      jsonData?.dataSource ?? getDefaultDatasourceFromDatasourceSrv() ?? getLastUsedDataSourceFromStorage() ?? '',
+    dataSource: jsonData?.dataSource ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
     patternsDisabled: jsonData?.patternsDisabled ?? false,
@@ -86,6 +85,34 @@ const AppConfig = ({ plugin }: Props) => {
     defaultTimeRangeFrom: jsonData?.defaultTimeRange?.from ?? 'now-15m',
     defaultTimeRangeTo: jsonData?.defaultTimeRange?.to ?? 'now',
   });
+  const [isResolvingDefault, setIsResolvingDefault] = useState(!jsonData?.dataSource);
+
+  useEffect(() => {
+    if (jsonData?.dataSource) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    getDefaultDatasourceUid()
+      .catch((error) => {
+        logger.error(error, { msg: 'Failed to resolve the default Loki datasource' });
+        return undefined;
+      })
+      .then((defaultUid) => {
+        if (cancelled) {
+          return;
+        }
+        const dataSource = defaultUid ?? getLastUsedDataSourceFromStorage();
+        if (dataSource) {
+          setState((prev) => (prev.dataSource ? prev : { ...prev, dataSource }));
+        }
+        setIsResolvingDefault(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jsonData?.dataSource]);
 
   const onChangeDatasource = (ds: DataSourceInstanceSettings) => {
     setState({
@@ -316,7 +343,7 @@ const AppConfig = ({ plugin }: Props) => {
                   pinned,
                 })
               }
-              disabled={!isValid(state.interval) || !isDefaultTimeRangeValid}
+              disabled={isResolvingDefault || !isValid(state.interval) || !isDefaultTimeRangeValid}
             >
               <Trans i18nKey="components.app-config.save-settings">Save settings</Trans>
             </Button>
@@ -386,15 +413,7 @@ const testIds = {
 };
 
 export const updatePlugin = async (pluginId: string, data: Partial<PluginMeta>) => {
-  const response = getBackendSrv().fetch({
-    data,
-    method: 'POST',
-    url: `/api/plugins/${pluginId}/settings`,
-  });
-
-  const dataResponse = await lastValueFrom(response);
-
-  return dataResponse.data;
+  return updateAppPluginSettings(pluginId, data);
 };
 
 const isValid = (interval: string): boolean => {

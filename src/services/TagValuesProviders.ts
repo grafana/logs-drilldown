@@ -1,7 +1,8 @@
 import { isArray } from 'lodash';
 
 import { DataSourceGetTagValuesOptions, GetTagResponse, MetricFindValue, ScopedVars, TimeRange } from '@grafana/data';
-import { BackendSrvRequest, DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { BackendSrvRequest, DataSourceWithBackend } from '@grafana/runtime';
 import { AdHocFiltersVariable, AdHocFilterWithLabels, sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { ExpressionBuilder } from './ExpressionBuilder';
@@ -61,7 +62,7 @@ export const getDetectedFieldValuesTagValuesProvider = async (
   replace?: boolean;
   values: MetricFindValue[];
 }> => {
-  const datasourceUnknownType = await getDataSourceSrv().get(getDataSource(sceneRef));
+  const datasourceUnknownType = await getDataSourceInstance(getDataSource(sceneRef));
   // Narrow the DataSourceApi type to DataSourceWithBackend
   if (!(datasourceUnknownType instanceof DataSourceWithBackend)) {
     logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
@@ -229,7 +230,7 @@ export async function getLabelsTagValuesProvider(
   replace?: boolean;
   values: GetTagResponse | MetricFindValue[];
 }> {
-  const datasource_ = await getDataSourceSrv().get(getDataSource(variable));
+  const datasource_ = await getDataSourceInstance(getDataSource(variable));
   if (!(datasource_ instanceof DataSourceWithBackend)) {
     logger.error(new Error('getTagValuesProvider: Invalid datasource!'));
     throw new Error('Invalid datasource!');

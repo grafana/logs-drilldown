@@ -12,12 +12,18 @@ import {
   useGetLogsDrilldownDefaultColumnsQuery,
   useReplaceLogsDrilldownDefaultColumnsMutation,
 } from '@grafana/api-clients/rtkq/logsdrilldown/v1beta1';
-import { DataSourceInstanceSettings } from '@grafana/data';
-import { DataSourceWithBackend, getDataSourceSrv, locationService, LocationServiceProvider } from '@grafana/runtime';
+import { DataSourceInstanceListItem, DataSourceInstanceSettings } from '@grafana/data';
+import {
+  getDataSourceInstance,
+  getDataSourceInstanceList,
+  getDefaultDataSourceInstanceListItem,
+} from '@grafana/plugin-compat/datasources';
+import { DataSourceWithBackend, locationService, LocationServiceProvider } from '@grafana/runtime';
 
 import Config from './Config';
 import { DefaultColumnsContextProvider } from './Context';
 import { LocalLogsDrilldownDefaultColumnsLogsDefaultColumnsRecords } from './types';
+import { addLastUsedDataSourceToStorage } from 'services/store';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -52,12 +58,14 @@ const MOCK_DATA_SOURCES: Array<Partial<DataSourceInstanceSettings>> = [
   },
 ];
 // Mocks
+jest.mock('@grafana/plugin-compat/datasources', () => ({
+  getDataSourceInstance: jest.fn(),
+  getDataSourceInstanceList: jest.fn(),
+  getDefaultDataSourceInstanceListItem: jest.fn(),
+}));
+
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
-  getDataSourceSrv: jest.fn().mockReturnValue({
-    getList: () => jest.fn().mockReturnValue(MOCK_DATA_SOURCES),
-    get: () => jest.fn().mockReturnValue(MOCK_DATA_SOURCES[0]),
-  }),
   config: {
     ...jest.requireActual('@grafana/runtime').config,
     featureToggles: {
@@ -107,10 +115,15 @@ describe('Config', () => {
   let result: RenderResult;
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.mocked(getDataSourceSrv).mockReturnValue({
-      getList: jest.fn().mockReturnValue(MOCK_DATA_SOURCES),
-      get: jest.fn().mockReturnValue(new DataSourceWithBackend(MOCK_DATA_SOURCES[0] as DataSourceInstanceSettings)),
-    } as any);
+    localStorage.clear();
+    addLastUsedDataSourceToStorage(MOCK_DS_UID);
+    jest.mocked(getDataSourceInstanceList).mockResolvedValue(MOCK_DATA_SOURCES as DataSourceInstanceListItem[]);
+    jest
+      .mocked(getDefaultDataSourceInstanceListItem)
+      .mockResolvedValue(MOCK_DATA_SOURCES[0] as DataSourceInstanceListItem);
+    jest
+      .mocked(getDataSourceInstance)
+      .mockResolvedValue(new DataSourceWithBackend(MOCK_DATA_SOURCES[0] as DataSourceInstanceSettings));
     jest.mocked(useGetLogsDrilldownDefaultColumnsQuery).mockReturnValue({
       isLoading: true,
       error: undefined,

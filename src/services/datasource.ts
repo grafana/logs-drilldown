@@ -10,7 +10,8 @@ import {
   TestDataSourceResponse,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { DataSourceWithBackend, getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { DataSourceWithBackend } from '@grafana/runtime';
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
 import { DataQuery } from '@grafana/schema';
 
@@ -98,64 +99,62 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
         throw new Error('Scene object not found in request');
       }
 
-      getDataSourceSrv()
-        .get(getDataSource(request.scopedVars.__sceneObject.valueOf()))
-        .then(async (ds) => {
-          if (!(ds instanceof DataSourceWithBackend) || !('interpolateString' in ds) || !('getTimeRangeParams' in ds)) {
-            throw new Error('Invalid datasource!');
-          }
+      getDataSourceInstance(getDataSource(request.scopedVars.__sceneObject.valueOf())).then(async (ds) => {
+        if (!(ds instanceof DataSourceWithBackend) || !('interpolateString' in ds) || !('getTimeRangeParams' in ds)) {
+          throw new Error('Invalid datasource!');
+        }
 
-          // Cast to LokiDatasource after validation
-          const lokiDs = ds as LokiDatasource;
+        // Cast to LokiDatasource after validation
+        const lokiDs = ds as LokiDatasource;
 
-          // override the target datasource to Loki
-          request.targets = request.targets?.map((target) => {
-            target.datasource = lokiDs;
-            return target;
-          });
-
-          const targetsSet = new Set();
-          request.targets.forEach((target) => {
-            targetsSet.add(target.resource ?? '');
-          });
-
-          if (targetsSet.size !== 1) {
-            throw new Error('A request cannot contain queries to multiple endpoints');
-          }
-
-          const requestType = request.targets[0].resource;
-
-          switch (requestType) {
-            case 'volume': {
-              await this.getVolume(request, lokiDs, subscriber);
-              break;
-            }
-            case 'patterns': {
-              await this.getPatterns(request, lokiDs, subscriber);
-              break;
-            }
-            case 'detected_labels': {
-              await this.getDetectedLabels(request, lokiDs, subscriber);
-              break;
-            }
-            case 'detected_fields': {
-              await this.getDetectedFields(request, lokiDs, subscriber);
-              break;
-            }
-            case 'labels': {
-              await this.getLabels(request, lokiDs, subscriber);
-              break;
-            }
-            case 'config': {
-              await this.getConfig(request, lokiDs, subscriber);
-              break;
-            }
-            default: {
-              this.getData(request, lokiDs, subscriber);
-              break;
-            }
-          }
+        // override the target datasource to Loki
+        request.targets = request.targets?.map((target) => {
+          target.datasource = lokiDs;
+          return target;
         });
+
+        const targetsSet = new Set();
+        request.targets.forEach((target) => {
+          targetsSet.add(target.resource ?? '');
+        });
+
+        if (targetsSet.size !== 1) {
+          throw new Error('A request cannot contain queries to multiple endpoints');
+        }
+
+        const requestType = request.targets[0].resource;
+
+        switch (requestType) {
+          case 'volume': {
+            await this.getVolume(request, lokiDs, subscriber);
+            break;
+          }
+          case 'patterns': {
+            await this.getPatterns(request, lokiDs, subscriber);
+            break;
+          }
+          case 'detected_labels': {
+            await this.getDetectedLabels(request, lokiDs, subscriber);
+            break;
+          }
+          case 'detected_fields': {
+            await this.getDetectedFields(request, lokiDs, subscriber);
+            break;
+          }
+          case 'labels': {
+            await this.getLabels(request, lokiDs, subscriber);
+            break;
+          }
+          case 'config': {
+            await this.getConfig(request, lokiDs, subscriber);
+            break;
+          }
+          default: {
+            this.getData(request, lokiDs, subscriber);
+            break;
+          }
+        }
+      });
     });
   }
 

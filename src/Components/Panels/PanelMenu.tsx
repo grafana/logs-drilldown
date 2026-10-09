@@ -5,7 +5,8 @@ import { css } from '@emotion/css';
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
 import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getDataSourceSrv, reportInteraction, usePluginComponent } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneCSSGridItem,
@@ -152,7 +153,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
       this._subs.add(
         isAssistantAvailable().subscribe(async (isAvailable) => {
           if (isAvailable) {
-            const datasource = await getDataSourceSrv().get(getDataSource(this));
+            const datasource = await getDataSourceInstance(getDataSource(this));
             this.addItem({
               text: t('components.panels.panel-menu.text.ai-divider', 'ai_divider'),
               type: 'divider',
