@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1](https://github.com/grafana/logs-drilldown/compare/v3.0.0...v3.0.1) (2026-10-09)
+
+
+### 🐛 Bug Fixes
+
+* **types:** use relative imports in exposed types so bundle-types resolves them ([#2126](https://github.com/grafana/logs-drilldown/issues/2126)) ([ee32f55](https://github.com/grafana/logs-drilldown/commit/ee32f556703e60339095b462edff91e30c61d57c))
+
+
+### 🧹 Chore
+
+* **deps:** run create-plugin update to 7.12.1 for @grafana/eslint-config v10 ([#2127](https://github.com/grafana/logs-drilldown/issues/2127)) ([720ea4d](https://github.com/grafana/logs-drilldown/commit/720ea4d1d8f5d57c2d72f78240fcab7f412f50c5))
+
 ## [3.0.0](https://github.com/grafana/logs-drilldown/compare/v2.6.0...v3.0.0) (2026-10-08)
 
 
