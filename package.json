@@ -134,7 +134,6 @@
     "@leeoniya/ufuzzy": "1.0.19",
     "@lezer/common": "1.5.2",
     "@lezer/lr": "1.4.10",
-    "@openfeature/ofrep-web-provider": "0.4.3",
     "@openfeature/web-sdk": "1.10.0",
     "@react-aria/utils": "3.34.1",
     "@types/semver": "7.8.0",

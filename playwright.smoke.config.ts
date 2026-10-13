@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 import type { PluginOptions } from '@grafana/plugin-e2e';
 
-import { authProjectWithUser, baseConfig, chromiumProject } from './playwright.base.config';
+import { authProject, baseConfig, chromiumProject } from './playwright.base.config';
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -13,7 +13,7 @@ export default defineConfig<PluginOptions>({
   /* Configure projects for major browsers */
   projects: [
     // 1. Login to Grafana and store the cookie on disk for use in other tests.
-    authProjectWithUser,
+    authProject,
     // 2. Run tests in Google Chrome. Every test will start authenticated as admin user.
     chromiumProject,
   ],
