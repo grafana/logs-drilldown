@@ -1,7 +1,9 @@
+import { DataSourceInstanceSettings } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   CustomVariable,
+  dataLayers,
   EmbeddedScene,
   SceneFlexLayout,
   SceneVariableSet,
@@ -41,10 +43,19 @@ describe('getKgSceneProps annotation query', () => {
   const datasources = config.datasources;
 
   beforeEach(() => {
+    const kg: DataSourceInstanceSettings = {
+      uid: 'grafanacloud-knowledgegraph',
+      type: 'grafana-knowledgegraph-datasource',
+      name: 'kg',
+      access: 'proxy',
+      readOnly: false,
+      jsonData: {},
+      meta: {} as DataSourceInstanceSettings['meta'],
+    };
     config.datasources = {
       ...datasources,
-      kg: { uid: 'grafanacloud-knowledgegraph', type: 'grafana-knowledgegraph-datasource', name: 'kg' },
-    } as typeof config.datasources;
+      kg,
+    };
   });
 
   afterEach(() => {
@@ -67,23 +78,31 @@ describe('getKgSceneProps annotation query', () => {
     });
 
     const kg = getKgSceneProps({ entityType: 'Pod' });
-    expect(kg).toBeDefined();
+    if (kg == null) {
+      throw new Error('expected knowledge graph scene props');
+    }
 
     const scene = new EmbeddedScene({
       $variables: new SceneVariableSet({ variables: [datasource, labels, metadata] }),
-      $behaviors: kg!.behaviors,
+      $behaviors: kg.behaviors,
       body: new SceneFlexLayout({ children: [] }),
     });
     scene.activate();
 
-    const layer = kg!.$data.state.layers[0];
-    const target = layer.state.query.target as { fromLabelsQuery?: Record<string, unknown> };
+    const layer = kg.$data.state.layers[0];
+    if (!(layer instanceof dataLayers.AnnotationsDataLayer)) {
+      throw new Error('expected an annotations data layer');
+    }
 
-    expect(target.fromLabelsQuery).toEqual({
-      telemetryType: 'log',
-      datasourceUid: 'loki-1',
-      labels: { service_name: 'emailservice', pod: 'emailservice-abc' },
-      entityType: 'Pod',
-    });
+    expect(layer.state.query.target).toEqual(
+      expect.objectContaining({
+        fromLabelsQuery: {
+          telemetryType: 'log',
+          datasourceUid: 'loki-1',
+          labels: { service_name: 'emailservice', pod: 'emailservice-abc' },
+          entityType: 'Pod',
+        },
+      })
+    );
   });
 });
