@@ -1,6 +1,7 @@
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
+  AdHocFilterWithLabels,
   AdHocFiltersVariable,
   dataLayers,
   SceneDataLayerSet,
@@ -12,7 +13,7 @@ import {
 import { DataQuery } from '@grafana/schema';
 
 import { KgAnnotationToggle } from './KgAnnotationToggle';
-import { VAR_DATASOURCE, VAR_LABELS } from './variables';
+import { stripAdHocFilterUserInputPrefix, VAR_DATASOURCE, VAR_LABELS, VAR_METADATA } from './variables';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 
 const KG_DATASOURCE_TYPE = 'grafana-knowledgegraph-datasource';
@@ -32,7 +33,36 @@ export function isKgAnnotationsAvailable(): boolean {
   return Object.values(config.datasources).some((d) => d.uid === KG_DATASOURCE_UID);
 }
 
-function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string) {
+export interface KgAnnotationOptions {
+  entityType?: string;
+}
+
+/**
+ * Labels sent to the knowledge-graph fromLabels query. Stream labels and
+ * structured-metadata equality filters are both included. For example:
+ * `{service_name="emailservice"} | pod="emailservice-abc"`
+ */
+export function labelsForKgAnnotation(
+  streamFilters: AdHocFilterWithLabels[],
+  metadataFilters: AdHocFilterWithLabels[]
+): Record<string, string> {
+  const labels: Record<string, string> = {};
+  for (const filters of [metadataFilters, streamFilters]) {
+    for (const filter of filters) {
+      if (filter.operator !== '=') {
+        continue;
+      }
+      const value = stripAdHocFilterUserInputPrefix(filter.value);
+      if (!filter.key || value === '') {
+        continue;
+      }
+      labels[filter.key] = value;
+    }
+  }
+  return labels;
+}
+
+function createAnnotationLayers(labels: Record<string, string>, datasourceUid: string, entityType?: string) {
   const severities = [
     {
       value: 'critical',
@@ -67,6 +97,7 @@ function createAnnotationLayers(labels: Record<string, string>, datasourceUid: s
               telemetryType: 'log',
               datasourceUid,
               labels,
+              ...(entityType ? { entityType } : {}),
             },
           } as unknown as DataQuery,
         },
@@ -75,6 +106,7 @@ function createAnnotationLayers(labels: Record<string, string>, datasourceUid: s
 }
 
 interface KgAnnotationBehaviorState extends SceneObjectState {
+  entityType?: string;
   layerSet: SceneObjectRef<SceneDataLayerSet>;
   toggle: SceneObjectRef<KgAnnotationToggle>;
 }
@@ -88,25 +120,34 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
   }
 
   private _onActivate = () => {
-    const filtersVar = sceneGraph.lookupVariable(VAR_LABELS, this) as AdHocFiltersVariable | undefined;
-    if (!filtersVar) {
+    const labelsVar = sceneGraph.lookupVariable(VAR_LABELS, this) as AdHocFiltersVariable | undefined;
+    if (!labelsVar) {
       return;
     }
 
+    const metadataVar = sceneGraph.lookupVariable(VAR_METADATA, this) as AdHocFiltersVariable | undefined;
     const dsVar = sceneGraph.lookupVariable(VAR_DATASOURCE, this);
 
-    this.onFiltersChanged(filtersVar, dsVar);
+    this.onFiltersChanged(labelsVar, metadataVar, dsVar);
 
     const subs = [
-      filtersVar.subscribeToState(() => {
-        this.onFiltersChanged(filtersVar, dsVar);
+      labelsVar.subscribeToState(() => {
+        this.onFiltersChanged(labelsVar, metadataVar, dsVar);
       }),
     ];
+
+    if (metadataVar) {
+      subs.push(
+        metadataVar.subscribeToState(() => {
+          this.onFiltersChanged(labelsVar, metadataVar, dsVar);
+        })
+      );
+    }
 
     if (dsVar) {
       subs.push(
         dsVar.subscribeToState(() => {
-          this.onFiltersChanged(filtersVar, dsVar);
+          this.onFiltersChanged(labelsVar, metadataVar, dsVar);
         })
       );
     }
@@ -117,17 +158,15 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
   };
 
   private onFiltersChanged(
-    filtersVar: AdHocFiltersVariable,
+    labelsVar: AdHocFiltersVariable,
+    metadataVar: AdHocFiltersVariable | undefined,
     dsVar: ReturnType<typeof sceneGraph.lookupVariable> | undefined
   ) {
-    const filters = filtersVar.state.filters.filter((f) => f.operator === '=');
-    const labels: Record<string, string> = {};
-    for (const f of filters) {
-      labels[f.key] = f.value;
-    }
+    const labels = labelsForKgAnnotation(labelsVar.state.filters, metadataVar?.state.filters ?? []);
 
     const datasourceUid = (dsVar?.getValue() as string) || '';
-    const lookupKey = `${datasourceUid}::${JSON.stringify(labels)}`;
+    const entityType = this.state.entityType;
+    const lookupKey = `${datasourceUid}::${entityType ?? ''}::${JSON.stringify(labels)}`;
 
     if (lookupKey === this.currentLookupKey) {
       return;
@@ -138,7 +177,7 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
     const toggle = this.state.toggle.resolve();
 
     if (Object.keys(labels).length > 0 && datasourceUid) {
-      const layers = createAnnotationLayers(labels, datasourceUid);
+      const layers = createAnnotationLayers(labels, datasourceUid, entityType);
       layerSet.setState({ layers });
       toggle.syncLayerEnabledState();
     } else {
@@ -147,7 +186,7 @@ class KgAnnotationBehavior extends SceneObjectBase<KgAnnotationBehaviorState> {
   }
 }
 
-export function getKgSceneProps(): KgSceneProps | undefined {
+export function getKgSceneProps(options?: KgAnnotationOptions): KgSceneProps | undefined {
   if (!isKgAnnotationsAvailable()) {
     return undefined;
   }
@@ -162,6 +201,7 @@ export function getKgSceneProps(): KgSceneProps | undefined {
   const behavior = new KgAnnotationBehavior({
     layerSet: new SceneObjectRef(layerSet),
     toggle: new SceneObjectRef(toggle),
+    entityType: options?.entityType,
   });
 
   return {
