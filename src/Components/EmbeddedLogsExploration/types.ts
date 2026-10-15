@@ -23,6 +23,9 @@ export interface EmbeddedLogsOptions {
 
 interface EmbeddedLogsCommonProps {
   embedderName: string;
+  // Entity type the embedder already resolved, forwarded to knowledge-graph
+  // annotations so fromLabels does not have to infer it from the log labels.
+  entityType?: string;
   hideTimePicker?: boolean;
   namespace?: string;
   onTimeRangeChange?: (timeRange: TimeRange) => void;

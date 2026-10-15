@@ -20,6 +20,7 @@ export function buildLogsExplorationFromState({
   timeRangeState,
   options,
   hideTimePicker,
+  entityType,
   ...state
 }: EmbeddedLogsExplorationProps) {
   const $timeRange = new SceneTimeRange(timeRangeState);
@@ -78,7 +79,7 @@ export function buildLogsExplorationFromState({
   // Report valid init
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_init);
 
-  const kg = getKgSceneProps();
+  const kg = getKgSceneProps({ entityType });
 
   return new IndexScene({
     ...state,

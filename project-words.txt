@@ -562,3 +562,4 @@ logstable
 cprc
 codemods
 hookz
+emailservice
