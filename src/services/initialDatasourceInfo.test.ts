@@ -1,7 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
 
+import { plugin } from '../module';
 import {
-  chooseDatasourceUid,
+  getInitialDatasourceUid,
   getInitialDatasourceInfo,
   resolveInitialDatasourceInfo,
   useDefaultDatasourceUid,
@@ -9,6 +10,8 @@ import {
 import { isKgAnnotationsAvailable } from './kgAnnotations';
 import { logger } from './logger';
 import { getDefaultDatasourceUid, getLastUsedDataSourceFromStorage } from './store';
+
+jest.mock('../module', () => ({ plugin: { meta: { jsonData: {} } } }));
 
 jest.mock('./kgAnnotations', () => ({
   isKgAnnotationsAvailable: jest.fn(),
@@ -52,12 +55,20 @@ describe('resolveInitialDatasourceInfo', () => {
   });
 
   it('skips the default datasource lookup when the caller already knows the datasource', async () => {
-    await expect(resolveInitialDatasourceInfo({ needsDefaultDatasource: false })).resolves.toEqual({
-      defaultDatasourceUid: undefined,
+    await expect(resolveInitialDatasourceInfo({ needsDefaultDatasource: false })).resolves.toMatchObject({
       kgAnnotationsAvailable: true,
     });
 
     expect(getDefaultDatasourceUid).not.toHaveBeenCalled();
+  });
+
+  it('keeps a resolved default when a concurrent request skipped the lookup', async () => {
+    await Promise.all([
+      resolveInitialDatasourceInfo(),
+      resolveInitialDatasourceInfo({ needsDefaultDatasource: false }),
+    ]);
+
+    expect(getInitialDatasourceInfo().defaultDatasourceUid).toBe('loki-uid');
   });
 
   it('skips the default datasource lookup when a last used datasource is stored', async () => {
@@ -92,43 +103,43 @@ describe('resolveInitialDatasourceInfo', () => {
   });
 });
 
-describe('chooseDatasourceUid', () => {
-  const all = {
-    fallback: 'fallback-uid',
-    lastUsed: 'last-used-uid',
-    pluginSettings: 'settings-uid',
-    state: 'state-uid',
-  };
+describe('getInitialDatasourceUid', () => {
+  const setJsonData = (jsonData: object) => Object.assign(plugin.meta, { jsonData });
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    setJsonData({ dataSource: 'settings-uid' });
     jest.mocked(getDefaultDatasourceUid).mockResolvedValue('default-uid');
     jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
     jest.mocked(isKgAnnotationsAvailable).mockResolvedValue(false);
     await resolveInitialDatasourceInfo();
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue('last-used-uid');
   });
 
-  it('prefers explicit scene state over every other source', () => {
-    expect(chooseDatasourceUid(all)).toBe('state-uid');
-  });
+  afterAll(() => setJsonData({}));
 
-  it('then the saved plugin setting', () => {
-    expect(chooseDatasourceUid({ ...all, state: undefined })).toBe('settings-uid');
+  it('prefers the saved plugin setting', () => {
+    expect(getInitialDatasourceUid()).toBe('settings-uid');
   });
 
   it('then the last used datasource', () => {
-    expect(chooseDatasourceUid({ ...all, state: undefined, pluginSettings: undefined })).toBe('last-used-uid');
+    setJsonData({});
+    expect(getInitialDatasourceUid()).toBe('last-used-uid');
   });
 
   it('then the resolved default datasource', () => {
-    expect(chooseDatasourceUid({ fallback: 'fallback-uid' })).toBe('default-uid');
+    setJsonData({});
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
+    expect(getInitialDatasourceUid()).toBe('default-uid');
   });
 
   it('and finally the fallback when there is no default datasource', async () => {
+    setJsonData({});
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
     jest.mocked(getDefaultDatasourceUid).mockResolvedValue(undefined);
     await resolveInitialDatasourceInfo();
 
-    expect(chooseDatasourceUid({ fallback: 'fallback-uid' })).toBe('fallback-uid');
+    expect(getInitialDatasourceUid()).toBe('grafanacloud-logs');
   });
 });
 
@@ -148,10 +159,10 @@ describe('useDefaultDatasourceUid', () => {
     await waitFor(() => expect(result.current).toEqual({ dsUID: 'loki-uid', isLoading: false }));
   });
 
-  it('skips the default datasource lookup when it is not needed', async () => {
-    const { result } = renderHook(() => useDefaultDatasourceUid(false));
+  it('skips the default datasource lookup when the uid is already known', async () => {
+    const { result } = renderHook(() => useDefaultDatasourceUid('known-uid'));
 
-    await waitFor(() => expect(result.current).toEqual({ dsUID: undefined, isLoading: false }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(getDefaultDatasourceUid).not.toHaveBeenCalled();
   });
 

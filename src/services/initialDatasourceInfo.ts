@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
 
+import { AppPluginMeta } from '@grafana/data';
+
+import { plugin } from '../module';
 import { isKgAnnotationsAvailable } from './kgAnnotations';
 import { logger } from './logger';
 import { getDefaultDatasourceUid, getLastUsedDataSourceFromStorage } from './store';
+import type { JsonData } from 'Components/AppConfig/AppConfig';
 
 export type InitialDatasourceInfo = {
   defaultDatasourceUid: string | undefined;
   kgAnnotationsAvailable: boolean;
 };
+
+const FALLBACK_DATASOURCE_UID = 'grafanacloud-logs';
 
 let current: InitialDatasourceInfo = { defaultDatasourceUid: undefined, kgAnnotationsAvailable: false };
 let hasResolved = false;
@@ -23,19 +29,14 @@ export function getInitialDatasourceInfo(): InitialDatasourceInfo {
   return current;
 }
 
-// Order: explicit state, plugin setting, last used, resolved default, fallback.
-export function chooseDatasourceUid(sources: {
-  fallback: string;
-  lastUsed?: string;
-  pluginSettings?: string;
-  state?: string;
-}): string {
+// Order: plugin setting, last used, resolved default, fallback.
+export function getInitialDatasourceUid(): string {
+  const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
   return (
-    sources.state ??
-    sources.pluginSettings ??
-    sources.lastUsed ??
+    jsonData?.dataSource ??
+    getLastUsedDataSourceFromStorage() ??
     getInitialDatasourceInfo().defaultDatasourceUid ??
-    sources.fallback
+    FALLBACK_DATASOURCE_UID
   );
 }
 
@@ -55,7 +56,11 @@ async function loadInitialDatasourceInfo(lookUpDefault: boolean): Promise<Initia
     }),
   ]);
 
-  current = { defaultDatasourceUid, kgAnnotationsAvailable };
+  // A request that skipped the default lookup must not erase a default another request resolved.
+  current = {
+    defaultDatasourceUid: lookUpDefault ? defaultDatasourceUid : current.defaultDatasourceUid,
+    kgAnnotationsAvailable,
+  };
   hasResolved = true;
   return current;
 }
@@ -66,18 +71,21 @@ export function resolveInitialDatasourceInfo({
   needsDefaultDatasource = true,
 }: { needsDefaultDatasource?: boolean } = {}): Promise<InitialDatasourceInfo> {
   const lookUpDefault = needsDefaultDatasource && !getLastUsedDataSourceFromStorage();
-  let request = inFlight.get(lookUpDefault);
-  if (!request) {
-    request = loadInitialDatasourceInfo(lookUpDefault).finally(() => inFlight.delete(lookUpDefault));
-    inFlight.set(lookUpDefault, request);
+  const existing = inFlight.get(lookUpDefault);
+  if (existing) {
+    return existing;
   }
+  const request = loadInitialDatasourceInfo(lookUpDefault).finally(() => inFlight.delete(lookUpDefault));
+  inFlight.set(lookUpDefault, request);
   return request;
 }
 
-export function useDefaultDatasourceUid(needsDefaultDatasource = true): {
+// Pass the datasource uid when it is already known to skip the default lookup.
+export function useDefaultDatasourceUid(knownDatasourceUid?: string): {
   dsUID: string | undefined;
   isLoading: boolean;
 } {
+  const needsDefaultDatasource = !knownDatasourceUid;
   const [info, setInfo] = useState<InitialDatasourceInfo>();
 
   useEffect(() => {

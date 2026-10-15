@@ -173,7 +173,7 @@ describe('AppConfig', () => {
       });
       renderAppConfig(plugin);
 
-      expect(mockUseDefaultDatasourceUid).toHaveBeenCalledWith(false);
+      expect(mockUseDefaultDatasourceUid).toHaveBeenCalledWith('loki-uid');
       expect(screen.getByLabelText('Default data source')).toHaveValue('loki-uid');
     });
 

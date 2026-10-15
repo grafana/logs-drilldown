@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { useSceneApp } from '@grafana/scenes';
 
 import { plugin } from '../module';
-import LogExplorationView from './LogExplorationPage';
+import LogExplorationPage from './LogExplorationPage';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 
 jest.mock('services/initialDatasourceInfo', () => ({
@@ -39,7 +39,7 @@ jest.mock('react-router-dom', () => ({
   Navigate: () => <div>redirected</div>,
 }));
 
-describe('LogExplorationView', () => {
+describe('LogExplorationPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest
@@ -50,13 +50,13 @@ describe('LogExplorationView', () => {
   it('does not create the scene app until the initial datasource info is resolved', () => {
     jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: undefined, isLoading: true });
 
-    const { rerender } = render(<LogExplorationView />);
+    const { rerender } = render(<LogExplorationPage />);
 
     expect(screen.queryByText('scene')).not.toBeInTheDocument();
     expect(useSceneApp).not.toHaveBeenCalled();
 
     jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: 'loki-uid', isLoading: false });
-    rerender(<LogExplorationView />);
+    rerender(<LogExplorationPage />);
 
     expect(screen.getByText('scene')).toBeInTheDocument();
     expect(useSceneApp).toHaveBeenCalled();
@@ -72,19 +72,19 @@ describe('LogExplorationView', () => {
     });
 
     it('asks for the default datasource when none is saved in the plugin settings', () => {
-      render(<LogExplorationView />);
+      render(<LogExplorationPage />);
 
       expect(screen.getByText('scene')).toBeInTheDocument();
-      expect(useDefaultDatasourceUid).toHaveBeenCalledWith(true);
+      expect(useDefaultDatasourceUid).toHaveBeenCalledWith(undefined);
     });
 
     it('skips the default datasource lookup when one is saved in the plugin settings', () => {
       Object.assign(plugin.meta, { jsonData: { dataSource: 'saved-uid' } });
 
-      render(<LogExplorationView />);
+      render(<LogExplorationPage />);
 
       expect(screen.getByText('scene')).toBeInTheDocument();
-      expect(useDefaultDatasourceUid).toHaveBeenCalledWith(false);
+      expect(useDefaultDatasourceUid).toHaveBeenCalledWith('saved-uid');
     });
   });
 });

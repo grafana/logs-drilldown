@@ -72,7 +72,7 @@ import { PageSlugs } from 'services/enums';
 import { getFieldsTagValuesExpression } from 'services/expressions';
 import { isFilterMetadata } from 'services/filters';
 import { FilterOp, LineFilterType } from 'services/filterTypes';
-import { chooseDatasourceUid } from 'services/initialDatasourceInfo';
+import { getInitialDatasourceUid } from 'services/initialDatasourceInfo';
 import { getCopiedTimeRange, PasteTimeEvent, setupKeyboardShortcuts } from 'services/keyboardShortcuts';
 import { logger } from 'services/logger';
 import { getLevelsFromLogsVolume } from 'services/logsVolume';
@@ -103,7 +103,7 @@ import {
 import { renderPatternFilters } from 'services/renderPatternFilters';
 import { getDrilldownSlug, SERVICE_URL_EXCLUDED_KEYS } from 'services/routing';
 import { getLokiDatasource } from 'services/scenes';
-import { addLastUsedDataSourceToStorage, getLastUsedDataSourceFromStorage } from 'services/store';
+import { addLastUsedDataSourceToStorage } from 'services/store';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from 'services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from 'services/TagValuesProviders';
 import { filterInvalidTimeOptions, getQuickOptions } from 'services/timePicker';
@@ -146,8 +146,6 @@ import {
 
 export const showLogsButtonSceneKey = 'showLogsButtonScene';
 
-const FALLBACK_DATASOURCE_UID = 'grafanacloud-logs';
-
 interface EmbeddedIndexSceneConstructor {
   datasourceUid?: string;
   hideTimePicker?: boolean;
@@ -158,13 +156,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   private assistantInitialized = false;
 
   public constructor(state: Partial<IndexSceneState & EmbeddedIndexSceneConstructor>) {
-    const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
-    const datasourceUid = chooseDatasourceUid({
-      fallback: FALLBACK_DATASOURCE_UID,
-      lastUsed: getLastUsedDataSourceFromStorage(),
-      pluginSettings: jsonData?.dataSource,
-      state: state?.datasourceUid,
-    });
+    const datasourceUid = state?.datasourceUid ?? getInitialDatasourceUid();
 
     const { unsub, variablesScene } = getVariableSet(
       datasourceUid,

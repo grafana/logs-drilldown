@@ -86,7 +86,7 @@ const AppConfig = ({ plugin }: Props) => {
     defaultTimeRangeFrom: jsonData?.defaultTimeRange?.from ?? 'now-15m',
     defaultTimeRangeTo: jsonData?.defaultTimeRange?.to ?? 'now',
   });
-  const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(!jsonData?.dataSource);
+  const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(jsonData?.dataSource);
   const isResolvingDefault = isLoading && !state.dataSource;
 
   useEffect(() => {

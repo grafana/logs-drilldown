@@ -46,8 +46,8 @@ function LogExplorationScene() {
 }
 
 // Scene constructors read the default datasource synchronously, so resolve it first.
-function LogExplorationView() {
-  const { isLoading } = useDefaultDatasourceUid(!plugin.meta.jsonData?.dataSource);
+function LogExplorationPage() {
+  const { isLoading } = useDefaultDatasourceUid(plugin.meta.jsonData?.dataSource);
 
   if (isLoading) {
     return null;
@@ -56,4 +56,4 @@ function LogExplorationView() {
   return <LogExplorationScene />;
 }
 
-export default LogExplorationView;
+export default LogExplorationPage;
