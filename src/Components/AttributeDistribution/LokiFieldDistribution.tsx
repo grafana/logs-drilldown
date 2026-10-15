@@ -4,7 +4,7 @@ import { Observable, from, map, switchMap } from 'rxjs';
 
 import { DataQueryResponse, DataFrame, DataQueryRequest, TimeRange, dateTime, FieldType } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
 
 import {
   ActiveFilter,
@@ -50,7 +50,7 @@ function makeFetchAttributes(
   const excludeSet = new Set(fieldsToExclude);
 
   return async function fetchAttributes(context: DatasetContext): Promise<AttributeConfig[]> {
-    const ds = (await getDataSourceSrv().get(context.datasourceUid)) as LokiDatasource;
+    const ds = (await getDataSourceInstance(context.datasourceUid)) as LokiDatasource;
 
     const start = dateTime(context.timeRange.from).utc().toISOString();
     const end = dateTime(context.timeRange.to).utc().toISOString();
@@ -152,7 +152,7 @@ function fetchDistribution(
     timezone: 'browser',
   };
 
-  return from(getDataSourceSrv().get(context.datasourceUid)).pipe(
+  return from(getDataSourceInstance(context.datasourceUid)).pipe(
     switchMap((ds) => (ds as LokiDatasource).query(request)),
     map((response) => {
       const errMsg = response.error?.message ?? response.errors?.[0]?.message ?? '';

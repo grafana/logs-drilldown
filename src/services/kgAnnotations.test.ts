@@ -1,5 +1,5 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { getDataSourceInstanceSettings } from '@grafana/plugin-compat/datasources';
 import {
   AdHocFiltersVariable,
   CustomVariable,
@@ -9,12 +9,48 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 
-import { getKgSceneProps, labelsForKgAnnotation } from './kgAnnotations';
+import { getKgSceneProps, isKgAnnotationsAvailable, labelsForKgAnnotation } from './kgAnnotations';
 import { USER_INPUT_ADHOC_VALUE_PREFIX, VAR_DATASOURCE, VAR_LABELS, VAR_METADATA } from './variables';
+import { getFeatureFlag } from 'featureFlags/openFeature';
+
+jest.mock('@grafana/plugin-compat/datasources', () => ({
+  getDataSourceInstanceSettings: jest.fn(),
+}));
 
 jest.mock('featureFlags/openFeature', () => ({
-  getFeatureFlag: (name: string) => name === 'drilldown.logs.kgAnnotationsInLokiExplore',
+  getFeatureFlag: jest.fn(),
 }));
+
+const KG_DATASOURCE_UID = 'grafanacloud-knowledgegraph';
+
+describe('isKgAnnotationsAvailable', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getFeatureFlag).mockReturnValue(true);
+  });
+
+  it('is false without looking up the datasource when the feature flag is off', async () => {
+    jest.mocked(getFeatureFlag).mockReturnValue(false);
+
+    await expect(isKgAnnotationsAvailable()).resolves.toBe(false);
+    expect(getDataSourceInstanceSettings).not.toHaveBeenCalled();
+  });
+
+  it('is true when the knowledge graph datasource exists', async () => {
+    jest
+      .mocked(getDataSourceInstanceSettings)
+      .mockResolvedValue({ uid: KG_DATASOURCE_UID } as DataSourceInstanceSettings);
+
+    await expect(isKgAnnotationsAvailable()).resolves.toBe(true);
+    expect(getDataSourceInstanceSettings).toHaveBeenCalledWith(KG_DATASOURCE_UID);
+  });
+
+  it('is false when the knowledge graph datasource does not exist', async () => {
+    jest.mocked(getDataSourceInstanceSettings).mockResolvedValue(undefined);
+
+    await expect(isKgAnnotationsAvailable()).resolves.toBe(false);
+  });
+});
 
 describe('labelsForKgAnnotation', () => {
   it('includes structured-metadata equality filters and lets a stream label win on the same key', () => {
@@ -39,27 +75,19 @@ describe('labelsForKgAnnotation', () => {
   });
 });
 
-describe('getKgSceneProps annotation query', () => {
-  const datasources = config.datasources;
-
-  beforeEach(() => {
-    const kg: DataSourceInstanceSettings = {
-      uid: 'grafanacloud-knowledgegraph',
-      type: 'grafana-knowledgegraph-datasource',
-      name: 'kg',
-      access: 'proxy',
-      readOnly: false,
-      jsonData: {},
-      meta: {} as DataSourceInstanceSettings['meta'],
-    };
-    config.datasources = {
-      ...datasources,
-      kg,
-    };
+describe('getKgSceneProps', () => {
+  it('returns nothing when the knowledge graph datasource is not available', () => {
+    expect(getKgSceneProps(false)).toBeUndefined();
   });
 
-  afterEach(() => {
-    config.datasources = datasources;
+  it('returns the scene props when the knowledge graph datasource is available', () => {
+    expect(getKgSceneProps(true)).toEqual(
+      expect.objectContaining({
+        $data: expect.anything(),
+        behaviors: expect.any(Array),
+        controls: expect.anything(),
+      })
+    );
   });
 
   it('sends the pod structured-metadata filter and the embedder entity type', () => {
@@ -77,7 +105,7 @@ describe('getKgSceneProps annotation query', () => {
       value: 'loki-1',
     });
 
-    const kg = getKgSceneProps({ entityType: 'Pod' });
+    const kg = getKgSceneProps(true, { entityType: 'Pod' });
     if (kg == null) {
       throw new Error('expected knowledge graph scene props');
     }
