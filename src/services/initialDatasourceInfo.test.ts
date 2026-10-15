@@ -191,7 +191,7 @@ describe('useDefaultDatasourceUid when resolving rejects', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(logger.error).toHaveBeenCalledWith(expect.any(Error), {
-      msg: 'Failed to resolve the initial datasource info',
+      msg: 'Failed to resolve the initial datasource',
     });
   });
 });
