@@ -89,7 +89,12 @@ export function useDefaultDatasourceUid(knownDatasourceUid?: string): {
   const [info, setInfo] = useState<InitialDatasourceInfo>();
 
   useEffect(() => {
-    void resolveInitialDatasourceInfo({ needsDefaultDatasource }).then(setInfo);
+    resolveInitialDatasourceInfo({ needsDefaultDatasource })
+      .then(setInfo)
+      .catch((error) => {
+        logger.error(error, { msg: 'Failed to resolve the initial datasource' });
+        setInfo(getInitialDatasourceInfo());
+      });
   }, [needsDefaultDatasource]);
 
   return { dsUID: info?.defaultDatasourceUid, isLoading: !info };

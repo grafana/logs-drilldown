@@ -175,6 +175,27 @@ describe('useDefaultDatasourceUid', () => {
   });
 });
 
+describe('useDefaultDatasourceUid when resolving rejects', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(getDefaultDatasourceUid).mockResolvedValue('loki-uid');
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
+  });
+
+  it('stops loading and logs instead of staying on the loading state', async () => {
+    jest.mocked(isKgAnnotationsAvailable).mockImplementation(() => {
+      throw new Error('unexpected failure');
+    });
+
+    const { result } = renderHook(() => useDefaultDatasourceUid());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(logger.error).toHaveBeenCalledWith(expect.any(Error), {
+      msg: 'Failed to resolve the initial datasource info',
+    });
+  });
+});
+
 describe('reading before resolution', () => {
   it('returns empty info and warns once', () => {
     jest.isolateModules(() => {
