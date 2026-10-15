@@ -164,9 +164,9 @@ test.describe('Default fields', () => {
         await expect(page.getByRole('listbox')).toBeVisible();
         await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
         await page.keyboard.press('Enter');
-        await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(2);
-        await page.getByTestId(testIds.index.showLogsButton).first().click();
-        await page.getByTestId(testIds.index.showLogsButton).last().click();
+        await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude)).toHaveCount(2);
+        await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).first().click();
+        await page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).last().click();
         await page.getByText('Show logs').click();
         await expect(showOriginalLogLineButton).toBeVisible();
         await expect(page.getByRole('checkbox', { name: 'file', exact: true })).toBeChecked();
