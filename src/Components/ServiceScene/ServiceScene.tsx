@@ -29,6 +29,7 @@ import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { plugin } from '../../module';
 import { ActionBarScene } from './ActionBarScene';
 import { AddToDashboardModal } from './AddToDashboardModal';
+import { AddToNotebookModal } from './AddToNotebookModal';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import { CreateAlertModal } from './CreateAlertModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
@@ -46,6 +47,8 @@ import { ShowLogsButtonScene } from 'Components/IndexScene/ShowLogsButtonScene';
 import {
   AddToDashboardData,
   AddToDashboardEvent,
+  AddToNotebookData,
+  AddToNotebookEvent,
   CreateAlertData,
   CreateAlertEvent,
 } from 'Components/Panels/PanelMenu';
@@ -141,6 +144,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   // null implies it is not supported, undefined is not set yet
   $patternsData?: SceneQueryRunner | undefined | null;
   addToDashboardData?: AddToDashboardData;
+  addToNotebookData?: AddToNotebookData;
   backendDisplayedFields?: string[];
   body: SceneFlexLayout | undefined;
   createAlertData?: CreateAlertData;
@@ -551,6 +555,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToTimeRange());
 
     this._subs.add(this.subscribeToEvent(AddToDashboardEvent, this.subscribeToAddToDashboard));
+    this._subs.add(this.subscribeToEvent(AddToNotebookEvent, this.subscribeToAddToNotebook));
     this._subs.add(this.subscribeToEvent(CreateAlertEvent, this.subscribeToCreateAlert));
 
     // Migrations
@@ -842,6 +847,18 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
   };
 
+  private subscribeToAddToNotebook = (event: AddToNotebookEvent) => {
+    this.setState({
+      addToNotebookData: event.payload,
+    });
+  };
+
+  public hideAddToNotebook = () => {
+    this.setState({
+      addToNotebookData: undefined,
+    });
+  };
+
   private subscribeToCreateAlert = (event: CreateAlertEvent) => {
     this.setState({
       createAlertData: event.payload,
@@ -946,7 +963,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body, addToDashboardData, createAlertData } = model.useState();
+    const { body, addToDashboardData, addToNotebookData, createAlertData } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
@@ -987,6 +1004,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       return (
         <>
           {addToDashboardData && <AddToDashboardModal data={addToDashboardData} onClose={model.hideAddToDashboard} />}
+          {addToNotebookData && <AddToNotebookModal data={addToNotebookData} onClose={model.hideAddToNotebook} />}
           {createAlertData && <CreateAlertModal data={createAlertData} onDismiss={model.hideCreateAlert} />}
           <body.Component model={body} />
         </>

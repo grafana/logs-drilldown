@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { css } from '@emotion/css';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { BusEventBase, GrafanaTheme2, PanelMenuItem, TimeRange } from '@grafana/data';
+import { BusEventBase, GrafanaTheme2, PanelMenuItem, rangeUtil, TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv, reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
@@ -25,6 +25,7 @@ import { FieldsVizPanelWrapper } from 'Components/ServiceScene/Breakdowns/Fields
 import { setValueSummaryHeight } from 'Components/ServiceScene/Breakdowns/Panels/ValueSummary';
 import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
+import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 import { isLogsQuery } from 'services/logql';
@@ -207,6 +208,9 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
     const { component: AddToDashboardComponent, isLoading: isLoadingAddToDashboard } = usePluginComponent(
       'grafana/add-to-dashboard-form/v1'
     );
+    const { component: AddToNotebookComponent, isLoading: isLoadingAddToNotebook } = usePluginComponent(
+      'grafana/add-to-notebook-form/v1'
+    );
     const { component: CreateAlertComponent, isLoading: isLoadingCreateAlert } = usePluginComponent(
       'grafana/alerting/create-alert-from-panel/v1'
     );
@@ -234,6 +238,28 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
         );
       }
     }, [isLoadingAddToDashboard, AddToDashboardComponent, model]);
+
+    useEffect(() => {
+      const isAvailable = !isLoadingAddToNotebook && Boolean(AddToNotebookComponent);
+
+      if (!isLoadingAddToNotebook && !AddToNotebookComponent) {
+        logger.warn(`Failed to load add to notebook component: grafana/add-to-notebook-form/v1`);
+      }
+
+      if (isAvailable && getFeatureFlag('dashboard.notebooks')) {
+        addItemToGroup(
+          model,
+          {
+            text: t('components.panels.panel-menu.text.add-to-notebook', 'Add to Notebook'),
+            onClick: () => {
+              model.publishEvent(new AddToNotebookEvent(getAddToNotebookPayload(model)), true);
+            },
+            iconClassName: 'book',
+          },
+          'Navigation'
+        );
+      }
+    }, [isLoadingAddToNotebook, AddToNotebookComponent, model]);
 
     useEffect(() => {
       const isAvailable = !isLoadingCreateAlert && Boolean(CreateAlertComponent);
@@ -420,6 +446,21 @@ export const getAddToDashboardPayload = (model: PanelMenu) => {
   return { panel, timeRange };
 };
 
+export const getAddToNotebookPayload = (model: PanelMenu) => {
+  const timeRange = sceneGraph.getTimeRange(model);
+  // Keep the raw from/to so a relative range keeps re-evaluating in the notebook.
+  const { from, to } = rangeUtil.formatRawTimeRange(timeRange.state.value.raw);
+
+  return {
+    ...getAddToDashboardPayload(model),
+    capturedTimeRange: {
+      from: String(from),
+      to: String(to),
+      timeZone: timeRange.getTimeZone(),
+    },
+  };
+};
+
 export const getCreateAlertPayload = (model: PanelMenu) => {
   const indexScene = sceneGraph.getAncestor(model, IndexScene);
   let sourcePanel: VizPanel | undefined = undefined;
@@ -515,6 +556,23 @@ export class AddToDashboardEvent extends BusEventBase {
     super();
   }
   public static type = 'add-to-dashboard';
+}
+
+export interface CapturedTimeRange {
+  from: string;
+  timeZone?: string;
+  to: string;
+}
+
+export interface AddToNotebookData extends AddToDashboardData {
+  capturedTimeRange: CapturedTimeRange;
+}
+
+export class AddToNotebookEvent extends BusEventBase {
+  constructor(public payload: AddToNotebookData) {
+    super();
+  }
+  public static type = 'add-to-notebook';
 }
 
 export interface CreateAlertData {
