@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { Badge, ErrorBoundaryAlert, useStyles2 } from '@grafana/ui';
+import { Badge, ErrorBoundaryAlert, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { DefaultColumnsContextProvider } from './Context';
 import { DataSource } from './DataSource';
@@ -14,7 +14,8 @@ import { isDefaultColumnsSupported } from './isSupported';
 import { Unsupported } from './Unsupported';
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { NoLokiSplash } from 'Components/NoLokiSplash';
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
+import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
+import { getLastUsedDataSourceFromStorage } from 'services/store';
 
 const Config = () => {
   return (
@@ -25,8 +26,13 @@ const Config = () => {
 };
 
 const DefaultColumnsConfig = () => {
-  const dsUID = getLastUsedDataSourceFromStorage() ?? getDefaultDatasourceFromDatasourceSrv();
+  const lastUsed = getLastUsedDataSourceFromStorage();
+  const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid();
+  const dsUID = lastUsed ?? defaultUid;
   const styles = useStyles2(getStyles);
+  if (isLoading && !lastUsed) {
+    return <LoadingPlaceholder text={t('components.app-config.default-columns.config.text-loading', 'Loading...')} />;
+  }
   if (!dsUID) {
     return <NoLokiSplash />;
   }

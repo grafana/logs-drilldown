@@ -7,7 +7,8 @@ import userEvent from '@testing-library/user-event';
 import 'jest-canvas-mock';
 
 import Config from './Config';
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
+import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
+import { getLastUsedDataSourceFromStorage } from 'services/store';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -28,6 +29,10 @@ jest.mock('./isSupported', () => ({
 }));
 
 jest.mock('services/store');
+
+jest.mock('services/initialDatasourceInfo', () => ({
+  useDefaultDatasourceUid: jest.fn(),
+}));
 
 jest.mock('@grafana/runtime', () => {
   const actual = jest.requireActual('@grafana/runtime');
@@ -126,8 +131,8 @@ describe('ServiceSelection Config', () => {
     jest.clearAllMocks();
     mockIsSupported.isDefaultLabelsFlagsSupported = true;
     mockIsSupported.isDefaultLabelsVersionSupported = true;
-    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
-    jest.mocked(getDefaultDatasourceFromDatasourceSrv).mockReturnValue(MOCK_DS_UID);
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(MOCK_DS_UID);
+    jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: undefined, isLoading: false });
     mockGetQuery.mockReturnValue(defaultQueryReturn);
   });
 
@@ -137,10 +142,28 @@ describe('ServiceSelection Config', () => {
     }
   });
 
+  describe('while the default datasource is resolving', () => {
+    it('shows a loading placeholder instead of NoLokiSplash', () => {
+      jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
+      jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: undefined, isLoading: true });
+
+      const { rerender } = render(<Config />);
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.queryByText(/no loki datasource configured/i)).not.toBeInTheDocument();
+
+      jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: MOCK_DS_UID, isLoading: false });
+      rerender(<Config />);
+
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      expect(screen.getByText('Beta')).toBeInTheDocument();
+    });
+  });
+
   describe('when no datasource is available', () => {
     it('shows NoLokiSplash', () => {
       jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
-      jest.mocked(getDefaultDatasourceFromDatasourceSrv).mockReturnValue(undefined);
+      jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: undefined, isLoading: false });
 
       render(<Config />);
 
@@ -184,16 +207,26 @@ describe('ServiceSelection Config', () => {
       expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
     });
 
-    it('prefers last used datasource from storage over default from service', () => {
+    it('renders without waiting for the default datasource when one was last used', () => {
       const storedUID = 'stored-ds-uid';
       jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(storedUID);
-      jest.mocked(getDefaultDatasourceFromDatasourceSrv).mockReturnValue(MOCK_DS_UID);
+      jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: undefined, isLoading: true });
 
       render(<Config />);
 
       // Config renders main content (would use stored UID in context)
       expect(screen.getByRole('heading', { name: /landing page default labels/i })).toBeInTheDocument();
       expect(getLastUsedDataSourceFromStorage).toHaveBeenCalled();
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+
+    it('uses the resolved default datasource when nothing is stored', () => {
+      jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue(undefined);
+      jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: MOCK_DS_UID, isLoading: false });
+
+      render(<Config />);
+
+      expect(screen.getByRole('heading', { name: /landing page default labels/i })).toBeInTheDocument();
     });
 
     describe('integration: label and value selection, save, remove', () => {

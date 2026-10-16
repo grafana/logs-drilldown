@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Configure the fields to show by default. These can replace the full log line or be displayed next to it.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": "Loading..."
         },
         "default-columns": {
           "text-loading": "Loading..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Configure which labels and label values appear by default on the Logs Drilldown landing page.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": "Loading..."
         },
         "context": {
           "text-loading": "Loading..."

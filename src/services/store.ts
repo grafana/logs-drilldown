@@ -1,5 +1,5 @@
 import { LogsDedupStrategy } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceInstanceList, getDefaultDataSourceInstanceListItem } from '@grafana/plugin-compat/datasources';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
@@ -172,11 +172,11 @@ export function getLastUsedDataSourceFromStorage(): string | undefined {
  */
 const GRAFANACLOUD_LOGS_DS_PATTERN = /^grafanacloud-.+-logs$/;
 
-export function getDefaultDatasourceFromDatasourceSrv(): string | undefined {
-  const dsList = getDataSourceSrv().getList({
+export async function getDefaultDatasourceUid(): Promise<string | undefined> {
+  const dsList = await getDataSourceInstanceList({
     type: 'loki',
   });
-  const defaultDs = dsList.find((ds) => ds.isDefault);
+  const defaultDs = await getDefaultDataSourceInstanceListItem(dsList);
   if (defaultDs?.uid) {
     return defaultDs.uid;
   }

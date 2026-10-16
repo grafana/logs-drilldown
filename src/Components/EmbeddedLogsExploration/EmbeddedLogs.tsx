@@ -7,6 +7,7 @@ import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from 'Components/ServiceScene/ServiceSceneConstants';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import initRuntimeDs from 'services/datasource';
+import { getInitialDatasourceInfo, useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { getKgSceneProps } from 'services/kgAnnotations';
 import { getMatcherFromQuery } from 'services/logqlMatchers';
 import { initializeMetadataService } from 'services/metadata';
@@ -79,7 +80,7 @@ export function buildLogsExplorationFromState({
   // Report valid init
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.embedded_init);
 
-  const kg = getKgSceneProps({ entityType });
+  const kg = getKgSceneProps(getInitialDatasourceInfo().kgAnnotationsAvailable, { entityType });
 
   return new IndexScene({
     ...state,
@@ -99,13 +100,17 @@ export const VARIABLE_NAMESPACE = 'ld';
 
 export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   const [exploration, setExploration] = useState<IndexScene | null>(null);
+  const { isLoading } = useDefaultDatasourceUid(props.datasourceUid);
 
   useEffect(() => {
-    if (!exploration) {
-      initializeMetadataService(true);
+    initializeMetadataService(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && !exploration) {
       setExploration(buildLogsExplorationFromState(props));
     }
-  }, [exploration, props]);
+  }, [isLoading, exploration, props]);
 
   if (!exploration) {
     return null;

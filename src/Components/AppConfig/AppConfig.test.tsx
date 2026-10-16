@@ -1,21 +1,25 @@
 import React, { ReactNode } from 'react';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { of } from 'rxjs';
 
 import { AppPluginMeta, GrafanaPlugin, PluginConfigPage, PluginMeta, PluginType } from '@grafana/data';
-import { getBackendSrv, locationService } from '@grafana/runtime';
+import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
+import { locationService } from '@grafana/runtime';
 
 import AppConfig, { updatePlugin, type JsonData } from './AppConfig';
-import { getDefaultDatasourceFromDatasourceSrv, getLastUsedDataSourceFromStorage } from 'services/store';
+import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
+import { getLastUsedDataSourceFromStorage } from 'services/store';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
 }));
 
+jest.mock('@grafana/plugin-compat/apps', () => ({
+  updateAppPluginSettings: jest.fn(),
+}));
+
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
-  getBackendSrv: jest.fn(),
   locationService: {
     reload: jest.fn(),
     getLocation: jest.fn(),
@@ -43,8 +47,11 @@ jest.mock('@grafana/data', () => ({
   getTimeZone: jest.fn(() => 'utc'),
 }));
 
+jest.mock('services/initialDatasourceInfo', () => ({
+  useDefaultDatasourceUid: jest.fn(),
+}));
+
 jest.mock('services/store', () => ({
-  getDefaultDatasourceFromDatasourceSrv: jest.fn(),
   getLastUsedDataSourceFromStorage: jest.fn(),
 }));
 
@@ -52,9 +59,9 @@ jest.mock('services/logger', () => ({
   logger: { error: jest.fn() },
 }));
 
-const mockGetBackendSrv = jest.mocked(getBackendSrv);
+const mockUpdateAppPluginSettings = jest.mocked(updateAppPluginSettings);
 const mockLocationServiceReload = jest.mocked(locationService.reload);
-const mockGetDefaultDatasource = jest.mocked(getDefaultDatasourceFromDatasourceSrv);
+const mockUseDefaultDatasourceUid = jest.mocked(useDefaultDatasourceUid);
 const mockGetLastUsedDataSource = jest.mocked(getLastUsedDataSourceFromStorage);
 
 function createPluginMeta(
@@ -95,11 +102,9 @@ function getIntervalInput() {
 describe('AppConfig', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetDefaultDatasource.mockReturnValue(undefined);
+    mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: undefined, isLoading: false });
     mockGetLastUsedDataSource.mockReturnValue(undefined);
-    mockGetBackendSrv.mockReturnValue({
-      fetch: jest.fn().mockReturnValue(of({ data: {} })),
-    } as any);
+    mockUpdateAppPluginSettings.mockResolvedValue({} as PluginMeta);
   });
 
   describe('render', () => {
@@ -137,12 +142,39 @@ describe('AppConfig', () => {
           jsonData: { dataSource: 'saved-ds-uid' },
         } as any,
       });
-      mockGetDefaultDatasource.mockReturnValue(undefined);
       renderAppConfig(plugin);
       const select = screen.getByLabelText('Default data source');
       expect(select).toHaveValue('');
       // DataSourcePicker is mocked with options "" and "loki-uid"; jsonData sets state but mock only has those options
       expect(screen.getByTestId('data-testid ac-datasource-input')).toBeInTheDocument();
+    });
+
+    it('uses the resolved default data source when none is configured', async () => {
+      mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: 'loki-uid', isLoading: false });
+      renderAppConfig();
+
+      expect(screen.getByLabelText('Default data source')).toHaveValue('loki-uid');
+    });
+
+    it('falls back to the last used data source when the default cannot be resolved', async () => {
+      mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: undefined, isLoading: false });
+      mockGetLastUsedDataSource.mockReturnValue('loki-uid');
+      renderAppConfig();
+
+      expect(screen.getByLabelText('Default data source')).toHaveValue('loki-uid');
+    });
+
+    it('does not look up a default data source when one is saved in jsonData', () => {
+      const plugin = createPluginMeta({
+        meta: {
+          ...createPluginMeta().meta,
+          jsonData: { dataSource: 'loki-uid' },
+        } as any,
+      });
+      renderAppConfig(plugin);
+
+      expect(mockUseDefaultDatasourceUid).toHaveBeenCalledWith('loki-uid');
+      expect(screen.getByLabelText('Default data source')).toHaveValue('loki-uid');
     });
 
     it('initializes interval from jsonData when provided', () => {
@@ -158,21 +190,21 @@ describe('AppConfig', () => {
   });
 
   describe('interval validation', () => {
-    it('disables Save when interval is invalid (less than 1 hour)', () => {
+    it('disables Save when interval is invalid (less than 1 hour)', async () => {
       renderAppConfig();
       const intervalInput = getIntervalInput();
       fireEvent.change(intervalInput, { target: { value: '30m' } });
       expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
     });
 
-    it('enables Save when interval is valid', () => {
+    it('enables Save when interval is valid', async () => {
       renderAppConfig();
       const intervalInput = getIntervalInput();
       fireEvent.change(intervalInput, { target: { value: '2h' } });
       expect(screen.getByRole('button', { name: 'Save settings' })).not.toBeDisabled();
     });
 
-    it('enables Save when interval is empty', () => {
+    it('enables Save when interval is empty', async () => {
       renderAppConfig();
       const intervalInput = getIntervalInput();
       expect(intervalInput).toHaveValue('');
@@ -181,7 +213,7 @@ describe('AppConfig', () => {
   });
 
   describe('default time range', () => {
-    it('shows From/To inputs when default time range is enabled', () => {
+    it('shows From/To inputs when default time range is enabled', async () => {
       renderAppConfig();
       expect(screen.queryByTestId('data-testid ac-default-time-range-from')).not.toBeInTheDocument();
       fireEvent.click(screen.getByLabelText('Use custom default time range'));
@@ -189,7 +221,7 @@ describe('AppConfig', () => {
       expect(screen.getByTestId('data-testid ac-default-time-range-to')).toBeInTheDocument();
     });
 
-    it('disables Save when default time range is enabled and invalid (To before From)', () => {
+    it('disables Save when default time range is enabled and invalid (To before From)', async () => {
       renderAppConfig();
       fireEvent.click(screen.getByLabelText('Use custom default time range'));
       const fromInput = screen.getByTestId('data-testid ac-default-time-range-from');
@@ -199,7 +231,7 @@ describe('AppConfig', () => {
       expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
     });
 
-    it('disables Save when the time range is not valid', () => {
+    it('disables Save when the time range is not valid', async () => {
       renderAppConfig();
       fireEvent.click(screen.getByLabelText('Use custom default time range'));
       const fromInput = screen.getByTestId('data-testid ac-default-time-range-from');
@@ -211,6 +243,19 @@ describe('AppConfig', () => {
   });
 
   describe('Save settings', () => {
+    it('keeps Save disabled until the default data source has resolved', () => {
+      mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: undefined, isLoading: true });
+      const plugin = createPluginMeta();
+      const { rerender } = renderAppConfig(plugin);
+
+      expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
+
+      mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: 'loki-uid', isLoading: false });
+      rerender(<AppConfig plugin={plugin} query={{}} />);
+
+      expect(screen.getByRole('button', { name: 'Save settings' })).not.toBeDisabled();
+    });
+
     it('calls updatePlugin and reloads on Save', async () => {
       const plugin = createPluginMeta();
       renderAppConfig(plugin);
@@ -219,17 +264,14 @@ describe('AppConfig', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockGetBackendSrv().fetch).toHaveBeenCalledWith(
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
           expect.objectContaining({
-            method: 'POST',
-            url: '/api/plugins/grafana-lokiexplore-app/settings',
-            data: expect.objectContaining({
-              jsonData: expect.objectContaining({
-                dataSource: '',
-                interval: '',
-                patternsDisabled: false,
-                defaultTimeRange: undefined,
-              }),
+            jsonData: expect.objectContaining({
+              dataSource: '',
+              interval: '',
+              patternsDisabled: false,
+              defaultTimeRange: undefined,
             }),
           })
         );
@@ -249,12 +291,11 @@ describe('AppConfig', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Save settings' }));
 
       await Promise.resolve();
-      expect(mockGetBackendSrv().fetch).toHaveBeenCalledWith(
+      expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+        'grafana-lokiexplore-app',
         expect.objectContaining({
-          data: expect.objectContaining({
-            jsonData: expect.objectContaining({
-              defaultTimeRange: { from: 'now-1h', to: 'now' },
-            }),
+          jsonData: expect.objectContaining({
+            defaultTimeRange: { from: 'now-1h', to: 'now' },
           }),
         })
       );
@@ -263,19 +304,14 @@ describe('AppConfig', () => {
 });
 
 describe('updatePlugin', () => {
-  it('POSTs to plugin settings API and returns data', async () => {
+  it('updates the plugin settings through plugin-compat and returns the result', async () => {
     const data = { jsonData: { dataSource: 'ds1' } };
-    mockGetBackendSrv.mockReturnValue({
-      fetch: jest.fn().mockReturnValue(of({ data: { updated: true } })),
-    } as any);
+    const updated = { id: 'my-plugin' } as PluginMeta;
+    mockUpdateAppPluginSettings.mockResolvedValue(updated);
 
     const result = await updatePlugin('my-plugin', data);
 
-    expect(mockGetBackendSrv().fetch).toHaveBeenCalledWith({
-      method: 'POST',
-      url: '/api/plugins/my-plugin/settings',
-      data,
-    });
-    expect(result).toEqual({ updated: true });
+    expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith('my-plugin', data);
+    expect(result).toBe(updated);
   });
 });
