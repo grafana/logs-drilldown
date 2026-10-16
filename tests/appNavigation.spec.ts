@@ -1,6 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import pluginJson from '../src/plugin.json';
+import { testIds } from '../src/services/testIds';
 import { STATIC_FROM, STATIC_TO } from './config/constants';
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 import { E2EComboboxStrings, ExplorePage } from './fixtures/explore';
@@ -46,7 +47,9 @@ test.describe('navigating app', () => {
     resetParams.set('from', STATIC_FROM);
     resetParams.set('to', STATIC_TO);
     await page.goto(`/a/${pluginJson.id}/explore?${resetParams.toString()}`);
-    await expect.poll(() => page.getByTestId('data-testid button-filter-include').first().count()).toEqual(1);
+    await expect
+      .poll(() => page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).first().count())
+      .toEqual(1);
   });
 
   // Looks like mega menu clicks no longer trigger navigation, so whatever scene state is persisted after clicking on mega menu

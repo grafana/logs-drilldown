@@ -54,7 +54,7 @@ export class ExplorePage {
     public readonly page: Page,
     public readonly testInfo: TestInfo
   ) {
-    this.firstServicePageSelect = this.page.getByTestId(testIds.index.showLogsButton).first();
+    this.firstServicePageSelect = this.page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).first();
     this.logVolumeGraph = this.page.getByText('Log volume');
     this.servicesSearch = this.page.getByTestId(testIds.exploreServiceSearch.search);
     this.serviceBreakdownSearch = this.page.getByTestId(testIds.exploreServiceDetails.searchLogs);

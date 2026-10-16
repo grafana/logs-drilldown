@@ -50,7 +50,7 @@ test.describe('Logs and URL', () => {
     const includeCluster = 'eu-west-1';
     const clusterIncludeSelectButton = page
       .getByRole('region', { name: includeCluster })
-      .getByTestId('data-testid button-filter-include');
+      .getByTestId(testIds.exploreServiceDetails.buttonFilterInclude);
     await expect(clusterIncludeSelectButton).toHaveCount(1, { timeout: 45000 });
     await clusterIncludeSelectButton.click();
 
@@ -58,7 +58,7 @@ test.describe('Logs and URL', () => {
     const includeCluster2 = 'us-west-1';
     const cluster2IncludeSelectButton = page
       .getByRole('region', { name: includeCluster2 })
-      .getByTestId('data-testid button-filter-include');
+      .getByTestId(testIds.exploreServiceDetails.buttonFilterInclude);
     await expect(cluster2IncludeSelectButton).toHaveCount(1);
     await cluster2IncludeSelectButton.click();
 

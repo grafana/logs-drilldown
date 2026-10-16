@@ -698,7 +698,7 @@ test.describe('explore services page', () => {
         await page.getByRole('option').filter({ hasText: E2EComboboxStrings.customValueOptionHasText }).first().click();
 
         // Asser this filters down to only one result
-        await expect(page.getByTestId(testIds.index.showLogsButton)).toHaveCount(1);
+        await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude)).toHaveCount(1);
         await expect(page.getByText('of 1')).toBeVisible();
 
         // Select the first and only result

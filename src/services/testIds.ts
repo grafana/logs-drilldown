@@ -66,7 +66,6 @@ export const testIds = {
     },
     searchLabelValueInput: 'data-testid search-services-input',
     selectServiceButton: 'data-testid button-select-service',
-    showLogsButton: 'data-testid button-filter-include',
   },
 
   logsPanelHeader: {
