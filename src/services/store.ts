@@ -1,5 +1,5 @@
 import { LogsDedupStrategy } from '@grafana/data';
-import { getDataSourceInstanceList } from '@grafana/plugin-compat/datasources';
+import { getDataSourceInstanceList, getDefaultDataSourceInstanceListItem } from '@grafana/plugin-compat/datasources';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
@@ -176,7 +176,7 @@ export async function getDefaultDatasourceUid(): Promise<string | undefined> {
   const dsList = await getDataSourceInstanceList({
     type: 'loki',
   });
-  const defaultDs = dsList.find((ds) => ds.isDefault);
+  const defaultDs = await getDefaultDataSourceInstanceListItem(dsList);
   if (defaultDs?.uid) {
     return defaultDs.uid;
   }
