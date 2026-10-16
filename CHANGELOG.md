@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.1.0](https://github.com/grafana/logs-drilldown/compare/v3.0.0...v3.1.0) (2026-10-16)
+
+
+### 🎉 Features
+
+* **addToNotebook:** use exposed component to add to notebooks ([#2114](https://github.com/grafana/logs-drilldown/issues/2114)) ([9a4691a](https://github.com/grafana/logs-drilldown/commit/9a4691aed4bba5c505c31d3571603d3a93875a54))
+* **kgAnnotations:** pass entityType and metadata filters ([#2134](https://github.com/grafana/logs-drilldown/issues/2134)) ([b9bb3ac](https://github.com/grafana/logs-drilldown/commit/b9bb3ac841c6ecc72e873012068eddf3f13d2f48))
+* use OpenFeature providers from `@grafana/runtime` ([#2123](https://github.com/grafana/logs-drilldown/issues/2123)) ([30230b5](https://github.com/grafana/logs-drilldown/commit/30230b5d347d7d98f692d16e6f190dd9d59096ed))
+
+
+### 🐛 Bug Fixes
+
+* **types:** use relative imports in exposed types so bundle-types resolves them ([#2126](https://github.com/grafana/logs-drilldown/issues/2126)) ([ee32f55](https://github.com/grafana/logs-drilldown/commit/ee32f556703e60339095b462edff91e30c61d57c))
+
+
+### 🧹 Chore
+
+* **ci:** bump create-github-app-token and remove unused deployment-tools workflow ([#2131](https://github.com/grafana/logs-drilldown/issues/2131)) ([b4410af](https://github.com/grafana/logs-drilldown/commit/b4410afdfea0cf27d6dab6bf6fe5b248215c5c3c))
+* **ci:** update i18n workflows to match the other drilldown apps ([#2137](https://github.com/grafana/logs-drilldown/issues/2137)) ([4aa9231](https://github.com/grafana/logs-drilldown/commit/4aa92317cfc36610dcdc08e3e1cca48104d99ae9))
+* **deps:** run create-plugin update to 7.12.1 for @grafana/eslint-config v10 ([#2127](https://github.com/grafana/logs-drilldown/issues/2127)) ([720ea4d](https://github.com/grafana/logs-drilldown/commit/720ea4d1d8f5d57c2d72f78240fcab7f412f50c5))
+* **e2e:** drop the duplicate showLogsButton test id alias ([#2135](https://github.com/grafana/logs-drilldown/issues/2135)) ([bfa8ebe](https://github.com/grafana/logs-drilldown/commit/bfa8ebed03985e7ddb09d5ae1a101f6c1548e826))
+
 ## [3.0.0](https://github.com/grafana/logs-drilldown/compare/v2.6.0...v3.0.0) (2026-10-08)
 
 
