@@ -15,6 +15,9 @@ const debug = false;
 
 jest.mock('@grafana/plugin-compat/datasources', () => ({
   getDataSourceInstanceList: jest.fn(),
+  getDefaultDataSourceInstanceListItem: jest.fn(async (items: Array<{ isDefault?: boolean }>) =>
+    items.find((i) => i.isDefault)
+  ),
 }));
 
 jest.mock('@grafana/runtime', () => ({
