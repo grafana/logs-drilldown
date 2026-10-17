@@ -1,973 +1,1035 @@
 {
   "components": {
     "app": {
-      "text-loading": ""
+      "text-loading": "Cargando..."
     },
     "app-config": {
-      "active-users-reload-reflect-configuration-changes": "",
+      "active-users-reload-reflect-configuration-changes": "Los usuarios activos deben volver a cargar la aplicación para que se reflejen los cambios de configuración.",
       "default-columns": {
         "add-label": {
-          "add-label": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Añadir etiqueta",
+          "tooltip-label-match-against-query": "Añade una nueva etiqueta que coincida con la consulta del usuario"
         },
         "add-record": {
-          "add": ""
+          "add": "Añadir"
         },
         "columns": {
-          "aria-label-drag-and-drop-icon": "",
-          "placeholder-select-column": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-column": ""
+          "aria-label-drag-and-drop-icon": "Icono de arrastrar y soltar",
+          "placeholder-select-column": "Seleccionar columna",
+          "title-drag-and-drop-to-reorder": "Arrastrar y soltar para reordenar",
+          "tooltip-remove-column": "Eliminar {{column}}"
         },
         "config": {
-          "default-columns-description": "",
-          "text-beta": ""
+          "default-columns-description": "Configura los campos que se mostrarán de forma predeterminada. Estos pueden sustituir a la línea de log completa o mostrarse junto a ella.",
+          "text-beta": "Beta"
         },
         "default-columns": {
-          "text-loading": ""
+          "text-loading": "Cargando..."
         },
         "delete-record": {
-          "tooltip-delete-record": ""
+          "tooltip-delete-record": "Eliminar registro"
         },
         "fields": {
-          "add-column": "",
-          "add-column-tooltip": "",
-          "invalid-columns": "",
-          "invalid-columns-log-line-only": ""
+          "add-column": "Añadir columna",
+          "add-column-tooltip": "Añadir una columna predeterminada para mostrar en los logs",
+          "invalid-columns": "Columnas no válidas",
+          "invalid-columns-log-line-only": "¡Seleccionar solo la línea de log probablemente sea redundante!"
         },
         "label-name": {
-          "placeholder-select-label-name": ""
+          "placeholder-select-label-name": "Seleccionar nombre de etiqueta"
         },
         "label-value": {
-          "placeholder-select-label-value": ""
+          "placeholder-select-label-value": "Seleccionar valor de etiqueta"
         },
         "labels": {
-          "content-queries-containing-these-labels-display-selected": "",
-          "labels-match": ""
+          "content-queries-containing-these-labels-display-selected": "Las consultas que contengan estas etiquetas mostrarán las columnas seleccionadas",
+          "labels-match": "Las etiquetas coinciden"
         },
         "records-collapsible-label": {
-          "content-default-fields-display-visualizations-these-labels": "",
-          "display-fields": ""
+          "content-default-fields-display-visualizations-these-labels": "Campos predeterminados que se mostrarán en las visualizaciones de logs para estas etiquetas",
+          "display-fields": "Mostrar campos"
         },
         "remove-label": {
-          "tooltip-remove-label": ""
+          "tooltip-remove-label": "Eliminar {{label}}"
         },
         "submit": {
-          "create-default-columns": "",
-          "update-default-columns": ""
+          "create-default-columns": "Crear columnas predeterminadas",
+          "update-default-columns": "Actualizar columnas predeterminadas"
         },
         "undo": {
-          "confirmText-reset": "",
-          "reset": ""
+          "confirmText-reset": "Restablecer",
+          "reset": "Restablecer"
         },
         "unsupported": {
-          "default-columns": "",
-          "default-columns-requires-feature-flag": "",
-          "default-columns-requires-grafana-or-greater": ""
+          "default-columns": "Columnas predeterminadas",
+          "default-columns-requires-feature-flag": "Las columnas predeterminadas requieren que el indicador de función <1>kubernetesLogsDrilldown</1> esté habilitado.",
+          "default-columns-requires-grafana-or-greater": "Las columnas predeterminadas requieren Grafana 12.4 o una versión posterior."
         }
       },
-      "default-data-source-description": "",
-      "default-time-range-description": "",
-      "default-time-range-enabled-label-use-custom-default-time-range": "",
-      "default-time-range-from-placeholder-now-15m": "",
-      "default-time-range-to-placeholder-now": "",
-      "description-end-of-the-range-eg-now": "",
-      "description-start-range": "",
-      "disable-patterns-description": "",
-      "interval-invalid-error": "",
-      "interval-placeholder": "",
-      "label-default-data-source": "",
-      "label-default-time-range": "",
-      "label-disable-loki-patterns": "",
-      "label-disable-patterns": "",
-      "label-from": "",
-      "label-max-interval": "",
-      "label-maximum-time-picker-interval": "",
-      "label-settings": "",
-      "label-to": "",
-      "max-interval-description": "",
-      "patterns-placeholder": "",
-      "save-settings": "",
+      "default-data-source-description": "La fuente de datos predeterminada que se utilizará para los nuevos usuarios de Logs Drilldown. Cada usuario puede anular su valor predeterminado estableciendo otra fuente de datos en Logs Drilldown.",
+      "default-time-range-description": "Cuando está habilitado, este intervalo de tiempo se utiliza cuando los usuarios abren Logs Drilldown por primera vez y sin un intervalo de tiempo en la URL. Cuando está deshabilitado, la aplicación utiliza su valor predeterminado integrado (últimos 15 minutos).",
+      "default-time-range-enabled-label-use-custom-default-time-range": "Usar un intervalo de tiempo predeterminado personalizado",
+      "default-time-range-from-placeholder-now-15m": "ahora-15 min",
+      "default-time-range-to-placeholder-now": "ahora",
+      "description-end-of-the-range-eg-now": "Fin del intervalo (p. ej., ahora)",
+      "description-start-range": "Inicio del intervalo (por ejemplo, ahora-15 m, ahora-1 h, ahora-24 h)",
+      "disable-patterns-description": "Deshabilita el uso por parte de Logs Drilldown del endpoint de la <2>API de patrones de Loki</2> y elimina la pestaña «Patrones».",
+      "interval-invalid-error": "El intervalo no es válido. Introduce un intervalo superior a «60 m». Por ejemplo: 3 d, 1 sem, 1 m",
+      "interval-placeholder": "7 d",
+      "label-default-data-source": "Fuente de datos predeterminada",
+      "label-default-time-range": "Intervalo de tiempo predeterminado",
+      "label-disable-loki-patterns": "Deshabilitar patrones de Loki",
+      "label-disable-patterns": "Deshabilitar patrones",
+      "label-from": "Desde",
+      "label-max-interval": "Intervalo máximo",
+      "label-maximum-time-picker-interval": "Intervalo máximo del selector de tiempo",
+      "label-settings": "Ajustes",
+      "label-to": "Hasta",
+      "max-interval-description": "El intervalo máximo que se puede seleccionar en el selector de tiempo dentro de la aplicación Logs Drilldown de Grafana. Si está vacío, los usuarios pueden seleccionar cualquier intervalo de tiempo en Logs Drilldown de Grafana. <br/>Valores de ejemplo: 7 d, 24 h, 2 sem",
+      "patterns-placeholder": "7 d",
+      "save-settings": "Guardar ajustes",
       "service-selection": {
         "config": {
-          "service-selection-description": "",
-          "text-beta": ""
+          "service-selection-description": "Configurar qué etiquetas y valores de etiquetas aparecen de forma predeterminada en la página de aterrizaje de Logs Drilldown.",
+          "text-beta": "Beta"
         },
         "context": {
-          "text-loading": ""
+          "text-loading": "Cargando..."
         },
         "default-labels": {
-          "add-label": "",
-          "add-label-and-values": "",
-          "content-configure-default-labels-optional-values-landing": "",
-          "landing-page-default-labels": "",
-          "no-labels-selected": "",
-          "placeholder-select-label-name": "",
-          "placeholder-select-values-optional": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Añadir etiqueta",
+          "add-label-and-values": "Añadir etiqueta y valores",
+          "content-configure-default-labels-optional-values-landing": "Configura las etiquetas predeterminadas y los valores opcionales que se mostrarán en la página de aterrizaje de Logs Drilldown",
+          "landing-page-default-labels": "Etiquetas predeterminadas de la página de aterrizaje",
+          "no-labels-selected": "No se han seleccionado etiquetas. Logs Drilldown tendrá como valor predeterminado <strong>{{serviceName}}</strong>.",
+          "placeholder-select-label-name": "Seleccionar nombre de etiqueta",
+          "placeholder-select-values-optional": "Seleccionar valores (opcional)",
+          "tooltip-label-match-against-query": "Añade una nueva etiqueta que coincida con la consulta del usuario"
         },
         "footer": {
-          "confirmText-reset": "",
-          "reset": "",
-          "save-changes": ""
+          "confirmText-reset": "Restablecer",
+          "reset": "Restablecer",
+          "save-changes": "Guardar cambios"
         },
         "label-list": {
-          "aria-label-drag-and-drop-icon": "",
-          "aria-label-remove-value": "",
-          "no-label-values-selected": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-label": "",
-          "tooltip-remove-value": ""
+          "aria-label-drag-and-drop-icon": "Icono de arrastrar y soltar",
+          "aria-label-remove-value": "Eliminar {{value}}",
+          "no-label-values-selected": "No se han seleccionado valores de etiqueta. Se mostrará la lista completa de valores para esta etiqueta.",
+          "title-drag-and-drop-to-reorder": "Arrastrar y soltar para reordenar",
+          "tooltip-remove-label": "Eliminar {{label}}",
+          "tooltip-remove-value": "Eliminar {{value}}"
         },
         "unsupported": {
-          "landing-page": "",
-          "landing-requires-feature-flag": "",
-          "landing-settings-requires-grafana-greater": ""
+          "landing-page": "Página de aterrizaje",
+          "landing-requires-feature-flag": "La configuración de la página de aterrizaje requiere que el indicador de función <1>kubernetesLogsDrilldown</1> esté habilitado.",
+          "landing-settings-requires-grafana-greater": "Los ajustes de la página de aterrizaje requieren Grafana 13.0 o una versión posterior."
         }
       }
     },
     "buttons": {
       "copy-to-clipboard-button": {
-        "copy-link": "",
-        "copy-success": "",
-        "copy-to-clipboard": "",
-        "copy-to-clipboard-error": ""
+        "copy-link": "Copiar enlace a línea de log",
+        "copy-success": "Copiado",
+        "copy-to-clipboard": "Copiar al portapapeles",
+        "copy-to-clipboard-error": "¡Error al copiar el enlace!"
       }
     },
     "embedded-logs-exploration": {
       "embedded-link-scene": {
-        "logs-drilldown": ""
+        "logs-drilldown": "Logs Drilldown"
       }
     },
     "embedded-scene-wrapper": {
-      "text-loading": ""
+      "text-loading": "Cargando..."
     },
     "filter-button": {
-      "exclude": "",
-      "include": ""
+      "exclude": "Excluir",
+      "include": "Incluir"
     },
     "index-scene": {
       "get-variable-set": {
         "ds-variable": {
           "label": {
-            "data-source": ""
+            "data-source": "Fuente de datos"
           }
         },
         "fields-and-metadata-variable": {
-          "description": "",
+          "description": "Filtrar por valores extraídos de las líneas de log (campos detectados de analizadores sintácticos como JSON o logfmt) y por metadatos estructurados adjuntos a cada línea de log.",
           "label": {
-            "fields": ""
+            "fields": "Campos"
           }
         },
         "fields-variable": {
           "label": {
-            "detected-fields": ""
+            "detected-fields": "Campos detectados"
           }
         },
         "label-variable": {
-          "description": "",
+          "description": "Filtra los logs por etiquetas de flujo (por ejemplo, tarea o espacio de nombres). Los filtros de etiquetas forman parte del selector de flujos de Loki y se aplican antes de las canalizaciones de logs.",
           "label": {
-            "labels": ""
+            "labels": "Etiquetas"
           }
         },
         "levels-variable": {
           "label": {
-            "error-levels": ""
+            "error-levels": "Niveles de error"
           }
         },
         "metadata-variable": {
           "label": {
-            "metadata": ""
+            "metadata": "Metadatos"
           }
         }
       },
       "intercept-banner": {
-        "body": "",
-        "title-welcome-to-grafana-logs-drilldown": ""
+        "body": "Consulta nuestro <2>documento de introducción</2> o echa un vistazo a los <5>cambios recientes</5>.<br/>Ayúdanos a dar forma al futuro de la aplicación. <10>Envíanos tus comentarios</10> o interactúa con nosotros en <14>GitHub</14>.",
+        "title-welcome-to-grafana-logs-drilldown": "¡Te damos la bienvenida a Logs Drilldown de Grafana!"
       },
       "levels-variable-scene": {
-        "aria-label-log-level-filters": "",
-        "description-log-levels": "",
-        "label-log-levels": "",
-        "placeholder-all-levels": ""
+        "aria-label-log-level-filters": "Filtros de nivel de log",
+        "description-log-levels": "Conserva solo los logs cuya gravedad detectada coincida con tu selección (por ejemplo, error o advertencia). Déjalo vacío para incluir todos los niveles.",
+        "label-log-levels": "Niveles de log",
+        "placeholder-all-levels": "Todos los niveles"
       },
       "line-filter-variable": {
-        "aria-label-remove-line-filter": "",
-        "description-line-filter": "",
-        "line-filter": ""
+        "aria-label-remove-line-filter": "Eliminar filtro de línea",
+        "description-line-filter": "Hacer coincidir o excluir texto en el cuerpo de la línea de log. Puedes utilizar texto sin formato, expresiones regulares RE2 y distinguir entre mayúsculas y minúsculas.",
+        "line-filter": "Filtro de línea"
       },
       "line-filter-variables-scene": {
-        "aria-label-add-line-filter": ""
+        "aria-label-add-line-filter": "Añadir filtro de línea"
       },
       "pattern-controls": {
-        "excluded-pattern": "",
-        "excluded-patterns": "",
-        "included-pattern": "",
-        "included-patterns": ""
+        "excluded-pattern": "Patrón excluido:",
+        "excluded-patterns": "Patrones excluidos:",
+        "included-pattern": "Patrón incluido",
+        "included-patterns": "Patrones incluidos"
       },
       "pattern-tag": {
-        "aria-label-remove-pattern": ""
+        "aria-label-remove-pattern": "Eliminar patrón"
       },
       "reset-filters-button": {
-        "reset": "",
-        "tooltip-reset-label-filters-to-initial-values": ""
+        "reset": "Restablecer",
+        "tooltip-reset-label-filters-to-initial-values": "Restablece los filtros de etiquetas a los valores iniciales."
       },
       "share-button-scene": {
-        "aria-label-copy-shortened-url": "",
-        "aria-label-open-copy-link-options": "",
+        "aria-label-copy-shortened-url": "Copiar URL acortada",
+        "aria-label-open-copy-link-options": "Abrir opciones para copiar enlace",
         "menu-options": {
           "label": {
-            "copy-absolute-shortened-url": "",
-            "copy-absolute-url": "",
-            "copy-shortened-url": "",
-            "copy-url": "",
-            "normal-url-links": "",
-            "timesync-links-share-range-intact": ""
+            "copy-absolute-shortened-url": "Copiar URL acortada absoluta",
+            "copy-absolute-url": "Copiar URL absoluta",
+            "copy-shortened-url": "Copiar URL acortada",
+            "copy-url": "Copiar URL",
+            "normal-url-links": "Enlaces URL normales",
+            "timesync-links-share-range-intact": "Enlaces URL con sincronización de tiempo (compartir con el intervalo de tiempo intacto)"
           }
         },
-        "share": ""
+        "share": "Compartir"
       },
       "show-logs-button-scene": {
-        "show-logs": ""
+        "show-logs": "Mostrar logs"
       },
-      "text-loading": "",
+      "text-loading": "Cargando...",
       "toolbar-scene": {
-        "aggregated-metrics": "",
-        "aggregated-metrics-disabled-tooltip": "",
-        "aggregated-metrics-tooltip": "",
-        "aria-label-query-options": "",
-        "insights": "",
+        "aggregated-metrics": "Métricas agregadas",
+        "aggregated-metrics-disabled-tooltip": "Las métricas agregadas solo se pueden habilitar para consultas que comiencen después del {{date}}",
+        "aggregated-metrics-tooltip": "Las métricas agregadas devolverán los resultados de las consultas de servicio mucho más rápidamente, pero con una resolución inferior",
+        "aria-label-query-options": "Opciones de consulta",
+        "insights": "Información",
         "render-popover": {
-          "aria-label-query-options": "",
-          "label-toggle-aggregated-metrics": "",
-          "label-toggle-insights-annotations": "",
-          "query-options": ""
+          "aria-label-query-options": "Opciones de consulta",
+          "label-toggle-aggregated-metrics": "Alternar métricas agregadas",
+          "label-toggle-insights-annotations": "Alternar anotaciones de información",
+          "query-options": "Opciones de consulta"
         }
       },
       "variable-layout-scene": {
-        "collapse": "",
-        "expand": ""
+        "collapse": "Contraer filtros",
+        "expand": "Expandir filtros"
       }
     },
     "make-embedded-page": {
       "title": {
-        "grafana-logs-drilldown-embedded": ""
+        "grafana-logs-drilldown-embedded": "Logs Drilldown de Grafana — Incrustado"
       }
     },
     "make-index-page": {
       "title": {
-        "grafana-logs-drilldown": ""
+        "grafana-logs-drilldown": "Logs Drilldown de Grafana"
       }
     },
     "no-loki-splash": {
-      "learn-more": "",
-      "no-datasource": "",
-      "welcome-to-grafana-logs-drilldown": ""
+      "learn-more": "Haz clic <2>aquí</2> para obtener más información...",
+      "no-datasource": "Hemos detectado que no hay ninguna fuente de datos de Loki configurada.<br/>Añade una <4>fuente de datos de Loki</4> para ver los logs.",
+      "welcome-to-grafana-logs-drilldown": "Te damos la bienvenida a Logs Drilldown de Grafana"
     },
     "open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Abrir en Logs Drilldown"
     },
     "panels": {
       "panel-menu": {
         "add-visualization-header": {
           "text": {
-            "visualization": "",
-            "visualization-divider": ""
+            "visualization": "Visualización",
+            "visualization-divider": "visualization_divider"
           }
         },
         "get-create-alert-payload": {
           "panel": {
             "title": {
-              "log-count-alert": ""
+              "log-count-alert": "Alerta de recuento de logs"
             }
           }
         },
         "items": {
           "text": {
-            "explore": "",
-            "navigation": ""
+            "condense-logs": "Condensar la vista de logs",
+            "expand-logs": "Expandir la vista de logs",
+            "explore": "Explorar",
+            "navigation": "Navegación",
+            "ui": "Interfaz"
           }
         },
         "text": {
-          "add-to-dashboard": "",
-          "ai": "",
-          "ai-divider": "",
-          "create-alert": "",
-          "explain-in-assistant": ""
+          "add-to-dashboard": "Añadir al dashboard",
+          "add-to-notebook": "",
+          "ai": "IA",
+          "ai-divider": "ai_divider",
+          "create-alert": "Crear alerta",
+          "explain-in-assistant": "Explicar en el asistente"
         },
         "title": {
-          "logs-drilldown-query": ""
+          "logs-drilldown-query": "Consulta de Logs Drilldown"
         }
       }
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "",
-        "button-tooltip": "",
-        "saved-query-button-tooltip": ""
+        "button-no-search-tooltip": "No hay búsquedas guardadas para cargar.",
+        "button-tooltip": "Cargar una búsqueda guardada",
+        "saved-query-button-tooltip": "Cargar una consulta guardada"
       },
       "load-search-modal": {
-        "empty": "",
-        "modal-title": "",
-        "remove": "",
-        "select": ""
+        "empty": "No hay búsquedas guardadas que mostrar.",
+        "modal-title": "Cargar una búsqueda guardada anteriormente",
+        "remove": "Eliminar",
+        "select": "Seleccionar"
       },
       "load-search-scene": {
-        "load-error": "",
-        "load-type-error": ""
+        "load-error": "No se ha podido generar un enlace.",
+        "load-type-error": "Selecciona una consulta de Loki."
       },
       "save-search-button": {
-        "button-tooltip": "",
-        "button-tooltip-saved-queries": ""
+        "button-tooltip": "Guardar búsqueda",
+        "button-tooltip-saved-queries": "Guardar en Consultas guardadas"
       },
       "save-search-modal": {
-        "already-exists-alert": "",
-        "cancel": "",
-        "close": "",
-        "description": "",
-        "error": "",
-        "modal-alert": "",
-        "modal-title": "",
-        "save": "",
-        "success": "",
-        "title": "",
-        "title-success": ""
+        "already-exists-alert": "Hay una búsqueda guardada anteriormente con la misma consulta: {{title}}",
+        "cancel": "Cancelar",
+        "close": "Cerrar",
+        "description": "Descripción",
+        "error": "Se ha producido un error inesperado al guardar esta búsqueda.",
+        "modal-alert": "Las búsquedas guardadas se almacenan localmente en tu navegador y solo estarán disponibles en este dispositivo.",
+        "modal-title": "Guardar búsqueda actual",
+        "save": "Guardar",
+        "success": "Búsqueda guardada correctamente.",
+        "title": "Título",
+        "title-success": "Completado con éxito"
       }
     },
     "service-scene": {
       "add-to-dashboard-modal": {
+        "title": "Añadir al dashboard"
+      },
+      "add-to-notebook-modal": {
         "title": ""
       },
       "alert": {
-        "invalid-labels-selected": "",
-        "no-labels-selected": "",
-        "select-label": ""
+        "invalid-labels-selected": "Se han seleccionado etiquetas no válidas",
+        "no-labels-selected": "No se han seleccionado etiquetas",
+        "select-label": "Selecciona al menos una etiqueta para ver el desglose de los logs."
       },
       "breakdowns": {
         "breakdown-search-scene": {
-          "placeholder-search-for-value": ""
+          "placeholder-search-for-value": "Buscar por valor"
         },
         "by-frame-repeater": {
-          "clear-filter": "",
-          "no-values-found": ""
+          "clear-filter": "Borrar filtro",
+          "no-values-found": "No se han encontrado valores coincidentes con «{{filter}}»"
         },
         "empty-layout-scene": {
-          "link": "",
-          "prefix": "",
-          "suffix": "",
-          "title": ""
+          "ask-assistant": "Preguntar a Grafana Assistant",
+          "enable-parsers": "Habilitar campos extraídos",
+          "link": "avísanos",
+          "parsed-fields": "No hemos encontrado ningún {{type}} para el intervalo de tiempo indicado. Prueba a habilitar los campos extraídos de las líneas del log.",
+          "prefix": "Por favor",
+          "suffix": "si crees que se trata de un error.",
+          "title": "No hemos encontrado ningún {{type}} para el intervalo de tiempo indicado."
         },
         "field-selector": {
-          "custom-value-search-or-filter": "",
-          "placeholder-search-values": ""
+          "custom-value-search-or-filter": "Filtrar valores por",
+          "placeholder-search-values": "Buscar valores"
         },
         "field-values-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Cuadrícula",
+            "rows": "Filas"
           },
-          "loading": ""
+          "loading": "Cargando..."
         },
         "fields-aggregated-breakdown-scene": {
           "label": {
-            "grid": "",
-            "rows": ""
+            "grid": "Cuadrícula",
+            "rows": "Filas"
           },
-          "text-loading": ""
+          "text-loading": "Cargando..."
         },
         "fields-breakdown-scene": {
-          "label-field": ""
+          "label-field": "Campo",
+          "label-field-tooltip": "Metadatos estructurados y campos analizados",
+          "label-metadata-tooltip": "Campos de metadatos estructurados"
         },
         "label-breakdown-scene": {
-          "label-label": "",
-          "labels-not-available": ""
+          "label-label": "Etiqueta",
+          "labels-not-available": "Las etiquetas no están disponibles en este momento. Intenta utilizar un intervalo de tiempo distinto o vuelve a comprobarlo más tarde."
         },
         "label-values-breakdown-scene": {
           "error": {
-            "message": "",
-            "status": "",
-            "trace-id": ""
+            "message": "Mensaje",
+            "status": "Estado",
+            "trace-id": "ID de traza"
           },
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Cuadrícula",
+            "rows": "Filas"
           },
-          "loading": ""
+          "loading": "Cargando..."
         },
         "labels-aggregated-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Cuadrícula",
+            "rows": "Filas"
           },
-          "loading": ""
+          "loading": "Cargando..."
         },
         "line-filter-input": {
-          "aria-label-clear-line-filter": "",
-          "tooltip-clear-line-filter": ""
+          "aria-label-clear-line-filter": "Borrar filtro de línea",
+          "tooltip-clear-line-filter": "Borrar filtro de línea"
         },
         "no-matching-labels-scene": {
-          "clear-filters": "",
-          "title": ""
+          "clear-filters": "Borrar filtros",
+          "title": "Ningún {{type}} coincide con estos filtros."
         },
         "numeric-filter-popover-scene": {
-          "add": "",
-          "cancel": "",
+          "add": "Añadir",
+          "cancel": "Cancelar",
           "label": {
-            "greater-than": "",
-            "greater-than-or-equal": "",
-            "less-than": "",
-            "less-than-or-equal": ""
+            "greater-than": "Mayor que",
+            "greater-than-or-equal": "Mayor o igual que",
+            "less-than": "Menor que",
+            "less-than-or-equal": "Menor o igual que"
           },
-          "remove": "",
-          "unit": ""
+          "remove": "Eliminar",
+          "unit": "Unidad"
         },
         "patterns": {
           "pattern-field-label-stats": {
-            "sample-rows": ""
+            "sample-rows": "De una muestra de {{total}} filas encontradas"
           },
           "pattern-name-label": {
-            "available-stats-field-current-timestamp": "",
-            "could-stats-pattern": ""
+            "available-stats-field-current-timestamp": "No hay estadísticas disponibles para este campo en la marca temporal actual.",
+            "could-stats-pattern": "No se han podido cargar las estadísticas para este patrón."
           },
           "patterns-frame-scene": {
             "time-series": {
               "title": {
-                "exclude": "",
-                "include": ""
+                "exclude": "Excluir",
+                "include": "Incluir"
               }
             }
           },
           "patterns-logs-sample-scene": {
-            "clear-filters": "",
-            "no-match-filters": "",
-            "this-pattern-returns-no-logs": ""
+            "clear-filters": "Borrar filtros",
+            "no-match-filters": "Los logs devueltos por este patrón no coinciden con los filtros de consulta actuales.",
+            "this-pattern-returns-no-logs": "Este patrón no devuelve ningún log."
           },
           "patterns-not-detected": {
-            "error-message": "",
-            "error-title": "",
-            "no-match-filters-title": "",
-            "not-detected-description": "",
-            "not-detected-help-link": "",
-            "not-detected-help-prefix": "",
-            "not-detected-title": "",
-            "too-old-docs-link": "",
-            "too-old-docs-prefix": "",
-            "too-old-docs-suffix": "",
-            "too-old-title": ""
+            "error-message": "La coincidencia de patrones no se ha configurado. Los patrones te permiten detectar líneas de log similares y añadirlas o excluirlas de tu búsqueda. Para verlos en acción, añade lo siguiente a tu configuración de Loki.",
+            "error-title": "No hay coincidencias de patrones.",
+            "no-match-filters-title": "Ningún patrón coincide con estos filtros.",
+            "not-detected-description": "Los patrones te permiten detectar líneas de log similares para incluirlas o excluirlas de tu búsqueda.",
+            "not-detected-help-link": "Canal de Slack de la comunidad de Grafana Labs",
+            "not-detected-help-prefix": "Vuelve a intentarlo más tarde o ponte en contacto con el equipo en el",
+            "not-detected-title": "Lo sentimos, no hemos podido detectar ningún patrón.",
+            "too-old-docs-link": "documentos de patrones",
+            "too-old-docs-prefix": "Lee",
+            "too-old-docs-suffix": "para obtener más información.",
+            "too-old-title": "Los patrones solo están disponibles para las {{maxAgeHours}} horas de datos más recientes."
           },
           "patterns-view-table-scene": {
-            "no-filtered-patterns-message": "",
-            "no-patterns-message": "",
-            "no-patterns-title": ""
+            "no-filtered-patterns-message": "No se han encontrado patrones en el intervalo de tiempo actual ni que coincidan con los filtros de nivel actuales.",
+            "no-patterns-message": "No se han encontrado patrones en el intervalo de tiempo actual.",
+            "no-patterns-title": "No hay patrones que mostrar"
           },
           "patterns-view-text-search": {
-            "indexed-labels-only": "",
-            "placeholder-search-patterns": ""
+            "indexed-labels-only": "Los patrones se seleccionan por etiqueta y se pueden filtrar por nivel. Los campos analizados, los metadatos estructurados y los filtros de cadenas no son compatibles con la lista de patrones.",
+            "placeholder-search-patterns": "Buscar patrones"
           }
         },
         "query-error-alert": {
-          "fetch": "",
-          "increase-limit": "",
-          "max-series-limit-exceeded": "",
-          "message": "",
-          "partial": "",
-          "return-fields": "",
-          "tip-reduce-range": "",
-          "trace-id": "",
-          "trace-ids": ""
+          "fetch": "Error al obtener resultados para {{tagKey}}",
+          "increase-limit": "Para aumentar este límite, ajusta el parámetro <2>max_query_series</2> en la configuración de Loki.",
+          "max-series-limit-exceeded": "Se ha superado el límite máximo de series",
+          "message": "Mensaje",
+          "partial": "Mostrando resultados parciales para {{tagKey}}",
+          "return-fields": "Volver a todos los campos",
+          "tip-reduce-range": "<strong>Consejo:</strong> Reduce el intervalo de tiempo o añade filtros adicionales para reducir el número de valores únicos en el campo {{label}}.",
+          "trace-id": "ID de traza",
+          "trace-ids": "IDs de traza"
         },
         "search-input": {
-          "aria-label-clear-search": "",
-          "tooltip-clear-search": ""
+          "aria-label-clear-search": "Borrar búsqueda",
+          "tooltip-clear-search": "Borrar búsqueda"
         },
         "select-label-action-scene": {
-          "add-expression": "",
-          "clear-filters-tooltip": "",
-          "exclude-all-log-lines": "",
-          "include-all-log-lines": "",
-          "select": "",
-          "select-label": "",
-          "view-breakdown-title": ""
+          "add-expression": "Añadir una expresión, es decir, {{labelName}} >30",
+          "clear-filters-tooltip": "Borrar filtros {{labelName}}",
+          "exclude-all-log-lines": "Excluir todas las líneas de log con {{labelName}}",
+          "include-all-log-lines": "Incluir todas las líneas de log con {{labelName}}",
+          "select": "Seleccionar",
+          "select-label": "Seleccionar {{labelName}}",
+          "view-breakdown-title": "Ver el desglose de valores para {{labelName}}"
         },
         "show-error-panel-toggle": {
-          "show-panels-with-errors": "",
-          "tooltip-requests-could-processed": ""
+          "show-panels-with-errors": "Mostrar paneles con errores",
+          "tooltip-requests-could-processed": "No se han podido procesar una o más solicitudes"
         },
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "",
-              "volume": ""
+              "display-volume": "Mostrar volumen",
+              "parse-fields": "Extraer campos de los logs"
+            },
+            "tooltip": {
+              "display-volume": "Consultar las series temporales de cada campo que muestren la distribución de los valores a lo largo del tiempo",
+              "parse-fields": "Aplicar analizadores logfmt/JSON para extraer campos de las líneas del log"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "Mostrar volumen"
+            },
+            "tooltip": {
+              "display-volume": "Consultar las series temporales de cada etiqueta que muestren la distribución de los valores a lo largo del tiempo"
             }
           }
         },
         "sort-by-scene": {
-          "aria-label-sort-direction": "",
+          "aria-label-sort-direction": "Dirección de ordenación",
           "description": {
-            "alphabetical-order": "",
-            "graphs-deviation-average-value": "",
-            "graphs-highest-values": "",
-            "graphs-smallest-values": "",
-            "graphs-total-number": "",
-            "order-amount-outlying-values": "",
-            "smart-ordering": ""
+            "alphabetical-order": "Orden alfabético",
+            "graphs-deviation-average-value": "Ordenar los gráficos por desviación respecto al valor medio",
+            "graphs-highest-values": "Ordenar los gráficos por los valores más altos (máx.)",
+            "graphs-smallest-values": "Ordenar los gráficos por los valores más bajos (mín.)",
+            "graphs-total-number": "Ordenar los gráficos por el número total de logs",
+            "order-amount-outlying-values": "Ordenar por la cantidad de valores atípicos en los datos",
+            "smart-ordering": "Ordenación inteligente de los gráficos en función de los picos más significativos de los datos"
           },
           "label": {
-            "asc": "",
-            "count": "",
-            "desc": "",
-            "highest-spike": "",
-            "lowest-dip": "",
-            "most-relevant": "",
-            "name": "",
-            "outlying-values": "",
-            "percentiles": "",
-            "widest-spread": ""
+            "asc": "Asc",
+            "count": "Recuento",
+            "desc": "Desc",
+            "highest-spike": "Pico más alto",
+            "lowest-dip": "Pico más bajo",
+            "most-relevant": "Más relevante",
+            "name": "Nombre",
+            "outlying-values": "Valores atípicos",
+            "percentiles": "Percentiles",
+            "widest-spread": "Mayor dispersión"
           },
-          "label-sort-by": "",
-          "placeholder-choose-criteria": "",
-          "tooltip-sort-by": ""
+          "label-sort-by": "Ordenar por",
+          "placeholder-choose-criteria": "Elegir criterios",
+          "tooltip-sort-by": "Calcula una magnitud derivada a partir de los valores de tus series temporales y ordena por este criterio. El valor predeterminado es la desviación estándar."
         }
       },
       "copy-link-button": {
         "aria-label": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Copiado",
+          "copy-link": "Copiar enlace a línea de log"
         },
         "tooltip": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Copiado",
+          "copy-link": "Copiar enlace a línea de log"
         }
       },
       "json-panel": {
         "json-filter-buttons": {
           "field-value": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "excluir filtro",
+              "include": "incluir filtro"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "Excluir las líneas de log que contengan {{label}}=\"{{value}}\"",
+              "include": "Incluir líneas de log que contengan {{label}}=\"{{value}}\""
             }
           },
           "metadata": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "excluir filtro",
+              "include": "incluir filtro"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "Excluir las líneas de log que contengan {{label}}=\"{{value}}\"",
+              "include": "Incluir líneas de log que contengan {{label}}=\"{{value}}\""
             }
           }
         },
         "json-line-item-type": {
           "detected-level-toggle-button": {
-            "include": "",
-            "remove": ""
+            "include": "Incluir logs con nivel {{detectedLevel}}",
+            "remove": "Eliminar filtro {{detectedLevel}}"
           }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "excluir filtro",
+            "include": "incluir filtro"
           },
           "tooltip": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Excluir las líneas de log que contengan {{key}}",
+            "include": "Incluir las líneas de log que contengan {{key}}"
           }
         },
         "logs-json-component": {
           "alert": {
-            "loki-upgrade": "",
-            "no-json-fields": ""
+            "loki-upgrade": "Esta vista será de solo lectura hasta que Loki se actualice a la versión 3.5.0.",
+            "no-json-fields": "Esta vista está diseñada para líneas de log JSON, pero no se ha detectado ninguna. Cambia a la vista de logs o de tabla para disfrutar de una mejor experiencia."
           },
-          "title-json": "",
-          "title-json-filtering-requires-loki": "",
-          "title-no-json-fields-detected": ""
+          "title-json": "JSON",
+          "title-json-filtering-requires-loki": "El filtrado JSON requiere Loki 3.5.0.",
+          "title-no-json-fields-detected": "No se ha detectado ningún campo JSON"
         },
         "re-root-json-button": {
-          "aria-label": "",
-          "tooltip": ""
+          "aria-label": "profundizar en {{key}}",
+          "tooltip": "Establecer {{key}} como nodo raíz"
         }
       },
-      "least-label-inclusive-matching": "",
+      "least-label-inclusive-matching": "Necesitas al menos una etiqueta con coincidencia inclusiva.",
       "line-filter": {
         "line-filter-editor": {
-          "exclude": "",
-          "include": "",
+          "exclude": "Excluir",
+          "include": "Incluir",
           "label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Excluir",
+            "include": "Incluir"
           },
-          "placeholder-filter-logs-by-string": ""
+          "placeholder-filter-logs-by-string": "Filtrar logs por cadena"
         }
       },
       "line-limit-scene": {
-        "max-lines-label": "",
-        "max-lines-placeholder": "",
-        "max-lines-tooltip": ""
+        "max-lines-label": "Límite de líneas",
+        "max-lines-placeholder": "{{logs}} logs",
+        "max-lines-tooltip": "Número de líneas de log que se van a solicitar. Depende del valor de configuración de Loki para max_entries_limit."
       },
       "log-list-controls": {
-        "collapse": "",
-        "expand": "",
+        "collapse": "Contraer",
+        "expand": "Expandir",
         "json": {
           "label": {
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Mostrar metadatos",
+              "enable": "Ocultar metadatos"
             }
           },
           "tooltip": {
             "labels": {
-              "disable": "",
-              "enable": ""
+              "disable": "Ocultar etiquetas",
+              "enable": "Mostrar etiquetas"
             },
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Ocultar metadatos estructurados",
+              "enable": "Mostrar metadatos estructurados"
             }
           }
         },
         "label": {
-          "collapse": "",
-          "expand": "",
+          "collapse": "Expandida",
+          "expand": "Contraída",
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Resaltado deshabilitado",
+            "enable": "Resaltado habilitado"
           },
-          "unwrap-lines": "",
-          "wrap-lines": ""
+          "unwrap-lines": "Ajustar líneas",
+          "wrap-lines": "Desajustar líneas"
         },
         "labels": {
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Logs más antiguos primero",
+            "oldest-first": "Logs más nuevos primero"
           }
         },
-        "scrollToBottom": "",
-        "scrollToTop": "",
+        "scrollToBottom": "Desplazarse al final",
+        "scrollToTop": "Desplazarse al inicio",
         "table": {
           "label": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Texto del log",
+            "show-text": "Etiquetas del log"
           },
           "tooltip": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Mostrar etiquetas",
+            "show-text": "Mostrar texto del log"
           }
         },
         "tooltip": {
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Deshabilitar resaltado",
+            "enable": "Habilitar resaltado"
           },
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Establecer los logs más nuevos primero",
+            "oldest-first": "Establecer los logs más antiguos primero"
           }
         },
-        "unwrap-lines": "",
-        "wrap-lines": ""
+        "unwrap-lines": "Desajustar líneas",
+        "wrap-lines": "Ajustar líneas"
       },
       "log-options-buttons-scene": {
-        "show-default-fields": "",
-        "show-original-log-line": "",
+        "show-default-fields": "Mostrar campos predeterminados",
+        "show-original-log-line": "Mostrar línea de log original",
         "tooltip": {
-          "clear-displayed-fields": "",
-          "show-default-fields": ""
+          "clear-displayed-fields": "Borrar los campos mostrados: {{fields}}",
+          "show-default-fields": "Mostrar campos predeterminados: {{fields}}"
         }
       },
       "log-options-scene": {
         "description": {
-          "disable-wrapping-of-long-log-lines": "",
-          "enable-wrapping-of-long-log-lines": "",
-          "show-results-newest-to-oldest": "",
-          "show-results-oldest-to-newest": ""
+          "disable-wrapping-of-long-log-lines": "Deshabilitar el ajuste de líneas largas de log",
+          "enable-wrapping-of-long-log-lines": "Habilitar el ajuste de líneas largas de log",
+          "show-results-newest-to-oldest": "Mostrar resultados de más recientes a más antiguos",
+          "show-results-oldest-to-newest": "Mostrar resultados de más antiguos a más recientes"
         },
         "label": {
-          "newest-first": "",
-          "no-wrap": "",
-          "oldest-first": "",
-          "wrap": ""
+          "newest-first": "Nuevos primero",
+          "no-wrap": "Sin ajuste",
+          "oldest-first": "Más antiguos primero",
+          "wrap": "Ajustar"
         }
       },
       "logs-panel-error": {
-        "clear-filters": "",
-        "default": ""
+        "clear-filters": "Borrar filtros",
+        "default": "Se ha producido un error"
       },
       "logs-panel-scene": {
         "label": {
-          "copy-link-to-log-line": ""
+          "copy-link-to-log-line": "Copiar enlace a línea de log"
         },
-        "text-loading": ""
+        "text-loading": "Cargando..."
       },
-      "text-loading": ""
+      "logs-volume": {
+        "logs-volume-actions": {
+          "aria-label-group-by": "Agrupar el volumen de logs por campo",
+          "group-fields": "",
+          "label-group-by": "Agrupar por"
+        },
+        "logs-volume-panel": {
+          "title": "Volumen de logs",
+          "title-with-count": "Volumen de logs ({{formattedCount}})"
+        }
+      },
+      "text-loading": "Cargando..."
     },
     "service-selection-scene": {
       "add-label-to-filters-header-action-scene": {
         "button": {
-          "include": "",
-          "remove": ""
+          "include": "Incluir",
+          "remove": "Eliminar"
         },
         "tooltip": {
-          "add": "",
-          "remove": ""
+          "add": "Añadir {{value}} a los filtros",
+          "remove": "Eliminar {{value}} de los filtros"
         }
       },
       "configure-volume-error": {
-        "docs-link": "",
-        "title": ""
+        "docs-link": "Instrucciones para habilitar el volumen en la configuración de Loki:",
+        "title": "El volumen de logs no se ha configurado."
+      },
+      "logs-panel": {
+        "go-to-log-line": "Ir a la línea de log",
+        "show-similar-logs": "Mostrar logs similares"
       },
       "no-service-search-results": {
-        "title": ""
+        "title": "Ningún servicio coincide con tu búsqueda."
       },
       "no-service-volume": {
-        "help": "",
-        "title": ""
+        "help": "Ajusta el intervalo de tiempo o selecciona otra etiqueta.",
+        "title": "No se han encontrado logs en {{labelName}}."
       },
       "select-service-button": {
-        "show-logs": "",
-        "tooltip": ""
+        "show-logs": "Mostrar logs",
+        "tooltip": "Ver logs por {{value}}"
       },
       "service-selection-pagination-scene": {
-        "aria-label-count-info": "",
-        "of-total": "",
-        "showing": "",
+        "aria-label-count-info": "Información del recuento",
+        "of-total": "de {{totalCount}}",
+        "showing": "Mostrando",
         "tooltip": {
-          "count-info": ""
+          "count-info": "Hay {{totalCount}} etiquetas con valores para el intervalo de tiempo seleccionado. El recuento total de etiquetas puede variar"
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
-        "label-loading-tabs": "",
+        "label-add-tab": "Añadir pestaña de etiquetas",
+        "label-loading-tabs": "Cargando pestañas",
         "tab": {
-          "content-remove-tab": ""
+          "content-remove-tab": "Eliminar pestaña"
         }
       },
       "tab-popover-scene": {
-        "placeholder-search-labels": ""
+        "placeholder-search-labels": "Buscar etiquetas"
       }
     },
     "table": {
       "cell-context-menu": {
-        "title-add-column": "",
-        "title-add-to-search": "",
-        "title-exclude-from-search": ""
+        "title-add-column": "Añadir columna",
+        "title-add-to-search": "Añadir a la búsqueda",
+        "title-exclude-from-search": "Excluir de la búsqueda"
       },
       "column-selection": {
         "logs-column-search": {
-          "placeholder-search-fields-by-name": "",
+          "placeholder-search-fields-by-name": "Buscar campos por nombre",
           "tooltip": {
-            "collapse-sidebar": "",
-            "expand-sidebar": ""
+            "collapse-sidebar": "Contraer barra lateral",
+            "expand-sidebar": "Expandir barra lateral"
           }
         },
         "logs-table-available-fields": {
           "field": {
-            "title": ""
+            "title": "{{labelName}} aparece en el {{percent}} % de las líneas del log"
           }
         },
         "logs-table-empty-fields": {
-          "no-fields": ""
+          "no-fields": "Ningún campo"
         },
         "logs-table-multi-select": {
           "button": {
-            "reset": ""
+            "reset": "Restablecer"
           },
-          "fields": "",
+          "fields": "Campos",
           "header": {
-            "selected-fields": ""
+            "selected-fields": "Campos seleccionados"
           }
         },
         "logs-table-nav-field": {
-          "aria-label-drag-and-drop-icon": "",
+          "aria-label-drag-and-drop-icon": "Icono de arrastrar y soltar",
           "cardinality": {
-            "value": "",
-            "values": ""
+            "value": "valor",
+            "values": "valores"
           },
-          "title-drag-and-drop-to-reorder": ""
+          "title-drag-and-drop-to-reorder": "Arrastrar y soltar para reordenar"
         }
       },
       "line-action-icons": {
-        "aria-label-view-log-line": "",
-        "copy-to-clipboard": "",
-        "title-inspect-value": "",
-        "tooltip-copy-link-to-log-line": "",
-        "tooltip-view-log-line": ""
+        "aria-label-view-log-line": "Ver línea de log",
+        "copy-to-clipboard": "Copiar al portapapeles",
+        "title-inspect-value": "Inspeccionar valor",
+        "tooltip-copy-link-to-log-line": "Copiar enlace a línea de log",
+        "tooltip-view-log-line": "Ver línea de log"
       },
       "logs-header-actions": {
         "description": {
-          "show-results-in-json-visualisation": "",
-          "show-results-in-logs-visualisation": "",
-          "show-results-in-table-visualisation": ""
+          "show-results-in-json-visualisation": "Mostrar resultados en la visualización de JSON",
+          "show-results-in-logs-visualisation": "Mostrar resultados en la visualización de logs",
+          "show-results-in-table-visualisation": "Mostrar resultados en la visualización de la tabla"
         },
         "label": {
-          "json": "",
-          "logs": "",
-          "table": ""
+          "json": "JSON",
+          "logs": "Logs",
+          "table": "Tabla"
         }
       },
       "logs-table-header": {
         "aria-label": {
-          "show-menu": ""
+          "show-menu": "Mostrar menú {{name}}"
         },
-        "aria-label-reset-column-width": "",
-        "aria-label-show-log-labels": "",
-        "aria-label-show-log-text": "",
+        "aria-label-reset-column-width": "Restablecer ancho de columna",
+        "aria-label-show-log-labels": "Mostrar etiquetas del log",
+        "aria-label-show-log-text": "Mostrar texto del log",
         "tooltip": {
-          "show-menu": ""
+          "show-menu": "Mostrar menú {{name}}"
         },
-        "tooltip-reset-column-width": "",
-        "tooltip-show-log-labels": "",
-        "tooltip-show-log-text": ""
+        "tooltip-reset-column-width": "Restablecer ancho de columna",
+        "tooltip-show-log-labels": "Mostrar etiquetas del log",
+        "tooltip-show-log-text": "Mostrar texto del log"
       },
       "logs-table-header-menu": {
-        "close": ""
+        "close": "Cerrar"
       },
       "logs-table-header-wrap": {
         "menu": {
-          "move-left": "",
-          "move-right": "",
-          "remove-column": "",
-          "reset-column-widths": "",
-          "show-labels": "",
-          "show-log-text": ""
+          "move-left": "Mover a la izquierda",
+          "move-right": "Mover a la derecha",
+          "remove-column": "Eliminar columna",
+          "reset-column-widths": "Restablecer anchos de columna",
+          "show-labels": "Mostrar etiquetas",
+          "show-log-text": "Mostrar texto del log"
         }
       },
       "logs-table-scene": {
-        "title-logs": ""
+        "title-logs": "Logs"
       }
     }
   },
   "errors-analysis": {
-    "collapse": "",
-    "collapse-extra-fields": "",
-    "description": "",
-    "discovering-fields": "",
-    "error": "",
-    "expand": "",
-    "field-input-placeholder": "",
-    "field-link-label": "",
-    "filter-for-value": "",
-    "filter-out-value": "",
-    "no-extra-fields-shown": "",
-    "no-fields-detected": "",
-    "no-more-fields": "",
-    "no-values-found": "",
-    "show-all-link-title": "",
-    "title": "",
-    "too-many-values": "",
-    "show-more-fields_one": "",
-    "show-more-fields_other": ""
+    "collapse": "Contraer",
+    "collapse-extra-fields": "Contraer campos adicionales",
+    "description": "Detecta patrones y acota las causas raíz analizando cómo se desglosan tus datos en función de los atributos clave. Haz clic en cualquier valor para filtrar los resultados.",
+    "discovering-fields": "Descubriendo atributos...",
+    "error": "Error al cargar",
+    "expand": "Expandir",
+    "field-input-placeholder": "Buscar para añadir más atributos",
+    "field-link-label": "Ver {{name}} en la pestaña de campos de Logs Drilldown",
+    "filter-for-value": "Filtrar por valor",
+    "filter-out-value": "Filtrar valor",
+    "no-extra-fields-shown": "No se muestran campos adicionales",
+    "no-fields-detected": "No se ha detectado ningún campo para este grupo de errores.",
+    "no-more-fields": "No hay más campos",
+    "no-values-found": "No se han encontrado valores",
+    "show-all-link-title": "Abrir en Logs Drilldown",
+    "title": "Explorador de atributos",
+    "too-many-values": "Demasiados valores que mostrar",
+    "show-more-fields_one": "Mostrar {{count}} campos más",
+    "show-more-fields_other": "Mostrar {{count}} campos más"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "Información del plugin",
+      "tooltip": "Información del plugin"
+    },
+    "header": {
+      "last-update": "Última actualización: {{updated}}",
+      "title": "Logs Drilldown de Grafana v{{version}}"
+    },
+    "menu": {
+      "changelog": "Registro de cambios",
+      "commit-sha": "Confirmar SHA: {{shortCommitSha}}",
+      "configuration": "Configuración del plugin",
+      "contribute": "Contribuir",
+      "documentation": "Documentación",
+      "give-feedback": "Enviar comentarios",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "Notificar un problema"
+    }
   },
   "services": {
     "create-annotation-layers": {
       "severities": {
         "label": {
-          "critical": "",
-          "info": "",
-          "warning": ""
+          "critical": "Crítico",
+          "info": "Información",
+          "warning": "Advertencia"
         }
       }
     },
     "drilldown-logs": {
       "notices": {
-        "max-series-reached": ""
+        "max-series-reached": "Se ha alcanzado el límite máximo de resultados. Se muestran resultados parciales."
       }
     },
     "get-field-options": {
       "label": {
-        "all": ""
+        "all": "Todas"
       }
     },
     "get-label-options": {
       "label": {
-        "all": ""
+        "all": "Todas"
       }
     },
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": ""
+          "range-oldest-newest-display": "Intervalo de tiempo actual para los logs en pantalla"
         }
       }
     },
     "grafana-ui": {
       "date-time-pickers": {
         "quick-options": {
-          "day-before-yesterday": "",
-          "day-five-days-ago": "",
-          "day-four-days-ago": "",
-          "day-six-days-ago": "",
-          "day-three-days-ago": "",
-          "four-weeks-ago": "",
-          "last-1-hour": "",
-          "last-1-mins": "",
-          "last-12-hours": "",
-          "last-15-mins": "",
-          "last-2-days": "",
-          "last-24-hours": "",
-          "last-3-hours": "",
-          "last-30-days": "",
-          "last-30-mins": "",
-          "last-5-mins": "",
-          "last-6-hours": "",
-          "last-6-months": "",
-          "last-60-days": "",
-          "last-7-days": "",
-          "last-90-days": "",
-          "previous-month": "",
-          "previous-week": "",
-          "this-day-last-week": "",
-          "this-month": "",
-          "this-month-so-far": "",
-          "this-week": "",
-          "this-week-so-far": "",
-          "three-months-ago": "",
-          "three-weeks-ago": "",
-          "today": "",
-          "today-so-far": "",
-          "two-months-ago": "",
-          "two-weeks-ago": "",
-          "yesterday": ""
+          "day-before-yesterday": "Anteayer",
+          "day-five-days-ago": "Hace cinco días",
+          "day-four-days-ago": "Hace cuatro días",
+          "day-six-days-ago": "Hace seis días",
+          "day-three-days-ago": "Hace tres días",
+          "four-weeks-ago": "Hace cuatro semanas",
+          "last-1-hour": "Última hora",
+          "last-1-mins": "Último minuto",
+          "last-12-hours": "Últimas 12 horas",
+          "last-15-mins": "Últimos 15 minutos",
+          "last-2-days": "Últimos 2 días",
+          "last-24-hours": "Últimas 24 horas",
+          "last-3-hours": "Últimas 3 horas",
+          "last-30-days": "Últimos 30 días",
+          "last-30-mins": "Últimos 30 minutos",
+          "last-5-mins": "Últimos 5 minutos",
+          "last-6-hours": "Últimas 6 horas",
+          "last-6-months": "Últimos 6 meses",
+          "last-60-days": "Últimos 60 días",
+          "last-7-days": "Últimos 7 días",
+          "last-90-days": "Últimos 90 días",
+          "previous-month": "Mes anterior",
+          "previous-week": "Semana anterior",
+          "this-day-last-week": "Este día de la semana pasada",
+          "this-month": "Este mes",
+          "this-month-so-far": "Este mes hasta ahora",
+          "this-week": "Esta semana",
+          "this-week-so-far": "Esta semana hasta ahora",
+          "three-months-ago": "Hace tres meses",
+          "three-weeks-ago": "Hace tres semanas",
+          "today": "Hoy",
+          "today-so-far": "Hoy hasta ahora",
+          "two-months-ago": "Hace dos meses",
+          "two-weeks-ago": "Hace dos semanas",
+          "yesterday": "Ayer"
         }
       }
     },
     "kg-annotation-toggle-renderer": {
-      "label-insights": ""
+      "label-insights": "Información"
     },
     "logs": {
       "logs-drilldown": {
         "fields": {
-          "log-attributes-field": "",
-          "log-line-field": ""
+          "log-attributes-field": "Atributos del log",
+          "log-line-field": "Línea de log"
         },
-        "kg-annotation-toggle": ""
+        "kg-annotation-toggle": "Información"
       }
     },
     "suspended-embedded-logs-exploration": {
-      "loading-logs-drilldown": ""
+      "loading-logs-drilldown": "Cargando Logs Drilldown..."
     },
     "suspended-loki-field-distribution": {
-      "loading": ""
+      "loading": "Cargando..."
     },
     "suspended-open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Abrir en Logs Drilldown"
     },
     "update-assistant-context": {
       "title": {
-        "parsed-fields-filters": "",
-        "structured-metadata-filters": ""
+        "current-logs-query-and-time-range": "Consulta de logs actuales e intervalo de tiempo",
+        "parsed-fields-filters": "Filtros de campos analizados",
+        "structured-metadata-filters": "Filtros de metadatos estructurados"
       }
     },
     "wrapped-loki-datasource": {
       "message": {
-        "data-source-is-working": ""
+        "data-source-is-working": "La fuente de datos está activa"
       },
       "title": {
-        "success": ""
+        "success": "Completado con éxito"
       }
     }
   }
