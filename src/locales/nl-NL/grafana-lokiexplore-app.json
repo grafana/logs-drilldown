@@ -1,973 +1,1035 @@
 {
   "components": {
     "app": {
-      "text-loading": ""
+      "text-loading": "Laden..."
     },
     "app-config": {
-      "active-users-reload-reflect-configuration-changes": "",
+      "active-users-reload-reflect-configuration-changes": "Actieve gebruikers moeten de app opnieuw laden om configuratiewijzigingen weer te geven.",
       "default-columns": {
         "add-label": {
-          "add-label": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Label toevoegen",
+          "tooltip-label-match-against-query": "Nieuw label toevoegen om te matchen met de gebruikersquery"
         },
         "add-record": {
-          "add": ""
+          "add": "Toevoegen"
         },
         "columns": {
-          "aria-label-drag-and-drop-icon": "",
-          "placeholder-select-column": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-column": ""
+          "aria-label-drag-and-drop-icon": "Pictogram slepen en neerzetten",
+          "placeholder-select-column": "Kolom selecteren",
+          "title-drag-and-drop-to-reorder": "Slepen en neerzetten om de volgorde te wijzigen",
+          "tooltip-remove-column": "{{column}} verwijderen"
         },
         "config": {
-          "default-columns-description": "",
-          "text-beta": ""
+          "default-columns-description": "Configureer de velden die standaard moeten worden weergegeven. Deze kunnen de volledige logregel vervangen of ernaast worden weergegeven.",
+          "text-beta": "Bèta"
         },
         "default-columns": {
-          "text-loading": ""
+          "text-loading": "Laden..."
         },
         "delete-record": {
-          "tooltip-delete-record": ""
+          "tooltip-delete-record": "Record verwijderen"
         },
         "fields": {
-          "add-column": "",
-          "add-column-tooltip": "",
-          "invalid-columns": "",
-          "invalid-columns-log-line-only": ""
+          "add-column": "Kolom toevoegen",
+          "add-column-tooltip": "Een standaardkolom toevoegen om in de logboeken weer te geven",
+          "invalid-columns": "Ongeldige kolommen",
+          "invalid-columns-log-line-only": "Alleen de logregel selecteren is waarschijnlijk overbodig!"
         },
         "label-name": {
-          "placeholder-select-label-name": ""
+          "placeholder-select-label-name": "Labelnaam selecteren"
         },
         "label-value": {
-          "placeholder-select-label-value": ""
+          "placeholder-select-label-value": "Selecteer labelwaarde"
         },
         "labels": {
-          "content-queries-containing-these-labels-display-selected": "",
-          "labels-match": ""
+          "content-queries-containing-these-labels-display-selected": "Query's die deze labels bevatten, geven de geselecteerde kolommen weer",
+          "labels-match": "Labels komen overeen"
         },
         "records-collapsible-label": {
-          "content-default-fields-display-visualizations-these-labels": "",
-          "display-fields": ""
+          "content-default-fields-display-visualizations-these-labels": "Standaardvelden om weer te geven in logvisualisaties voor deze labels",
+          "display-fields": "Velden weergeven"
         },
         "remove-label": {
-          "tooltip-remove-label": ""
+          "tooltip-remove-label": "{{label}} verwijderen"
         },
         "submit": {
-          "create-default-columns": "",
-          "update-default-columns": ""
+          "create-default-columns": "Standaardkolommen aanmaken",
+          "update-default-columns": "Standaardkolommen bijwerken"
         },
         "undo": {
-          "confirmText-reset": "",
-          "reset": ""
+          "confirmText-reset": "Resetten",
+          "reset": "Resetten"
         },
         "unsupported": {
-          "default-columns": "",
-          "default-columns-requires-feature-flag": "",
-          "default-columns-requires-grafana-or-greater": ""
+          "default-columns": "Standaardkolommen",
+          "default-columns-requires-feature-flag": "Voor standaardkolommen moet de functievlag <1>kubernetesLogsDrilldown</1> zijn ingeschakeld.",
+          "default-columns-requires-grafana-or-greater": "Voor standaardkolommen is Grafana 12.4 of hoger vereist."
         }
       },
-      "default-data-source-description": "",
-      "default-time-range-description": "",
-      "default-time-range-enabled-label-use-custom-default-time-range": "",
-      "default-time-range-from-placeholder-now-15m": "",
-      "default-time-range-to-placeholder-now": "",
-      "description-end-of-the-range-eg-now": "",
-      "description-start-range": "",
-      "disable-patterns-description": "",
-      "interval-invalid-error": "",
-      "interval-placeholder": "",
-      "label-default-data-source": "",
-      "label-default-time-range": "",
-      "label-disable-loki-patterns": "",
-      "label-disable-patterns": "",
-      "label-from": "",
-      "label-max-interval": "",
-      "label-maximum-time-picker-interval": "",
-      "label-settings": "",
-      "label-to": "",
-      "max-interval-description": "",
-      "patterns-placeholder": "",
-      "save-settings": "",
+      "default-data-source-description": "De standaardgegevensbron die moet worden gebruikt voor nieuwe gebruikers van Logs Drilldown. Elke gebruiker kan zijn standaardinstelling overschrijven door een andere databron in Logs Drilldown in te stellen.",
+      "default-time-range-description": "Wanneer dit is ingeschakeld, wordt dit tijdsbereik gebruikt wanneer gebruikers Logs Drilldown voor het eerst openen en er geen tijdsbereik in de URL staat. Wanneer dit is uitgeschakeld, gebruikt de app de ingebouwde standaardwaarde (afgelopen 15 minuten).",
+      "default-time-range-enabled-label-use-custom-default-time-range": "Aangepast standaardtijdsbereik gebruiken",
+      "default-time-range-from-placeholder-now-15m": "nu-15m",
+      "default-time-range-to-placeholder-now": "nu",
+      "description-end-of-the-range-eg-now": "Einde van het bereik (bijv. nu)",
+      "description-start-range": "Begin van het bereik (bijv. nu-15m, nu-1u, nu-24u)",
+      "disable-patterns-description": "Schakelt het gebruik van het <2>Loki Patterns API</2>-eindpunt door Logs Drilldown uit en verwijdert het tabblad Patronen.",
+      "interval-invalid-error": "Interval is ongeldig. Voer een interval in dat langer is dan '60m'. Bijvoorbeeld: 3d, 1w, 1m",
+      "interval-placeholder": "7d",
+      "label-default-data-source": "Standaardgegevensbron",
+      "label-default-time-range": "Standaardtijdsbereik",
+      "label-disable-loki-patterns": "Loki-patronen uitschakelen",
+      "label-disable-patterns": "Patronen uitschakelen",
+      "label-from": "Van",
+      "label-max-interval": "Max. interval",
+      "label-maximum-time-picker-interval": "Maximaal interval van de tijdkiezer",
+      "label-settings": "Instellingen",
+      "label-to": "Tot",
+      "max-interval-description": "Het maximale interval dat kan worden geselecteerd in de tijdkiezer binnen de app Grafana Logs Drilldown. Als dit leeg is, kunnen gebruikers elk tijdsbereikinterval in Grafana Logs Drilldown selecteren. <br/>Voorbeeldwaarden: 7d, 24u, 2w",
+      "patterns-placeholder": "7d",
+      "save-settings": "Instellingen opslaan",
       "service-selection": {
         "config": {
-          "service-selection-description": "",
-          "text-beta": ""
+          "service-selection-description": "Configureer welke labels en labelwaarden standaard worden weergegeven op de landingspagina van Logs Drilldown.",
+          "text-beta": "Bèta"
         },
         "context": {
-          "text-loading": ""
+          "text-loading": "Laden..."
         },
         "default-labels": {
-          "add-label": "",
-          "add-label-and-values": "",
-          "content-configure-default-labels-optional-values-landing": "",
-          "landing-page-default-labels": "",
-          "no-labels-selected": "",
-          "placeholder-select-label-name": "",
-          "placeholder-select-values-optional": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Label toevoegen",
+          "add-label-and-values": "Label en waarden toevoegen",
+          "content-configure-default-labels-optional-values-landing": "Configureer de standaardlabels en optionele waarden die moeten worden weergegeven op de landingspagina van Logs Drilldown",
+          "landing-page-default-labels": "Standaardlabels van landingspagina",
+          "no-labels-selected": "Geen labels geselecteerd. Logs Drilldown wordt standaard ingesteld op <strong>{{serviceName}}</strong>.",
+          "placeholder-select-label-name": "Labelnaam selecteren",
+          "placeholder-select-values-optional": "Waarden selecteren (optioneel)",
+          "tooltip-label-match-against-query": "Nieuw label toevoegen om te matchen met de gebruikersquery"
         },
         "footer": {
-          "confirmText-reset": "",
-          "reset": "",
-          "save-changes": ""
+          "confirmText-reset": "Resetten",
+          "reset": "Resetten",
+          "save-changes": "Wijzigingen opslaan"
         },
         "label-list": {
-          "aria-label-drag-and-drop-icon": "",
-          "aria-label-remove-value": "",
-          "no-label-values-selected": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-label": "",
-          "tooltip-remove-value": ""
+          "aria-label-drag-and-drop-icon": "Pictogram slepen en neerzetten",
+          "aria-label-remove-value": "{{value}} verwijderen",
+          "no-label-values-selected": "Geen labelwaarden geselecteerd. Het toont de volledige lijst met waarden voor dit label.",
+          "title-drag-and-drop-to-reorder": "Slepen en neerzetten om de volgorde te wijzigen",
+          "tooltip-remove-label": "{{label}} verwijderen",
+          "tooltip-remove-value": "{{value}} verwijderen"
         },
         "unsupported": {
-          "landing-page": "",
-          "landing-requires-feature-flag": "",
-          "landing-settings-requires-grafana-greater": ""
+          "landing-page": "Landingspagina",
+          "landing-requires-feature-flag": "Voor de instellingen van de landingspagina moet de functievlag <1>kubernetesLogsDrilldown</1> zijn ingeschakeld.",
+          "landing-settings-requires-grafana-greater": "Voor instellingen voor de landingspagina is Grafana 13.0 of hoger vereist."
         }
       }
     },
     "buttons": {
       "copy-to-clipboard-button": {
-        "copy-link": "",
-        "copy-success": "",
-        "copy-to-clipboard": "",
-        "copy-to-clipboard-error": ""
+        "copy-link": "Link naar logboekregel kopiëren",
+        "copy-success": "Gekopieerd",
+        "copy-to-clipboard": "Kopiëren naar klembord",
+        "copy-to-clipboard-error": "Fout bij het kopiëren van de link!"
       }
     },
     "embedded-logs-exploration": {
       "embedded-link-scene": {
-        "logs-drilldown": ""
+        "logs-drilldown": "Logs Drilldown"
       }
     },
     "embedded-scene-wrapper": {
-      "text-loading": ""
+      "text-loading": "Laden..."
     },
     "filter-button": {
-      "exclude": "",
-      "include": ""
+      "exclude": "Uitsluiten",
+      "include": "Opnemen"
     },
     "index-scene": {
       "get-variable-set": {
         "ds-variable": {
           "label": {
-            "data-source": ""
+            "data-source": "Gegevensbron"
           }
         },
         "fields-and-metadata-variable": {
-          "description": "",
+          "description": "Filteren op waarden die zijn geëxtraheerd uit logboekregels (gedetecteerde velden van parsers zoals JSON of logfmt) en op gestructureerde metadata die aan elke logboekregel zijn gekoppeld.",
           "label": {
-            "fields": ""
+            "fields": "Velden"
           }
         },
         "fields-variable": {
           "label": {
-            "detected-fields": ""
+            "detected-fields": "Gedetecteerde velden"
           }
         },
         "label-variable": {
-          "description": "",
+          "description": "Logboeken filteren op streamlabels (bijvoorbeeld taak of namespace). Labelfilters maken deel uit van de Loki-streamselector en worden toegepast vóór logpijplijnen.",
           "label": {
-            "labels": ""
+            "labels": "Labels"
           }
         },
         "levels-variable": {
           "label": {
-            "error-levels": ""
+            "error-levels": "Foutniveaus"
           }
         },
         "metadata-variable": {
           "label": {
-            "metadata": ""
+            "metadata": "Metagegevens"
           }
         }
       },
       "intercept-banner": {
-        "body": "",
-        "title-welcome-to-grafana-logs-drilldown": ""
+        "body": "Bekijk ons <2>Aan de slag-document</2> of bekijk <5>recente wijzigingen</5>.<br/>Help ons de toekomst van de app vorm te geven. <10>Stuur ons feedback</10> of neem contact met ons op via <14>GitHub</14>.",
+        "title-welcome-to-grafana-logs-drilldown": "Welkom bij Grafana Logs Drilldown!"
       },
       "levels-variable-scene": {
-        "aria-label-log-level-filters": "",
-        "description-log-levels": "",
-        "label-log-levels": "",
-        "placeholder-all-levels": ""
+        "aria-label-log-level-filters": "Filters voor logniveau",
+        "description-log-levels": "Houd alleen logboeken waarvan de gedetecteerde ernst overeenkomt met je selectie (bijvoorbeeld fout of waarschuwing). Leeg laten om alle niveaus op te nemen.",
+        "label-log-levels": "Logniveaus",
+        "placeholder-all-levels": "Alle niveaus"
       },
       "line-filter-variable": {
-        "aria-label-remove-line-filter": "",
-        "description-line-filter": "",
-        "line-filter": ""
+        "aria-label-remove-line-filter": "Regelfilter verwijderen",
+        "description-line-filter": "Tekst in de hoofdtekst van de logregel matchen of uitsluiten. Je kunt platte tekst, RE2-reguliere expressies en hoofdlettergevoeligheid gebruiken.",
+        "line-filter": "Regelfilter"
       },
       "line-filter-variables-scene": {
-        "aria-label-add-line-filter": ""
+        "aria-label-add-line-filter": "Regelfilter toevoegen"
       },
       "pattern-controls": {
-        "excluded-pattern": "",
-        "excluded-patterns": "",
-        "included-pattern": "",
-        "included-patterns": ""
+        "excluded-pattern": "Uitgesloten patroon:",
+        "excluded-patterns": "Uitgesloten patronen:",
+        "included-pattern": "Inbegrepen patroon",
+        "included-patterns": "Inbegrepen patronen"
       },
       "pattern-tag": {
-        "aria-label-remove-pattern": ""
+        "aria-label-remove-pattern": "Patroon verwijderen"
       },
       "reset-filters-button": {
-        "reset": "",
-        "tooltip-reset-label-filters-to-initial-values": ""
+        "reset": "Resetten",
+        "tooltip-reset-label-filters-to-initial-values": "Labelfilters resetten naar de oorspronkelijke waarden."
       },
       "share-button-scene": {
-        "aria-label-copy-shortened-url": "",
-        "aria-label-open-copy-link-options": "",
+        "aria-label-copy-shortened-url": "Verkorte URL kopiëren",
+        "aria-label-open-copy-link-options": "Opties voor kopiëren van links openen",
         "menu-options": {
           "label": {
-            "copy-absolute-shortened-url": "",
-            "copy-absolute-url": "",
-            "copy-shortened-url": "",
-            "copy-url": "",
-            "normal-url-links": "",
-            "timesync-links-share-range-intact": ""
+            "copy-absolute-shortened-url": "Absolute verkorte URL kopiëren",
+            "copy-absolute-url": "Absolute URL kopiëren",
+            "copy-shortened-url": "Verkorte URL kopiëren",
+            "copy-url": "URL kopiëren",
+            "normal-url-links": "Normale URL-links",
+            "timesync-links-share-range-intact": "Tijdsynchronisatie-URL-links (delen met tijdsbereik intact)"
           }
         },
-        "share": ""
+        "share": "Delen"
       },
       "show-logs-button-scene": {
-        "show-logs": ""
+        "show-logs": "Logs weergeven"
       },
-      "text-loading": "",
+      "text-loading": "Laden...",
       "toolbar-scene": {
-        "aggregated-metrics": "",
-        "aggregated-metrics-disabled-tooltip": "",
-        "aggregated-metrics-tooltip": "",
-        "aria-label-query-options": "",
-        "insights": "",
+        "aggregated-metrics": "Geaggregeerde metrics",
+        "aggregated-metrics-disabled-tooltip": "Geaggregeerde metrics kunnen alleen worden ingeschakeld voor query's die beginnen na {{date}} ",
+        "aggregated-metrics-tooltip": "Geaggregeerde metrics zullen de resultaten van servicequery's veel sneller retourneren, maar met een lagere resolutie",
+        "aria-label-query-options": "Opties voor query's",
+        "insights": "Inzichten",
         "render-popover": {
-          "aria-label-query-options": "",
-          "label-toggle-aggregated-metrics": "",
-          "label-toggle-insights-annotations": "",
-          "query-options": ""
+          "aria-label-query-options": "Opties voor query's",
+          "label-toggle-aggregated-metrics": "Geaggregeerde metrics in-/uitschakelen",
+          "label-toggle-insights-annotations": "Annotaties voor inzichten in-/uitschakelen",
+          "query-options": "Opties voor query's"
         }
       },
       "variable-layout-scene": {
-        "collapse": "",
-        "expand": ""
+        "collapse": "Filters inklappen",
+        "expand": "Filters uitklappen"
       }
     },
     "make-embedded-page": {
       "title": {
-        "grafana-logs-drilldown-embedded": ""
+        "grafana-logs-drilldown-embedded": "Grafana Logs Drilldown — Ingesloten"
       }
     },
     "make-index-page": {
       "title": {
-        "grafana-logs-drilldown": ""
+        "grafana-logs-drilldown": "Grafana Logs Drilldown"
       }
     },
     "no-loki-splash": {
-      "learn-more": "",
-      "no-datasource": "",
-      "welcome-to-grafana-logs-drilldown": ""
+      "learn-more": "Klik <2>hier</2> voor meer informatie...",
+      "no-datasource": "We hebben gemerkt dat er geen Loki-databron is geconfigureerd.<br/>Een <4>Loki-gegevensbron</4> toevoegen om logboeken te bekijken.",
+      "welcome-to-grafana-logs-drilldown": "Welkom bij Grafana Logs Drilldown"
     },
     "open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Openen in Logs Drilldown"
     },
     "panels": {
       "panel-menu": {
         "add-visualization-header": {
           "text": {
-            "visualization": "",
-            "visualization-divider": ""
+            "visualization": "Visualisatie",
+            "visualization-divider": "visualization_divider"
           }
         },
         "get-create-alert-payload": {
           "panel": {
             "title": {
-              "log-count-alert": ""
+              "log-count-alert": "Waarschuwing voor aantal logs"
             }
           }
         },
         "items": {
           "text": {
-            "explore": "",
-            "navigation": ""
+            "condense-logs": "Logweergave comprimeren",
+            "expand-logs": "Logweergave uitvouwen",
+            "explore": "Verkennen",
+            "navigation": "Navigatie",
+            "ui": "Interface"
           }
         },
         "text": {
-          "add-to-dashboard": "",
-          "ai": "",
-          "ai-divider": "",
-          "create-alert": "",
-          "explain-in-assistant": ""
+          "add-to-dashboard": "Toevoegen aan dashboard",
+          "add-to-notebook": "",
+          "ai": "AI",
+          "ai-divider": "ai_divider",
+          "create-alert": "Waarschuwing aanmaken",
+          "explain-in-assistant": "Uitleggen in Assistant"
         },
         "title": {
-          "logs-drilldown-query": ""
+          "logs-drilldown-query": "Logs Drilldown-query"
         }
       }
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "",
-        "button-tooltip": "",
-        "saved-query-button-tooltip": ""
+        "button-no-search-tooltip": "Geen opgeslagen zoekopdrachten om te laden",
+        "button-tooltip": "Opgeslagen zoekopdracht laden",
+        "saved-query-button-tooltip": "Opgeslagen query laden"
       },
       "load-search-modal": {
-        "empty": "",
-        "modal-title": "",
-        "remove": "",
-        "select": ""
+        "empty": "Geen opgeslagen zoekopdrachten om weer te geven.",
+        "modal-title": "Een eerder opgeslagen zoekopdracht laden",
+        "remove": "Verwijderen",
+        "select": "Selecteren"
       },
       "load-search-scene": {
-        "load-error": "",
-        "load-type-error": ""
+        "load-error": "Kon geen link genereren.",
+        "load-type-error": "Selecteer een Loki-query."
       },
       "save-search-button": {
-        "button-tooltip": "",
-        "button-tooltip-saved-queries": ""
+        "button-tooltip": "Zoekopdracht opslaan",
+        "button-tooltip-saved-queries": "Opslaan in Opgeslagen query's"
       },
       "save-search-modal": {
-        "already-exists-alert": "",
-        "cancel": "",
-        "close": "",
-        "description": "",
-        "error": "",
-        "modal-alert": "",
-        "modal-title": "",
-        "save": "",
-        "success": "",
-        "title": "",
-        "title-success": ""
+        "already-exists-alert": "Er is al een eerder opgeslagen zoekopdracht met dezelfde zoekterm: {{title}}",
+        "cancel": "Annuleren",
+        "close": "Sluiten",
+        "description": "Beschrijving",
+        "error": "Er is een onverwachte fout opgetreden bij het opslaan van deze zoekopdracht.",
+        "modal-alert": "Opgeslagen zoekopdrachten worden lokaal in je browser bewaard en zijn alleen op dit apparaat beschikbaar.",
+        "modal-title": "Huidige zoekopdracht opslaan",
+        "save": "Opslaan",
+        "success": "Zoekopdracht is opgeslagen.",
+        "title": "Titel",
+        "title-success": "Succes"
       }
     },
     "service-scene": {
       "add-to-dashboard-modal": {
+        "title": "Toevoegen aan dashboard"
+      },
+      "add-to-notebook-modal": {
         "title": ""
       },
       "alert": {
-        "invalid-labels-selected": "",
-        "no-labels-selected": "",
-        "select-label": ""
+        "invalid-labels-selected": "Ongeldige labels geselecteerd",
+        "no-labels-selected": "Geen labels geselecteerd",
+        "select-label": "Selecteer ten minste één label om de uitsplitsing van de logboeken te bekijken."
       },
       "breakdowns": {
         "breakdown-search-scene": {
-          "placeholder-search-for-value": ""
+          "placeholder-search-for-value": "Zoeken naar waarde"
         },
         "by-frame-repeater": {
-          "clear-filter": "",
-          "no-values-found": ""
+          "clear-filter": "Filter wissen",
+          "no-values-found": "Geen overeenkomende waarden gevonden voor “{{filter}}”"
         },
         "empty-layout-scene": {
-          "link": "",
-          "prefix": "",
-          "suffix": "",
-          "title": ""
+          "ask-assistant": "Vraag het aan Grafana Assistant",
+          "enable-parsers": "Geëxtraheerde velden inschakelen",
+          "link": "laat het ons weten",
+          "parsed-fields": "We hebben geen {{type}} gevonden voor het opgegeven tijdsbereik. Probeer geëxtraheerde velden uit de logregels in te schakelen.",
+          "prefix": "Alsjeblieft",
+          "suffix": "als je denkt dat dit een vergissing is.",
+          "title": "We hebben geen {{type}} gevonden voor het opgegeven tijdsbereik."
         },
         "field-selector": {
-          "custom-value-search-or-filter": "",
-          "placeholder-search-values": ""
+          "custom-value-search-or-filter": "Waarden filteren op",
+          "placeholder-search-values": "Waarden zoeken"
         },
         "field-values-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Raster",
+            "rows": "Rijen"
           },
-          "loading": ""
+          "loading": "Laden..."
         },
         "fields-aggregated-breakdown-scene": {
           "label": {
-            "grid": "",
-            "rows": ""
+            "grid": "Raster",
+            "rows": "Rijen"
           },
-          "text-loading": ""
+          "text-loading": "Laden..."
         },
         "fields-breakdown-scene": {
-          "label-field": ""
+          "label-field": "Veld",
+          "label-field-tooltip": "Gestructureerde metagegevens en geparste velden",
+          "label-metadata-tooltip": "Gestructureerde metagegevensvelden"
         },
         "label-breakdown-scene": {
-          "label-label": "",
-          "labels-not-available": ""
+          "label-label": "Label",
+          "labels-not-available": "De labels zijn op dit moment niet beschikbaar. Probeer een ander tijdsbereik te gebruiken of controleer het later opnieuw."
         },
         "label-values-breakdown-scene": {
           "error": {
-            "message": "",
-            "status": "",
-            "trace-id": ""
+            "message": "Bericht",
+            "status": "Status",
+            "trace-id": "TraceId"
           },
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Raster",
+            "rows": "Rijen"
           },
-          "loading": ""
+          "loading": "Laden..."
         },
         "labels-aggregated-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Raster",
+            "rows": "Rijen"
           },
-          "loading": ""
+          "loading": "Laden..."
         },
         "line-filter-input": {
-          "aria-label-clear-line-filter": "",
-          "tooltip-clear-line-filter": ""
+          "aria-label-clear-line-filter": "Regelfilter wissen",
+          "tooltip-clear-line-filter": "Regelfilter wissen"
         },
         "no-matching-labels-scene": {
-          "clear-filters": "",
-          "title": ""
+          "clear-filters": "Filters wissen",
+          "title": "Er zijn geen {{type}} die aan deze filters voldoen."
         },
         "numeric-filter-popover-scene": {
-          "add": "",
-          "cancel": "",
+          "add": "Toevoegen",
+          "cancel": "Annuleren",
           "label": {
-            "greater-than": "",
-            "greater-than-or-equal": "",
-            "less-than": "",
-            "less-than-or-equal": ""
+            "greater-than": "Groter dan",
+            "greater-than-or-equal": "Groter dan of gelijk aan",
+            "less-than": "Minder dan",
+            "less-than-or-equal": "Minder dan of gelijk aan"
           },
-          "remove": "",
-          "unit": ""
+          "remove": "Verwijderen",
+          "unit": "Eenheid"
         },
         "patterns": {
           "pattern-field-label-stats": {
-            "sample-rows": ""
+            "sample-rows": "Uit een voorbeeld van {{total}} gevonden rijen"
           },
           "pattern-name-label": {
-            "available-stats-field-current-timestamp": "",
-            "could-stats-pattern": ""
+            "available-stats-field-current-timestamp": "Geen beschikbare statistieken voor dit veld in de huidige tijdstempel.",
+            "could-stats-pattern": "Kon statistieken voor dit patroon niet laden."
           },
           "patterns-frame-scene": {
             "time-series": {
               "title": {
-                "exclude": "",
-                "include": ""
+                "exclude": "Uitsluiten",
+                "include": "Opnemen"
               }
             }
           },
           "patterns-logs-sample-scene": {
-            "clear-filters": "",
-            "no-match-filters": "",
-            "this-pattern-returns-no-logs": ""
+            "clear-filters": "Filters wissen",
+            "no-match-filters": "De logboeken die door dit patroon worden opgehaald, komen niet overeen met de huidige queryfilters.",
+            "this-pattern-returns-no-logs": "Dit patroon geeft geen logs terug."
           },
           "patterns-not-detected": {
-            "error-message": "",
-            "error-title": "",
-            "no-match-filters-title": "",
-            "not-detected-description": "",
-            "not-detected-help-link": "",
-            "not-detected-help-prefix": "",
-            "not-detected-title": "",
-            "too-old-docs-link": "",
-            "too-old-docs-prefix": "",
-            "too-old-docs-suffix": "",
-            "too-old-title": ""
+            "error-message": "Patroonmatching is niet geconfigureerd. Met patronen kun je vergelijkbare logregels detecteren en ze toevoegen aan of uitsluiten van je zoekopdracht. Om ze in actie te zien, voeg je het volgende toe aan je Loki-configuratie.",
+            "error-title": "Er zijn geen patroonovereenkomsten.",
+            "no-match-filters-title": "Er komen geen patronen overeen met deze filters.",
+            "not-detected-description": "Met patronen kun je vergelijkbare logregels detecteren om ze op te nemen in of uit te sluiten van je zoekopdracht.",
+            "not-detected-help-link": "Slack-kanaal van de Grafana Labs-community",
+            "not-detected-help-prefix": "Kom later terug of neem contact op met het team in de",
+            "not-detected-title": "Sorry, we konden geen patronen detecteren.",
+            "too-old-docs-link": "documentatie over patronen",
+            "too-old-docs-prefix": "Zie de",
+            "too-old-docs-suffix": "voor meer informatie.",
+            "too-old-title": "Patronen zijn alleen beschikbaar voor de meest recente {{maxAgeHours}} uur aan gegevens."
           },
           "patterns-view-table-scene": {
-            "no-filtered-patterns-message": "",
-            "no-patterns-message": "",
-            "no-patterns-title": ""
+            "no-filtered-patterns-message": "Er zijn geen patronen gevonden in het huidige tijdsbereik of die overeenkomen met de huidige niveaufilters.",
+            "no-patterns-message": "Er zijn geen patronen gevonden in het huidige tijdsbereik.",
+            "no-patterns-title": "Geen patronen om weer te geven"
           },
           "patterns-view-text-search": {
-            "indexed-labels-only": "",
-            "placeholder-search-patterns": ""
+            "indexed-labels-only": "Patronen worden geselecteerd op label en kunnen worden gefilterd op niveau. Geparste velden, gestructureerde metadata en stringfilters worden niet ondersteund voor de patroonlijst.",
+            "placeholder-search-patterns": "Patronen zoeken"
           }
         },
         "query-error-alert": {
-          "fetch": "",
-          "increase-limit": "",
-          "max-series-limit-exceeded": "",
-          "message": "",
-          "partial": "",
-          "return-fields": "",
-          "tip-reduce-range": "",
-          "trace-id": "",
-          "trace-ids": ""
+          "fetch": "Fout bij ophalen van resultaten voor {{tagKey}}",
+          "increase-limit": "Om deze limiet te verhogen, pas je de <2>max_query_series</2> aan in je Loki-configuratie.",
+          "max-series-limit-exceeded": "Maximale reekslimiet is overschreden",
+          "message": "Bericht",
+          "partial": "Gedeeltelijke resultaten weergeven voor {{tagKey}}",
+          "return-fields": "Terug naar alle velden",
+          "tip-reduce-range": "<strong>Tip:</strong> Verkort het tijdsbereik of voeg extra filters toe om het aantal unieke waarden in het veld {{label}} te verminderen.",
+          "trace-id": "TraceId",
+          "trace-ids": "TraceIds"
         },
         "search-input": {
-          "aria-label-clear-search": "",
-          "tooltip-clear-search": ""
+          "aria-label-clear-search": "Zoekopdracht wissen",
+          "tooltip-clear-search": "Zoekopdracht wissen"
         },
         "select-label-action-scene": {
-          "add-expression": "",
-          "clear-filters-tooltip": "",
-          "exclude-all-log-lines": "",
-          "include-all-log-lines": "",
-          "select": "",
-          "select-label": "",
-          "view-breakdown-title": ""
+          "add-expression": "Een expressie toevoegen, bijv. {{labelName}} > 30",
+          "clear-filters-tooltip": "Filters voor {{labelName}} wissen",
+          "exclude-all-log-lines": "Alle logregels uitsluiten met {{labelName}}",
+          "include-all-log-lines": "Alle logregels opnemen met {{labelName}}",
+          "select": "Selecteren",
+          "select-label": "{{labelName}} selecteren",
+          "view-breakdown-title": "Overzicht van waarden bekijken voor {{labelName}}"
         },
         "show-error-panel-toggle": {
-          "show-panels-with-errors": "",
-          "tooltip-requests-could-processed": ""
+          "show-panels-with-errors": "Panelen met fouten weergeven",
+          "tooltip-requests-could-processed": "Een of meer verzoeken konden niet worden verwerkt"
         },
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "",
-              "volume": ""
+              "display-volume": "Volume weergeven",
+              "parse-fields": "Velden uit logs extraheren"
+            },
+            "tooltip": {
+              "display-volume": "Query uitvoeren op tijdreeksen per veld die de verdeling van waarden in de loop van de tijd tonen",
+              "parse-fields": "Pas logfmt/JSON-parsers toe om velden uit de logregels te extraheren"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "Volume weergeven"
+            },
+            "tooltip": {
+              "display-volume": "Query uitvoeren op tijdreeksen per label die de verdeling van waarden in de loop van de tijd tonen"
             }
           }
         },
         "sort-by-scene": {
-          "aria-label-sort-direction": "",
+          "aria-label-sort-direction": "Sorteerrichting",
           "description": {
-            "alphabetical-order": "",
-            "graphs-deviation-average-value": "",
-            "graphs-highest-values": "",
-            "graphs-smallest-values": "",
-            "graphs-total-number": "",
-            "order-amount-outlying-values": "",
-            "smart-ordering": ""
+            "alphabetical-order": "Alfabetische volgorde",
+            "graphs-deviation-average-value": "Grafieken sorteren op afwijking van de gemiddelde waarde",
+            "graphs-highest-values": "Grafieken sorteren op de hoogste waarden (max)",
+            "graphs-smallest-values": "Grafieken sorteren op de laagste waarden (min)",
+            "graphs-total-number": "Grafieken sorteren op totaal aantal logs",
+            "order-amount-outlying-values": "Sorteren op het aantal uitschieters in de gegevens",
+            "smart-ordering": "Slimme rangschikking van grafieken op basis van de meest significante pieken in de gegevens"
           },
           "label": {
-            "asc": "",
-            "count": "",
-            "desc": "",
-            "highest-spike": "",
-            "lowest-dip": "",
-            "most-relevant": "",
-            "name": "",
-            "outlying-values": "",
-            "percentiles": "",
-            "widest-spread": ""
+            "asc": "Asc",
+            "count": "Telling",
+            "desc": "Desc",
+            "highest-spike": "Hoogste piek",
+            "lowest-dip": "Laagste dip",
+            "most-relevant": "Meest relevant",
+            "name": "Naam",
+            "outlying-values": "Uitschieters",
+            "percentiles": "Percentielen",
+            "widest-spread": "Grootste spreiding"
           },
-          "label-sort-by": "",
-          "placeholder-choose-criteria": "",
-          "tooltip-sort-by": ""
+          "label-sort-by": "Sorteren op",
+          "placeholder-choose-criteria": "Criteria kiezen",
+          "tooltip-sort-by": "Bereken een afgeleide hoeveelheid op basis van de waarden in je tijdreeksen en sorteer op dit criterium. Standaard ingesteld op standaardafwijking."
         }
       },
       "copy-link-button": {
         "aria-label": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Gekopieerd",
+          "copy-link": "Link naar logboekregel kopiëren"
         },
         "tooltip": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Gekopieerd",
+          "copy-link": "Link naar logboekregel kopiëren"
         }
       },
       "json-panel": {
         "json-filter-buttons": {
           "field-value": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "filter uitsluiten",
+              "include": "filter opnemen"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "Logregels uitsluiten die {{label}}=\"{{value}}\" bevatten",
+              "include": "Logregels opnemen die {{label}}=\"{{value}}\" bevatten"
             }
           },
           "metadata": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "filter uitsluiten",
+              "include": "filter opnemen"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "Logregels uitsluiten die {{label}}=\"{{value}}\" bevatten",
+              "include": "Logregels opnemen die {{label}}=\"{{value}}\" bevatten"
             }
           }
         },
         "json-line-item-type": {
           "detected-level-toggle-button": {
-            "include": "",
-            "remove": ""
+            "include": "Logs met niveau {{detectedLevel}} opnemen",
+            "remove": "Filter {{detectedLevel}} verwijderen"
           }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "filter uitsluiten",
+            "include": "filter opnemen"
           },
           "tooltip": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Logregels uitsluiten die {{key}} bevatten",
+            "include": "Logregels opnemen die {{key}} bevatten"
           }
         },
         "logs-json-component": {
           "alert": {
-            "loki-upgrade": "",
-            "no-json-fields": ""
+            "loki-upgrade": "Deze weergave is alleen-lezen totdat Loki is geüpgraded naar 3.5.0",
+            "no-json-fields": "Deze weergave is gemaakt voor JSON-logregels, maar er zijn er geen gedetecteerd. Schakel over naar de weergave Logs of Tabel voor een betere ervaring."
           },
-          "title-json": "",
-          "title-json-filtering-requires-loki": "",
-          "title-no-json-fields-detected": ""
+          "title-json": "JSON",
+          "title-json-filtering-requires-loki": "JSON-filtering vereist Loki 3.5.0.",
+          "title-no-json-fields-detected": "Geen JSON-velden gedetecteerd"
         },
         "re-root-json-button": {
-          "aria-label": "",
-          "tooltip": ""
+          "aria-label": "drilldown in {{key}}",
+          "tooltip": "{{key}} instellen als rootknooppunt"
         }
       },
-      "least-label-inclusive-matching": "",
+      "least-label-inclusive-matching": "Je hebt ten minste één label nodig met inclusieve overeenkomst.",
       "line-filter": {
         "line-filter-editor": {
-          "exclude": "",
-          "include": "",
+          "exclude": "Uitsluiten",
+          "include": "Opnemen",
           "label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Uitsluiten",
+            "include": "Opnemen"
           },
-          "placeholder-filter-logs-by-string": ""
+          "placeholder-filter-logs-by-string": "Logs filteren op string"
         }
       },
       "line-limit-scene": {
-        "max-lines-label": "",
-        "max-lines-placeholder": "",
-        "max-lines-tooltip": ""
+        "max-lines-label": "Regellimiet",
+        "max-lines-placeholder": "{{logs}} logs",
+        "max-lines-tooltip": "Aantal logregels dat moet worden opgevraagd. Afhankelijk van de Loki-configuratiewaarde voor max_entries_limit."
       },
       "log-list-controls": {
-        "collapse": "",
-        "expand": "",
+        "collapse": "Samenvouwen",
+        "expand": "Uitvouwen",
         "json": {
           "label": {
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Metagegevens weergeven",
+              "enable": "Metagegevens verbergen"
             }
           },
           "tooltip": {
             "labels": {
-              "disable": "",
-              "enable": ""
+              "disable": "Labels verbergen",
+              "enable": "Labels weergeven"
             },
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Gestructureerde metagegevens verbergen",
+              "enable": "Gestructureerde metagegevens weergeven"
             }
           }
         },
         "label": {
-          "collapse": "",
-          "expand": "",
+          "collapse": "Uitgevouwen",
+          "expand": "Ingeklapt",
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Markering uitgeschakeld",
+            "enable": "Markering ingeschakeld"
           },
-          "unwrap-lines": "",
-          "wrap-lines": ""
+          "unwrap-lines": "Regels afbreken",
+          "wrap-lines": "Regels niet afbreken"
         },
         "labels": {
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Oudste logs eerst",
+            "oldest-first": "Nieuwste logs eerst"
           }
         },
-        "scrollToBottom": "",
-        "scrollToTop": "",
+        "scrollToBottom": "Naar beneden scrollen",
+        "scrollToTop": "Naar boven scrollen",
         "table": {
           "label": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Logtekst",
+            "show-text": "Loglabels"
           },
           "tooltip": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Labels weergeven",
+            "show-text": "Logtekst weergeven"
           }
         },
         "tooltip": {
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Markeren uitschakelen",
+            "enable": "Markeren inschakelen"
           },
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Nieuwste logs eerst weergeven",
+            "oldest-first": "Oudste logs eerst weergeven"
           }
         },
-        "unwrap-lines": "",
-        "wrap-lines": ""
+        "unwrap-lines": "Regels niet afbreken",
+        "wrap-lines": "Regels afbreken"
       },
       "log-options-buttons-scene": {
-        "show-default-fields": "",
-        "show-original-log-line": "",
+        "show-default-fields": "Standaardvelden weergeven",
+        "show-original-log-line": "Oorspronkelijke logregel weergeven",
         "tooltip": {
-          "clear-displayed-fields": "",
-          "show-default-fields": ""
+          "clear-displayed-fields": "Weergegeven velden wissen: {{fields}}",
+          "show-default-fields": "Standaardvelden weergeven: {{fields}}"
         }
       },
       "log-options-scene": {
         "description": {
-          "disable-wrapping-of-long-log-lines": "",
-          "enable-wrapping-of-long-log-lines": "",
-          "show-results-newest-to-oldest": "",
-          "show-results-oldest-to-newest": ""
+          "disable-wrapping-of-long-log-lines": "Terugloop van lange logregels uitschakelen",
+          "enable-wrapping-of-long-log-lines": "Terugloop van lange logregels inschakelen",
+          "show-results-newest-to-oldest": "Resultaten weergeven van nieuwste naar oudste",
+          "show-results-oldest-to-newest": "Resultaten weergeven van oudste naar nieuwste"
         },
         "label": {
-          "newest-first": "",
-          "no-wrap": "",
-          "oldest-first": "",
-          "wrap": ""
+          "newest-first": "Nieuwste eerst",
+          "no-wrap": "Geen terugloop",
+          "oldest-first": "Oudste eerst",
+          "wrap": "Terugloop"
         }
       },
       "logs-panel-error": {
-        "clear-filters": "",
-        "default": ""
+        "clear-filters": "Filters wissen",
+        "default": "Er is een fout opgetreden"
       },
       "logs-panel-scene": {
         "label": {
-          "copy-link-to-log-line": ""
+          "copy-link-to-log-line": "Link naar logboekregel kopiëren"
         },
-        "text-loading": ""
+        "text-loading": "Laden..."
       },
-      "text-loading": ""
+      "logs-volume": {
+        "logs-volume-actions": {
+          "aria-label-group-by": "Logvolume groeperen op veld",
+          "group-fields": "",
+          "label-group-by": "Groeperen op"
+        },
+        "logs-volume-panel": {
+          "title": "Logvolume",
+          "title-with-count": "Logvolume ({{formattedCount}})"
+        }
+      },
+      "text-loading": "Laden..."
     },
     "service-selection-scene": {
       "add-label-to-filters-header-action-scene": {
         "button": {
-          "include": "",
-          "remove": ""
+          "include": "Opnemen",
+          "remove": "Verwijderen"
         },
         "tooltip": {
-          "add": "",
-          "remove": ""
+          "add": "{{value}} toevoegen aan filters",
+          "remove": "{{value}} uit filters verwijderen"
         }
       },
       "configure-volume-error": {
-        "docs-link": "",
-        "title": ""
+        "docs-link": "Instructies om volume in de Loki-configuratie in te schakelen:",
+        "title": "Logvolume is niet geconfigureerd."
+      },
+      "logs-panel": {
+        "go-to-log-line": "Naar logregel gaan",
+        "show-similar-logs": "Vergelijkbare logs weergeven"
       },
       "no-service-search-results": {
-        "title": ""
+        "title": "Geen service kwam overeen met je zoekopdracht."
       },
       "no-service-volume": {
-        "help": "",
-        "title": ""
+        "help": "Pas het tijdsbereik aan of selecteer een ander label.",
+        "title": "Geen logboeken gevonden in {{labelName}}."
       },
       "select-service-button": {
-        "show-logs": "",
-        "tooltip": ""
+        "show-logs": "Logs weergeven",
+        "tooltip": "Logs weergeven voor {{value}}"
       },
       "service-selection-pagination-scene": {
-        "aria-label-count-info": "",
-        "of-total": "",
-        "showing": "",
+        "aria-label-count-info": "Tellinginformatie",
+        "of-total": "van {{totalCount}}",
+        "showing": "Weergeven",
         "tooltip": {
-          "count-info": ""
+          "count-info": "{{totalCount}} labels hebben waarden voor het geselecteerde tijdsbereik. Het totale aantal labels kan verschillen"
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
-        "label-loading-tabs": "",
+        "label-add-tab": "Labeltabblad toevoegen",
+        "label-loading-tabs": "Tabbladen laden",
         "tab": {
-          "content-remove-tab": ""
+          "content-remove-tab": "Tabblad verwijderen"
         }
       },
       "tab-popover-scene": {
-        "placeholder-search-labels": ""
+        "placeholder-search-labels": "Labels zoeken"
       }
     },
     "table": {
       "cell-context-menu": {
-        "title-add-column": "",
-        "title-add-to-search": "",
-        "title-exclude-from-search": ""
+        "title-add-column": "Kolom toevoegen",
+        "title-add-to-search": "Toevoegen aan zoekopdracht",
+        "title-exclude-from-search": "Uitsluiten van zoekopdracht"
       },
       "column-selection": {
         "logs-column-search": {
-          "placeholder-search-fields-by-name": "",
+          "placeholder-search-fields-by-name": "Velden zoeken op naam",
           "tooltip": {
-            "collapse-sidebar": "",
-            "expand-sidebar": ""
+            "collapse-sidebar": "Zijbalk samenvouwen",
+            "expand-sidebar": "Zijbalk uitvouwen"
           }
         },
         "logs-table-available-fields": {
           "field": {
-            "title": ""
+            "title": "{{labelName}} komt voor in {{percent}}% van de logregels"
           }
         },
         "logs-table-empty-fields": {
-          "no-fields": ""
+          "no-fields": "Geen velden"
         },
         "logs-table-multi-select": {
           "button": {
-            "reset": ""
+            "reset": "Resetten"
           },
-          "fields": "",
+          "fields": "Velden",
           "header": {
-            "selected-fields": ""
+            "selected-fields": "Geselecteerde velden"
           }
         },
         "logs-table-nav-field": {
-          "aria-label-drag-and-drop-icon": "",
+          "aria-label-drag-and-drop-icon": "Pictogram slepen en neerzetten",
           "cardinality": {
-            "value": "",
-            "values": ""
+            "value": "waarde",
+            "values": "waarden"
           },
-          "title-drag-and-drop-to-reorder": ""
+          "title-drag-and-drop-to-reorder": "Slepen en neerzetten om de volgorde te wijzigen"
         }
       },
       "line-action-icons": {
-        "aria-label-view-log-line": "",
-        "copy-to-clipboard": "",
-        "title-inspect-value": "",
-        "tooltip-copy-link-to-log-line": "",
-        "tooltip-view-log-line": ""
+        "aria-label-view-log-line": "Logregel bekijken",
+        "copy-to-clipboard": "Kopiëren naar klembord",
+        "title-inspect-value": "Waarde inspecteren",
+        "tooltip-copy-link-to-log-line": "Link naar logboekregel kopiëren",
+        "tooltip-view-log-line": "Logregel bekijken"
       },
       "logs-header-actions": {
         "description": {
-          "show-results-in-json-visualisation": "",
-          "show-results-in-logs-visualisation": "",
-          "show-results-in-table-visualisation": ""
+          "show-results-in-json-visualisation": "Resultaten weergeven in json-visualisatie",
+          "show-results-in-logs-visualisation": "Resultaten weergeven in logvisualisatie",
+          "show-results-in-table-visualisation": "Resultaten weergeven in tabelvisualisatie"
         },
         "label": {
-          "json": "",
-          "logs": "",
-          "table": ""
+          "json": "JSON",
+          "logs": "Logs",
+          "table": "Tabel"
         }
       },
       "logs-table-header": {
         "aria-label": {
-          "show-menu": ""
+          "show-menu": "Menu {{name}} weergeven"
         },
-        "aria-label-reset-column-width": "",
-        "aria-label-show-log-labels": "",
-        "aria-label-show-log-text": "",
+        "aria-label-reset-column-width": "Kolombreedte resetten",
+        "aria-label-show-log-labels": "Loglabels weergeven",
+        "aria-label-show-log-text": "Logtekst weergeven",
         "tooltip": {
-          "show-menu": ""
+          "show-menu": "Menu {{name}} weergeven"
         },
-        "tooltip-reset-column-width": "",
-        "tooltip-show-log-labels": "",
-        "tooltip-show-log-text": ""
+        "tooltip-reset-column-width": "Kolombreedte resetten",
+        "tooltip-show-log-labels": "Loglabels weergeven",
+        "tooltip-show-log-text": "Logtekst weergeven"
       },
       "logs-table-header-menu": {
-        "close": ""
+        "close": "Sluiten"
       },
       "logs-table-header-wrap": {
         "menu": {
-          "move-left": "",
-          "move-right": "",
-          "remove-column": "",
-          "reset-column-widths": "",
-          "show-labels": "",
-          "show-log-text": ""
+          "move-left": "Naar links",
+          "move-right": "Naar rechts",
+          "remove-column": "Kolom verwijderen",
+          "reset-column-widths": "Kolombreedtes resetten",
+          "show-labels": "Labels weergeven",
+          "show-log-text": "Logtekst weergeven"
         }
       },
       "logs-table-scene": {
-        "title-logs": ""
+        "title-logs": "Logs"
       }
     }
   },
   "errors-analysis": {
-    "collapse": "",
-    "collapse-extra-fields": "",
-    "description": "",
-    "discovering-fields": "",
-    "error": "",
-    "expand": "",
-    "field-input-placeholder": "",
-    "field-link-label": "",
-    "filter-for-value": "",
-    "filter-out-value": "",
-    "no-extra-fields-shown": "",
-    "no-fields-detected": "",
-    "no-more-fields": "",
-    "no-values-found": "",
-    "show-all-link-title": "",
-    "title": "",
-    "too-many-values": "",
-    "show-more-fields_one": "",
-    "show-more-fields_other": ""
+    "collapse": "Samenvouwen",
+    "collapse-extra-fields": "Extra velden samenvouwen",
+    "description": "Ontdek patronen en beperk de mogelijke hoofdoorzaken door te onderzoeken hoe je gegevens zijn verdeeld over belangrijke attributen. Klik op een willekeurige waarde om je resultaten te filteren.",
+    "discovering-fields": "Attributen ontdekken…",
+    "error": "Laden mislukt",
+    "expand": "Uitvouwen",
+    "field-input-placeholder": "Zoeken om meer attributen toe te voegen",
+    "field-link-label": "{{name}} weergeven in het veldtabblad van Logs Drilldown",
+    "filter-for-value": "Filter op waarde",
+    "filter-out-value": "Waarde uitfilteren",
+    "no-extra-fields-shown": "Geen extra velden weergegeven",
+    "no-fields-detected": "Geen velden gedetecteerd voor deze foutengroep.",
+    "no-more-fields": "Geen velden meer",
+    "no-values-found": "Geen waarden gevonden",
+    "show-all-link-title": "Openen in Logs Drilldown",
+    "title": "Attribuutverkenner",
+    "too-many-values": "Te veel waarden om weer te geven",
+    "show-more-fields_one": "Nog {{count}} velden weergeven",
+    "show-more-fields_other": "Nog {{count}} velden weergeven"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "Plugin-informatie",
+      "tooltip": "Plugin-informatie"
+    },
+    "header": {
+      "last-update": "Meest recente update: {{updated}}",
+      "title": "Grafana Logs Drilldown v{{version}}"
+    },
+    "menu": {
+      "changelog": "Logboek van wijzigingen",
+      "commit-sha": "Commit-SHA: {{shortCommitSha}}",
+      "configuration": "Plugin-configuratie",
+      "contribute": "Bijdragen",
+      "documentation": "Documentatie",
+      "give-feedback": "Feedback geven",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "Een probleem melden"
+    }
   },
   "services": {
     "create-annotation-layers": {
       "severities": {
         "label": {
-          "critical": "",
-          "info": "",
-          "warning": ""
+          "critical": "Kritiek",
+          "info": "Info",
+          "warning": "Waarschuwing"
         }
       }
     },
     "drilldown-logs": {
       "notices": {
-        "max-series-reached": ""
+        "max-series-reached": "Maximumaantal resultaten bereikt. Gedeeltelijke resultaten weergeven."
       }
     },
     "get-field-options": {
       "label": {
-        "all": ""
+        "all": "Alle"
       }
     },
     "get-label-options": {
       "label": {
-        "all": ""
+        "all": "Alle"
       }
     },
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": ""
+          "range-oldest-newest-display": "Huidig tijdsbereik voor de logs in weergave"
         }
       }
     },
     "grafana-ui": {
       "date-time-pickers": {
         "quick-options": {
-          "day-before-yesterday": "",
-          "day-five-days-ago": "",
-          "day-four-days-ago": "",
-          "day-six-days-ago": "",
-          "day-three-days-ago": "",
-          "four-weeks-ago": "",
-          "last-1-hour": "",
-          "last-1-mins": "",
-          "last-12-hours": "",
-          "last-15-mins": "",
-          "last-2-days": "",
-          "last-24-hours": "",
-          "last-3-hours": "",
-          "last-30-days": "",
-          "last-30-mins": "",
-          "last-5-mins": "",
-          "last-6-hours": "",
-          "last-6-months": "",
-          "last-60-days": "",
-          "last-7-days": "",
-          "last-90-days": "",
-          "previous-month": "",
-          "previous-week": "",
-          "this-day-last-week": "",
-          "this-month": "",
-          "this-month-so-far": "",
-          "this-week": "",
-          "this-week-so-far": "",
-          "three-months-ago": "",
-          "three-weeks-ago": "",
-          "today": "",
-          "today-so-far": "",
-          "two-months-ago": "",
-          "two-weeks-ago": "",
-          "yesterday": ""
+          "day-before-yesterday": "Eergisteren",
+          "day-five-days-ago": "Vijf dagen geleden",
+          "day-four-days-ago": "Vier dagen geleden",
+          "day-six-days-ago": "Zes dagen geleden",
+          "day-three-days-ago": "Drie dagen geleden",
+          "four-weeks-ago": "Vier weken geleden",
+          "last-1-hour": "Afgelopen uur",
+          "last-1-mins": "Afgelopen minuut",
+          "last-12-hours": "Afgelopen 12 uur",
+          "last-15-mins": "Afgelopen 15 minuten",
+          "last-2-days": "Afgelopen 2 dagen",
+          "last-24-hours": "Afgelopen 24 uur",
+          "last-3-hours": "Afgelopen 3 uur",
+          "last-30-days": "Afgelopen 30 dagen",
+          "last-30-mins": "Afgelopen 30 minuten",
+          "last-5-mins": "Afgelopen 5 minuten",
+          "last-6-hours": "Afgelopen 6 uur",
+          "last-6-months": "Afgelopen 6 maanden",
+          "last-60-days": "Afgelopen 60 dagen",
+          "last-7-days": "Afgelopen 7 dagen",
+          "last-90-days": "Afgelopen 90 dagen",
+          "previous-month": "Vorige maand",
+          "previous-week": "Vorige week",
+          "this-day-last-week": "Deze dag vorige week",
+          "this-month": "Deze maand",
+          "this-month-so-far": "Deze maand tot nu toe",
+          "this-week": "Deze week",
+          "this-week-so-far": "Deze week tot nu toe",
+          "three-months-ago": "Drie maanden geleden",
+          "three-weeks-ago": "Drie weken geleden",
+          "today": "Vandaag",
+          "today-so-far": "Vandaag tot nu toe",
+          "two-months-ago": "Twee maanden geleden",
+          "two-weeks-ago": "Twee weken geleden",
+          "yesterday": "Gisteren"
         }
       }
     },
     "kg-annotation-toggle-renderer": {
-      "label-insights": ""
+      "label-insights": "Inzichten"
     },
     "logs": {
       "logs-drilldown": {
         "fields": {
-          "log-attributes-field": "",
-          "log-line-field": ""
+          "log-attributes-field": "Logattributen",
+          "log-line-field": "Logregel"
         },
-        "kg-annotation-toggle": ""
+        "kg-annotation-toggle": "Inzichten"
       }
     },
     "suspended-embedded-logs-exploration": {
-      "loading-logs-drilldown": ""
+      "loading-logs-drilldown": "Logs Drilldown wordt geladen..."
     },
     "suspended-loki-field-distribution": {
-      "loading": ""
+      "loading": "Laden..."
     },
     "suspended-open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Openen in Logs Drilldown"
     },
     "update-assistant-context": {
       "title": {
-        "parsed-fields-filters": "",
-        "structured-metadata-filters": ""
+        "current-logs-query-and-time-range": "Huidige logquery en tijdsbereik",
+        "parsed-fields-filters": "Filters voor geparste velden",
+        "structured-metadata-filters": "Filters voor gestructureerde metagegevens"
       }
     },
     "wrapped-loki-datasource": {
       "message": {
-        "data-source-is-working": ""
+        "data-source-is-working": "Gegevensbron werkt"
       },
       "title": {
-        "success": ""
+        "success": "Succes"
       }
     }
   }
