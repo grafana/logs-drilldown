@@ -1,973 +1,1035 @@
 {
   "components": {
     "app": {
-      "text-loading": ""
+      "text-loading": "Betöltés…"
     },
     "app-config": {
-      "active-users-reload-reflect-configuration-changes": "",
+      "active-users-reload-reflect-configuration-changes": "Az aktív felhasználóknak újra be kell tölteniük az alkalmazást, hogy a konfigurációs módosítások érvénybe lépjenek.",
       "default-columns": {
         "add-label": {
-          "add-label": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Címke hozzáadása",
+          "tooltip-label-match-against-query": "Új címke hozzáadása a felhasználói lekérdezéssel való párosításhoz"
         },
         "add-record": {
-          "add": ""
+          "add": "Hozzáadás"
         },
         "columns": {
-          "aria-label-drag-and-drop-icon": "",
-          "placeholder-select-column": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-column": ""
+          "aria-label-drag-and-drop-icon": "Ikon áthúzása",
+          "placeholder-select-column": "Oszlop kiválasztása",
+          "title-drag-and-drop-to-reorder": "Húzza át az átrendezéshez",
+          "tooltip-remove-column": "{{column}} eltávolítása"
         },
         "config": {
-          "default-columns-description": "",
-          "text-beta": ""
+          "default-columns-description": "Konfigurálja az alapértelmezés szerint megjelenítendő mezőket. Ezek helyettesíthetik a teljes naplósort, vagy megjeleníthetők mellette.",
+          "text-beta": "Béta"
         },
         "default-columns": {
-          "text-loading": ""
+          "text-loading": "Betöltés…"
         },
         "delete-record": {
-          "tooltip-delete-record": ""
+          "tooltip-delete-record": "Rekord törlése"
         },
         "fields": {
-          "add-column": "",
-          "add-column-tooltip": "",
-          "invalid-columns": "",
-          "invalid-columns-log-line-only": ""
+          "add-column": "Oszlop hozzáadása",
+          "add-column-tooltip": "Alapértelmezett oszlop hozzáadása a naplókban való megjelenítéshez",
+          "invalid-columns": "Érvénytelen oszlopok",
+          "invalid-columns-log-line-only": "Csak a naplósor kiválasztása valószínűleg redundáns!"
         },
         "label-name": {
-          "placeholder-select-label-name": ""
+          "placeholder-select-label-name": "Címkenév kiválasztása"
         },
         "label-value": {
-          "placeholder-select-label-value": ""
+          "placeholder-select-label-value": "Címkeérték kijelölése"
         },
         "labels": {
-          "content-queries-containing-these-labels-display-selected": "",
-          "labels-match": ""
+          "content-queries-containing-these-labels-display-selected": "Az ezeket a címkéket tartalmazó lekérdezések megjelenítik a kiválasztott oszlopokat",
+          "labels-match": "A címkék egyeznek"
         },
         "records-collapsible-label": {
-          "content-default-fields-display-visualizations-these-labels": "",
-          "display-fields": ""
+          "content-default-fields-display-visualizations-these-labels": "Alapértelmezett mezők, amelyek megjelennek a naplók vizualizációiban ezeknél a címkéknél",
+          "display-fields": "Mezők megjelenítése"
         },
         "remove-label": {
-          "tooltip-remove-label": ""
+          "tooltip-remove-label": "{{label}} eltávolítása"
         },
         "submit": {
-          "create-default-columns": "",
-          "update-default-columns": ""
+          "create-default-columns": "Alapértelmezett oszlopok létrehozása",
+          "update-default-columns": "Alapértelmezett oszlopok frissítése"
         },
         "undo": {
-          "confirmText-reset": "",
-          "reset": ""
+          "confirmText-reset": "Visszaállítás",
+          "reset": "Visszaállítás"
         },
         "unsupported": {
-          "default-columns": "",
-          "default-columns-requires-feature-flag": "",
-          "default-columns-requires-grafana-or-greater": ""
+          "default-columns": "Alapértelmezett oszlopok",
+          "default-columns-requires-feature-flag": "Az alapértelmezett oszlopokhoz engedélyezni kell a <1>kubernetesLogsDrilldown</1> funkciójelzőt.",
+          "default-columns-requires-grafana-or-greater": "Az alapértelmezett oszlopokhoz legalább Grafana 12.4 szükséges."
         }
       },
-      "default-data-source-description": "",
-      "default-time-range-description": "",
-      "default-time-range-enabled-label-use-custom-default-time-range": "",
-      "default-time-range-from-placeholder-now-15m": "",
-      "default-time-range-to-placeholder-now": "",
-      "description-end-of-the-range-eg-now": "",
-      "description-start-range": "",
-      "disable-patterns-description": "",
-      "interval-invalid-error": "",
-      "interval-placeholder": "",
-      "label-default-data-source": "",
-      "label-default-time-range": "",
-      "label-disable-loki-patterns": "",
-      "label-disable-patterns": "",
-      "label-from": "",
-      "label-max-interval": "",
-      "label-maximum-time-picker-interval": "",
-      "label-settings": "",
-      "label-to": "",
-      "max-interval-description": "",
-      "patterns-placeholder": "",
-      "save-settings": "",
+      "default-data-source-description": "Az új Logs Drilldown-felhasználókhoz használandó alapértelmezett adatforrás. Minden felhasználó felülbírálhatja az alapértelmezett beállítást, ha másik adatforrást állít be a Logs Drilldownban.",
+      "default-time-range-description": "Ha engedélyezve van, ezt az időtartományt használja a rendszer, amikor a felhasználók először nyitják meg a Naplók részletezését, és nincs időtartomány az URL-címben. Ha le van tiltva, az alkalmazás a beépített alapértelmezett beállítást használja (az elmúlt 15 perc).",
+      "default-time-range-enabled-label-use-custom-default-time-range": "Egyéni alapértelmezett időtartomány használata",
+      "default-time-range-from-placeholder-now-15m": "most – 15 perc",
+      "default-time-range-to-placeholder-now": "most",
+      "description-end-of-the-range-eg-now": "A tartomány vége (pl. most)",
+      "description-start-range": "A tartomány kezdete (pl. most – 15 perc, most – 1 óra, most – 24 óra)",
+      "disable-patterns-description": "Letiltja a Logs Drilldownban a <2>Loki-mintázatok API</2> végpont használatát, és eltávolítja a Mintázatok lapot.",
+      "interval-invalid-error": "Az intervallum érvénytelen. Adjon meg egy „60 percnél” hosszabb intervallumot. Például: 3 nap, 1 hét, 1 hónap",
+      "interval-placeholder": "7 nap",
+      "label-default-data-source": "Alapértelmezett adatforrás",
+      "label-default-time-range": "Alapértelmezett időtartomány",
+      "label-disable-loki-patterns": "Loki-mintázatok letiltása",
+      "label-disable-patterns": "Mintázatok letiltása",
+      "label-from": "Kezdet",
+      "label-max-interval": "Max. intervallum",
+      "label-maximum-time-picker-interval": "Időválasztó maximális intervalluma",
+      "label-settings": "Beállítások",
+      "label-to": "Vége",
+      "max-interval-description": "A Grafana Logs Drilldown alkalmazás időválasztójában kiválasztható maximális intervallum. Ha üres, a felhasználók bármilyen időtartomány-intervallumot kiválaszthatnak a Grafana Logs Drilldownban. <br/>Példaértékek: 7 nap, 24 óra, 2 hét",
+      "patterns-placeholder": "7 nap",
+      "save-settings": "Beállítások mentése",
       "service-selection": {
         "config": {
-          "service-selection-description": "",
-          "text-beta": ""
+          "service-selection-description": "Állítsa be, hogy mely címkék és címkeértékek jelenjenek meg alapértelmezés szerint a Logs Drilldown kezdőlapján.",
+          "text-beta": "Béta"
         },
         "context": {
-          "text-loading": ""
+          "text-loading": "Betöltés…"
         },
         "default-labels": {
-          "add-label": "",
-          "add-label-and-values": "",
-          "content-configure-default-labels-optional-values-landing": "",
-          "landing-page-default-labels": "",
-          "no-labels-selected": "",
-          "placeholder-select-label-name": "",
-          "placeholder-select-values-optional": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Címke hozzáadása",
+          "add-label-and-values": "Címke és értékek hozzáadása",
+          "content-configure-default-labels-optional-values-landing": "Konfigurálja az alapértelmezett címkéket és az opcionális értékeket, amelyeket meg szeretne jeleníteni a Logs Drilldown érkeztetési oldalán",
+          "landing-page-default-labels": "Érkeztetési oldal alapértelmezett címkéi",
+          "no-labels-selected": "Nincsenek kiválasztott címkék. A Logs Drilldown alapértelmezett beállítása: <strong>{{serviceName}}</strong>.",
+          "placeholder-select-label-name": "Címkenév kiválasztása",
+          "placeholder-select-values-optional": "Válasszon értékeket (opcionális)",
+          "tooltip-label-match-against-query": "Új címke hozzáadása a felhasználói lekérdezéssel való párosításhoz"
         },
         "footer": {
-          "confirmText-reset": "",
-          "reset": "",
-          "save-changes": ""
+          "confirmText-reset": "Visszaállítás",
+          "reset": "Visszaállítás",
+          "save-changes": "Beállítások mentése"
         },
         "label-list": {
-          "aria-label-drag-and-drop-icon": "",
-          "aria-label-remove-value": "",
-          "no-label-values-selected": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-label": "",
-          "tooltip-remove-value": ""
+          "aria-label-drag-and-drop-icon": "Ikon áthúzása",
+          "aria-label-remove-value": "{{value}} eltávolítása",
+          "no-label-values-selected": "Nincsenek kiválasztott címkeértékek. Megjeleníti a címke értékeinek teljes listáját.",
+          "title-drag-and-drop-to-reorder": "Húzza át az átrendezéshez",
+          "tooltip-remove-label": "{{label}} eltávolítása",
+          "tooltip-remove-value": "{{value}} eltávolítása"
         },
         "unsupported": {
-          "landing-page": "",
-          "landing-requires-feature-flag": "",
-          "landing-settings-requires-grafana-greater": ""
+          "landing-page": "Érkeztetési oldal",
+          "landing-requires-feature-flag": "Az érkeztetési oldal beállításaihoz engedélyezni kell a <1>kubernetesLogsDrilldown</1> funkciójelzőt.",
+          "landing-settings-requires-grafana-greater": "Az érkeztetési oldal beállításaihoz legalább Grafana 13.0 szükséges."
         }
       }
     },
     "buttons": {
       "copy-to-clipboard-button": {
-        "copy-link": "",
-        "copy-success": "",
-        "copy-to-clipboard": "",
-        "copy-to-clipboard-error": ""
+        "copy-link": "Hivatkozás másolása a naplósorba",
+        "copy-success": "Másolva",
+        "copy-to-clipboard": "Másolás vágólapra",
+        "copy-to-clipboard-error": "Hiba történt a hivatkozás másolásakor!"
       }
     },
     "embedded-logs-exploration": {
       "embedded-link-scene": {
-        "logs-drilldown": ""
+        "logs-drilldown": "Logs Drilldown"
       }
     },
     "embedded-scene-wrapper": {
-      "text-loading": ""
+      "text-loading": "Betöltés…"
     },
     "filter-button": {
-      "exclude": "",
-      "include": ""
+      "exclude": "Kizárás",
+      "include": "Belefoglalás"
     },
     "index-scene": {
       "get-variable-set": {
         "ds-variable": {
           "label": {
-            "data-source": ""
+            "data-source": "Adatforrás"
           }
         },
         "fields-and-metadata-variable": {
-          "description": "",
+          "description": "Szűrés a naplósorokból kinyert értékek (az elemzőkből, például a JSON-ból vagy a logfmt-ből észlelt mezők) és az egyes naplósorokhoz csatolt strukturált metaadatok alapján.",
           "label": {
-            "fields": ""
+            "fields": "Mezők"
           }
         },
         "fields-variable": {
           "label": {
-            "detected-fields": ""
+            "detected-fields": "Észlelt mezők"
           }
         },
         "label-variable": {
-          "description": "",
+          "description": "Naplók szűrése adatfolyamcímkék szerint (például feladat vagy névtér). A címkeszűrők a Loki adatfolyam-kiválasztó részét képezik, és a naplófolyamatok előtt lesznek alkalmazva.",
           "label": {
-            "labels": ""
+            "labels": "Címkék"
           }
         },
         "levels-variable": {
           "label": {
-            "error-levels": ""
+            "error-levels": "Hibaszintek"
           }
         },
         "metadata-variable": {
           "label": {
-            "metadata": ""
+            "metadata": "Metaadatok"
           }
         }
       },
       "intercept-banner": {
-        "body": "",
-        "title-welcome-to-grafana-logs-drilldown": ""
+        "body": "Tekintse meg <2>Első lépések című dokumentumunkat</2>, vagy tekintse meg a <5>Legutóbbi változásokat</5>.<br/>Segítsen nekünk az alkalmazás jövőjének alakításában. <10>Küldjön nekünk visszajelzést</10>, vagy lépjen velünk kapcsolatba a <14>GitHubon</14>.",
+        "title-welcome-to-grafana-logs-drilldown": "Üdvözöljük a Grafana naplórészletezőjében!"
       },
       "levels-variable-scene": {
-        "aria-label-log-level-filters": "",
-        "description-log-levels": "",
-        "label-log-levels": "",
-        "placeholder-all-levels": ""
+        "aria-label-log-level-filters": "Naplózási szintű szűrők",
+        "description-log-levels": "Csak azokat a naplókat tartsa meg, amelyek észlelt súlyossága megegyezik az Ön által kiválasztottal (például hiba vagy figyelmeztetés). Hagyja üresen az összes szint belefoglalásához.",
+        "label-log-levels": "Naplózási szintek",
+        "placeholder-all-levels": "Minden szint"
       },
       "line-filter-variable": {
-        "aria-label-remove-line-filter": "",
-        "description-line-filter": "",
-        "line-filter": ""
+        "aria-label-remove-line-filter": "Sorszűrő eltávolítása",
+        "description-line-filter": "A naplósor törzsében található szöveg egyeztetése vagy kizárása. Használhat egyszerű szöveget, RE2 reguláris kifejezéseket és kis- és nagybetűket megkülönböztető keresést.",
+        "line-filter": "Sorszűrő"
       },
       "line-filter-variables-scene": {
-        "aria-label-add-line-filter": ""
+        "aria-label-add-line-filter": "Sorszűrő hozzáadása"
       },
       "pattern-controls": {
-        "excluded-pattern": "",
-        "excluded-patterns": "",
-        "included-pattern": "",
-        "included-patterns": ""
+        "excluded-pattern": "Kizárt mintázat:",
+        "excluded-patterns": "Kizárt mintázatok:",
+        "included-pattern": "Belefoglalt mintázat",
+        "included-patterns": "Belefoglalt mintázatok"
       },
       "pattern-tag": {
-        "aria-label-remove-pattern": ""
+        "aria-label-remove-pattern": "Mintázat eltávolítása"
       },
       "reset-filters-button": {
-        "reset": "",
-        "tooltip-reset-label-filters-to-initial-values": ""
+        "reset": "Visszaállítás",
+        "tooltip-reset-label-filters-to-initial-values": "Címkeszűrők visszaállítása a kezdeti értékekre."
       },
       "share-button-scene": {
-        "aria-label-copy-shortened-url": "",
-        "aria-label-open-copy-link-options": "",
+        "aria-label-copy-shortened-url": "Rövidített URL-cím másolása",
+        "aria-label-open-copy-link-options": "Hivatkozás másolási beállításainak megnyitása",
         "menu-options": {
           "label": {
-            "copy-absolute-shortened-url": "",
-            "copy-absolute-url": "",
-            "copy-shortened-url": "",
-            "copy-url": "",
-            "normal-url-links": "",
-            "timesync-links-share-range-intact": ""
+            "copy-absolute-shortened-url": "Abszolút rövidített URL-cím másolása",
+            "copy-absolute-url": "Abszolút URL-cím másolása",
+            "copy-shortened-url": "Rövidített URL-cím másolása",
+            "copy-url": "URL-cím másolása",
+            "normal-url-links": "Normál URL-cím-hivatkozások",
+            "timesync-links-share-range-intact": "Időszinkronizált URL-cím-hivatkozások (megosztás érintetlen időtartománnyal)"
           }
         },
-        "share": ""
+        "share": "Megosztás"
       },
       "show-logs-button-scene": {
-        "show-logs": ""
+        "show-logs": "Naplók megjelenítése"
       },
-      "text-loading": "",
+      "text-loading": "Betöltés…",
       "toolbar-scene": {
-        "aggregated-metrics": "",
-        "aggregated-metrics-disabled-tooltip": "",
-        "aggregated-metrics-tooltip": "",
-        "aria-label-query-options": "",
-        "insights": "",
+        "aggregated-metrics": "Összesített metrikák",
+        "aggregated-metrics-disabled-tooltip": "Az összesített metrikák csak a(z) {{date}} után kezdődő lekérdezések esetén engedélyezhetők",
+        "aggregated-metrics-tooltip": "Az összesített metrikák sokkal gyorsabban adják vissza a szolgáltatáslekérdezések eredményeit, de alacsonyabb felbontással",
+        "aria-label-query-options": "Lekérdezési beállítások",
+        "insights": "Elemzések",
         "render-popover": {
-          "aria-label-query-options": "",
-          "label-toggle-aggregated-metrics": "",
-          "label-toggle-insights-annotations": "",
-          "query-options": ""
+          "aria-label-query-options": "Lekérdezési beállítások",
+          "label-toggle-aggregated-metrics": "Összesített metrikák ki- és bekapcsolása",
+          "label-toggle-insights-annotations": "Információk jegyzeteinek ki- és bekapcsolása",
+          "query-options": "Lekérdezési beállítások"
         }
       },
       "variable-layout-scene": {
-        "collapse": "",
-        "expand": ""
+        "collapse": "Szűrők összecsukása",
+        "expand": "Szűrők kibontása"
       }
     },
     "make-embedded-page": {
       "title": {
-        "grafana-logs-drilldown-embedded": ""
+        "grafana-logs-drilldown-embedded": "Grafana Logs Drilldown – beágyazott"
       }
     },
     "make-index-page": {
       "title": {
-        "grafana-logs-drilldown": ""
+        "grafana-logs-drilldown": "Grafana Logs Drilldown"
       }
     },
     "no-loki-splash": {
-      "learn-more": "",
-      "no-datasource": "",
-      "welcome-to-grafana-logs-drilldown": ""
+      "learn-more": "Ha többet szeretne megtudni, kattintson <2>ide</2>…",
+      "no-datasource": "Észrevettük, hogy nincs konfigurálva Loki-adatforrás.<br/>Adjon hozzá egy <4>Loki-adatforrást</4> a naplók megtekintéséhez.",
+      "welcome-to-grafana-logs-drilldown": "Üdvözöljük a Grafana Logs Drilldownban"
     },
     "open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Megnyitás a Logs Drilldownban"
     },
     "panels": {
       "panel-menu": {
         "add-visualization-header": {
           "text": {
-            "visualization": "",
-            "visualization-divider": ""
+            "visualization": "Vizualizáció",
+            "visualization-divider": "visualization_divider"
           }
         },
         "get-create-alert-payload": {
           "panel": {
             "title": {
-              "log-count-alert": ""
+              "log-count-alert": "Naplószámra vonatkozó riasztás"
             }
           }
         },
         "items": {
           "text": {
-            "explore": "",
-            "navigation": ""
+            "condense-logs": "Naplónézet tömörítése",
+            "expand-logs": "Naplónézet kibontása",
+            "explore": "Explore",
+            "navigation": "Navigáció",
+            "ui": "Interfész"
           }
         },
         "text": {
-          "add-to-dashboard": "",
-          "ai": "",
-          "ai-divider": "",
-          "create-alert": "",
-          "explain-in-assistant": ""
+          "add-to-dashboard": "Hozzáadás az irányítópulthoz",
+          "add-to-notebook": "",
+          "ai": "MI",
+          "ai-divider": "ai_divider",
+          "create-alert": "Riasztás létrehozása",
+          "explain-in-assistant": "Magyarázat az Asszisztensben"
         },
         "title": {
-          "logs-drilldown-query": ""
+          "logs-drilldown-query": "Logs Drilldown-lekérdezés"
         }
       }
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "",
-        "button-tooltip": "",
-        "saved-query-button-tooltip": ""
+        "button-no-search-tooltip": "Nincsenek betölthető mentett keresések",
+        "button-tooltip": "Mentett keresés betöltése",
+        "saved-query-button-tooltip": "Mentett lekérdezés betöltése"
       },
       "load-search-modal": {
-        "empty": "",
-        "modal-title": "",
-        "remove": "",
-        "select": ""
+        "empty": "Nincsenek megjeleníthető mentett keresések.",
+        "modal-title": "Korábban mentett keresés betöltése",
+        "remove": "Eltávolítás",
+        "select": "Kiválasztás"
       },
       "load-search-scene": {
-        "load-error": "",
-        "load-type-error": ""
+        "load-error": "Nem sikerült hivatkozást létrehozni.",
+        "load-type-error": "Válasszon egy Loki-lekérdezést."
       },
       "save-search-button": {
-        "button-tooltip": "",
-        "button-tooltip-saved-queries": ""
+        "button-tooltip": "Keresés mentése",
+        "button-tooltip-saved-queries": "Mentés a mentett lekérdezések közé"
       },
       "save-search-modal": {
-        "already-exists-alert": "",
-        "cancel": "",
-        "close": "",
-        "description": "",
-        "error": "",
-        "modal-alert": "",
-        "modal-title": "",
-        "save": "",
-        "success": "",
-        "title": "",
-        "title-success": ""
+        "already-exists-alert": "Már létezik egy korábban mentett keresés ugyanezzel a lekérdezéssel: {{title}}",
+        "cancel": "Mégse",
+        "close": "Bezárás",
+        "description": "Leírás",
+        "error": "Váratlan hiba történt a keresés mentése közben.",
+        "modal-alert": "A mentett kereséseket a böngésző helyileg tárolja, így azok csak ezen az eszközön lesznek elérhetőek.",
+        "modal-title": "Aktuális keresés mentése",
+        "save": "Mentés",
+        "success": "Keresés sikeresen mentve.",
+        "title": "Cím",
+        "title-success": "Sikerült"
       }
     },
     "service-scene": {
       "add-to-dashboard-modal": {
+        "title": "Hozzáadás az irányítópulthoz"
+      },
+      "add-to-notebook-modal": {
         "title": ""
       },
       "alert": {
-        "invalid-labels-selected": "",
-        "no-labels-selected": "",
-        "select-label": ""
+        "invalid-labels-selected": "Érvénytelen címkék vannak kiválasztva",
+        "no-labels-selected": "Nincsenek kiválasztott címkék",
+        "select-label": "Kérjük, válasszon ki legalább egy címkét a naplók részletezésének megtekintéséhez."
       },
       "breakdowns": {
         "breakdown-search-scene": {
-          "placeholder-search-for-value": ""
+          "placeholder-search-for-value": "Érték keresése"
         },
         "by-frame-repeater": {
-          "clear-filter": "",
-          "no-values-found": ""
+          "clear-filter": "Szűrő törlése",
+          "no-values-found": "Nem található a következővel egyező érték: „{{filter}}”"
         },
         "empty-layout-scene": {
-          "link": "",
-          "prefix": "",
-          "suffix": "",
-          "title": ""
+          "ask-assistant": "Kérdezze a Grafana Asszisztenst",
+          "enable-parsers": "Kivont mezők engedélyezése",
+          "link": "tudassa velünk,",
+          "parsed-fields": "Nem található {{type}} az adott időtartományban. Próbálja meg engedélyezni a naplósorokból kivont mezőket.",
+          "prefix": "Kérjük,",
+          "suffix": "ha úgy gondolja, hogy ez hiba.",
+          "title": "Nem található {{type}} az adott időtartományban."
         },
         "field-selector": {
-          "custom-value-search-or-filter": "",
-          "placeholder-search-values": ""
+          "custom-value-search-or-filter": "Értékszűrés alapja",
+          "placeholder-search-values": "Értékek keresése"
         },
         "field-values-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Rács",
+            "rows": "Sorok"
           },
-          "loading": ""
+          "loading": "Betöltés…"
         },
         "fields-aggregated-breakdown-scene": {
           "label": {
-            "grid": "",
-            "rows": ""
+            "grid": "Rács",
+            "rows": "Sorok"
           },
-          "text-loading": ""
+          "text-loading": "Betöltés…"
         },
         "fields-breakdown-scene": {
-          "label-field": ""
+          "label-field": "Mező",
+          "label-field-tooltip": "Strukturált metaadatok és elemzett mezők",
+          "label-metadata-tooltip": "Strukturáltmetaadat-mezők"
         },
         "label-breakdown-scene": {
-          "label-label": "",
-          "labels-not-available": ""
+          "label-label": "Címke",
+          "labels-not-available": "A címkék jelenleg nem érhetők el. Próbálkozzon másik időtartománnyal, vagy ellenőrizze később újra."
         },
         "label-values-breakdown-scene": {
           "error": {
-            "message": "",
-            "status": "",
-            "trace-id": ""
+            "message": "Üzenet",
+            "status": "Állapot",
+            "trace-id": "Nyomkövetési azonosító"
           },
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Rács",
+            "rows": "Sorok"
           },
-          "loading": ""
+          "loading": "Betöltés…"
         },
         "labels-aggregated-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Rács",
+            "rows": "Sorok"
           },
-          "loading": ""
+          "loading": "Betöltés…"
         },
         "line-filter-input": {
-          "aria-label-clear-line-filter": "",
-          "tooltip-clear-line-filter": ""
+          "aria-label-clear-line-filter": "Sorszűrő törlése",
+          "tooltip-clear-line-filter": "Sorszűrő törlése"
         },
         "no-matching-labels-scene": {
-          "clear-filters": "",
-          "title": ""
+          "clear-filters": "Szűrők törlése",
+          "title": "Egyetlen {{type}} sem felel meg ezeknek a szűrőknek."
         },
         "numeric-filter-popover-scene": {
-          "add": "",
-          "cancel": "",
+          "add": "Hozzáadás",
+          "cancel": "Mégse",
           "label": {
-            "greater-than": "",
-            "greater-than-or-equal": "",
-            "less-than": "",
-            "less-than-or-equal": ""
+            "greater-than": "Nagyobb, mint",
+            "greater-than-or-equal": "Nagyobb, mint vagy egyenlő ezzel",
+            "less-than": "Kisebb, mint",
+            "less-than-or-equal": "Kisebb, mint vagy egyenlő ezzel"
           },
-          "remove": "",
-          "unit": ""
+          "remove": "Eltávolítás",
+          "unit": "Egység"
         },
         "patterns": {
           "pattern-field-label-stats": {
-            "sample-rows": ""
+            "sample-rows": "Az összesen talált {{total}} sorból álló mintából"
           },
           "pattern-name-label": {
-            "available-stats-field-current-timestamp": "",
-            "could-stats-pattern": ""
+            "available-stats-field-current-timestamp": "Nincsenek elérhető statisztikák ehhez a mezőhöz az aktuális időbélyegben.",
+            "could-stats-pattern": "Nem sikerült betölteni a statisztikákat ehhez a mintázathoz."
           },
           "patterns-frame-scene": {
             "time-series": {
               "title": {
-                "exclude": "",
-                "include": ""
+                "exclude": "Kizárás",
+                "include": "Belefoglalás"
               }
             }
           },
           "patterns-logs-sample-scene": {
-            "clear-filters": "",
-            "no-match-filters": "",
-            "this-pattern-returns-no-logs": ""
+            "clear-filters": "Szűrők törlése",
+            "no-match-filters": "Az ezen mintázat által visszaadott naplók nem felelnek meg az aktuális lekérdezési szűrőknek.",
+            "this-pattern-returns-no-logs": "Ez a mintázat nem ad vissza naplókat."
           },
           "patterns-not-detected": {
-            "error-message": "",
-            "error-title": "",
-            "no-match-filters-title": "",
-            "not-detected-description": "",
-            "not-detected-help-link": "",
-            "not-detected-help-prefix": "",
-            "not-detected-title": "",
-            "too-old-docs-link": "",
-            "too-old-docs-prefix": "",
-            "too-old-docs-suffix": "",
-            "too-old-title": ""
+            "error-message": "A mintázategyeztetés nincs konfigurálva. A mintázatok segítségével felismerheti a hasonló naplósorokat, és hozzáadhatja vagy kizárhatja őket a keresésből. Ha szeretné látni őket működés közben, adja hozzá a következőket a Loki-konfigurációjához.",
+            "error-title": "Nincsenek mintázategyezések.",
+            "no-match-filters-title": "Egyetlen mintázat sem felel meg ezeknek a szűrőknek.",
+            "not-detected-description": "A mintázatok segítségével felismerheti a hasonló naplósorokat, amelyeket hozzáadhat vagy kizárhat a keresésből.",
+            "not-detected-help-link": "A Grafana Labs közösségi Slack-csatornája",
+            "not-detected-help-prefix": "Nézzen vissza később, vagy lépjen kapcsolatba a csapattal itt:",
+            "not-detected-title": "Sajnos nem sikerült mintázatokat észlelnünk.",
+            "too-old-docs-link": "a mintázatok dokumentációját",
+            "too-old-docs-prefix": "Lásd",
+            "too-old-docs-suffix": "további információkért.",
+            "too-old-title": "A mintázatok csak a legutóbbi {{maxAgeHours}} óra adatainál érhetők el."
           },
           "patterns-view-table-scene": {
-            "no-filtered-patterns-message": "",
-            "no-patterns-message": "",
-            "no-patterns-title": ""
+            "no-filtered-patterns-message": "Nem található mintázat az aktuális időtartományban, sem az aktuális szintszűrőknek megfelelő mintázat.",
+            "no-patterns-message": "Nem található mintázat az aktuális időtartományban.",
+            "no-patterns-title": "Nincs megjeleníthető mintázat"
           },
           "patterns-view-text-search": {
-            "indexed-labels-only": "",
-            "placeholder-search-patterns": ""
+            "indexed-labels-only": "A mintázatok címke alapján vannak kiválasztva, és szint szerint szűrhetők. A mintázatlistánál nem támogatottak az elemzett mezők, a strukturált metaadatok és a karakterlánc-szűrők.",
+            "placeholder-search-patterns": "Mintázatok keresése"
           }
         },
         "query-error-alert": {
-          "fetch": "",
-          "increase-limit": "",
-          "max-series-limit-exceeded": "",
-          "message": "",
-          "partial": "",
-          "return-fields": "",
-          "tip-reduce-range": "",
-          "trace-id": "",
-          "trace-ids": ""
+          "fetch": "Hiba történt a következőhöz tartozó eredmények lekérése során: {{tagKey}}",
+          "increase-limit": "A korlát növeléséhez módosítsa a <2>max_query_series</2> értékét a Loki konfigurációjában.",
+          "max-series-limit-exceeded": "Maximális sorozatkorlát túllépve",
+          "message": "Üzenet",
+          "partial": "Részleges találatok megjelenítése a következőhöz: {{tagKey}}",
+          "return-fields": "Vissza az összes mezőhöz",
+          "tip-reduce-range": "<strong>Tipp:</strong> Csökkentse az időtartományt, vagy adjon hozzá további szűrőket a(z) {{label}} mezőben található egyedi értékek számának csökkentése érdekében.",
+          "trace-id": "Nyomkövetési azonosító",
+          "trace-ids": "Nyomkövetési azonosítók"
         },
         "search-input": {
-          "aria-label-clear-search": "",
-          "tooltip-clear-search": ""
+          "aria-label-clear-search": "Keresés törlése",
+          "tooltip-clear-search": "Keresés törlése"
         },
         "select-label-action-scene": {
-          "add-expression": "",
-          "clear-filters-tooltip": "",
-          "exclude-all-log-lines": "",
-          "include-all-log-lines": "",
-          "select": "",
-          "select-label": "",
-          "view-breakdown-title": ""
+          "add-expression": "Adjon hozzá egy kifejezést, azaz: {{labelName}} > 30",
+          "clear-filters-tooltip": "{{labelName}}-szűrők törlése",
+          "exclude-all-log-lines": "Az összes olyan naplósor kizárása, amely tartalmazza a következőt: {{labelName}}",
+          "include-all-log-lines": "Az összes olyan naplósor belefoglalása, amely tartalmazza a következőt: {{labelName}}",
+          "select": "Kiválasztás",
+          "select-label": "{{labelName}} kiválasztása",
+          "view-breakdown-title": "Értékek részletezésének megtekintése a következőhöz: {{labelName}}"
         },
         "show-error-panel-toggle": {
-          "show-panels-with-errors": "",
-          "tooltip-requests-could-processed": ""
+          "show-panels-with-errors": "Hibákat tartalmazó panelek megjelenítése",
+          "tooltip-requests-could-processed": "Egy vagy több kérést nem sikerült feldolgozni"
         },
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "",
-              "volume": ""
+              "display-volume": "Mennyiség megjelenítése",
+              "parse-fields": "Mezők kivonása a naplókból"
+            },
+            "tooltip": {
+              "display-volume": "Idősorok lekérdezése minden egyes mezőhöz, amelyek az értékek eloszlását mutatják az idő függvényében",
+              "parse-fields": "Alkalmazzon logfmt-/JSON-elemzőket a mezők a naplósorokból történő kivonására"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "Mennyiség megjelenítése"
+            },
+            "tooltip": {
+              "display-volume": "Idősorok lekérdezése minden egyes címkéhez, amelyek az értékek eloszlását mutatják az idő függvényében"
             }
           }
         },
         "sort-by-scene": {
-          "aria-label-sort-direction": "",
+          "aria-label-sort-direction": "Rendezési irány",
           "description": {
-            "alphabetical-order": "",
-            "graphs-deviation-average-value": "",
-            "graphs-highest-values": "",
-            "graphs-smallest-values": "",
-            "graphs-total-number": "",
-            "order-amount-outlying-values": "",
-            "smart-ordering": ""
+            "alphabetical-order": "Betűrend",
+            "graphs-deviation-average-value": "Diagramok rendezése az átlagértéktől való eltérés szerint",
+            "graphs-highest-values": "Diagramok rendezése a legmagasabb értékek szerint (max.)",
+            "graphs-smallest-values": "Diagramok rendezése a legkisebb értékek szerint (min.)",
+            "graphs-total-number": "Diagramok rendezése a naplók teljes száma szerint",
+            "order-amount-outlying-values": "Rendezés az adatokban található kiugró értékek száma szerint",
+            "smart-ordering": "A diagramok intelligens rendezése az adatok legjelentősebb kiugrásai alapján"
           },
           "label": {
-            "asc": "",
-            "count": "",
-            "desc": "",
-            "highest-spike": "",
-            "lowest-dip": "",
-            "most-relevant": "",
-            "name": "",
-            "outlying-values": "",
-            "percentiles": "",
-            "widest-spread": ""
+            "asc": "Növekvő",
+            "count": "Szám",
+            "desc": "Csökkenő",
+            "highest-spike": "Legnagyobb kiugrás",
+            "lowest-dip": "Legalacsonyabb mélypont",
+            "most-relevant": "A legrelevánsabb",
+            "name": "Név",
+            "outlying-values": "Kilógó értékek",
+            "percentiles": "Percentilisek",
+            "widest-spread": "Legnagyobb szórás"
           },
-          "label-sort-by": "",
-          "placeholder-choose-criteria": "",
-          "tooltip-sort-by": ""
+          "label-sort-by": "Rendezés alapja",
+          "placeholder-choose-criteria": "Válasszon kritériumokat",
+          "tooltip-sort-by": "Kiszámíthat egy származtatott mennyiséget az idősor értékeiből, és rendezhet ezen kritérium szerint. Az alapértelmezés a szórás."
         }
       },
       "copy-link-button": {
         "aria-label": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Másolva",
+          "copy-link": "Hivatkozás másolása a naplósorba"
         },
         "tooltip": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Másolva",
+          "copy-link": "Hivatkozás másolása a naplósorba"
         }
       },
       "json-panel": {
         "json-filter-buttons": {
           "field-value": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "kizárási szűrő",
+              "include": "belefoglalási szűrő"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "A(z) {{label}}=„{{value}}” kifejezést tartalmazó naplósorok kizárása",
+              "include": "A(z) {{label}}=„{{value}}” kifejezést tartalmazó naplósorok belefoglalása"
             }
           },
           "metadata": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "kizárási szűrő",
+              "include": "belefoglalási szűrő"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "A(z) {{label}}=„{{value}}” kifejezést tartalmazó naplósorok kizárása",
+              "include": "A(z) {{label}}=„{{value}}” kifejezést tartalmazó naplósorok belefoglalása"
             }
           }
         },
         "json-line-item-type": {
           "detected-level-toggle-button": {
-            "include": "",
-            "remove": ""
+            "include": "{{detectedLevel}} szintű naplók belefoglalása",
+            "remove": "{{detectedLevel}} szűrő eltávolítása"
           }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "kizárási szűrő",
+            "include": "belefoglalási szűrő"
           },
           "tooltip": {
-            "exclude": "",
-            "include": ""
+            "exclude": "A következőt tartalmazó naplósorok kizárása: {{key}}",
+            "include": "A következőt tartalmazó naplósorok belefoglalása: {{key}}"
           }
         },
         "logs-json-component": {
           "alert": {
-            "loki-upgrade": "",
-            "no-json-fields": ""
+            "loki-upgrade": "Ez a nézet csak addig lesz olvasható, amíg a Loki verziója 3.5.0-ra nem frissül",
+            "no-json-fields": "Ez a nézet JSON-naplósorokhoz készült, de nem található ilyen. A jobb felhasználói élmény érdekében váltson a Naplók vagy a Táblázat nézetre."
           },
-          "title-json": "",
-          "title-json-filtering-requires-loki": "",
-          "title-no-json-fields-detected": ""
+          "title-json": "JSON",
+          "title-json-filtering-requires-loki": "A JSON-szűréshez Loki 3.5.0 szükséges.",
+          "title-no-json-fields-detected": "Nem észlelhetők JSON-mezők"
         },
         "re-root-json-button": {
-          "aria-label": "",
-          "tooltip": ""
+          "aria-label": "a következő részletezése: {{key}}",
+          "tooltip": "{{key}} beállítása gyökércsomópontként"
         }
       },
-      "least-label-inclusive-matching": "",
+      "least-label-inclusive-matching": "Legalább egy belefoglalási egyezéses címkére van szükség.",
       "line-filter": {
         "line-filter-editor": {
-          "exclude": "",
-          "include": "",
+          "exclude": "Kizárás",
+          "include": "Belefoglalás",
           "label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Kizárás",
+            "include": "Belefoglalás"
           },
-          "placeholder-filter-logs-by-string": ""
+          "placeholder-filter-logs-by-string": "Naplók szűrése karakterlánc szerint"
         }
       },
       "line-limit-scene": {
-        "max-lines-label": "",
-        "max-lines-placeholder": "",
-        "max-lines-tooltip": ""
+        "max-lines-label": "Sorkorlát",
+        "max-lines-placeholder": "{{logs}} naplók",
+        "max-lines-tooltip": "A lekérdezendő naplósorok száma. A Loki max_entries_limit konfigurációs értékétől függ."
       },
       "log-list-controls": {
-        "collapse": "",
-        "expand": "",
+        "collapse": "Összecsukás",
+        "expand": "Kibontás",
         "json": {
           "label": {
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Metaadatok megjelenítése",
+              "enable": "Metaadatok elrejtése"
             }
           },
           "tooltip": {
             "labels": {
-              "disable": "",
-              "enable": ""
+              "disable": "Címkék elrejtése",
+              "enable": "Címkék megjelenítése"
             },
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Strukturált metaadatok elrejtése",
+              "enable": "Strukturált metaadatok megjelenítése"
             }
           }
         },
         "label": {
-          "collapse": "",
-          "expand": "",
+          "collapse": "Kibontva",
+          "expand": "Összecsukva",
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Kiemelés letiltva",
+            "enable": "Kiemelés engedélyezve"
           },
-          "unwrap-lines": "",
-          "wrap-lines": ""
+          "unwrap-lines": "Sortörés",
+          "wrap-lines": "Sortörés megszüntetése"
         },
         "labels": {
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Régebbi naplók elől",
+            "oldest-first": "Újabb naplók elől"
           }
         },
-        "scrollToBottom": "",
-        "scrollToTop": "",
+        "scrollToBottom": "Görgetés az aljára",
+        "scrollToTop": "Görgetés a tetejére",
         "table": {
           "label": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Naplószöveg",
+            "show-text": "Naplócímkék"
           },
           "tooltip": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Címkék megjelenítése",
+            "show-text": "Naplószöveg megjelenítése"
           }
         },
         "tooltip": {
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Kiemelés letiltása",
+            "enable": "Kiemelés engedélyezése"
           },
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Újabb naplók elől",
+            "oldest-first": "Régebbi naplók elől"
           }
         },
-        "unwrap-lines": "",
-        "wrap-lines": ""
+        "unwrap-lines": "Sortörés megszüntetése",
+        "wrap-lines": "Sortörés"
       },
       "log-options-buttons-scene": {
-        "show-default-fields": "",
-        "show-original-log-line": "",
+        "show-default-fields": "Alapértelmezett mezők megjelenítése",
+        "show-original-log-line": "Eredeti naplósor megjelenítése",
         "tooltip": {
-          "clear-displayed-fields": "",
-          "show-default-fields": ""
+          "clear-displayed-fields": "Megjelenített mezők törlése: {{fields}}",
+          "show-default-fields": "Alapértelmezett mezők megjelenítése: {{fields}}"
         }
       },
       "log-options-scene": {
         "description": {
-          "disable-wrapping-of-long-log-lines": "",
-          "enable-wrapping-of-long-log-lines": "",
-          "show-results-newest-to-oldest": "",
-          "show-results-oldest-to-newest": ""
+          "disable-wrapping-of-long-log-lines": "Hosszú naplósorok sortörésének letiltása",
+          "enable-wrapping-of-long-log-lines": "Hosszú naplósorok sortörésének engedélyezése",
+          "show-results-newest-to-oldest": "Eredmények megjelenítése a legújabbtól a legrégebbiig",
+          "show-results-oldest-to-newest": "Eredmények megjelenítése a legrégebbitől a legújabbig"
         },
         "label": {
-          "newest-first": "",
-          "no-wrap": "",
-          "oldest-first": "",
-          "wrap": ""
+          "newest-first": "Az újabbat előre",
+          "no-wrap": "Nincs sortörés",
+          "oldest-first": "Régebbit előre",
+          "wrap": "Sortörés"
         }
       },
       "logs-panel-error": {
-        "clear-filters": "",
-        "default": ""
+        "clear-filters": "Szűrők törlése",
+        "default": "Hiba történt"
       },
       "logs-panel-scene": {
         "label": {
-          "copy-link-to-log-line": ""
+          "copy-link-to-log-line": "Hivatkozás másolása a naplósorba"
         },
-        "text-loading": ""
+        "text-loading": "Betöltés…"
       },
-      "text-loading": ""
+      "logs-volume": {
+        "logs-volume-actions": {
+          "aria-label-group-by": "Naplómennyiség csoportosítása mező szerint",
+          "group-fields": "",
+          "label-group-by": "Csoportosítási szempont"
+        },
+        "logs-volume-panel": {
+          "title": "Naplómennyiség",
+          "title-with-count": "Naplómennyiség ({{formattedCount}})"
+        }
+      },
+      "text-loading": "Betöltés…"
     },
     "service-selection-scene": {
       "add-label-to-filters-header-action-scene": {
         "button": {
-          "include": "",
-          "remove": ""
+          "include": "Belefoglalás",
+          "remove": "Eltávolítás"
         },
         "tooltip": {
-          "add": "",
-          "remove": ""
+          "add": "{{value}} hozzáadása a szűrőkhöz",
+          "remove": "{{value}} eltávolítása a szűrőkből"
         }
       },
       "configure-volume-error": {
-        "docs-link": "",
-        "title": ""
+        "docs-link": "Útmutatás a mennyiség engedélyezéséhez a Loki-konfigurációban:",
+        "title": "A naplómennyiség nincs konfigurálva."
+      },
+      "logs-panel": {
+        "go-to-log-line": "Ugrás a naplósorhoz",
+        "show-similar-logs": "Hasonló naplók megjelenítése"
       },
       "no-service-search-results": {
-        "title": ""
+        "title": "Nincs a keresésnek megfelelő szolgáltatás."
       },
       "no-service-volume": {
-        "help": "",
-        "title": ""
+        "help": "Módosítsa az időtartományt, vagy válasszon másik címkét.",
+        "title": "Nem található napló itt: {{labelName}}."
       },
       "select-service-button": {
-        "show-logs": "",
-        "tooltip": ""
+        "show-logs": "Naplók megjelenítése",
+        "tooltip": "Naplók megtekintése a következőhöz: {{value}}"
       },
       "service-selection-pagination-scene": {
-        "aria-label-count-info": "",
-        "of-total": "",
-        "showing": "",
+        "aria-label-count-info": "Számlálási információk",
+        "of-total": "/{{totalCount}}",
+        "showing": "Megjelenítve",
         "tooltip": {
-          "count-info": ""
+          "count-info": "{{totalCount}} címke rendelkezik értékekkel a kiválasztott időtartományhoz. Az összes címke száma eltérő lehet"
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
-        "label-loading-tabs": "",
+        "label-add-tab": "Címkelap hozzáadása",
+        "label-loading-tabs": "Lapok betöltése",
         "tab": {
-          "content-remove-tab": ""
+          "content-remove-tab": "Lap eltávolítása"
         }
       },
       "tab-popover-scene": {
-        "placeholder-search-labels": ""
+        "placeholder-search-labels": "Címkék keresése"
       }
     },
     "table": {
       "cell-context-menu": {
-        "title-add-column": "",
-        "title-add-to-search": "",
-        "title-exclude-from-search": ""
+        "title-add-column": "Oszlop hozzáadása",
+        "title-add-to-search": "Hozzáadás a kereséshez",
+        "title-exclude-from-search": "Kizárás a keresésből"
       },
       "column-selection": {
         "logs-column-search": {
-          "placeholder-search-fields-by-name": "",
+          "placeholder-search-fields-by-name": "Mezők keresése név alapján",
           "tooltip": {
-            "collapse-sidebar": "",
-            "expand-sidebar": ""
+            "collapse-sidebar": "Oldalsáv összecsukása",
+            "expand-sidebar": "Oldalsáv kibontása"
           }
         },
         "logs-table-available-fields": {
           "field": {
-            "title": ""
+            "title": "A(z) {{labelName}} a naplósorok {{percent}}%-ában jelenik meg"
           }
         },
         "logs-table-empty-fields": {
-          "no-fields": ""
+          "no-fields": "Nincsenek mezők"
         },
         "logs-table-multi-select": {
           "button": {
-            "reset": ""
+            "reset": "Visszaállítás"
           },
-          "fields": "",
+          "fields": "Mezők",
           "header": {
-            "selected-fields": ""
+            "selected-fields": "Kiválasztott mezők"
           }
         },
         "logs-table-nav-field": {
-          "aria-label-drag-and-drop-icon": "",
+          "aria-label-drag-and-drop-icon": "Ikon áthúzása",
           "cardinality": {
-            "value": "",
-            "values": ""
+            "value": "érték",
+            "values": "érték"
           },
-          "title-drag-and-drop-to-reorder": ""
+          "title-drag-and-drop-to-reorder": "Húzza át az átrendezéshez"
         }
       },
       "line-action-icons": {
-        "aria-label-view-log-line": "",
-        "copy-to-clipboard": "",
-        "title-inspect-value": "",
-        "tooltip-copy-link-to-log-line": "",
-        "tooltip-view-log-line": ""
+        "aria-label-view-log-line": "Naplósor megtekintése",
+        "copy-to-clipboard": "Másolás vágólapra",
+        "title-inspect-value": "Érték ellenőrzése",
+        "tooltip-copy-link-to-log-line": "Hivatkozás másolása a naplósorba",
+        "tooltip-view-log-line": "Naplósor megtekintése"
       },
       "logs-header-actions": {
         "description": {
-          "show-results-in-json-visualisation": "",
-          "show-results-in-logs-visualisation": "",
-          "show-results-in-table-visualisation": ""
+          "show-results-in-json-visualisation": "Eredmények megjelenítése a json-vizualizációban",
+          "show-results-in-logs-visualisation": "Eredmények megjelenítése a naplók vizualizációjában",
+          "show-results-in-table-visualisation": "Eredmények megjelenítése a táblázat vizualizációjában"
         },
         "label": {
-          "json": "",
-          "logs": "",
-          "table": ""
+          "json": "JSON",
+          "logs": "Naplók",
+          "table": "Táblázat"
         }
       },
       "logs-table-header": {
         "aria-label": {
-          "show-menu": ""
+          "show-menu": "{{name}} menü megjelenítése"
         },
-        "aria-label-reset-column-width": "",
-        "aria-label-show-log-labels": "",
-        "aria-label-show-log-text": "",
+        "aria-label-reset-column-width": "Oszlopszélesség visszaállítása",
+        "aria-label-show-log-labels": "Naplócímkék megjelenítése",
+        "aria-label-show-log-text": "Naplószöveg megjelenítése",
         "tooltip": {
-          "show-menu": ""
+          "show-menu": "{{name}} menü megjelenítése"
         },
-        "tooltip-reset-column-width": "",
-        "tooltip-show-log-labels": "",
-        "tooltip-show-log-text": ""
+        "tooltip-reset-column-width": "Oszlopszélesség visszaállítása",
+        "tooltip-show-log-labels": "Naplócímkék megjelenítése",
+        "tooltip-show-log-text": "Naplószöveg megjelenítése"
       },
       "logs-table-header-menu": {
-        "close": ""
+        "close": "Bezárás"
       },
       "logs-table-header-wrap": {
         "menu": {
-          "move-left": "",
-          "move-right": "",
-          "remove-column": "",
-          "reset-column-widths": "",
-          "show-labels": "",
-          "show-log-text": ""
+          "move-left": "Mozgatás balra",
+          "move-right": "Mozgatás jobbra",
+          "remove-column": "Oszlop eltávolítása",
+          "reset-column-widths": "Oszlopszélességek visszaállítása",
+          "show-labels": "Címkék megjelenítése",
+          "show-log-text": "Naplószöveg megjelenítése"
         }
       },
       "logs-table-scene": {
-        "title-logs": ""
+        "title-logs": "Naplók"
       }
     }
   },
   "errors-analysis": {
-    "collapse": "",
-    "collapse-extra-fields": "",
-    "description": "",
-    "discovering-fields": "",
-    "error": "",
-    "expand": "",
-    "field-input-placeholder": "",
-    "field-link-label": "",
-    "filter-for-value": "",
-    "filter-out-value": "",
-    "no-extra-fields-shown": "",
-    "no-fields-detected": "",
-    "no-more-fields": "",
-    "no-values-found": "",
-    "show-all-link-title": "",
-    "title": "",
-    "too-many-values": "",
-    "show-more-fields_one": "",
-    "show-more-fields_other": ""
+    "collapse": "Összecsukás",
+    "collapse-extra-fields": "Extra mezők összecsukása",
+    "description": "Fedezze fel a mintázatokat, és szűkítse le a kiváltó okokat azáltal, hogy megvizsgálja, hogyan oszlanak meg az adatai a kulcsfontosságú attribútumok között. Kattintson bármelyik értékre az eredmények szűréséhez.",
+    "discovering-fields": "Attribútumok felfedezése…",
+    "error": "Hiba a betöltés közben",
+    "expand": "Kibontás",
+    "field-input-placeholder": "Keresés további attribútumok hozzáadásához",
+    "field-link-label": "{{name}} megtekintése a Logs Drilldown mezőlapján",
+    "filter-for-value": "Érték szűrése",
+    "filter-out-value": "Érték kiszűrése",
+    "no-extra-fields-shown": "Nincsenek megjelenítve extra mezők",
+    "no-fields-detected": "Nem észlelhetők mezők ehhez a hibacsoporthoz.",
+    "no-more-fields": "Nincs több mező",
+    "no-values-found": "Nem található érték",
+    "show-all-link-title": "Megnyitás a Logs Drilldownban",
+    "title": "Attribútumböngésző",
+    "too-many-values": "Túl sok megjelenítendő érték",
+    "show-more-fields_one": "{{count}} további mező megjelenítése",
+    "show-more-fields_other": "{{count}} további mező megjelenítése"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "Bővítményinformáció",
+      "tooltip": "Bővítményinformáció"
+    },
+    "header": {
+      "last-update": "Legutóbbi frissítés: {{updated}}",
+      "title": "Grafana Logs Drilldown v{{version}}"
+    },
+    "menu": {
+      "changelog": "Változásnapló",
+      "commit-sha": "Véglegesítési azonosító (SHA): {{shortCommitSha}}",
+      "configuration": "Bővítmény konfigurációja",
+      "contribute": "Hozzájárulás",
+      "documentation": "Dokumentáció",
+      "give-feedback": "Visszajelzés küldése",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "Probléma bejelentése"
+    }
   },
   "services": {
     "create-annotation-layers": {
       "severities": {
         "label": {
-          "critical": "",
-          "info": "",
-          "warning": ""
+          "critical": "Kritikus",
+          "info": "Tájékoztatás",
+          "warning": "Figyelmeztetés"
         }
       }
     },
     "drilldown-logs": {
       "notices": {
-        "max-series-reached": ""
+        "max-series-reached": "Elérte a találatok maximális számát. Részleges találatok megjelenítése."
       }
     },
     "get-field-options": {
       "label": {
-        "all": ""
+        "all": "Az összes"
       }
     },
     "get-label-options": {
       "label": {
-        "all": ""
+        "all": "Az összes"
       }
     },
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": ""
+          "range-oldest-newest-display": "A megjelenített naplók aktuális időtartománya"
         }
       }
     },
     "grafana-ui": {
       "date-time-pickers": {
         "quick-options": {
-          "day-before-yesterday": "",
-          "day-five-days-ago": "",
-          "day-four-days-ago": "",
-          "day-six-days-ago": "",
-          "day-three-days-ago": "",
-          "four-weeks-ago": "",
-          "last-1-hour": "",
-          "last-1-mins": "",
-          "last-12-hours": "",
-          "last-15-mins": "",
-          "last-2-days": "",
-          "last-24-hours": "",
-          "last-3-hours": "",
-          "last-30-days": "",
-          "last-30-mins": "",
-          "last-5-mins": "",
-          "last-6-hours": "",
-          "last-6-months": "",
-          "last-60-days": "",
-          "last-7-days": "",
-          "last-90-days": "",
-          "previous-month": "",
-          "previous-week": "",
-          "this-day-last-week": "",
-          "this-month": "",
-          "this-month-so-far": "",
-          "this-week": "",
-          "this-week-so-far": "",
-          "three-months-ago": "",
-          "three-weeks-ago": "",
-          "today": "",
-          "today-so-far": "",
-          "two-months-ago": "",
-          "two-weeks-ago": "",
-          "yesterday": ""
+          "day-before-yesterday": "Tegnapelőtt",
+          "day-five-days-ago": "Öt nappal ezelőtt",
+          "day-four-days-ago": "Négy nappal ezelőtt",
+          "day-six-days-ago": "Hat nappal ezelőtt",
+          "day-three-days-ago": "Három nappal ezelőtt",
+          "four-weeks-ago": "Négy héttel ezelőtt",
+          "last-1-hour": "Az elmúlt 1 óra",
+          "last-1-mins": "Az elmúlt perc",
+          "last-12-hours": "Az elmúlt 12 óra",
+          "last-15-mins": "Az elmúlt 15 perc",
+          "last-2-days": "Az elmúlt 2 nap",
+          "last-24-hours": "Az elmúlt 24 óra",
+          "last-3-hours": "Az elmúlt 3 óra",
+          "last-30-days": "Az elmúlt 30 nap",
+          "last-30-mins": "Az elmúlt 30 perc",
+          "last-5-mins": "Az elmúlt 5 perc",
+          "last-6-hours": "Az elmúlt 6 óra",
+          "last-6-months": "Az elmúlt 6 hónap",
+          "last-60-days": "Az elmúlt 60 nap",
+          "last-7-days": "Az elmúlt 7 nap",
+          "last-90-days": "Az elmúlt 90 nap",
+          "previous-month": "Előző hónap",
+          "previous-week": "Előző hét",
+          "this-day-last-week": "A múlt héten ezen a napon",
+          "this-month": "Ez a hónap",
+          "this-month-so-far": "Ebben a hónapban eddig",
+          "this-week": "Ez a hét",
+          "this-week-so-far": "Ezen a héten eddig",
+          "three-months-ago": "Három hónapja",
+          "three-weeks-ago": "Három hete",
+          "today": "Ma",
+          "today-so-far": "Ma eddig",
+          "two-months-ago": "Két hónapja",
+          "two-weeks-ago": "Két hete",
+          "yesterday": "Tegnap"
         }
       }
     },
     "kg-annotation-toggle-renderer": {
-      "label-insights": ""
+      "label-insights": "Elemzések"
     },
     "logs": {
       "logs-drilldown": {
         "fields": {
-          "log-attributes-field": "",
-          "log-line-field": ""
+          "log-attributes-field": "Naplóattribútumok",
+          "log-line-field": "Naplósor"
         },
-        "kg-annotation-toggle": ""
+        "kg-annotation-toggle": "Elemzések"
       }
     },
     "suspended-embedded-logs-exploration": {
-      "loading-logs-drilldown": ""
+      "loading-logs-drilldown": "Logs Drilldown betöltése…"
     },
     "suspended-loki-field-distribution": {
-      "loading": ""
+      "loading": "Betöltés…"
     },
     "suspended-open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Megnyitás a Logs Drilldownban"
     },
     "update-assistant-context": {
       "title": {
-        "parsed-fields-filters": "",
-        "structured-metadata-filters": ""
+        "current-logs-query-and-time-range": "Aktuális naplólekérdezés és időtartomány",
+        "parsed-fields-filters": "Elemzett mezők szűrői",
+        "structured-metadata-filters": "Strukturált metaadatok szűrői"
       }
     },
     "wrapped-loki-datasource": {
       "message": {
-        "data-source-is-working": ""
+        "data-source-is-working": "Az adatforrás működik"
       },
       "title": {
-        "success": ""
+        "success": "Sikerült"
       }
     }
   }
