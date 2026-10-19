@@ -33,7 +33,7 @@ test.describe('Default fields', () => {
       const apacheServiceLogLineIdentifier = /HTTP\/[1|2].[0|1]/;
       const nginxServiceLogLineIdentifier =
         /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}.+\[[0-9]{1,2}\/[a-zA-Z]{3}\/[0-9]{4}:[0-9]{2}:[0-9]{2}:[0-9]{2}.+\+[0-9]{4}]/;
-      const traceIdRegex = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/;
+      const traceIdRegex = /\b[0-9a-f]{32}\b/;
       const clusterRegex = /(us|eu)-(west|east)-[12]/;
       const envRegex = /(prod|dev|staging|monitoring|infra)/;
       const levelRegex = /(debug|info|error|warn)/;

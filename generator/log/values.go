@@ -1,6 +1,7 @@
 package log
 
 import (
+	"encoding/hex"
 	"math/rand"
 	"os"
 	"strconv"
@@ -121,7 +122,7 @@ var level = []model.LabelValue{
 var OrgIDs = []string{"1218", "29", "1010", "2419", "2919"}
 var UserIDs = []string{"14234", "03428", "10572", "94223", "08203", "93820", "12345", "54321", "67890"}
 
-var defaultTraceId = gofakeit.UUID()
+var defaultTraceId = NewTraceID()
 
 var lessRandomPodLabelName = "tempo-ingester"
 
@@ -214,13 +215,25 @@ func RandDuration() string {
 	return (time.Duration(gofakeit.Number(1, 30000)) * time.Millisecond).String()
 }
 
+// NewTraceID returns a 32-char lowercase hex trace ID, the format Tempo and OpenTelemetry use.
+func NewTraceID() string {
+	for {
+		var b [16]byte
+		_, _ = rand.Read(b[:])
+		// An all-zero trace ID is invalid in OpenTelemetry.
+		if b != [16]byte{} {
+			return hex.EncodeToString(b[:])
+		}
+	}
+}
+
 func RandTraceID(prevTrace string) string {
 	// 50% chance to use `prevTrace` if it is set
 	if prevTrace != "" && rand.Intn(2) == 0 {
 		return prevTrace
 	}
 
-	newTrace := gofakeit.UUID()
+	newTrace := NewTraceID()
 	defaultTraceId = newTrace
 	return newTrace
 }
