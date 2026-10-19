@@ -1,972 +1,1034 @@
 {
   "components": {
     "app": {
-      "text-loading": ""
+      "text-loading": "로딩 중..."
     },
     "app-config": {
-      "active-users-reload-reflect-configuration-changes": "",
+      "active-users-reload-reflect-configuration-changes": "활성 사용자는 구성 변경 사항을 반영하기 위해 앱을 다시 로드해야 합니다.",
       "default-columns": {
         "add-label": {
-          "add-label": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "레이블 추가",
+          "tooltip-label-match-against-query": "사용자 쿼리와 일치하도록 새 레이블 추가"
         },
         "add-record": {
-          "add": ""
+          "add": "추가"
         },
         "columns": {
-          "aria-label-drag-and-drop-icon": "",
-          "placeholder-select-column": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-column": ""
+          "aria-label-drag-and-drop-icon": "드래그 앤 드롭 아이콘",
+          "placeholder-select-column": "열 선택",
+          "title-drag-and-drop-to-reorder": "드래그 앤 드롭으로 순서 변경",
+          "tooltip-remove-column": "{{column}} 삭제"
         },
         "config": {
-          "default-columns-description": "",
-          "text-beta": ""
+          "default-columns-description": "기본적으로 표시할 필드를 구성합니다. 이 필드는 전체 로그 줄을 대체하거나 그 옆에 표시될 수 있습니다.",
+          "text-beta": "베타"
         },
         "default-columns": {
-          "text-loading": ""
+          "text-loading": "로딩 중..."
         },
         "delete-record": {
-          "tooltip-delete-record": ""
+          "tooltip-delete-record": "기록 삭제"
         },
         "fields": {
-          "add-column": "",
-          "add-column-tooltip": "",
-          "invalid-columns": "",
-          "invalid-columns-log-line-only": ""
+          "add-column": "열 추가",
+          "add-column-tooltip": "로그에 표시할 기본 열 추가",
+          "invalid-columns": "유효하지 않은 열",
+          "invalid-columns-log-line-only": "로그 줄만 선택하는 것은 불필요할 수 있습니다!"
         },
         "label-name": {
-          "placeholder-select-label-name": ""
+          "placeholder-select-label-name": "레이블 이름 선택"
         },
         "label-value": {
-          "placeholder-select-label-value": ""
+          "placeholder-select-label-value": "레이블 값 선택"
         },
         "labels": {
-          "content-queries-containing-these-labels-display-selected": "",
-          "labels-match": ""
+          "content-queries-containing-these-labels-display-selected": "이러한 레이블이 포함된 쿼리에는 선택한 열이 표시됩니다.",
+          "labels-match": "레이블 일치"
         },
         "records-collapsible-label": {
-          "content-default-fields-display-visualizations-these-labels": "",
-          "display-fields": ""
+          "content-default-fields-display-visualizations-these-labels": "이러한 레이블의 로그 시각화에 기본적으로 표시할 필드",
+          "display-fields": "표시 필드"
         },
         "remove-label": {
-          "tooltip-remove-label": ""
+          "tooltip-remove-label": "{{label}} 제거"
         },
         "submit": {
-          "create-default-columns": "",
-          "update-default-columns": ""
+          "create-default-columns": "기본 열 생성",
+          "update-default-columns": "기본 열 업데이트"
         },
         "undo": {
-          "confirmText-reset": "",
-          "reset": ""
+          "confirmText-reset": "초기화",
+          "reset": "초기화"
         },
         "unsupported": {
-          "default-columns": "",
-          "default-columns-requires-feature-flag": "",
-          "default-columns-requires-grafana-or-greater": ""
+          "default-columns": "기본 열",
+          "default-columns-requires-feature-flag": "기본 열을 사용하려면 <1>kubernetesLogsDrilldown</1> 기능 플래그를 활성화해야 합니다.",
+          "default-columns-requires-grafana-or-greater": "기본 열을 사용하려면 Grafana 12.4 이상이 필요합니다."
         }
       },
-      "default-data-source-description": "",
-      "default-time-range-description": "",
-      "default-time-range-enabled-label-use-custom-default-time-range": "",
-      "default-time-range-from-placeholder-now-15m": "",
-      "default-time-range-to-placeholder-now": "",
-      "description-end-of-the-range-eg-now": "",
-      "description-start-range": "",
-      "disable-patterns-description": "",
-      "interval-invalid-error": "",
-      "interval-placeholder": "",
-      "label-default-data-source": "",
-      "label-default-time-range": "",
-      "label-disable-loki-patterns": "",
-      "label-disable-patterns": "",
-      "label-from": "",
-      "label-max-interval": "",
-      "label-maximum-time-picker-interval": "",
-      "label-settings": "",
-      "label-to": "",
-      "max-interval-description": "",
-      "patterns-placeholder": "",
-      "save-settings": "",
+      "default-data-source-description": "새 Logs Drilldown 사용자에게 사용할 기본 데이터 소스입니다. 각 사용자는 Logs Drilldown에서 다른 데이터 소스를 설정하여 기본값을 재정의할 수 있습니다.",
+      "default-time-range-description": "활성화하면 사용자가 처음으로 Logs Drilldown을 열고 URL에 시간 범위가 없는 경우 이 시간 범위가 사용됩니다. 비활성화하면 앱은 내장된 기본값(최근 15분)을 사용합니다.",
+      "default-time-range-enabled-label-use-custom-default-time-range": "사용자 지정 기본 시간 범위 사용",
+      "default-time-range-from-placeholder-now-15m": "now-15m",
+      "default-time-range-to-placeholder-now": "now",
+      "description-end-of-the-range-eg-now": "범위의 끝(예: now)",
+      "description-start-range": "범위의 시작(예: now-15m, now-1h, now-24h)",
+      "disable-patterns-description": "Logs Drilldown의 <2>Loki 패턴 API</2> 엔드포인트 사용을 비활성화하고 패턴 탭을 제거합니다.",
+      "interval-invalid-error": "간격이 유효하지 않습니다. '60m'보다 긴 간격을 입력하세요. 예: 3d, 1w, 1m",
+      "interval-placeholder": "7d",
+      "label-default-data-source": "기본 데이터 소스",
+      "label-default-time-range": "기본 시간 범위",
+      "label-disable-loki-patterns": "Loki 패턴 비활성화",
+      "label-disable-patterns": "패턴 비활성화",
+      "label-from": "최저",
+      "label-max-interval": "최대 간격",
+      "label-maximum-time-picker-interval": "시간 선택기 최대 간격",
+      "label-settings": "설정",
+      "label-to": "종료 시간",
+      "max-interval-description": "Grafana Logs Drilldown 앱의 시간 선택기에서 선택할 수 있는 최대 간격입니다. 비어 있는 경우 사용자는 Grafana Logs Drilldown에서 원하는 시간 범위 간격을 선택할 수 있습니다. <br/>예시 값: 7d, 24h, 2w",
+      "patterns-placeholder": "7d",
+      "save-settings": "설정 저장",
       "service-selection": {
         "config": {
-          "service-selection-description": "",
-          "text-beta": ""
+          "service-selection-description": "Logs Drilldown 랜딩 페이지에 기본적으로 표시되는 레이블 및 레이블 값을 구성합니다.",
+          "text-beta": "베타"
         },
         "context": {
-          "text-loading": ""
+          "text-loading": "로딩 중..."
         },
         "default-labels": {
-          "add-label": "",
-          "add-label-and-values": "",
-          "content-configure-default-labels-optional-values-landing": "",
-          "landing-page-default-labels": "",
-          "no-labels-selected": "",
-          "placeholder-select-label-name": "",
-          "placeholder-select-values-optional": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "레이블 추가",
+          "add-label-and-values": "레이블 및 값 추가",
+          "content-configure-default-labels-optional-values-landing": "Logs Drilldown 랜딩 페이지에 표시할 기본 레이블 및 선택적 값을 구성합니다",
+          "landing-page-default-labels": "랜딩 페이지 기본 레이블",
+          "no-labels-selected": "선택된 레이블 없음. Logs Drilldown의 기본값은 <strong>{{serviceName}}</strong>입니다.",
+          "placeholder-select-label-name": "레이블 이름 선택",
+          "placeholder-select-values-optional": "값 선택(선택 사항)",
+          "tooltip-label-match-against-query": "사용자 쿼리와 일치하도록 새 레이블 추가"
         },
         "footer": {
-          "confirmText-reset": "",
-          "reset": "",
-          "save-changes": ""
+          "confirmText-reset": "초기화",
+          "reset": "초기화",
+          "save-changes": "변경 사항 저장"
         },
         "label-list": {
-          "aria-label-drag-and-drop-icon": "",
-          "aria-label-remove-value": "",
-          "no-label-values-selected": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-label": "",
-          "tooltip-remove-value": ""
+          "aria-label-drag-and-drop-icon": "드래그 앤 드롭 아이콘",
+          "aria-label-remove-value": "{{value}} 제거",
+          "no-label-values-selected": "선택된 레이블 값이 없습니다. 이 레이블에 대한 값의 전체 목록이 표시됩니다.",
+          "title-drag-and-drop-to-reorder": "드래그 앤 드롭으로 순서 변경",
+          "tooltip-remove-label": "{{label}} 제거",
+          "tooltip-remove-value": "{{value}} 제거"
         },
         "unsupported": {
-          "landing-page": "",
-          "landing-requires-feature-flag": "",
-          "landing-settings-requires-grafana-greater": ""
+          "landing-page": "랜딩 페이지",
+          "landing-requires-feature-flag": "랜딩 페이지 설정을 사용하려면 <1>kubernetesLogsDrilldown</1> 기능 플래그를 활성화해야 합니다.",
+          "landing-settings-requires-grafana-greater": "랜딩 페이지 설정을 사용하려면 Grafana 13.0 이상이 필요합니다."
         }
       }
     },
     "buttons": {
       "copy-to-clipboard-button": {
-        "copy-link": "",
-        "copy-success": "",
-        "copy-to-clipboard": "",
-        "copy-to-clipboard-error": ""
+        "copy-link": "링크를 로그 줄에 복사",
+        "copy-success": "복사됨",
+        "copy-to-clipboard": "클립보드로 복사",
+        "copy-to-clipboard-error": "링크 복사 중 오류가 발생했습니다!"
       }
     },
     "embedded-logs-exploration": {
       "embedded-link-scene": {
-        "logs-drilldown": ""
+        "logs-drilldown": "Logs Drilldown"
       }
     },
     "embedded-scene-wrapper": {
-      "text-loading": ""
+      "text-loading": "로딩 중..."
     },
     "filter-button": {
-      "exclude": "",
-      "include": ""
+      "exclude": "제외",
+      "include": "포함"
     },
     "index-scene": {
       "get-variable-set": {
         "ds-variable": {
           "label": {
-            "data-source": ""
+            "data-source": "데이터 소스"
           }
         },
         "fields-and-metadata-variable": {
-          "description": "",
+          "description": "로그 줄에서 추출된 값(JSON 또는 logfmt와 같은 파서에서 감지된 필드)과 각 로그 줄에 연결된 구조화된 메타데이터를 기준으로 필터링합니다.",
           "label": {
-            "fields": ""
+            "fields": "필드"
           }
         },
         "fields-variable": {
           "label": {
-            "detected-fields": ""
+            "detected-fields": "감지된 필드"
           }
         },
         "label-variable": {
-          "description": "",
+          "description": "스트림 레이블(예: 작업 또는 네임스페이스)을 기준으로 로그를 필터링합니다. 레이블 필터는 Loki 스트림 선택기의 일부이며 로그 파이프라인보다 먼저 적용됩니다.",
           "label": {
-            "labels": ""
+            "labels": "레이블"
           }
         },
         "levels-variable": {
           "label": {
-            "error-levels": ""
+            "error-levels": "오류 수준"
           }
         },
         "metadata-variable": {
           "label": {
-            "metadata": ""
+            "metadata": "메타데이터"
           }
         }
       },
       "intercept-banner": {
-        "body": "",
-        "title-welcome-to-grafana-logs-drilldown": ""
+        "body": "<2>시작하기 문서</2>를 확인하거나 <5>최근 변경 사항</5>을 확인하세요.<br/>더 나은 앱을 만드는 데 여러분의 의견을 들려주세요. <10>피드백을 보내시거나</10> <14>GitHub</14>에서 저희와 소통하세요.",
+        "title-welcome-to-grafana-logs-drilldown": "Grafana Logs Drilldown에 오신 것을 환영합니다!"
       },
       "levels-variable-scene": {
-        "aria-label-log-level-filters": "",
-        "description-log-levels": "",
-        "label-log-levels": "",
-        "placeholder-all-levels": ""
+        "aria-label-log-level-filters": "로그 수준 필터",
+        "description-log-levels": "감지된 심각도가 선택한 항목(예: 오류 또는 경고)과 일치하는 로그만 유지합니다. 모든 수준을 포함하려면 비워 두세요.",
+        "label-log-levels": "로그 수준",
+        "placeholder-all-levels": "모든 수준"
       },
       "line-filter-variable": {
-        "aria-label-remove-line-filter": "",
-        "description-line-filter": "",
-        "line-filter": ""
+        "aria-label-remove-line-filter": "줄 필터 제거",
+        "description-line-filter": "로그 줄 본문의 텍스트를 일치시키거나 제외합니다. 일반 텍스트, RE2 정규 표현식 및 대/소문자 구분을 사용할 수 있습니다.",
+        "line-filter": "줄 필터"
       },
       "line-filter-variables-scene": {
-        "aria-label-add-line-filter": ""
+        "aria-label-add-line-filter": "줄 필터 추가"
       },
       "pattern-controls": {
-        "excluded-pattern": "",
-        "excluded-patterns": "",
-        "included-pattern": "",
-        "included-patterns": ""
+        "excluded-pattern": "제외 패턴:",
+        "excluded-patterns": "제외 패턴:",
+        "included-pattern": "포함 패턴",
+        "included-patterns": "포함 패턴"
       },
       "pattern-tag": {
-        "aria-label-remove-pattern": ""
+        "aria-label-remove-pattern": "패턴 제거"
       },
       "reset-filters-button": {
-        "reset": "",
-        "tooltip-reset-label-filters-to-initial-values": ""
+        "reset": "초기화",
+        "tooltip-reset-label-filters-to-initial-values": "레이블 필터를 초기값으로 재설정합니다."
       },
       "share-button-scene": {
-        "aria-label-copy-shortened-url": "",
-        "aria-label-open-copy-link-options": "",
+        "aria-label-copy-shortened-url": "단축 URL 복사",
+        "aria-label-open-copy-link-options": "링크 복사 옵션 열기",
         "menu-options": {
           "label": {
-            "copy-absolute-shortened-url": "",
-            "copy-absolute-url": "",
-            "copy-shortened-url": "",
-            "copy-url": "",
-            "normal-url-links": "",
-            "timesync-links-share-range-intact": ""
+            "copy-absolute-shortened-url": "절대 단축 URL 복사",
+            "copy-absolute-url": "절대 URL 복사",
+            "copy-shortened-url": "단축 URL 복사",
+            "copy-url": "URL 복사",
+            "normal-url-links": "일반 URL 링크",
+            "timesync-links-share-range-intact": "시간 동기화된 URL 링크(시간 범위 유지한 상태로 공유)"
           }
         },
-        "share": ""
+        "share": "공유"
       },
       "show-logs-button-scene": {
-        "show-logs": ""
+        "show-logs": "로그 표시"
       },
-      "text-loading": "",
+      "text-loading": "로딩 중...",
       "toolbar-scene": {
-        "aggregated-metrics": "",
-        "aggregated-metrics-disabled-tooltip": "",
-        "aggregated-metrics-tooltip": "",
-        "aria-label-query-options": "",
-        "insights": "",
+        "aggregated-metrics": "집계된 메트릭",
+        "aggregated-metrics-disabled-tooltip": "집계된 메트릭은 {{date}} 이후에 시작하는 쿼리에만 활성화할 수 있습니다",
+        "aggregated-metrics-tooltip": "집계된 메트릭을 사용하면 서비스 쿼리 결과를 훨씬 빠르게 반환하지만 해상도는 낮아집니다",
+        "aria-label-query-options": "쿼리 옵션",
+        "insights": "인사이트",
         "render-popover": {
-          "aria-label-query-options": "",
-          "label-toggle-aggregated-metrics": "",
-          "label-toggle-insights-annotations": "",
-          "query-options": ""
+          "aria-label-query-options": "쿼리 옵션",
+          "label-toggle-aggregated-metrics": "집계된 메트릭 전환",
+          "label-toggle-insights-annotations": "인사이트 주석 전환",
+          "query-options": "쿼리 옵션"
         }
       },
       "variable-layout-scene": {
-        "collapse": "",
-        "expand": ""
+        "collapse": "필터 접기",
+        "expand": "필터 펼치기"
       }
     },
     "make-embedded-page": {
       "title": {
-        "grafana-logs-drilldown-embedded": ""
+        "grafana-logs-drilldown-embedded": "Grafana Logs Drilldown — 임베디드"
       }
     },
     "make-index-page": {
       "title": {
-        "grafana-logs-drilldown": ""
+        "grafana-logs-drilldown": "Grafana Logs Drilldown"
       }
     },
     "no-loki-splash": {
-      "learn-more": "",
-      "no-datasource": "",
-      "welcome-to-grafana-logs-drilldown": ""
+      "learn-more": "자세히 알아보려면 <2>여기</2>를 클릭하세요...",
+      "no-datasource": "구성된 Loki 데이터 소스가 없습니다.<br/>로그를 보려면 <4>Loki 데이터 소스</4>를 추가하세요.",
+      "welcome-to-grafana-logs-drilldown": "Grafana Logs Drilldown에 오신 것을 환영합니다."
     },
     "open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Logs Drilldown에서 열기"
     },
     "panels": {
       "panel-menu": {
         "add-visualization-header": {
           "text": {
-            "visualization": "",
-            "visualization-divider": ""
+            "visualization": "시각화",
+            "visualization-divider": "visualization_divider"
           }
         },
         "get-create-alert-payload": {
           "panel": {
             "title": {
-              "log-count-alert": ""
+              "log-count-alert": "로그 수 경보"
             }
           }
         },
         "items": {
           "text": {
-            "explore": "",
-            "navigation": ""
+            "condense-logs": "로그 보기 축소",
+            "expand-logs": "로그 보기 펼치기",
+            "explore": "탐색",
+            "navigation": "내비게이션",
+            "ui": "인터페이스"
           }
         },
         "text": {
-          "add-to-dashboard": "",
-          "ai": "",
-          "ai-divider": "",
-          "create-alert": "",
-          "explain-in-assistant": ""
+          "add-to-dashboard": "대시보드에 추가",
+          "add-to-notebook": "",
+          "ai": "AI",
+          "ai-divider": "ai_divider",
+          "create-alert": "경보 생성",
+          "explain-in-assistant": "Assistant에서 설명하기"
         },
         "title": {
-          "logs-drilldown-query": ""
+          "logs-drilldown-query": "Logs Drilldown 쿼리"
         }
       }
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "",
-        "button-tooltip": "",
-        "saved-query-button-tooltip": ""
+        "button-no-search-tooltip": "불러올 저장된 검색이 없습니다.",
+        "button-tooltip": "저장된 검색 불러오기",
+        "saved-query-button-tooltip": "저장된 쿼리 불러오기"
       },
       "load-search-modal": {
-        "empty": "",
-        "modal-title": "",
-        "remove": "",
-        "select": ""
+        "empty": "표시할 저장된 검색이 없습니다.",
+        "modal-title": "이전에 저장된 검색 불러오기",
+        "remove": "제거",
+        "select": "선택"
       },
       "load-search-scene": {
-        "load-error": "",
-        "load-type-error": ""
+        "load-error": "링크를 생성할 수 없습니다.",
+        "load-type-error": "Loki 쿼리를 선택하세요."
       },
       "save-search-button": {
-        "button-tooltip": "",
-        "button-tooltip-saved-queries": ""
+        "button-tooltip": "검색 저장",
+        "button-tooltip-saved-queries": "저장된 쿼리에 저장"
       },
       "save-search-modal": {
-        "already-exists-alert": "",
-        "cancel": "",
-        "close": "",
-        "description": "",
-        "error": "",
-        "modal-alert": "",
-        "modal-title": "",
-        "save": "",
-        "success": "",
-        "title": "",
-        "title-success": ""
+        "already-exists-alert": "동일한 쿼리로 이전에 저장된 검색이 있음: {{title}}",
+        "cancel": "취소",
+        "close": "닫기",
+        "description": "설명",
+        "error": "이 검색을 저장하는 동안 예기치 않은 오류가 발생했습니다.",
+        "modal-alert": "저장된 검색은 브라우저에 로컬로 저장되며 이 기기에서만 사용할 수 있습니다.",
+        "modal-title": "현재 검색 저장",
+        "save": "저장",
+        "success": "검색이 성공적으로 저장되었습니다.",
+        "title": "제목",
+        "title-success": "성공"
       }
     },
     "service-scene": {
       "add-to-dashboard-modal": {
+        "title": "대시보드에 추가"
+      },
+      "add-to-notebook-modal": {
         "title": ""
       },
       "alert": {
-        "invalid-labels-selected": "",
-        "no-labels-selected": "",
-        "select-label": ""
+        "invalid-labels-selected": "유효하지 않은 레이블이 선택됨",
+        "no-labels-selected": "선택된 레이블 없음",
+        "select-label": "로그 세부 정보를 보려면 하나 이상의 레이블을 선택하세요."
       },
       "breakdowns": {
         "breakdown-search-scene": {
-          "placeholder-search-for-value": ""
+          "placeholder-search-for-value": "값 검색"
         },
         "by-frame-repeater": {
-          "clear-filter": "",
-          "no-values-found": ""
+          "clear-filter": "필터 초기화",
+          "no-values-found": "'{{filter}}'와(과) 일치하는 값을 찾을 수 없습니다."
         },
         "empty-layout-scene": {
-          "link": "",
-          "prefix": "",
-          "suffix": "",
-          "title": ""
+          "ask-assistant": "Grafana Assistant에 질문하기",
+          "enable-parsers": "추출된 필드 활성화",
+          "link": "알려주세요.",
+          "parsed-fields": "지정된 시간 범위에 해당하는 {{type}} 항목을 찾지 못했습니다. 로그 줄에서 추출된 필드를 활성화해 보세요.",
+          "prefix": "요청합니다.",
+          "suffix": "이것이 실수라고 생각하신다면.",
+          "title": "지정된 시간 범위에 해당하는 {{type}} 항목을 찾지 못했습니다."
         },
         "field-selector": {
-          "custom-value-search-or-filter": "",
-          "placeholder-search-values": ""
+          "custom-value-search-or-filter": "값 필터링 기준",
+          "placeholder-search-values": "값 검색"
         },
         "field-values-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "그리드",
+            "rows": "행"
           },
-          "loading": ""
+          "loading": "로딩 중..."
         },
         "fields-aggregated-breakdown-scene": {
           "label": {
-            "grid": "",
-            "rows": ""
+            "grid": "그리드",
+            "rows": "행"
           },
-          "text-loading": ""
+          "text-loading": "로딩 중..."
         },
         "fields-breakdown-scene": {
-          "label-field": ""
+          "label-field": "필드",
+          "label-field-tooltip": "구조화된 메타데이터 및 구문 분석된 필드",
+          "label-metadata-tooltip": "구조화된 메타데이터 필드"
         },
         "label-breakdown-scene": {
-          "label-label": "",
-          "labels-not-available": ""
+          "label-label": "레이블",
+          "labels-not-available": "현재 레이블을 사용할 수 없습니다. 다른 시간 범위를 사용하거나 나중에 다시 확인해 보세요."
         },
         "label-values-breakdown-scene": {
           "error": {
-            "message": "",
-            "status": "",
-            "trace-id": ""
+            "message": "메시지",
+            "status": "상태",
+            "trace-id": "트레이스 ID"
           },
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "그리드",
+            "rows": "행"
           },
-          "loading": ""
+          "loading": "로딩 중..."
         },
         "labels-aggregated-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "그리드",
+            "rows": "행"
           },
-          "loading": ""
+          "loading": "로딩 중..."
         },
         "line-filter-input": {
-          "aria-label-clear-line-filter": "",
-          "tooltip-clear-line-filter": ""
+          "aria-label-clear-line-filter": "줄 필터 초기화",
+          "tooltip-clear-line-filter": "줄 필터 초기화"
         },
         "no-matching-labels-scene": {
-          "clear-filters": "",
-          "title": ""
+          "clear-filters": "필터 초기화",
+          "title": "이 필터와 일치하는 {{type}}이(가) 없습니다."
         },
         "numeric-filter-popover-scene": {
-          "add": "",
-          "cancel": "",
+          "add": "추가",
+          "cancel": "취소",
           "label": {
-            "greater-than": "",
-            "greater-than-or-equal": "",
-            "less-than": "",
-            "less-than-or-equal": ""
+            "greater-than": "초과",
+            "greater-than-or-equal": "이상",
+            "less-than": "미만",
+            "less-than-or-equal": "이하"
           },
-          "remove": "",
-          "unit": ""
+          "remove": "제거",
+          "unit": "단위"
         },
         "patterns": {
           "pattern-field-label-stats": {
-            "sample-rows": ""
+            "sample-rows": "발견된 {{total}}개 행의 샘플에서"
           },
           "pattern-name-label": {
-            "available-stats-field-current-timestamp": "",
-            "could-stats-pattern": ""
+            "available-stats-field-current-timestamp": "현재 타임스탬프에서 이 필드에 사용할 수 있는 통계가 없습니다.",
+            "could-stats-pattern": "이 패턴에 대한 통계를 불러올 수 없습니다."
           },
           "patterns-frame-scene": {
             "time-series": {
               "title": {
-                "exclude": "",
-                "include": ""
+                "exclude": "제외",
+                "include": "포함"
               }
             }
           },
           "patterns-logs-sample-scene": {
-            "clear-filters": "",
-            "no-match-filters": "",
-            "this-pattern-returns-no-logs": ""
+            "clear-filters": "필터 초기화",
+            "no-match-filters": "이 패턴에서 반환된 로그가 현재 쿼리 필터와 일치하지 않습니다.",
+            "this-pattern-returns-no-logs": "이 패턴은 로그를 반환하지 않습니다."
           },
           "patterns-not-detected": {
-            "error-message": "",
-            "error-title": "",
-            "no-match-filters-title": "",
-            "not-detected-description": "",
-            "not-detected-help-link": "",
-            "not-detected-help-prefix": "",
-            "not-detected-title": "",
-            "too-old-docs-link": "",
-            "too-old-docs-prefix": "",
-            "too-old-docs-suffix": "",
-            "too-old-title": ""
+            "error-message": "패턴 매칭이 구성되지 않았습니다. 패턴을 사용하면 유사한 로그 줄을 감지하고 검색에 추가하거나 제외할 수 있습니다. 실제로 작동하는 것을 보려면 Loki 구성에 다음을 추가하세요.",
+            "error-title": "일치하는 패턴이 없습니다.",
+            "no-match-filters-title": "이 필터와 일치하는 패턴이 없습니다.",
+            "not-detected-description": "패턴을 사용하면 검색에 포함하거나 제외할 유사한 로그 줄을 감지할 수 있습니다.",
+            "not-detected-help-link": "Grafana Labs 커뮤니티 Slack 채널",
+            "not-detected-help-prefix": "나중에 다시 확인하거나 팀에 문의하세요",
+            "not-detected-title": "죄송합니다. 패턴을 감지할 수 없습니다.",
+            "too-old-docs-link": "패턴 문서",
+            "too-old-docs-prefix": "확인:",
+            "too-old-docs-suffix": "자세한 내용",
+            "too-old-title": "패턴은 가장 최근 {{maxAgeHours}} 시간의 데이터에 대해서만 사용할 수 있습니다."
           },
           "patterns-view-table-scene": {
-            "no-filtered-patterns-message": "",
-            "no-patterns-message": "",
-            "no-patterns-title": ""
+            "no-filtered-patterns-message": "현재 시간 범위에서 패턴이 없거나 현재 수준 필터와 일치하는 패턴이 없습니다.",
+            "no-patterns-message": "현재 시간 범위에서 패턴이 없습니다.",
+            "no-patterns-title": "표시할 패턴이 없습니다."
           },
           "patterns-view-text-search": {
-            "indexed-labels-only": "",
-            "placeholder-search-patterns": ""
+            "indexed-labels-only": "패턴은 레이블별로 선택되며 단계별로 필터링될 수 있습니다. 패턴 목록에서는 구문 분석된 필드, 구조화된 메타데이터 및 문자열 필터가 지원되지 않습니다.",
+            "placeholder-search-patterns": "패턴 검색"
           }
         },
         "query-error-alert": {
-          "fetch": "",
-          "increase-limit": "",
-          "max-series-limit-exceeded": "",
-          "message": "",
-          "partial": "",
-          "return-fields": "",
-          "tip-reduce-range": "",
-          "trace-id": "",
-          "trace-ids": ""
+          "fetch": "{{tagKey}} 결과를 가져오는 중 오류 발생",
+          "increase-limit": "이 한도를 늘리려면 Loki 구성에서 <2>max_query_series</2>을(를) 조정하세요.",
+          "max-series-limit-exceeded": "최대 시계열 수 제한 초과",
+          "message": "메시지",
+          "partial": "{{tagKey}}의 일부 결과만 표시 중",
+          "return-fields": "모든 필드로 돌아가기",
+          "tip-reduce-range": "<strong>팁:</strong> 시간 범위를 줄이거나 추가 필터를 추가하여 {{label}} 필드의 고유 값 수를 줄이세요.",
+          "trace-id": "트레이스 ID",
+          "trace-ids": "트레이스 ID"
         },
         "search-input": {
-          "aria-label-clear-search": "",
-          "tooltip-clear-search": ""
+          "aria-label-clear-search": "검색 지우기",
+          "tooltip-clear-search": "검색 지우기"
         },
         "select-label-action-scene": {
-          "add-expression": "",
-          "clear-filters-tooltip": "",
-          "exclude-all-log-lines": "",
-          "include-all-log-lines": "",
-          "select": "",
-          "select-label": "",
-          "view-breakdown-title": ""
+          "add-expression": "표현식을 추가하세요. 예: {{labelName}} > 30",
+          "clear-filters-tooltip": "{{labelName}} 필터 지우기",
+          "exclude-all-log-lines": "다음이 포함된 모든 로그 줄 제외: {{labelName}}",
+          "include-all-log-lines": "다음이 포함된 모든 로그 줄 포함: {{labelName}}",
+          "select": "선택",
+          "select-label": "{{labelName}} 선택",
+          "view-breakdown-title": "{{labelName}} 값 분석 보기 "
         },
         "show-error-panel-toggle": {
-          "show-panels-with-errors": "",
-          "tooltip-requests-could-processed": ""
+          "show-panels-with-errors": "오류가 있는 패널 표시",
+          "tooltip-requests-could-processed": "하나 이상의 요청을 처리할 수 없습니다."
         },
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "",
-              "volume": ""
+              "display-volume": "볼륨 표시",
+              "parse-fields": "로그에서 필드 추출"
+            },
+            "tooltip": {
+              "display-volume": "각 필드의 값 분포를 시간대별로 보여주는 시계열 쿼리",
+              "parse-fields": "logfmt/JSON 파서를 적용하여 로그 줄에서 필드 추출"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "볼륨 표시"
+            },
+            "tooltip": {
+              "display-volume": "각 레이블의 값 분포를 시간대별로 보여주는 시계열 쿼리"
             }
           }
         },
         "sort-by-scene": {
-          "aria-label-sort-direction": "",
+          "aria-label-sort-direction": "정렬 방향",
           "description": {
-            "alphabetical-order": "",
-            "graphs-deviation-average-value": "",
-            "graphs-highest-values": "",
-            "graphs-smallest-values": "",
-            "graphs-total-number": "",
-            "order-amount-outlying-values": "",
-            "smart-ordering": ""
+            "alphabetical-order": "알파벳순",
+            "graphs-deviation-average-value": "평균값과의 편차를 기준으로 그래프 정렬",
+            "graphs-highest-values": "가장 높은 값(최대)을 기준으로 그래프 정렬",
+            "graphs-smallest-values": "가장 작은 값(최소)을 기준으로 그래프 정렬",
+            "graphs-total-number": "총 로그 수 기준으로 그래프 정렬",
+            "order-amount-outlying-values": "데이터의 이상값 개수를 기준으로 정렬",
+            "smart-ordering": "데이터에서 가장 유의미한 급증을 기준으로 그래프를 스마트하게 정렬"
           },
           "label": {
-            "asc": "",
-            "count": "",
-            "desc": "",
-            "highest-spike": "",
-            "lowest-dip": "",
-            "most-relevant": "",
-            "name": "",
-            "outlying-values": "",
-            "percentiles": "",
-            "widest-spread": ""
+            "asc": "오름차순",
+            "count": "개수",
+            "desc": "내림차순",
+            "highest-spike": "최대 급등",
+            "lowest-dip": "최대 급감",
+            "most-relevant": "관련성 높은순",
+            "name": "이름",
+            "outlying-values": "이상값",
+            "percentiles": "백분위수",
+            "widest-spread": "가장 넓은 분포"
           },
-          "label-sort-by": "",
-          "placeholder-choose-criteria": "",
-          "tooltip-sort-by": ""
+          "label-sort-by": "정렬 기준",
+          "placeholder-choose-criteria": "기준 선택",
+          "tooltip-sort-by": "시계열의 값에서 파생 값을 계산하고 이 값을 기준으로 정렬합니다. 기본값은 표준 편차입니다."
         }
       },
       "copy-link-button": {
         "aria-label": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "복사됨",
+          "copy-link": "링크를 로그 줄에 복사"
         },
         "tooltip": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "복사됨",
+          "copy-link": "링크를 로그 줄에 복사"
         }
       },
       "json-panel": {
         "json-filter-buttons": {
           "field-value": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "제외 필터",
+              "include": "포함 필터"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "{{label}}=\"{{value}}\"이(가) 포함된 로그 줄 제외",
+              "include": " {{label}}=\"{{value}}\"이(가) 포함된 로그 줄 포함"
             }
           },
           "metadata": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "제외 필터",
+              "include": "포함 필터"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "{{label}}=\"{{value}}\"이(가) 포함된 로그 줄 제외",
+              "include": " {{label}}=\"{{value}}\"이(가) 포함된 로그 줄 포함"
             }
           }
         },
         "json-line-item-type": {
           "detected-level-toggle-button": {
-            "include": "",
-            "remove": ""
+            "include": " {{detectedLevel}} 레벨의 로그 포함",
+            "remove": "{{detectedLevel}} 필터 제거"
           }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "제외 필터",
+            "include": "포함 필터"
           },
           "tooltip": {
-            "exclude": "",
-            "include": ""
+            "exclude": "{{key}}이(가) 포함된 로그 줄 제외",
+            "include": "{{key}}이(가) 포함된 로그 줄 포함"
           }
         },
         "logs-json-component": {
           "alert": {
-            "loki-upgrade": "",
-            "no-json-fields": ""
+            "loki-upgrade": "Loki를 3.5.0으로 업그레이드하기 전까지 이 보기는 읽기 전용으로 제공됩니다",
+            "no-json-fields": "이 보기는 JSON 로그 줄을 위해 만들어졌지만, 어떤 것도 감지되지 않았습니다. 더 나은 환경을 위해 로그 또는 테이블 보기로 전환하세요."
           },
-          "title-json": "",
-          "title-json-filtering-requires-loki": "",
-          "title-no-json-fields-detected": ""
+          "title-json": "JSON",
+          "title-json-filtering-requires-loki": "JSON 필터링에는 Loki 3.5.0이 필요합니다.",
+          "title-no-json-fields-detected": "감지된 JSON 필드가 없음"
         },
         "re-root-json-button": {
-          "aria-label": "",
-          "tooltip": ""
+          "aria-label": "{{key}} 드릴다운",
+          "tooltip": "{{key}}을(를) 루트 노드로 설정"
         }
       },
-      "least-label-inclusive-matching": "",
+      "least-label-inclusive-matching": "포함 일치 조건이 적용된 레이블이 하나 이상 필요합니다.",
       "line-filter": {
         "line-filter-editor": {
-          "exclude": "",
-          "include": "",
+          "exclude": "제외",
+          "include": "포함",
           "label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "제외",
+            "include": "포함"
           },
-          "placeholder-filter-logs-by-string": ""
+          "placeholder-filter-logs-by-string": "문자열을 기준으로 로그 필터링"
         }
       },
       "line-limit-scene": {
-        "max-lines-label": "",
-        "max-lines-placeholder": "",
-        "max-lines-tooltip": ""
+        "max-lines-label": "줄 제한",
+        "max-lines-placeholder": "{{logs}} 로그",
+        "max-lines-tooltip": "요청할 로그 줄 수. max_entries_limit에 대한 Loki 구성 값에 따라 다릅니다."
       },
       "log-list-controls": {
-        "collapse": "",
-        "expand": "",
+        "collapse": "접기",
+        "expand": "펼치기",
         "json": {
           "label": {
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "메타데이터 표시",
+              "enable": "메타데이터 숨기기"
             }
           },
           "tooltip": {
             "labels": {
-              "disable": "",
-              "enable": ""
+              "disable": "레이블 숨기기",
+              "enable": "레이블 표시"
             },
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "구조화된 메타데이터 숨기기",
+              "enable": "구조화된 메타데이터 표시"
             }
           }
         },
         "label": {
-          "collapse": "",
-          "expand": "",
+          "collapse": "펼쳐짐",
+          "expand": "접힘",
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "강조 표시 비활성화됨",
+            "enable": "강조 표시 활성화됨"
           },
-          "unwrap-lines": "",
-          "wrap-lines": ""
+          "unwrap-lines": "줄 바꿈",
+          "wrap-lines": "줄 바꿈 제거"
         },
         "labels": {
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "오래된 로그 순",
+            "oldest-first": "최신 로그 순"
           }
         },
-        "scrollToBottom": "",
-        "scrollToTop": "",
+        "scrollToBottom": "맨 아래로 스크롤",
+        "scrollToTop": "맨 위로 스크롤",
         "table": {
           "label": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "로그 텍스트",
+            "show-text": "로그 레이블"
           },
           "tooltip": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "레이블 표시",
+            "show-text": "로그 텍스트 표시"
           }
         },
         "tooltip": {
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "강조 표시 비활성화",
+            "enable": "강조 표시 활성화"
           },
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "최신 로그부터 표시하도록 설정",
+            "oldest-first": "오래된 로그부터 표시하도록 설정"
           }
         },
-        "unwrap-lines": "",
-        "wrap-lines": ""
+        "unwrap-lines": "줄 바꿈 제거",
+        "wrap-lines": "줄 바꿈"
       },
       "log-options-buttons-scene": {
-        "show-default-fields": "",
-        "show-original-log-line": "",
+        "show-default-fields": "기본 필드 표시",
+        "show-original-log-line": "원본 로그 줄 표시",
         "tooltip": {
-          "clear-displayed-fields": "",
-          "show-default-fields": ""
+          "clear-displayed-fields": "표시된 필드 지우기: {{fields}}",
+          "show-default-fields": "기본 필드 표시: {{fields}}"
         }
       },
       "log-options-scene": {
         "description": {
-          "disable-wrapping-of-long-log-lines": "",
-          "enable-wrapping-of-long-log-lines": "",
-          "show-results-newest-to-oldest": "",
-          "show-results-oldest-to-newest": ""
+          "disable-wrapping-of-long-log-lines": "긴 로그 줄의 줄 바꿈 비활성화",
+          "enable-wrapping-of-long-log-lines": "긴 로그 줄의 줄 바꿈 활성화",
+          "show-results-newest-to-oldest": "최신순으로 결과 표시",
+          "show-results-oldest-to-newest": "오래된 순으로 결과 표시"
         },
         "label": {
-          "newest-first": "",
-          "no-wrap": "",
-          "oldest-first": "",
-          "wrap": ""
+          "newest-first": "최신순",
+          "no-wrap": "줄바꿈 안함",
+          "oldest-first": "오래된 순",
+          "wrap": "랩"
         }
       },
       "logs-panel-error": {
-        "clear-filters": "",
-        "default": ""
+        "clear-filters": "필터 초기화",
+        "default": "오류 발생"
       },
       "logs-panel-scene": {
         "label": {
-          "copy-link-to-log-line": ""
+          "copy-link-to-log-line": "링크를 로그 줄에 복사"
         },
-        "text-loading": ""
+        "text-loading": "로딩 중..."
       },
-      "text-loading": ""
+      "logs-volume": {
+        "logs-volume-actions": {
+          "aria-label-group-by": "필드별로 로그 볼륨 그룹화",
+          "group-fields": "",
+          "label-group-by": "그룹화 기준"
+        },
+        "logs-volume-panel": {
+          "title": "로그 볼륨",
+          "title-with-count": "로그 볼륨({{formattedCount}})"
+        }
+      },
+      "text-loading": "로딩 중..."
     },
     "service-selection-scene": {
       "add-label-to-filters-header-action-scene": {
         "button": {
-          "include": "",
-          "remove": ""
+          "include": "포함",
+          "remove": "제거"
         },
         "tooltip": {
-          "add": "",
-          "remove": ""
+          "add": "필터에 {{value}} 추가",
+          "remove": "필터에서 {{value}} 제거"
         }
       },
       "configure-volume-error": {
-        "docs-link": "",
-        "title": ""
+        "docs-link": "Loki 구성에서 볼륨을 활성화하는 지침:",
+        "title": "로그 볼륨이 구성되지 않았습니다."
+      },
+      "logs-panel": {
+        "go-to-log-line": "로그 줄로 이동",
+        "show-similar-logs": "유사한 로그 표시"
       },
       "no-service-search-results": {
-        "title": ""
+        "title": "검색과 일치하는 서비스가 없습니다."
       },
       "no-service-volume": {
-        "help": "",
-        "title": ""
+        "help": "시간 범위를 조정하거나 다른 레이블을 선택하세요.",
+        "title": "{{labelName}}에서 로그를 찾을 수 없습니다."
       },
       "select-service-button": {
-        "show-logs": "",
-        "tooltip": ""
+        "show-logs": "로그 표시",
+        "tooltip": "{{value}}의 로그 보기"
       },
       "service-selection-pagination-scene": {
-        "aria-label-count-info": "",
-        "of-total": "",
-        "showing": "",
+        "aria-label-count-info": "개수 정보",
+        "of-total": "/ {{totalCount}}",
+        "showing": "표시 중",
         "tooltip": {
-          "count-info": ""
+          "count-info": "선택한 시간 범위에서 {{totalCount}}개의 레이블에 값이 있습니다. 전체 레이블 수는 다를 수 있습니다."
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
-        "label-loading-tabs": "",
+        "label-add-tab": "레이블 탭 추가",
+        "label-loading-tabs": "탭 로딩 중",
         "tab": {
-          "content-remove-tab": ""
+          "content-remove-tab": "탭 제거"
         }
       },
       "tab-popover-scene": {
-        "placeholder-search-labels": ""
+        "placeholder-search-labels": "레이블 검색"
       }
     },
     "table": {
       "cell-context-menu": {
-        "title-add-column": "",
-        "title-add-to-search": "",
-        "title-exclude-from-search": ""
+        "title-add-column": "열 추가",
+        "title-add-to-search": "검색에 추가",
+        "title-exclude-from-search": "검색에서 제외"
       },
       "column-selection": {
         "logs-column-search": {
-          "placeholder-search-fields-by-name": "",
+          "placeholder-search-fields-by-name": "이름으로 필드 검색",
           "tooltip": {
-            "collapse-sidebar": "",
-            "expand-sidebar": ""
+            "collapse-sidebar": "사이드바 접기",
+            "expand-sidebar": "사이드바 펼치기"
           }
         },
         "logs-table-available-fields": {
           "field": {
-            "title": ""
+            "title": "{{labelName}}은(는) 로그 줄의 {{percent}}%에 나타납니다"
           }
         },
         "logs-table-empty-fields": {
-          "no-fields": ""
+          "no-fields": "필드 없음"
         },
         "logs-table-multi-select": {
           "button": {
-            "reset": ""
+            "reset": "초기화"
           },
-          "fields": "",
+          "fields": "필드",
           "header": {
-            "selected-fields": ""
+            "selected-fields": "선택된 필드"
           }
         },
         "logs-table-nav-field": {
-          "aria-label-drag-and-drop-icon": "",
+          "aria-label-drag-and-drop-icon": "드래그 앤 드롭 아이콘",
           "cardinality": {
-            "value": "",
-            "values": ""
+            "value": "값",
+            "values": "값"
           },
-          "title-drag-and-drop-to-reorder": ""
+          "title-drag-and-drop-to-reorder": "드래그 앤 드롭으로 순서 변경"
         }
       },
       "line-action-icons": {
-        "aria-label-view-log-line": "",
-        "copy-to-clipboard": "",
-        "title-inspect-value": "",
-        "tooltip-copy-link-to-log-line": "",
-        "tooltip-view-log-line": ""
+        "aria-label-view-log-line": "로그 줄 보기",
+        "copy-to-clipboard": "클립보드로 복사",
+        "title-inspect-value": "값 검사",
+        "tooltip-copy-link-to-log-line": "링크를 로그 줄에 복사",
+        "tooltip-view-log-line": "로그 줄 보기"
       },
       "logs-header-actions": {
         "description": {
-          "show-results-in-json-visualisation": "",
-          "show-results-in-logs-visualisation": "",
-          "show-results-in-table-visualisation": ""
+          "show-results-in-json-visualisation": "JSON 시각화로 결과 표시",
+          "show-results-in-logs-visualisation": "로그 시각화로 결과 표시",
+          "show-results-in-table-visualisation": "테이블 시각화로 결과 표시"
         },
         "label": {
-          "json": "",
-          "logs": "",
-          "table": ""
+          "json": "JSON",
+          "logs": "로그",
+          "table": "테이블"
         }
       },
       "logs-table-header": {
         "aria-label": {
-          "show-menu": ""
+          "show-menu": "{{name}} 메뉴 표시"
         },
-        "aria-label-reset-column-width": "",
-        "aria-label-show-log-labels": "",
-        "aria-label-show-log-text": "",
+        "aria-label-reset-column-width": "열 너비 재설정",
+        "aria-label-show-log-labels": "로그 레이블 표시",
+        "aria-label-show-log-text": "로그 텍스트 표시",
         "tooltip": {
-          "show-menu": ""
+          "show-menu": "{{name}} 메뉴 표시"
         },
-        "tooltip-reset-column-width": "",
-        "tooltip-show-log-labels": "",
-        "tooltip-show-log-text": ""
+        "tooltip-reset-column-width": "열 너비 재설정",
+        "tooltip-show-log-labels": "로그 레이블 표시",
+        "tooltip-show-log-text": "로그 텍스트 표시"
       },
       "logs-table-header-menu": {
-        "close": ""
+        "close": "닫기"
       },
       "logs-table-header-wrap": {
         "menu": {
-          "move-left": "",
-          "move-right": "",
-          "remove-column": "",
-          "reset-column-widths": "",
-          "show-labels": "",
-          "show-log-text": ""
+          "move-left": "왼쪽으로 이동",
+          "move-right": "오른쪽으로 이동",
+          "remove-column": "열 삭제",
+          "reset-column-widths": "열 너비 재설정",
+          "show-labels": "레이블 표시",
+          "show-log-text": "로그 텍스트 표시"
         }
       },
       "logs-table-scene": {
-        "title-logs": ""
+        "title-logs": "로그"
       }
     }
   },
   "errors-analysis": {
-    "collapse": "",
-    "collapse-extra-fields": "",
-    "description": "",
-    "discovering-fields": "",
-    "error": "",
-    "expand": "",
-    "field-input-placeholder": "",
-    "field-link-label": "",
-    "filter-for-value": "",
-    "filter-out-value": "",
-    "no-extra-fields-shown": "",
-    "no-fields-detected": "",
-    "no-more-fields": "",
-    "no-values-found": "",
-    "show-all-link-title": "",
-    "title": "",
-    "too-many-values": "",
-    "show-more-fields_other": ""
+    "collapse": "접기",
+    "collapse-extra-fields": "추가 필드 접기",
+    "description": "주요 속성별로 데이터를 세분화해 살펴보면서 패턴을 파악하고 근본 원인의 범위를 좁혀 보세요. 원하는 값을 클릭하여 결과를 필터링하세요.",
+    "discovering-fields": "속성 검색 중...",
+    "error": "불러오기 실패",
+    "expand": "펼치기",
+    "field-input-placeholder": "검색하여 속성 추가",
+    "field-link-label": "Logs Drilldown의 필드 탭에서 {{name}} 보기",
+    "filter-for-value": "값 필터링하여 추가",
+    "filter-out-value": "값 필터링하여 제외",
+    "no-extra-fields-shown": "추가 필드가 표시되지 않음",
+    "no-fields-detected": "이 오류 그룹에 대해 감지된 필드가 없습니다.",
+    "no-more-fields": "더 이상 필드 없음",
+    "no-values-found": "값을 찾을 수 없음",
+    "show-all-link-title": "Logs Drilldown에서 열기",
+    "title": "속성 탐색기",
+    "too-many-values": "표시할 값이 너무 많음",
+    "show-more-fields_other": "필드 {{count}}개 더 표시"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "플러그인 정보",
+      "tooltip": "플러그인 정보"
+    },
+    "header": {
+      "last-update": "마지막 업데이트: {{updated}}",
+      "title": "Grafana Logs Drilldown v{{version}}"
+    },
+    "menu": {
+      "changelog": "변경 로그",
+      "commit-sha": "SHA 커밋: {{shortCommitSha}}",
+      "configuration": "플러그인 구성",
+      "contribute": "기여",
+      "documentation": "문서",
+      "give-feedback": "피드백 제출하기",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "문제 보고"
+    }
   },
   "services": {
     "create-annotation-layers": {
       "severities": {
         "label": {
-          "critical": "",
-          "info": "",
-          "warning": ""
+          "critical": "심각",
+          "info": "정보",
+          "warning": "경고"
         }
       }
     },
     "drilldown-logs": {
       "notices": {
-        "max-series-reached": ""
+        "max-series-reached": "결과 최대 한도에 도달했습니다. 일부 결과만 표시 중입니다."
       }
     },
     "get-field-options": {
       "label": {
-        "all": ""
+        "all": "전체"
       }
     },
     "get-label-options": {
       "label": {
-        "all": ""
+        "all": "전체"
       }
     },
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": ""
+          "range-oldest-newest-display": "표시된 로그의 현재 시간 범위"
         }
       }
     },
     "grafana-ui": {
       "date-time-pickers": {
         "quick-options": {
-          "day-before-yesterday": "",
-          "day-five-days-ago": "",
-          "day-four-days-ago": "",
-          "day-six-days-ago": "",
-          "day-three-days-ago": "",
-          "four-weeks-ago": "",
-          "last-1-hour": "",
-          "last-1-mins": "",
-          "last-12-hours": "",
-          "last-15-mins": "",
-          "last-2-days": "",
-          "last-24-hours": "",
-          "last-3-hours": "",
-          "last-30-days": "",
-          "last-30-mins": "",
-          "last-5-mins": "",
-          "last-6-hours": "",
-          "last-6-months": "",
-          "last-60-days": "",
-          "last-7-days": "",
-          "last-90-days": "",
-          "previous-month": "",
-          "previous-week": "",
-          "this-day-last-week": "",
-          "this-month": "",
-          "this-month-so-far": "",
-          "this-week": "",
-          "this-week-so-far": "",
-          "three-months-ago": "",
-          "three-weeks-ago": "",
-          "today": "",
-          "today-so-far": "",
-          "two-months-ago": "",
-          "two-weeks-ago": "",
-          "yesterday": ""
+          "day-before-yesterday": "그저께",
+          "day-five-days-ago": "5일 전",
+          "day-four-days-ago": "4일 전",
+          "day-six-days-ago": "6일 전",
+          "day-three-days-ago": "3일 전",
+          "four-weeks-ago": "4주 전",
+          "last-1-hour": "최근 1시간",
+          "last-1-mins": "최근 1분",
+          "last-12-hours": "최근 12시간",
+          "last-15-mins": "최근 15분",
+          "last-2-days": "최근 2일",
+          "last-24-hours": "최근 24시간",
+          "last-3-hours": "최근 3시간",
+          "last-30-days": "최근 30일",
+          "last-30-mins": "최근 30분",
+          "last-5-mins": "최근 5분",
+          "last-6-hours": "최근 6시간",
+          "last-6-months": "최근 6개월",
+          "last-60-days": "최근 60일",
+          "last-7-days": "최근 7일",
+          "last-90-days": "최근 90일",
+          "previous-month": "지난달",
+          "previous-week": "지난주",
+          "this-day-last-week": "지난주 오늘",
+          "this-month": "이번 달",
+          "this-month-so-far": "이번 달 현재까지",
+          "this-week": "이번 주",
+          "this-week-so-far": "이번 주 현재까지",
+          "three-months-ago": "3개월 전",
+          "three-weeks-ago": "3주 전",
+          "today": "오늘",
+          "today-so-far": "오늘 현재까지",
+          "two-months-ago": "2개월 전",
+          "two-weeks-ago": "2주 전",
+          "yesterday": "어제"
         }
       }
     },
     "kg-annotation-toggle-renderer": {
-      "label-insights": ""
+      "label-insights": "인사이트"
     },
     "logs": {
       "logs-drilldown": {
         "fields": {
-          "log-attributes-field": "",
-          "log-line-field": ""
+          "log-attributes-field": "로그 속성",
+          "log-line-field": "로그 줄"
         },
-        "kg-annotation-toggle": ""
+        "kg-annotation-toggle": "인사이트"
       }
     },
     "suspended-embedded-logs-exploration": {
-      "loading-logs-drilldown": ""
+      "loading-logs-drilldown": "Logs Drilldown 로딩 중..."
     },
     "suspended-loki-field-distribution": {
-      "loading": ""
+      "loading": "로딩 중..."
     },
     "suspended-open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Logs Drilldown에서 열기"
     },
     "update-assistant-context": {
       "title": {
-        "parsed-fields-filters": "",
-        "structured-metadata-filters": ""
+        "current-logs-query-and-time-range": "현재 로그 쿼리 및 시간 범위",
+        "parsed-fields-filters": "구문 분석된 필드 필터",
+        "structured-metadata-filters": "구조화된 메타데이터 필터"
       }
     },
     "wrapped-loki-datasource": {
       "message": {
-        "data-source-is-working": ""
+        "data-source-is-working": "데이터 소스 작동 중"
       },
       "title": {
-        "success": ""
+        "success": "성공"
       }
     }
   }

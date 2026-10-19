@@ -1,972 +1,1034 @@
 {
   "components": {
     "app": {
-      "text-loading": ""
+      "text-loading": "正在載入…"
     },
     "app-config": {
-      "active-users-reload-reflect-configuration-changes": "",
+      "active-users-reload-reflect-configuration-changes": "目前有效使用者必須重新載入應用程式，設定變更才會生效。",
       "default-columns": {
         "add-label": {
-          "add-label": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "新增標籤",
+          "tooltip-label-match-against-query": "新增標籤以匹配使用者查詢"
         },
         "add-record": {
-          "add": ""
+          "add": "新增"
         },
         "columns": {
-          "aria-label-drag-and-drop-icon": "",
-          "placeholder-select-column": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-column": ""
+          "aria-label-drag-and-drop-icon": "拖曳圖示",
+          "placeholder-select-column": "選取欄",
+          "title-drag-and-drop-to-reorder": "拖曳以重新排序",
+          "tooltip-remove-column": "移除 {{column}}"
         },
         "config": {
-          "default-columns-description": "",
-          "text-beta": ""
+          "default-columns-description": "設定預設要顯示的欄位。這些欄位可以取代完整的記錄行，或顯示在記錄行旁邊。",
+          "text-beta": "Beta"
         },
         "default-columns": {
-          "text-loading": ""
+          "text-loading": "正在載入…"
         },
         "delete-record": {
-          "tooltip-delete-record": ""
+          "tooltip-delete-record": "刪除記錄"
         },
         "fields": {
-          "add-column": "",
-          "add-column-tooltip": "",
-          "invalid-columns": "",
-          "invalid-columns-log-line-only": ""
+          "add-column": "新增欄位",
+          "add-column-tooltip": "新增一個預設欄，以便在記錄中顯示",
+          "invalid-columns": "無效的欄",
+          "invalid-columns-log-line-only": "僅選取記錄行可能多餘！"
         },
         "label-name": {
-          "placeholder-select-label-name": ""
+          "placeholder-select-label-name": "選擇標籤名稱"
         },
         "label-value": {
-          "placeholder-select-label-value": ""
+          "placeholder-select-label-value": "選擇標籤值"
         },
         "labels": {
-          "content-queries-containing-these-labels-display-selected": "",
-          "labels-match": ""
+          "content-queries-containing-these-labels-display-selected": "包含這些標籤的查詢將顯示所選欄位",
+          "labels-match": "標籤比對"
         },
         "records-collapsible-label": {
-          "content-default-fields-display-visualizations-these-labels": "",
-          "display-fields": ""
+          "content-default-fields-display-visualizations-these-labels": "在這些標籤的記錄視覺化中顯示的預設欄位",
+          "display-fields": "顯示欄位"
         },
         "remove-label": {
-          "tooltip-remove-label": ""
+          "tooltip-remove-label": "移除{{label}}"
         },
         "submit": {
-          "create-default-columns": "",
-          "update-default-columns": ""
+          "create-default-columns": "建立預設欄位",
+          "update-default-columns": "更新預設欄位"
         },
         "undo": {
-          "confirmText-reset": "",
-          "reset": ""
+          "confirmText-reset": "重設",
+          "reset": "重設"
         },
         "unsupported": {
-          "default-columns": "",
-          "default-columns-requires-feature-flag": "",
-          "default-columns-requires-grafana-or-greater": ""
+          "default-columns": "預設欄",
+          "default-columns-requires-feature-flag": "預設欄需要啟用 <1>kubernetesLogsDrilldown</1> 功能標記。",
+          "default-columns-requires-grafana-or-greater": "預設欄需要 Grafana 12.4 或更高版本。"
         }
       },
-      "default-data-source-description": "",
-      "default-time-range-description": "",
-      "default-time-range-enabled-label-use-custom-default-time-range": "",
-      "default-time-range-from-placeholder-now-15m": "",
-      "default-time-range-to-placeholder-now": "",
-      "description-end-of-the-range-eg-now": "",
-      "description-start-range": "",
-      "disable-patterns-description": "",
-      "interval-invalid-error": "",
-      "interval-placeholder": "",
-      "label-default-data-source": "",
-      "label-default-time-range": "",
-      "label-disable-loki-patterns": "",
-      "label-disable-patterns": "",
-      "label-from": "",
-      "label-max-interval": "",
-      "label-maximum-time-picker-interval": "",
-      "label-settings": "",
-      "label-to": "",
-      "max-interval-description": "",
-      "patterns-placeholder": "",
-      "save-settings": "",
+      "default-data-source-description": "要用於新「記錄深入分析」使用者的預設資料來源。每位使用者都可以在「記錄深入分析」中設定另一個資料來源，以覆寫其預設值。",
+      "default-time-range-description": "啟用後，當使用者首次開啟「記錄深入分析」，且 URL 中沒有時間範圍時，將使用此時間範圍。停用時，應用程式會使用其內建的預設值（過去 15 分鐘）。",
+      "default-time-range-enabled-label-use-custom-default-time-range": "使用自訂預設時間範圍",
+      "default-time-range-from-placeholder-now-15m": "現在 -15 分鐘",
+      "default-time-range-to-placeholder-now": "現在",
+      "description-end-of-the-range-eg-now": "範圍的結束（例如：現在）",
+      "description-start-range": "範圍起始時間（例如：now-15m、now-1h、now-24h）",
+      "disable-patterns-description": "停用記錄深入分析對 <2>Loki Patterns API</2> 端點的使用，並移除「模式」分頁。",
+      "interval-invalid-error": "間隔無效。請輸入長於「60 分鐘」的間隔。例如：3 天、1 週、1 個月",
+      "interval-placeholder": "7 天",
+      "label-default-data-source": "預設資料來源",
+      "label-default-time-range": "預設時間範圍",
+      "label-disable-loki-patterns": "停用 Loki 模式",
+      "label-disable-patterns": "停用模式",
+      "label-from": "自",
+      "label-max-interval": "最大間隔",
+      "label-maximum-time-picker-interval": "最大時間選擇器間隔",
+      "label-settings": "設定",
+      "label-to": "至",
+      "max-interval-description": "在「Grafana 記錄深入分析」應用程式中的時間選擇器中可以選擇的最大間隔。如果為空，使用者可以在「Grafana 記錄深入分析」中選擇任何時間範圍間隔。<br/>範例值：7 天、24 小時、2 週",
+      "patterns-placeholder": "7 天",
+      "save-settings": "儲存設定",
       "service-selection": {
         "config": {
-          "service-selection-description": "",
-          "text-beta": ""
+          "service-selection-description": "設定「記錄深入分析」登陸頁面上預設顯示的標籤和標籤值。",
+          "text-beta": "Beta"
         },
         "context": {
-          "text-loading": ""
+          "text-loading": "正在載入…"
         },
         "default-labels": {
-          "add-label": "",
-          "add-label-and-values": "",
-          "content-configure-default-labels-optional-values-landing": "",
-          "landing-page-default-labels": "",
-          "no-labels-selected": "",
-          "placeholder-select-label-name": "",
-          "placeholder-select-values-optional": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "新增標籤",
+          "add-label-and-values": "新增標籤和值",
+          "content-configure-default-labels-optional-values-landing": "設定要在「記錄深入分析」登陸頁面中顯示的預設標籤和選用值",
+          "landing-page-default-labels": "登陸頁面預設標籤",
+          "no-labels-selected": "未選取標籤。「記錄深入分析」將預設為 <strong>{{serviceName}}</strong>。",
+          "placeholder-select-label-name": "選擇標籤名稱",
+          "placeholder-select-values-optional": "選擇值（可選）",
+          "tooltip-label-match-against-query": "新增標籤以匹配使用者查詢"
         },
         "footer": {
-          "confirmText-reset": "",
-          "reset": "",
-          "save-changes": ""
+          "confirmText-reset": "重設",
+          "reset": "重設",
+          "save-changes": "儲存變更"
         },
         "label-list": {
-          "aria-label-drag-and-drop-icon": "",
-          "aria-label-remove-value": "",
-          "no-label-values-selected": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-label": "",
-          "tooltip-remove-value": ""
+          "aria-label-drag-and-drop-icon": "拖曳圖示",
+          "aria-label-remove-value": "移除 {{value}}",
+          "no-label-values-selected": "未選取標籤值。系統將顯示此標籤的完整值清單。",
+          "title-drag-and-drop-to-reorder": "拖曳以重新排序",
+          "tooltip-remove-label": "移除{{label}}",
+          "tooltip-remove-value": "移除 {{value}}"
         },
         "unsupported": {
-          "landing-page": "",
-          "landing-requires-feature-flag": "",
-          "landing-settings-requires-grafana-greater": ""
+          "landing-page": "登陸頁面",
+          "landing-requires-feature-flag": "登陸頁面設定需要啟用 <1>kubernetesLogsDrilldown</1> 功能標記。",
+          "landing-settings-requires-grafana-greater": "登陸頁面設定需要 Grafana 13.0 或更高版本。"
         }
       }
     },
     "buttons": {
       "copy-to-clipboard-button": {
-        "copy-link": "",
-        "copy-success": "",
-        "copy-to-clipboard": "",
-        "copy-to-clipboard-error": ""
+        "copy-link": "將連結複製到記錄行",
+        "copy-success": "已複製",
+        "copy-to-clipboard": "複製至剪貼簿",
+        "copy-to-clipboard-error": "複製連結時發生錯誤！"
       }
     },
     "embedded-logs-exploration": {
       "embedded-link-scene": {
-        "logs-drilldown": ""
+        "logs-drilldown": "記錄深入分析"
       }
     },
     "embedded-scene-wrapper": {
-      "text-loading": ""
+      "text-loading": "正在載入…"
     },
     "filter-button": {
-      "exclude": "",
-      "include": ""
+      "exclude": "排除",
+      "include": "包含"
     },
     "index-scene": {
       "get-variable-set": {
         "ds-variable": {
           "label": {
-            "data-source": ""
+            "data-source": "資料來源"
           }
         },
         "fields-and-metadata-variable": {
-          "description": "",
+          "description": "依從記錄行擷取的值（由 JSON 或 logfmt 等剖析器偵測到的欄位），以及附加至每個記錄行的結構化中繼資料進行篩選。",
           "label": {
-            "fields": ""
+            "fields": "欄位"
           }
         },
         "fields-variable": {
           "label": {
-            "detected-fields": ""
+            "detected-fields": "偵測到的欄位"
           }
         },
         "label-variable": {
-          "description": "",
+          "description": "依串流標籤（例如任務或命名空間）篩選記錄。 標籤篩選條件是 Loki 串流選擇器的一部分，並在記錄管線之前套用。",
           "label": {
-            "labels": ""
+            "labels": "標籤"
           }
         },
         "levels-variable": {
           "label": {
-            "error-levels": ""
+            "error-levels": "錯誤層級"
           }
         },
         "metadata-variable": {
           "label": {
-            "metadata": ""
+            "metadata": "中繼資料"
           }
         }
       },
       "intercept-banner": {
-        "body": "",
-        "title-welcome-to-grafana-logs-drilldown": ""
+        "body": "請參閱我們的<2>入門文件</2>，或查看<5>近期變更</5>。<br/>協助我們塑造應用程式的未來。<10>向我們傳送意見回饋</10>，或在 <14>GitHub</14> 上與我們互動。",
+        "title-welcome-to-grafana-logs-drilldown": "歡迎使用 Grafana 紀錄深入分析！"
       },
       "levels-variable-scene": {
-        "aria-label-log-level-filters": "",
-        "description-log-levels": "",
-        "label-log-levels": "",
-        "placeholder-all-levels": ""
+        "aria-label-log-level-filters": "紀錄層級篩選條件",
+        "description-log-levels": "僅保留偵測到的嚴重性與您的選擇相符的記錄（例如：錯誤或警告）。若要包含所有層級，請留空。",
+        "label-log-levels": "紀錄級別：",
+        "placeholder-all-levels": "所有層級"
       },
       "line-filter-variable": {
-        "aria-label-remove-line-filter": "",
-        "description-line-filter": "",
-        "line-filter": ""
+        "aria-label-remove-line-filter": "移除行篩選條件",
+        "description-line-filter": "比對或排除記錄行內文中的文字。您可以使用純文字、RE2 規則表達式和區分大小寫。",
+        "line-filter": "行篩選條件"
       },
       "line-filter-variables-scene": {
-        "aria-label-add-line-filter": ""
+        "aria-label-add-line-filter": "新增行篩選條件"
       },
       "pattern-controls": {
-        "excluded-pattern": "",
-        "excluded-patterns": "",
-        "included-pattern": "",
-        "included-patterns": ""
+        "excluded-pattern": "排除的模式：",
+        "excluded-patterns": "排除的模式：",
+        "included-pattern": "包含的模式",
+        "included-patterns": "包含的模式"
       },
       "pattern-tag": {
-        "aria-label-remove-pattern": ""
+        "aria-label-remove-pattern": "移除模式"
       },
       "reset-filters-button": {
-        "reset": "",
-        "tooltip-reset-label-filters-to-initial-values": ""
+        "reset": "重設",
+        "tooltip-reset-label-filters-to-initial-values": "將標籤篩選條件重設為初始值。"
       },
       "share-button-scene": {
-        "aria-label-copy-shortened-url": "",
-        "aria-label-open-copy-link-options": "",
+        "aria-label-copy-shortened-url": "複製縮短網址",
+        "aria-label-open-copy-link-options": "開啟複製連結選項",
         "menu-options": {
           "label": {
-            "copy-absolute-shortened-url": "",
-            "copy-absolute-url": "",
-            "copy-shortened-url": "",
-            "copy-url": "",
-            "normal-url-links": "",
-            "timesync-links-share-range-intact": ""
+            "copy-absolute-shortened-url": "複製完整縮短網址",
+            "copy-absolute-url": "複製完整網址",
+            "copy-shortened-url": "複製縮短網址",
+            "copy-url": "複製網址",
+            "normal-url-links": "一般網址連結",
+            "timesync-links-share-range-intact": "時間同步網址連結（在時間範圍內完整分享）"
           }
         },
-        "share": ""
+        "share": "分享"
       },
       "show-logs-button-scene": {
-        "show-logs": ""
+        "show-logs": "顯示記錄"
       },
-      "text-loading": "",
+      "text-loading": "正在載入…",
       "toolbar-scene": {
-        "aggregated-metrics": "",
-        "aggregated-metrics-disabled-tooltip": "",
-        "aggregated-metrics-tooltip": "",
-        "aria-label-query-options": "",
-        "insights": "",
+        "aggregated-metrics": "彙總指標",
+        "aggregated-metrics-disabled-tooltip": "彙總指標只能為在以下時間之後開始的查詢啟用：{{date}}",
+        "aggregated-metrics-tooltip": "彙總指標將更快地傳回服務查詢結果，但解析度較低",
+        "aria-label-query-options": "查詢選項",
+        "insights": "深入分析",
         "render-popover": {
-          "aria-label-query-options": "",
-          "label-toggle-aggregated-metrics": "",
-          "label-toggle-insights-annotations": "",
-          "query-options": ""
+          "aria-label-query-options": "查詢選項",
+          "label-toggle-aggregated-metrics": "切換彙總指標",
+          "label-toggle-insights-annotations": "切換深入解析註釋",
+          "query-options": "查詢選項"
         }
       },
       "variable-layout-scene": {
-        "collapse": "",
-        "expand": ""
+        "collapse": "收起篩選條件",
+        "expand": "展開篩選條件"
       }
     },
     "make-embedded-page": {
       "title": {
-        "grafana-logs-drilldown-embedded": ""
+        "grafana-logs-drilldown-embedded": "Grafana 紀錄深入分析 — 嵌入式"
       }
     },
     "make-index-page": {
       "title": {
-        "grafana-logs-drilldown": ""
+        "grafana-logs-drilldown": "Grafana 紀錄深入分析"
       }
     },
     "no-loki-splash": {
-      "learn-more": "",
-      "no-datasource": "",
-      "welcome-to-grafana-logs-drilldown": ""
+      "learn-more": "點選<2>此處</2>，了解更多資訊…",
+      "no-datasource": "我們注意到 Loki 資料來源尚未設定。<br/>新增 <4>Loki 資料來源</4>以檢視記錄。",
+      "welcome-to-grafana-logs-drilldown": "歡迎使用 Grafana 紀錄深入分析"
     },
     "open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "在「記錄深入分析」中開啟"
     },
     "panels": {
       "panel-menu": {
         "add-visualization-header": {
           "text": {
-            "visualization": "",
-            "visualization-divider": ""
+            "visualization": "視覺化",
+            "visualization-divider": "visualization_divider"
           }
         },
         "get-create-alert-payload": {
           "panel": {
             "title": {
-              "log-count-alert": ""
+              "log-count-alert": "記錄計數警示"
             }
           }
         },
         "items": {
           "text": {
-            "explore": "",
-            "navigation": ""
+            "condense-logs": "壓縮記錄檢視",
+            "expand-logs": "展開記錄檢視",
+            "explore": "探索",
+            "navigation": "導覽",
+            "ui": "介面"
           }
         },
         "text": {
-          "add-to-dashboard": "",
-          "ai": "",
-          "ai-divider": "",
-          "create-alert": "",
-          "explain-in-assistant": ""
+          "add-to-dashboard": "新增至儀表板",
+          "add-to-notebook": "",
+          "ai": "AI",
+          "ai-divider": "ai_divider",
+          "create-alert": "建立警示",
+          "explain-in-assistant": "在 Assistant 中解釋"
         },
         "title": {
-          "logs-drilldown-query": ""
+          "logs-drilldown-query": "記錄深入分析查詢"
         }
       }
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "",
-        "button-tooltip": "",
-        "saved-query-button-tooltip": ""
+        "button-no-search-tooltip": "沒有要載入的已儲存搜尋結果",
+        "button-tooltip": "載入已儲存的搜尋",
+        "saved-query-button-tooltip": "載入已儲存的查詢"
       },
       "load-search-modal": {
-        "empty": "",
-        "modal-title": "",
-        "remove": "",
-        "select": ""
+        "empty": "沒有要顯示的已儲存搜尋結果。",
+        "modal-title": "載入先前已儲存的搜尋",
+        "remove": "移除",
+        "select": "選取"
       },
       "load-search-scene": {
-        "load-error": "",
-        "load-type-error": ""
+        "load-error": "無法產生連結。",
+        "load-type-error": "請選擇一個 Loki 查詢。"
       },
       "save-search-button": {
-        "button-tooltip": "",
-        "button-tooltip-saved-queries": ""
+        "button-tooltip": "儲存搜尋結果",
+        "button-tooltip-saved-queries": "儲存在「已儲存的查詢」中"
       },
       "save-search-modal": {
-        "already-exists-alert": "",
-        "cancel": "",
-        "close": "",
-        "description": "",
-        "error": "",
-        "modal-alert": "",
-        "modal-title": "",
-        "save": "",
-        "success": "",
-        "title": "",
-        "title-success": ""
+        "already-exists-alert": "之前已儲存了一個具有相同查詢的搜尋：{{title}}",
+        "cancel": "取消",
+        "close": "關閉",
+        "description": "描述",
+        "error": "儲存此搜尋時發生未預期的錯誤。",
+        "modal-alert": "已儲存的搜尋會儲存在瀏覽器的本機資料中，且僅能在此裝置上使用。",
+        "modal-title": "儲存目前的搜尋結果",
+        "save": "儲存",
+        "success": "搜尋已成功儲存。",
+        "title": "標題",
+        "title-success": "成功"
       }
     },
     "service-scene": {
       "add-to-dashboard-modal": {
+        "title": "新增至儀表板"
+      },
+      "add-to-notebook-modal": {
         "title": ""
       },
       "alert": {
-        "invalid-labels-selected": "",
-        "no-labels-selected": "",
-        "select-label": ""
+        "invalid-labels-selected": "選取的標籤無效",
+        "no-labels-selected": "未選取標籤",
+        "select-label": "請選擇至少一個標籤，以查看記錄明細。"
       },
       "breakdowns": {
         "breakdown-search-scene": {
-          "placeholder-search-for-value": ""
+          "placeholder-search-for-value": "搜尋值"
         },
         "by-frame-repeater": {
-          "clear-filter": "",
-          "no-values-found": ""
+          "clear-filter": "清除篩選條件",
+          "no-values-found": "找不到符合「{{filter}}」的值"
         },
         "empty-layout-scene": {
-          "link": "",
-          "prefix": "",
-          "suffix": "",
-          "title": ""
+          "ask-assistant": "詢問 Grafana 助理",
+          "enable-parsers": "啟用擷取的欄位",
+          "link": "請告訴我們",
+          "parsed-fields": "我們沒有找到指定時間範圍 {{type}} 內的任何 。 嘗試啟用從記錄行中擷取的欄位。",
+          "prefix": "拜託",
+          "suffix": "如果您認為這是錯誤。",
+          "title": "我們沒有找到指定時間範圍 {{type}} 內的任何 。 "
         },
         "field-selector": {
-          "custom-value-search-or-filter": "",
-          "placeholder-search-values": ""
+          "custom-value-search-or-filter": "依以下條件篩選值",
+          "placeholder-search-values": "搜尋值"
         },
         "field-values-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "網格",
+            "rows": "列"
           },
-          "loading": ""
+          "loading": "正在載入…"
         },
         "fields-aggregated-breakdown-scene": {
           "label": {
-            "grid": "",
-            "rows": ""
+            "grid": "網格",
+            "rows": "列"
           },
-          "text-loading": ""
+          "text-loading": "正在載入…"
         },
         "fields-breakdown-scene": {
-          "label-field": ""
+          "label-field": "欄位",
+          "label-field-tooltip": "結構化中繼資料和已剖析欄位",
+          "label-metadata-tooltip": "結構化中繼資料欄位"
         },
         "label-breakdown-scene": {
-          "label-label": "",
-          "labels-not-available": ""
+          "label-label": "標籤",
+          "labels-not-available": "標籤目前無法使用。請嘗試使用不同的時間範圍，或稍後再檢查一次。"
         },
         "label-values-breakdown-scene": {
           "error": {
-            "message": "",
-            "status": "",
-            "trace-id": ""
+            "message": "訊息",
+            "status": "狀態",
+            "trace-id": "TraceId"
           },
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "網格",
+            "rows": "列"
           },
-          "loading": ""
+          "loading": "正在載入…"
         },
         "labels-aggregated-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "網格",
+            "rows": "列"
           },
-          "loading": ""
+          "loading": "正在載入…"
         },
         "line-filter-input": {
-          "aria-label-clear-line-filter": "",
-          "tooltip-clear-line-filter": ""
+          "aria-label-clear-line-filter": "清除行篩選條件",
+          "tooltip-clear-line-filter": "清除行篩選條件"
         },
         "no-matching-labels-scene": {
-          "clear-filters": "",
-          "title": ""
+          "clear-filters": "清除篩選條件",
+          "title": "沒有符合這些篩選條件的 {{type}}。"
         },
         "numeric-filter-popover-scene": {
-          "add": "",
-          "cancel": "",
+          "add": "新增",
+          "cancel": "取消",
           "label": {
-            "greater-than": "",
-            "greater-than-or-equal": "",
-            "less-than": "",
-            "less-than-or-equal": ""
+            "greater-than": "大於",
+            "greater-than-or-equal": "大於或等於",
+            "less-than": "小於",
+            "less-than-or-equal": "小於或等於"
           },
-          "remove": "",
-          "unit": ""
+          "remove": "移除",
+          "unit": "單位"
         },
         "patterns": {
           "pattern-field-label-stats": {
-            "sample-rows": ""
+            "sample-rows": "從找到的 {{total}} 列樣本中"
           },
           "pattern-name-label": {
-            "available-stats-field-current-timestamp": "",
-            "could-stats-pattern": ""
+            "available-stats-field-current-timestamp": "目前時間戳記中沒有此欄位的可用統計資料。",
+            "could-stats-pattern": "無法載入此模式的統計資料。"
           },
           "patterns-frame-scene": {
             "time-series": {
               "title": {
-                "exclude": "",
-                "include": ""
+                "exclude": "排除",
+                "include": "包含"
               }
             }
           },
           "patterns-logs-sample-scene": {
-            "clear-filters": "",
-            "no-match-filters": "",
-            "this-pattern-returns-no-logs": ""
+            "clear-filters": "清除篩選條件",
+            "no-match-filters": "此模式傳回的記錄不符合目前的查詢篩選條件。",
+            "this-pattern-returns-no-logs": "此模式未返回任何記錄。"
           },
           "patterns-not-detected": {
-            "error-message": "",
-            "error-title": "",
-            "no-match-filters-title": "",
-            "not-detected-description": "",
-            "not-detected-help-link": "",
-            "not-detected-help-prefix": "",
-            "not-detected-title": "",
-            "too-old-docs-link": "",
-            "too-old-docs-prefix": "",
-            "too-old-docs-suffix": "",
-            "too-old-title": ""
+            "error-message": "未設定模式比對。模式可讓您偵測類似的記錄行，並將其新增至搜尋中或從搜尋中排除。若要查看實際效果，請將以下內容新增至 Loki 設定中。",
+            "error-title": "沒有相符的模式。",
+            "no-match-filters-title": "沒有符合這些篩選條件的模式。",
+            "not-detected-description": "模式可讓您偵測類似的記錄行，以將其納入搜尋或從搜尋中排除。",
+            "not-detected-help-link": "Grafana Labs 社群 Slack 頻道",
+            "not-detected-help-prefix": "請稍後再回來查看，或聯絡團隊：",
+            "not-detected-title": "抱歉，我們無法偵測到任何模式。",
+            "too-old-docs-link": "模式文件",
+            "too-old-docs-prefix": "檢視",
+            "too-old-docs-suffix": "以取得更多資訊。",
+            "too-old-title": "模式僅適用於最近 {{maxAgeHours}} 小時的資料。"
           },
           "patterns-view-table-scene": {
-            "no-filtered-patterns-message": "",
-            "no-patterns-message": "",
-            "no-patterns-title": ""
+            "no-filtered-patterns-message": "在目前的時間範圍內找不到模式，或找不到符合目前層級篩選條件的模式。",
+            "no-patterns-message": "在目前的時間範圍內找不到模式。",
+            "no-patterns-title": "沒有要顯示的模式"
           },
           "patterns-view-text-search": {
-            "indexed-labels-only": "",
-            "placeholder-search-patterns": ""
+            "indexed-labels-only": "模式是依標籤選取，並可依層級篩選。模式清單不支援已剖析欄位、結構化中繼資料和字串篩選條件。",
+            "placeholder-search-patterns": "搜尋模式"
           }
         },
         "query-error-alert": {
-          "fetch": "",
-          "increase-limit": "",
-          "max-series-limit-exceeded": "",
-          "message": "",
-          "partial": "",
-          "return-fields": "",
-          "tip-reduce-range": "",
-          "trace-id": "",
-          "trace-ids": ""
+          "fetch": "擷取 {{tagKey}} 的結果時發生錯誤 ",
+          "increase-limit": "若要提高此限制，請調整 Loki 設定中的 <2>max_query_series</2>。",
+          "max-series-limit-exceeded": "已超過最大序列限制",
+          "message": "訊息",
+          "partial": "顯示 {{tagKey}} 的部分結果",
+          "return-fields": "返回所有欄位",
+          "tip-reduce-range": "<strong>提示：</strong>請縮短時間範圍，或新增其他篩選條件，以減少 {{label}} 欄位中的唯一值數量。",
+          "trace-id": "TraceId",
+          "trace-ids": "TraceIds"
         },
         "search-input": {
-          "aria-label-clear-search": "",
-          "tooltip-clear-search": ""
+          "aria-label-clear-search": "清除搜尋",
+          "tooltip-clear-search": "清除搜尋"
         },
         "select-label-action-scene": {
-          "add-expression": "",
-          "clear-filters-tooltip": "",
-          "exclude-all-log-lines": "",
-          "include-all-log-lines": "",
-          "select": "",
-          "select-label": "",
-          "view-breakdown-title": ""
+          "add-expression": "新增運算式，即 {{labelName}} > 30",
+          "clear-filters-tooltip": "清除 {{labelName}} 篩選條件",
+          "exclude-all-log-lines": "排除所有包含「{{labelName}}」的記錄行",
+          "include-all-log-lines": "包含所有包含「{{labelName}}」的記錄行",
+          "select": "選取",
+          "select-label": "選取 {{labelName}}",
+          "view-breakdown-title": "檢視值的明細，適用於 {{labelName}}"
         },
         "show-error-panel-toggle": {
-          "show-panels-with-errors": "",
-          "tooltip-requests-could-processed": ""
+          "show-panels-with-errors": "顯示有錯誤的面板",
+          "tooltip-requests-could-processed": "無法處理一項或多項要求"
         },
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "",
-              "volume": ""
+              "display-volume": "顯示容量",
+              "parse-fields": "從記錄中擷取欄位"
+            },
+            "tooltip": {
+              "display-volume": "查詢每個欄位顯示隨時間推移的值分佈的時間序列",
+              "parse-fields": "套用 logfmt/JSON 剖析器，以從記錄行中擷取欄位"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "顯示容量"
+            },
+            "tooltip": {
+              "display-volume": "查詢每個標籤顯示隨時間推移的值分佈的時間序列"
             }
           }
         },
         "sort-by-scene": {
-          "aria-label-sort-direction": "",
+          "aria-label-sort-direction": "排序方向",
           "description": {
-            "alphabetical-order": "",
-            "graphs-deviation-average-value": "",
-            "graphs-highest-values": "",
-            "graphs-smallest-values": "",
-            "graphs-total-number": "",
-            "order-amount-outlying-values": "",
-            "smart-ordering": ""
+            "alphabetical-order": "按字母順序排序",
+            "graphs-deviation-average-value": "依與平均值的偏差排序圖表",
+            "graphs-highest-values": "依最高值（最大值）對圖表進行排序",
+            "graphs-smallest-values": "依最小值（最小值）對圖表進行排序",
+            "graphs-total-number": "按記錄的總數排序圖表",
+            "order-amount-outlying-values": "依據資料中異常值的數量排序",
+            "smart-ordering": "根據資料中最顯著的尖峰值，對圖表進行智慧排序"
           },
           "label": {
-            "asc": "",
-            "count": "",
-            "desc": "",
-            "highest-spike": "",
-            "lowest-dip": "",
-            "most-relevant": "",
-            "name": "",
-            "outlying-values": "",
-            "percentiles": "",
-            "widest-spread": ""
+            "asc": "升序",
+            "count": "計數",
+            "desc": "降序",
+            "highest-spike": "最高尖峰",
+            "lowest-dip": "最低點",
+            "most-relevant": "最相關",
+            "name": "名稱",
+            "outlying-values": "異常值",
+            "percentiles": "百分位數",
+            "widest-spread": "最寬的範圍"
           },
-          "label-sort-by": "",
-          "placeholder-choose-criteria": "",
-          "tooltip-sort-by": ""
+          "label-sort-by": "排序方式",
+          "placeholder-choose-criteria": "選擇條件",
+          "tooltip-sort-by": "從時間序列中的值計算衍生量，並依此條件排序。預設為標準差。"
         }
       },
       "copy-link-button": {
         "aria-label": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "已複製",
+          "copy-link": "將連結複製到記錄行"
         },
         "tooltip": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "已複製",
+          "copy-link": "將連結複製到記錄行"
         }
       },
       "json-panel": {
         "json-filter-buttons": {
           "field-value": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "排除篩選條件",
+              "include": "包含篩選條件"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "排除含有 {{label}} =「{{value}}」的記錄行",
+              "include": "包含含有 {{label}} =「{{value}}」的記錄行"
             }
           },
           "metadata": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "排除篩選條件",
+              "include": "包含篩選條件"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "排除含有 {{label}} =「{{value}}」的記錄行",
+              "include": "包含含有 {{label}} =「{{value}}」的記錄行"
             }
           }
         },
         "json-line-item-type": {
           "detected-level-toggle-button": {
-            "include": "",
-            "remove": ""
+            "include": "包含  {{detectedLevel}} 層級的記錄",
+            "remove": "移除 {{detectedLevel}} 篩選條件"
           }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "排除篩選條件",
+            "include": "包含篩選條件"
           },
           "tooltip": {
-            "exclude": "",
-            "include": ""
+            "exclude": "排除含有「{{key}}」的記錄行",
+            "include": "包含含有「{{key}}」的記錄行"
           }
         },
         "logs-json-component": {
           "alert": {
-            "loki-upgrade": "",
-            "no-json-fields": ""
+            "loki-upgrade": "在 Loki 升級至 3.5.0 之前，此檢視畫面將為唯讀",
+            "no-json-fields": "此檢視是為 JSON 記錄行而建立的，但未偵測到任何記錄行。切換至「記錄」或「表格」檢視，以獲得更好的體驗。"
           },
-          "title-json": "",
-          "title-json-filtering-requires-loki": "",
-          "title-no-json-fields-detected": ""
+          "title-json": "JSON",
+          "title-json-filtering-requires-loki": "JSON 篩選需要 Loki 3.5.0。",
+          "title-no-json-fields-detected": "未偵測到 JSON 欄位"
         },
         "re-root-json-button": {
-          "aria-label": "",
-          "tooltip": ""
+          "aria-label": "深入分析至 {{key}}",
+          "tooltip": "將 {{key}} 設為根節點"
         }
       },
-      "least-label-inclusive-matching": "",
+      "least-label-inclusive-matching": "您需要至少一個具有包含性比對的標籤。",
       "line-filter": {
         "line-filter-editor": {
-          "exclude": "",
-          "include": "",
+          "exclude": "排除",
+          "include": "包含",
           "label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "排除",
+            "include": "包含"
           },
-          "placeholder-filter-logs-by-string": ""
+          "placeholder-filter-logs-by-string": "依字串篩選記錄"
         }
       },
       "line-limit-scene": {
-        "max-lines-label": "",
-        "max-lines-placeholder": "",
-        "max-lines-tooltip": ""
+        "max-lines-label": "行數限制",
+        "max-lines-placeholder": "{{logs}} 記錄",
+        "max-lines-tooltip": "要請求的記錄行數。 取決於 Loki 的 max_entries_limit 設定值。"
       },
       "log-list-controls": {
-        "collapse": "",
-        "expand": "",
+        "collapse": "收合",
+        "expand": "展開",
         "json": {
           "label": {
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "顯示中繼資料",
+              "enable": "隱藏中繼資料"
             }
           },
           "tooltip": {
             "labels": {
-              "disable": "",
-              "enable": ""
+              "disable": "隱藏標籤",
+              "enable": "顯示標籤"
             },
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "隱藏結構化中繼資料",
+              "enable": "顯示結構化中繼資料"
             }
           }
         },
         "label": {
-          "collapse": "",
-          "expand": "",
+          "collapse": "已展開",
+          "expand": "已收闔",
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "醒目提示已停用",
+            "enable": "醒目提示已啟用"
           },
-          "unwrap-lines": "",
-          "wrap-lines": ""
+          "unwrap-lines": "換行",
+          "wrap-lines": "取消換行"
         },
         "labels": {
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "將最舊的記錄排序往前",
+            "oldest-first": "將最新的記錄排序往前"
           }
         },
-        "scrollToBottom": "",
-        "scrollToTop": "",
+        "scrollToBottom": "滾動到底部",
+        "scrollToTop": "捲動回頂部",
         "table": {
           "label": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "記錄文字",
+            "show-text": "記錄標籤"
           },
           "tooltip": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "顯示標籤",
+            "show-text": "顯示記錄文字"
           }
         },
         "tooltip": {
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "停用醒目提示",
+            "enable": "啟用醒目提示"
           },
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "最新記錄優先",
+            "oldest-first": "最舊記錄優先"
           }
         },
-        "unwrap-lines": "",
-        "wrap-lines": ""
+        "unwrap-lines": "取消換行",
+        "wrap-lines": "換行"
       },
       "log-options-buttons-scene": {
-        "show-default-fields": "",
-        "show-original-log-line": "",
+        "show-default-fields": "顯示基本欄位",
+        "show-original-log-line": "顯示原始紀錄行",
         "tooltip": {
-          "clear-displayed-fields": "",
-          "show-default-fields": ""
+          "clear-displayed-fields": "清除顯示的欄位：{{fields}}",
+          "show-default-fields": "顯示基本欄位：{{fields}}"
         }
       },
       "log-options-scene": {
         "description": {
-          "disable-wrapping-of-long-log-lines": "",
-          "enable-wrapping-of-long-log-lines": "",
-          "show-results-newest-to-oldest": "",
-          "show-results-oldest-to-newest": ""
+          "disable-wrapping-of-long-log-lines": "停用長記錄行的換行",
+          "enable-wrapping-of-long-log-lines": "啟用長記錄行的換行",
+          "show-results-newest-to-oldest": "顯示結果（最新至最舊）",
+          "show-results-oldest-to-newest": "顯示結果（最舊至最新）"
         },
         "label": {
-          "newest-first": "",
-          "no-wrap": "",
-          "oldest-first": "",
-          "wrap": ""
+          "newest-first": "最新排前",
+          "no-wrap": "不換行",
+          "oldest-first": "最舊排前",
+          "wrap": "斷行"
         }
       },
       "logs-panel-error": {
-        "clear-filters": "",
-        "default": ""
+        "clear-filters": "清除篩選條件",
+        "default": "發生錯誤"
       },
       "logs-panel-scene": {
         "label": {
-          "copy-link-to-log-line": ""
+          "copy-link-to-log-line": "將連結複製到記錄行"
         },
-        "text-loading": ""
+        "text-loading": "正在載入…"
       },
-      "text-loading": ""
+      "logs-volume": {
+        "logs-volume-actions": {
+          "aria-label-group-by": "依欄位分組記錄量",
+          "group-fields": "",
+          "label-group-by": "分組依據"
+        },
+        "logs-volume-panel": {
+          "title": "記錄量",
+          "title-with-count": "記錄量 ({{formattedCount}})"
+        }
+      },
+      "text-loading": "正在載入…"
     },
     "service-selection-scene": {
       "add-label-to-filters-header-action-scene": {
         "button": {
-          "include": "",
-          "remove": ""
+          "include": "包含",
+          "remove": "移除"
         },
         "tooltip": {
-          "add": "",
-          "remove": ""
+          "add": "新增 {{value}} 至篩選條件",
+          "remove": "從篩選條件中移除 {{value}}"
         }
       },
       "configure-volume-error": {
-        "docs-link": "",
-        "title": ""
+        "docs-link": "在 Loki 設定中啟用磁碟區的指示：",
+        "title": "尚未設定記錄量。"
+      },
+      "logs-panel": {
+        "go-to-log-line": "前往記錄行",
+        "show-similar-logs": "顯示類似的記錄"
       },
       "no-service-search-results": {
-        "title": ""
+        "title": "沒有符合您搜尋的服務。"
       },
       "no-service-volume": {
-        "help": "",
-        "title": ""
+        "help": "請調整時間範圍，或選擇其他標籤。",
+        "title": "在 {{labelName}} 中未找到紀錄。"
       },
       "select-service-button": {
-        "show-logs": "",
-        "tooltip": ""
+        "show-logs": "顯示記錄",
+        "tooltip": "查看以下項目的記錄：{{value}}"
       },
       "service-selection-pagination-scene": {
-        "aria-label-count-info": "",
-        "of-total": "",
-        "showing": "",
+        "aria-label-count-info": "計數資訊",
+        "of-total": "共 {{totalCount}}",
+        "showing": "顯示中",
         "tooltip": {
-          "count-info": ""
+          "count-info": "{{totalCount}} 個標籤在所選時間範圍內有值。標籤總數可能有所不同"
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
-        "label-loading-tabs": "",
+        "label-add-tab": "新增標籤分頁",
+        "label-loading-tabs": "正在載入分頁",
         "tab": {
-          "content-remove-tab": ""
+          "content-remove-tab": "移除分頁"
         }
       },
       "tab-popover-scene": {
-        "placeholder-search-labels": ""
+        "placeholder-search-labels": "搜尋標籤"
       }
     },
     "table": {
       "cell-context-menu": {
-        "title-add-column": "",
-        "title-add-to-search": "",
-        "title-exclude-from-search": ""
+        "title-add-column": "新增欄位",
+        "title-add-to-search": "新增至搜尋",
+        "title-exclude-from-search": "從搜尋中排除"
       },
       "column-selection": {
         "logs-column-search": {
-          "placeholder-search-fields-by-name": "",
+          "placeholder-search-fields-by-name": "按名稱搜尋欄位",
           "tooltip": {
-            "collapse-sidebar": "",
-            "expand-sidebar": ""
+            "collapse-sidebar": "收起側邊欄",
+            "expand-sidebar": "展開側邊欄"
           }
         },
         "logs-table-available-fields": {
           "field": {
-            "title": ""
+            "title": "「{{labelName}}」出現在 {{percent}}% 的記錄行中"
           }
         },
         "logs-table-empty-fields": {
-          "no-fields": ""
+          "no-fields": "沒有欄位"
         },
         "logs-table-multi-select": {
           "button": {
-            "reset": ""
+            "reset": "重設"
           },
-          "fields": "",
+          "fields": "欄位",
           "header": {
-            "selected-fields": ""
+            "selected-fields": "選取的欄位"
           }
         },
         "logs-table-nav-field": {
-          "aria-label-drag-and-drop-icon": "",
+          "aria-label-drag-and-drop-icon": "拖曳圖示",
           "cardinality": {
-            "value": "",
-            "values": ""
+            "value": "值",
+            "values": "值"
           },
-          "title-drag-and-drop-to-reorder": ""
+          "title-drag-and-drop-to-reorder": "拖曳以重新排序"
         }
       },
       "line-action-icons": {
-        "aria-label-view-log-line": "",
-        "copy-to-clipboard": "",
-        "title-inspect-value": "",
-        "tooltip-copy-link-to-log-line": "",
-        "tooltip-view-log-line": ""
+        "aria-label-view-log-line": "檢視記錄行",
+        "copy-to-clipboard": "複製至剪貼簿",
+        "title-inspect-value": "檢查值",
+        "tooltip-copy-link-to-log-line": "將連結複製到記錄行",
+        "tooltip-view-log-line": "檢視記錄行"
       },
       "logs-header-actions": {
         "description": {
-          "show-results-in-json-visualisation": "",
-          "show-results-in-logs-visualisation": "",
-          "show-results-in-table-visualisation": ""
+          "show-results-in-json-visualisation": "在 json 視覺化中顯示結果",
+          "show-results-in-logs-visualisation": "在記錄視覺化中顯示結果",
+          "show-results-in-table-visualisation": "在表格視覺化中顯示結果"
         },
         "label": {
-          "json": "",
-          "logs": "",
-          "table": ""
+          "json": "JSON",
+          "logs": "記錄",
+          "table": "表格"
         }
       },
       "logs-table-header": {
         "aria-label": {
-          "show-menu": ""
+          "show-menu": "顯示 {{name}} 選單"
         },
-        "aria-label-reset-column-width": "",
-        "aria-label-show-log-labels": "",
-        "aria-label-show-log-text": "",
+        "aria-label-reset-column-width": "重設欄寬",
+        "aria-label-show-log-labels": "顯示記錄標籤",
+        "aria-label-show-log-text": "顯示記錄文字",
         "tooltip": {
-          "show-menu": ""
+          "show-menu": "顯示 {{name}} 選單"
         },
-        "tooltip-reset-column-width": "",
-        "tooltip-show-log-labels": "",
-        "tooltip-show-log-text": ""
+        "tooltip-reset-column-width": "重設欄寬",
+        "tooltip-show-log-labels": "顯示記錄標籤",
+        "tooltip-show-log-text": "顯示記錄文字"
       },
       "logs-table-header-menu": {
-        "close": ""
+        "close": "關閉"
       },
       "logs-table-header-wrap": {
         "menu": {
-          "move-left": "",
-          "move-right": "",
-          "remove-column": "",
-          "reset-column-widths": "",
-          "show-labels": "",
-          "show-log-text": ""
+          "move-left": "向左移動",
+          "move-right": "向右移動",
+          "remove-column": "移除欄位",
+          "reset-column-widths": "重設欄寬",
+          "show-labels": "顯示標籤",
+          "show-log-text": "顯示記錄文字"
         }
       },
       "logs-table-scene": {
-        "title-logs": ""
+        "title-logs": "記錄"
       }
     }
   },
   "errors-analysis": {
-    "collapse": "",
-    "collapse-extra-fields": "",
-    "description": "",
-    "discovering-fields": "",
-    "error": "",
-    "expand": "",
-    "field-input-placeholder": "",
-    "field-link-label": "",
-    "filter-for-value": "",
-    "filter-out-value": "",
-    "no-extra-fields-shown": "",
-    "no-fields-detected": "",
-    "no-more-fields": "",
-    "no-values-found": "",
-    "show-all-link-title": "",
-    "title": "",
-    "too-many-values": "",
-    "show-more-fields_other": ""
+    "collapse": "收合",
+    "collapse-extra-fields": "收合額外欄位",
+    "description": "透過探索您的資料如何在關鍵屬性之間細分，找出模式並縮小根本原因的範圍。點選任何值以篩選您的結果。",
+    "discovering-fields": "正在探索屬性…",
+    "error": "無法載入",
+    "expand": "展開",
+    "field-input-placeholder": "搜尋以新增更多屬性",
+    "field-link-label": "在「記錄深入分析」欄位分頁中檢視{{name}}",
+    "filter-for-value": "篩選值",
+    "filter-out-value": "篩選出值",
+    "no-extra-fields-shown": "未顯示額外欄位",
+    "no-fields-detected": "未偵測到此錯誤群組的欄位。",
+    "no-more-fields": "沒有其他欄位",
+    "no-values-found": "未找到數值",
+    "show-all-link-title": "在「記錄深入分析」中開啟",
+    "title": "屬性探索器",
+    "too-many-values": "值過多，無法顯示",
+    "show-more-fields_other": "顯示 {{count}} 個更多欄位"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "外掛程式資訊",
+      "tooltip": "外掛程式資訊"
+    },
+    "header": {
+      "last-update": "上次更新：{{updated}}",
+      "title": "Grafana 記錄深入分析 v{{version}}"
+    },
+    "menu": {
+      "changelog": "變更記錄",
+      "commit-sha": "提交 SHA：{{shortCommitSha}}",
+      "configuration": "外掛程式設定",
+      "contribute": "貢獻",
+      "documentation": "文件",
+      "give-feedback": "提供意見回饋",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "回報問題"
+    }
   },
   "services": {
     "create-annotation-layers": {
       "severities": {
         "label": {
-          "critical": "",
-          "info": "",
-          "warning": ""
+          "critical": "關鍵",
+          "info": "資訊",
+          "warning": "警告"
         }
       }
     },
     "drilldown-logs": {
       "notices": {
-        "max-series-reached": ""
+        "max-series-reached": "已達到結果的最大限制。顯示部分結果。"
       }
     },
     "get-field-options": {
       "label": {
-        "all": ""
+        "all": "全部"
       }
     },
     "get-label-options": {
       "label": {
-        "all": ""
+        "all": "全部"
       }
     },
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": ""
+          "range-oldest-newest-display": "顯示中記錄的目前時間範圍"
         }
       }
     },
     "grafana-ui": {
       "date-time-pickers": {
         "quick-options": {
-          "day-before-yesterday": "",
-          "day-five-days-ago": "",
-          "day-four-days-ago": "",
-          "day-six-days-ago": "",
-          "day-three-days-ago": "",
-          "four-weeks-ago": "",
-          "last-1-hour": "",
-          "last-1-mins": "",
-          "last-12-hours": "",
-          "last-15-mins": "",
-          "last-2-days": "",
-          "last-24-hours": "",
-          "last-3-hours": "",
-          "last-30-days": "",
-          "last-30-mins": "",
-          "last-5-mins": "",
-          "last-6-hours": "",
-          "last-6-months": "",
-          "last-60-days": "",
-          "last-7-days": "",
-          "last-90-days": "",
-          "previous-month": "",
-          "previous-week": "",
-          "this-day-last-week": "",
-          "this-month": "",
-          "this-month-so-far": "",
-          "this-week": "",
-          "this-week-so-far": "",
-          "three-months-ago": "",
-          "three-weeks-ago": "",
-          "today": "",
-          "today-so-far": "",
-          "two-months-ago": "",
-          "two-weeks-ago": "",
-          "yesterday": ""
+          "day-before-yesterday": "前天",
+          "day-five-days-ago": "五天前",
+          "day-four-days-ago": "四天前",
+          "day-six-days-ago": "六天前",
+          "day-three-days-ago": "三天前",
+          "four-weeks-ago": "四週前",
+          "last-1-hour": "過去 1 小時",
+          "last-1-mins": "過去一分鐘",
+          "last-12-hours": "過去 12 小時",
+          "last-15-mins": "過去 15 分鐘",
+          "last-2-days": "過去 2 天",
+          "last-24-hours": "過去 24 小時",
+          "last-3-hours": "過去 3 小時",
+          "last-30-days": "過去 30 天",
+          "last-30-mins": "過去 30 分鐘",
+          "last-5-mins": "過去 5 分鐘",
+          "last-6-hours": "過去 6 小時",
+          "last-6-months": "過去 6 個月",
+          "last-60-days": "過去 60 天",
+          "last-7-days": "過去 7 天",
+          "last-90-days": "過去 90 天",
+          "previous-month": "上個月",
+          "previous-week": "上一週",
+          "this-day-last-week": "上週的這一天",
+          "this-month": "本月",
+          "this-month-so-far": "本月迄今",
+          "this-week": "本週",
+          "this-week-so-far": "本週迄今",
+          "three-months-ago": "三個月前",
+          "three-weeks-ago": "三週前",
+          "today": "今天",
+          "today-so-far": "今天迄今",
+          "two-months-ago": "兩個月前",
+          "two-weeks-ago": "兩週前",
+          "yesterday": "昨天"
         }
       }
     },
     "kg-annotation-toggle-renderer": {
-      "label-insights": ""
+      "label-insights": "深入分析"
     },
     "logs": {
       "logs-drilldown": {
         "fields": {
-          "log-attributes-field": "",
-          "log-line-field": ""
+          "log-attributes-field": "記錄屬性",
+          "log-line-field": "記錄行"
         },
-        "kg-annotation-toggle": ""
+        "kg-annotation-toggle": "深入分析"
       }
     },
     "suspended-embedded-logs-exploration": {
-      "loading-logs-drilldown": ""
+      "loading-logs-drilldown": "正在載入「記錄深入分析」…"
     },
     "suspended-loki-field-distribution": {
-      "loading": ""
+      "loading": "正在載入…"
     },
     "suspended-open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "在「記錄深入分析」中開啟"
     },
     "update-assistant-context": {
       "title": {
-        "parsed-fields-filters": "",
-        "structured-metadata-filters": ""
+        "current-logs-query-and-time-range": "目前記錄查詢和時間範圍",
+        "parsed-fields-filters": "已剖析欄位篩選條件",
+        "structured-metadata-filters": "結構化中繼資料篩選條件"
       }
     },
     "wrapped-loki-datasource": {
       "message": {
-        "data-source-is-working": ""
+        "data-source-is-working": "資料來源正在運作"
       },
       "title": {
-        "success": ""
+        "success": "成功"
       }
     }
   }

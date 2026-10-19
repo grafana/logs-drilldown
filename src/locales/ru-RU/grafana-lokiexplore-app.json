@@ -1,975 +1,1037 @@
 {
   "components": {
     "app": {
-      "text-loading": ""
+      "text-loading": "Загрузка…"
     },
     "app-config": {
-      "active-users-reload-reflect-configuration-changes": "",
+      "active-users-reload-reflect-configuration-changes": "Активным пользователям нужно перезагрузить приложение, чтобы изменения конфигурации вступили в силу.",
       "default-columns": {
         "add-label": {
-          "add-label": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Добавить метку",
+          "tooltip-label-match-against-query": "Добавьте новую метку для сопоставления с запросом пользователя"
         },
         "add-record": {
-          "add": ""
+          "add": "Добавить"
         },
         "columns": {
-          "aria-label-drag-and-drop-icon": "",
-          "placeholder-select-column": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-column": ""
+          "aria-label-drag-and-drop-icon": "Значок перетаскивания",
+          "placeholder-select-column": "Выберите столбец",
+          "title-drag-and-drop-to-reorder": "Перетащите, чтобы изменить порядок",
+          "tooltip-remove-column": "Удалить {{column}}"
         },
         "config": {
-          "default-columns-description": "",
-          "text-beta": ""
+          "default-columns-description": "Настройте поля, которые будут отображаться по умолчанию. Они могут заменять всю строку логов или отображаться рядом с ней.",
+          "text-beta": "Бета"
         },
         "default-columns": {
-          "text-loading": ""
+          "text-loading": "Загрузка…"
         },
         "delete-record": {
-          "tooltip-delete-record": ""
+          "tooltip-delete-record": "Удалить запись"
         },
         "fields": {
-          "add-column": "",
-          "add-column-tooltip": "",
-          "invalid-columns": "",
-          "invalid-columns-log-line-only": ""
+          "add-column": "Добавить столбец",
+          "add-column-tooltip": "Добавить столбец по умолчанию для отображения в логах",
+          "invalid-columns": "Недопустимые столбцы",
+          "invalid-columns-log-line-only": "Выбор только строки логов, скорее всего, является избыточным"
         },
         "label-name": {
-          "placeholder-select-label-name": ""
+          "placeholder-select-label-name": "Выберите имя метки"
         },
         "label-value": {
-          "placeholder-select-label-value": ""
+          "placeholder-select-label-value": "Выберите значение метки"
         },
         "labels": {
-          "content-queries-containing-these-labels-display-selected": "",
-          "labels-match": ""
+          "content-queries-containing-these-labels-display-selected": "В запросах, содержащих эти метки, будут отображаться выбранные столбцы",
+          "labels-match": "Совпадение меток"
         },
         "records-collapsible-label": {
-          "content-default-fields-display-visualizations-these-labels": "",
-          "display-fields": ""
+          "content-default-fields-display-visualizations-these-labels": "Поля по умолчанию для отображения в визуализациях логов для этих меток",
+          "display-fields": "Отображаемые поля"
         },
         "remove-label": {
-          "tooltip-remove-label": ""
+          "tooltip-remove-label": "Удалить {{label}}"
         },
         "submit": {
-          "create-default-columns": "",
-          "update-default-columns": ""
+          "create-default-columns": "Создать столбцы по умолчанию",
+          "update-default-columns": "Обновить столбцы по умолчанию"
         },
         "undo": {
-          "confirmText-reset": "",
-          "reset": ""
+          "confirmText-reset": "Сброс",
+          "reset": "Сброс"
         },
         "unsupported": {
-          "default-columns": "",
-          "default-columns-requires-feature-flag": "",
-          "default-columns-requires-grafana-or-greater": ""
+          "default-columns": "Столбцы по умолчанию",
+          "default-columns-requires-feature-flag": "Для использования столбцов по умолчанию необходимо включить флаг функции <1>kubernetesLogsDrilldown</1>.",
+          "default-columns-requires-grafana-or-greater": "Для использования столбцов по умолчанию требуется Grafana версии 12.4 или новее."
         }
       },
-      "default-data-source-description": "",
-      "default-time-range-description": "",
-      "default-time-range-enabled-label-use-custom-default-time-range": "",
-      "default-time-range-from-placeholder-now-15m": "",
-      "default-time-range-to-placeholder-now": "",
-      "description-end-of-the-range-eg-now": "",
-      "description-start-range": "",
-      "disable-patterns-description": "",
-      "interval-invalid-error": "",
-      "interval-placeholder": "",
-      "label-default-data-source": "",
-      "label-default-time-range": "",
-      "label-disable-loki-patterns": "",
-      "label-disable-patterns": "",
-      "label-from": "",
-      "label-max-interval": "",
-      "label-maximum-time-picker-interval": "",
-      "label-settings": "",
-      "label-to": "",
-      "max-interval-description": "",
-      "patterns-placeholder": "",
-      "save-settings": "",
+      "default-data-source-description": "Источник данных по умолчанию для новых пользователей Logs Drilldown. Каждый пользователь может изменить значение по умолчанию, указав другой источник данных в Logs Drilldown.",
+      "default-time-range-description": "Если этот параметр включен, этот временной диапазон используется, когда пользователи открывают Logs Drilldown в первый раз и в URL-адресе не указан диапазон времени. Если эта функция отключена, приложение использует встроенное значение по умолчанию (последние 15 минут).",
+      "default-time-range-enabled-label-use-custom-default-time-range": "Использовать пользовательский временной диапазон по умолчанию",
+      "default-time-range-from-placeholder-now-15m": "текущий момент – 15 мин.",
+      "default-time-range-to-placeholder-now": "текущий момент",
+      "description-end-of-the-range-eg-now": "Конец диапазона (например, текущий момент)",
+      "description-start-range": "Начало диапазона (например, текущий момент – 15 мин., текущий момент – 1 ч., текущий момент — 24 ч.)",
+      "disable-patterns-description": "Отключает использование конечной точки <2>API шаблонов Loki</2> в Logs Drilldown и удаляет вкладку шаблонов.",
+      "interval-invalid-error": "Недействительный интервал. Введите интервал более 60 мин. Например: 3 дн., 1 нед., 1 мес.",
+      "interval-placeholder": "7 дн.",
+      "label-default-data-source": "Источник данных по умолчанию",
+      "label-default-time-range": "Временной диапазон по умолчанию",
+      "label-disable-loki-patterns": "Отключить шаблоны Loki",
+      "label-disable-patterns": "Отключить шаблоны",
+      "label-from": "Время начала",
+      "label-max-interval": "Макс. интервал",
+      "label-maximum-time-picker-interval": "Максимальный интервал указателя времени",
+      "label-settings": "Параметры",
+      "label-to": "Время окончания",
+      "max-interval-description": "Максимальный интервал, который можно выбрать в указателе времени в приложении Grafana Logs Drilldown. Если поле пустое, пользователи могут выбрать любой интервал временного диапазона в Grafana Logs Drilldown. <br/>Примеры значений: 7 дн., 24 ч., 2 нед.",
+      "patterns-placeholder": "7 дн.",
+      "save-settings": "Сохранить настройки",
       "service-selection": {
         "config": {
-          "service-selection-description": "",
-          "text-beta": ""
+          "service-selection-description": "Настройте, какие метки и их значения будут отображаться по умолчанию на главной странице Logs Drilldown.",
+          "text-beta": "Бета"
         },
         "context": {
-          "text-loading": ""
+          "text-loading": "Загрузка…"
         },
         "default-labels": {
-          "add-label": "",
-          "add-label-and-values": "",
-          "content-configure-default-labels-optional-values-landing": "",
-          "landing-page-default-labels": "",
-          "no-labels-selected": "",
-          "placeholder-select-label-name": "",
-          "placeholder-select-values-optional": "",
-          "tooltip-label-match-against-query": ""
+          "add-label": "Добавить метку",
+          "add-label-and-values": "Добавить метку и значения",
+          "content-configure-default-labels-optional-values-landing": "Настройте метки по умолчанию и дополнительные значения для отображения на целевой странице Logs Drilldown",
+          "landing-page-default-labels": "Метки целевой страницы по умолчанию",
+          "no-labels-selected": "Метки не выбраны. По умолчанию в Logs Drilldown будет установлено значение <strong>{{serviceName}}</strong>.",
+          "placeholder-select-label-name": "Выберите имя метки",
+          "placeholder-select-values-optional": "Выберите значения (необязательно)",
+          "tooltip-label-match-against-query": "Добавьте новую метку для сопоставления с запросом пользователя"
         },
         "footer": {
-          "confirmText-reset": "",
-          "reset": "",
-          "save-changes": ""
+          "confirmText-reset": "Сброс",
+          "reset": "Сброс",
+          "save-changes": "Сохранить изменения"
         },
         "label-list": {
-          "aria-label-drag-and-drop-icon": "",
-          "aria-label-remove-value": "",
-          "no-label-values-selected": "",
-          "title-drag-and-drop-to-reorder": "",
-          "tooltip-remove-label": "",
-          "tooltip-remove-value": ""
+          "aria-label-drag-and-drop-icon": "Значок перетаскивания",
+          "aria-label-remove-value": "Удалить {{value}}",
+          "no-label-values-selected": "Значения меток не выбраны. Будет показан полный список значений для этой метки.",
+          "title-drag-and-drop-to-reorder": "Перетащите, чтобы изменить порядок",
+          "tooltip-remove-label": "Удалить {{label}}",
+          "tooltip-remove-value": "Удалить {{value}}"
         },
         "unsupported": {
-          "landing-page": "",
-          "landing-requires-feature-flag": "",
-          "landing-settings-requires-grafana-greater": ""
+          "landing-page": "Целевая страница",
+          "landing-requires-feature-flag": "Для настроек целевой страницы требуется включить флаг функции <1>kubernetesLogsDrilldown</1>.",
+          "landing-settings-requires-grafana-greater": "Для настроек целевой страницы требуется Grafana версии 13.0 или новее."
         }
       }
     },
     "buttons": {
       "copy-to-clipboard-button": {
-        "copy-link": "",
-        "copy-success": "",
-        "copy-to-clipboard": "",
-        "copy-to-clipboard-error": ""
+        "copy-link": "Копировать ссылку на строку логов",
+        "copy-success": "Скопировано",
+        "copy-to-clipboard": "Копировать в буфер обмена",
+        "copy-to-clipboard-error": "Ошибка при копировании ссылки"
       }
     },
     "embedded-logs-exploration": {
       "embedded-link-scene": {
-        "logs-drilldown": ""
+        "logs-drilldown": "Logs Drilldown"
       }
     },
     "embedded-scene-wrapper": {
-      "text-loading": ""
+      "text-loading": "Загрузка…"
     },
     "filter-button": {
-      "exclude": "",
-      "include": ""
+      "exclude": "Исключить",
+      "include": "Включить"
     },
     "index-scene": {
       "get-variable-set": {
         "ds-variable": {
           "label": {
-            "data-source": ""
+            "data-source": "Источник данных"
           }
         },
         "fields-and-metadata-variable": {
-          "description": "",
+          "description": "Фильтруйте по значениям, извлеченным из строк журнала (обнаруженным полям из парсеров, таких как JSON или logfmt), а также по структурированным метаданным, прикрепленным к каждой строке журнала.",
           "label": {
-            "fields": ""
+            "fields": "Поля"
           }
         },
         "fields-variable": {
           "label": {
-            "detected-fields": ""
+            "detected-fields": "Обнаруженные поля"
           }
         },
         "label-variable": {
-          "description": "",
+          "description": "Фильтр логов по меткам потоков (например, по заданию или пространству имен). Фильтры меток являются частью селектора потоков Loki и применяются до конвейера обработки логов.",
           "label": {
-            "labels": ""
+            "labels": "Метки"
           }
         },
         "levels-variable": {
           "label": {
-            "error-levels": ""
+            "error-levels": "Уровни ошибок"
           }
         },
         "metadata-variable": {
           "label": {
-            "metadata": ""
+            "metadata": "Метаданные"
           }
         }
       },
       "intercept-banner": {
-        "body": "",
-        "title-welcome-to-grafana-logs-drilldown": ""
+        "body": "Ознакомьтесь с нашим <2>руководством по началу работы</2> или посмотрите <5>последние изменения</5>.<br/>Помогите нам сделать приложение лучше. <10>Отправьте нам отзыв</10> или свяжитесь с нами на <14>GitHub</14>.",
+        "title-welcome-to-grafana-logs-drilldown": "Добро пожаловать в Grafana Logs Drilldown!"
       },
       "levels-variable-scene": {
-        "aria-label-log-level-filters": "",
-        "description-log-levels": "",
-        "label-log-levels": "",
-        "placeholder-all-levels": ""
+        "aria-label-log-level-filters": "Фильтры уровня логов",
+        "description-log-levels": "Сохраняйте только те логи, обнаруженный уровень серьезности которых соответствует вашему выбору (например, ошибка или предупреждение). Оставьте пустым, чтобы включить все уровни.",
+        "label-log-levels": "Уровни логов",
+        "placeholder-all-levels": "Все уровни"
       },
       "line-filter-variable": {
-        "aria-label-remove-line-filter": "",
-        "description-line-filter": "",
-        "line-filter": ""
+        "aria-label-remove-line-filter": "Удалить фильтр строк",
+        "description-line-filter": "Поиск или исключение текста в теле строки логов. Можно использовать обычный текст, регулярные выражения RE2 и учитывать регистр.",
+        "line-filter": "Фильтр строк"
       },
       "line-filter-variables-scene": {
-        "aria-label-add-line-filter": ""
+        "aria-label-add-line-filter": "Добавить фильтр строк"
       },
       "pattern-controls": {
-        "excluded-pattern": "",
-        "excluded-patterns": "",
-        "included-pattern": "",
-        "included-patterns": ""
+        "excluded-pattern": "Исключенный шаблон:",
+        "excluded-patterns": "Исключенные шаблоны:",
+        "included-pattern": "Включенный шаблон",
+        "included-patterns": "Включенные шаблоны"
       },
       "pattern-tag": {
-        "aria-label-remove-pattern": ""
+        "aria-label-remove-pattern": "Удалить шаблон"
       },
       "reset-filters-button": {
-        "reset": "",
-        "tooltip-reset-label-filters-to-initial-values": ""
+        "reset": "Сброс",
+        "tooltip-reset-label-filters-to-initial-values": "Сбросьте фильтры меток до исходных значений."
       },
       "share-button-scene": {
-        "aria-label-copy-shortened-url": "",
-        "aria-label-open-copy-link-options": "",
+        "aria-label-copy-shortened-url": "Копировать сокращенный URL-адрес",
+        "aria-label-open-copy-link-options": "Открыть параметры копирования ссылок",
         "menu-options": {
           "label": {
-            "copy-absolute-shortened-url": "",
-            "copy-absolute-url": "",
-            "copy-shortened-url": "",
-            "copy-url": "",
-            "normal-url-links": "",
-            "timesync-links-share-range-intact": ""
+            "copy-absolute-shortened-url": "Копировать абсолютный сокращенный URL-адрес",
+            "copy-absolute-url": "Копировать абсолютный URL-адрес",
+            "copy-shortened-url": "Копировать сокращенный URL-адрес",
+            "copy-url": "Копировать URL-адрес",
+            "normal-url-links": "Обычные URL-ссылки",
+            "timesync-links-share-range-intact": "URL-ссылки с синхронизацией времени (общий доступ с сохранением временного диапазона)"
           }
         },
-        "share": ""
+        "share": "Поделиться"
       },
       "show-logs-button-scene": {
-        "show-logs": ""
+        "show-logs": "Показать логи"
       },
-      "text-loading": "",
+      "text-loading": "Загрузка…",
       "toolbar-scene": {
-        "aggregated-metrics": "",
-        "aggregated-metrics-disabled-tooltip": "",
-        "aggregated-metrics-tooltip": "",
-        "aria-label-query-options": "",
-        "insights": "",
+        "aggregated-metrics": "Агрегированные метрики",
+        "aggregated-metrics-disabled-tooltip": "Агрегированные метрики можно включить только для запросов с датой начала после {{date}}",
+        "aggregated-metrics-tooltip": "Агрегированные метрики возвращают результаты запросов к сервису намного быстрее, но с меньшим разрешением",
+        "aria-label-query-options": "Параметры запроса",
+        "insights": "Аналитика",
         "render-popover": {
-          "aria-label-query-options": "",
-          "label-toggle-aggregated-metrics": "",
-          "label-toggle-insights-annotations": "",
-          "query-options": ""
+          "aria-label-query-options": "Параметры запроса",
+          "label-toggle-aggregated-metrics": "Переключить агрегированные метрики",
+          "label-toggle-insights-annotations": "Переключить аннотации аналитики",
+          "query-options": "Параметры запроса"
         }
       },
       "variable-layout-scene": {
-        "collapse": "",
-        "expand": ""
+        "collapse": "Свернуть фильтры",
+        "expand": "Развернуть фильтры"
       }
     },
     "make-embedded-page": {
       "title": {
-        "grafana-logs-drilldown-embedded": ""
+        "grafana-logs-drilldown-embedded": "Grafana Logs Drilldown — встроенный компонент"
       }
     },
     "make-index-page": {
       "title": {
-        "grafana-logs-drilldown": ""
+        "grafana-logs-drilldown": "Grafana Logs Drilldown"
       }
     },
     "no-loki-splash": {
-      "learn-more": "",
-      "no-datasource": "",
-      "welcome-to-grafana-logs-drilldown": ""
+      "learn-more": "Чтобы узнать больше, нажмите <2>здесь</2>.",
+      "no-datasource": "Источник данных Prometheus не настроен.<br/>Чтобы просматривать логи, добавьте <4>источник данных Loki</4>.",
+      "welcome-to-grafana-logs-drilldown": "Добро пожаловать в Grafana Logs Drilldown"
     },
     "open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Открыть в Logs Drilldown"
     },
     "panels": {
       "panel-menu": {
         "add-visualization-header": {
           "text": {
-            "visualization": "",
-            "visualization-divider": ""
+            "visualization": "Визуализация",
+            "visualization-divider": "разделитель_визуализации"
           }
         },
         "get-create-alert-payload": {
           "panel": {
             "title": {
-              "log-count-alert": ""
+              "log-count-alert": "Оповещение о количестве логов"
             }
           }
         },
         "items": {
           "text": {
-            "explore": "",
-            "navigation": ""
+            "condense-logs": "Свернуть представление логов",
+            "expand-logs": "Развернуть представление логов",
+            "explore": "Explore",
+            "navigation": "Навигация",
+            "ui": "Интерфейс"
           }
         },
         "text": {
-          "add-to-dashboard": "",
-          "ai": "",
-          "ai-divider": "",
-          "create-alert": "",
-          "explain-in-assistant": ""
+          "add-to-dashboard": "Добавить на дашборд",
+          "add-to-notebook": "",
+          "ai": "ИИ",
+          "ai-divider": "разделитель_ИИ",
+          "create-alert": "Создать оповещение",
+          "explain-in-assistant": "Объяснить в Assistant"
         },
         "title": {
-          "logs-drilldown-query": ""
+          "logs-drilldown-query": "Запрос к Logs Drilldown"
         }
       }
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "",
-        "button-tooltip": "",
-        "saved-query-button-tooltip": ""
+        "button-no-search-tooltip": "Нет сохраненных поисковых запросов для загрузки",
+        "button-tooltip": "Загрузить сохраненный поисковый запрос",
+        "saved-query-button-tooltip": "Загрузить сохраненный запрос"
       },
       "load-search-modal": {
-        "empty": "",
-        "modal-title": "",
-        "remove": "",
-        "select": ""
+        "empty": "Нет сохраненных поисковых запросов для отображения.",
+        "modal-title": "Загрузка ранее сохраненного поискового запроса",
+        "remove": "Удалить",
+        "select": "Выбрать"
       },
       "load-search-scene": {
-        "load-error": "",
-        "load-type-error": ""
+        "load-error": "Не удалось создать ссылку.",
+        "load-type-error": "Выберите запрос к Loki."
       },
       "save-search-button": {
-        "button-tooltip": "",
-        "button-tooltip-saved-queries": ""
+        "button-tooltip": "Сохранить поисковой запрос",
+        "button-tooltip-saved-queries": "Сохранить в сохраненных запросах"
       },
       "save-search-modal": {
-        "already-exists-alert": "",
-        "cancel": "",
-        "close": "",
-        "description": "",
-        "error": "",
-        "modal-alert": "",
-        "modal-title": "",
-        "save": "",
-        "success": "",
-        "title": "",
-        "title-success": ""
+        "already-exists-alert": "Ранее был сохранен поисковый запрос с таким же содержимым: {{title}}",
+        "cancel": "Отменить",
+        "close": "Закрыть",
+        "description": "Описание",
+        "error": "Непредвиденная ошибка при сохранении поискового запроса.",
+        "modal-alert": "Сохраненные поисковые запросы хранятся локально в вашем браузере и будут доступны только на этом устройстве.",
+        "modal-title": "Сохранение текущего поискового запроса",
+        "save": "Сохранить",
+        "success": "Поисковый запрос сохранен.",
+        "title": "Заголовок",
+        "title-success": "Выполнено"
       }
     },
     "service-scene": {
       "add-to-dashboard-modal": {
+        "title": "Добавление на дашборд"
+      },
+      "add-to-notebook-modal": {
         "title": ""
       },
       "alert": {
-        "invalid-labels-selected": "",
-        "no-labels-selected": "",
-        "select-label": ""
+        "invalid-labels-selected": "Выбраны недопустимые метки",
+        "no-labels-selected": "Метки не выбраны",
+        "select-label": "Выберите хотя бы одну метку, чтобы увидеть разбивку логов."
       },
       "breakdowns": {
         "breakdown-search-scene": {
-          "placeholder-search-for-value": ""
+          "placeholder-search-for-value": "Поиск значения"
         },
         "by-frame-repeater": {
-          "clear-filter": "",
-          "no-values-found": ""
+          "clear-filter": "Очистить фильтр",
+          "no-values-found": "Не найдено значений, соответствующих «{{filter}}»"
         },
         "empty-layout-scene": {
-          "link": "",
-          "prefix": "",
-          "suffix": "",
-          "title": ""
+          "ask-assistant": "Задать вопрос Grafana Assistant",
+          "enable-parsers": "Включить извлеченные поля",
+          "link": "сообщите нам",
+          "parsed-fields": "Мы не нашли {{type}} для указанного временного диапазона. Попробуйте включить извлеченные поля из строк логов.",
+          "prefix": "Пожалуйста,",
+          "suffix": "если вы считаете, что это ошибка.",
+          "title": "Мы не нашли {{type}} для указанного временного диапазона."
         },
         "field-selector": {
-          "custom-value-search-or-filter": "",
-          "placeholder-search-values": ""
+          "custom-value-search-or-filter": "Фильтр значений по",
+          "placeholder-search-values": "Поиск значений"
         },
         "field-values-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Сетка",
+            "rows": "Строки"
           },
-          "loading": ""
+          "loading": "Загрузка…"
         },
         "fields-aggregated-breakdown-scene": {
           "label": {
-            "grid": "",
-            "rows": ""
+            "grid": "Сетка",
+            "rows": "Строки"
           },
-          "text-loading": ""
+          "text-loading": "Загрузка…"
         },
         "fields-breakdown-scene": {
-          "label-field": ""
+          "label-field": "Поле",
+          "label-field-tooltip": "Структурированные метаданные и проанализированные поля",
+          "label-metadata-tooltip": "Поля структурированных метаданных"
         },
         "label-breakdown-scene": {
-          "label-label": "",
-          "labels-not-available": ""
+          "label-label": "Метка",
+          "labels-not-available": "В настоящее время метки недоступны. Попробуйте использовать другой временной диапазон или повторите попытку позже."
         },
         "label-values-breakdown-scene": {
           "error": {
-            "message": "",
-            "status": "",
-            "trace-id": ""
+            "message": "Сообщение",
+            "status": "Статус",
+            "trace-id": "Идентификатор трассировки"
           },
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Сетка",
+            "rows": "Строки"
           },
-          "loading": ""
+          "loading": "Загрузка…"
         },
         "labels-aggregated-breakdown-scene": {
           "layout": {
-            "grid": "",
-            "rows": ""
+            "grid": "Сетка",
+            "rows": "Строки"
           },
-          "loading": ""
+          "loading": "Загрузка…"
         },
         "line-filter-input": {
-          "aria-label-clear-line-filter": "",
-          "tooltip-clear-line-filter": ""
+          "aria-label-clear-line-filter": "Очистить фильтр строк",
+          "tooltip-clear-line-filter": "Очистить фильтр строк"
         },
         "no-matching-labels-scene": {
-          "clear-filters": "",
-          "title": ""
+          "clear-filters": "Очистить фильтры",
+          "title": "Ни один {{type}} не соответствует выбранным фильтрам."
         },
         "numeric-filter-popover-scene": {
-          "add": "",
-          "cancel": "",
+          "add": "Добавить",
+          "cancel": "Отменить",
           "label": {
-            "greater-than": "",
-            "greater-than-or-equal": "",
-            "less-than": "",
-            "less-than-or-equal": ""
+            "greater-than": "Больше чем",
+            "greater-than-or-equal": "Больше или равно",
+            "less-than": "Меньше чем",
+            "less-than-or-equal": "Меньше или равно"
           },
-          "remove": "",
-          "unit": ""
+          "remove": "Удалить",
+          "unit": "Единица"
         },
         "patterns": {
           "pattern-field-label-stats": {
-            "sample-rows": ""
+            "sample-rows": "На основе выборки из найденных строк ({{total}})"
           },
           "pattern-name-label": {
-            "available-stats-field-current-timestamp": "",
-            "could-stats-pattern": ""
+            "available-stats-field-current-timestamp": "Нет доступной статистики для этого поля в текущей метке времени.",
+            "could-stats-pattern": "Не удалось загрузить статистику для этого шаблона."
           },
           "patterns-frame-scene": {
             "time-series": {
               "title": {
-                "exclude": "",
-                "include": ""
+                "exclude": "Исключить",
+                "include": "Включить"
               }
             }
           },
           "patterns-logs-sample-scene": {
-            "clear-filters": "",
-            "no-match-filters": "",
-            "this-pattern-returns-no-logs": ""
+            "clear-filters": "Очистить фильтры",
+            "no-match-filters": "Логи, возвращаемые этим шаблоном, не соответствуют текущим фильтрам запроса.",
+            "this-pattern-returns-no-logs": "Этот шаблон не возвращает логов."
           },
           "patterns-not-detected": {
-            "error-message": "",
-            "error-title": "",
-            "no-match-filters-title": "",
-            "not-detected-description": "",
-            "not-detected-help-link": "",
-            "not-detected-help-prefix": "",
-            "not-detected-title": "",
-            "too-old-docs-link": "",
-            "too-old-docs-prefix": "",
-            "too-old-docs-suffix": "",
-            "too-old-title": ""
+            "error-message": "Сопоставление по шаблону не настроено. Шаблоны позволяют обнаруживать похожие строки логов и добавлять их в поиск или исключать из него. Чтобы проверить их работу, добавьте следующие параметры в конфигурацию Loki.",
+            "error-title": "Нет совпадений по шаблону.",
+            "no-match-filters-title": "Ни один шаблон не соответствует выбранным фильтрам.",
+            "not-detected-description": "Шаблоны позволяют обнаруживать похожие строки логов, чтобы включать их в поиск или исключать из него.",
+            "not-detected-help-link": "Канал Slack сообщества Grafana Labs",
+            "not-detected-help-prefix": "Повторите попытку позже или обратитесь к команде в",
+            "not-detected-title": "Нам не удалось обнаружить какие-либо шаблоны.",
+            "too-old-docs-link": "документацию по шаблонам",
+            "too-old-docs-prefix": "Просмотрите",
+            "too-old-docs-suffix": "для получения дополнительной информации.",
+            "too-old-title": "Шаблоны доступны только для данных за последние {{maxAgeHours}} ч."
           },
           "patterns-view-table-scene": {
-            "no-filtered-patterns-message": "",
-            "no-patterns-message": "",
-            "no-patterns-title": ""
+            "no-filtered-patterns-message": "В текущем временном диапазоне или для выбранных уровней логов шаблоны не найдены.",
+            "no-patterns-message": "В текущем временном диапазоне шаблоны не найдены.",
+            "no-patterns-title": "Нет шаблонов для отображения"
           },
           "patterns-view-text-search": {
-            "indexed-labels-only": "",
-            "placeholder-search-patterns": ""
+            "indexed-labels-only": "Шаблоны выбираются по меткам и могут фильтроваться по уровню. Проанализированные поля, структурированные метаданные и строковые фильтры не поддерживаются для списка шаблонов.",
+            "placeholder-search-patterns": "Шаблоны поиска"
           }
         },
         "query-error-alert": {
-          "fetch": "",
-          "increase-limit": "",
-          "max-series-limit-exceeded": "",
-          "message": "",
-          "partial": "",
-          "return-fields": "",
-          "tip-reduce-range": "",
-          "trace-id": "",
-          "trace-ids": ""
+          "fetch": "Ошибка при получении результатов для {{tagKey}}",
+          "increase-limit": "Чтобы увеличить этот лимит, измените параметр <2>max_query_series</2> в конфигурации Loki.",
+          "max-series-limit-exceeded": "Превышен максимальный лимит рядов",
+          "message": "Сообщение",
+          "partial": "Отображение частичных результатов для {{tagKey}}",
+          "return-fields": "Вернуться ко всем полям",
+          "tip-reduce-range": "<strong>Совет.</strong> Сократите временной диапазон или добавьте фильтры, чтобы уменьшить количество уникальных значений в поле {{label}}.",
+          "trace-id": "Идентификатор трассировки",
+          "trace-ids": "Идентификаторы трассировки"
         },
         "search-input": {
-          "aria-label-clear-search": "",
-          "tooltip-clear-search": ""
+          "aria-label-clear-search": "Очистить поиск",
+          "tooltip-clear-search": "Очистить поиск"
         },
         "select-label-action-scene": {
-          "add-expression": "",
-          "clear-filters-tooltip": "",
-          "exclude-all-log-lines": "",
-          "include-all-log-lines": "",
-          "select": "",
-          "select-label": "",
-          "view-breakdown-title": ""
+          "add-expression": "Добавьте выражение, например {{labelName}} > 30",
+          "clear-filters-tooltip": "Очистить фильтры {{labelName}}",
+          "exclude-all-log-lines": "Исключить все строки логов, содержащие {{labelName}}",
+          "include-all-log-lines": "Включить все строки логов, содержащие {{labelName}}",
+          "select": "Выбрать",
+          "select-label": "Выбрать {{labelName}}",
+          "view-breakdown-title": "Просмотрите разбивку значений для {{labelName}}"
         },
         "show-error-panel-toggle": {
-          "show-panels-with-errors": "",
-          "tooltip-requests-could-processed": ""
+          "show-panels-with-errors": "Показать панели с ошибками",
+          "tooltip-requests-could-processed": "Не удалось обработать один или несколько запросов"
         },
         "show-field-display-toggle": {
           "options": {
             "label": {
-              "names": "",
-              "volume": ""
+              "display-volume": "Показать объем",
+              "parse-fields": "Извлечь поля из логов"
+            },
+            "tooltip": {
+              "display-volume": "Запросить временные ряды для каждого поля, показывающие распределение значений с течением времени",
+              "parse-fields": "Применить парсеры logfmt/JSON для извлечения полей из строк логов"
+            }
+          }
+        },
+        "show-label-display-toggle": {
+          "options": {
+            "label": {
+              "display-volume": "Показать объем"
+            },
+            "tooltip": {
+              "display-volume": "Запросить временные ряды для каждой метки, показывающие распределение значений с течением времени"
             }
           }
         },
         "sort-by-scene": {
-          "aria-label-sort-direction": "",
+          "aria-label-sort-direction": "Направление сортировки",
           "description": {
-            "alphabetical-order": "",
-            "graphs-deviation-average-value": "",
-            "graphs-highest-values": "",
-            "graphs-smallest-values": "",
-            "graphs-total-number": "",
-            "order-amount-outlying-values": "",
-            "smart-ordering": ""
+            "alphabetical-order": "Алфавитный порядок",
+            "graphs-deviation-average-value": "Сортировать графики по отклонению от среднего значения",
+            "graphs-highest-values": "Сортировать графики по наибольшим значениям (макс.)",
+            "graphs-smallest-values": "Сортировать графики по наименьшим значениям (мин.)",
+            "graphs-total-number": "Сортировать графики по общему количеству логов",
+            "order-amount-outlying-values": "Упорядочить по количеству выбросов в данных",
+            "smart-ordering": "Интеллектуальная сортировка графиков на основе наиболее значительных всплесков в данных"
           },
           "label": {
-            "asc": "",
-            "count": "",
-            "desc": "",
-            "highest-spike": "",
-            "lowest-dip": "",
-            "most-relevant": "",
-            "name": "",
-            "outlying-values": "",
-            "percentiles": "",
-            "widest-spread": ""
+            "asc": "По возрастанию",
+            "count": "Количество",
+            "desc": "Описание",
+            "highest-spike": "Наибольший всплеск",
+            "lowest-dip": "Наибольшее падение",
+            "most-relevant": "Самые важные",
+            "name": "Имя",
+            "outlying-values": "Выбросы",
+            "percentiles": "Процентили",
+            "widest-spread": "Наибольший разброс"
           },
-          "label-sort-by": "",
-          "placeholder-choose-criteria": "",
-          "tooltip-sort-by": ""
+          "label-sort-by": "Сортировать по",
+          "placeholder-choose-criteria": "Выбрать критерии",
+          "tooltip-sort-by": "Рассчитайте производную величину по значениям в ваших временных рядах и отсортируйте по этому критерию. По умолчанию: среднеквадратическое отклонение."
         }
       },
       "copy-link-button": {
         "aria-label": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Скопировано",
+          "copy-link": "Копировать ссылку на строку логов"
         },
         "tooltip": {
-          "copied": "",
-          "copy-link": ""
+          "copied": "Скопировано",
+          "copy-link": "Копировать ссылку на строку логов"
         }
       },
       "json-panel": {
         "json-filter-buttons": {
           "field-value": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "исключить фильтр",
+              "include": "включить фильтр"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "Исключить строки логов, содержащие {{label}}={{value}}",
+              "include": "Включить строки логов, содержащие {{label}}={{value}}"
             }
           },
           "metadata": {
             "aria-label": {
-              "exclude": "",
-              "include": ""
+              "exclude": "исключить фильтр",
+              "include": "включить фильтр"
             },
             "tooltip": {
-              "exclude": "",
-              "include": ""
+              "exclude": "Исключить строки логов, содержащие {{label}}={{value}}",
+              "include": "Включить строки логов, содержащие {{label}}={{value}}"
             }
           }
         },
         "json-line-item-type": {
           "detected-level-toggle-button": {
-            "include": "",
-            "remove": ""
+            "include": "Включить логи с уровнем {{detectedLevel}}",
+            "remove": "Удалить фильтр {{detectedLevel}}"
           }
         },
         "json-nested-node-filter-button": {
           "aria-label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "исключить фильтр",
+            "include": "включить фильтр"
           },
           "tooltip": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Исключить строки логов, содержащие {{key}}",
+            "include": "Включить строки логов, содержащие {{key}}"
           }
         },
         "logs-json-component": {
           "alert": {
-            "loki-upgrade": "",
-            "no-json-fields": ""
+            "loki-upgrade": "Это представление будет доступно только для чтения до тех пор, пока приложение Loki не будет обновлено до версии 3.5.0",
+            "no-json-fields": "Это представление предназначено для строк логов JSON, но они не были обнаружены. Переключитесь на представление «Логи» или «Таблица» для более удобной работы."
           },
-          "title-json": "",
-          "title-json-filtering-requires-loki": "",
-          "title-no-json-fields-detected": ""
+          "title-json": "JSON",
+          "title-json-filtering-requires-loki": "Для фильтрации JSON требуется Loki 3.5.0.",
+          "title-no-json-fields-detected": "Поля JSON не обнаружены"
         },
         "re-root-json-button": {
-          "aria-label": "",
-          "tooltip": ""
+          "aria-label": "детализация по {{key}}",
+          "tooltip": "Установить {{key}} в качестве корневого узла"
         }
       },
-      "least-label-inclusive-matching": "",
+      "least-label-inclusive-matching": "Необходима как минимум одна метка с включающим соответствием.",
       "line-filter": {
         "line-filter-editor": {
-          "exclude": "",
-          "include": "",
+          "exclude": "Исключить",
+          "include": "Включить",
           "label": {
-            "exclude": "",
-            "include": ""
+            "exclude": "Исключить",
+            "include": "Включить"
           },
-          "placeholder-filter-logs-by-string": ""
+          "placeholder-filter-logs-by-string": "Фильтровать логи по строке"
         }
       },
       "line-limit-scene": {
-        "max-lines-label": "",
-        "max-lines-placeholder": "",
-        "max-lines-tooltip": ""
+        "max-lines-label": "Лимит строк",
+        "max-lines-placeholder": "Логов: {{logs}}",
+        "max-lines-tooltip": "Количество строк логов для запроса. Зависит от значения параметра max_entries_limit в конфигурации Loki."
       },
       "log-list-controls": {
-        "collapse": "",
-        "expand": "",
+        "collapse": "Свернуть",
+        "expand": "Развернуть",
         "json": {
           "label": {
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Показать метаданные",
+              "enable": "Скрыть метаданные"
             }
           },
           "tooltip": {
             "labels": {
-              "disable": "",
-              "enable": ""
+              "disable": "Скрыть метки",
+              "enable": "Показать метки"
             },
             "metadata": {
-              "disable": "",
-              "enable": ""
+              "disable": "Скрыть структурированные метаданные",
+              "enable": "Показать структурированные метаданные"
             }
           }
         },
         "label": {
-          "collapse": "",
-          "expand": "",
+          "collapse": "Развернуто",
+          "expand": "Свернуто",
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Выделение отключено",
+            "enable": "Выделение включено"
           },
-          "unwrap-lines": "",
-          "wrap-lines": ""
+          "unwrap-lines": "Перенос строк",
+          "wrap-lines": "Без переноса строк"
         },
         "labels": {
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Сначала старые логи",
+            "oldest-first": "Сначала новые логи"
           }
         },
-        "scrollToBottom": "",
-        "scrollToTop": "",
+        "scrollToBottom": "Прокрутка вниз",
+        "scrollToTop": "Прокрутка вверх",
         "table": {
           "label": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Текст лога",
+            "show-text": "Метки лога"
           },
           "tooltip": {
-            "show-labels": "",
-            "show-text": ""
+            "show-labels": "Показать метки",
+            "show-text": "Показать текст лога"
           }
         },
         "tooltip": {
           "highlight": {
-            "disable": "",
-            "enable": ""
+            "disable": "Отключить выделение",
+            "enable": "Включить выделение"
           },
           "sort": {
-            "newest-first": "",
-            "oldest-first": ""
+            "newest-first": "Показывать сначала новые логи",
+            "oldest-first": "Показывать сначала старые логи"
           }
         },
-        "unwrap-lines": "",
-        "wrap-lines": ""
+        "unwrap-lines": "Без переноса строк",
+        "wrap-lines": "Перенос строк"
       },
       "log-options-buttons-scene": {
-        "show-default-fields": "",
-        "show-original-log-line": "",
+        "show-default-fields": "Показать поля по умолчанию",
+        "show-original-log-line": "Показать исходную строку логов",
         "tooltip": {
-          "clear-displayed-fields": "",
-          "show-default-fields": ""
+          "clear-displayed-fields": "Очистить отображаемые поля: {{fields}}",
+          "show-default-fields": "Показать поля по умолчанию: {{fields}}"
         }
       },
       "log-options-scene": {
         "description": {
-          "disable-wrapping-of-long-log-lines": "",
-          "enable-wrapping-of-long-log-lines": "",
-          "show-results-newest-to-oldest": "",
-          "show-results-oldest-to-newest": ""
+          "disable-wrapping-of-long-log-lines": "Отключить перенос длинных строк логов",
+          "enable-wrapping-of-long-log-lines": "Включить перенос длинных строк логов",
+          "show-results-newest-to-oldest": "Показывать результаты от новых к старым",
+          "show-results-oldest-to-newest": "Показывать результаты от старых к новым"
         },
         "label": {
-          "newest-first": "",
-          "no-wrap": "",
-          "oldest-first": "",
-          "wrap": ""
+          "newest-first": "Сначала новые",
+          "no-wrap": "Без переноса",
+          "oldest-first": "Сначала старые",
+          "wrap": "Перенос"
         }
       },
       "logs-panel-error": {
-        "clear-filters": "",
-        "default": ""
+        "clear-filters": "Очистить фильтры",
+        "default": "Ошибка"
       },
       "logs-panel-scene": {
         "label": {
-          "copy-link-to-log-line": ""
+          "copy-link-to-log-line": "Копировать ссылку на строку логов"
         },
-        "text-loading": ""
+        "text-loading": "Загрузка…"
       },
-      "text-loading": ""
+      "logs-volume": {
+        "logs-volume-actions": {
+          "aria-label-group-by": "Группировать объем логов по полю",
+          "group-fields": "",
+          "label-group-by": "Группировать по"
+        },
+        "logs-volume-panel": {
+          "title": "Объем логов",
+          "title-with-count": "Объем логов ({{formattedCount}})"
+        }
+      },
+      "text-loading": "Загрузка…"
     },
     "service-selection-scene": {
       "add-label-to-filters-header-action-scene": {
         "button": {
-          "include": "",
-          "remove": ""
+          "include": "Включить",
+          "remove": "Удалить"
         },
         "tooltip": {
-          "add": "",
-          "remove": ""
+          "add": "Добавить {{value}} к фильтрам",
+          "remove": "Удалить {{value}} из фильтров"
         }
       },
       "configure-volume-error": {
-        "docs-link": "",
-        "title": ""
+        "docs-link": "Инструкции по включению объема в конфигурацию Loki:",
+        "title": "Объем лога не задан."
+      },
+      "logs-panel": {
+        "go-to-log-line": "Перейти к строке лога",
+        "show-similar-logs": "Показать похожие логи"
       },
       "no-service-search-results": {
-        "title": ""
+        "title": "По вашему запросу не найдено ни одного сервиса."
       },
       "no-service-volume": {
-        "help": "",
-        "title": ""
+        "help": "Измените временной диапазон или выберите другую метку.",
+        "title": "В метке {{labelName}} логи не найдены."
       },
       "select-service-button": {
-        "show-logs": "",
-        "tooltip": ""
+        "show-logs": "Показать логи",
+        "tooltip": "Посмотреть логи для {{value}}"
       },
       "service-selection-pagination-scene": {
-        "aria-label-count-info": "",
-        "of-total": "",
-        "showing": "",
+        "aria-label-count-info": "Информация о количестве",
+        "of-total": "из {{totalCount}}",
+        "showing": "Отображается",
         "tooltip": {
-          "count-info": ""
+          "count-info": "Для выбранного временного диапазона есть значения у {{totalCount}} меток. Общее количество меток может отличаться"
         }
       },
       "service-selection-tabs-scene": {
-        "label-add-label": "",
-        "label-loading-tabs": "",
+        "label-add-tab": "Добавить вкладку меток",
+        "label-loading-tabs": "Загрузка вкладок",
         "tab": {
-          "content-remove-tab": ""
+          "content-remove-tab": "Удалить вкладку"
         }
       },
       "tab-popover-scene": {
-        "placeholder-search-labels": ""
+        "placeholder-search-labels": "Поиск меток"
       }
     },
     "table": {
       "cell-context-menu": {
-        "title-add-column": "",
-        "title-add-to-search": "",
-        "title-exclude-from-search": ""
+        "title-add-column": "Добавить столбец",
+        "title-add-to-search": "Добавить в поиск",
+        "title-exclude-from-search": "Исключить из поиска"
       },
       "column-selection": {
         "logs-column-search": {
-          "placeholder-search-fields-by-name": "",
+          "placeholder-search-fields-by-name": "Поиск полей по имени",
           "tooltip": {
-            "collapse-sidebar": "",
-            "expand-sidebar": ""
+            "collapse-sidebar": "Свернуть боковую панель",
+            "expand-sidebar": "Развернуть боковую панель"
           }
         },
         "logs-table-available-fields": {
           "field": {
-            "title": ""
+            "title": "{{labelName}} содержится в {{percent}}% строк логов"
           }
         },
         "logs-table-empty-fields": {
-          "no-fields": ""
+          "no-fields": "Нет полей"
         },
         "logs-table-multi-select": {
           "button": {
-            "reset": ""
+            "reset": "Сброс"
           },
-          "fields": "",
+          "fields": "Поля",
           "header": {
-            "selected-fields": ""
+            "selected-fields": "Выбранные поля"
           }
         },
         "logs-table-nav-field": {
-          "aria-label-drag-and-drop-icon": "",
+          "aria-label-drag-and-drop-icon": "Значок перетаскивания",
           "cardinality": {
-            "value": "",
-            "values": ""
+            "value": "значение",
+            "values": "значения"
           },
-          "title-drag-and-drop-to-reorder": ""
+          "title-drag-and-drop-to-reorder": "Перетащите, чтобы изменить порядок"
         }
       },
       "line-action-icons": {
-        "aria-label-view-log-line": "",
-        "copy-to-clipboard": "",
-        "title-inspect-value": "",
-        "tooltip-copy-link-to-log-line": "",
-        "tooltip-view-log-line": ""
+        "aria-label-view-log-line": "Просмотр строки логов",
+        "copy-to-clipboard": "Копировать в буфер обмена",
+        "title-inspect-value": "Проверить значение",
+        "tooltip-copy-link-to-log-line": "Копировать ссылку на строку логов",
+        "tooltip-view-log-line": "Просмотр строки логов"
       },
       "logs-header-actions": {
         "description": {
-          "show-results-in-json-visualisation": "",
-          "show-results-in-logs-visualisation": "",
-          "show-results-in-table-visualisation": ""
+          "show-results-in-json-visualisation": "Показывать результаты в JSON-визуализации",
+          "show-results-in-logs-visualisation": "Показывать результаты в визуализации логов",
+          "show-results-in-table-visualisation": "Показывать результаты в табличной визуализации"
         },
         "label": {
-          "json": "",
-          "logs": "",
-          "table": ""
+          "json": "JSON",
+          "logs": "Логи",
+          "table": "Таблица"
         }
       },
       "logs-table-header": {
         "aria-label": {
-          "show-menu": ""
+          "show-menu": "Показать меню {{name}}"
         },
-        "aria-label-reset-column-width": "",
-        "aria-label-show-log-labels": "",
-        "aria-label-show-log-text": "",
+        "aria-label-reset-column-width": "Сброс ширины столбца",
+        "aria-label-show-log-labels": "Показать метки логов",
+        "aria-label-show-log-text": "Показать текст логов",
         "tooltip": {
-          "show-menu": ""
+          "show-menu": "Показать меню {{name}}"
         },
-        "tooltip-reset-column-width": "",
-        "tooltip-show-log-labels": "",
-        "tooltip-show-log-text": ""
+        "tooltip-reset-column-width": "Сброс ширины столбца",
+        "tooltip-show-log-labels": "Показать метки логов",
+        "tooltip-show-log-text": "Показать текст логов"
       },
       "logs-table-header-menu": {
-        "close": ""
+        "close": "Закрыть"
       },
       "logs-table-header-wrap": {
         "menu": {
-          "move-left": "",
-          "move-right": "",
-          "remove-column": "",
-          "reset-column-widths": "",
-          "show-labels": "",
-          "show-log-text": ""
+          "move-left": "Переместить влево",
+          "move-right": "Переместить вправо",
+          "remove-column": "Удалить столбец",
+          "reset-column-widths": "Сброс ширины столбца",
+          "show-labels": "Показать метки",
+          "show-log-text": "Показать текст логов"
         }
       },
       "logs-table-scene": {
-        "title-logs": ""
+        "title-logs": "Логи"
       }
     }
   },
   "errors-analysis": {
-    "collapse": "",
-    "collapse-extra-fields": "",
-    "description": "",
-    "discovering-fields": "",
-    "error": "",
-    "expand": "",
-    "field-input-placeholder": "",
-    "field-link-label": "",
-    "filter-for-value": "",
-    "filter-out-value": "",
-    "no-extra-fields-shown": "",
-    "no-fields-detected": "",
-    "no-more-fields": "",
-    "no-values-found": "",
-    "show-all-link-title": "",
-    "title": "",
-    "too-many-values": "",
-    "show-more-fields_one": "",
-    "show-more-fields_few": "",
-    "show-more-fields_many": "",
-    "show-more-fields_other": ""
+    "collapse": "Свернуть",
+    "collapse-extra-fields": "Свернуть дополнительные поля",
+    "description": "Выявляйте закономерности и сужайте круг первопричин, анализируя распределение данных по ключевым атрибутам. Нажмите любое значение, чтобы отфильтровать результаты.",
+    "discovering-fields": "Обнаружение атрибутов…",
+    "error": "Сбой загрузки",
+    "expand": "Развернуть",
+    "field-input-placeholder": "Выполните поиск, чтобы добавить больше атрибутов",
+    "field-link-label": "Просмотр {{name}} на вкладке поля Logs Drilldown",
+    "filter-for-value": "Фильтровать по значению",
+    "filter-out-value": "Исключить значение",
+    "no-extra-fields-shown": "Нет дополнительных полей для отображения",
+    "no-fields-detected": "Для этой группы ошибок поля не найдены.",
+    "no-more-fields": "Больше полей нет",
+    "no-values-found": "Значения не найдены",
+    "show-all-link-title": "Открыть в Logs Drilldown",
+    "title": "Attribute Explorer",
+    "too-many-values": "Слишком много значений для отображения",
+    "show-more-fields_one": "Показать еще {{count}} поле",
+    "show-more-fields_few": "Показать еще {{count}} поля",
+    "show-more-fields_many": "Показать еще {{count}} полей",
+    "show-more-fields_other": "Показать еще {{count}} поля"
+  },
+  "plugin-info": {
+    "button": {
+      "title": "О плагине",
+      "tooltip": "О плагине"
+    },
+    "header": {
+      "last-update": "Последнее обновление: {{updated}}",
+      "title": "Grafana Logs Drilldown, версия {{version}}"
+    },
+    "menu": {
+      "changelog": "Лог изменений",
+      "commit-sha": "Выполнить SHA-хеширование: {{shortCommitSha}}",
+      "configuration": "Настройки плагина",
+      "contribute": "Участвовать в разработке",
+      "documentation": "Документация",
+      "give-feedback": "Оставить отзыв",
+      "grafana-version": "Grafana {{edition}} ({{env}})",
+      "report-issue": "Сообщить о проблеме"
+    }
   },
   "services": {
     "create-annotation-layers": {
       "severities": {
         "label": {
-          "critical": "",
-          "info": "",
-          "warning": ""
+          "critical": "Критическая",
+          "info": "Информация",
+          "warning": "Предупреждение"
         }
       }
     },
     "drilldown-logs": {
       "notices": {
-        "max-series-reached": ""
+        "max-series-reached": "Достигнут максимальный лимит результатов. Отображение частичных результатов."
       }
     },
     "get-field-options": {
       "label": {
-        "all": ""
+        "all": "Все"
       }
     },
     "get-label-options": {
       "label": {
-        "all": ""
+        "all": "Все"
       }
     },
     "get-visible-range-frame": {
       "frame": {
         "text": {
-          "range-oldest-newest-display": ""
+          "range-oldest-newest-display": "Текущий временной диапазон для отображаемых логов"
         }
       }
     },
     "grafana-ui": {
       "date-time-pickers": {
         "quick-options": {
-          "day-before-yesterday": "",
-          "day-five-days-ago": "",
-          "day-four-days-ago": "",
-          "day-six-days-ago": "",
-          "day-three-days-ago": "",
-          "four-weeks-ago": "",
-          "last-1-hour": "",
-          "last-1-mins": "",
-          "last-12-hours": "",
-          "last-15-mins": "",
-          "last-2-days": "",
-          "last-24-hours": "",
-          "last-3-hours": "",
-          "last-30-days": "",
-          "last-30-mins": "",
-          "last-5-mins": "",
-          "last-6-hours": "",
-          "last-6-months": "",
-          "last-60-days": "",
-          "last-7-days": "",
-          "last-90-days": "",
-          "previous-month": "",
-          "previous-week": "",
-          "this-day-last-week": "",
-          "this-month": "",
-          "this-month-so-far": "",
-          "this-week": "",
-          "this-week-so-far": "",
-          "three-months-ago": "",
-          "three-weeks-ago": "",
-          "today": "",
-          "today-so-far": "",
-          "two-months-ago": "",
-          "two-weeks-ago": "",
-          "yesterday": ""
+          "day-before-yesterday": "Позавчера",
+          "day-five-days-ago": "Пять дней назад",
+          "day-four-days-ago": "Четыре дня назад",
+          "day-six-days-ago": "Шесть дней назад",
+          "day-three-days-ago": "Три дня назад",
+          "four-weeks-ago": "Четыре недели назад",
+          "last-1-hour": "Последний час",
+          "last-1-mins": "Последняя минута",
+          "last-12-hours": "Последние 12 часов",
+          "last-15-mins": "Последние 15 минут",
+          "last-2-days": "Последние 2 дня",
+          "last-24-hours": "Последние 24 часа",
+          "last-3-hours": "Последние 3 часа",
+          "last-30-days": "Последние 30 дней",
+          "last-30-mins": "Последние 30 минут",
+          "last-5-mins": "Последние 5 минут",
+          "last-6-hours": "Последние 6 часов",
+          "last-6-months": "Последние 6 месяцев",
+          "last-60-days": "Последние 60 дней",
+          "last-7-days": "Последние 7 дней",
+          "last-90-days": "Последние 90 дней",
+          "previous-month": "Предыдущий месяц",
+          "previous-week": "Предыдущая неделя",
+          "this-day-last-week": "Этот день на прошлой неделе",
+          "this-month": "Текущий месяц",
+          "this-month-so-far": "С начала месяца",
+          "this-week": "Текущая неделя",
+          "this-week-so-far": "С начала недели",
+          "three-months-ago": "Три месяца назад",
+          "three-weeks-ago": "Три недели назад",
+          "today": "Сегодня",
+          "today-so-far": "С начала дня",
+          "two-months-ago": "Два месяца назад",
+          "two-weeks-ago": "Две недели назад",
+          "yesterday": "Вчера"
         }
       }
     },
     "kg-annotation-toggle-renderer": {
-      "label-insights": ""
+      "label-insights": "Аналитика"
     },
     "logs": {
       "logs-drilldown": {
         "fields": {
-          "log-attributes-field": "",
-          "log-line-field": ""
+          "log-attributes-field": "Атрибуты лога",
+          "log-line-field": "Строка лога"
         },
-        "kg-annotation-toggle": ""
+        "kg-annotation-toggle": "Аналитика"
       }
     },
     "suspended-embedded-logs-exploration": {
-      "loading-logs-drilldown": ""
+      "loading-logs-drilldown": "Загрузка Logs Drilldown…"
     },
     "suspended-loki-field-distribution": {
-      "loading": ""
+      "loading": "Загрузка…"
     },
     "suspended-open-in-logs-drilldown-button": {
-      "open-in-logs-drilldown": ""
+      "open-in-logs-drilldown": "Открыть в Logs Drilldown"
     },
     "update-assistant-context": {
       "title": {
-        "parsed-fields-filters": "",
-        "structured-metadata-filters": ""
+        "current-logs-query-and-time-range": "Текущий запрос к логам и временной диапазон",
+        "parsed-fields-filters": "Фильтры проанализированных полей",
+        "structured-metadata-filters": "Фильтры структурированных метаданных"
       }
     },
     "wrapped-loki-datasource": {
       "message": {
-        "data-source-is-working": ""
+        "data-source-is-working": "Источник данных работает"
       },
       "title": {
-        "success": ""
+        "success": "Выполнено"
       }
     }
   }
