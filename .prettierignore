@@ -25,3 +25,4 @@ docker-compose.local.yaml
 generator/
 tests/static-loki/
 .yarnrc
+mise.toml
