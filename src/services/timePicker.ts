@@ -1,5 +1,6 @@
-import { AppPluginMeta, getTimeZone, rangeUtil, TimeOption } from '@grafana/data';
+import { AppPluginMeta, dateMath, getTimeZone, rangeUtil, TimeOption } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { config } from '@grafana/runtime';
 
 import { plugin } from '../module';
 import { LokiConfig } from './datasourceTypes';
@@ -52,6 +53,29 @@ export const filterInvalidTimeOptions = (timeOptions: TimeOption[], lokiConfig?:
   }
 
   return timeOptions;
+};
+
+const isSameRange = (a: Pick<TimeOption, 'from' | 'to'>, b: Pick<TimeOption, 'from' | 'to'>) =>
+  a.from === b.from && a.to === b.to;
+
+const isValidQuickRange = (option: TimeOption) =>
+  Boolean(option?.from && option?.to && option.display && dateMath.isValid(option.from) && dateMath.isValid(option.to));
+
+// Plugin config default time range goes first, then Grafana's `[time_picker] quick_ranges`, else the built-ins
+export const getQuickRanges = (): TimeOption[] => {
+  const serverRanges = Array.isArray(config.quickRanges) ? config.quickRanges.filter(isValidQuickRange) : [];
+  if (!serverRanges.length) {
+    return getQuickOptions();
+  }
+
+  const { jsonData } = plugin.meta as AppPluginMeta<JsonData>;
+  const defaultRange = jsonData?.defaultTimeRange;
+  if (!defaultRange?.from || !defaultRange?.to || serverRanges.some((r) => isSameRange(r, defaultRange))) {
+    return serverRanges;
+  }
+
+  const display = rangeUtil.describeTimeRange({ from: defaultRange.from, to: defaultRange.to }, getTimeZone());
+  return [{ from: defaultRange.from, to: defaultRange.to, display }, ...serverRanges];
 };
 
 // Taken from grafana-ui/src/components/DateTimePickers/options.ts and adapted for typical logs searches and retentions

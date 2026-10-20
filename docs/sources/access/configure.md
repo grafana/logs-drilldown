@@ -66,6 +66,8 @@ Select a setting to configure it:
 
 - **Maximum time picker interval** sets an upper bound on the time range interval that users can select in the time picker. The minimum accepted value is one hour (`60m`). Example values: `7d`, `24h`, `2w`. If left empty, users can select any time range.
 
+- **Quick time ranges** aren't set on this page. They come from the Grafana server setting `quick_ranges` in the `[time_picker]` section of `grafana.ini` (or `GF_TIME_PICKER_QUICK_RANGES`). When set, the time picker shows those ranges instead of the built-in list, and the custom default time range above is pinned to the top if the list doesn't already include it. Ranges longer than your Loki retention period or the **Maximum time picker interval** are hidden.
+
 - **Disable Loki patterns** controls whether the Patterns tab and the [Loki Patterns API](https://grafana.com/docs/loki/latest/reference/loki-http-api/#patterns-detection) endpoint are used by Logs Drilldown.
 
 After configuring a setting, click **Save settings** to apply the changes.
