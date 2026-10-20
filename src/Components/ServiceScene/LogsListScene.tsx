@@ -63,6 +63,7 @@ export interface LogsListSceneState extends SceneObjectState {
   errorType?: ErrorType;
   headerHeight: number;
   loading?: boolean;
+  logsExpanded?: boolean;
   logsVolumeCollapsedByError?: boolean;
   // Displayed fields set by the otelLogsFormatting feature
   otelDisplayedFields: string[];
@@ -126,26 +127,33 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       this.extendPanelHeight();
       return;
     }
-    // Drop a viewport height left over from the expanded view so the panel fills its flex slot.
     const panelItem = this.state.panel.state.children?.[0];
-    if (!panelItem?.state.height) {
-      return;
+    if (panelItem?.state.height) {
+      this.panelHeight = undefined;
+      panelItem.setState({ height: undefined });
     }
-    this.panelHeight = undefined;
-    panelItem.setState({ height: undefined });
+    if (this.state.logsExpanded) {
+      this.setState({ logsExpanded: false });
+    }
   };
 
   public extendPanelHeight = () => {
-    if (!this.state.panel) {
+    const panelItem = this.state.panel?.state.children?.[0];
+    if (!panelItem) {
       return;
     }
-    this.state.panel.state.children?.[0].setState({
-      height: `calc(100vh - ${this.state.headerHeight + 16}px)`,
-    });
+    const height = `calc(100vh - ${this.state.headerHeight + 16}px)`;
+    if (panelItem.state.height !== height) {
+      panelItem.setState({ height });
+    }
+    if (!this.state.logsExpanded) {
+      this.setState({ logsExpanded: true });
+    }
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
-    const { panel } = model.useState();
+    const { logsExpanded, panel } = model.useState();
+    const expanded = logsExpanded ?? getExpandedLogsView(model);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const height = useChromeHeaderHeight();
 
@@ -177,7 +185,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
 
     return (
-      <div className={styles.panelWrapper} ref={wrapperRef}>
+      <div className={expanded ? styles.panelWrapperExpanded : styles.panelWrapper} ref={wrapperRef}>
         <panel.Component model={panel} />
       </div>
     );
@@ -580,6 +588,16 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 }
 
+const panelContentFix = {
+  // Hack to select internal div
+  'section > div[class$="panel-content"]': css({
+    // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
+    contain: 'none',
+    // Prevent overflow from spilling out of parent container
+    overflow: 'auto',
+  }),
+};
+
 const styles = {
   panelWrapper: css({
     // Fill the flex slot under the log volume. The slot already tracks volume collapse.
@@ -588,12 +606,13 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: 0,
-    // Hack to select internal div
-    'section > div[class$="panel-content"]': css({
-      // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
-      contain: 'none',
-      // Prevent overflow from spilling out of parent container
-      overflow: 'auto',
-    }),
+    ...panelContentFix,
+  }),
+  panelWrapperExpanded: css({
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+    ...panelContentFix,
   }),
 };
