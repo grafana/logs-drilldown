@@ -119,22 +119,20 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   }
 
   public syncPanelHeightFromWrapper = () => {
-    if (!this.state.panel || !this.panelWrapperEl) {
+    if (!this.state.panel) {
       return;
     }
     if (getExpandedLogsView(this)) {
       this.extendPanelHeight();
       return;
     }
-    const dimensions = this.panelWrapperEl.getBoundingClientRect();
-    if (dimensions.height === 0) {
+    // Drop a viewport height left over from the expanded view so the panel fills its flex slot.
+    const panelItem = this.state.panel.state.children?.[0];
+    if (!panelItem?.state.height) {
       return;
     }
-    const offset = dimensions.y + window.scrollY;
-    this.panelHeight = `calc(100vh - ${offset + 16}px)`;
-    this.state.panel.state.children?.[0].setState({
-      height: this.panelHeight,
-    });
+    this.panelHeight = undefined;
+    panelItem.setState({ height: undefined });
   };
 
   public extendPanelHeight = () => {
@@ -547,7 +545,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
     const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
-    const panelHeight = this.panelHeight ?? 'calc(100vh - 48px)';
     const visualization =
       this.state.visualizationType === 'logs'
         ? this.logsPanelScene
@@ -573,7 +570,8 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
             ],
             direction: 'column',
           }),
-          height: panelHeight,
+          minHeight: 0,
+          height: getExpandedLogsView(this) ? `calc(100vh - ${this.state.headerHeight + 16}px)` : undefined,
         }),
       ],
       direction: 'column',
@@ -584,6 +582,12 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
 const styles = {
   panelWrapper: css({
+    // Fill the flex slot under the log volume. The slot already tracks volume collapse.
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
     // Hack to select internal div
     'section > div[class$="panel-content"]': css({
       // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
