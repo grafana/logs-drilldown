@@ -407,7 +407,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
 
       // Get the traceID string
       const traceIdLoc = page
-        .getByText(/traceID:.*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
+        .getByText(/traceID:.*\b[0-9a-f]{32}\b/)
         .first();
       const traceId = (await traceIdLoc.textContent())?.split(':')?.[1];
       if (!traceId) {
