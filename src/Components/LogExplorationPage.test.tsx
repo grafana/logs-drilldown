@@ -75,7 +75,7 @@ describe('LogExplorationPage', () => {
       render(<LogExplorationPage />);
 
       expect(screen.getByText('scene')).toBeInTheDocument();
-      expect(useDefaultDatasourceUid).toHaveBeenCalledWith(undefined);
+      expect(useDefaultDatasourceUid).toHaveBeenCalledWith(undefined, { preferLastUsed: true });
     });
 
     it('skips the default datasource lookup when one is saved in the plugin settings', () => {
@@ -84,7 +84,7 @@ describe('LogExplorationPage', () => {
       render(<LogExplorationPage />);
 
       expect(screen.getByText('scene')).toBeInTheDocument();
-      expect(useDefaultDatasourceUid).toHaveBeenCalledWith('saved-uid');
+      expect(useDefaultDatasourceUid).toHaveBeenCalledWith('saved-uid', { preferLastUsed: true });
     });
   });
 });

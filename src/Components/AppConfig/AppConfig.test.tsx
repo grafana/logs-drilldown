@@ -156,6 +156,15 @@ describe('AppConfig', () => {
       expect(screen.getByLabelText('Default data source')).toHaveValue('loki-uid');
     });
 
+    it('prefers the resolved default over a different last used data source and does not shortcut the lookup', async () => {
+      mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: 'loki-uid', isLoading: false });
+      mockGetLastUsedDataSource.mockReturnValue('other-uid');
+      renderAppConfig();
+
+      expect(mockUseDefaultDatasourceUid).toHaveBeenCalledWith(undefined);
+      expect(screen.getByLabelText('Default data source')).toHaveValue('loki-uid');
+    });
+
     it('falls back to the last used data source when the default cannot be resolved', async () => {
       mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: undefined, isLoading: false });
       mockGetLastUsedDataSource.mockReturnValue('loki-uid');

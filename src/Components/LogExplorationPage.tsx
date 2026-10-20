@@ -47,7 +47,7 @@ function LogExplorationScene() {
 
 // Scene constructors read the default datasource synchronously, so resolve it first.
 function LogExplorationPage() {
-  const { isLoading } = useDefaultDatasourceUid(plugin.meta.jsonData?.dataSource);
+  const { isLoading } = useDefaultDatasourceUid(plugin.meta.jsonData?.dataSource, { preferLastUsed: true });
 
   if (isLoading) {
     return null;

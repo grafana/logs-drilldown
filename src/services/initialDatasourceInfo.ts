@@ -65,12 +65,19 @@ async function loadInitialDatasourceInfo(lookUpDefault: boolean): Promise<Initia
   return current;
 }
 
-// needsDefaultDatasource: false skips the default lookup when the datasource is already known.
+type ResolveOptions = {
+  // false skips the default lookup when the datasource is already known
+  needsDefaultDatasource?: boolean;
+  // true skips the default datasource lookup and uses the last used datasource from localStorage; config pages leave it off
+  preferLastUsed?: boolean;
+};
+
 // Concurrent callers share one request. Never rejects.
 export function resolveInitialDatasourceInfo({
   needsDefaultDatasource = true,
-}: { needsDefaultDatasource?: boolean } = {}): Promise<InitialDatasourceInfo> {
-  const lookUpDefault = needsDefaultDatasource && !getLastUsedDataSourceFromStorage();
+  preferLastUsed = false,
+}: ResolveOptions = {}): Promise<InitialDatasourceInfo> {
+  const lookUpDefault = needsDefaultDatasource && !(preferLastUsed && getLastUsedDataSourceFromStorage());
   const existing = inFlight.get(lookUpDefault);
   if (existing) {
     return existing;
@@ -81,7 +88,10 @@ export function resolveInitialDatasourceInfo({
 }
 
 // Pass the datasource uid when it is already known to skip the default lookup.
-export function useDefaultDatasourceUid(knownDatasourceUid?: string): {
+export function useDefaultDatasourceUid(
+  knownDatasourceUid?: string,
+  { preferLastUsed = false }: Pick<ResolveOptions, 'preferLastUsed'> = {}
+): {
   dsUID: string | undefined;
   isLoading: boolean;
 } {
@@ -89,13 +99,13 @@ export function useDefaultDatasourceUid(knownDatasourceUid?: string): {
   const [info, setInfo] = useState<InitialDatasourceInfo>();
 
   useEffect(() => {
-    resolveInitialDatasourceInfo({ needsDefaultDatasource })
+    resolveInitialDatasourceInfo({ needsDefaultDatasource, preferLastUsed })
       .then(setInfo)
       .catch((error) => {
         logger.error(error, { msg: 'Failed to resolve the initial datasource' });
         setInfo(getInitialDatasourceInfo());
       });
-  }, [needsDefaultDatasource]);
+  }, [needsDefaultDatasource, preferLastUsed]);
 
   return { dsUID: info?.defaultDatasourceUid, isLoading: !info };
 }

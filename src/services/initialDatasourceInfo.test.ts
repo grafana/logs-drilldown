@@ -71,12 +71,20 @@ describe('resolveInitialDatasourceInfo', () => {
     expect(getInitialDatasourceInfo().defaultDatasourceUid).toBe('loki-uid');
   });
 
-  it('skips the default datasource lookup when a last used datasource is stored', async () => {
+  it('skips the default datasource lookup when a last used datasource is stored and preferred', async () => {
     jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue('stored-uid');
 
-    await resolveInitialDatasourceInfo();
+    await resolveInitialDatasourceInfo({ preferLastUsed: true });
 
     expect(getDefaultDatasourceUid).not.toHaveBeenCalled();
+  });
+
+  it('still resolves the default datasource when a different last used datasource is stored', async () => {
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue('stored-uid');
+
+    await expect(resolveInitialDatasourceInfo()).resolves.toMatchObject({ defaultDatasourceUid: 'loki-uid' });
+
+    expect(getDefaultDatasourceUid).toHaveBeenCalledTimes(1);
   });
 
   it('falls back to no default datasource and logs when the lookup fails', async () => {
@@ -163,6 +171,19 @@ describe('useDefaultDatasourceUid', () => {
     const { result } = renderHook(() => useDefaultDatasourceUid('known-uid'));
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(getDefaultDatasourceUid).not.toHaveBeenCalled();
+  });
+
+  it('resolves the default despite a stored last used datasource unless preferLastUsed is set', async () => {
+    jest.mocked(getLastUsedDataSourceFromStorage).mockReturnValue('stored-uid');
+
+    const { result } = renderHook(() => useDefaultDatasourceUid());
+    await waitFor(() => expect(result.current).toEqual({ dsUID: 'loki-uid', isLoading: false }));
+    expect(getDefaultDatasourceUid).toHaveBeenCalledTimes(1);
+
+    jest.clearAllMocks();
+    const preferred = renderHook(() => useDefaultDatasourceUid(undefined, { preferLastUsed: true }));
+    await waitFor(() => expect(preferred.result.current.isLoading).toBe(false));
     expect(getDefaultDatasourceUid).not.toHaveBeenCalled();
   });
 

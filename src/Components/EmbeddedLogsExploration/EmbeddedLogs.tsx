@@ -100,7 +100,7 @@ export const VARIABLE_NAMESPACE = 'ld';
 
 export default function EmbeddedLogsExploration(props: EmbeddedLogsExplorationProps) {
   const [exploration, setExploration] = useState<IndexScene | null>(null);
-  const { isLoading } = useDefaultDatasourceUid(props.datasourceUid);
+  const { isLoading } = useDefaultDatasourceUid(props.datasourceUid, { preferLastUsed: true });
 
   useEffect(() => {
     initializeMetadataService(true);
