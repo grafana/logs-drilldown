@@ -72,6 +72,10 @@ export const testIds = {
     header: 'data-testid Panel header Logs',
     radio: 'data-testid radio-button',
   },
+  logsQueryFooter: {
+    details: 'data-testid logs-query-footer-details',
+    footer: 'data-testid logs-query-footer',
+  },
   patterns: {
     buttonExcludedPattern: 'data-testid button-excluded-pattern',
     buttonIncludedPattern: 'data-testid button-included-pattern',
