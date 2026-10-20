@@ -110,6 +110,9 @@ function getQueryStatusMessage(data: PanelData | undefined) {
   if (data.state === LoadingState.Streaming) {
     return t('components.service-scene.logs-query-footer.streaming', 'Streaming');
   }
+  if (data.state === LoadingState.Error) {
+    return t('components.service-scene.logs-query-footer.error', 'Error');
+  }
   return undefined;
 }
 

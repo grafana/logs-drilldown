@@ -121,6 +121,16 @@ describe('LogsQueryFooter', () => {
     expect(screen.getByText('Query completed with warnings.')).toBeInTheDocument();
   });
 
+  it('says error when the query fails', () => {
+    renderFooter({
+      series: [],
+      state: LoadingState.Error,
+      timeRange,
+    });
+
+    expect(screen.getByText('Error')).toBeInTheDocument();
+  });
+
   it('says streaming while the query is streaming', () => {
     renderFooter({
       series: [],
