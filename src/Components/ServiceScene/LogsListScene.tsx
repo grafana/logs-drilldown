@@ -23,6 +23,7 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsQueryFooter } from './LogsQueryFooter';
 import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
@@ -547,32 +548,34 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
     const panelHeight = this.panelHeight ?? 'calc(100vh - 48px)';
-    const children =
+    const visualization =
       this.state.visualizationType === 'logs'
-        ? [
-            new SceneFlexItem({
-              body: this.logsPanelScene,
-              height: panelHeight,
-            }),
-          ]
+        ? this.logsPanelScene
         : this.state.visualizationType === 'json'
-          ? [
-              new SceneFlexItem({
-                body: new JSONLogsScene({ error, canClearFilters }),
-                height: panelHeight,
-              }),
-            ]
-          : [
-              new SceneFlexItem({
-                body: logsTablePanelNG
-                  ? new LogsTablePanelScene({ error, canClearFilters })
-                  : new LogsTableScene({ error, canClearFilters }),
-                height: panelHeight,
-              }),
-            ];
+          ? new JSONLogsScene({ error, canClearFilters })
+          : logsTablePanelNG
+            ? new LogsTablePanelScene({ error, canClearFilters })
+            : new LogsTableScene({ error, canClearFilters });
 
     return new SceneFlexLayout({
-      children,
+      children: [
+        new SceneFlexItem({
+          body: new SceneFlexLayout({
+            children: [
+              new SceneFlexItem({
+                body: visualization,
+                minHeight: 0,
+              }),
+              new SceneFlexItem({
+                body: new LogsQueryFooter(),
+                ySizing: 'content',
+              }),
+            ],
+            direction: 'column',
+          }),
+          height: panelHeight,
+        }),
+      ],
       direction: 'column',
       ySizing: 'fill',
     });
