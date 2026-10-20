@@ -731,6 +731,7 @@
       },
       "logs-query-footer": {
         "details-title": "Query details",
+        "error": "Error",
         "loading": "Loading",
         "no-data": "No data",
         "notice-link": "Learn more",
