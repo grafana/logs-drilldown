@@ -78,7 +78,13 @@ function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>
           <NoticeItem key={`${notice.severity}-${index}`} notice={notice} styles={styles} />
         ))}
       </div>
-      <Button fill="text" size="sm" onClick={() => setDetailsOpen(true)} data-testid={testIds.logsQueryFooter.details}>
+      <Button
+        fill="text"
+        variant="secondary"
+        size="sm"
+        onClick={() => setDetailsOpen(true)}
+        data-testid={testIds.logsQueryFooter.details}
+      >
         {t('components.service-scene.logs-query-footer.view-details', 'View details')}
       </Button>
       {detailsOpen && (
