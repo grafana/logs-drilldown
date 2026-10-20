@@ -6,48 +6,64 @@ import {
   formattedValueToString,
   GrafanaTheme2,
   IconName,
+  LoadingState,
+  PanelData,
   QueryResultMetaNotice,
   QueryResultMetaStat,
   getValueFormat,
   textUtil,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Alert, Button, Drawer, Icon, Stack, Text, useStyles2 } from '@grafana/ui';
 
 import { testIds } from 'services/testIds';
 
-// Stand-in for logs query frame meta.stats and meta.notices until the footer reads the response.
 const TOTAL_BYTES_STAT = 'Summary: total bytes processed';
 
-const PLACEHOLDER_STATS: QueryResultMetaStat[] = [
-  { displayName: TOTAL_BYTES_STAT, unit: 'decbytes', value: 1_284_112_384 },
-  { displayName: 'Summary: exec time', unit: 's', value: 1.24 },
-  { displayName: 'Summary: total lines processed', value: 84210 },
-  { displayName: 'Ingester: total reached', value: 4 },
-];
+interface LogsQueryFooterState extends SceneObjectState {
+  data?: PanelData;
+}
 
-const PLACEHOLDER_NOTICES: QueryResultMetaNotice[] = [
-  {
-    severity: 'warning',
-    text: 'Maximum of series (500) reached for a single query.',
-  },
-];
-
-export class LogsQueryFooter extends SceneObjectBase<SceneObjectState> {
+export class LogsQueryFooter extends SceneObjectBase<LogsQueryFooterState> {
   public static Component = LogsQueryFooterRenderer;
 
   constructor() {
     super({});
+    this.addActivationHandler(this.subscribeToQueryData.bind(this));
+  }
+
+  private subscribeToQueryData() {
+    const queryRunner = sceneGraph.getData(this);
+    this.setState({ data: queryRunner.state.data });
+
+    const subscription = queryRunner.subscribeToState((newState) => {
+      if (newState.data !== this.state.data) {
+        this.setState({ data: newState.data });
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }
 }
 
 function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>) {
   const styles = useStyles2(getStyles);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  // Subscribe so later stats stored on this scene re-render the footer.
-  model.useState();
-  const totalBytes = PLACEHOLDER_STATS.find((stat) => stat.displayName === TOTAL_BYTES_STAT);
+  const { data } = model.useState();
+  const statusMessage = getQueryStatusMessage(data);
+
+  if (statusMessage) {
+    return (
+      <footer className={styles.footer} data-testid={testIds.logsQueryFooter.footer}>
+        <div className={styles.summary}>{statusMessage}</div>
+      </footer>
+    );
+  }
+
+  const stats = getQueryRunnerStats(data) ?? [];
+  const notices = getQueryRunnerNotices(data) ?? [];
+  const totalBytes = stats.find((stat) => stat.displayName === TOTAL_BYTES_STAT);
 
   return (
     <footer className={styles.footer} data-testid={testIds.logsQueryFooter.footer}>
@@ -58,7 +74,7 @@ function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>
             <span className={styles.value}>{formatQueryStat(totalBytes)}</span>
           </span>
         )}
-        {PLACEHOLDER_NOTICES.map((notice, index) => (
+        {notices.map((notice, index) => (
           <NoticeItem key={`${notice.severity}-${index}`} notice={notice} styles={styles} />
         ))}
       </div>
@@ -71,11 +87,44 @@ function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>
           onClose={() => setDetailsOpen(false)}
           size="sm"
         >
-          <QueryDetails stats={PLACEHOLDER_STATS} notices={PLACEHOLDER_NOTICES} />
+          <QueryDetails stats={stats} notices={notices} />
         </Drawer>
       )}
     </footer>
   );
+}
+
+function getQueryStatusMessage(data: PanelData | undefined) {
+  if (!data) {
+    return t('components.service-scene.logs-query-footer.no-data', 'No data');
+  }
+  if (data.state === LoadingState.Loading) {
+    return t('components.service-scene.logs-query-footer.loading', 'Loading');
+  }
+  if (data.state === LoadingState.Streaming) {
+    return t('components.service-scene.logs-query-footer.streaming', 'Streaming');
+  }
+  return undefined;
+}
+
+function getQueryRunnerNotices(data: PanelData | undefined): QueryResultMetaNotice[] | undefined {
+  for (const frame of data?.series ?? []) {
+    const notices = frame.meta?.notices;
+    if (notices?.length) {
+      return notices;
+    }
+  }
+  return undefined;
+}
+
+function getQueryRunnerStats(data: PanelData | undefined): QueryResultMetaStat[] | undefined {
+  for (const frame of data?.series ?? []) {
+    const stats = frame.meta?.stats;
+    if (stats?.length) {
+      return stats;
+    }
+  }
+  return undefined;
 }
 
 function QueryDetails({ stats, notices }: { notices: QueryResultMetaNotice[]; stats: QueryResultMetaStat[] }) {
@@ -185,7 +234,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
   footer: css({
     alignItems: 'center',
     background: theme.colors.background.primary,
-    borderTop: `1px solid ${theme.colors.border.weak}`,
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
     display: 'flex',
     gap: theme.spacing(2),
     justifyContent: 'space-between',
