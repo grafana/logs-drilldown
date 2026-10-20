@@ -3,9 +3,10 @@ import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 
 import { dateTime, LoadingState, PanelData } from '@grafana/data';
-import { SceneDataNode, SceneFlexItem } from '@grafana/scenes';
+import { SceneDataNode, SceneFlexItem, sceneGraph } from '@grafana/scenes';
 
 import { LogsQueryFooter } from './LogsQueryFooter';
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 
 const timeRange = {
   from: dateTime('2026-01-01T00:00:00Z'),
@@ -24,7 +25,32 @@ function renderFooter(data?: PanelData) {
   return { dataNode, ...render(<footer.Component model={footer} />) };
 }
 
+const doneData: PanelData = {
+  series: [
+    {
+      fields: [],
+      length: 0,
+      meta: {
+        stats: [{ displayName: 'Summary: total bytes processed', unit: 'decbytes', value: 11 }],
+      },
+      refId: 'logsPanelQuery',
+    },
+  ],
+  state: LoadingState.Done,
+  timeRange,
+};
+
 describe('LogsQueryFooter', () => {
+  beforeEach(() => {
+    jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
+      useState: () => ({ embedded: false }),
+    } as unknown as IndexScene);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('shows total bytes processed from the query runner stats', () => {
     renderFooter({
       series: [
@@ -129,6 +155,16 @@ describe('LogsQueryFooter', () => {
     });
 
     expect(screen.getByText('Error')).toBeInTheDocument();
+  });
+
+  it('disables view details when the index scene is embedded', () => {
+    jest.spyOn(sceneGraph, 'getAncestor').mockReturnValue({
+      useState: () => ({ embedded: true }),
+    } as unknown as IndexScene);
+
+    renderFooter(doneData);
+
+    expect(screen.getByRole('button', { name: 'View details' })).toBeDisabled();
   });
 
   it('says streaming while the query is streaming', () => {

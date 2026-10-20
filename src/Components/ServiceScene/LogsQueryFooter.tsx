@@ -17,6 +17,7 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Alert, Button, Drawer, Icon, Stack, Text, useStyles2 } from '@grafana/ui';
 
+import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { testIds } from 'services/testIds';
 
 const TOTAL_BYTES_STAT = 'Summary: total bytes processed';
@@ -51,6 +52,8 @@ function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>
   const styles = useStyles2(getStyles);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const { data } = model.useState();
+  const indexScene = sceneGraph.getAncestor(model, IndexScene);
+  const { embedded } = indexScene.useState();
   const statusMessage = getQueryStatusMessage(data);
 
   if (statusMessage) {
@@ -82,6 +85,7 @@ function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>
         fill="text"
         variant="secondary"
         size="sm"
+        disabled={embedded}
         onClick={() => setDetailsOpen(true)}
         data-testid={testIds.logsQueryFooter.details}
       >
