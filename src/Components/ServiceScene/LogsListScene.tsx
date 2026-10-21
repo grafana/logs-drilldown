@@ -77,7 +77,6 @@ export interface LogsListSceneState extends SceneObjectState {
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
-  panelHeight: undefined | string = undefined;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: [
       'urlColumns',
@@ -129,7 +128,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
     const panelItem = this.state.panel.state.children?.[0];
     if (panelItem?.state.height) {
-      this.panelHeight = undefined;
       panelItem.setState({ height: undefined });
     }
     if (this.state.logsExpanded) {
