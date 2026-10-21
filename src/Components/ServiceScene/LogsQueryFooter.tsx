@@ -15,7 +15,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
-import { Alert, Button, Drawer, Icon, Stack, Text, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Drawer, Icon, Stack, Text, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { testIds } from 'services/testIds';
@@ -72,10 +72,17 @@ function LogsQueryFooterRenderer({ model }: SceneComponentProps<LogsQueryFooter>
     <footer className={styles.footer} data-testid={testIds.logsQueryFooter.footer}>
       <div className={styles.summary}>
         {totalBytes && (
-          <span>
-            {t('components.service-scene.logs-query-footer.total-bytes-processed', 'Total bytes processed')}:{' '}
-            <span className={styles.value}>{formatQueryStat(totalBytes)}</span>
-          </span>
+          <Tooltip
+            content={t(
+              'components.service-scene.logs-query-footer.total-bytes-processed-tooltip',
+              'Bytes processed by the logs query.'
+            )}
+          >
+            <span className={styles.totalBytes}>
+              {t('components.service-scene.logs-query-footer.total-bytes-processed', 'Total bytes processed')}:
+              <span className={styles.value}>{formatQueryStat(totalBytes)}</span>
+            </span>
+          </Tooltip>
         )}
         {notices.map((notice, index) => (
           <NoticeItem key={`${notice.severity}-${index}`} notice={notice} styles={styles} />
@@ -276,6 +283,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(2),
     justifyContent: 'space-between',
     padding: theme.spacing(1, 0),
+  }),
+  totalBytes: css({
+    alignItems: 'center',
+    display: 'inline-flex',
+    gap: theme.spacing(0.5),
   }),
   summary: css({
     alignItems: 'center',

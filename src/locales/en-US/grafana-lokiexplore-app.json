@@ -739,6 +739,7 @@
         "stats": "Stats",
         "streaming": "Streaming",
         "total-bytes-processed": "Total bytes processed",
+        "total-bytes-processed-tooltip": "Bytes processed by the logs query.",
         "view-details": "View details"
       },
       "logs-volume": {
