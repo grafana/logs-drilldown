@@ -5,7 +5,8 @@ import { of } from 'rxjs';
 
 import { isAssistantAvailable } from '@grafana/assistant';
 import { PanelMenuItem } from '@grafana/data';
-import { getDataSourceSrv, reportInteraction, usePluginComponent } from '@grafana/runtime';
+import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
+import { reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
   SceneCSSGridItem,
   SceneFlexLayout,
@@ -40,6 +41,9 @@ import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from 'servic
 
 // Mock external dependencies
 jest.mock('@grafana/assistant');
+jest.mock('@grafana/plugin-compat/datasources', () => ({
+  getDataSourceInstance: jest.fn(),
+}));
 jest.mock('@grafana/runtime');
 jest.mock('services/analytics');
 jest.mock('services/query');
@@ -159,9 +163,7 @@ beforeEach(() => {
   });
 
   // Mock service functions
-  jest.mocked(getDataSourceSrv).mockReturnValue({
-    get: jest.fn().mockResolvedValue({ uid: 'test-datasource-uid' }),
-  } as any);
+  jest.mocked(getDataSourceInstance).mockResolvedValue({ uid: 'test-datasource-uid' } as any);
 
   jest.mocked(getDataSource).mockReturnValue('test-datasource');
   jest.mocked(getQueryRunnerFromChildren).mockReturnValue([mockQueryRunner]);

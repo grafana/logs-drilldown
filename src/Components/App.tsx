@@ -4,7 +4,7 @@ import { AppRootProps } from '@grafana/data';
 
 import { FeatureFlagContext } from './FeatureFlagContext';
 
-const LogExplorationView = lazy(() => import('./LogExplorationPage'));
+const LogExplorationPage = lazy(() => import('./LogExplorationPage'));
 const PluginPropsContext = React.createContext<AppRootProps | null>(null);
 
 const App = (props: AppRootProps) => {
@@ -22,7 +22,7 @@ const App = (props: AppRootProps) => {
   return (
     <FeatureFlagContext>
       <PluginPropsContext.Provider value={props}>
-        <LogExplorationView />
+        <LogExplorationPage />
       </PluginPropsContext.Provider>
     </FeatureFlagContext>
   );

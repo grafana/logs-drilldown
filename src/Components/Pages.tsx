@@ -19,6 +19,7 @@ import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
 import { IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
 import { PageSlugs, ValueSlugs } from 'services/enums';
+import { getInitialDatasourceInfo } from 'services/initialDatasourceInfo';
 import { getKgSceneProps } from 'services/kgAnnotations';
 import { logger } from 'services/logger';
 import { navigateToIndex } from 'services/navigate';
@@ -56,7 +57,7 @@ function getDefaultTimeRangeFromPlugin(): { from: string; to: string } {
 
 function getServicesScene(routeMatch: OptionalRouteMatch) {
   const initialTimeRange = getDefaultTimeRangeFromPlugin();
-  const kg = getKgSceneProps();
+  const kg = getKgSceneProps(getInitialDatasourceInfo().kgAnnotationsAvailable);
   return new EmbeddedScene({
     ...(kg ? { $data: kg.$data } : {}),
     body: new IndexScene({
