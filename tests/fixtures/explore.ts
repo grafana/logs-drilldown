@@ -92,6 +92,16 @@ export class ExplorePage {
     await this.page.mouse.move(0, 0);
   }
 
+  /**
+   * Grafana tooltips can stay open after the element that triggered them is clicked or re-rendered,
+   * and then cover neighbouring buttons and intercept clicks. Dismiss them before clicking.
+   */
+  async dismissTooltips(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+    await this.page.mouse.move(0, 0);
+    await expect(this.page.getByRole('tooltip')).toHaveCount(0);
+  }
+
   getJsonToggleLocator() {
     return this.getLogsVisualizationToolbar().getByRole('radio', { name: 'JSON', exact: true });
   }

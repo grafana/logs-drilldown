@@ -119,6 +119,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
 
       // Exclude the only result
       const statusExclude = page.getByLabel(/Exclude log lines containing status=".+"/);
+      await explorePage.dismissTooltips();
       await statusExclude.click();
       await expect(page.getByLabel('Edit filter with key status')).toHaveCount(1);
 
@@ -152,6 +153,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       await expect(page.getByLabel('Edit filter with key nested_object_deeplyNestedObject_url')).toHaveCount(1);
 
       // Exclude last line
+      await explorePage.dismissTooltips();
       await page
         .getByLabel(/Exclude log lines containing method=".+"/)
         .last()

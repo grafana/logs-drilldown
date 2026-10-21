@@ -729,6 +729,19 @@
         },
         "text-loading": "Loading..."
       },
+      "logs-query-footer": {
+        "details-title": "Query details",
+        "error": "Error",
+        "loading": "Loading",
+        "no-data": "No data",
+        "notice-link": "Learn more",
+        "notices": "Notices",
+        "stats": "Stats",
+        "streaming": "Streaming",
+        "total-bytes-processed": "Total bytes processed",
+        "total-bytes-processed-tooltip": "Bytes processed by the logs query.",
+        "view-details": "View details"
+      },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Group log volume by field",

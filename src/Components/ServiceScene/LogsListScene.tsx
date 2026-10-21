@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { css } from '@emotion/css';
 import { useResizeObserver } from '@react-aria/utils';
@@ -23,6 +23,7 @@ import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { ErrorType } from './LogsPanelError';
 import { LogsPanelScene } from './LogsPanelScene';
+import { LogsQueryFooter } from './LogsQueryFooter';
 import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { LogsTableScene } from './LogsTableScene';
 import { LogsVolumePanel, logsVolumePanelKey } from './LogsVolume/LogsVolumePanel';
@@ -62,6 +63,7 @@ export interface LogsListSceneState extends SceneObjectState {
   errorType?: ErrorType;
   headerHeight: number;
   loading?: boolean;
+  logsExpanded?: boolean;
   logsVolumeCollapsedByError?: boolean;
   // Displayed fields set by the otelLogsFormatting feature
   otelDisplayedFields: string[];
@@ -75,7 +77,6 @@ export interface LogsListSceneState extends SceneObjectState {
 }
 
 export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
-  panelHeight: undefined | string = undefined;
   protected _urlSync = new SceneObjectUrlSyncConfig(this, {
     keys: [
       'urlColumns',
@@ -88,8 +89,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
   });
 
   private logsPanelScene?: LogsPanelScene = undefined;
-
-  private panelWrapperEl: HTMLDivElement | null = null;
 
   constructor(state: Partial<LogsListSceneState>) {
     super({
@@ -106,47 +105,40 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.addActivationHandler(this.onActivate.bind(this));
   }
 
-  public setPanelWrapperEl(el: HTMLDivElement | null) {
-    if (el === this.panelWrapperEl) {
-      return;
-    }
-    this.panelWrapperEl = el;
-  }
-
-  public getPanelWrapperEl(): HTMLDivElement | null {
-    return this.panelWrapperEl;
-  }
-
   public syncPanelHeightFromWrapper = () => {
-    if (!this.state.panel || !this.panelWrapperEl) {
+    if (!this.state.panel) {
       return;
     }
     if (getExpandedLogsView(this)) {
       this.extendPanelHeight();
       return;
     }
-    const dimensions = this.panelWrapperEl.getBoundingClientRect();
-    if (dimensions.height === 0) {
-      return;
+    const panelItem = this.state.panel.state.children?.[0];
+    if (panelItem?.state.height) {
+      panelItem.setState({ height: undefined });
     }
-    const offset = dimensions.y + window.scrollY;
-    this.panelHeight = `calc(100vh - ${offset + 16}px)`;
-    this.state.panel.state.children?.[0].setState({
-      height: this.panelHeight,
-    });
+    if (this.state.logsExpanded) {
+      this.setState({ logsExpanded: false });
+    }
   };
 
   public extendPanelHeight = () => {
-    if (!this.state.panel) {
+    const panelItem = this.state.panel?.state.children?.[0];
+    if (!panelItem) {
       return;
     }
-    this.state.panel.state.children?.[0].setState({
-      height: `calc(100vh - ${this.state.headerHeight + 16}px)`,
-    });
+    const height = `calc(100vh - ${this.state.headerHeight + 16}px)`;
+    if (panelItem.state.height !== height) {
+      panelItem.setState({ height });
+    }
+    if (!this.state.logsExpanded) {
+      this.setState({ logsExpanded: true });
+    }
   };
 
   public static Component = ({ model }: SceneComponentProps<LogsListScene>) => {
-    const { panel } = model.useState();
+    const { logsExpanded, panel } = model.useState();
+    const expanded = logsExpanded ?? getExpandedLogsView(model);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const height = useChromeHeaderHeight();
 
@@ -157,11 +149,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
         });
       }
     }, [height, model]);
-
-    useLayoutEffect(() => {
-      model.setPanelWrapperEl(wrapperRef.current);
-      return () => model.setPanelWrapperEl(null);
-    }, [model, panel]);
 
     useResizeObserver({
       onResize: () => {
@@ -178,7 +165,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     }
 
     return (
-      <div className={styles.panelWrapper} ref={wrapperRef}>
+      <div className={expanded ? styles.panelWrapperExpanded : styles.panelWrapper} ref={wrapperRef}>
         <panel.Component model={panel} />
       </div>
     );
@@ -546,47 +533,66 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     this.logsPanelScene = new LogsPanelScene({ error, errorType, canClearFilters });
     const logsTablePanelNG = getFeatureFlag('logsTablePanelNG');
 
-    const panelHeight = this.panelHeight ?? 'calc(100vh - 48px)';
-    const children =
+    const visualization =
       this.state.visualizationType === 'logs'
-        ? [
-            new SceneFlexItem({
-              body: this.logsPanelScene,
-              height: panelHeight,
-            }),
-          ]
+        ? this.logsPanelScene
         : this.state.visualizationType === 'json'
-          ? [
-              new SceneFlexItem({
-                body: new JSONLogsScene({ error, canClearFilters }),
-                height: panelHeight,
-              }),
-            ]
-          : [
-              new SceneFlexItem({
-                body: logsTablePanelNG
-                  ? new LogsTablePanelScene({ error, canClearFilters })
-                  : new LogsTableScene({ error, canClearFilters }),
-                height: panelHeight,
-              }),
-            ];
+          ? new JSONLogsScene({ error, canClearFilters })
+          : logsTablePanelNG
+            ? new LogsTablePanelScene({ error, canClearFilters })
+            : new LogsTableScene({ error, canClearFilters });
 
     return new SceneFlexLayout({
-      children,
+      children: [
+        new SceneFlexItem({
+          body: new SceneFlexLayout({
+            children: [
+              new SceneFlexItem({
+                body: visualization,
+                minHeight: 0,
+              }),
+              new SceneFlexItem({
+                body: new LogsQueryFooter(),
+                ySizing: 'content',
+              }),
+            ],
+            direction: 'column',
+          }),
+          minHeight: 0,
+          height: getExpandedLogsView(this) ? `calc(100vh - ${this.state.headerHeight + 16}px)` : undefined,
+        }),
+      ],
       direction: 'column',
       ySizing: 'fill',
     });
   }
 }
 
+const panelContentFix = {
+  // Hack to select internal div
+  'section > div[class$="panel-content"]': css({
+    // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
+    contain: 'none',
+    // Prevent overflow from spilling out of parent container
+    overflow: 'auto',
+  }),
+};
+
 const styles = {
   panelWrapper: css({
-    // Hack to select internal div
-    'section > div[class$="panel-content"]': css({
-      // A components withing the Logs viz sets contain, which creates a new containing block that is not body which breaks the popover menu
-      contain: 'none',
-      // Prevent overflow from spilling out of parent container
-      overflow: 'auto',
-    }),
+    // Fill the flex slot under the log volume. The slot already tracks volume collapse.
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+    ...panelContentFix,
+  }),
+  panelWrapperExpanded: css({
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+    ...panelContentFix,
   }),
 };
