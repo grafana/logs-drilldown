@@ -19,7 +19,15 @@ jobs:
         with:
           github_app: grafana-plugins-platform-bot
 
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Read Node version from .nvmrc
+        id: node
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
       - uses: grafana/plugin-actions/create-plugin-update@18c6da61002740639bf0322e1a756366d98f5b81 # create-plugin-update/v2.0.4 (2026-08-25)
         with:
           token: ${{ steps.get-github-token.outputs.token }}
-          node-version-file: .nvmrc
+          node-version: ${{ steps.node.outputs.version }}

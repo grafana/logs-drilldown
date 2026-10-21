@@ -21,8 +21,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Read Node version from .nvmrc
+        id: node
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
       - uses: grafana/plugin-actions/bundle-types@2ecc2ba7168309f04010b5b637530b877d67e4ff # main
         with:
           entry-point: ./src/Components/ExposedComponents/types.ts
           ts-config: ./tsconfig-for-bundle-types.json
-          node-version-file: .nvmrc
+          node-version: ${{ steps.node.outputs.version }}

@@ -30,6 +30,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Read Node version from .nvmrc
+        id: node
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
       - uses: grafana/plugin-actions/bundle-size@2ecc2ba7168309f04010b5b637530b877d67e4ff # main
         with:
-          node-version-file: .nvmrc
+          node-version: ${{ steps.node.outputs.version }}
