@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { css } from '@emotion/css';
 import { useResizeObserver } from '@react-aria/utils';
@@ -90,8 +90,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
 
   private logsPanelScene?: LogsPanelScene = undefined;
 
-  private panelWrapperEl: HTMLDivElement | null = null;
-
   constructor(state: Partial<LogsListSceneState>) {
     super({
       ...state,
@@ -105,17 +103,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
-  }
-
-  public setPanelWrapperEl(el: HTMLDivElement | null) {
-    if (el === this.panelWrapperEl) {
-      return;
-    }
-    this.panelWrapperEl = el;
-  }
-
-  public getPanelWrapperEl(): HTMLDivElement | null {
-    return this.panelWrapperEl;
   }
 
   public syncPanelHeightFromWrapper = () => {
@@ -162,11 +149,6 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
         });
       }
     }, [height, model]);
-
-    useLayoutEffect(() => {
-      model.setPanelWrapperEl(wrapperRef.current);
-      return () => model.setPanelWrapperEl(null);
-    }, [model, panel]);
 
     useResizeObserver({
       onResize: () => {
