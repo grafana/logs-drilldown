@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "配置默认情况下要显示的字段。这些字段可以替换完整的日志行，也可以显示在日志行旁边。",
-          "text-beta": "Beta 测试版"
+          "text-beta": "Beta 测试版",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "正在加载..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "配置默认情况下在 Logs Drilldown 着陆页上显示的标签和标签值。",
-          "text-beta": "Beta 测试版"
+          "text-beta": "Beta 测试版",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "正在加载..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "将链接复制到日志行"
         },
         "text-loading": "正在加载..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

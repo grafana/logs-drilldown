@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Varsayılan olarak gösterilecek alanları yapılandırın. Bunlar tam günlük satırının yerini alabilir veya yanında görüntülenebilir.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Yükleniyor..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Logs Drilldown açılış sayfasında varsayılan olarak hangi etiketlerin ve etiket değerlerinin görüneceğini yapılandırın.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Yükleniyor..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Bağlantıyı günlük satırına kopyala"
         },
         "text-loading": "Yükleniyor..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

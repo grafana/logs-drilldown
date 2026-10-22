@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "デフォルトで表示するフィールドを設定します。ログ行全体の代わりに表示することも、ログ行と並べて表示することもできます。",
-          "text-beta": "ベータ版"
+          "text-beta": "ベータ版",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "読み込み中..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Logs Drilldownのランディングページにデフォルトで表示するラベルとラベル値を設定します。",
-          "text-beta": "ベータ版"
+          "text-beta": "ベータ版",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "読み込み中..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "ログ行へのリンクをコピー"
         },
         "text-loading": "読み込み中..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

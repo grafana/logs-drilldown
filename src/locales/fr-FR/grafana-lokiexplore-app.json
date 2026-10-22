@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Configurez les champs à afficher par défaut. Ceux-ci peuvent remplacer la ligne de journal complète ou s’afficher à côté d’elle.",
-          "text-beta": "Bêta"
+          "text-beta": "Bêta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Chargement…"
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Configurez les étiquettes et les valeurs d’étiquettes qui s’affichent par défaut sur la page d’accueil de Logs Drilldown.",
-          "text-beta": "Bêta"
+          "text-beta": "Bêta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Chargement…"
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Copier le lien vers la ligne de journal"
         },
         "text-loading": "Chargement…"
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

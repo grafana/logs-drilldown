@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Konfigurieren Sie die Felder, die standardmäßig angezeigt werden. Diese können die vollständige Logzeile ersetzen oder neben ihr angezeigt werden.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Wird geladen …"
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Konfigurieren Sie, welche Labels und Labelwerte standardmäßig auf der Landingpage von Logs Drilldown angezeigt werden.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Wird geladen …"
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Link zur Logzeile kopieren"
         },
         "text-loading": "Wird geladen …"
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

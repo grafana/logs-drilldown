@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Konfigurálja az alapértelmezés szerint megjelenítendő mezőket. Ezek helyettesíthetik a teljes naplósort, vagy megjeleníthetők mellette.",
-          "text-beta": "Béta"
+          "text-beta": "Béta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Betöltés…"
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Állítsa be, hogy mely címkék és címkeértékek jelenjenek meg alapértelmezés szerint a Logs Drilldown kezdőlapján.",
-          "text-beta": "Béta"
+          "text-beta": "Béta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Betöltés…"
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Hivatkozás másolása a naplósorba"
         },
         "text-loading": "Betöltés…"
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Configurar os campos a mostrar por predefinição. Estes podem substituir a linha de registo completa ou ser apresentados junto dela.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "A carregar..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Configure quais as etiquetas e os valores de etiqueta que aparecem por predefinição na página inicial do Logs Drilldown.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "A carregar..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Copiar link para a linha de registo"
         },
         "text-loading": "A carregar..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

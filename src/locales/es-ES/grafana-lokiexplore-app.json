@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Configura los campos que se mostrarán de forma predeterminada. Estos pueden sustituir a la línea de log completa o mostrarse junto a ella.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Cargando..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Configurar qué etiquetas y valores de etiquetas aparecen de forma predeterminada en la página de aterrizaje de Logs Drilldown.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Cargando..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Copiar enlace a línea de log"
         },
         "text-loading": "Cargando..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

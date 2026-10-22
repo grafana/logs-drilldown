@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "設定預設要顯示的欄位。這些欄位可以取代完整的記錄行，或顯示在記錄行旁邊。",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "正在載入…"
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "設定「記錄深入分析」登陸頁面上預設顯示的標籤和標籤值。",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "正在載入…"
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "將連結複製到記錄行"
         },
         "text-loading": "正在載入…"
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {
