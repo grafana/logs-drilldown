@@ -39,4 +39,4 @@ jobs:
       playwright-docker-compose-file: docker-compose.dev.yaml
       playwright-grafana-url: http://localhost:3001/grafana
 
-      node-version: '24'
+      # Node version comes from .nvmrc (shared workflow falls back to it)
