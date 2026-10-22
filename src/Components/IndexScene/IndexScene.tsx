@@ -106,7 +106,7 @@ import { getLokiDatasource } from 'services/scenes';
 import { addLastUsedDataSourceToStorage } from 'services/store';
 import { getFieldsKeysProvider, getLabelsTagKeysProvider } from 'services/TagKeysProviders';
 import { getDetectedFieldValuesTagValuesProvider, getLabelsTagValuesProvider } from 'services/TagValuesProviders';
-import { filterInvalidTimeOptions, getQuickOptions } from 'services/timePicker';
+import { filterInvalidTimeOptions, getQuickRanges } from 'services/timePicker';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -212,7 +212,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
       new SceneTimePicker({
         hidePicker: state.hideTimePicker,
         key: CONTROLS_VARS_TIMEPICKER,
-        quickRanges: filterInvalidTimeOptions(getQuickOptions()),
+        quickRanges: filterInvalidTimeOptions(getQuickRanges()),
       }),
     ];
 
@@ -317,7 +317,7 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
         if (configChanged) {
           const timePicker = sceneGraph.findByKeyAndType(this, CONTROLS_VARS_TIMEPICKER, SceneTimePicker);
           timePicker.setState({
-            quickRanges: filterInvalidTimeOptions(getQuickOptions(), lokiConfig),
+            quickRanges: filterInvalidTimeOptions(getQuickRanges(), lokiConfig),
           });
         }
       })
