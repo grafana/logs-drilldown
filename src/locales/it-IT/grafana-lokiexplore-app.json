@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Configura i campi da mostrare per impostazione predefinita. Questi possono sostituire l'intera riga del registro oppure essere visualizzati accanto ad essa.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Caricamento in corso..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Configura quali etichette e valori di etichetta vengono visualizzati per impostazione predefinita nella pagina di destinazione di Logs Drilldown.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Caricamento in corso..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Copia il collegamento alla riga del registro"
         },
         "text-loading": "Caricamento in corso..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

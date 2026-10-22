@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Настройте поля, которые будут отображаться по умолчанию. Они могут заменять всю строку логов или отображаться рядом с ней.",
-          "text-beta": "Бета"
+          "text-beta": "Бета",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Загрузка…"
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Настройте, какие метки и их значения будут отображаться по умолчанию на главной странице Logs Drilldown.",
-          "text-beta": "Бета"
+          "text-beta": "Бета",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Загрузка…"
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Копировать ссылку на строку логов"
         },
         "text-loading": "Загрузка…"
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

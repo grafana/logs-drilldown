@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "기본적으로 표시할 필드를 구성합니다. 이 필드는 전체 로그 줄을 대체하거나 그 옆에 표시될 수 있습니다.",
-          "text-beta": "베타"
+          "text-beta": "베타",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "로딩 중..."
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Logs Drilldown 랜딩 페이지에 기본적으로 표시되는 레이블 및 레이블 값을 구성합니다.",
-          "text-beta": "베타"
+          "text-beta": "베타",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "로딩 중..."
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "링크를 로그 줄에 복사"
         },
         "text-loading": "로딩 중..."
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {

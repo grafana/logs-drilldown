@@ -21,7 +21,8 @@
         },
         "config": {
           "default-columns-description": "Configure os campos a serem exibidos por padrão. Eles podem substituir a linha de log completa ou ser exibidos ao lado dela.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "default-columns": {
           "text-loading": "Carregando…"
@@ -91,7 +92,8 @@
       "service-selection": {
         "config": {
           "service-selection-description": "Configure quais rótulos e valores de rótulos aparecem por padrão na página inicial do Detalhamento de Logs.",
-          "text-beta": "Beta"
+          "text-beta": "Beta",
+          "text-loading": ""
         },
         "context": {
           "text-loading": "Carregando…"
@@ -728,6 +730,19 @@
           "copy-link-to-log-line": "Copiar link para a linha de log"
         },
         "text-loading": "Carregando…"
+      },
+      "logs-query-footer": {
+        "details-title": "",
+        "error": "",
+        "loading": "",
+        "no-data": "",
+        "notice-link": "",
+        "notices": "",
+        "stats": "",
+        "streaming": "",
+        "total-bytes-processed": "",
+        "total-bytes-processed-tooltip": "",
+        "view-details": ""
       },
       "logs-volume": {
         "logs-volume-actions": {
