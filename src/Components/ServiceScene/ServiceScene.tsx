@@ -32,6 +32,7 @@ import { AddToDashboardModal } from './AddToDashboardModal';
 import { AddToNotebookModal } from './AddToNotebookModal';
 import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews';
 import { CreateAlertModal } from './CreateAlertModal';
+import { IrmIncidentModal } from './IrmIncidentModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
@@ -51,6 +52,8 @@ import {
   AddToNotebookEvent,
   CreateAlertData,
   CreateAlertEvent,
+  IrmAction,
+  IrmActionEvent,
 } from 'Components/Panels/PanelMenu';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
@@ -149,6 +152,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   body: SceneFlexLayout | undefined;
   createAlertData?: CreateAlertData;
   drillDownLabel?: string;
+  irmAction?: IrmAction;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
 }
@@ -557,6 +561,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     this._subs.add(this.subscribeToEvent(AddToDashboardEvent, this.subscribeToAddToDashboard));
     this._subs.add(this.subscribeToEvent(AddToNotebookEvent, this.subscribeToAddToNotebook));
     this._subs.add(this.subscribeToEvent(CreateAlertEvent, this.subscribeToCreateAlert));
+    this._subs.add(this.subscribeToEvent(IrmActionEvent, this.subscribeToIrmAction));
 
     // Migrations
     migrateLineFilterV1(this);
@@ -871,6 +876,14 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
     });
   };
 
+  private subscribeToIrmAction = (event: IrmActionEvent) => {
+    this.setState({ irmAction: event.payload });
+  };
+
+  public hideIrmAction = () => {
+    this.setState({ irmAction: undefined });
+  };
+
   private resetBodyAndData = () => {
     let stateUpdate: Partial<ServiceSceneState> = {};
 
@@ -963,7 +976,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   static Component = ({ model }: SceneComponentProps<ServiceScene>) => {
-    const { body, addToDashboardData, addToNotebookData, createAlertData } = model.useState();
+    const { body, addToDashboardData, addToNotebookData, createAlertData, irmAction } = model.useState();
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
 
     const { filters } = getLabelsVariable(model).useState();
@@ -1006,6 +1019,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
           {addToDashboardData && <AddToDashboardModal data={addToDashboardData} onClose={model.hideAddToDashboard} />}
           {addToNotebookData && <AddToNotebookModal data={addToNotebookData} onClose={model.hideAddToNotebook} />}
           {createAlertData && <CreateAlertModal data={createAlertData} onDismiss={model.hideCreateAlert} />}
+          {irmAction && <IrmIncidentModal data={irmAction} onDismiss={model.hideIrmAction} />}
           <body.Component model={body} />
         </>
       );
