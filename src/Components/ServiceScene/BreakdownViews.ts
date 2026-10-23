@@ -69,6 +69,8 @@ function buildPatternsScene() {
     children: [
       new SceneFlexItem({
         body: new PatternsBreakdownScene({}),
+        // Lets the wide table scroll inside the tab instead of stretching the page
+        minWidth: 0,
       }),
     ],
   });

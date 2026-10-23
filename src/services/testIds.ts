@@ -79,6 +79,7 @@ export const testIds = {
   patterns: {
     buttonExcludedPattern: 'data-testid button-excluded-pattern',
     buttonIncludedPattern: 'data-testid button-included-pattern',
+    smallCell: 'data-testid patterns-small-cell',
     tableWrapper: 'data-testid table-wrapper',
   },
   table: {

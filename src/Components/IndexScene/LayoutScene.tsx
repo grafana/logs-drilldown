@@ -109,6 +109,8 @@ function getStyles(theme: GrafanaTheme2) {
       flexDirection: 'column',
       flexGrow: 1,
       minHeight: '100%',
+      // Without this the scrollable tab row sets the page's minimum width, so narrow viewports scroll sideways
+      minWidth: 0,
     }),
     container: css({
       display: 'flex',

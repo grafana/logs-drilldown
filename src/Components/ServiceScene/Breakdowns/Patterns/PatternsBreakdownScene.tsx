@@ -211,6 +211,8 @@ function getStyles(theme: GrafanaTheme2) {
       flexDirection: 'column',
       flexGrow: 1,
       minHeight: '100%',
+      // A flex item can't shrink below its content by default, which lets the wide table stretch the page
+      minWidth: 0,
     }),
     content: css({
       display: 'flex',

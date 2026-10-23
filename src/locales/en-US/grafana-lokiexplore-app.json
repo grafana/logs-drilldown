@@ -470,9 +470,12 @@
             "too-old-title": "Patterns are only available for the most recent {{maxAgeHours}} hours of data."
           },
           "patterns-view-table-scene": {
+            "count-label": "Count",
+            "levels-label": "Levels",
             "no-filtered-patterns-message": "No patterns found in the current time range or matching the current level filters.",
             "no-patterns-message": "No patterns found in the current time range.",
-            "no-patterns-title": "No patterns to display"
+            "no-patterns-title": "No patterns to display",
+            "percent-label": "Percent"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Patterns are selected by label and may be filtered by level. Parsed fields, structured metadata, and string filters are not supported for the pattern list.",

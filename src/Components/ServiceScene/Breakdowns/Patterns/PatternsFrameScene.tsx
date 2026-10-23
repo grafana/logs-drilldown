@@ -309,6 +309,7 @@ const styles = {
     '.show-on-hover': {
       display: 'none',
     },
+    minWidth: 0,
     width: '100%',
   }),
 };

@@ -2,6 +2,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 import { testIds } from '../../src/services/testIds';
 import { ExplorePage, E2EComboboxStrings } from '../fixtures/explore';
+import { getMockPatternsApiResponse } from '../mocks/getMockPatternsApiResponse';
 
 import { fieldName, setupServiceBreakdownTest, teardownServiceBreakdownTest } from './shared';
 
@@ -272,5 +273,76 @@ test.describe('Patterns tab', () => {
     await page.getByTestId('data-testid RefreshPicker run button').click();
     await explorePage.assertTabsNotLoading();
     await expect.poll(() => patternsCount).toEqual(3);
+  });
+
+  // A phone and an in-between width: the table must stack instead of stretching the tab or clipping its buttons
+  for (const viewportWidth of [390, 800]) {
+    test(`Should fit the patterns tab to a ${viewportWidth}px viewport with row actions reachable`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ height: 844, width: viewportWidth });
+      await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+
+      const firstRow = page.getByTestId(testIds.patterns.smallCell).first();
+      await expect(firstRow).toBeVisible();
+
+      // A stretched table pushes the search box and itself past the right edge
+      const searchBox = await page.getByPlaceholder('Search patterns').boundingBox();
+      expect((searchBox?.x ?? 0) + (searchBox?.width ?? Infinity)).toBeLessThanOrEqual(viewportWidth);
+      const tableBox = await page.getByTestId(testIds.patterns.tableWrapper).boundingBox();
+      expect((tableBox?.x ?? 0) + (tableBox?.width ?? Infinity)).toBeLessThanOrEqual(viewportWidth);
+
+      // Include/Exclude stay on screen instead of sitting past the right edge
+      const excludeButton = firstRow.getByTestId(testIds.exploreServiceDetails.buttonFilterExclude);
+      await expect(excludeButton).toBeVisible();
+      const box = await excludeButton.boundingBox();
+      expect(box).not.toBeNull();
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewportWidth);
+
+      await firstRow.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).click();
+      await expect(page.getByTestId(testIds.patterns.buttonIncludedPattern)).toBeVisible();
+    });
+  }
+
+  test('Should keep all levels of a pattern within the table at phone width', async ({ page }) => {
+    const levels = ['trace', 'debug', 'info', 'warn', 'error', 'critical', 'unknown'];
+    const { samples } = getMockPatternsApiResponse().data[0];
+    await page.route('**/resources/patterns**', async (route) => {
+      await route.fulfill({
+        json: {
+          status: 'success',
+          data: levels.map((level) => ({ level, pattern: 'level=<_> ts=<_> msg=<_>', samples })),
+        },
+      });
+    });
+    await page.setViewportSize({ height: 844, width: 390 });
+    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+
+    const row = page.getByTestId(testIds.patterns.smallCell).first();
+    await expect(row).toBeVisible();
+    const wrapper = page.getByTestId(testIds.patterns.tableWrapper);
+    for (const level of levels) {
+      const button = row.getByRole('button', { name: level, exact: true });
+      await expect(button).toBeVisible();
+      await expect(async () => {
+        const bounds = await wrapper.boundingBox();
+        const buttonBounds = await button.boundingBox();
+        expect(bounds).not.toBeNull();
+        expect(buttonBounds).not.toBeNull();
+        if (bounds && buttonBounds) {
+          expect(buttonBounds.x).toBeGreaterThanOrEqual(bounds.x);
+          expect(buttonBounds.x + buttonBounds.width).toBeLessThanOrEqual(bounds.x + bounds.width);
+        }
+      }).toPass({ timeout: 5000 });
+    }
+  });
+
+  test('Should not scroll the page sideways on the patterns tab at phone width', async ({ page }) => {
+    await page.setViewportSize({ height: 844, width: 390 });
+    await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
+    await expect(page.getByTestId(testIds.patterns.smallCell).first()).toBeVisible();
+
+    // The scrollable tab row used to set the page's minimum width; the chart resizes asynchronously
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 });
