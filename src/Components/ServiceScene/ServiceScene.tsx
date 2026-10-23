@@ -85,12 +85,14 @@ import {
   getPatternsVariable,
 } from 'services/variableGetters';
 import {
+  ALL_VARIABLE_VALUE,
   DETECTED_FIELD_VALUES_EXPR,
   EMPTY_VARIABLE_VALUE,
   LEVEL_VARIABLE_VALUE,
   LOG_STREAM_SELECTOR_EXPR,
   SERVICE_NAME,
   SERVICE_UI_LABEL,
+  stripAdHocFilterUserInputPrefix,
   VAR_DATASOURCE,
   VAR_FIELDS,
   VAR_LABELS,
@@ -135,6 +137,19 @@ type LabelFiltersStatus =
       newPrimaryLabel?: AdHocFilterWithLabels<{}>;
       reason: LabelFiltersInvalidReason;
     };
+
+function isSelectablePrimaryLabel(filter: AdHocFilterWithLabels): boolean {
+  const value = stripAdHocFilterUserInputPrefix(filter.value ?? '');
+  // Cleared combobox values and match-all filters are not a service to drill into.
+  return (
+    Boolean(filter.key) &&
+    isOperatorInclusive(filter.operator) &&
+    value !== '' &&
+    value !== EMPTY_VARIABLE_VALUE &&
+    value !== ALL_VARIABLE_VALUE &&
+    value !== '.*'
+  );
+}
 
 export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomState {
   $data: SceneDataProvider | undefined;
@@ -244,10 +259,8 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
    * Returns the correctness of the current label filters, and newPrimaryLabel if it's possible to switch over to a new primary label
    */
   public getLabelFiltersStatus(newFilters: AdHocFilterWithLabels[]): LabelFiltersStatus {
-    const labelsVariable = getLabelsVariable(this);
-
     // check if we have any labels at all
-    if (labelsVariable.state.filters.length === 0) {
+    if (newFilters.length === 0) {
       return { isValid: false, reason: LabelFiltersInvalidReason.Empty };
     }
     // check if we have any inclusive labels at all
@@ -274,9 +287,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
       // The "primary" label used in the URL is no longer active, pick a new one
       if (primaryLabelMissingInFilters && !isValidLegacyURL) {
-        const newPrimaryLabel = newFilters.find(
-          (f) => isOperatorInclusive(f.operator) && f.value !== EMPTY_VARIABLE_VALUE
-        );
+        const newPrimaryLabel = newFilters.find(isSelectablePrimaryLabel);
 
         if (newPrimaryLabel) {
           return { isValid: false, reason: LabelFiltersInvalidReason.PrimaryLabelRemoved, newPrimaryLabel };
@@ -328,6 +339,30 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
    * Update url slugs when primary label has changed
    */
   private handlePrimaryLabelChange(newPrimaryLabel: AdHocFilterWithLabels<{}>, breakdownLabel: string | undefined) {
+    // Clearing the primary label can leave the URL on explore, or on a path with no tab slug.
+    // If we don't have a breakdown label then the user has changed labels while in an aggregated breakdown or other top level slug (labels, fields, patterns, logs), redirect to fix any potentially invalid label slugs.
+    if (!breakdownLabel) {
+      const slug = this.getPageSlug();
+      if (!slug) {
+        this.redirectToStart();
+        return;
+      }
+      this.updatePrimaryLabelRoute(newPrimaryLabel);
+      navigateToDrilldownPage(slug, this);
+      return;
+    }
+
+    // If we have a breakdown label then the user has changed labels while in a value breakdown, redirect to fix any potentially invalid value slugs.
+    const valueSlug = this.getDrilldownValueSlug();
+    if (!valueSlug) {
+      this.redirectToStart();
+      return;
+    }
+    this.updatePrimaryLabelRoute(newPrimaryLabel);
+    navigateToValueBreakdown(valueSlug, breakdownLabel, this);
+  }
+
+  private updatePrimaryLabelRoute(newPrimaryLabel: AdHocFilterWithLabels<{}>) {
     const indexScene = sceneGraph.getAncestor(this, IndexScene);
     const prevRouteMatch = indexScene.state.routeMatch;
     const newPrimaryLabelValue = escapePrimaryLabel(newPrimaryLabel.value);
@@ -349,24 +384,6 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     // reset tab counts to trigger new queries after redirect
     this.resetTabCount();
-
-    // If we don't have a breakdown label then the user has changed labels while in an aggregated breakdown or other top level slug (labels, fields, patterns, logs), redirect to fix any potentially invalid label slugs.
-    if (!breakdownLabel) {
-      const slug = this.getPageSlug();
-      if (slug) {
-        navigateToDrilldownPage(slug, this);
-      } else {
-        throw new Error(`Invalid page slug ${slug}`);
-      }
-      // If we have a breakdown label then the user has changed labels while in a value breakdown, redirect to fix any potentially invalid value slugs.
-    } else {
-      const valueSlug = this.getDrilldownValueSlug();
-      if (valueSlug) {
-        navigateToValueBreakdown(valueSlug, breakdownLabel, this);
-      } else {
-        throw new Error(`Invalid value slug ${valueSlug}`);
-      }
-    }
   }
 
   getPageSlug() {
