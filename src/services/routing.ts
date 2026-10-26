@@ -101,7 +101,9 @@ export const DRILLDOWN_URL_KEYS = [
 
 export function getDrilldownSlug() {
   const location = locationService.getLocation();
-  const slug = location.pathname.slice(location.pathname.lastIndexOf('/') + 1, location.pathname.length);
+  // A trailing slash would make the last segment empty and hide the tab slug.
+  const pathname = pathnameWithoutTrailingSlash(location.pathname);
+  const slug = pathname.slice(pathname.lastIndexOf('/') + 1);
   return slug as PageSlugs;
 }
 
@@ -127,7 +129,8 @@ export function getPrimaryLabelFromUrl(): RouteProps {
       'Cannot get primary label from URL! getPrimaryLabelFromUrl should not be called when the app is embedded'
     );
   }
-  const endOfUrl = location.pathname.slice(startOfUrlIndex + startOfUrl.length + 1);
+  const pathname = pathnameWithoutTrailingSlash(location.pathname);
+  const endOfUrl = pathname.slice(startOfUrlIndex + startOfUrl.length + 1);
   const routeParams = endOfUrl.split('/');
 
   let labelName = routeParams[0];
@@ -139,8 +142,12 @@ export function getPrimaryLabelFromUrl(): RouteProps {
 
 export function getDrilldownValueSlug() {
   const location = locationService.getLocation();
-  const locationArray = location.pathname.split('/');
+  const locationArray = pathnameWithoutTrailingSlash(location.pathname).split('/');
   return narrowValueSlug(locationArray[locationArray.length - 2]);
+}
+
+function pathnameWithoutTrailingSlash(pathname: string) {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
 }
 
 export function buildServicesUrl(path: string, extraQueryParams?: UrlQueryMap): string {
