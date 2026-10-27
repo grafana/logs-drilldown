@@ -129,3 +129,13 @@ Change the **Context time window** option to look for logs within a specific tim
 ## Infinite scroll
 
 When you reach the bottom of the list of logs, if you continue scrolling and the displayed logs are within the selected time interval, you can request to load more logs. When the sort order is "newest first" you receive older logs, and when the sort order is "oldest first" you get newer logs.
+
+## Query stats and notices
+
+A footer at the bottom of the logs visualization displays information about the current logs query to help you understand the size and status of the query. It displays the query's status (such as Loading, Streaming, or No data), summary statistics such as **Total bytes processed**, and notices returned by the data source.
+
+Click **View details** in the footer to open a side drawer with the complete query information:
+
+- **Notices**: Alerts and warnings returned by the data source, for example when a query reaches a data limit.
+- **Stats**: Metrics about the query execution.
+
