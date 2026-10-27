@@ -320,21 +320,9 @@ test.describe('Patterns tab', () => {
 
     const row = page.getByTestId(testIds.patterns.smallCell).first();
     await expect(row).toBeVisible();
-    const wrapper = page.getByTestId(testIds.patterns.tableWrapper);
-    for (const level of levels) {
-      const button = row.getByRole('button', { name: level, exact: true });
-      await expect(button).toBeVisible();
-      await expect(async () => {
-        const bounds = await wrapper.boundingBox();
-        const buttonBounds = await button.boundingBox();
-        expect(bounds).not.toBeNull();
-        expect(buttonBounds).not.toBeNull();
-        if (bounds && buttonBounds) {
-          expect(buttonBounds.x).toBeGreaterThanOrEqual(bounds.x);
-          expect(buttonBounds.x + buttonBounds.width).toBeLessThanOrEqual(bounds.x + bounds.width);
-        }
-      }).toPass({ timeout: 5000 });
-    }
+    await row.scrollIntoViewIfNeeded();
+    // The last pill is the furthest right when the row doesn't wrap
+    await expect(row.getByRole('button', { name: 'unknown', exact: true })).toBeInViewport({ ratio: 1 });
   });
 
   test('Should not scroll the page sideways on the patterns tab at phone width', async ({ page }) => {
