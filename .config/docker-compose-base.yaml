@@ -7,7 +7,8 @@ services:
       context: .
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
-        grafana_version: ${GRAFANA_VERSION:-13.2.1}
+        # Hand-edited: create-plugin has no migration for this default, keep it at the @grafana/ui version
+        grafana_version: ${GRAFANA_VERSION:-13.3.0}
         development: ${DEVELOPMENT:-false}
         anonymous_auth_enabled: ${ANONYMOUS_AUTH_ENABLED:-true}
     ports:

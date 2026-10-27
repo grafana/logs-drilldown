@@ -21,7 +21,7 @@ jest.mock('./logger', () => ({
   logger: { error: jest.fn(), info: jest.fn(), warn: jest.fn() },
 }));
 
-function makeDs(overrides: Partial<DataSourceInstanceListItem>): DataSourceInstanceListItem {
+function makeDs(overrides: Partial<DataSourceInstanceListItem> & { isDefault?: boolean }): DataSourceInstanceListItem {
   return {
     uid: 'uid',
     name: 'ds',

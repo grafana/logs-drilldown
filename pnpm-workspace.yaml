@@ -8,6 +8,15 @@ frozenLockfile: true
 ignoreScripts: true
 # Three days in minutes (3 × 24 × 60).
 minimumReleaseAge: 4320
+# Remove these once the versions are older than minimumReleaseAge (published 2026-10-27).
+minimumReleaseAgeExclude:
+  - '@grafana/api-clients@13.3.0'
+  - '@grafana/data@13.3.0'
+  - '@grafana/e2e-selectors@13.3.0'
+  - '@grafana/i18n@13.3.0'
+  - '@grafana/runtime@13.3.0'
+  - '@grafana/schema@13.3.0'
+  - '@grafana/ui@13.3.0'
 # Fail install if a package's trust evidence is weaker than an earlier release (e.g. lost trusted publisher).
 trustPolicy: no-downgrade
 # Exemptions for entries that cannot resolve to an attested version: each is a

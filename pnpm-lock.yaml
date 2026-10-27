@@ -23,14 +23,14 @@ importers:
         specifier: 11.13.5
         version: 11.13.5
       '@grafana/api-clients':
-        specifier: 13.2.1
-        version: 13.2.1(@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@reduxjs/toolkit@2.10.1(react-redux@9.2.0(@types/react@18.3.31)(react@18.3.1)(redux@4.2.1))(react@18.3.1))(rxjs@7.8.2)
+        specifier: 13.3.0
+        version: 13.3.0(@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@reduxjs/toolkit@2.10.1(react-redux@9.2.0(@types/react@18.3.31)(react@18.3.1)(redux@4.2.1))(react@18.3.1))(rxjs@7.8.2)
       '@grafana/assistant':
         specifier: 0.1.34
-        version: 0.1.34(@emotion/css@11.13.5)(@grafana/data@13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.2.1)(@grafana/ui@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react@18.3.1)(rxjs@7.8.2)
+        version: 0.1.34(@emotion/css@11.13.5)(@grafana/data@13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.3.0)(@grafana/ui@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react@18.3.1)(rxjs@7.8.2)
       '@grafana/data':
-        specifier: 13.2.1
-        version: 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+        specifier: 13.3.0
+        version: 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@grafana/faro-web-sdk':
         specifier: 2.11.0
         version: 2.11.0
@@ -38,29 +38,29 @@ importers:
         specifier: 2.11.0
         version: 2.11.0
       '@grafana/i18n':
-        specifier: 13.2.1
-        version: 13.2.1(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+        specifier: 13.3.0
+        version: 13.3.0(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@grafana/lezer-logql':
         specifier: 0.4.1
         version: 0.4.1(@lezer/lr@1.4.10)
       '@grafana/plugin-compat':
         specifier: 0.2.0
-        version: 0.2.0(@grafana/data@13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.2.1)(react@18.3.1)
+        version: 0.2.0(@grafana/data@13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.3.0)(react@18.3.1)
       '@grafana/runtime':
-        specifier: 13.2.1
-        version: 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+        specifier: 13.3.0
+        version: 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@grafana/scenes':
         specifier: 8.16.1
-        version: 8.16.1(32cf2fce41d88b6363d4ea798afdc072)
+        version: 8.16.1(c7fcd9fb57432d3fb38c80cf3d43e5b6)
       '@grafana/scenes-react':
         specifier: 8.16.1
-        version: 8.16.1(32cf2fce41d88b6363d4ea798afdc072)
+        version: 8.16.1(c7fcd9fb57432d3fb38c80cf3d43e5b6)
       '@grafana/schema':
-        specifier: 13.2.1
-        version: 13.2.1
+        specifier: 13.3.0
+        version: 13.3.0
       '@grafana/ui':
-        specifier: 13.2.1
-        version: 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+        specifier: 13.3.0
+        version: 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@gtk-grafana/react-json-tree':
         specifier: 0.1.0
         version: 0.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -78,7 +78,7 @@ importers:
         version: 1.4.10
       '@openfeature/web-sdk':
         specifier: 1.10.0
-        version: 1.10.0(@openfeature/core@1.11.0)
+        version: 1.10.0(@openfeature/core@1.12.0)
       '@react-aria/utils':
         specifier: 3.34.1
         version: 3.34.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -683,6 +683,10 @@ packages:
     resolution:
       { integrity: sha512-1q4PaT+o6PbgpkJt4Q8Fv5XJxTy4FUZ4MWETtyiDw3J0Pyr9E2vqcKL+k9wcvjNTIsauxvE7OfmWj3FRPHQ76A== }
 
+  '@codemirror/legacy-modes@6.5.5':
+    resolution:
+      { integrity: sha512-9ltT214oMb3Y1w5eAZMSigzrjzZnMI2Wa3Feq73rU/i4C56MkwrpfswfQYOr28C5pXr6dWwspNTMyeHXlzWMxg== }
+
   '@codemirror/lint@6.9.7':
     resolution:
       { integrity: sha512-28/+iWLYxKxsvGYhSYL7zaCZqLz5+FFFDq9tVsvGv9kv8RY4fFAchJ5WX9M3YrrRlTIsECjsXPqeNgnSmNP2dg== }
@@ -694,6 +698,10 @@ packages:
   '@codemirror/state@6.7.0':
     resolution:
       { integrity: sha512-Zbl9NyscLMZkfXPQnNAIIAFftidrA1UbcJEIMp24C0Bukc2I5T8wJS0wsXYsnDOqCFJUeJ1BITGNs5CqPDSmSg== }
+
+  '@codemirror/streamparser@6.0.0':
+    resolution:
+      { integrity: sha512-JTFPF6xrfjt0mnfGPgzcLiMwYmvIyNaoizp8BYzv8FE8KrT6GBGDZ190rtt+O7Wke3gG/MFHyiY9YGNeimof4w== }
 
   '@codemirror/theme-one-dark@6.1.3':
     resolution:
@@ -1315,27 +1323,27 @@ packages:
     resolution:
       { integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg== }
 
-  '@formatjs/ecma402-abstract@2.3.6':
+  '@formatjs/bigdecimal@0.2.7':
     resolution:
-      { integrity: sha512-HJnTFeRM2kVFVr5gr5kH1XP6K0JcJtE7Lzvtr3FS/so5f1kpsqqqxy5JF+FRaO6H2qmcMfAUIox7AJteieRtVw== }
+      { integrity: sha512-B4+XY/e4u5v261r3a37Kq2ax91gPZSKGyVpx8X5dygAggLlUz+6MeBpmAhaBFGB8WQ4JB1qD+QtKHk9aJkEb9Q== }
 
-  '@formatjs/fast-memoize@2.2.7':
+  '@formatjs/fast-memoize@3.1.7':
     resolution:
-      { integrity: sha512-Yabmi9nSvyOMrlSeGGWDiH7rf3a7sIwplbvo/dlz9WCIjzIQAfy1RMf4S0X3yG724n5Ghu2GmEl5NJIV6O9sZQ== }
+      { integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA== }
 
-  '@formatjs/intl-durationformat@0.7.6':
+  '@formatjs/intl-durationformat@0.11.1':
     resolution:
-      { integrity: sha512-jatAN3E84X6aP2UOGK1jTrwD1a7BiG3qWUSEDAhtyNd1BgYeS5wQPtXlnuGF1QRx0DjnwwNOIssyd7oQoRlQeg== }
+      { integrity: sha512-Mkuc+Q8/96Hb0w4Pwa9sqkKVQVl75TCaqaXIXHgsVsLDko+FKQhw9n/7BnbonueqPxkQkGYvn8/G2IKzT970og== }
 
-  '@formatjs/intl-localematcher@0.6.2':
+  '@formatjs/intl-localematcher@0.9.0':
     resolution:
-      { integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA== }
+      { integrity: sha512-Z7TD3ssNry1Av1dVDoq/mzpxGyxqWwU0ClWEo+BB3k0JQTeQvUGmeK9WZGYvlqStS0UqkaKXk3dfjsb6NaHAxw== }
 
-  '@grafana/api-clients@13.2.1':
+  '@grafana/api-clients@13.3.0':
     resolution:
-      { integrity: sha512-obS9Tm2W9UeKKOrc+LOXACd4XdBdIIc2bBeDZCO6dcpFYGZuhK+3YJJhIZZP+p0yd02B4uv8Mjecc3mCaoQLUw== }
+      { integrity: sha512-yZmEKOzISRNbAy/W4yYYqHLzbglH6sYghJ5ci/eDLdvJOCmXA5dD2tF//fSbgHuJ7ckQxzF4OVq2fcXvqlJWqA== }
     peerDependencies:
-      '@grafana/runtime': '>=11.6 <= 12.x'
+      '@grafana/runtime': '>=11.6'
       '@reduxjs/toolkit': ^2.10.0
       rxjs: ^7.8.2
 
@@ -1351,9 +1359,9 @@ packages:
       react: '>=18.0.0'
       rxjs: '>=7.0.0'
 
-  '@grafana/data@13.2.1':
+  '@grafana/data@13.3.0':
     resolution:
-      { integrity: sha512-Nu5UPwPrKbdZTKthDbK21u1rJ4MxdOVeCfHH5TiQX/4By7dbsDUUqoWKGR4ousuF23nrQ6BxhzxRE3Q6jEd2EQ== }
+      { integrity: sha512-w3GGGQZroR/FGxVId6UP+RFp7C3kR6sCh0fDvjLwDn88EkbjRWRzrNimlogy03KN/JarLXJID9CrZJeQeWTS/Q== }
     peerDependencies:
       react: '>=19'
       react-dom: '>=19'
@@ -1362,9 +1370,9 @@ packages:
     resolution:
       { integrity: sha512-CRN0CTsSkAC3qQvufbR7duUzSX2Jfgc/g5ap+eSrjcFcS+vAVUDGfQVLK6y5ojN+B0gATNIbmVlCGngQxmm+eA== }
 
-  '@grafana/e2e-selectors@13.2.1':
+  '@grafana/e2e-selectors@13.3.0':
     resolution:
-      { integrity: sha512-UhV1pzSBspFMJdi1tJqwwByPt7HQJImXm1u0j798pPF8Od6FIbao7KENMqeZJU47wLBKwbSonJkLfzmXSHvDOA== }
+      { integrity: sha512-WEEwaTlbyMyrAkkKsHCxboi4TD5xxZ3pGnkMLPy4Fh++59YoyV1dHpqhtF9gchpLyCl4zk/BGAd1JRvMXUKENQ== }
 
   '@grafana/eslint-config@10.0.0':
     resolution:
@@ -1388,9 +1396,17 @@ packages:
     resolution:
       { integrity: sha512-vaqko2foixRC9uZyqc4KzCUYqd21t27LhVgQ6hI6cmS3vRSMBoIgEg1FIrOOkT9KNRTpbKASE7iYn3QtHtq7zQ== }
 
+  '@grafana/faro-core@2.13.0':
+    resolution:
+      { integrity: sha512-Zfmroynd3y/NRghfIYXGCAinIb7mIx8EhGBpC3WUYoJT/4nO/jWvbKBEpELP29Z7g1Ul2TlJwbmNa1yh3x3+uw== }
+
   '@grafana/faro-web-sdk@2.11.0':
     resolution:
       { integrity: sha512-oGwdqlFJkIrK6V45wDlPaggNXOJCcXRFobho0PBQvohAB4Y4UTyMH18Sr1Tznp3z6POr/zh7RUtB0L/iN2X+HA== }
+
+  '@grafana/faro-web-sdk@2.13.0':
+    resolution:
+      { integrity: sha512-k/vZL73Ii4PR6IyhyZZU/wWAlLL8HyPQ1re9CFyyIN2bXuX5b0dTYTLBHlEAK3oGqi7Nj/jGwKXoM27BNLPLuQ== }
 
   '@grafana/faro-web-tracing@2.11.0':
     resolution:
@@ -1400,9 +1416,9 @@ packages:
     resolution:
       { integrity: sha512-Kt2RBFZFQINCVB5c5cYlMYO0DdgygDjIMwk4/iyi162hMad36Xf8lOW1jrgjmYQ9kI6kVUYGxKxhrWTId0oHqQ== }
 
-  '@grafana/i18n@13.2.1':
+  '@grafana/i18n@13.3.0':
     resolution:
-      { integrity: sha512-B5sYhxwaBJYPEgHpJpUQvwJx9WawrMMSc0ISrhz7jKALfGAfJOkyfBVt9Aah5TGsQ920wE/RpAW/U3KZCd+0yQ== }
+      { integrity: sha512-cEuLooRVaVBG5j8OFhR8Eo9ex0+/WZgtxlPpFWSkFcV4bB4qcveGBShm3WAKrDLSH/nuQUFXNlfTZXtiJWjTcA== }
     peerDependencies:
       react: '>=19'
 
@@ -1444,16 +1460,16 @@ packages:
     engines: { node: '>=18.8.0' }
     hasBin: true
 
-  '@grafana/react-data-grid@7.0.0-beta.57':
+  '@grafana/react-data-grid@7.0.0-beta.60':
     resolution:
-      { integrity: sha512-v3DuW+TF16Jq5/dNJc0ifReBuknZb4+deB7M+liLMUU8sr2RavguNHpxCk4L/AdqLeXJFGhhqEDUYpeeQm2DzA== }
+      { integrity: sha512-i/IyHgORMLJHwA7KeqhB0zOzIOFyfltoycNDzdG9089SKH62A1hTQyLl7Vxd68nWzsBbu+suB9SWwKCsomHEjg== }
     peerDependencies:
-      react: ^18.0 || ^19.0
-      react-dom: ^18.0 || ^19.0
+      react: ^19.2
+      react-dom: ^19.2
 
-  '@grafana/runtime@13.2.1':
+  '@grafana/runtime@13.3.0':
     resolution:
-      { integrity: sha512-5zbJx/G/DUJoFqYZD65rBjt1lnFJKemnavF5glQMThTn80Nyl4Yyj1jjMCDKhK7YljtbcvuUZXlEuCibdz57Og== }
+      { integrity: sha512-Kmtc4jdBVoEuoBqJy6R65yNuf+P7CLyeeT00UzQOFJCjPQ6Ey2YIFYWJPeUlBdR3kDjlTlbv4FgVDRDDY+/p1g== }
     peerDependencies:
       react: '>=19'
       react-dom: '>=19'
@@ -1487,9 +1503,9 @@ packages:
       react-router-dom: ^6.28.0
       rxjs: ^7.8.1
 
-  '@grafana/schema@13.2.1':
+  '@grafana/schema@13.3.0':
     resolution:
-      { integrity: sha512-E2olDA8cPCJUDG6qy+9Zez5cqTa1Hcm9mTzmWWRKhJ519s1F2R8YBXNMqQQbKwlHECwldhS+Ry+ddptlSQM0IQ== }
+      { integrity: sha512-IkxSmRiOOnc8GXg3vPlWshtcxPd0SHv8AbPQi04PIb05v/5LjiIQCpeYXemtIAlRg6IhklzF2u7LQcDGHQElJg== }
 
   '@grafana/sign-plugin@3.2.2':
     resolution:
@@ -1501,9 +1517,9 @@ packages:
     resolution:
       { integrity: sha512-hhhXetqhSKTfgErStfWVPhqo4JPi+lNqBJNhBF6RT4ZIM4vwKxEfnfsyswT+NwHIXNrOz23xoOGeKWPpxmaHWQ== }
 
-  '@grafana/ui@13.2.1':
+  '@grafana/ui@13.3.0':
     resolution:
-      { integrity: sha512-szyrRtysNNlOcAb3YB7Ro1dHqp5/IQG09Qf9Vm/2PQh7e/X8ShvEAP+Y4GEowMziUyniZ19tKte1o+seUg+h+A== }
+      { integrity: sha512-1jC8T7ua4EMgRySupuO8h7v9uhQXlBrjFDdcrU5g8u73acLGZL8tKtxQsh/oCe65IPQFMwSCH6WGyFlcXRgC4g== }
     peerDependencies:
       react: '>=19'
       react-dom: '>=19'
@@ -1932,6 +1948,10 @@ packages:
     resolution:
       { integrity: sha512-qXdH7UqTvGfdVBINrgKhDsVTJTxactNNxLk7+UMwZhU13lMHaOBlJe9Vqp907ya56Y3+ed2tlqzys7jDkTmW0g== }
 
+  '@lezer/highlight@1.2.5':
+    resolution:
+      { integrity: sha512-O1GMVKgtf5YspFaRzpmqkVgMtIk2HG9uMAbH6wdAIdNh3TVzCsch/+cRi+6l2//UGDKe6NB9BW3cvuR5ezMQ0w== }
+
   '@lezer/html@1.3.13':
     resolution:
       { integrity: sha512-oI7n6NJml729m7pjm9lvLvmXbdoMoi2f+1pwSDJkl9d68zGr7a9Btz8NdHTGQZtW2DA25ybeuv/SyDb9D5tseg== }
@@ -1999,9 +2019,9 @@ packages:
       { integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg== }
     engines: { node: '>= 8' }
 
-  '@openfeature/core@1.11.0':
+  '@openfeature/core@1.12.0':
     resolution:
-      { integrity: sha512-P0u3/ht/oZCQT89fOed+laLk0kZR529a825cS02uPDglxXbE97irWYpDAeRGGVETIzKfuy+H2g8c3Ccv/tXJNQ== }
+      { integrity: sha512-7PCPzyd1OC19begz30+CRknFB0ChtyaZUhk7YWrk+Bov1fpVw0HYkTXtoxxsvPfDZB9P9WsT7uixN+Z8f9+bcA== }
 
   '@openfeature/localstorage-provider@0.1.2':
     resolution:
@@ -2034,15 +2054,14 @@ packages:
     peerDependencies:
       '@openfeature/core': ^1.12.0
 
-  '@openfeature/web-sdk@1.9.0':
-    resolution:
-      { integrity: sha512-FCrNfqvE/thHVfCNU0KKx1SD7rk+1wE2UaR5B5OPZl917QJv6AsKRwaI3N+SVgwXWI07GgtXP6hNlTVb49PGhg== }
-    peerDependencies:
-      '@openfeature/core': ^1.11.0
-
   '@opentelemetry/api-logs@0.221.0':
     resolution:
       { integrity: sha512-OlanaW1vv7ufTqQ3/fPLI4arGt5ZoM+P8abOMki6uEYnpRazepSWDwDnnw+la7kE26SHVC18//SMccrDvLKOXQ== }
+    engines: { node: '>=8.0.0' }
+
+  '@opentelemetry/api-logs@0.223.0':
+    resolution:
+      { integrity: sha512-Oepm6etVPFCn0VWB1t833iOTgz1eYBDUPxcrOR/XvwzD1+Ag9VzSPSrrKAFNJ/haatj+8CXbG47pZXvdNQKDJw== }
     engines: { node: '>=8.0.0' }
 
   '@opentelemetry/api@1.9.1':
@@ -2060,6 +2079,13 @@ packages:
   '@opentelemetry/core@2.11.0':
     resolution:
       { integrity: sha512-7YP44XH0tV6+Mb54x2YGf84i7yi+31MBZlE8JwvozkxyTvXbSp10X7cI7YE49ChJ3shMJoBmCJF3+1QFBJctGA== }
+    engines: { node: ^18.19.0 || >=20.6.0 }
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/core@2.12.0':
+    resolution:
+      { integrity: sha512-1HsSAuvT4/my0QrXWsyXFdWjKaPeCHsismKZgEEIb8NK13LP6DrMRlsUbvD/0F9mDWK3xDom9AMv3IscxgOnOQ== }
     engines: { node: ^18.19.0 || >=20.6.0 }
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
@@ -2113,9 +2139,23 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
+  '@opentelemetry/otlp-transformer@0.223.0':
+    resolution:
+      { integrity: sha512-oxmmPL5/MbSsO8K588V9n/XLIe7FZTK30Fo+/U/lAnt0ZIK/hoPM03n2WpSTZVbUBGTUE7aLyxnAzh7nE2PD4Q== }
+    engines: { node: ^18.19.0 || >=20.6.0 }
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
   '@opentelemetry/resources@2.10.0':
     resolution:
       { integrity: sha512-q6MMm2zhggzsHVNbabYwut+a6nbuQQe3URUoxaojM/8K1IBfwwPzvxIjNi2/lI1TFe+fMHMW9MWhrtDLEXEnkA== }
+    engines: { node: ^18.19.0 || >=20.6.0 }
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/resources@2.12.0':
+    resolution:
+      { integrity: sha512-+rSRoOdln6NhXTVcBdHSlZxJDNzwxadeweK2ltZO3tVtfp6aklABc06xclDk6ovRR+EiGgIcSbh/6NgjFhnb3A== }
     engines: { node: ^18.19.0 || >=20.6.0 }
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
@@ -2134,9 +2174,23 @@ packages:
     peerDependencies:
       '@opentelemetry/api': '>=1.4.0 <1.10.0'
 
+  '@opentelemetry/sdk-logs@0.223.0':
+    resolution:
+      { integrity: sha512-ApiAfUiUh6fmJt1GbsBuoeDn8D8IL42UvGyPUr8o1Z89ZeIiOCE1rZ78KkIUjEX3OV8Oorl9ez5Qjo43ZynDyw== }
+    engines: { node: ^18.19.0 || >=20.6.0 }
+    peerDependencies:
+      '@opentelemetry/api': '>=1.4.0 <1.10.0'
+
   '@opentelemetry/sdk-metrics@2.10.0':
     resolution:
       { integrity: sha512-t6r1VSvXNtSDnPXU1FbZeetJb7yyovHmgu0wRSoftxtE0g2rSNhQZQUy69sRUCL+iioJpX8SN/S6wq6ZtvLySQ== }
+    engines: { node: ^18.19.0 || >=20.6.0 }
+    peerDependencies:
+      '@opentelemetry/api': '>=1.9.0 <1.10.0'
+
+  '@opentelemetry/sdk-metrics@2.12.0':
+    resolution:
+      { integrity: sha512-mVMaEHwCUJuY3S4Esn+nT0yQA3qCEGh+SOPJsXygU0Gl453WcsDNjtEa8EfdewMwoLyr1tlofB4fXytVpiXuow== }
     engines: { node: ^18.19.0 || >=20.6.0 }
     peerDependencies:
       '@opentelemetry/api': '>=1.9.0 <1.10.0'
@@ -2172,6 +2226,13 @@ packages:
   '@opentelemetry/sdk-trace@2.10.0':
     resolution:
       { integrity: sha512-MfQGq3GRmTh5fM/y+OjaO0vj6+luCB1XO2gfXCalKCfgKw0eHL++sm75DNweC6ohlp+aFvACqeE0fYayqdRaoQ== }
+    engines: { node: ^18.19.0 || >=20.6.0 }
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/sdk-trace@2.12.0':
+    resolution:
+      { integrity: sha512-ImVuRQ6faOsTi1Wna88s2avgrrf/iDgXPigIeynkUhjstMuoQUDOJXgkez2j1mlU4btjXcXBGa+q7qKFYR3GsA== }
     engines: { node: ^18.19.0 || >=20.6.0 }
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
@@ -3025,13 +3086,13 @@ packages:
     resolution:
       { integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ== }
 
-  '@types/lodash@4.17.24':
-    resolution:
-      { integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ== }
-
   '@types/lodash@4.17.25':
     resolution:
       { integrity: sha512-+K1NIO8I+F9/wNulfVvu23QYd0Pe9/OCqRrim4NoYIf1VoEDL90Ve4ClzpyqBLc7NpGGWRvYNCKZ1BE/Jpf8dQ== }
+
+  '@types/luxon@3.7.6':
+    resolution:
+      { integrity: sha512-6KSjliQAXK8ZLgFQO4B7iE4Rpf/B3rItzCFuXezBY/XIAGxOdLd7vRNK9/StRPwiS/yJsVbB7HKpW46B8tcEuQ== }
 
   '@types/minimist@1.2.5':
     resolution:
@@ -3093,9 +3154,9 @@ packages:
     resolution:
       { integrity: sha512-p6skq756fJWiA59g2Uss+cMl6tpoDGuCBuxG0SI1t0NwJmYOU66LAMS6QiCgu7cUh3/hYCaMl5phcCW1JP5wOA== }
 
-  '@types/systemjs@6.15.3':
+  '@types/systemjs@6.15.4':
     resolution:
-      { integrity: sha512-STyj2LUevlyVqEQ1wjOORLQTJbNnM2V1DNzmemxVHlOovdKBKqccALDbR9aCcTRThhcXzew88SMbN4SMm6JOcw== }
+      { integrity: sha512-GUosUMKBP5ZH2xvB6bqSccmjcX0Jz0SMM9i+AjefCucIQQ8Hi0yWIGLLuyuvTF6kgFJkLXxldD31DSu4R5Eq0w== }
 
   '@types/tough-cookie@4.0.5':
     resolution:
@@ -3145,13 +3206,6 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4 <6.1.0'
 
-  '@typescript-eslint/project-service@8.62.0':
-    resolution:
-      { integrity: sha512-wexnCqiTg7BOGtbLDftYpRWlmLq4xfoMd7BKFR6Y75sZS3QmRKLdN3yWLhmIYgqMmP/OXWpj3H8odkb5nGURCQ== }
-    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
-    peerDependencies:
-      typescript: '>=4.8.4 <6.1.0'
-
   '@typescript-eslint/project-service@8.69.0':
     resolution:
       { integrity: sha512-yi4obFrHMmnsesWehHbkg9zMA7Jt8cXT+mKM08G999pH1yT6nqgsHx7MYm0uY1wAj8CqiBXYRJ7WAT0QdQHQXg== }
@@ -3162,11 +3216,6 @@ packages:
   '@typescript-eslint/scope-manager@8.58.2':
     resolution:
       { integrity: sha512-SgmyvDPexWETQek+qzZnrG6844IaO02UVyOLhI4wpo82dpZJY9+6YZCKAMFzXb7qhx37mFK1QcPQ18tud+vo6Q== }
-    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
-
-  '@typescript-eslint/scope-manager@8.62.0':
-    resolution:
-      { integrity: sha512-1lX38kNxXIRb8mEc3lbq5mdHq1Pf2+U0nFU65KfT18mtPxxl0fvjuEE92mHuXPuCtElJhOrddOpyMlM3Z0umEA== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
   '@typescript-eslint/scope-manager@8.69.0':
@@ -3208,11 +3257,6 @@ packages:
       { integrity: sha512-9TukXyATBQf/Jq9AMQXfvurk+G5R2MwfqQGDR2GzGz28HvY/lXNKGhkY+6IOubwcquikWk5cjlgPvD2uAA7htQ== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
-  '@typescript-eslint/types@8.62.0':
-    resolution:
-      { integrity: sha512-KvAclkktORPvM54TgLgA4z9HIV1M8zOgw9ZVNXl9f/8dLYfXYX1wkMXP7qmabpijQRV5bHJLOmoyGQbLMaUYeg== }
-    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
-
   '@typescript-eslint/types@8.69.0':
     resolution:
       { integrity: sha512-K3VrubUPhlo9VDBS6QdI8YB5j7ClpqLRdefcz6PFrhnwicehBweqQ9Evhl4l+FYz0HdDmMqIiSX0aldGRYtDCA== }
@@ -3221,13 +3265,6 @@ packages:
   '@typescript-eslint/typescript-estree@8.58.2':
     resolution:
       { integrity: sha512-ELGuoofuhhoCvNbQjFFiobFcGgcDCEm0ThWdmO4Z0UzLqPXS3KFvnEZ+SHewwOYHjM09tkzOWXNTv9u6Gqtyuw== }
-    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
-    peerDependencies:
-      typescript: '>=4.8.4 <6.1.0'
-
-  '@typescript-eslint/typescript-estree@8.62.0':
-    resolution:
-      { integrity: sha512-+hVbNxtW64pIcZWDPGbyaKF7vp2IBTVY5ma1blwwksrjdsbdqqEKvJWMGbBofei4F6Dovx1M0RJgoFeNu2279A== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
     peerDependencies:
       typescript: '>=4.8.4 <6.1.0'
@@ -3247,14 +3284,6 @@ packages:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
       typescript: '>=4.8.4 <6.1.0'
 
-  '@typescript-eslint/utils@8.62.0':
-    resolution:
-      { integrity: sha512-82r66fi9zYwZ+mTq3vKgwjbZ1PVk/DJzrXFLpG6RnBbdvH8TEGVHIs9H4d2drhkOzf0syZuD/OZvvlu6GDbP4g== }
-    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
-    peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: '>=4.8.4 <6.1.0'
-
   '@typescript-eslint/utils@8.69.0':
     resolution:
       { integrity: sha512-tUbx60BBqQa31kXF5MCsOOLL5E/WzUuxIn7YpAvq+eaUlqvk8/NXnXMBNAdLCr0icjkzem7iUA5QqWHe/hJ1aw== }
@@ -3266,11 +3295,6 @@ packages:
   '@typescript-eslint/visitor-keys@8.58.2':
     resolution:
       { integrity: sha512-f1WO2Lx8a9t8DARmcWAUPJbu0G20bJlj8L4z72K00TMeJAoyLr/tHhI/pzYBLrR4dXWkcxO1cWYZEOX8DKHTqA== }
-    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
-
-  '@typescript-eslint/visitor-keys@8.62.0':
-    resolution:
-      { integrity: sha512-CY3uyFSRbcQv3nnSv8S0+lDftMVz6P963PoRlxrV7ew/Md564g9ut60PYzdLM5qW4jFn93GBF+Soi90ISAN+GQ== }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
   '@typescript-eslint/visitor-keys@8.69.0':
@@ -6296,9 +6320,9 @@ packages:
     resolution:
       { integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w== }
 
-  moment-timezone@0.5.47:
+  moment-timezone@0.6.5:
     resolution:
-      { integrity: sha512-UbNt/JAWS0m/NJOebR0QMRHBk0hu03r5dx9GK8Cs0AS3I81yDcOc9k+DytPItgVvBP7J6Mf6U2n3BPAacAV9oA== }
+      { integrity: sha512-KKzZAxGv2Qx4cnk6eSlvf4C+DLFW52vmMY5MN7UARY7GONbozkutylQG3DrrtmLCTXdQ5XZrqao9cI16bLFzXA== }
 
   moment@2.31.0:
     resolution:
@@ -8928,6 +8952,10 @@ snapshots:
       '@lezer/lr': 1.4.10
       style-mod: 4.1.3
 
+  '@codemirror/legacy-modes@6.5.5':
+    dependencies:
+      '@codemirror/streamparser': 6.0.0
+
   '@codemirror/lint@6.9.7':
     dependencies:
       '@codemirror/state': 6.7.0
@@ -8943,6 +8971,8 @@ snapshots:
   '@codemirror/state@6.7.0':
     dependencies:
       '@marijn/find-cluster-break': 1.0.2
+
+  '@codemirror/streamparser@6.0.0': {}
 
   '@codemirror/theme-one-dark@6.1.3':
     dependencies:
@@ -9502,54 +9532,47 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@formatjs/ecma402-abstract@2.3.6':
-    dependencies:
-      '@formatjs/fast-memoize': 2.2.7
-      '@formatjs/intl-localematcher': 0.6.2
-      decimal.js: 10.6.0
-      tslib: 2.8.1
+  '@formatjs/bigdecimal@0.2.7': {}
 
-  '@formatjs/fast-memoize@2.2.7':
-    dependencies:
-      tslib: 2.8.1
+  '@formatjs/fast-memoize@3.1.7': {}
 
-  '@formatjs/intl-durationformat@0.7.6':
+  '@formatjs/intl-durationformat@0.11.1':
     dependencies:
-      '@formatjs/ecma402-abstract': 2.3.6
-      '@formatjs/intl-localematcher': 0.6.2
-      tslib: 2.8.1
+      '@formatjs/bigdecimal': 0.2.7
+      '@formatjs/intl-localematcher': 0.9.0
 
-  '@formatjs/intl-localematcher@0.6.2':
+  '@formatjs/intl-localematcher@0.9.0':
     dependencies:
-      tslib: 2.8.1
+      '@formatjs/fast-memoize': 3.1.7
 
-  '@grafana/api-clients@13.2.1(@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@reduxjs/toolkit@2.10.1(react-redux@9.2.0(@types/react@18.3.31)(react@18.3.1)(redux@4.2.1))(react@18.3.1))(rxjs@7.8.2)':
+  '@grafana/api-clients@13.3.0(@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@reduxjs/toolkit@2.10.1(react-redux@9.2.0(@types/react@18.3.31)(react@18.3.1)(redux@4.2.1))(react@18.3.1))(rxjs@7.8.2)':
     dependencies:
-      '@grafana/runtime': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/runtime': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@reduxjs/toolkit': 2.10.1(react-redux@9.2.0(@types/react@18.3.31)(react@18.3.1)(redux@4.2.1))(react@18.3.1)
       rxjs: 7.8.2
 
-  '@grafana/assistant@0.1.34(@emotion/css@11.13.5)(@grafana/data@13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.2.1)(@grafana/ui@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react@18.3.1)(rxjs@7.8.2)':
+  '@grafana/assistant@0.1.34(@emotion/css@11.13.5)(@grafana/data@13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.3.0)(@grafana/ui@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react@18.3.1)(rxjs@7.8.2)':
     dependencies:
       '@emotion/css': 11.13.5
-      '@grafana/data': 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/runtime': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/schema': 13.2.1
-      '@grafana/ui': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/data': 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/runtime': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/schema': 13.3.0
+      '@grafana/ui': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       json-schema-to-ts: 3.1.1
       react: 18.3.1
       rxjs: 7.8.2
 
-  '@grafana/data@13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
+  '@grafana/data@13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
     dependencies:
       '@braintree/sanitize-url': 7.0.1
-      '@grafana/i18n': 13.2.1(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/schema': 13.2.1
+      '@grafana/i18n': 13.3.0(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/schema': 13.3.0
       '@leeoniya/ufuzzy': 1.0.19
       '@react-hookz/web': 25.3.0(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/d3-interpolate': 3.0.4
+      '@types/luxon': 3.7.6
       '@types/string-hash': 1.1.3
-      '@types/systemjs': 6.15.3
+      '@types/systemjs': 6.15.4
       d3-interpolate: 3.0.1
       d3-scale-chromatic: 3.1.0
       date-fns: 4.1.0
@@ -9559,8 +9582,7 @@ snapshots:
       lodash: 4.18.1
       marked: 16.3.0
       marked-mangle: 1.1.12(marked@16.3.0)
-      moment: 2.31.0
-      moment-timezone: 0.5.47
+      moment-timezone: 0.6.5
       ol: 10.7.0
       papaparse: 5.5.3
       react: 18.3.1
@@ -9583,7 +9605,7 @@ snapshots:
     dependencies:
       semver: 7.8.5
 
-  '@grafana/e2e-selectors@13.2.1':
+  '@grafana/e2e-selectors@13.3.0':
     dependencies:
       semver: 7.8.5
 
@@ -9610,9 +9632,20 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/otlp-transformer': 0.221.0(@opentelemetry/api@1.9.1)
 
+  '@grafana/faro-core@2.13.0':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/otlp-transformer': 0.223.0(@opentelemetry/api@1.9.1)
+
   '@grafana/faro-web-sdk@2.11.0':
     dependencies:
       '@grafana/faro-core': 2.11.0
+      ua-parser-js: 1.0.41
+      web-vitals: 6.2.1
+
+  '@grafana/faro-web-sdk@2.13.0':
+    dependencies:
+      '@grafana/faro-core': 2.13.0
       ua-parser-js: 1.0.41
       web-vitals: 6.2.1
 
@@ -9655,10 +9688,10 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@grafana/i18n@13.2.1(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
+  '@grafana/i18n@13.3.0(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
     dependencies:
-      '@formatjs/intl-durationformat': 0.7.6
-      '@typescript-eslint/utils': 8.62.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      '@formatjs/intl-durationformat': 0.11.1
+      '@typescript-eslint/utils': 8.69.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       fast-deep-equal: 3.1.3
       i18next: 26.4.2(typescript@5.9.3)
       i18next-browser-languagedetector: 8.2.1
@@ -9697,11 +9730,11 @@ snapshots:
     dependencies:
       '@lezer/lr': 1.4.10
 
-  '@grafana/plugin-compat@0.2.0(@grafana/data@13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.2.1)(react@18.3.1)':
+  '@grafana/plugin-compat@0.2.0(@grafana/data@13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@grafana/schema@13.3.0)(react@18.3.1)':
     dependencies:
-      '@grafana/data': 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/runtime': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/schema': 13.2.1
+      '@grafana/data': 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/runtime': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/schema': 13.3.0
       react: 18.3.1
 
   '@grafana/plugin-e2e@3.11.1(@playwright/test@1.63.0)':
@@ -9722,28 +9755,26 @@ snapshots:
       - eslint
       - supports-color
 
-  '@grafana/react-data-grid@7.0.0-beta.57(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@grafana/react-data-grid@7.0.0-beta.60(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@grafana/runtime@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
+  '@grafana/runtime@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
     dependencies:
-      '@grafana/data': 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/e2e-selectors': 13.2.1
-      '@grafana/faro-web-sdk': 2.11.0
-      '@grafana/schema': 13.2.1
-      '@grafana/ui': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@openfeature/core': 1.11.0
-      '@openfeature/localstorage-provider': 0.1.2(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))
-      '@openfeature/ofrep-web-provider': 0.4.1(@openfeature/core@1.11.0)(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))
-      '@openfeature/react-sdk': 1.4.1(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))(react@18.3.1)
-      '@openfeature/web-sdk': 1.9.0(@openfeature/core@1.11.0)
-      '@types/systemjs': 6.15.3
+      '@grafana/data': 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/e2e-selectors': 13.3.0
+      '@grafana/faro-web-sdk': 2.13.0
+      '@grafana/schema': 13.3.0
+      '@grafana/ui': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@openfeature/core': 1.12.0
+      '@openfeature/localstorage-provider': 0.1.2(@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0))
+      '@openfeature/ofrep-web-provider': 0.4.1(@openfeature/core@1.12.0)(@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0))
+      '@openfeature/react-sdk': 1.4.1(@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0))(react@18.3.1)
+      '@openfeature/web-sdk': 1.10.0(@openfeature/core@1.12.0)
+      '@types/systemjs': 6.15.4
       fast-json-patch: 3.1.1
       history: 4.10.1
-      immutable: 5.1.9
       lodash: 4.18.1
       lru-cache: 11.3.5
       react: 18.3.1
@@ -9764,16 +9795,16 @@ snapshots:
       - supports-color
       - typescript
 
-  '@grafana/scenes-react@8.16.1(32cf2fce41d88b6363d4ea798afdc072)':
+  '@grafana/scenes-react@8.16.1(c7fcd9fb57432d3fb38c80cf3d43e5b6)':
     dependencies:
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(@types/react@18.3.31)(react@18.3.1)
-      '@grafana/data': 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/e2e-selectors': 13.2.1
-      '@grafana/runtime': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/scenes': 8.16.1(32cf2fce41d88b6363d4ea798afdc072)
-      '@grafana/schema': 13.2.1
-      '@grafana/ui': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/data': 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/e2e-selectors': 13.3.0
+      '@grafana/runtime': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/scenes': 8.16.1(c7fcd9fb57432d3fb38c80cf3d43e5b6)
+      '@grafana/schema': 13.3.0
+      '@grafana/ui': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       lodash: 4.18.1
       lru-cache: 10.4.3
       react: 18.3.1
@@ -9786,17 +9817,17 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@grafana/scenes@8.16.1(32cf2fce41d88b6363d4ea798afdc072)':
+  '@grafana/scenes@8.16.1(c7fcd9fb57432d3fb38c80cf3d43e5b6)':
     dependencies:
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(@types/react@18.3.31)(react@18.3.1)
       '@floating-ui/react': 0.27.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@grafana/data': 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/e2e-selectors': 13.2.1
-      '@grafana/i18n': 13.2.1(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/runtime': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/schema': 13.2.1
-      '@grafana/ui': 13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/data': 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/e2e-selectors': 13.3.0
+      '@grafana/i18n': 13.3.0(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/runtime': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/schema': 13.3.0
+      '@grafana/ui': 13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@leeoniya/ufuzzy': 1.0.19
       '@tanstack/react-virtual': 3.13.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       history: 4.10.1
@@ -9814,7 +9845,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@grafana/schema@13.2.1': {}
+  '@grafana/schema@13.3.0': {}
 
   '@grafana/sign-plugin@3.2.2':
     dependencies:
@@ -9826,7 +9857,7 @@ snapshots:
 
   '@grafana/tsconfig@2.2.0': {}
 
-  '@grafana/ui@13.2.1(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
+  '@grafana/ui@13.3.0(@babel/runtime@7.29.7)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/theme-one-dark@6.1.3)(@types/react@18.3.31)(codemirror@6.0.2)(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)':
     dependencies:
       '@codemirror/autocomplete': 6.20.3
       '@codemirror/lang-go': 6.0.1
@@ -9838,20 +9869,21 @@ snapshots:
       '@codemirror/lang-xml': 6.1.0
       '@codemirror/lang-yaml': 6.1.3
       '@codemirror/language': 6.12.4
+      '@codemirror/legacy-modes': 6.5.5
       '@codemirror/state': 6.7.0
       '@codemirror/view': 6.43.3
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(@types/react@18.3.31)(react@18.3.1)
       '@emotion/serialize': 1.3.3
       '@floating-ui/react': 0.27.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@grafana/data': 13.2.1(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/e2e-selectors': 13.2.1
-      '@grafana/faro-web-sdk': 2.11.0
-      '@grafana/i18n': 13.2.1(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      '@grafana/react-data-grid': 7.0.0-beta.57(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@grafana/schema': 13.2.1
+      '@grafana/data': 13.3.0(eslint@9.39.5(jiti@2.7.0))(js-cookie@3.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/e2e-selectors': 13.3.0
+      '@grafana/faro-web-sdk': 2.13.0
+      '@grafana/i18n': 13.3.0(eslint@9.39.5(jiti@2.7.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@grafana/react-data-grid': 7.0.0-beta.60(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@grafana/schema': 13.3.0
       '@hello-pangea/dnd': 18.0.1(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@lezer/highlight': 1.2.3
+      '@lezer/highlight': 1.2.5
       '@monaco-editor/react': 4.7.0(monaco-editor@0.34.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@popperjs/core': 2.11.8
       '@rc-component/cascader': 1.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -9863,7 +9895,7 @@ snapshots:
       '@react-aria/overlays': 3.32.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-virtual': 3.13.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/jquery': 3.5.33
-      '@types/lodash': 4.17.24
+      '@types/lodash': 4.17.25
       '@types/react-table': 7.7.20
       '@uiw/react-codemirror': 4.25.9(@babel/runtime@7.29.7)(@codemirror/autocomplete@6.20.3)(@codemirror/language@6.12.4)(@codemirror/lint@6.9.7)(@codemirror/search@6.7.1)(@codemirror/state@6.7.0)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.43.3)(codemirror@6.0.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       calculate-size: 1.1.1
@@ -9939,7 +9971,7 @@ snapshots:
 
   '@hello-pangea/dnd@18.0.1(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       css-box-model: 1.2.1
       raf-schd: 4.0.3
       react: 18.3.1
@@ -10389,6 +10421,10 @@ snapshots:
     dependencies:
       '@lezer/common': 1.5.2
 
+  '@lezer/highlight@1.2.5':
+    dependencies:
+      '@lezer/common': 1.5.2
+
   '@lezer/html@1.3.13':
     dependencies:
       '@lezer/common': 1.5.2
@@ -10460,38 +10496,38 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@openfeature/core@1.11.0': {}
+  '@openfeature/core@1.12.0': {}
 
-  '@openfeature/localstorage-provider@0.1.2(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))':
+  '@openfeature/localstorage-provider@0.1.2(@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0))':
     dependencies:
-      '@openfeature/web-sdk': 1.9.0(@openfeature/core@1.11.0)
+      '@openfeature/web-sdk': 1.10.0(@openfeature/core@1.12.0)
       tslib: 2.8.1
 
-  '@openfeature/ofrep-core@2.2.0(@openfeature/core@1.11.0)':
+  '@openfeature/ofrep-core@2.2.0(@openfeature/core@1.12.0)':
     dependencies:
-      '@openfeature/core': 1.11.0
+      '@openfeature/core': 1.12.0
 
-  '@openfeature/ofrep-web-provider@0.4.1(@openfeature/core@1.11.0)(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))':
+  '@openfeature/ofrep-web-provider@0.4.1(@openfeature/core@1.12.0)(@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0))':
     dependencies:
-      '@openfeature/ofrep-core': 2.2.0(@openfeature/core@1.11.0)
-      '@openfeature/web-sdk': 1.9.0(@openfeature/core@1.11.0)
+      '@openfeature/ofrep-core': 2.2.0(@openfeature/core@1.12.0)
+      '@openfeature/web-sdk': 1.10.0(@openfeature/core@1.12.0)
     transitivePeerDependencies:
       - '@openfeature/core'
 
-  '@openfeature/react-sdk@1.4.1(@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0))(react@18.3.1)':
+  '@openfeature/react-sdk@1.4.1(@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0))(react@18.3.1)':
     dependencies:
-      '@openfeature/web-sdk': 1.9.0(@openfeature/core@1.11.0)
+      '@openfeature/web-sdk': 1.10.0(@openfeature/core@1.12.0)
       react: 18.3.1
 
-  '@openfeature/web-sdk@1.10.0(@openfeature/core@1.11.0)':
+  '@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0)':
     dependencies:
-      '@openfeature/core': 1.11.0
-
-  '@openfeature/web-sdk@1.9.0(@openfeature/core@1.11.0)':
-    dependencies:
-      '@openfeature/core': 1.11.0
+      '@openfeature/core': 1.12.0
 
   '@opentelemetry/api-logs@0.221.0':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+
+  '@opentelemetry/api-logs@0.223.0':
     dependencies:
       '@opentelemetry/api': 1.9.1
 
@@ -10503,6 +10539,11 @@ snapshots:
       '@opentelemetry/semantic-conventions': 1.40.0
 
   '@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/semantic-conventions': 1.40.0
+
+  '@opentelemetry/core@2.12.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/semantic-conventions': 1.40.0
@@ -10564,10 +10605,26 @@ snapshots:
       '@opentelemetry/sdk-metrics': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace': 2.10.0(@opentelemetry/api@1.9.1)
 
+  '@opentelemetry/otlp-transformer@0.223.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/api-logs': 0.223.0
+      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-logs': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-metrics': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace': 2.12.0(@opentelemetry/api@1.9.1)
+
   '@opentelemetry/resources@2.10.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.40.0
+
+  '@opentelemetry/resources@2.12.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.40.0
 
   '@opentelemetry/resources@2.8.0(@opentelemetry/api@1.9.1)':
@@ -10584,11 +10641,25 @@ snapshots:
       '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.40.0
 
+  '@opentelemetry/sdk-logs@0.223.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/api-logs': 0.223.0
+      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.40.0
+
   '@opentelemetry/sdk-metrics@2.10.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
+
+  '@opentelemetry/sdk-metrics@2.12.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.12.0(@opentelemetry/api@1.9.1)
 
   '@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1)':
     dependencies:
@@ -10622,6 +10693,13 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.40.0
+
+  '@opentelemetry/sdk-trace@2.12.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.12.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.40.0
 
   '@opentelemetry/semantic-conventions@1.40.0': {}
@@ -10961,7 +11039,7 @@ snapshots:
 
   '@stylistic/eslint-plugin-ts@4.4.1(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)':
     dependencies:
-      '@typescript-eslint/utils': 8.58.2(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.69.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       eslint: 9.39.5(jiti@2.7.0)
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
@@ -11251,9 +11329,9 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
-  '@types/lodash@4.17.24': {}
-
   '@types/lodash@4.17.25': {}
+
+  '@types/luxon@3.7.6': {}
 
   '@types/minimist@1.2.5': {}
 
@@ -11296,7 +11374,7 @@ snapshots:
 
   '@types/string-hash@1.1.3': {}
 
-  '@types/systemjs@6.15.3': {}
+  '@types/systemjs@6.15.4': {}
 
   '@types/tough-cookie@4.0.5': {}
 
@@ -11350,15 +11428,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/project-service@8.62.0(typescript@5.9.3)':
-    dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.62.0(typescript@5.9.3)
-      '@typescript-eslint/types': 8.69.0
-      debug: 4.4.3
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@typescript-eslint/project-service@8.69.0(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.69.0(typescript@5.9.3)
@@ -11372,11 +11441,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.58.2
       '@typescript-eslint/visitor-keys': 8.58.2
-
-  '@typescript-eslint/scope-manager@8.62.0':
-    dependencies:
-      '@typescript-eslint/types': 8.62.0
-      '@typescript-eslint/visitor-keys': 8.62.0
 
   '@typescript-eslint/scope-manager@8.69.0':
     dependencies:
@@ -11409,8 +11473,6 @@ snapshots:
 
   '@typescript-eslint/types@8.58.2': {}
 
-  '@typescript-eslint/types@8.62.0': {}
-
   '@typescript-eslint/types@8.69.0': {}
 
   '@typescript-eslint/typescript-estree@8.58.2(typescript@5.9.3)':
@@ -11419,21 +11481,6 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.58.2(typescript@5.9.3)
       '@typescript-eslint/types': 8.58.2
       '@typescript-eslint/visitor-keys': 8.58.2
-      debug: 4.4.3
-      minimatch: 10.2.6
-      semver: 7.8.5
-      tinyglobby: 0.2.16
-      ts-api-utils: 2.5.0(typescript@5.9.3)
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript-eslint/typescript-estree@8.62.0(typescript@5.9.3)':
-    dependencies:
-      '@typescript-eslint/project-service': 8.62.0(typescript@5.9.3)
-      '@typescript-eslint/tsconfig-utils': 8.62.0(typescript@5.9.3)
-      '@typescript-eslint/types': 8.62.0
-      '@typescript-eslint/visitor-keys': 8.62.0
       debug: 4.4.3
       minimatch: 10.2.6
       semver: 7.8.5
@@ -11469,17 +11516,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.62.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)':
-    dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.5(jiti@2.7.0))
-      '@typescript-eslint/scope-manager': 8.62.0
-      '@typescript-eslint/types': 8.62.0
-      '@typescript-eslint/typescript-estree': 8.62.0(typescript@5.9.3)
-      eslint: 9.39.5(jiti@2.7.0)
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@typescript-eslint/utils@8.69.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.5(jiti@2.7.0))
@@ -11494,11 +11530,6 @@ snapshots:
   '@typescript-eslint/visitor-keys@8.58.2':
     dependencies:
       '@typescript-eslint/types': 8.58.2
-      eslint-visitor-keys: 5.0.1
-
-  '@typescript-eslint/visitor-keys@8.62.0':
-    dependencies:
-      '@typescript-eslint/types': 8.62.0
       eslint-visitor-keys: 5.0.1
 
   '@typescript-eslint/visitor-keys@8.69.0':
@@ -12486,7 +12517,7 @@ snapshots:
 
   downshift@9.3.2(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       compute-scroll-into-view: 3.1.1
       prop-types: 15.8.1
       react: 18.3.1
@@ -13247,7 +13278,7 @@ snapshots:
 
   history@4.10.1:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.3.3
@@ -13310,7 +13341,7 @@ snapshots:
 
   i18next-browser-languagedetector@8.2.1:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
 
   i18next-cli@1.73.1(@swc/helpers@0.5.23)(@types/node@24.13.3)(react-dom@18.3.1(react@18.3.1))(typescript@5.9.3):
     dependencies:
@@ -13353,7 +13384,7 @@ snapshots:
 
   i18next@19.9.2:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
 
   i18next@26.4.2(typescript@5.9.3):
     optionalDependencies:
@@ -14326,7 +14357,7 @@ snapshots:
 
   module-details-from-path@1.0.4: {}
 
-  moment-timezone@0.5.47:
+  moment-timezone@0.6.5:
     dependencies:
       moment: 2.31.0
 
@@ -15019,7 +15050,7 @@ snapshots:
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -15076,7 +15107,7 @@ snapshots:
 
   react-window@1.8.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       memoize-one: 5.2.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
