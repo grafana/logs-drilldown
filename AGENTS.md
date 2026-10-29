@@ -76,7 +76,7 @@ Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) fo
 - **Write tests against `testIds`** — In Playwright specs, use `page.getByTestId(testIds.some.path)` (or the project’s equivalent) instead of brittle locators such as concatenated visible text (`FieldAll`), placeholder-only queries, or `getByText` for strings that depend on layout or i18n.
 - **When to add IDs** — Add or extend `testIds` when you introduce new UI that should be covered by E2E, or when a test would otherwise rely on implementation details of `@grafana/ui` (e.g. tooltip vs dialog, label + value split across nodes).
 - **Naming** — Keep the same string style as existing entries (e.g. `'data-testid search-fields'`). Prefer descriptive, stable slugs over feature-coupled names that will churn on every copy change.
-- **Keep `GRAFANA_LATEST_SUPPORTED_VERSION` in sync** — When bumping the `@grafana/{data,runtime,schema,ui,api-clients,i18n}` core package family, also update `GRAFANA_LATEST_SUPPORTED_VERSION` in `tests/config/grafana-versions-supported.ts` to match, and the example copy of it in `tests/README.md`. It gates E2E tests that should only run on the latest Grafana version, and drifts silently if left behind.
+- **Keep `GRAFANA_LATEST_SUPPORTED_VERSION` in sync with `plugin.json`** — It must equal the minimum version in `grafanaDependency` in `src/plugin.json` (e.g. `>=13.2.0-0` → `13.2.0`), not the `@grafana/*` package version. Whenever you change `grafanaDependency`, update `GRAFANA_LATEST_SUPPORTED_VERSION` in `tests/config/grafana-versions-supported.ts` and the example copy in `tests/README.md`, and verify all three match before committing. It gates E2E tests, and drifts silently if left behind.
 
 ## Usage
 

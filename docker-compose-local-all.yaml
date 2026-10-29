@@ -16,7 +16,6 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana}
-        grafana_version: ${GRAFANA_VERSION:-main}
     volumes: !override
       - ./dist:/var/lib/grafana/plugins/grafana-lokiexplore-app
       - ./provisioning-all:/etc/grafana/provisioning
