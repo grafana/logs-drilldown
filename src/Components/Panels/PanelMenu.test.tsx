@@ -500,10 +500,31 @@ describe('PanelMenu', () => {
             type: 'loki',
             uid: 'test-datasource',
           },
-          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"})[5m])' }],
+          targets: [
+            { refId: 'A', expr: 'sum by (service_name) (count_over_time(({service_name="tempo-distributor"})[5m]))' },
+          ],
         }),
         timeRange: { from: 'now-1h', to: 'now' },
       });
+    });
+
+    it('aggregates parsed log fields by the selected stream labels for alert creation', () => {
+      const menu = new PanelMenu({});
+      jest
+        .mocked(interpolateExpression)
+        .mockReturnValue(
+          '{service_name="nginx", cluster="prod"} | json | logfmt | status >= 500 | drop __error__, __error_details__'
+        );
+      jest.mocked(isLogsQuery).mockReturnValue(true);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload.panel.targets).toEqual([
+        {
+          refId: 'A',
+          expr: 'sum by (service_name, cluster) (count_over_time(({service_name="nginx", cluster="prod"} | json | logfmt | status >= 500 | drop __error__, __error_details__)[5m]))',
+        },
+      ]);
     });
 
     it('should generate create alert payload for logs query with pipeline expression', () => {
@@ -520,7 +541,12 @@ describe('PanelMenu', () => {
             type: 'loki',
             uid: 'test-datasource',
           },
-          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"} |= "err")[5m])' }],
+          targets: [
+            {
+              refId: 'A',
+              expr: 'sum by (service_name) (count_over_time(({service_name="tempo-distributor"} |= "err")[5m]))',
+            },
+          ],
         }),
         timeRange: { from: 'now-1h', to: 'now' },
       });
@@ -540,7 +566,9 @@ describe('PanelMenu', () => {
             type: 'loki',
             uid: 'test-datasource',
           },
-          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"}[10m]))' }],
+          targets: [
+            { refId: 'A', expr: 'sum by (service_name) (count_over_time(({service_name="tempo-distributor"}[10m])))' },
+          ],
         }),
         timeRange: { from: 'now-1h', to: 'now' },
       });
@@ -560,7 +588,9 @@ describe('PanelMenu', () => {
             type: 'loki',
             uid: 'test-datasource',
           },
-          targets: [{ refId: 'A', expr: 'count_over_time(({service_name="tempo-distributor"}[5m]))' }],
+          targets: [
+            { refId: 'A', expr: 'sum by (service_name) (count_over_time(({service_name="tempo-distributor"}[5m])))' },
+          ],
         }),
         timeRange: { from: 'now-1h', to: 'now' },
       });
