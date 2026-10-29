@@ -7,6 +7,7 @@ import {
   PluginExtensionPanelContext,
   PluginExtensionPoints,
   QueryVariableModel,
+  getDefaultTimeRange,
 } from '@grafana/data';
 import { getTemplateSrv, locationService } from '@grafana/runtime';
 
@@ -54,6 +55,7 @@ export const linkConfigs: LinkConfigs = [
     targets: [
       PluginExtensionPoints.DashboardPanelMenu,
       PluginExtensionPoints.ExploreToolbarAction,
+      PluginExtensionPoints.AlertingRuleQueryEditor,
       'grafana-metricsdrilldown-app/open-in-logs-drilldown/v1',
       'grafana-assistant-app/navigateToDrilldown/v1',
     ],
@@ -219,8 +221,9 @@ export function contextToLink<T extends PluginExtensionPanelContext>(context?: T
   // sort `primary label` first
   labelFilters.sort((a) => (a.key === labelName ? -1 : 1));
 
-  const fromMs = context.timeRange.from.valueOf();
-  const toMs = context.timeRange.to.valueOf();
+  const timeRange = context.timeRange ?? getDefaultTimeRange();
+  const fromMs = timeRange.from.valueOf();
+  const toMs = timeRange.to.valueOf();
   const [from, to] = ensureValidTimeRangeForLink(Number(fromMs), Number(toMs));
   let params = setUrlParameter(UrlParameters.DatasourceId, dataSourceUid, new URLSearchParams());
   params = setUrlParameter(UrlParameters.TimeRangeFrom, from.toString(), params);
