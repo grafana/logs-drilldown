@@ -24,6 +24,8 @@ import {
   useTheme2,
   Button,
   EmptyState,
+  Stack,
+  Text,
 } from '@grafana/ui';
 
 import { onPatternClick } from './FilterByPatternsButton';
@@ -90,10 +92,118 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
     maxLines: number,
     patternFrames: PatternFrame[],
     patternsNotMatchingFilters: string[] | undefined,
-    filters: AdHocFilterWithLabels[]
+    filters: AdHocFilterWithLabels[],
+    isSmallViewport = false
   ) {
     const styles = getColumnStyles(theme);
     const timeRange = sceneGraph.getTimeRange(this).state.value;
+
+    const renderCount = (row: PatternsTableCellData) => {
+      const value = scaledUnits(1000, SCALED_UNITS)(row.sum);
+      return `${value.prefix ?? ''}${value.text}${value.suffix ?? ''}`;
+    };
+    const renderPercent = (row: PatternsTableCellData) => `${((100 * row.sum) / total).toFixed(0)}%`;
+    const renderLevels = (row: PatternsTableCellData) => {
+      return [...row.levels].sort().map((level) => {
+        const isSelected = filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level);
+        const levelColor = getLevelColor(level, theme);
+        return (
+          <Button
+            key={level}
+            size={'sm'}
+            variant={isSelected ? 'primary' : 'secondary'}
+            fill={'outline'}
+            className={cx(styles.levelWrap, levelColor && getLevelStyles(theme, levelColor, isSelected))}
+            onClick={() => {
+              row.togglePatternLevel(level);
+            }}
+          >
+            {level}
+          </Button>
+        );
+      });
+    };
+    const renderFilterButton = (row: PatternsTableCellData) => {
+      if (patternsNotMatchingFilters?.includes(row.pattern)) {
+        return undefined;
+      }
+
+      const existingPattern = appliedPatterns?.find((appliedPattern) => appliedPattern.pattern === row.pattern);
+      const isIncluded = existingPattern?.type === 'include';
+      const isExcluded = existingPattern?.type === 'exclude';
+      return (
+        <FilterButton
+          isExcluded={isExcluded}
+          isIncluded={isIncluded}
+          onInclude={() => row.includeLink()}
+          onExclude={() => row.excludeLink()}
+          onClear={() => row.undoLink()}
+          buttonFill={'outline'}
+        />
+      );
+    };
+
+    // The table headers are hidden when small, so each stat carries its own caption
+    const renderSmallStat = (label: string, content: React.ReactNode) => (
+      <Stack direction="column" gap={0.5} minWidth={0}>
+        <Text variant="bodySmall" color="secondary">
+          {label}
+        </Text>
+        <Stack alignItems="center" wrap="wrap" minHeight={3}>
+          {content}
+        </Stack>
+      </Stack>
+    );
+
+    // When the wide columns don't fit, each row stacks pattern, stats and actions in one cell
+    if (isSmallViewport) {
+      return [
+        {
+          cell: (props: CellProps<PatternsTableCellData>) => {
+            const row = props.cell.row.original;
+            return (
+              <div data-testid={testIds.patterns.smallCell}>
+                <Stack direction="column" gap={1} minWidth={0} width="100%">
+                  <div className={styles.tablePatternText}>
+                    <PatternNameLabel exploration={getExplorationFor(this)} pattern={row.pattern} maxLines={maxLines} />
+                  </div>
+                  <Stack alignItems="flex-end" justifyContent="space-between" wrap="wrap">
+                    <Stack alignItems="flex-end" gap={2} wrap="wrap" minWidth={0}>
+                      {renderSmallStat(
+                        t(
+                          'components.service-scene.breakdowns.patterns.patterns-view-table-scene.count-label',
+                          'Count'
+                        ),
+                        <Text variant="bodySmall">{renderCount(row)}</Text>
+                      )}
+                      {renderSmallStat(
+                        t(
+                          'components.service-scene.breakdowns.patterns.patterns-view-table-scene.percent-label',
+                          'Percent'
+                        ),
+                        <Text variant="bodySmall">{renderPercent(row)}</Text>
+                      )}
+                      {row.levels.length > 0 &&
+                        renderSmallStat(
+                          t(
+                            'components.service-scene.breakdowns.patterns.patterns-view-table-scene.levels-label',
+                            'Levels'
+                          ),
+                          renderLevels(row)
+                        )}
+                    </Stack>
+                    {renderFilterButton(row)}
+                  </Stack>
+                </Stack>
+              </div>
+            );
+          },
+          header: 'Pattern',
+          id: 'pattern',
+        },
+      ];
+    }
+
     const columns: Array<Column<PatternsTableCellData>> = [
       {
         cell: (props: CellProps<PatternsTableCellData>) => {
@@ -133,18 +243,11 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
         id: 'volume-samples',
       },
       {
-        cell: (props) => {
-          const value = scaledUnits(1000, SCALED_UNITS)(props.cell.row.original.sum);
-          return (
-            <div className={styles.countTextWrap}>
-              <div>
-                {value.prefix ?? ''}
-                {value.text}
-                {value.suffix ?? ''}
-              </div>
-            </div>
-          );
-        },
+        cell: (props) => (
+          <div className={styles.countTextWrap}>
+            <div>{renderCount(props.cell.row.original)}</div>
+          </div>
+        ),
         header: 'Count',
         id: 'count',
         sortType: 'number',
@@ -152,7 +255,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       {
         cell: (props) => (
           <div className={styles.countTextWrap}>
-            <div>{((100 * props.cell.row.original.sum) / total).toFixed(0)}%</div>
+            <div>{renderPercent(props.cell.row.original)}</div>
           </div>
         ),
         header: '%',
@@ -175,27 +278,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
         id: 'pattern',
       },
       {
-        cell: (props: CellProps<PatternsTableCellData>) => {
-          if (patternsNotMatchingFilters?.includes(props.cell.row.original.pattern)) {
-            return undefined;
-          }
-
-          const existingPattern = appliedPatterns?.find(
-            (appliedPattern) => appliedPattern.pattern === props.cell.row.original.pattern
-          );
-          const isIncluded = existingPattern?.type === 'include';
-          const isExcluded = existingPattern?.type === 'exclude';
-          return (
-            <FilterButton
-              isExcluded={isExcluded}
-              isIncluded={isIncluded}
-              onInclude={() => props.cell.row.original.includeLink()}
-              onExclude={() => props.cell.row.original.excludeLink()}
-              onClear={() => props.cell.row.original.undoLink()}
-              buttonFill={'outline'}
-            />
-          );
-        },
+        cell: (props: CellProps<PatternsTableCellData>) => renderFilterButton(props.cell.row.original),
         disableGrow: true,
         header: undefined,
         id: 'include',
@@ -206,27 +289,7 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
       columns.splice(1, 0, {
         header: 'Levels',
         id: 'levels',
-        cell: (props: CellProps<PatternsTableCellData>) => {
-          props.cell.row.original.levels.sort();
-          return props.cell.row.original.levels.map((level) => {
-            const isSelected = filters.some((filter) => isOperatorInclusive(filter.operator) && filter.value === level);
-            const levelColor = getLevelColor(level, theme);
-            return (
-              <Button
-                key={level}
-                size={'sm'}
-                variant={isSelected ? 'primary' : 'secondary'}
-                fill={'outline'}
-                className={cx(styles.levelWrap, levelColor && getLevelStyles(theme, levelColor, isSelected))}
-                onClick={() => {
-                  props.cell.row.original.togglePatternLevel(level);
-                }}
-              >
-                {level}
-              </Button>
-            );
-          });
-        },
+        cell: (props: CellProps<PatternsTableCellData>) => renderLevels(props.cell.row.original),
       });
     }
 
@@ -281,6 +344,9 @@ export class PatternsViewTableScene extends SceneObjectBase<SingleViewTableScene
 // stacking a page scrollbar on top of the table's own.
 const PATTERNS_TABLE_MIN_HEIGHT = '200px';
 
+// Width the multi-column table needs; narrower containers get the stacked rows instead
+const PATTERNS_TABLE_MIN_WIDTH = 830;
+
 const getTableStyles = (theme: GrafanaTheme2) => {
   return {
     link: css({
@@ -291,14 +357,26 @@ const getTableStyles = (theme: GrafanaTheme2) => {
       '> div': {
         height: '100%',
       },
+      // Lets the wrapper shrink below the table's width instead of stretching the whole tab
+      maxWidth: '100%',
       minHeight: PATTERNS_TABLE_MIN_HEIGHT,
-      overflow: 'hidden',
+      minWidth: 0,
+      overflowX: 'auto',
+      overflowY: 'hidden',
       // Make table headers sticky
       th: {
         backgroundColor: theme.colors.background.canvas,
         position: 'sticky',
         top: 0,
         zIndex: 1,
+      },
+    }),
+    // Small tables grow with their rows and the page scrolls, not the table
+    tableWrapSmall: css({
+      minHeight: 0,
+      overflow: 'visible',
+      th: {
+        position: 'static',
       },
     }),
   };
@@ -364,7 +442,9 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   // visible row count adapts to the screen instead of a fixed height.
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [height, setHeight] = useState<string | undefined>(undefined);
-  const syncHeight = () => {
+  // Based on the space the table actually gets, so docked menus and embedded views count too
+  const [isSmallViewport, setIsSmallViewport] = useState(false);
+  const syncSize = () => {
     if (!wrapperRef.current) {
       return;
     }
@@ -372,11 +452,16 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
     if (dimensions.height === 0) {
       return;
     }
+    const isSmall = dimensions.width < PATTERNS_TABLE_MIN_WIDTH;
+    setIsSmallViewport(isSmall);
+    // Small tables grow with their rows, so they get no fixed height
     const offset = dimensions.y + window.scrollY;
-    setHeight(`calc(100vh - ${offset + 16}px)`);
+    setHeight(isSmall ? undefined : `calc(100vh - ${offset + 16}px)`);
   };
-  useLayoutEffect(syncHeight);
-  useResizeObserver({ onResize: syncHeight, ref: wrapperRef });
+  useLayoutEffect(syncSize);
+  useResizeObserver({ onResize: syncSize, ref: wrapperRef });
+
+  const tableWrapClassNames = cx(styles.tableWrap, isSmallViewport && styles.tableWrapSmall);
 
   // Get state from parent
   const patternsFrameScene = sceneGraph.getAncestor(model, PatternsFrameScene);
@@ -409,14 +494,20 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
         model.state.maxLines ?? LINE_LIMIT,
         patternFrames,
         patternsNotMatchingFilters,
-        filters
+        filters,
+        isSmallViewport
       ),
-    [appliedPatterns, filters, model, patternFrames, patternsNotMatchingFilters, theme, total]
+    [appliedPatterns, filters, isSmallViewport, model, patternFrames, patternsNotMatchingFilters, theme, total]
   );
 
   if (patternFrames.length === 0) {
     return (
-      <div ref={wrapperRef} style={{ height }} data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+      <div
+        ref={wrapperRef}
+        style={{ height }}
+        data-testid={testIds.patterns.tableWrapper}
+        className={tableWrapClassNames}
+      >
         <EmptyState
           message={t(
             'components.service-scene.breakdowns.patterns.patterns-view-table-scene.no-patterns-title',
@@ -439,7 +530,12 @@ export function PatternTableViewSceneComponent({ model }: SceneComponentProps<Pa
   }
 
   return (
-    <div ref={wrapperRef} style={{ height }} data-testid={testIds.patterns.tableWrapper} className={styles.tableWrap}>
+    <div
+      ref={wrapperRef}
+      style={{ height }}
+      data-testid={testIds.patterns.tableWrapper}
+      className={tableWrapClassNames}
+    >
       <InteractiveTable
         columns={columns}
         data={tableData}
