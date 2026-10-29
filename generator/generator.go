@@ -127,14 +127,16 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 					t := logger.Now()
 
 					var logLine string
+					errMetadata := metadata
 					if level == log.WARN {
 						logLine = fmt.Sprintf("order %d is not valid", gofakeit.Number(1, 10000))
 					} else if level == log.ERROR {
 						logLine = fmt.Sprintf("error processing order %d", gofakeit.Number(1, 10000))
+						errMetadata = withErrorMetadata(metadata)
 					} else {
 						logLine = flog.NewShoppingCart(t)
 					}
-					logger.LogWithMetadata(level, t, logLine, metadata)
+					logger.LogWithMetadata(level, t, logLine, errMetadata)
 					logger.Sleep()
 				}
 			})
@@ -151,6 +153,7 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 						logLine = fmt.Sprintf("order %d is not valid", gofakeit.Number(1, 10000))
 					} else if level == log.ERROR {
 						logLine = fmt.Sprintf("error processing order %d", gofakeit.Number(1, 10000))
+						newLabels = withErrorMetadata(metadata)
 					} else {
 						var labels push.LabelsAdapter
 						logLine, labels = flog.NewShoppingCartWithMetadata(t)
@@ -169,6 +172,24 @@ var generators = map[model.LabelValue]map[model.LabelValue]LogGenerator{
 			})
 		},
 	},
+}
+
+// withErrorMetadata adds error fields to the metadata, and a stack trace on about half of the lines.
+func withErrorMetadata(metadata push.LabelsAdapter) push.LabelsAdapter {
+	out := make(push.LabelsAdapter, 0, len(metadata)+3)
+	out = append(out, metadata...)
+	if gofakeit.Bool() {
+		return append(out,
+			push.LabelAdapter{Name: "fake_error", Value: "stack-trace"},
+			push.LabelAdapter{Name: "exception.type", Value: "java.lang.NullPointerException"},
+			push.LabelAdapter{Name: "exception.message", Value: "Cannot invoke \"Order.getTotal()\" because \"order\" is null"},
+			push.LabelAdapter{Name: "exception.stacktrace", Value: "java.lang.NullPointerException: Cannot invoke \"Order.getTotal()\" because \"order\" is null\n\tat com.shop.cart.CartService.checkout(CartService.java:88)\n\tat com.shop.cart.CartController.submit(CartController.java:41)\n\tat java.base/java.lang.Thread.run(Thread.java:840)"},
+		)
+	}
+	return append(out,
+		push.LabelAdapter{Name: "fake_error", Value: "error-fields"},
+		push.LabelAdapter{Name: "error.message", Value: "payment provider timed out"},
+	)
 }
 
 func lokiOtelPod(svc string) LogGenerator {

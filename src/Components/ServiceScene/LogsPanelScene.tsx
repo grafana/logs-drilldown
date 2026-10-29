@@ -264,13 +264,26 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   };
 
   setLogsVizOption(options: Partial<Options> = {}) {
-    if (!this.state.body) {
+    const body = this.state.body;
+    if (!body) {
       return;
     }
-    if ('sortOrder' in options && options.sortOrder !== this.state.body.state.options.sortOrder) {
+    // On a re-activation the viz panel can still be loading its panel plugin (e.g. a React Strict Mode
+    // remount). VizPanel.onOptionsChange reads the plugin's defaults, so calling it before the plugin
+    // has loaded throws. Wait for it, then retry.
+    if (!body.getPlugin()) {
+      const sub = body.subscribeToState(() => {
+        if (body.getPlugin()) {
+          sub.unsubscribe();
+          this.setLogsVizOption(options);
+        }
+      });
+      return;
+    }
+    if ('sortOrder' in options && options.sortOrder !== body.state.options.sortOrder) {
       runSceneQueries(this);
     }
-    this.state.body.onOptionsChange(options);
+    body.onOptionsChange(options);
   }
 
   clearDisplayedFields = () => {

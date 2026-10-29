@@ -47,7 +47,7 @@ test.describe('Patterns tab', () => {
       refIds: ['A'],
     });
     await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
-    await page.getByText('<_>').last().click();
+    await page.getByTestId(testIds.patterns.tableWrapper).getByText('<_>').last().click();
     // `From a sample of` is the indicator that the underlying query perfomed successfully
     await expect(page.getByText(`From a sample of`)).toBeVisible();
   });
@@ -56,9 +56,9 @@ test.describe('Patterns tab', () => {
     await page.getByTestId(testIds.exploreServiceDetails.tabPatterns).click();
     const row = page.getByTestId(testIds.patterns.tableWrapper).getByRole('table').getByRole('row');
     await expect(explorePage.getPanelContentLocator().getByRole('button').nth(1)).toBeVisible();
-    expect(await row.count()).toBeGreaterThan(2);
+    await expect.poll(() => row.count()).toBeGreaterThan(2);
     await explorePage.getPanelContentLocator().getByRole('button').nth(1).click();
-    expect(await row.count()).toEqual(2);
+    await expect(row).toHaveCount(2);
   });
 
   test('should search patterns by text', async ({ page }) => {

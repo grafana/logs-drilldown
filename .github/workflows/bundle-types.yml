@@ -25,7 +25,7 @@ jobs:
         id: node
         run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
 
-      - uses: grafana/plugin-actions/bundle-types@2ecc2ba7168309f04010b5b637530b877d67e4ff # main
+      - uses: grafana/plugin-actions/bundle-types@e62759a5ee1a708adb4a1f564f8ae085cd47aedf # bundle-types/v1.0.8
         with:
           entry-point: ./src/Components/ExposedComponents/types.ts
           ts-config: ./tsconfig-for-bundle-types.json

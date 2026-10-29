@@ -34,9 +34,9 @@ If you change the snapshot window in `constants.ts`, update this README and the 
 
 ### Full Test Suite (`tests/`)
 
-All tests in the `tests/` directory are configured to run **only on the latest supported Grafana version** in /tests/config/grafana-versions-supported.ts.
+All tests in the `tests/` directory run on **every supported Grafana version**, i.e. `GRAFANA_LATEST_SUPPORTED_VERSION` or newer, as defined in /tests/config/grafana-versions-supported.ts. That constant equals the minimum version in `grafanaDependency` in `src/plugin.json`.
 
-Tests use the `skipUnlessLatestGrafana` helper to skip execution on older Grafana versions. Use it as a standalone `beforeEach` or call it first inside your own:
+Tests use the `skipUnlessLatestGrafana` helper to skip execution on Grafana versions below that minimum (it checks `semver.gte`, so newer versions run too). Use it as a standalone `beforeEach` or call it first inside your own:
 
 ```typescript
 import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
@@ -52,9 +52,9 @@ test.beforeEach(async ({ page, grafanaVersion }, testInfo) => {
 ```
 
 This ensures that:
-- Tests run against the most recent Grafana features and APIs
-- Test maintenance is focused on the latest version
-- CI runs efficiently by skipping tests on older versions
+- The full suite covers every Grafana version the plugin supports, not just the newest
+- Tests are skipped on versions below the plugin's minimum, where the plugin doesn't load
+- CI runs the full suite once per resolved version in the supported range
 
 ### Smoke Tests (`smoke-tests/`)
 
@@ -70,7 +70,7 @@ These tests:
 
 In CI, tests are configured to run against Grafana versions `>=13.2.0-0`:
 
-- **Full test suite**: Only executes on the latest supported version 
+- **Full test suite**: Executes on all versions >= 13.2.0-0
 - **Smoke tests**: Execute on all versions >= 13.2.0-0
 
 This is configured in `.github/workflows/ci.yml` with:
@@ -80,13 +80,13 @@ run-playwright-with-grafana-dependency: '>=13.2.0-0'
 
 ## Version Support
 
-The latest supported Grafana version is defined in `tests/config/grafana-versions-supported.ts`:
+The minimum supported Grafana version (used as the full-suite gate) is defined in `tests/config/grafana-versions-supported.ts`:
 
 ```typescript
-export const GRAFANA_LATEST_SUPPORTED_VERSION = '13.2.1';
+export const GRAFANA_LATEST_SUPPORTED_VERSION = '13.2.0';
 ```
 
-To update the supported version, modify this constant and ensure all tests pass on the new version.
+This must match the minimum version in `grafanaDependency` in `src/plugin.json`. To update the supported version, change both and ensure all tests pass on the new version.
 
 ## Writing New Tests
 

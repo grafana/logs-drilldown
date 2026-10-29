@@ -1,6 +1,8 @@
+import { locationService } from '@grafana/runtime';
+
 import { PageSlugs } from './enums';
 import { buildDrilldownPageUrl } from './navigate';
-import { buildServicesUrl, ROUTES } from './routing';
+import { buildServicesUrl, getDrilldownSlug, ROUTES } from './routing';
 
 const navigateTo = (url: string) => {
   const { pathname, search } = new URL(url);
@@ -62,5 +64,17 @@ describe('buildBreakdownUrl', () => {
     expect(breakdownUrl).toBe(
       `/a/grafana-lokiexplore-app/${PageSlugs.explore}?var-ds=DSID&from=now-5m&to=now&var-filters=service_name%7C%3D%7Ctempo-distributor`
     );
+  });
+});
+
+describe('getDrilldownSlug', () => {
+  it('returns the tab slug', () => {
+    locationService.push('/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs');
+    expect(getDrilldownSlug()).toBe(PageSlugs.logs);
+  });
+
+  it('returns the tab slug when the URL has a trailing slash', () => {
+    locationService.push('/a/grafana-lokiexplore-app/explore/service/tempo-distributor/logs/');
+    expect(getDrilldownSlug()).toBe(PageSlugs.logs);
   });
 });

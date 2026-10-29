@@ -140,7 +140,8 @@ test.describe('Default fields', () => {
         await expect(page.getByText(fullApacheRegex).first()).toBeVisible();
         await showOriginalLogLineButton.click();
         await expect(page.getByText(fullApacheRegex)).toHaveCount(0);
-        await page.getByText('pod').click();
+        // 13.3.0 lists the field twice (plain and suggested); both toggle the same field
+        await page.getByText('pod').first().click();
         await expect.poll(() => page.getByText(fullApachePodRegex).count()).toBeGreaterThanOrEqual(1);
 
         // Start over to verify user changes take precedence
