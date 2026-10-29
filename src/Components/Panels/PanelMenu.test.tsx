@@ -527,6 +527,21 @@ describe('PanelMenu', () => {
       ]);
     });
 
+    it('should keep empty-valued stream matchers in the sum by clause', () => {
+      const menu = new PanelMenu({});
+      jest.mocked(interpolateExpression).mockReturnValue('{cluster="", service_name="nginx"} | json');
+      jest.mocked(isLogsQuery).mockReturnValue(true);
+
+      const payload = getCreateAlertPayload(menu);
+
+      expect(payload.panel.targets).toEqual([
+        {
+          refId: 'A',
+          expr: 'sum by (cluster, service_name) (count_over_time(({cluster="", service_name="nginx"} | json)[5m]))',
+        },
+      ]);
+    });
+
     it('should generate create alert payload for logs query with pipeline expression', () => {
       const menu = new PanelMenu({});
       jest.mocked(interpolateExpression).mockReturnValue('{service_name="tempo-distributor"} |= "err"');

@@ -30,7 +30,7 @@ import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { logger } from 'services/logger';
 import { isLogsQuery } from 'services/logql';
-import { getMatcherFromQuery } from 'services/logqlMatchers';
+import { getStreamSelectorLabelNames } from 'services/logqlMatchers';
 import { getQueryExpression } from 'services/queryRunner';
 import { findObjectOfType, getDataSource, toggleLogsListPanelSize } from 'services/scenes';
 import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from 'services/store';
@@ -486,7 +486,7 @@ export const getCreateAlertPayload = (model: PanelMenu) => {
         const trimmedExpr = normalizedExpr.trim();
         const hasTrailingRange = /\[[^\]]+\]\s*$/.test(trimmedExpr);
         const logRangeExpr = hasTrailingRange ? `(${trimmedExpr})` : `(${trimmedExpr})${DEFAULT_ALERT_RANGE}`;
-        const labels = Array.from(new Set(getMatcherFromQuery(trimmedExpr).labelFilters.map((f) => f.key)));
+        const labels = getStreamSelectorLabelNames(trimmedExpr);
         const countExpr = `count_over_time(${logRangeExpr})`;
         // Aggregate to stay under Loki's max-series limit when parsers add high-cardinality labels
         return labels.length ? `sum by (${labels.join(', ')}) (${countExpr})` : countExpr;

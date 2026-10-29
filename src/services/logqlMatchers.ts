@@ -391,6 +391,20 @@ export function getMatcherFromQuery(
   return { fields, labelFilters, lineFilters, patternFilters };
 }
 
+// Unlike getMatcherFromQuery, keeps matchers with empty values such as {cluster=""}
+export function getStreamSelectorLabelNames(query: string): string[] {
+  const selector = getNodesFromQuery(query, [Selector])[0];
+  if (!selector) {
+    return [];
+  }
+
+  const selectorQuery = NodePosition.fromNode(selector).getExpression(query);
+  const keys = getNodesFromQuery(selectorQuery, [Matcher])
+    .map((matcher) => getAllPositionsInNodeByType(matcher, Identifier)[0]?.getExpression(selectorQuery))
+    .filter((key): key is string => !!key);
+  return Array.from(new Set(keys));
+}
+
 export function getLabelFormatIdentifiersFromQuery(query: string): string[] {
   const labelFormatNodes = getNodesFromQuery(query, [LabelFormatMatcher]);
   if (!labelFormatNodes.length) {
