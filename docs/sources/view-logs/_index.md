@@ -56,10 +56,20 @@ Most panels in Logs Drilldown have a menu that you open by clicking the menu ico
 - **Explore**: Opens Grafana Explore with a query based on your current selections.
 - **Add to Dashboard**: Adds the panel to a new or existing dashboard.
 - **Create alert**: Creates an alert rule from the panel's query.
+- **Attach to incident**: Adds a link to the current investigation to an existing Grafana IRM incident.
+- **Declare incident**: Opens the Grafana IRM form to declare an incident and attach the current investigation.
 - **Expand logs view** or **Condense logs view**: On the logs panel, toggles the logs list between fitting the available height and expanding to fill the screen.
 - **Explain in Assistant**: Sends the panel's query to Grafana Assistant for an explanation.
 
 Some options, such as **Add to Dashboard**, **Create alert**, and **Explain in Assistant**, appear only when the corresponding Grafana feature is available.
+
+### Work with incidents
+
+Panel menus include **Attach to incident** and **Declare incident** when Grafana IRM is installed and enabled on the same Grafana instance. These actions are available in Logs, Table, and JSON views.
+
+To add the current investigation to an incident, open a panel menu and select **Attach to incident**. Choose the incident, review the caption, and submit the form.
+To start a new incident, select **Declare incident**, complete the incident details, and submit the form.
+Links preserve the investigation's time range. Opening either form doesn't create or update an incident until you submit it.
 
 ## Log line menu
 
