@@ -470,9 +470,12 @@
             "too-old-title": "Los patrones solo están disponibles para las {{maxAgeHours}} horas de datos más recientes."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "No se han encontrado patrones en el intervalo de tiempo actual ni que coincidan con los filtros de nivel actuales.",
             "no-patterns-message": "No se han encontrado patrones en el intervalo de tiempo actual.",
-            "no-patterns-title": "No hay patrones que mostrar"
+            "no-patterns-title": "No hay patrones que mostrar",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Los patrones se seleccionan por etiqueta y se pueden filtrar por nivel. Los campos analizados, los metadatos estructurados y los filtros de cadenas no son compatibles con la lista de patrones.",

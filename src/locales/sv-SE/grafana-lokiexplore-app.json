@@ -470,9 +470,12 @@
             "too-old-title": "Mönster är endast tillgängliga för de senaste {{maxAgeHours}} timmarna av data."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Inga mönster hittades i det aktuella tidsintervallet eller som matchar de aktuella nivåfiltren.",
             "no-patterns-message": "Inga mönster hittades i det aktuella tidsintervallet.",
-            "no-patterns-title": "Inga mönster att visa"
+            "no-patterns-title": "Inga mönster att visa",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Mönster väljs efter etikett och kan filtreras efter nivå. Parserade fält, strukturerade metadata och strängfilter stöds inte för mönsterlistan.",

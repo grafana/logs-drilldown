@@ -470,9 +470,12 @@
             "too-old-title": "Vzorce jsou k dispozici pouze pro data z posledních {{maxAgeHours}} hod."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "V aktuálním časovém rozsahu nebyly nalezeny žádné vzorce ani vzorce odpovídající aktuálním filtrům úrovně.",
             "no-patterns-message": "V aktuálním časovém rozsahu nebyly nalezeny žádné vzorce.",
-            "no-patterns-title": "Žádné vzorce k zobrazení"
+            "no-patterns-title": "Žádné vzorce k zobrazení",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Vzorce jsou vybírány podle štítku a mohou být filtrovány podle úrovně. Analyzovaná pole, strukturovaná metadata a řetězcové filtry nejsou pro seznam vzorců podporovány.",

@@ -470,9 +470,12 @@
             "too-old-title": "Desenler yalnızca en yeni {{maxAgeHours}} saatlik veriler için kullanılabilir."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Geçerli zaman aralığında veya geçerli düzey filtreleriyle eşleşen desen bulunamadı.",
             "no-patterns-message": "Geçerli zaman aralığında desen bulunamadı.",
-            "no-patterns-title": "Görüntülenecek desen yok"
+            "no-patterns-title": "Görüntülenecek desen yok",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Desenler etikete göre seçilir ve düzeye göre filtrelenebilir. Ayrıştırılmış alanlar, yapılandırılmış meta veriler ve dize filtreleri desen listesi için desteklenmez.",

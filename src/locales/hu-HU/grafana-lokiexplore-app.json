@@ -470,9 +470,12 @@
             "too-old-title": "A mintázatok csak a legutóbbi {{maxAgeHours}} óra adatainál érhetők el."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Nem található mintázat az aktuális időtartományban, sem az aktuális szintszűrőknek megfelelő mintázat.",
             "no-patterns-message": "Nem található mintázat az aktuális időtartományban.",
-            "no-patterns-title": "Nincs megjeleníthető mintázat"
+            "no-patterns-title": "Nincs megjeleníthető mintázat",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "A mintázatok címke alapján vannak kiválasztva, és szint szerint szűrhetők. A mintázatlistánál nem támogatottak az elemzett mezők, a strukturált metaadatok és a karakterlánc-szűrők.",

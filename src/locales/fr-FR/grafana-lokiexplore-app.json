@@ -470,9 +470,12 @@
             "too-old-title": "Les patterns sont uniquement disponibles pour les {{maxAgeHours}} dernières heures de données."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Aucun pattern trouvé dans la plage de temps actuelle ou correspondant aux filtres de niveau actuels.",
             "no-patterns-message": "Aucun pattern trouvé dans la plage de temps actuelle.",
-            "no-patterns-title": "Aucun pattern à afficher"
+            "no-patterns-title": "Aucun pattern à afficher",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Les patterns sont sélectionnés par étiquette et peuvent être filtrés par niveau. Les champs analysés, les métadonnées structurées et les filtres de chaînes ne sont pas pris en charge pour la liste de patterns.",

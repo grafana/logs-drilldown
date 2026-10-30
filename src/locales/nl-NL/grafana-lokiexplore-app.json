@@ -470,9 +470,12 @@
             "too-old-title": "Patronen zijn alleen beschikbaar voor de meest recente {{maxAgeHours}} uur aan gegevens."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Er zijn geen patronen gevonden in het huidige tijdsbereik of die overeenkomen met de huidige niveaufilters.",
             "no-patterns-message": "Er zijn geen patronen gevonden in het huidige tijdsbereik.",
-            "no-patterns-title": "Geen patronen om weer te geven"
+            "no-patterns-title": "Geen patronen om weer te geven",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Patronen worden geselecteerd op label en kunnen worden gefilterd op niveau. Geparste velden, gestructureerde metadata en stringfilters worden niet ondersteund voor de patroonlijst.",

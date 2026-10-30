@@ -470,9 +470,12 @@
             "too-old-title": "Wzorce są dostępne tylko dla danych z ostatnich {{maxAgeHours}} godzin."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Nie znaleziono wzorców w bieżącym zakresie czasu ani pasujących do bieżących filtrów poziomu.",
             "no-patterns-message": "Nie znaleziono wzorców w bieżącym zakresie czasu.",
-            "no-patterns-title": "Brak wzorców do wyświetlenia"
+            "no-patterns-title": "Brak wzorców do wyświetlenia",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Wzorce są wybierane według etykiety i mogą być filtrowane według poziomu. Przetworzone pola, ustrukturyzowane metadane i filtry ciągów znaków nie są obsługiwane w przypadku listy wzorców.",

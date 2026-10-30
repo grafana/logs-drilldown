@@ -470,9 +470,12 @@
             "too-old-title": "Pola hanya tersedia untuk data {{maxAgeHours}} jam terakhir."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Tidak ada pola yang ditemukan dalam rentang waktu saat ini atau yang cocok dengan filter level saat ini.",
             "no-patterns-message": "Tidak ada pola yang ditemukan dalam rentang waktu saat ini.",
-            "no-patterns-title": "Tidak ada pola untuk ditampilkan"
+            "no-patterns-title": "Tidak ada pola untuk ditampilkan",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Pola dipilih berdasarkan label dan dapat difilter berdasarkan level. Field yang diurai, metadata terstruktur, dan filter string tidak didukung untuk daftar pola tersebut.",
