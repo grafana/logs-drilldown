@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.1.1](https://github.com/grafana/logs-drilldown/compare/v3.1.0...v3.1.1) (2026-10-30)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** bump bundle-types action to the signed-commit release ([#2154](https://github.com/grafana/logs-drilldown/issues/2154)) ([5aa2b86](https://github.com/grafana/logs-drilldown/commit/5aa2b86fc72d94dd146f485a387dc78b8c8681a6))
+* **dev:** inherit local Grafana version and align supported version with plugin.json ([#2164](https://github.com/grafana/logs-drilldown/issues/2164)) ([e59f132](https://github.com/grafana/logs-drilldown/commit/e59f13259b6522359095468fa61b8895337312ae))
+* **LogsPanelScene:** wait for the plugin to load before attempting to set options ([#2162](https://github.com/grafana/logs-drilldown/issues/2162)) ([22b2eeb](https://github.com/grafana/logs-drilldown/commit/22b2eeba2d2d59c0fa8dace760e5c9408a94cb5d))
+* **patterns:** stack the pattern table rows on narrow viewports ([#2150](https://github.com/grafana/logs-drilldown/issues/2150)) ([18e3c1e](https://github.com/grafana/logs-drilldown/commit/18e3c1ef04546dab8ee4cb4a1eb7b42a547f079e))
+
+
+### 🧹 Chore
+
+* **deps:** fix available pnpm audit vulnerabilities ([#2163](https://github.com/grafana/logs-drilldown/issues/2163)) ([0c8c130](https://github.com/grafana/logs-drilldown/commit/0c8c1301e82c0056725aeb2ac3e50407966b3351))
+* **deps:** update Grafana packages to 13.3.0 ([#2159](https://github.com/grafana/logs-drilldown/issues/2159)) ([214d167](https://github.com/grafana/logs-drilldown/commit/214d1679ae098bd71ddbb1a056b77c477405d7a4))
+* **generator:** add exception fields and stack traces to shopping-cart error logs ([#2156](https://github.com/grafana/logs-drilldown/issues/2156)) ([dd75010](https://github.com/grafana/logs-drilldown/commit/dd7501099513cc061c7f6ad26ded0a80d161536b))
+
 ## [3.1.0](https://github.com/grafana/logs-drilldown/compare/v3.0.0...v3.1.0) (2026-10-26)
 
 
