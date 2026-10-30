@@ -1,4 +1,11 @@
-import { dateTime, PluginExtensionPanelContext, CustomVariableModel, VariableHide, LoadingState } from '@grafana/data';
+import {
+  dateTime,
+  PluginExtensionPanelContext,
+  PluginExtensionPoints,
+  CustomVariableModel,
+  VariableHide,
+  LoadingState,
+} from '@grafana/data';
 
 import {
   interpolateQueryExpr,
@@ -9,6 +16,7 @@ import {
 } from './links';
 import { addCustomInputPrefixAndValueLabels, encodeFilter, getPath } from './utils';
 import { ValidByteUnitValues, validDurationValues } from 'Components/ServiceScene/Breakdowns/NumericFilterPopoverScene';
+import pluginJson from 'plugin.json';
 import { LokiQuery } from 'services/lokiQuery';
 import { addAdHocFilterUserInputPrefix, EMPTY_VARIABLE_VALUE } from 'services/variables';
 
@@ -66,6 +74,20 @@ function getTestTarget(lokiQuery?: Partial<LokiQuery>): Partial<LokiQuery> & { r
 }
 
 describe('contextToLink', () => {
+  it('registers the alerting rule query editor in the runtime config and the manifest', () => {
+    expect(linkConfigs[0].targets).toContain(PluginExtensionPoints.AlertingRuleQueryEditor);
+    expect(pluginJson.extensions.addedLinks[0].targets).toContain(PluginExtensionPoints.AlertingRuleQueryEditor);
+  });
+
+  it('falls back to the default time range when the context has none', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-02-08T12:00:00.000Z'));
+    const target = getTestTarget({ expr: '{service_name="api"}' });
+    const config = getTestConfig(linkConfigs, target, { timeRange: undefined });
+    jest.useRealTimers();
+
+    expect(config?.path).toContain('from=1675836000000&to=1675857600000');
+  });
+
   it('should return default app url when loki datasource has no expression', () => {
     const target = getTestTarget({
       expr: undefined, // No expression provided

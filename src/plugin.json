@@ -102,6 +102,7 @@
         "targets": [
           "grafana/dashboard/panel/menu",
           "grafana/explore/toolbar/action",
+          "grafana/alerting/alertingrule/queryeditor",
           "grafana-metricsdrilldown-app/open-in-logs-drilldown/v1",
           "grafana-assistant-app/navigateToDrilldown/v1"
         ],
