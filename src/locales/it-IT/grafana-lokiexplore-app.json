@@ -470,9 +470,12 @@
             "too-old-title": "I modelli sono disponibili solo per le {{maxAgeHours}} ore di dati più recenti."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Nessun modello trovato nell'intervallo di tempo corrente o corrispondente ai filtri di livello correnti.",
             "no-patterns-message": "Nessun modello trovato nell'intervallo di tempo corrente.",
-            "no-patterns-title": "Nessun modello da visualizzare"
+            "no-patterns-title": "Nessun modello da visualizzare",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "I modelli vengono selezionati per etichetta e possono essere filtrati per livello. I campi analizzati, i metadati strutturati e i filtri di stringa non sono supportati per l'elenco dei modelli.",

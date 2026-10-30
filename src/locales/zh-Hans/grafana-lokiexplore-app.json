@@ -470,9 +470,12 @@
             "too-old-title": "模式仅适用于最近 {{maxAgeHours}} 小时的数据。"
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "在当前时间范围内未找到模式，或未找到匹配当前级别筛选条件的模式。",
             "no-patterns-message": "在当前时间范围内未找到模式。",
-            "no-patterns-title": "没有要显示的模式"
+            "no-patterns-title": "没有要显示的模式",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "模式按标签选择，并可按级别筛选。模式列表不支持已解析字段、结构化元数据和字符串筛选器。",

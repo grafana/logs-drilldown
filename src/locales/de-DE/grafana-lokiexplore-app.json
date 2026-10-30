@@ -470,9 +470,12 @@
             "too-old-title": "Muster sind nur für die letzten {{maxAgeHours}} Stunden an Daten verfügbar."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Im aktuellen Zeitbereich wurden keine Muster gefunden oder keine Muster entsprechen den aktuellen Stufenfiltern.",
             "no-patterns-message": "Im aktuellen Zeitbereich wurden keine Muster gefunden.",
-            "no-patterns-title": "Keine anzuzeigenden Muster"
+            "no-patterns-title": "Keine anzuzeigenden Muster",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Muster werden je nach Label ausgewählt und können je nach Stufe gefiltert werden. Geparste Felder, strukturierte Metadaten und String-Filter werden für die Musterliste nicht unterstützt.",

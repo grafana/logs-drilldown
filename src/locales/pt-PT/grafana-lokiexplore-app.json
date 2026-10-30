@@ -470,9 +470,12 @@
             "too-old-title": "Os padrões estão disponíveis apenas para as {{maxAgeHours}} horas de dados mais recentes."
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "Nenhum padrão encontrado no intervalo de tempo atual ou que corresponda aos filtros de nível atuais.",
             "no-patterns-message": "Nenhum padrão encontrado no intervalo de tempo atual.",
-            "no-patterns-title": "Não há padrões para mostrar"
+            "no-patterns-title": "Não há padrões para mostrar",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Os padrões são selecionados por etiqueta e podem ser filtrados por nível. Os campos analisados, os metadados estruturados e os filtros de strings não são suportados para a lista de padrões.",

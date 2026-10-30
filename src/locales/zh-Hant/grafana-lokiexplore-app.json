@@ -470,9 +470,12 @@
             "too-old-title": "模式僅適用於最近 {{maxAgeHours}} 小時的資料。"
           },
           "patterns-view-table-scene": {
+            "count-label": "",
+            "levels-label": "",
             "no-filtered-patterns-message": "在目前的時間範圍內找不到模式，或找不到符合目前層級篩選條件的模式。",
             "no-patterns-message": "在目前的時間範圍內找不到模式。",
-            "no-patterns-title": "沒有要顯示的模式"
+            "no-patterns-title": "沒有要顯示的模式",
+            "percent-label": ""
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "模式是依標籤選取，並可依層級篩選。模式清單不支援已剖析欄位、結構化中繼資料和字串篩選條件。",
