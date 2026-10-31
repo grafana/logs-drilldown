@@ -17,6 +17,8 @@ minimumReleaseAgeExclude:
   - '@grafana/runtime@13.3.0'
   - '@grafana/schema@13.3.0'
   - '@grafana/ui@13.3.0'
+  # Renovate security update: glob@14.0.2
+  - glob@14.0.2
 # Fail install if a package's trust evidence is weaker than an earlier release (e.g. lost trusted publisher).
 trustPolicy: no-downgrade
 # Exemptions for entries that cannot resolve to an attested version: each is a
