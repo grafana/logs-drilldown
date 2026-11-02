@@ -16,7 +16,7 @@
  *
  * Pattern selection:
  *   The patterns below are crafted to match the *exact* log line formats
- *   emitted by `noisyTempo` in `drilldown/generator/generator.go` for
+ *   emitted by `noisyTempo` in `drilldown/packages/generator/generator.go` for
  *   `service_name="tempo-distributor"`. `<_>` placeholders only appear where
  *   the generator interpolates values (`%s`/`%d`), so the pattern sample
  *   query that runs when a user clicks a `<_>` token (which uses `|>`

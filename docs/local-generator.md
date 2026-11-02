@@ -1,12 +1,12 @@
 # Local development data
 
-The shared generator source and backend configuration live in `drilldown/generator`,
-outside this project's npm dependencies. See the [shared guide](../../drilldown/generator/README.md).
+The shared generator source and backend configuration live in `drilldown/packages/generator`,
+outside this project's npm dependencies. See the [shared guide](../../drilldown/packages/generator/README.md).
 
 Set the generator directory in this project's `.env` for your checkout layout:
 
 ```dotenv
-DRILLDOWN_GENERATOR_DIR=../drilldown/generator
+DRILLDOWN_GENERATOR_DIR=../drilldown/packages/generator
 ```
 
 That is also the default when unset. An absolute directory path works too.

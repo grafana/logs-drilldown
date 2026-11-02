@@ -1,7 +1,7 @@
 include:
   - path:
-      - ${DRILLDOWN_GENERATOR_DIR:-../drilldown/generator}/compose.yaml
-      - ${DRILLDOWN_GENERATOR_DIR:-../drilldown/generator}/compose.syslog.yaml
+      - ${DRILLDOWN_GENERATOR_DIR:-../drilldown/packages/generator}/compose.yaml
+      - ${DRILLDOWN_GENERATOR_DIR:-../drilldown/packages/generator}/compose.syslog.yaml
 
 services:
   grafana:

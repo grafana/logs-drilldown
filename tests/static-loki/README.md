@@ -33,7 +33,7 @@ in the e2e environment.
 
 Run `pnpm run generate:loki-snapshot` whenever you:
 
-* Add or rename services / labels in the generator (e.g. `drilldown/generator/generator.go`)
+* Add or rename services / labels in the generator (e.g. `drilldown/packages/generator/generator.go`)
 * Change Loki configuration in a way that affects index or chunk layout
 * Need to extend the time window or add new patterns covered by the suite
 
