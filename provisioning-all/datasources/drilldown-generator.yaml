@@ -1,0 +1,54 @@
+# Shared generator datasource definitions; source: drilldown/generator/provisioning/datasources.yaml
+apiVersion: 1
+datasources:
+  - name: gdev-loki
+    type: loki
+    uid: gdev-loki
+    access: proxy
+    url: http://host.docker.internal:3100
+    jsonData:
+      httpHeaderName1: X-Scope-OrgID
+      derivedFields:
+        - datasourceUid: gdev-tempo
+          matcherRegex: traceID
+          matcherType: label
+          name: traceID-tempo
+          url: $${__value.raw}
+          urlDisplayLabel: tempo
+    secureJsonData:
+      httpHeaderValue1: '1'
+  - name: gdev-tempo
+    type: tempo
+    uid: gdev-tempo
+    access: proxy
+    url: http://host.docker.internal:3200
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: gdev-loki
+        spanStartTimeShift: -5m
+        spanEndTimeShift: 5m
+        customQuery: true
+        query:
+          '{service_name=~"tempo-ingester|tempo-distributor|mimir-ingester|mimir-distributor|mimir-querier|mimir-ruler|loki-ingester-otel|loki-querier-otel|loki-queryfrontend-otel|loki-distributor-otel|grafanacon-json-otel|grafanacon-otel|shopping-cart-otel|shopping-cart-structured-otel"}
+          |="$${__span.traceId}"'
+  - name: gdev-prometheus
+    uid: gdev-prometheus
+    type: prometheus
+    access: proxy
+    url: http://host.docker.internal:9090
+    basicAuth: true
+    basicAuthUser: admin
+    jsonData:
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.40.0
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: gdev-tempo
+      metricsToLogsV2:
+        datasourceUid: gdev-loki
+        customQuery: true
+        query: '{service_name=~"tempo-ingester|tempo-distributor|mimir-ingester|mimir-distributor|mimir-querier|mimir-ruler|loki-ingester-otel|loki-querier-otel|loki-queryfrontend-otel|loki-distributor-otel|grafanacon-json-otel|grafanacon-otel|shopping-cart-otel|shopping-cart-structured-otel|nginx|nginx-json|nginx-json-mixed|apache|httpd"}'
+    secureJsonData:
+      basicAuthPassword: admin

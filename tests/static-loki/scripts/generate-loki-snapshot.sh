@@ -2,7 +2,7 @@
 #
 # Build a deterministic Loki snapshot used by the static-data e2e setup.
 #
-# Spins up a Loki container, runs the bundled generator in static mode
+# Spins up a Loki container, runs the shared generator in static mode
 # (fixed clock + seeded RNG), waits for the generator to finish, asks Loki
 # to flush its in-memory chunks to filesystem storage, then copies the
 # contents of /tmp/loki out of the container and zips them into:
@@ -60,7 +60,11 @@ trap cleanup EXIT
 cleanup
 
 echo "==> Building containers"
-compose build
+if [ -n "${DRILLDOWN_GENERATOR_IMAGE:-}" ]; then
+  compose pull snapshot-generator
+else
+  (cd "$ROOT_DIR" && docker compose -f docker-compose.local.yaml build generator)
+fi
 
 echo "==> Starting Loki"
 compose up -d snapshot-loki
