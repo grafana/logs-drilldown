@@ -232,8 +232,10 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           {
             text: t('irm.attach', 'Attach to incident'),
             iconClassName: 'fire',
-            onClick: () =>
-              model.publishEvent(new IrmActionEvent({ type: 'attach', context: getIrmContext(model) }), true),
+            onClick: () => {
+              onIrmActionClickTracking('attach');
+              model.publishEvent(new IrmActionEvent({ type: 'attach', context: getIrmContext(model) }), true);
+            },
           },
           'Navigation'
         );
@@ -247,8 +249,10 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
           {
             text: t('irm.declare', 'Declare incident'),
             iconClassName: 'fire',
-            onClick: () =>
-              model.publishEvent(new IrmActionEvent({ type: 'declare', context: getIrmContext(model) }), true),
+            onClick: () => {
+              onIrmActionClickTracking('declare');
+              model.publishEvent(new IrmActionEvent({ type: 'declare', context: getIrmContext(model) }), true);
+            },
           },
           'Navigation'
         );
@@ -546,6 +550,15 @@ export const getCreateAlertPayload = (model: PanelMenu) => {
 
 const onExploreLinkClickTracking = () => {
   reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
+};
+
+const onIrmActionClickTracking = (type: IrmAction['type']) => {
+  reportAppInteraction(
+    USER_EVENTS_PAGES.service_details,
+    type === 'attach'
+      ? USER_EVENTS_ACTIONS.service_details.irm_attach_to_incident_clicked
+      : USER_EVENTS_ACTIONS.service_details.irm_declare_incident_clicked
+  );
 };
 
 const onSwitchVizTypeTracking = (newVizType: TimeSeriesPanelType) => {

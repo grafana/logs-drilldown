@@ -138,6 +138,9 @@ export const USER_EVENTS_ACTIONS = {
     link_button_click: 'link_button_click',
     // Clicking "Create alert" from panel context menu
     create_alert_from_panel_clicked: 'create_alert_from_panel_clicked',
+    // Clicking "Attach to incident" / "Declare incident" from panel context menu
+    irm_attach_to_incident_clicked: 'irm_attach_to_incident_clicked',
+    irm_declare_incident_clicked: 'irm_declare_incident_clicked',
   },
   [USER_EVENTS_PAGES.all]: {
     interval_too_long: 'interval_too_long',
