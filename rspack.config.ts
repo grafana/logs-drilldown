@@ -1,14 +1,13 @@
-import path from 'path';
-import type { Configuration } from 'webpack';
-//import LiveReloadPlugin from 'webpack-livereload-plugin';
-import { merge } from 'webpack-merge';
+import path from 'node:path';
+
+import type { Configuration } from '@rspack/core';
+import { merge } from 'rspack-merge';
 
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
 
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-import grafanaConfig from './.config/webpack/webpack.config';
+import grafanaConfig, { type Env } from './.config/rspack/rspack.config.ts';
 
-const config = async (env: any): Promise<Configuration> => {
+const config = async (env: Env): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
   const sourceMapPlugins =
     process.env.FARO_SOURCEMAP_TOKEN &&
@@ -30,28 +29,12 @@ const config = async (env: any): Promise<Configuration> => {
 
   return merge(baseConfig, {
     resolve: {
-      ...baseConfig.resolve,
       alias: {
-        ...baseConfig.resolve?.alias,
         // hack to keep scenes from crashing when running in dev mode, can remove when https://github.com/grafana/scenes/issues/1322 is resolved.
-        '@grafana/i18n': path.resolve(__dirname, 'node_modules/@grafana/i18n'),
+        '@grafana/i18n': path.resolve(import.meta.dirname, 'node_modules/@grafana/i18n'),
       },
     },
-    experiments: {
-      // Required to load WASM modules.
-      asyncWebAssembly: true,
-    },
-    plugins: [
-      ...sourceMapPlugins,
-      // new BundleAnalyzerPlugin(),
-      /*new LiveReloadPlugin({
-        appendScriptTag: true,
-        delay: 1000,
-        hostname: 'localhost',
-        port: 35828,
-        protocol: 'http',
-      }),*/
-    ],
+    plugins: [...sourceMapPlugins],
   });
 };
 

@@ -36,6 +36,7 @@ export default defineConfig([
   },
 ]);
 ```
+
 ---
 
 ### Extending the Prettier config
@@ -99,24 +100,24 @@ Edit the `tsconfig.json` file in the project root in order to extend the TypeScr
 
 ---
 
-### Extending the Webpack config
+### Extending the Rspack config
 
-Follow these steps to extend the basic Webpack configuration that lives under `.config/`:
+Follow these steps to extend the basic Rspack configuration that lives under `.config/`:
 
-#### 1. Create a new Webpack configuration file
+#### 1. Create a new Rspack configuration file
 
 Create a new config file that is going to extend the basic one provided by Grafana.
-It can live in the project root, e.g. `webpack.config.ts`.
+It can live in the project root, e.g. `rspack.config.ts`.
 
 #### 2. Merge the basic config provided by Grafana and your custom setup
 
-We are going to use [`webpack-merge`](https://github.com/survivejs/webpack-merge) for this.
+We are going to use [`rspack-merge`](https://github.com/rstackjs/rspack-merge) for this.
 
 ```typescript
-// webpack.config.ts
-import type { Configuration } from 'webpack';
-import { merge } from 'webpack-merge';
-import grafanaConfig, { type Env } from './.config/webpack/webpack.config';
+// rspack.config.ts
+import type { Configuration } from '@rspack/core';
+import { merge } from 'rspack-merge';
+import grafanaConfig, { type Env } from './.config/rspack/rspack.config.ts';
 
 const config = async (env: Env): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
@@ -132,22 +133,24 @@ const config = async (env: Env): Promise<Configuration> => {
 export default config;
 ```
 
-#### 3. Update the `package.json` to use the new Webpack config
+The Rspack CLI loads this file as native ESM, so use `import.meta.dirname` instead of `__dirname` and give relative imports a `.ts` extension.
 
-We need to update the `scripts` in the `package.json` to use the extended Webpack configuration.
+#### 3. Update the `package.json` to use the new Rspack config
+
+We need to update the `scripts` in the `package.json` to use the extended Rspack configuration.
 
 **Update for `build`:**
 
 ```diff
--"build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
-+"build": "webpack -c ./webpack.config.ts --env production",
+-"build": "rspack -c ./.config/rspack/rspack.config.ts --env production",
++"build": "rspack -c ./rspack.config.ts --env production",
 ```
 
 **Update for `dev`:**
 
 ```diff
--"dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
-+"dev": "webpack -w -c ./webpack.config.ts --env development",
+-"dev": "rspack -w -c ./.config/rspack/rspack.config.ts --env development",
++"dev": "rspack -w -c ./rspack.config.ts --env development",
 ```
 
 ### Configure grafana image to use when running docker
