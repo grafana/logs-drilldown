@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { of } from 'rxjs';
 
 import { isAssistantAvailable } from '@grafana/assistant';
@@ -10,6 +10,7 @@ import { reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
   SceneCSSGridItem,
   SceneFlexLayout,
+  SceneFlexItem,
   sceneGraph,
   SceneObject,
   SceneQueryRunner,
@@ -34,10 +35,18 @@ import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction } from 'services/analytics';
+import { constructAbsoluteUrl } from 'services/links';
 import { isLogsQuery } from 'services/logql';
 import { interpolateExpression } from 'services/query';
 import { findObjectOfType, getDataSource, getQueryRunnerFromChildren, toggleLogsListPanelSize } from 'services/scenes';
 import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from 'services/store';
+import { generateLink } from 'services/text';
+
+jest.mock('services/links', () => ({ constructAbsoluteUrl: jest.fn() }));
+jest.mock('services/text', () => ({
+  ...jest.requireActual('services/text'),
+  generateLink: jest.fn(),
+}));
 
 // Mock external dependencies
 jest.mock('@grafana/assistant');
@@ -682,6 +691,78 @@ describe('PanelMenu', () => {
       const collapseItem = items?.find((item: PanelMenuItem) => item.text === CollapsablePanelText.collapsed);
 
       expect(collapseItem?.iconClassName).toBe('table-expand-all');
+    });
+  });
+
+  describe('Incident actions', () => {
+    function setup() {
+      const menu = new PanelMenu({});
+      const logs = new LogsListScene({
+        panel: new SceneFlexLayout({ children: [new SceneFlexItem({ body: new VizPanel({ menu }) })] }),
+      });
+      const publish = jest.spyOn(menu, 'publishEvent');
+      menu.activate();
+      return { menu, logs, publish };
+    }
+
+    it.each([
+      ['Attach to incident', 'attach', 'attach-to-incident-modal'],
+      ['Declare incident', 'declare', 'declare-incident-modal'],
+    ])('publishes the investigation context for %s', (label, type, componentId) => {
+      jest.mocked(usePluginComponent).mockImplementation((id) => ({
+        component: id === `grafana-irm-app/${componentId}/v1` ? () => null : null,
+        isLoading: false,
+      }));
+      jest.mocked(constructAbsoluteUrl).mockReturnValue('/investigation?from=123&to=456');
+      jest.mocked(generateLink).mockReturnValue('https://grafana.example/investigation?from=123&to=456');
+      const { menu, publish } = setup();
+      render(<PanelMenu.Component model={menu} />);
+      const item = menu.state.body?.state.items?.find((item) => item.text === label);
+      expect(item).toBeDefined();
+      fireEvent.click(screen.getByText(label));
+      expect(publish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: {
+            type,
+            context: {
+              url: 'https://grafana.example/investigation?from=123&to=456',
+              caption: 'Logs Drilldown investigation',
+            },
+          },
+        }),
+        true
+      );
+      expect(menu.state.body?.state.items?.filter((item) => item.iconClassName === 'fire')).toHaveLength(1);
+    });
+
+    it.each([false, true])('hides unavailable incident components (loading: %s)', (isLoading) => {
+      jest.mocked(usePluginComponent).mockReturnValue({ component: null, isLoading });
+      const { menu } = setup();
+      render(<PanelMenu.Component model={menu} />);
+      expect(menu.state.body?.state.items?.filter((item) => item.iconClassName === 'fire')).toHaveLength(0);
+    });
+
+    it('does not duplicate attach when declaration finishes loading later', () => {
+      const component = () => null;
+      let declareLoading = true;
+      jest.mocked(usePluginComponent).mockImplementation((id) => ({
+        component: id.startsWith('grafana-irm-app/') ? component : null,
+        isLoading: id.includes('declare-incident') && declareLoading,
+      }));
+      const { menu } = setup();
+      const view = render(<PanelMenu.Component model={menu} />);
+      declareLoading = false;
+      view.rerender(<PanelMenu.Component model={menu} />);
+      expect(menu.state.body?.state.items?.filter((item) => item.text === 'Attach to incident')).toHaveLength(1);
+      expect(menu.state.body?.state.items?.filter((item) => item.text === 'Declare incident')).toHaveLength(1);
+    });
+
+    it('offers incident actions on other panels like Create alert', () => {
+      jest.mocked(usePluginComponent).mockReturnValue({ component: () => null, isLoading: false });
+      const menu = new PanelMenu({});
+      menu.activate();
+      render(<PanelMenu.Component model={menu} />);
+      expect(menu.state.body?.state.items?.filter((item) => item.iconClassName === 'fire')).toHaveLength(2);
     });
   });
 

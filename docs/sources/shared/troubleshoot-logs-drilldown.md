@@ -275,7 +275,7 @@ Try the following fixes:
 
 1. Check back later as patterns are continuously extracted from incoming logs.
 1. Verify that your logs have enough volume for pattern detection to work effectively.
-1. If the issue persists, reach out in the [Grafana Labs community Slack channel](https://slack.grafana.com/) or [open an issue on GitHub](https://github.com/grafana/explore-logs/issues/new).
+1. If the issue persists, reach out in the [Grafana Labs community Slack channel](https://slack.grafana.com/) or [open an issue on GitHub](https://github.com/grafana/logs-drilldown/issues/new).
 
 ### Patterns are only available for the most recent 3 hours of data
 
@@ -328,6 +328,6 @@ This is informational rather than an error. If your logs aren't JSON formatted:
 
 ## I cannot find something
 
-Please [open an issue on GitHub](https://github.com/grafana/explore-logs/issues/new) or [get in touch privately](https://forms.gle/1sYWCTPvD72T1dPH9) and let us know what's not working for you.
+Please [open an issue on GitHub](https://github.com/grafana/logs-drilldown/issues/new) or [get in touch privately](https://forms.gle/1sYWCTPvD72T1dPH9) and let us know what's not working for you.
 
 If you have something urgent, please [get in touch via support](https://grafana.com/help/). Grafana Cloud users can [open a support ticket here](https://grafana.com/profile/org#support).

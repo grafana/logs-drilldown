@@ -28,11 +28,13 @@ import { LogsListScene } from 'Components/ServiceScene/LogsListScene';
 import { onExploreLinkClick } from 'Components/ServiceScene/OnExploreLinkClick';
 import { getFeatureFlag } from 'featureFlags/openFeature';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { constructAbsoluteUrl } from 'services/links';
 import { logger } from 'services/logger';
 import { isLogsQuery } from 'services/logql';
 import { getQueryExpression } from 'services/queryRunner';
 import { findObjectOfType, getDataSource, toggleLogsListPanelSize } from 'services/scenes';
 import { getExpandedLogsView, setExpandedLogsView, setPanelOption } from 'services/store';
+import { generateLink } from 'services/text';
 import { DetectedFieldType } from 'services/variables';
 
 export enum TimeSeriesPanelType {
@@ -215,6 +217,47 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
     const { component: CreateAlertComponent, isLoading: isLoadingCreateAlert } = usePluginComponent(
       'grafana/alerting/create-alert-from-panel/v1'
     );
+
+    const { component: AttachIncidentComponent, isLoading: isLoadingAttachIncident } = usePluginComponent(
+      'grafana-irm-app/attach-to-incident-modal/v1'
+    );
+    const { component: DeclareIncidentComponent, isLoading: isLoadingDeclareIncident } = usePluginComponent(
+      'grafana-irm-app/declare-incident-modal/v1'
+    );
+
+    useEffect(() => {
+      if (!isLoadingAttachIncident && AttachIncidentComponent) {
+        addItemToGroup(
+          model,
+          {
+            text: t('irm.attach', 'Attach to incident'),
+            iconClassName: 'fire',
+            onClick: () => {
+              onIrmActionClickTracking('attach');
+              model.publishEvent(new IrmActionEvent({ type: 'attach', context: getIrmContext(model) }), true);
+            },
+          },
+          'Navigation'
+        );
+      }
+    }, [AttachIncidentComponent, isLoadingAttachIncident, model]);
+
+    useEffect(() => {
+      if (!isLoadingDeclareIncident && DeclareIncidentComponent) {
+        addItemToGroup(
+          model,
+          {
+            text: t('irm.declare', 'Declare incident'),
+            iconClassName: 'fire',
+            onClick: () => {
+              onIrmActionClickTracking('declare');
+              model.publishEvent(new IrmActionEvent({ type: 'declare', context: getIrmContext(model) }), true);
+            },
+          },
+          'Navigation'
+        );
+      }
+    }, [DeclareIncidentComponent, isLoadingDeclareIncident, model]);
 
     // Update availability flag when component loads
     useEffect(() => {
@@ -509,6 +552,15 @@ const onExploreLinkClickTracking = () => {
   reportAppInteraction(USER_EVENTS_PAGES.all, USER_EVENTS_ACTIONS.all.open_in_explore_menu_clicked);
 };
 
+const onIrmActionClickTracking = (type: IrmAction['type']) => {
+  reportAppInteraction(
+    USER_EVENTS_PAGES.service_details,
+    type === 'attach'
+      ? USER_EVENTS_ACTIONS.service_details.irm_attach_to_incident_clicked
+      : USER_EVENTS_ACTIONS.service_details.irm_declare_incident_clicked
+  );
+};
+
 const onSwitchVizTypeTracking = (newVizType: TimeSeriesPanelType) => {
   reportAppInteraction(USER_EVENTS_PAGES.service_details, USER_EVENTS_ACTIONS.service_details.change_viz_type, {
     newVizType,
@@ -574,6 +626,25 @@ export class AddToNotebookEvent extends BusEventBase {
     super();
   }
   public static type = 'add-to-notebook';
+}
+
+export interface IrmAction {
+  context: { caption: string; url: string };
+  type: 'attach' | 'declare';
+}
+
+export class IrmActionEvent extends BusEventBase {
+  constructor(public payload: IrmAction) {
+    super();
+  }
+  public static type = 'irm-action';
+}
+
+function getIrmContext(model: PanelMenu): IrmAction['context'] {
+  return {
+    url: generateLink(constructAbsoluteUrl(sceneGraph.getTimeRange(model))),
+    caption: t('irm.query-caption', 'Logs Drilldown investigation'),
+  };
 }
 
 export interface CreateAlertData {
