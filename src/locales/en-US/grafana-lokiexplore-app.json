@@ -921,6 +921,11 @@
     "title": "Attribute Explorer",
     "too-many-values": "Too many values to display"
   },
+  "irm": {
+    "attach": "Attach to incident",
+    "declare": "Declare incident",
+    "query-caption": "Logs Drilldown investigation"
+  },
   "plugin-info": {
     "button": {
       "title": "Plugin info",
