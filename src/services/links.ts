@@ -35,8 +35,8 @@ export const createShortLink = memoize(async function (path: string): Promise<st
     return config.namespace.startsWith('stacks-') ? url : `${url}?orgId=${config.bootData.user.orgId}`;
   } catch (err) {
     logger.error(err, { msg: 'Error when creating shortened link' });
-    // Drop the cached rejection so a retry makes a new request, then rethrow so createAndCopyShortLink alerts
-    createShortLink.cache.clear?.();
+    // Drop only this path's cached rejection so a retry makes a new request, then rethrow so createAndCopyShortLink alerts
+    createShortLink.cache.delete?.(path);
     throw err;
   }
 });
