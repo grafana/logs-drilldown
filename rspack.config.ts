@@ -28,6 +28,10 @@ const config = async (env: Env): Promise<Configuration> => {
       : [];
 
   return merge(baseConfig, {
+    output: {
+      // Cleaning dist in watch mode briefly removes plugin.json, which crashes a booting Grafana (pnpm start)
+      clean: env.production ? baseConfig.output?.clean : false,
+    },
     resolve: {
       alias: {
         // hack to keep scenes from crashing when running in dev mode, can remove when https://github.com/grafana/scenes/issues/1322 is resolved.
