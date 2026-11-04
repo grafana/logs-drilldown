@@ -565,3 +565,5 @@ hookz
 emailservice
 rspack
 rsdoctor
+shorturl
+shorturls

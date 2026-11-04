@@ -2,6 +2,7 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
+import { hasPermission } from '@grafana/runtime';
 import { useSceneApp } from '@grafana/scenes';
 
 import { plugin } from '../module';
@@ -32,7 +33,7 @@ jest.mock('@grafana/scenes', () => ({
 }));
 
 jest.mock('@grafana/runtime', () => ({
-  config: { bootData: { user: { permissions: { 'grafana-lokiexplore-app:read': true } } } },
+  hasPermission: jest.fn(),
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -42,6 +43,7 @@ jest.mock('react-router-dom', () => ({
 describe('LogExplorationPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(hasPermission).mockImplementation((action) => action === 'grafana-lokiexplore-app:read');
     jest
       .mocked(useSceneApp)
       .mockReturnValue({ Component: () => <div>scene</div> } as unknown as ReturnType<typeof useSceneApp>);
@@ -60,6 +62,29 @@ describe('LogExplorationPage', () => {
 
     expect(screen.getByText('scene')).toBeInTheDocument();
     expect(useSceneApp).toHaveBeenCalled();
+  });
+
+  describe('permissions', () => {
+    beforeEach(() => {
+      jest.mocked(useDefaultDatasourceUid).mockReturnValue({ dsUID: 'loki-uid', isLoading: false });
+    });
+
+    it('renders the scene when the user can explore datasources but lacks the app permission', () => {
+      jest.mocked(hasPermission).mockImplementation((action) => action === 'datasources:explore');
+
+      render(<LogExplorationPage />);
+
+      expect(screen.getByText('scene')).toBeInTheDocument();
+    });
+
+    it('redirects when the user has neither permission', () => {
+      jest.mocked(hasPermission).mockReturnValue(false);
+
+      render(<LogExplorationPage />);
+
+      expect(screen.getByText('redirected')).toBeInTheDocument();
+      expect(screen.queryByText('scene')).not.toBeInTheDocument();
+    });
   });
 
   describe('default datasource lookup', () => {

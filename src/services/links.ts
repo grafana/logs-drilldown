@@ -18,20 +18,26 @@ function getRelativeURLPath(url: string) {
 }
 
 // Adapted from shortLinks.ts in core
-export const createShortLink = memoize(async function (path: string) {
-  const appEvents = getAppEvents();
+export const createShortLink = memoize(async function (path: string): Promise<string> {
   try {
-    const shortLink = await getBackendSrv().post(`/api/short-urls`, {
-      path: getRelativeURLPath(path),
-    });
-    return shortLink.url;
+    const shortLink = await getBackendSrv().post<{ metadata: { name: string } }>(
+      `/apis/shorturl.grafana.app/v1beta1/namespaces/${config.namespace}/shorturls`,
+      {
+        apiVersion: 'shorturl.grafana.app/v1beta1',
+        kind: 'ShortURL',
+        // generateName lets the apiserver create the uid, as core's shorturl client does
+        metadata: { generateName: 's' },
+        spec: { path: getRelativeURLPath(path) },
+      }
+    );
+    const url = `${buildHostUrl()}/goto/${shortLink.metadata.name}`;
+    // Mirrors core: on-prem is multi-org so carry the org ID, Cloud (stacks-*) omits it
+    return config.namespace.startsWith('stacks-') ? url : `${url}?orgId=${config.bootData.user.orgId}`;
   } catch (err) {
     logger.error(err, { msg: 'Error when creating shortened link' });
-
-    appEvents.publish({
-      payload: ['Error generating shortened link'],
-      type: AppEvents.alertError.name,
-    });
+    // Drop the cached rejection so a retry makes a new request, then rethrow so createAndCopyShortLink alerts
+    createShortLink.cache.clear?.();
+    throw err;
   }
 });
 

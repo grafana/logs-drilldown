@@ -99,7 +99,6 @@ import {
   VAR_PRIMARY_LABEL_SEARCH,
 } from 'services/variables';
 
-const aggregatedMetricsEnabled: boolean = getFeatureFlag('exploreLogsAggregatedMetrics');
 // Don't export AGGREGATED_SERVICE_NAME, we want to rename things so the rest of the application is agnostic to how we got the services
 const AGGREGATED_SERVICE_NAME = '__aggregated_metric__';
 
@@ -951,7 +950,10 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   private updateAggregatedMetricVariable() {
     const serviceLabelVar = getAggregatedMetricsVariable(this);
     const labelsVar = getLabelsVariable(this);
-    if ((!this.isTimeRangeTooEarlyForAggMetrics() || !aggregatedMetricsEnabled) && this.isAggregatedMetricsActive()) {
+    if (
+      (!this.isTimeRangeTooEarlyForAggMetrics() || !getFeatureFlag('exploreLogsAggregatedMetrics')) &&
+      this.isAggregatedMetricsActive()
+    ) {
       serviceLabelVar.changeValueTo(AGGREGATED_SERVICE_NAME);
 
       // Hide combobox and reset filters if aggregated metrics is enabled
