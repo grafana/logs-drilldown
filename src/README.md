@@ -15,8 +15,8 @@ For instructions installing, see the [access and installation instructions](http
 ## Documentation
 
 - [DOCS](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/logs/)
-- [CHANGELOG](https://github.com/grafana/explore-logs/releases)
-- [GITHUB](https://github.com/grafana/explore-logs/)
+- [CHANGELOG](https://github.com/grafana/logs-drilldown/releases)
+- [GITHUB](https://github.com/grafana/logs-drilldown/)
 
 ## Contributing
 
@@ -30,9 +30,9 @@ change and then reviewing the implementation separately.
 
 ### Bugs
 
-If your issue is a bug, please open one [here](https://github.com/grafana/explore-logs/issues/new).
+If your issue is a bug, please open one [here](https://github.com/grafana/logs-drilldown/issues/new).
 
 ### Changes
 
 We do not have a formal proposal process for changes or feature requests. If you have a change you would like to see in
-Grafana Logs Drilldown, please [file an issue](https://github.com/grafana/explore-logs/issues/new) with the necessary details.
+Grafana Logs Drilldown, please [file an issue](https://github.com/grafana/logs-drilldown/issues/new) with the necessary details.

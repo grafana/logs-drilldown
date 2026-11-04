@@ -86,17 +86,7 @@ All the Grafana Drilldown apps require the `datasources:explore` permission in G
 
 ## Test with Docker Compose
 
-You can test the app using the following command to spin up Grafana, Loki, and the Logs Drilldown App:
-
-```sh
-curl -L https://github.com/grafana/explore-logs/raw/main/scripts/run.sh | sh
-```
-
-This will download the [run.sh](https://github.com/grafana/explore-logs/blob/main/scripts/run.sh) file and execute it.
-
-That shell file will download some configuration files into your `/tmp/explore-logs` directory and start the Docker containers via `docker compose` from there.
-
-Once the Docker container has started, navigate to `http://localhost:3000/a/grafana-lokiexplore-app/explore` to access Logs Drilldown.
+To run Grafana, Loki, and Logs Drilldown locally, clone the [logs-drilldown repository](https://github.com/grafana/logs-drilldown) and follow the development instructions in that repository's README.
 
 ## Having trouble?
 
