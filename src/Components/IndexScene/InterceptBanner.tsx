@@ -34,7 +34,7 @@ export function InterceptBanner(props: { onRemove: () => void }) {
             <a
               className="external-link"
               target="_blank"
-              href="https://github.com/grafana/explore-logs/releases"
+              href="https://github.com/grafana/logs-drilldown/releases"
               rel="noreferrer"
             >
               recent changes
@@ -48,7 +48,7 @@ export function InterceptBanner(props: { onRemove: () => void }) {
             <a
               className="external-link"
               target="_blank"
-              href="https://github.com/grafana/explore-logs/?tab=readme-ov-file#explore-logs"
+              href="https://github.com/grafana/logs-drilldown/?tab=readme-ov-file#grafana-logs-drilldown"
               rel="noreferrer"
             >
               GitHub
