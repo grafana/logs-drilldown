@@ -40,6 +40,14 @@ const config = async (env: Env): Promise<Configuration> => {
         '@grafana/i18n': path.resolve(import.meta.dirname, 'node_modules/@grafana/i18n'),
       },
     },
+    // Required by the bundle-size action; the default stats omit asset and module sizes
+    stats: {
+      assets: true,
+      chunks: true,
+      chunkModules: true,
+      nestedModules: true,
+      entrypoints: true,
+    },
     plugins: [
       ...sourceMapPlugins,
       // new RsdoctorRspackPlugin(),
