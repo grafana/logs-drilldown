@@ -476,7 +476,9 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
           headers: {
             'X-Query-Tags': `Source=${PLUGIN_ID}`,
           },
-          requestId: request.requestId ?? 'volume',
+          // Stable id (not request.requestId, which changes every time ServiceSelectionScene rebuilds its
+          // query runner) so backendSrv cancels a still-in-flight volume call from a previous datasource/tab.
+          requestId: 'volume',
         }
       );
       volumeResponse?.data.result.sort((lhs: VolumeResult, rhs: VolumeResult) => {
