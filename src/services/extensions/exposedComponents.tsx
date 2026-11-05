@@ -5,6 +5,7 @@ import { LinkButton } from '@grafana/ui';
 
 import type { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
 import type { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
+import type { EmbeddedLogsMiniProps } from 'Components/EmbeddedLogsMini/types';
 import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 import pluginJson from 'plugin.json';
 
@@ -34,6 +35,11 @@ const EmbeddedLogsExploration = lazy(async () => {
 const LokiFieldDistribution = lazy(async () => {
   await initI18n();
   return import('Components/AttributeDistribution/LokiFieldDistribution');
+});
+
+const EmbeddedLogsMini = lazy(async () => {
+  await initI18n();
+  return import('Components/EmbeddedLogsMini/EmbeddedLogsMini');
 });
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
@@ -78,6 +84,22 @@ export function SuspendedLokiFieldDistribution(props: LokiFieldDistributionProps
       }
     >
       <LokiFieldDistribution {...props} />
+    </Suspense>
+  );
+}
+
+export function SuspendedEmbeddedLogsMini(props: EmbeddedLogsMiniProps) {
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-embedded-logs-mini.loading-logs-drilldown">
+            Loading Logs Drilldown...
+          </Trans>
+        </div>
+      }
+    >
+      <EmbeddedLogsMini {...props} />
     </Suspense>
   );
 }

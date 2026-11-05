@@ -141,6 +141,10 @@
         "logs-drilldown": "Logs Drilldown"
       }
     },
+    "embedded-logs-mini": {
+      "not-implemented": "Scaffolding only — nothing is rendered here yet. embedderName=\"{{embedderName}}\" query=\"{{query}}\"",
+      "title": "Embedded Logs Drilldown (mini)"
+    },
     "embedded-scene-wrapper": {
       "text-loading": "Loading..."
     },
@@ -1032,6 +1036,9 @@
       }
     },
     "suspended-embedded-logs-exploration": {
+      "loading-logs-drilldown": "Loading Logs Drilldown..."
+    },
+    "suspended-embedded-logs-mini": {
       "loading-logs-drilldown": "Loading Logs Drilldown..."
     },
     "suspended-loki-field-distribution": {
