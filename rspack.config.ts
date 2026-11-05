@@ -4,7 +4,7 @@ import type { Configuration } from '@rspack/core';
 import { merge } from 'rspack-merge';
 
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
-// Bundle analyzer: pnpm add -D @rsdoctor/rspack-plugin, then run a dev build (production chunk names break it)
+// Bundle analyzer: uncomment and run a dev build (production chunk names break it)
 // import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 
 import grafanaConfig, { type Env } from './.config/rspack/rspack.config.ts';

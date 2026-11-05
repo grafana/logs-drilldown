@@ -52,6 +52,7 @@
     "@grafana/sign-plugin": "3.2.2",
     "@grafana/tsconfig": "2.2.0",
     "@playwright/test": "1.63.0",
+    "@rsdoctor/rspack-plugin": "1.6.5",
     "@rspack/cli": "2.3.0",
     "@rspack/core": "2.3.0",
     "@stylistic/eslint-plugin": "5.10.0",
