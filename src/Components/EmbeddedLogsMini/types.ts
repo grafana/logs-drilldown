@@ -6,5 +6,7 @@ export interface EmbeddedLogsMiniProps {
   onTimeRangeChange?: (timeRange: TimeRange) => void;
   // Stream selector + optional log pipeline, e.g. `{service_name="foo"} |= "bar"`
   query: string;
-  timeRange: TimeRange;
+  // Baseline query to compare `query` against, e.g. for anomaly/outlier detection
+  referenceQuery?: string;
+  timeRange?: TimeRange;
 }

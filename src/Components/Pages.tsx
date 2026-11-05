@@ -179,11 +179,14 @@ function getEmbeddedMiniScene() {
     to,
   };
 
+  const query = '{service_name=~".+"}';
+
   const props: EmbeddedLogsMiniProps = {
     // Resolves to a real, configured Loki datasource (plugin setting, last used, or the instance's default) — never a made-up uid.
     datasourceUid: getInitialDatasourceUid(),
     embedderName: 'EmbeddedLogsMiniTestPage',
-    query: '{service_name=~".+"}',
+    query,
+    referenceQuery: query,
     timeRange,
   };
 
