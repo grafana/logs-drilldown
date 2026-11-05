@@ -4,6 +4,8 @@ import type { Configuration } from '@rspack/core';
 import { merge } from 'rspack-merge';
 
 import FaroSourceMapUploaderPlugin from '@grafana/faro-webpack-plugin';
+// Bundle analyzer: pnpm add -D @rsdoctor/rspack-plugin, then run a dev build (production chunk names break it)
+// import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 
 import grafanaConfig, { type Env } from './.config/rspack/rspack.config.ts';
 
@@ -38,7 +40,10 @@ const config = async (env: Env): Promise<Configuration> => {
         '@grafana/i18n': path.resolve(import.meta.dirname, 'node_modules/@grafana/i18n'),
       },
     },
-    plugins: [...sourceMapPlugins],
+    plugins: [
+      ...sourceMapPlugins,
+      // new RsdoctorRspackPlugin(),
+    ],
   });
 };
 
