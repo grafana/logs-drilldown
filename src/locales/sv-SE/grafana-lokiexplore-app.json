@@ -921,6 +921,11 @@
     "show-more-fields_one": "Visa {{count}} fler fält",
     "show-more-fields_other": "Visa {{count}} fler fält"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Information om tillägg",

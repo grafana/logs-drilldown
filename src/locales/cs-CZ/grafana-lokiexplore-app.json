@@ -923,6 +923,11 @@
     "show-more-fields_many": "Zobrazit {{count}} dalších polí",
     "show-more-fields_other": "Zobrazit {{count}} dalších polí"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Informace o pluginu",

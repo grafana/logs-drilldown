@@ -920,6 +920,11 @@
     "too-many-values": "值过多，无法显示",
     "show-more-fields_other": "显示另外 {{count}} 个字段"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "插件信息",

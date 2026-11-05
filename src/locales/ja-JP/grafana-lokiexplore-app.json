@@ -920,6 +920,11 @@
     "too-many-values": "値が多すぎて表示できません",
     "show-more-fields_other": "さらに{{count}}件のフィールドを表示"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "プラグイン情報",

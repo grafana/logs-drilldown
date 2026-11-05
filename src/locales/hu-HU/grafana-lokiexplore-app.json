@@ -921,6 +921,11 @@
     "show-more-fields_one": "{{count}} további mező megjelenítése",
     "show-more-fields_other": "{{count}} további mező megjelenítése"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Bővítményinformáció",

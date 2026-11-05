@@ -920,6 +920,11 @@
     "too-many-values": "표시할 값이 너무 많음",
     "show-more-fields_other": "필드 {{count}}개 더 표시"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "플러그인 정보",
