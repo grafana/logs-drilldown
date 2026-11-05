@@ -921,6 +921,11 @@
     "show-more-fields_one": "Nog {{count}} velden weergeven",
     "show-more-fields_other": "Nog {{count}} velden weergeven"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Plugin-informatie",

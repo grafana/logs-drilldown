@@ -921,6 +921,11 @@
     "show-more-fields_one": "Mostrar {{count}} campos más",
     "show-more-fields_other": "Mostrar {{count}} campos más"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Información del plugin",

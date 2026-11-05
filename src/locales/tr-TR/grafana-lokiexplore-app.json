@@ -921,6 +921,11 @@
     "show-more-fields_one": "{{count}} alan daha göster",
     "show-more-fields_other": "{{count}} alan daha göster"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Eklenti bilgileri",

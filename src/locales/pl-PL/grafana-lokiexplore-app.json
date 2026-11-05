@@ -923,6 +923,11 @@
     "show-more-fields_many": "Pokaż {{count}} pól więcej",
     "show-more-fields_other": "Pokaż {{count}} pola więcej"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Informacje o wtyczce",

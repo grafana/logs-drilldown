@@ -923,6 +923,11 @@
     "show-more-fields_many": "Показать еще {{count}} полей",
     "show-more-fields_other": "Показать еще {{count}} поля"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "О плагине",

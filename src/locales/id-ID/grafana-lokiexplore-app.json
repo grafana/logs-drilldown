@@ -920,6 +920,11 @@
     "too-many-values": "Terlalu banyak nilai untuk ditampilkan",
     "show-more-fields_other": "Tampilkan {{count}} field lagi"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "Info plugin",

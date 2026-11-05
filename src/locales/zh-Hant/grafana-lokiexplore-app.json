@@ -920,6 +920,11 @@
     "too-many-values": "值過多，無法顯示",
     "show-more-fields_other": "顯示 {{count}} 個更多欄位"
   },
+  "irm": {
+    "attach": "",
+    "declare": "",
+    "query-caption": ""
+  },
   "plugin-info": {
     "button": {
       "title": "外掛程式資訊",
