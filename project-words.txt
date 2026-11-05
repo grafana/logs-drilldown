@@ -563,3 +563,5 @@ cprc
 codemods
 hookz
 emailservice
+rspack
+rsdoctor

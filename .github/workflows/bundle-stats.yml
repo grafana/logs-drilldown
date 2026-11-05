@@ -34,6 +34,6 @@ jobs:
         id: node
         run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
 
-      - uses: grafana/plugin-actions/bundle-size@2ecc2ba7168309f04010b5b637530b877d67e4ff # main
+      - uses: grafana/plugin-actions/bundle-size@dfa9631cf7a2077d75d1d374935813156a770419 # bundle-size/v1.1.2 (2026-11-04)
         with:
           node-version: ${{ steps.node.outputs.version }}

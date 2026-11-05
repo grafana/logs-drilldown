@@ -9,7 +9,7 @@ Instructions for AI agents working on the Grafana Logs Drilldown plugin.
 | **`AGENTS.md`** (this file)          | **Entry point.** Loki & LogQL workflow, expected vs bug, Scenes patterns, security. Points to every other doc below. |
 | **`CONTRIBUTING.md`**                | **Human contributors.** Dev setup, issues vs PRs, i18n, PR checklist, link to GenAI policy.                          |
 | **`docs/genai.md`**                  | **AI-assisted contributions.** Disclosure, acceptable use, Logs Drilldown-specific pitfalls.                         |
-| **`.config/AGENTS/instructions.md`** | **Plugin tooling only** — webpack, `plugin.json`, E2E, rules about `.config`.                                        |
+| **`.config/AGENTS/instructions.md`** | **Plugin tooling only** — rspack, `plugin.json`, E2E, rules about `.config`.                                         |
 | **`docs/sources/`**                  | **Shipped user docs** — patterns, labels, fields, troubleshooting.                                                   |
 
 ## Before Investigating Issues or Bugs

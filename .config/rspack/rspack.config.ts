@@ -5,24 +5,34 @@
  * https://grafana.com/developers/plugin-tools/how-to-guides/extend-configurations#extend-the-webpack-config
  */
 
-import rspack, { type Configuration } from '@rspack/core';
-import ESLintPlugin from 'eslint-webpack-plugin';
+import {
+  BannerPlugin,
+  Compilation,
+  CopyRspackPlugin,
+  LightningCssMinimizerRspackPlugin,
+  SubresourceIntegrityPlugin,
+  SwcJsMinimizerRspackPlugin,
+  type Configuration,
+} from '@rspack/core';
 import { TsCheckerRspackPlugin } from 'ts-checker-rspack-plugin';
 import path from 'path';
 import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
 import { RspackVirtualModulePlugin } from 'rspack-plugin-virtual-module';
 
-import RspackLiveReloadPlugin from './liveReloadPlugin.ts';
+import RspackLiveReloadPlugin from './LiveReloadRspackPlugin.ts';
 import { BuildModeRspackPlugin } from './BuildModeRspackPlugin.ts';
+import { LicenseRspackPlugin } from './LicenseRspackPlugin.ts';
+import DiagnosticsRspackPlugin from './DiagnosticsRspackPlugin.ts';
+import { PluginCssRspackPlugin } from './PluginCssRspackPlugin.ts';
 import { DIST_DIR, SOURCE_DIR } from '../bundler/constants.ts';
 import { getCPConfigVersion, getEntries, getPackageJson, getPluginJson, isWSL } from '../bundler/utils.ts';
 import { externals } from '../bundler/externals.ts';
 import { copyFilePatterns } from '../bundler/copyFiles.ts';
 
-const { SubresourceIntegrityPlugin } = rspack.experiments;
 const pluginJson = getPluginJson();
+const pluginId = pluginJson.id;
 const cpVersion = getCPConfigVersion();
+const pluginVersion = getPackageJson().version;
 const virtualPublicPath = new RspackVirtualModulePlugin({
   'grafana-public-path': `
 import amdMetaModule from 'amd-module';
@@ -30,19 +40,29 @@ import amdMetaModule from 'amd-module';
 __webpack_public_path__ =
   amdMetaModule && amdMetaModule.uri
     ? amdMetaModule.uri.slice(0, amdMetaModule.uri.lastIndexOf('/') + 1)
-    : 'public/plugins/${pluginJson.id}/';
+    : 'public/plugins/${pluginId}/';
 `,
 });
 
-const config = async (env): Promise<Configuration> => {
+export type Env = {
+  [key: string]: true | string | Env;
+};
+
+const config = async (env: Env): Promise<Configuration> => {
   const baseConfig: Configuration = {
     context: path.join(process.cwd(), SOURCE_DIR),
 
     devtool: env.production ? 'source-map' : 'eval-source-map',
 
-    entry: await getEntries(),
+    // grafana-public-path sets the public path first. grafana-plugin-css adds ./module.css to the define() dependencies
+    entry: Object.fromEntries(
+      Object.entries(await getEntries()).map(([name, entryPath]) => [
+        name,
+        ['grafana-public-path', 'grafana-plugin-css', entryPath],
+      ])
+    ),
 
-    externals,
+    externals: [...externals, { 'grafana-plugin-css': './module.css' }],
 
     // Support WebAssembly according to latest spec - makes WebAssembly module async
     experiments: {
@@ -52,19 +72,15 @@ const config = async (env): Promise<Configuration> => {
     mode: env.production ? 'production' : 'development',
 
     module: {
+      parser: {
+        // keeps default imports of CSS modules working: `import styles from './x.module.css'`
+        'css/auto': { namedExports: false },
+      },
+      generator: {
+        // class names of CSS modules start with the plugin id
+        'css/auto': { localIdentName: '[uniqueName]-[local]-[hash:6]' },
+      },
       rules: [
-        // This must come first in the rules array otherwise it breaks sourcemaps.
-        {
-          test: /src\/(?:.*\/)?module\.tsx?$/,
-          use: [
-            {
-              loader: 'imports-loader',
-              options: {
-                imports: `side-effects grafana-public-path`,
-              },
-            },
-          ],
-        },
         {
           exclude: /(node_modules)/,
           test: /\.[tj]sx?$/,
@@ -91,11 +107,12 @@ const config = async (env): Promise<Configuration> => {
         },
         {
           test: /\.css$/,
-          use: ['style-loader', 'css-loader'],
+          type: 'css/auto',
         },
         {
           test: /\.s[ac]ss$/,
-          use: ['style-loader', 'css-loader', 'sass-loader'],
+          use: ['sass-loader'],
+          type: 'css/auto',
         },
         {
           test: /\.(png|jpe?g|gif|svg)$/,
@@ -116,22 +133,27 @@ const config = async (env): Promise<Configuration> => {
 
     optimization: {
       minimize: Boolean(env.production),
-      minimizer: [
-        new TerserPlugin({
-          extractComments: {
-            banner: false,
-            filename: 'LICENSE.txt',
+      splitChunks: {
+        cacheGroups: {
+          // CSS used by more than one lazy chunk goes into one shared file instead of a copy per chunk
+          sharedCss: {
+            type: /^css/,
+            chunks: 'async',
+            minChunks: 2,
+            minSize: 0,
+            priority: 10,
           },
-
-          terserOptions: {
-            format: {
-              comments: (_, { type, value }) => type === 'comment2' && value.trim().startsWith('[create-plugin]'),
-            },
-            compress: {
-              drop_console: ['log', 'info'],
-            },
+        },
+      },
+      minimizer: [
+        new SwcJsMinimizerRspackPlugin({
+          extractComments: { banner: false },
+          minimizerOptions: {
+            format: { comments: false },
+            compress: { pure_funcs: ['console.log', 'console.info'] },
           },
         }),
+        new LightningCssMinimizerRspackPlugin(),
       ],
     },
 
@@ -141,36 +163,45 @@ const config = async (env): Promise<Configuration> => {
       },
       filename: '[name].js',
       chunkFilename: env.production ? '[name].js?_cache=[contenthash]' : '[name].js',
+      cssFilename: '[name].css',
+      cssChunkFilename: env.production ? '[name].css?_cache=[contenthash]' : '[name].css',
       library: {
         type: 'amd',
       },
       path: path.resolve(process.cwd(), DIST_DIR),
-      publicPath: `public/plugins/${pluginJson.id}/`,
-      uniqueName: pluginJson.id,
+      publicPath: `public/plugins/${pluginId}/`,
+      uniqueName: pluginId,
       crossOriginLoading: 'anonymous',
     },
 
     plugins: [
       new BuildModeRspackPlugin(),
+      new LicenseRspackPlugin(),
+      new PluginCssRspackPlugin({ pluginId, publicPath: `public/plugins/${pluginId}/` }),
       virtualPublicPath,
       // Insert create plugin version information into the bundle
-      new rspack.BannerPlugin({
-        banner: '/* [create-plugin] version: ' + cpVersion + ' */',
+      new BannerPlugin({
+        banner: [
+          `/* [create-plugin] version: ${cpVersion} */`,
+          `/* [create-plugin] plugin: ${pluginId}@${pluginVersion} */`,
+        ].join('\n'),
         raw: true,
         entryOnly: true,
+        test: /\.js$/,
+        // after minification to prevent banner removal and before source maps and hashes are generated so they include it.
+        stage: Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_SIZE + 1,
       }),
-      new rspack.CopyRspackPlugin({
+      new CopyRspackPlugin({
         patterns: copyFilePatterns,
       }),
-      // Replace certain template-variables in the README and plugin.json
       new ReplaceInFileWebpackPlugin([
         {
           dir: DIST_DIR,
-          files: ['plugin.json', 'README.md'],
+          test: [/(^|\/)plugin\.json$/, /(^|\/)README\.md$/],
           rules: [
             {
               search: /\%VERSION\%/g,
-              replace: getPackageJson().version,
+              replace: pluginVersion,
             },
             {
               search: /\%TODAY\%/g,
@@ -178,7 +209,7 @@ const config = async (env): Promise<Configuration> => {
             },
             {
               search: /\%PLUGIN_ID\%/g,
-              replace: pluginJson.id,
+              replace: pluginId,
             },
           ],
         },
@@ -196,9 +227,9 @@ const config = async (env): Promise<Configuration> => {
               },
               typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
             }),
-            new ESLintPlugin({
-              extensions: ['.ts', '.tsx'],
-              lintDirtyModulesOnly: Boolean(env.development), // don't lint on start, only lint changed files
+            new DiagnosticsRspackPlugin({
+              lintOnStart: false, // don't lint on start, only lint changed files
+              checks: [{ use: 'eslint', extensions: ['ts', 'tsx'] }],
             }),
           ]
         : []),
