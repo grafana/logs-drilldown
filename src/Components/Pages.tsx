@@ -16,10 +16,11 @@ import { LoadingPlaceholder } from '@grafana/ui';
 
 import { plugin } from '../module';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
+import { EmbeddedLogsMiniProps } from './EmbeddedLogsMini/types';
 import { IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
 import { PageSlugs, ValueSlugs } from 'services/enums';
-import { getInitialDatasourceInfo } from 'services/initialDatasourceInfo';
+import { getInitialDatasourceInfo, getInitialDatasourceUid } from 'services/initialDatasourceInfo';
 import { getKgSceneProps } from 'services/kgAnnotations';
 import { logger } from 'services/logger';
 import { navigateToIndex } from 'services/navigate';
@@ -137,6 +138,73 @@ function getEmbeddedScene() {
       component: EmbeddedSceneWrapper,
       props,
     }),
+  });
+}
+
+function EmbeddedMiniSceneWrapper(props: EmbeddedLogsMiniProps) {
+  const { component: LogsDrilldownMiniComponent, isLoading } = usePluginComponent<EmbeddedLogsMiniProps>(
+    'grafana-lokiexplore-app/embedded-logs-mini/v1'
+  );
+
+  // We don't want to re-render the entire app every time the props change, only once when the plugin component is done loading
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const Component = useMemo(() => LogsDrilldownMiniComponent, [isLoading]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder text={t('components.embedded-mini-scene-wrapper.text-loading', 'Loading...')} />;
+  }
+  if (Component) {
+    return <Component {...props} />;
+  }
+
+  console.error(
+    'No grafana-lokiexplore-app/embedded-logs-mini/v1 component found in the Grafana registry! You might need to restart your Grafana instance?'
+  );
+
+  return null;
+}
+
+function getEmbeddedMiniScene() {
+  const initialStart = 'now-15m';
+  const initialEnd = 'now';
+  const from = dateTimeParse(initialStart);
+  const to = dateTimeParse(initialEnd);
+
+  const timeRange: TimeRange = {
+    from,
+    raw: {
+      from: initialStart,
+      to: initialEnd,
+    },
+    to,
+  };
+
+  const props: EmbeddedLogsMiniProps = {
+    // Resolves to a real, configured Loki datasource (plugin setting, last used, or the instance's default) — never a made-up uid.
+    datasourceUid: getInitialDatasourceUid(),
+    embedderName: 'EmbeddedLogsMiniTestPage',
+    query: '{service_name=~".+"}',
+    timeRange,
+  };
+
+  return new EmbeddedScene({
+    body: new SceneReactObject({
+      component: EmbeddedMiniSceneWrapper,
+      props,
+    }),
+  });
+}
+
+export function makeEmbeddedMiniPage() {
+  return new SceneAppPage({
+    getScene: () => getEmbeddedMiniScene(),
+    layout: PageLayoutType.Custom,
+    routePath: `${PageSlugs.embedMini}`,
+    title: t(
+      'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini',
+      'Grafana Logs Drilldown — Embedded (mini)'
+    ),
+    url: prefixRoute(PageSlugs.embedMini),
   });
 }
 

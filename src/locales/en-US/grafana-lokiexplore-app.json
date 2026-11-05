@@ -145,6 +145,9 @@
       "not-implemented": "Scaffolding only — nothing is rendered here yet. embedderName=\"{{embedderName}}\" query=\"{{query}}\"",
       "title": "Embedded Logs Drilldown (mini)"
     },
+    "embedded-mini-scene-wrapper": {
+      "text-loading": "Loading..."
+    },
     "embedded-scene-wrapper": {
       "text-loading": "Loading..."
     },
@@ -253,6 +256,11 @@
       "variable-layout-scene": {
         "collapse": "Collapse filters",
         "expand": "Expand filters"
+      }
+    },
+    "make-embedded-mini-page": {
+      "title": {
+        "grafana-logs-drilldown-embedded-mini": "Grafana Logs Drilldown — Embedded (mini)"
       }
     },
     "make-embedded-page": {
