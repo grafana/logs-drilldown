@@ -13,8 +13,9 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 
-import { buildLogsPanel, buildVolumePanel } from './panels';
+import { buildLogsPanel, buildTablePanel, buildVolumePanel } from './panels';
 import { buildLogsQuery, buildVolumeQuery } from './queries';
+import { EmbeddedLogsMiniLogsOptions, EmbeddedLogsMiniVisualizationType } from './types';
 import { VAR_DATASOURCE_MINI, VAR_DATASOURCE_MINI_EXPR } from './variables';
 
 const DEFAULT_TIME_RANGE = { from: 'now-15m', to: 'now' };
@@ -32,29 +33,58 @@ function toRawRangeString(value: DateTime | string): string {
 
 export interface EmbeddedLogsMiniSceneOptions {
   datasourceUid: string;
+  logsOptions?: EmbeddedLogsMiniLogsOptions;
   query: string;
+  showLogsVolume?: boolean;
   timeRange?: TimeRange;
+  visualizationType?: EmbeddedLogsMiniVisualizationType;
 }
 
 export interface EmbeddedLogsMiniSceneState extends SceneObjectState {
   body: SceneFlexLayout;
-  logsQueryRunner: SceneQueryRunner;
-  volumeQueryRunner: SceneQueryRunner;
 }
 
-// Built from scratch: owns a datasource variable, a time range, the two query runners (logs +
-// volume), and a volume-panel-on-top/logs-panel-below layout. No IndexScene/ServiceScene reuse.
+// Built from scratch: owns a datasource variable, a time range, the query runner(s), and a
+// volume-panel-on-top (optional)/content-panel-below layout. No IndexScene/ServiceScene reuse.
 export class EmbeddedLogsMiniScene extends SceneObjectBase<EmbeddedLogsMiniSceneState> {
-  public constructor({ datasourceUid, query, timeRange }: EmbeddedLogsMiniSceneOptions) {
+  public constructor({
+    datasourceUid,
+    logsOptions,
+    query,
+    showLogsVolume = true,
+    timeRange,
+    visualizationType = 'logs',
+  }: EmbeddedLogsMiniSceneOptions) {
     const logsQueryRunner = new SceneQueryRunner({
       datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
       queries: [buildLogsQuery(query)],
     });
+
     // Total log volume, broken down by level; grouping by other fields is a later, configurable step.
-    const volumeQueryRunner = new SceneQueryRunner({
-      datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
-      queries: [buildVolumeQuery(query)],
-    });
+    // Skipped entirely (no query, no panel) when the caller doesn't want it.
+    const volumeQueryRunner = showLogsVolume
+      ? new SceneQueryRunner({
+          datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
+          queries: [buildVolumeQuery(query)],
+        })
+      : undefined;
+
+    // logsOptions only applies to the logs view; the table view has no exposed options yet and
+    // always uses buildTablePanel's own good defaults.
+    const contentPanel =
+      visualizationType === 'table' ? buildTablePanel(logsQueryRunner) : buildLogsPanel(logsQueryRunner, logsOptions);
+
+    const bodyChildren: SceneFlexItem[] = [];
+    if (volumeQueryRunner) {
+      bodyChildren.push(
+        new SceneFlexItem({
+          body: buildVolumePanel(volumeQueryRunner),
+          height: VOLUME_PANEL_HEIGHT,
+          minHeight: VOLUME_PANEL_MIN_HEIGHT,
+        })
+      );
+    }
+    bodyChildren.push(new SceneFlexItem({ body: contentPanel, minHeight: LOGS_PANEL_MIN_HEIGHT }));
 
     super({
       $timeRange: timeRange
@@ -74,22 +104,13 @@ export class EmbeddedLogsMiniScene extends SceneObjectBase<EmbeddedLogsMiniScene
         ],
       }),
       // No fixed total height: fills whatever the host container gives it, shrinking (or growing)
-      // both panels together, down to minHeight floors rather than disappearing.
+      // the panels together, down to minHeight floors rather than disappearing.
       body: new SceneFlexLayout({
-        children: [
-          new SceneFlexItem({
-            body: buildVolumePanel(volumeQueryRunner),
-            height: VOLUME_PANEL_HEIGHT,
-            minHeight: VOLUME_PANEL_MIN_HEIGHT,
-          }),
-          new SceneFlexItem({ body: buildLogsPanel(logsQueryRunner), minHeight: LOGS_PANEL_MIN_HEIGHT }),
-        ],
+        children: bodyChildren,
         direction: 'column',
         height: '100%',
         minHeight: BODY_MIN_HEIGHT,
       }),
-      logsQueryRunner,
-      volumeQueryRunner,
     });
   }
 

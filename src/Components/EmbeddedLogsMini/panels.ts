@@ -57,8 +57,11 @@ export function buildVolumePanel(queryRunner: SceneQueryRunner): VizPanel {
     .build();
 }
 
-// Logs list view only, no table — table support is a later, configurable step.
-export function buildLogsPanel(queryRunner: SceneQueryRunner): VizPanel {
+export interface LogsPanelOptions {
+  enableLogDetails?: boolean;
+}
+
+export function buildLogsPanel(queryRunner: SceneQueryRunner, options?: LogsPanelOptions): VizPanel {
   return PanelBuilders.logs()
     .setTitle('Logs')
     .setOption('showTime', true)
@@ -67,6 +70,13 @@ export function buildLogsPanel(queryRunner: SceneQueryRunner): VizPanel {
     .setOption('wrapLogMessage', false)
     .setOption('prettifyLogMessage', false)
     .setOption('enableInfiniteScrolling', true)
+    .setOption('enableLogDetails', options?.enableLogDetails ?? true)
     .setData(queryRunner)
     .build();
+}
+
+// Core Grafana's generic table panel, not the main app's bespoke logstable panel (which is tightly
+// coupled to ServiceScene/Breakdowns) — a light, no-frills default rather than a feature match.
+export function buildTablePanel(queryRunner: SceneQueryRunner): VizPanel {
+  return PanelBuilders.table().setTitle('Logs').setData(queryRunner).build();
 }
