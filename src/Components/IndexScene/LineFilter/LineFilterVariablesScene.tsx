@@ -5,7 +5,13 @@ import { debounce } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { AdHocFilterWithLabels, SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import {
+  AdHocFilterWithLabels,
+  SceneComponentProps,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneVariableValueChangedEvent,
+} from '@grafana/scenes';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { LineFilterProps, LineFilterVariable, lineFilterHasValueToClear } from './LineFilterVariable';
@@ -311,6 +317,8 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
       (f) => f.keyLabel !== undefined && f.keyLabel !== existingFilter.keyLabel
     );
 
+    const prevExpression = variable.state.filterExpression;
+
     variable.updateFilters(
       [
         {
@@ -321,8 +329,13 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
         },
         ...otherFilters,
       ],
-      { forcePublish, skipPublish }
+      { skipPublish: true }
     );
+
+    // Scenes 8.22+ also publishes on per-key changes, so only publish when the expression changed
+    if (forcePublish || (!skipPublish && variable.state.filterExpression !== prevExpression)) {
+      variable.publishEvent(new SceneVariableValueChangedEvent(variable), true);
+    }
 
     reportAppInteraction(
       USER_EVENTS_PAGES.service_details,
