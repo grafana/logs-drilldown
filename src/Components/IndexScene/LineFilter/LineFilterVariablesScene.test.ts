@@ -238,6 +238,34 @@ describe('line filter value change events', () => {
     expect(variable.publishEvent).toHaveBeenCalledWith(expect.any(SceneVariableValueChangedEvent), true);
   });
 
+  it('does not publish when ensuring or adding an empty row', () => {
+    const { scene, variable } = setup(emptyFilter);
+    variable.state.filters = [];
+
+    scene.ensureAtLeastOneEmptyLineFilter();
+    scene.addLineFilter();
+
+    expect(variable.updateFilters).toHaveBeenCalledTimes(2);
+    expect(variable.publishEvent).not.toHaveBeenCalled();
+  });
+
+  it('publishes when removing a filter that has a value', () => {
+    const filter = { ...emptyFilter, value: 'error' };
+    const { scene, variable } = setup(filter);
+
+    scene.removeFilter(filter);
+
+    expect(variable.publishEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not publish when removing an empty filter', () => {
+    const { scene, variable } = setup(emptyFilter);
+
+    scene.removeFilter(emptyFilter);
+
+    expect(variable.publishEvent).not.toHaveBeenCalled();
+  });
+
   it('publishes once, after the debounce, when the text changes', () => {
     const { scene, variable } = setup(emptyFilter);
 
