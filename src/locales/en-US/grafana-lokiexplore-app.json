@@ -141,12 +141,6 @@
         "logs-drilldown": "Logs Drilldown"
       }
     },
-    "embedded-logs-mini": {
-      "logs-query-debug": "Logs query runner: state={{state}} rows={{rows}}",
-      "props-debug": "embedderName=\"{{embedderName}}\" datasourceUid=\"{{datasourceUid}}\" query=\"{{query}}\" referenceQuery=\"{{referenceQuery}}\"",
-      "title": "Embedded Logs Drilldown (mini)",
-      "volume-query-debug": "Volume query runner: state={{state}} series={{series}}"
-    },
     "embedded-mini-scene-wrapper": {
       "text-loading": "Loading..."
     },

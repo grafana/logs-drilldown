@@ -1,6 +1,11 @@
+import React from 'react';
+
 import { DateTime, TimeRange } from '@grafana/data';
 import {
   DataSourceVariable,
+  SceneComponentProps,
+  SceneFlexItem,
+  SceneFlexLayout,
   SceneObjectBase,
   SceneObjectState,
   SceneQueryRunner,
@@ -8,26 +13,12 @@ import {
   SceneVariableSet,
 } from '@grafana/scenes';
 
+import { buildLogsPanel, buildVolumePanel } from './panels';
+import { buildLogsQuery, buildVolumeQuery } from './queries';
 import { VAR_DATASOURCE_MINI, VAR_DATASOURCE_MINI_EXPR } from './variables';
-import { LokiQuery } from 'services/lokiQuery';
-import { PLUGIN_ID } from 'services/plugin';
 
 const DEFAULT_TIME_RANGE = { from: 'now-15m', to: 'now' };
-const DEFAULT_MAX_LOG_LINES = 100;
-
-// Standalone equivalent of services/query.ts's buildDataQuery: that file also pulls in
-// Components/IndexScene/LineFilter/LineFilterVariablesScene and other scene-tree-only code,
-// which would drag the whole IndexScene stack into this lazy-loaded, from-scratch chunk.
-function buildMiniDataQuery(expr: string, overrides: Partial<LokiQuery>): LokiQuery {
-  return {
-    editorMode: 'code',
-    queryType: 'range',
-    refId: 'A',
-    supportingQueryType: PLUGIN_ID,
-    ...overrides,
-    expr,
-  };
-}
+const VOLUME_PANEL_HEIGHT = '200px';
 
 // `raw.from`/`raw.to` are a relative string (e.g. "now-15m") or an absolute DateTime; SceneTimeRange wants a string either way.
 function toRawRangeString(value: DateTime | string): string {
@@ -41,14 +32,25 @@ export interface EmbeddedLogsMiniSceneOptions {
 }
 
 export interface EmbeddedLogsMiniSceneState extends SceneObjectState {
+  body: SceneFlexLayout;
   logsQueryRunner: SceneQueryRunner;
   volumeQueryRunner: SceneQueryRunner;
 }
 
-// Built from scratch: owns just a datasource variable, a time range, and the two query runners
-// (logs + volume) the mini embed needs. No IndexScene/ServiceScene reuse.
+// Built from scratch: owns a datasource variable, a time range, the two query runners (logs +
+// volume), and a volume-panel-on-top/logs-panel-below layout. No IndexScene/ServiceScene reuse.
 export class EmbeddedLogsMiniScene extends SceneObjectBase<EmbeddedLogsMiniSceneState> {
   public constructor({ datasourceUid, query, timeRange }: EmbeddedLogsMiniSceneOptions) {
+    const logsQueryRunner = new SceneQueryRunner({
+      datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
+      queries: [buildLogsQuery(query)],
+    });
+    // Total log volume, broken down by level; grouping by other fields is a later, configurable step.
+    const volumeQueryRunner = new SceneQueryRunner({
+      datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
+      queries: [buildVolumeQuery(query)],
+    });
+
     super({
       $timeRange: timeRange
         ? new SceneTimeRange({
@@ -66,17 +68,21 @@ export class EmbeddedLogsMiniScene extends SceneObjectBase<EmbeddedLogsMiniScene
           }),
         ],
       }),
-      logsQueryRunner: new SceneQueryRunner({
-        datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
-        queries: [buildMiniDataQuery(query, { maxLines: DEFAULT_MAX_LOG_LINES, refId: 'logs' })],
-      }),
-      // Total log volume over time; grouping by level/label is left for a later, configurable pass.
-      volumeQueryRunner: new SceneQueryRunner({
-        datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
-        queries: [
-          buildMiniDataQuery(`sum(count_over_time(${query} [$__auto]))`, { legendFormat: 'Logs', refId: 'volume' }),
+      body: new SceneFlexLayout({
+        children: [
+          new SceneFlexItem({ body: buildVolumePanel(volumeQueryRunner), height: VOLUME_PANEL_HEIGHT }),
+          new SceneFlexItem({ body: buildLogsPanel(logsQueryRunner) }),
         ],
+        direction: 'column',
+        height: '500px',
       }),
+      logsQueryRunner,
+      volumeQueryRunner,
     });
   }
+
+  public static Component = ({ model }: SceneComponentProps<EmbeddedLogsMiniScene>) => {
+    const { body } = model.useState();
+    return <body.Component model={body} />;
+  };
 }
