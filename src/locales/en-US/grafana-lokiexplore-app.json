@@ -142,8 +142,10 @@
       }
     },
     "embedded-logs-mini": {
-      "not-implemented": "Scaffolding only — nothing is rendered here yet. embedderName=\"{{embedderName}}\" datasourceUid=\"{{datasourceUid}}\" query=\"{{query}}\" referenceQuery=\"{{referenceQuery}}\" timeRange=\"{{timeRange}}\"",
-      "title": "Embedded Logs Drilldown (mini)"
+      "logs-query-debug": "Logs query runner: state={{state}} rows={{rows}}",
+      "props-debug": "embedderName=\"{{embedderName}}\" datasourceUid=\"{{datasourceUid}}\" query=\"{{query}}\" referenceQuery=\"{{referenceQuery}}\"",
+      "title": "Embedded Logs Drilldown (mini)",
+      "volume-query-debug": "Volume query runner: state={{state}} series={{series}}"
     },
     "embedded-mini-scene-wrapper": {
       "text-loading": "Loading..."
