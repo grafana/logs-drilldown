@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.2.0](https://github.com/grafana/logs-drilldown/compare/v3.1.0...v3.2.0) (2026-11-06)
+
+
+### 🎉 Features
+
+* **IRM:** add IRM actions to panel menus ([#2151](https://github.com/grafana/logs-drilldown/issues/2151)) ([786aa91](https://github.com/grafana/logs-drilldown/commit/786aa91855050c5a559aa421a2c9d5a94e548aab))
+
+
+### 🐛 Bug Fixes
+
+* **ci:** bump bundle-types action to the signed-commit release ([#2154](https://github.com/grafana/logs-drilldown/issues/2154)) ([5aa2b86](https://github.com/grafana/logs-drilldown/commit/5aa2b86fc72d94dd146f485a387dc78b8c8681a6))
+* **datasource:** switch to fixed requestId for volume ([#2177](https://github.com/grafana/logs-drilldown/issues/2177)) ([228bc74](https://github.com/grafana/logs-drilldown/commit/228bc741665a38f0b3f5ba5bf6126e2af1d76505))
+* **deps:** resolve pnpm audit vulnerabilities ([#2180](https://github.com/grafana/logs-drilldown/issues/2180)) ([e55d5cd](https://github.com/grafana/logs-drilldown/commit/e55d5cd0a0f0c069fa4c10bd7b25a9dc7b8613b6))
+* **deps:** update all non-major go dependencies ([#2168](https://github.com/grafana/logs-drilldown/issues/2168)) ([8ee4cb0](https://github.com/grafana/logs-drilldown/commit/8ee4cb01cf1ad575e7eba0c3a8318c8311750674))
+* **dev:** inherit local Grafana version and align supported version with plugin.json ([#2164](https://github.com/grafana/logs-drilldown/issues/2164)) ([e59f132](https://github.com/grafana/logs-drilldown/commit/e59f13259b6522359095468fa61b8895337312ae))
+* **LogsPanelScene:** wait for the plugin to load before attempting to set options ([#2162](https://github.com/grafana/logs-drilldown/issues/2162)) ([22b2eeb](https://github.com/grafana/logs-drilldown/commit/22b2eeba2d2d59c0fa8dace760e5c9408a94cb5d))
+* **patterns:** stack the pattern table rows on narrow viewports ([#2150](https://github.com/grafana/logs-drilldown/issues/2150)) ([18e3c1e](https://github.com/grafana/logs-drilldown/commit/18e3c1ef04546dab8ee4cb4a1eb7b42a547f079e))
+
+
+### 🧹 Chore
+
+* **build:** migrate webpack to Rspack ([#2175](https://github.com/grafana/logs-drilldown/issues/2175)) ([b7c32f6](https://github.com/grafana/logs-drilldown/commit/b7c32f695740c6637b064d558b7b1bbf6cd4e88e))
+* bump @grafana/create-plugin configuration to 7.17.0 ([#2167](https://github.com/grafana/logs-drilldown/issues/2167)) ([4b3d0c3](https://github.com/grafana/logs-drilldown/commit/4b3d0c347f1567d40cc1dda7cec21f842c4eb1fa))
+* **deps:** drop expired minimumReleaseAgeExclude entries for [@grafana](https://github.com/grafana) 13.3.0 ([#2171](https://github.com/grafana/logs-drilldown/issues/2171)) ([ee89e15](https://github.com/grafana/logs-drilldown/commit/ee89e1572ea94889cba23b59c891e7f0c933d093))
+* **deps:** fix available pnpm audit vulnerabilities ([#2163](https://github.com/grafana/logs-drilldown/issues/2163)) ([0c8c130](https://github.com/grafana/logs-drilldown/commit/0c8c1301e82c0056725aeb2ac3e50407966b3351))
+* **deps:** update Grafana packages to 13.3.0 ([#2159](https://github.com/grafana/logs-drilldown/issues/2159)) ([214d167](https://github.com/grafana/logs-drilldown/commit/214d1679ae098bd71ddbb1a056b77c477405d7a4))
+* **dev:** use the shared Drilldown generator ([#2172](https://github.com/grafana/logs-drilldown/issues/2172)) ([edf937c](https://github.com/grafana/logs-drilldown/commit/edf937c0594a303c36c8aa41810ef2da7a8b5e3f))
+* **generator:** add exception fields and stack traces to shopping-cart error logs ([#2156](https://github.com/grafana/logs-drilldown/issues/2156)) ([dd75010](https://github.com/grafana/logs-drilldown/commit/dd7501099513cc061c7f6ad26ded0a80d161536b))
+* update references ([#2173](https://github.com/grafana/logs-drilldown/issues/2173)) ([492dbd1](https://github.com/grafana/logs-drilldown/commit/492dbd1482b627cd6fbfa8b9233322682764b6dd))
+
 ## [3.1.0](https://github.com/grafana/logs-drilldown/compare/v3.0.0...v3.1.0) (2026-10-26)
 
 
