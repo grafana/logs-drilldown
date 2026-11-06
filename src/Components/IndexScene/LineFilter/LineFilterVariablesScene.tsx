@@ -5,7 +5,13 @@ import { debounce } from 'lodash';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { AdHocFilterWithLabels, SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
+import {
+  AdHocFilterWithLabels,
+  SceneComponentProps,
+  SceneObjectBase,
+  SceneObjectState,
+  SceneVariableValueChangedEvent,
+} from '@grafana/scenes';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { LineFilterProps, LineFilterVariable, lineFilterHasValueToClear } from './LineFilterVariable';
@@ -133,9 +139,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     const variable = getLineFiltersVariable(this);
     const { key, operator } = this.getDefaultsForNewLineFilter();
     const keyLabel = nextLineFilterKeyLabel(variable.state.filters);
-    variable.setState({
-      filters: [...variable.state.filters, { key, keyLabel, operator, value: '' }],
-    });
+    this.setLineFilters([...variable.state.filters, { key, keyLabel, operator, value: '' }]);
   };
 
   /**
@@ -148,9 +152,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
     }
     addCurrentUrlToHistory();
     const { key, operator } = this.getDefaultsForNewLineFilter();
-    variable.setState({
-      filters: [{ key, keyLabel: nextLineFilterKeyLabel([]), operator, value: '' }],
-    });
+    this.setLineFilters([{ key, keyLabel: nextLineFilterKeyLabel([]), operator, value: '' }]);
   };
 
   private getDefaultsForNewLineFilter = (): Pick<AdHocFilterWithLabels, 'key' | 'operator'> => {
@@ -287,13 +289,23 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
 
     if (otherFilters.length === 0) {
       const { key, operator } = this.getDefaultsForNewLineFilter();
-      variable.setState({
-        filters: [{ key, keyLabel: nextLineFilterKeyLabel([]), operator, value: '' }],
-      });
+      this.setLineFilters([{ key, keyLabel: nextLineFilterKeyLabel([]), operator, value: '' }]);
     } else {
-      variable.setState({
-        filters: otherFilters,
-      });
+      this.setLineFilters(otherFilters);
+    }
+  };
+
+  /**
+   * Scenes 8.22+ also publishes on per-key changes, so only publish when the expression changed or it's forced
+   */
+  private setLineFilters = (filters: AdHocFilterWithLabels[], { skipPublish = false, forcePublish = false } = {}) => {
+    const variable = getLineFiltersVariable(this);
+    const prevExpression = variable.state.filterExpression;
+
+    variable.updateFilters(filters, { skipPublish: true });
+
+    if (forcePublish || (!skipPublish && variable.state.filterExpression !== prevExpression)) {
+      variable.publishEvent(new SceneVariableValueChangedEvent(variable), true);
     }
   };
 
@@ -311,7 +323,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
       (f) => f.keyLabel !== undefined && f.keyLabel !== existingFilter.keyLabel
     );
 
-    variable.updateFilters(
+    this.setLineFilters(
       [
         {
           key: filterUpdate.key,

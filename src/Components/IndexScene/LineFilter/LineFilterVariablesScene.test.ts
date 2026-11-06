@@ -1,6 +1,6 @@
 import { ChangeEvent } from 'react';
 
-import { AdHocFilterWithLabels } from '@grafana/scenes';
+import { AdHocFilterWithLabels, SceneVariableValueChangedEvent } from '@grafana/scenes';
 
 import {
   applyLogSelectionToLineFilters,
@@ -105,13 +105,19 @@ describe('line filter debounce vs toggles', () => {
 
   function setupScene(filter: AdHocFilterWithLabels) {
     let filters: AdHocFilterWithLabels[] = [{ ...filter }];
-    const updateFilters = jest.fn((newFilters: AdHocFilterWithLabels[]) => {
-      filters = newFilters;
-    });
-    mockGetLineFiltersVariable.mockReturnValue({
-      state: { filters },
-      updateFilters,
-    });
+    const variable = {
+      publishEvent: jest.fn(),
+      state: { filterExpression: '', filters },
+      updateFilters: jest.fn((newFilters: AdHocFilterWithLabels[]) => {
+        filters = newFilters;
+        // Only filters with a value contribute to the expression, as in scenes
+        variable.state.filterExpression = newFilters
+          .filter((f) => f.value)
+          .map((f) => `${f.key} ${f.operator} ${f.value}`)
+          .join(', ');
+      }),
+    };
+    mockGetLineFiltersVariable.mockReturnValue(variable);
     const scene = new LineFilterVariablesScene({});
     return {
       scene,
@@ -119,7 +125,8 @@ describe('line filter debounce vs toggles', () => {
       get filters() {
         return filters;
       },
-      updateFilters,
+      publishEvent: variable.publishEvent,
+      updateFilters: variable.updateFilters,
     };
   }
 
@@ -175,5 +182,97 @@ describe('line filter debounce vs toggles', () => {
     jest.advanceTimersByTime(LINE_FILTER_INPUT_DEBOUNCE_MS);
 
     expect(ctx.updateFilters.mock.calls.at(-1)?.[0][0]?.key).toBe(LineFilterCaseSensitive.caseSensitive);
+  });
+});
+
+describe('line filter value change events', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const emptyFilter: AdHocFilterWithLabels = {
+    key: LineFilterCaseSensitive.caseInsensitive,
+    keyLabel: '0',
+    operator: LineFilterOp.match,
+    value: '',
+  };
+
+  function setup(filter: AdHocFilterWithLabels) {
+    const filters: AdHocFilterWithLabels[] = [{ ...filter }];
+    const variable = {
+      publishEvent: jest.fn(),
+      state: { filterExpression: filter.value ? `${filter.key} ${filter.operator} ${filter.value}` : '', filters },
+      updateFilters: jest.fn((newFilters: AdHocFilterWithLabels[]) => {
+        variable.state.filterExpression = newFilters
+          .filter((f) => f.value)
+          .map((f) => `${f.key} ${f.operator} ${f.value}`)
+          .join(', ');
+      }),
+    };
+    mockGetLineFiltersVariable.mockReturnValue(variable);
+    return { scene: new LineFilterVariablesScene({}), variable };
+  }
+
+  it('does not publish when toggling regex or case on an empty filter', () => {
+    const { scene, variable } = setup(emptyFilter);
+
+    scene.onRegexToggle(emptyFilter);
+    scene.onCaseSensitiveToggle(emptyFilter);
+
+    expect(variable.updateFilters).toHaveBeenCalledTimes(2);
+    expect(variable.publishEvent).not.toHaveBeenCalled();
+  });
+
+  it('publishes when toggling regex on a filter with a value', () => {
+    const filter = { ...emptyFilter, value: 'error' };
+    const { scene, variable } = setup(filter);
+
+    scene.onRegexToggle(filter);
+
+    expect(variable.publishEvent).toHaveBeenCalledTimes(1);
+    expect(variable.publishEvent).toHaveBeenCalledWith(expect.any(SceneVariableValueChangedEvent), true);
+  });
+
+  it('does not publish when ensuring or adding an empty row', () => {
+    const { scene, variable } = setup(emptyFilter);
+    variable.state.filters = [];
+
+    scene.ensureAtLeastOneEmptyLineFilter();
+    scene.addLineFilter();
+
+    expect(variable.updateFilters).toHaveBeenCalledTimes(2);
+    expect(variable.publishEvent).not.toHaveBeenCalled();
+  });
+
+  it('publishes when removing a filter that has a value', () => {
+    const filter = { ...emptyFilter, value: 'error' };
+    const { scene, variable } = setup(filter);
+
+    scene.removeFilter(filter);
+
+    expect(variable.publishEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not publish when removing an empty filter', () => {
+    const { scene, variable } = setup(emptyFilter);
+
+    scene.removeFilter(emptyFilter);
+
+    expect(variable.publishEvent).not.toHaveBeenCalled();
+  });
+
+  it('publishes once, after the debounce, when the text changes', () => {
+    const { scene, variable } = setup(emptyFilter);
+
+    scene.onInputChange({ target: { value: 'error' } } as ChangeEvent<HTMLInputElement>, emptyFilter);
+    expect(variable.publishEvent).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(LINE_FILTER_INPUT_DEBOUNCE_MS);
+    expect(variable.publishEvent).toHaveBeenCalledTimes(1);
   });
 });

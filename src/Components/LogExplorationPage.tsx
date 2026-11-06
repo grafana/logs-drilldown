@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { Navigate } from 'react-router-dom';
 
-import { config } from '@grafana/runtime';
+import { hasPermission } from '@grafana/runtime';
 import { SceneApp, useSceneApp } from '@grafana/scenes';
 
 import { plugin } from '../module';
@@ -32,8 +32,7 @@ function LogExplorationScene() {
     }
   }, [scene, isInitialized]);
 
-  const userPermissions = config.bootData.user.permissions;
-  const canUseApp = userPermissions?.['grafana-lokiexplore-app:read'] || userPermissions?.['datasources:explore'];
+  const canUseApp = hasPermission('grafana-lokiexplore-app:read') || hasPermission('datasources:explore');
   if (!canUseApp) {
     return <Navigate to="/" replace />;
   }
