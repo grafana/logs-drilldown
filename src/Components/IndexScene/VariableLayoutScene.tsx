@@ -21,6 +21,7 @@ import { ResetFiltersButton } from './ResetFiltersButton';
 import { ToolbarScene } from './ToolbarScene';
 import { EmbeddedLinkScene } from 'Components/EmbeddedLogsExploration/EmbeddedLinkScene';
 import { PluginInfo } from 'Components/Header/PluginInfo';
+import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { PageSlugs } from 'services/enums';
 import { getDrilldownSlug } from 'services/routing';
 import { syncLogsListPanelHeightFromScene } from 'services/scenes';
@@ -82,7 +83,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
   static Component = ({ model }: SceneComponentProps<VariableLayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
-    const { controls, patterns, embedded, kgAnnotationToggle } = indexScene.useState();
+    const { controls, patterns, embedded, kgAnnotationToggle, contentScene } = indexScene.useState();
     const layoutScene = sceneGraph.getAncestor(model, LayoutScene);
     const { levelsRenderer, lineFilterRenderer } = layoutScene.useState();
     const height = useChromeHeaderHeight();
@@ -123,6 +124,7 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
 
                   {slug !== PageSlugs.explore && (
                     <ToolbarButton
+                      data-testid={testIds.header.toggleQueryEditor}
                       className={collapsed ? styles.iconCollapsed : styles.iconExpanded}
                       variant={collapsed ? 'active' : 'canvas'}
                       icon="arrow-from-right"
@@ -206,10 +208,21 @@ export class VariableLayoutScene extends SceneObjectBase<VariableLayoutSceneStat
               onRemove={(patterns: AppliedPattern[]) => indexScene.setState({ patterns })}
             />
           </div>
+
+          {contentScene instanceof ServiceScene && (
+            <div className={styles.controlsRowContainer}>
+              <ServiceQueryStats service={contentScene} />
+            </div>
+          )}
         </>
       </div>
     );
   };
+}
+
+function ServiceQueryStats({ service }: { service: ServiceScene }) {
+  const { queryStats } = service.useState();
+  return queryStats ? <queryStats.Component model={queryStats} /> : null;
 }
 
 function getStyles(theme: GrafanaTheme2, height: number, headerCollapsed = false) {
