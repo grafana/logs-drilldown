@@ -66,8 +66,8 @@ If you want to [install the app in a docker container](https://grafana.com/docs/
 In order to run the setup locally and build the plugin by your own, follow these steps:
 
 1. `pnpm install`
-2. `pnpm run dev` this builds the plugin continuously
-3. `pnpm run server` this spins up the docker setup, including a Loki instance and the fake data generator
+2. Configure `DRILLDOWN_GENERATOR_DIR` in `.env` if the shared generator is not at the default sibling path.
+3. `pnpm run start` starts shared data, Docker Grafana, and the foreground webpack watcher. Stop the watcher with Ctrl+C and run `pnpm server:down` for Docker teardown. See [shared generator setup](docs/local-generator.md) for the AI start/stop commands.
 
 ## Supported Features
 

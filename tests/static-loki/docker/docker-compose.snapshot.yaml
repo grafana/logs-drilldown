@@ -24,8 +24,7 @@ services:
       - -runtime-config.file=/etc/loki/overrides.yaml
 
   snapshot-generator:
-    build:
-      context: ./generator
+    image: ${DRILLDOWN_GENERATOR_IMAGE:-drilldown-generator:local}
     container_name: snapshot-generator
     depends_on:
       - snapshot-loki

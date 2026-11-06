@@ -83,3 +83,12 @@ Logs Drilldown uses [@grafana/scenes](https://grafana.com/developers/scenes/) fo
 Start with the **Related documentation** table above, then open the doc that matches your task.
 
 **Human contributors:** follow [CONTRIBUTING.md](CONTRIBUTING.md) for how to file issues, open pull requests, run local checks, and use AI tools responsibly. The full GenAI policy is in [docs/genai.md](docs/genai.md).
+
+## Shared local generator
+
+Read `docs/local-generator.md` before starting local data. Use the shared
+`drilldown-generator-start` / `drilldown-generator-stop` skills or existing
+`pnpm start`, `pnpm server`, and `pnpm server:down` commands. Configure
+`DRILLDOWN_GENERATOR_DIR` in `.env` for other checkout layouts. The Go source
+lives in `drilldown/packages/generator`; do not add another copy here. Static E2E uses its
+committed Loki snapshot; only snapshot regeneration needs the shared generator.

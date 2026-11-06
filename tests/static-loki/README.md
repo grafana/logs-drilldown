@@ -33,7 +33,7 @@ in the e2e environment.
 
 Run `pnpm run generate:loki-snapshot` whenever you:
 
-* Add or rename services / labels in the generator (e.g. `generator/generator.go`)
+* Add or rename services / labels in the generator (e.g. `drilldown/packages/generator/generator.go`)
 * Change Loki configuration in a way that affects index or chunk layout
 * Need to extend the time window or add new patterns covered by the suite
 
@@ -78,7 +78,7 @@ live local development, keep using:
 
 * `pnpm run server:localLoki` (live Loki + live generator, see
   `docker-compose-local-loki.dev.yaml`)
-* `pnpm run start:all` (Loki + Tempo + Mimir + generator, see
+* `pnpm run start:all` (Loki + Tempo + Prometheus + generator, see
   `docker-compose-local-all.yaml`)
 
 Those flows still use wall-clock timestamps and the live generator.
@@ -105,3 +105,8 @@ window. New navigations should pass explicit `from`/`to` query params using
   static dataset this window returns no rows, so any data-dependent
   assertions in that flow may need a follow-up navigation to
   `STATIC_FROM`/`STATIC_TO`.
+
+Snapshot regeneration uses the [shared generator](../../docs/local-generator.md).
+Set `DRILLDOWN_GENERATOR_DIR` in `.env` for a non-sibling checkout, or
+export `DRILLDOWN_GENERATOR_IMAGE` with an accessible pinned image reference. Ordinary E2E
+runs use the committed snapshot and do not need the generator checkout.
