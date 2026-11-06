@@ -226,6 +226,7 @@ indicies
 influxdata
 Ingester
 ingester
+ingesters
 inited
 inlinesvg
 inmemory
