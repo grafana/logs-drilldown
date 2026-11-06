@@ -781,6 +781,8 @@ export class ServiceSelectionScene extends SceneObjectBase<ServiceSelectionScene
   }
 
   private subscribeToDatasource() {
+    // Keep the variable active so the picker's Strict Mode remount can't wipe the listener below
+    this._subs.add(getDataSourceVariable(this).activate());
     this._subs.add(
       getDataSourceVariable(this).subscribeToState((newState) => {
         this.setState({

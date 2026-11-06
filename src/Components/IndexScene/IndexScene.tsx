@@ -267,6 +267,8 @@ export class IndexScene extends SceneObjectBase<IndexSceneState> {
   };
 
   public onActivate() {
+    // The variable selector's Strict Mode remount would otherwise deactivate the variable and drop our listeners
+    this._subs.add(getDataSourceVariable(this).activate());
     const stateUpdate: Partial<IndexSceneState> = {};
     this.setVariableProviders();
 
