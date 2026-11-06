@@ -306,6 +306,12 @@
         }
       }
     },
+    "query-stats": {
+      "estimate": "This query processes approximately {{size}}",
+      "loading": "Estimating query size…",
+      "scope": "Estimate for the logs query and selected time range, based on indexed labels. Pipeline filters and data still in ingesters are not included.",
+      "unavailable": "Query size estimate unavailable"
+    },
     "saved-searches": {
       "load-search-button": {
         "button-no-search-tooltip": "No saved searches to load",

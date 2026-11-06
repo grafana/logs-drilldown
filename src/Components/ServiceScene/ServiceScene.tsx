@@ -34,6 +34,7 @@ import { breakdownViewsDefinitions, valueBreakdownViews } from './BreakdownViews
 import { CreateAlertModal } from './CreateAlertModal';
 import { getLogsPanelSortOrderFromURL } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
+import { QueryStatsScene } from './QueryStatsScene';
 import { drilldownLabelUrlKey, pageSlugUrlKey } from './ServiceSceneConstants';
 import { JsonData } from 'Components/AppConfig/AppConfig';
 import { IndexScene, showLogsButtonSceneKey } from 'Components/IndexScene/IndexScene';
@@ -166,6 +167,7 @@ export interface ServiceSceneState extends SceneObjectState, ServiceSceneCustomS
   drillDownLabel?: string;
   loadingStates: ServiceSceneLoadingStates;
   pageSlug?: PageSlugs | ValueSlugs;
+  queryStats?: QueryStatsScene;
 }
 
 export function getLogsPanelFrame(data: PanelData | undefined) {
@@ -420,6 +422,7 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
       // Clear ongoing queries
       this.setState({
         $data: undefined,
+        queryStats: undefined,
         $detectedFieldsData: undefined,
         $detectedLabelsData: undefined,
         $logsCount: undefined,
@@ -530,6 +533,10 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
 
     if (Object.keys(stateUpdate).length) {
       this.setState(stateUpdate);
+    }
+
+    if (!this.state.queryStats) {
+      this.setState({ queryStats: new QueryStatsScene() });
     }
 
     // Hide show logs button

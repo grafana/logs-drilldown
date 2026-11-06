@@ -35,9 +35,15 @@ export interface LokiQuery extends DataQuery {
 
 export type LokiQueryType = 'instant' | 'range' | 'stream' | string;
 
+export interface LokiQueryStats {
+  bytes: number;
+  message?: string;
+}
+
 export type LokiDatasource = DataSourceWithBackend<LokiQuery, DataSourceJsonData> & {
   maxLines?: number;
 } & {
+  getStats?: (query: LokiQuery, timeRange: TimeRange) => Promise<LokiQueryStats | null>;
   getTagKeys(options?: DataSourceGetTagKeysOptions<LokiQuery>): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
   getTagValues(options: DataSourceGetTagValuesOptions<LokiQuery>): Promise<GetTagResponse> | Promise<MetricFindValue[]>;
   getTimeRangeParams: (timeRange: TimeRange) => { end: number; start: number };

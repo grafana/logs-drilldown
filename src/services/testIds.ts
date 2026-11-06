@@ -43,6 +43,7 @@ export const testIds = {
     buttonRemovePattern: 'data-testid button-remove-pattern',
     openExplore: 'data-testid open-explore',
     searchLogs: 'data-testid search-logs',
+    querySizeEstimate: 'data-testid query-size-estimate',
     tabFields: 'data-testid tab-fields',
     tabLabels: 'data-testid tab-labels',
     tabLogs: 'data-testid tab-logs',
@@ -55,6 +56,7 @@ export const testIds = {
     pluginHeaderToolbar: 'data-testid plugin-header-toolbar',
     pluginInfoButton: 'data-testid plugin-info-button',
     refreshPicker: 'data-testid RefreshPicker run button',
+    toggleQueryEditor: 'data-testid toggle-query-editor',
   },
 
   index: {

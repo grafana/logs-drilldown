@@ -10,6 +10,14 @@ The logs visualization in Grafana Logs Drilldown displays log lines from your Lo
 
 A line filter search field appears at the top of the page. Enter text to filter your logs to lines that contain, or exclude, that text.
 
+## Estimated query size
+
+Above the tabs, Logs Drilldown estimates how much data the logs query will process for the selected time range. The estimate updates when you change query inputs or refresh the time range, independently of loading the log results.
+
+Collapsing the query editor hides the estimate. Expand the editor to show it again.
+
+The estimate uses Loki index statistics for the query's indexed label selectors. It does not account for pipeline filters or data still in ingesters, and it can count chunks more than once across index periods. It applies to the logs query, rather than the combined cost of all breakdown queries. If Loki cannot provide an estimate, Logs Drilldown displays **Query size estimate unavailable** and continues loading logs.
+
 ## Visualization types
 
 On the **Logs** tab, use the radio buttons in the panel header to switch how Logs Drilldown displays your logs:
