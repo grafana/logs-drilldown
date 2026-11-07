@@ -54,7 +54,7 @@ export function JSONNestedNodeFilterButton({ active, fullKeyPath, keyPath, type,
             filterType: active ? 'toggle' : type === 'include' ? 'exclude' : 'include',
           });
         }}
-        aria-selected={active}
+        aria-pressed={active}
         variant={active ? 'primary' : 'secondary'}
         name={type === 'include' ? 'search-plus' : 'search-minus'}
         aria-label={

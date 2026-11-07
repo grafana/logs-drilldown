@@ -133,7 +133,7 @@ test.describe('Fields tab', () => {
     // This should trigger more queries
     await excludeButton.click();
     // Should have excluded a panel
-    await expect(excludeButton).toHaveAttribute('aria-selected', 'true');
+    await expect(excludeButton).toHaveAttribute('aria-pressed', 'true');
 
     // Adhoc content filter should be added
     await expect(page.getByLabel(E2EComboboxStrings.editByKey(fieldName))).toBeVisible();

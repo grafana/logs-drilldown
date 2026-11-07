@@ -275,7 +275,7 @@ test.describe('explore services page', () => {
 
       // add positive include filter without navigating
       await tempoIngesterIncludeBtn.click();
-      expect(await tempoIngesterIncludeBtn.getAttribute('aria-selected')).toEqual('true');
+      await expect(tempoIngesterIncludeBtn).toHaveText('Remove');
       // Show logs button in headers should no longer be disabled now we've added new filter
       await expect(showLogsHeaderBtn).not.toBeDisabled();
 
@@ -302,7 +302,7 @@ test.describe('explore services page', () => {
 
       // add positive include filter without navigating
       await tempoDistributorIncludeBtn.click();
-      expect(await tempoDistributorIncludeBtn.getAttribute('aria-selected')).toEqual('true');
+      await expect(tempoDistributorIncludeBtn).toHaveText('Remove');
 
       // Assert the filters are visible within the combobox
       await expect(page.locator('div').filter({ hasText: /^service_name = tempo-ingester$/ })).toHaveCount(1);

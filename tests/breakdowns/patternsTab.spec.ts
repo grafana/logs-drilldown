@@ -146,8 +146,10 @@ test.describe('Patterns tab', () => {
       .getByTestId(testIds.exploreServiceDetails.buttonFilterInclude);
 
     await expect(firstIncludeButton).toHaveCount(1);
+    await expect(firstIncludeButton).toHaveAttribute('aria-pressed', 'false');
     //Flake (M)
     await firstIncludeButton.click();
+    await expect(firstIncludeButton).toHaveAttribute('aria-pressed', 'true');
     // Should not open logs panel and should stay in patterns tab as we allow multiple  patterns
     await expect(page.getByTestId(testIds.logsPanelHeader.header)).not.toBeVisible();
     await expect(page.getByTestId(testIds.patterns.tableWrapper)).toBeVisible();

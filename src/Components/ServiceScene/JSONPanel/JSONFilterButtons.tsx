@@ -59,7 +59,7 @@ export const JSONFieldValueButton = memo(
               variableType: VAR_FIELDS,
             });
           }}
-          aria-selected={isActive}
+          aria-pressed={isActive}
           variant={isActive ? 'primary' : 'secondary'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={
@@ -125,7 +125,7 @@ export const JSONMetadataButton = memo(
               sceneRef,
             });
           }}
-          aria-selected={selected}
+          aria-pressed={selected}
           variant={selected ? 'primary' : 'secondary'}
           name={type === 'include' ? 'search-plus' : 'search-minus'}
           aria-label={
