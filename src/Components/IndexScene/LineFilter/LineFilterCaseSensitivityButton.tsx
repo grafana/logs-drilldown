@@ -7,6 +7,7 @@ import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
 
 import { LineFilterCaseSensitive } from 'services/filterTypes';
 import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from 'services/mixins';
+import { testIds } from 'services/testIds';
 
 interface Props {
   caseSensitive: boolean;
@@ -22,6 +23,7 @@ export const LineFilterCaseSensitivityButton = (props: Props) => {
   return (
     <Tooltip content={description}>
       <button
+        data-testid={testIds.variables.lineFilters.caseSensitivityToggle}
         onClick={() =>
           props.onCaseSensitiveToggle(
             props.caseSensitive ? LineFilterCaseSensitive.caseInsensitive : LineFilterCaseSensitive.caseSensitive

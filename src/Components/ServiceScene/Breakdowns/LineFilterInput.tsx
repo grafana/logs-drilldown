@@ -7,6 +7,7 @@ import { t } from '@grafana/i18n';
 import { Icon, IconButton, Input, Tooltip, useStyles2 } from '@grafana/ui';
 
 import { narrowErrorMessage } from 'services/narrowing';
+import { testIds } from 'services/testIds';
 
 interface Props extends Omit<HTMLProps<HTMLInputElement>, 'invalid' | 'onInvalid' | 'prefix' | 'width'> {
   onClear?: () => void;
@@ -75,6 +76,7 @@ export const LineFilterInput = ({ onChange, onClear, placeholder, regex, suffix,
           <span className={styles.suffixWrapper}>
             {onClear && value ? (
               <IconButton
+                data-testid={testIds.variables.lineFilters.clearButton}
                 aria-label={t(
                   'components.service-scene.breakdowns.line-filter-input.aria-label-clear-line-filter',
                   'Clear line filter'

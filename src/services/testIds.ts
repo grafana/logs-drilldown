@@ -66,6 +66,8 @@ export const testIds = {
     },
     searchLabelValueInput: 'data-testid search-services-input',
     selectServiceButton: 'data-testid button-select-service',
+    serviceSelection: (labelName: string, labelValue: string) =>
+      `data-testid service-selection-${encodeURIComponent(labelName)}:${encodeURIComponent(labelValue)}`,
   },
 
   logsPanelHeader: {
@@ -94,6 +96,14 @@ export const testIds = {
     },
     lineFilters: {
       addButton: 'data-testid line-filter-add',
+      row: (keyLabel: string) => `data-testid line-filter-row-${keyLabel}`,
+      operator: 'data-testid line-filter-operator',
+      includeButton: 'data-testid line-filter-include',
+      excludeButton: 'data-testid line-filter-exclude',
+      regexToggle: 'data-testid line-filter-regex-toggle',
+      caseSensitivityToggle: 'data-testid line-filter-case-sensitivity-toggle',
+      clearButton: 'data-testid line-filter-clear',
+      removeButton: 'data-testid line-filter-remove',
     },
     levels: {
       inputWrap: 'data-testid detected_level filter variable',
