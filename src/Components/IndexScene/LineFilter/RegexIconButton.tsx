@@ -6,6 +6,7 @@ import { colorManipulator, GrafanaTheme2 } from '@grafana/data';
 import { IconButtonVariant, Tooltip, useTheme2 } from '@grafana/ui';
 
 import { getFocusStyles, getIconButtonBefore, getMouseFocusStyles } from 'services/mixins';
+import { testIds } from 'services/testIds';
 
 export type RegexInputValue = 'match' | 'regex';
 interface Props {
@@ -22,6 +23,7 @@ export const RegexIconButton = (props: Props) => {
   return (
     <Tooltip content={description}>
       <button
+        data-testid={testIds.variables.lineFilters.regexToggle}
         onClick={() => props.onRegexToggle(props.regex ? 'match' : 'regex')}
         className={cx(styles.button, props.regex ? styles.active : null)}
         aria-label={description}

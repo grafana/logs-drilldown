@@ -58,21 +58,26 @@ export class SelectServiceButton extends SceneObjectBase<SelectServiceButtonStat
     }
     const link = model.getLink();
     return (
-      <LinkButton
-        data-testid={testIds.index.selectServiceButton}
-        tooltip={t('components.service-selection-scene.select-service-button.tooltip', 'View logs for {{value}}', {
-          value: model.state.labelValue,
-        })}
-        className={styles.button}
-        variant={'primary'}
-        fill={'outline'}
-        size="sm"
-        disabled={!link}
-        href={model.getLink()}
-        onClick={model.onClick}
+      <span
+        className={styles.selectorScope}
+        data-testid={testIds.index.serviceSelection(model.state.labelName, model.state.labelValue)}
       >
-        <Trans i18nKey="components.service-selection-scene.select-service-button.show-logs">Show logs</Trans>
-      </LinkButton>
+        <LinkButton
+          data-testid={testIds.index.selectServiceButton}
+          tooltip={t('components.service-selection-scene.select-service-button.tooltip', 'View logs for {{value}}', {
+            value: model.state.labelValue,
+          })}
+          className={styles.button}
+          variant={'primary'}
+          fill={'outline'}
+          size="sm"
+          disabled={!link}
+          href={model.getLink()}
+          onClick={model.onClick}
+        >
+          <Trans i18nKey="components.service-selection-scene.select-service-button.show-logs">Show logs</Trans>
+        </LinkButton>
+      </span>
     );
   };
 }
@@ -129,6 +134,7 @@ export function goToLabelDrillDownLink(primaryLabelName: string, primaryLabelVal
 
 function getStyles(theme: GrafanaTheme2) {
   return {
+    selectorScope: css({ display: 'contents' }),
     button: css({
       alignSelf: 'center',
     }),

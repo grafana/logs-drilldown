@@ -9,6 +9,7 @@ import { Icon, IconButton, Tooltip, useStyles2 } from '@grafana/ui';
 import { LineFilterEditor } from './LineFilterEditor';
 import { RegexInputValue } from './RegexIconButton';
 import { LineFilterCaseSensitive } from 'services/filterTypes';
+import { testIds } from 'services/testIds';
 
 /** First filter only shows remove (×) when this is true. */
 export const lineFilterHasValueToClear = (lineFilter: string | undefined): boolean =>
@@ -31,12 +32,14 @@ export interface LineFilterProps {
 
 export function LineFilterVariable({
   isFirstLineFilterRow,
+  rowKey,
   onClick,
   props,
 }: {
   isFirstLineFilterRow: boolean;
   onClick?: () => void;
   props: LineFilterProps;
+  rowKey?: string;
 }) {
   const [focus, setFocus] = useState(false);
   const styles = useStyles2(getLineFilterStyles);
@@ -44,7 +47,7 @@ export function LineFilterVariable({
 
   return (
     <>
-      <div>
+      <div data-testid={rowKey === undefined ? undefined : testIds.variables.lineFilters.row(rowKey)}>
         <div className={styles.titleWrap}>
           <div className={styles.titleLabel}>
             <Trans i18nKey="components.index-scene.line-filter-variable.line-filter">Line filter</Trans>
@@ -61,6 +64,7 @@ export function LineFilterVariable({
           </div>
           {showRemove && (
             <IconButton
+              data-testid={testIds.variables.lineFilters.removeButton}
               onClick={onClick}
               name={'times'}
               size={'xs'}

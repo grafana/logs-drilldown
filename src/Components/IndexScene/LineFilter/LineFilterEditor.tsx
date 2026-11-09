@@ -56,6 +56,7 @@ export function LineFilterEditor({
       {!onSubmitLineFilter && (
         <div className={styles.operatorComboboxWrap}>
           <Combobox<string>
+            data-testid={testIds.variables.lineFilters.operator}
             value={exclusive ? 'exclusive' : 'inclusive'}
             options={[
               {
@@ -111,6 +112,7 @@ export function LineFilterEditor({
               setExclusive(false);
               onSubmitLineFilter();
             }}
+            data-testid={testIds.variables.lineFilters.includeButton}
             className={styles.includeButton}
             variant={'secondary'}
             fill={'outline'}
@@ -123,6 +125,7 @@ export function LineFilterEditor({
               setExclusive(true);
               onSubmitLineFilter();
             }}
+            data-testid={testIds.variables.lineFilters.excludeButton}
             className={styles.excludeButton}
             variant={'secondary'}
             fill={'outline'}

@@ -100,6 +100,7 @@ export class LineFilterVariablesScene extends SceneObjectBase<LineFilterRenderer
         {filters.map((filter, index) => (
           <LineFilterVariable
             key={filter.keyLabel}
+            rowKey={filter.keyLabel}
             isFirstLineFilterRow={index === 0}
             onClick={() => model.removeFilter(filter)}
             props={getLineFilterPropsForRow(model, filter)}
