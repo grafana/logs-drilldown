@@ -1,8 +1,11 @@
 // Adapted from grafana/grafana/public/app/core/utils/shortLinks.ts shortLinks.ts
+import { useCallback } from 'react';
+
 import { memoize } from 'lodash';
 
+import { useCreateShortUrlMutation } from '@grafana/api-clients/rtkq/shorturl/v1beta1';
 import { AppEvents, toUtc, urlUtil } from '@grafana/data';
-import { config, getAppEvents, getBackendSrv, locationService } from '@grafana/runtime';
+import { config, getAppEvents, locationService } from '@grafana/runtime';
 import { SceneTimeRangeLike } from '@grafana/scenes';
 
 import { logger } from './logger';
@@ -17,19 +20,20 @@ function getRelativeURLPath(url: string) {
   return path.startsWith('/') ? path.substring(1, path.length) : path;
 }
 
+type CreateShortUrl = ReturnType<typeof useCreateShortUrlMutation>[0];
+
 // Adapted from shortLinks.ts in core
-export const createShortLink = memoize(async function (path: string): Promise<string> {
+export const createShortLink = memoize(async function (path: string, createShortUrl: CreateShortUrl): Promise<string> {
   try {
-    const shortLink = await getBackendSrv().post<{ metadata: { name: string } }>(
-      `/apis/shorturl.grafana.app/v1beta1/namespaces/${config.namespace}/shorturls`,
-      {
+    const shortLink = await createShortUrl({
+      shortUrl: {
         apiVersion: 'shorturl.grafana.app/v1beta1',
         kind: 'ShortURL',
         // generateName lets the apiserver create the uid, as core's shorturl client does
         metadata: { generateName: 's' },
         spec: { path: getRelativeURLPath(path) },
-      }
-    );
+      },
+    }).unwrap();
     const url = `${buildHostUrl()}/goto/${shortLink.metadata.name}`;
     // Mirrors core: on-prem is multi-org so carry the org ID, Cloud (stacks-*) omits it
     return config.namespace.startsWith('stacks-') ? url : `${url}?orgId=${config.bootData.user.orgId}`;
@@ -42,21 +46,21 @@ export const createShortLink = memoize(async function (path: string): Promise<st
 });
 
 // Copied from shortLinks.ts in core
-const createShortLinkClipboardItem = (path: string) => {
+const createShortLinkClipboardItem = (path: string, createShortUrl: CreateShortUrl) => {
   return new ClipboardItem({
-    'text/plain': createShortLink(path),
+    'text/plain': createShortLink(path, createShortUrl),
   });
 };
 
 // Copied from shortLinks.ts in core
-export const createAndCopyShortLink = async (path: string) => {
+export const createAndCopyShortLink = async (path: string, createShortUrl: CreateShortUrl) => {
   const appEvents = getAppEvents();
 
   try {
     if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write) {
-      await navigator.clipboard.write([createShortLinkClipboardItem(path)]);
+      await navigator.clipboard.write([createShortLinkClipboardItem(path, createShortUrl)]);
     } else {
-      const shortLink = await createShortLink(path);
+      const shortLink = await createShortLink(path, createShortUrl);
       copyText(shortLink);
     }
 
@@ -71,6 +75,12 @@ export const createAndCopyShortLink = async (path: string) => {
       type: AppEvents.alertError.name,
     });
   }
+};
+
+// Binds the mutation trigger from Grafana's store
+export const useCreateAndCopyShortLink = () => {
+  const [createShortUrl] = useCreateShortUrlMutation();
+  return useCallback((path: string) => createAndCopyShortLink(path, createShortUrl), [createShortUrl]);
 };
 
 /**
