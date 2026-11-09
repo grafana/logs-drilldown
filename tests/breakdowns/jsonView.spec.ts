@@ -178,7 +178,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       const outerChip = includeAny.first();
       await outerChip.click();
       await expect(page.getByLabel('Edit filter with key nested_object_url')).toHaveCount(1);
-      await expect(outerChip).toHaveAttribute('aria-selected', 'true');
+      await expect(outerChip).toHaveAttribute('aria-pressed', 'true');
 
       await outerChip.hover();
       await expect(outerChip).toHaveCSS('color', hoverButtonColor);
@@ -187,10 +187,10 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       const includeAfterDeep = page.getByLabel(/Include log lines containing url=".+"/);
       await expect(includeAfterDeep).toHaveCount(1);
       const innerChip = includeAfterDeep.first();
-      await expect(innerChip).toHaveAttribute('aria-selected', 'false');
+      await expect(innerChip).toHaveAttribute('aria-pressed', 'false');
       await innerChip.click();
       await expect(page.getByLabel('Edit filter with key nested_object_deeplyNestedObject_url')).toHaveCount(1);
-      await expect(innerChip).toHaveAttribute('aria-selected', 'true');
+      await expect(innerChip).toHaveAttribute('aria-pressed', 'true');
 
       await page.getByRole('button', { exact: true, name: 'root' }).click();
 
@@ -206,7 +206,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       await deeplyNested.getByRole('button', { name: '▶' }).click();
 
       await expect(page.getByLabel(/Include log lines containing url=".+"/)).toHaveCount(2);
-      await expect(page.locator('[aria-label^="Include log lines containing url="][aria-selected="true"]')).toHaveCount(
+      await expect(page.locator('[aria-label^="Include log lines containing url="][aria-pressed="true"]')).toHaveCount(
         2
       );
     });
@@ -228,7 +228,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
       // Filter all nested objects
       await page.getByLabel('Include log lines that contain nested_object').first().click();
       await expect(page.getByLabel('Include log lines that contain nested_object').first()).toHaveAttribute(
-        'aria-selected',
+        'aria-pressed',
         'true'
       );
       await expect(page.getByLabel('Include log lines that contain nested_object').nth(1)).toHaveCSS(
@@ -312,7 +312,7 @@ test.describe('JSON view breakdown (nginx-json)', () => {
 
       // assert already selected label filter is active
       await expect(page.getByLabel('Include log lines containing service_name="nginx-json"').first()).toHaveAttribute(
-        'aria-selected',
+        'aria-pressed',
         'true'
       );
 

@@ -83,7 +83,6 @@ export class AddLabelToFiltersHeaderActionScene extends SceneObjectBase<AddLabel
           variant={included ? 'destructive' : 'secondary'}
           fill={'outline'}
           size="sm"
-          aria-selected={included === true}
           onClick={() => (included === true ? model.onClick('clear') : model.onClick('include'))}
           data-testid={testIds.exploreServiceDetails.buttonFilterInclude}
         >

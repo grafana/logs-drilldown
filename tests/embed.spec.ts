@@ -13,19 +13,19 @@ const labelName = 'cluster';
 
 async function expectButtonsSelected(page: Page) {
   await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0)).toHaveAttribute(
-    'aria-selected',
+    'aria-pressed',
     'true'
   );
   await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(1)).toHaveAttribute(
-    'aria-selected',
+    'aria-pressed',
     'true'
   );
   await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(2)).toHaveAttribute(
-    'aria-selected',
+    'aria-pressed',
     'true'
   );
   await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(3)).toHaveAttribute(
-    'aria-selected',
+    'aria-pressed',
     'true'
   );
 }
@@ -166,49 +166,49 @@ test.describe('embed', () => {
     // Go back, assert buttons are unselected
     await page.goBack();
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(3)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'false'
     );
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(2)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true'
     );
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(1)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true'
     );
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true'
     );
 
     await page.goBack();
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(2)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'false'
     );
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(1)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true'
     );
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true'
     );
 
     await page.goBack();
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(1)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'false'
     );
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true'
     );
 
     await page.goBack();
     await expect(page.getByTestId(testIds.exploreServiceDetails.buttonFilterInclude).nth(0)).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'false'
     );
 

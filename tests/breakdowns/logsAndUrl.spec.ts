@@ -63,8 +63,8 @@ test.describe('Logs and URL', () => {
     await cluster2IncludeSelectButton.click();
 
     // assert there are 2 includes selected
-    await expect(clusterIncludeSelectButton).toHaveAttribute('aria-selected', 'true');
-    await expect(cluster2IncludeSelectButton).toHaveAttribute('aria-selected', 'true');
+    await expect(clusterIncludeSelectButton).toHaveAttribute('aria-pressed', 'true');
+    await expect(cluster2IncludeSelectButton).toHaveAttribute('aria-pressed', 'true');
 
     // exclude "us-east-1" cluster
     const excludeCluster = 'us-east-1';
@@ -75,14 +75,14 @@ test.describe('Logs and URL', () => {
     await clusterExcludeSelectButton.click();
 
     // assert the includes were removed, exclude is shown
-    await expect(clusterIncludeSelectButton).not.toHaveAttribute('aria-selected', 'true');
-    await expect(cluster2IncludeSelectButton).not.toHaveAttribute('aria-selected', 'true');
-    await expect(clusterExcludeSelectButton).toHaveAttribute('aria-selected', 'true');
+    await expect(clusterIncludeSelectButton).not.toHaveAttribute('aria-pressed', 'true');
+    await expect(cluster2IncludeSelectButton).not.toHaveAttribute('aria-pressed', 'true');
+    await expect(clusterExcludeSelectButton).toHaveAttribute('aria-pressed', 'true');
 
     // Add an include which should remove exclude button
     await clusterIncludeSelectButton.click();
-    await expect(clusterExcludeSelectButton).not.toHaveAttribute('aria-selected', 'true');
-    await expect(clusterIncludeSelectButton).toHaveAttribute('aria-selected', 'true');
+    await expect(clusterExcludeSelectButton).not.toHaveAttribute('aria-pressed', 'true');
+    await expect(clusterIncludeSelectButton).toHaveAttribute('aria-pressed', 'true');
 
     // Navigate to labels tab. `goToLabelsTab` already asserts the tab strip is
     // ready, so we don't need an additional `assertTabsNotLoading()` after it.
