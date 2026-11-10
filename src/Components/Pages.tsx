@@ -164,7 +164,7 @@ function EmbeddedMiniSceneWrapper(props: EmbeddedLogsMiniProps) {
   return null;
 }
 
-function getEmbeddedMiniScene() {
+function getEmbeddedMiniScene(propOverrides: Partial<EmbeddedLogsMiniProps> = {}) {
   const initialStart = 'now-15m';
   const initialEnd = 'now';
   const from = dateTimeParse(initialStart);
@@ -188,6 +188,7 @@ function getEmbeddedMiniScene() {
     query,
     referenceQuery: query,
     timeRange,
+    ...propOverrides,
   };
 
   return new EmbeddedScene({
@@ -198,17 +199,46 @@ function getEmbeddedMiniScene() {
   });
 }
 
-export function makeEmbeddedMiniPage() {
+function makeEmbeddedMiniPage(
+  slug: PageSlugs,
+  title: string,
+  propOverrides?: Partial<EmbeddedLogsMiniProps>
+): SceneAppPage {
   return new SceneAppPage({
-    getScene: () => getEmbeddedMiniScene(),
+    getScene: () => getEmbeddedMiniScene(propOverrides),
     layout: PageLayoutType.Custom,
-    routePath: `${PageSlugs.embedMini}`,
-    title: t(
-      'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini',
-      'Grafana Logs Drilldown — Embedded (mini)'
-    ),
-    url: prefixRoute(PageSlugs.embedMini),
+    routePath: `${slug}`,
+    title,
+    url: prefixRoute(slug),
   });
+}
+
+export function makeEmbeddedMiniPages(): SceneAppPage[] {
+  return [
+    makeEmbeddedMiniPage(
+      PageSlugs.embedMini,
+      t(
+        'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini',
+        'Grafana Logs Drilldown — Embedded (mini)'
+      )
+    ),
+    makeEmbeddedMiniPage(
+      PageSlugs.embedMiniLogsOnly,
+      t(
+        'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini-logs-only',
+        'Grafana Logs Drilldown — Embedded (mini, logs only)'
+      ),
+      { showLogsVolume: false }
+    ),
+    makeEmbeddedMiniPage(
+      PageSlugs.embedMiniVolumeOnly,
+      t(
+        'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini-volume-only',
+        'Grafana Logs Drilldown — Embedded (mini, volume only)'
+      ),
+      { showLogsPanel: false }
+    ),
+  ];
 }
 
 export function makeEmbeddedPage() {

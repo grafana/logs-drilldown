@@ -35,6 +35,7 @@ export interface EmbeddedLogsMiniSceneOptions {
   datasourceUid: string;
   logsOptions?: EmbeddedLogsMiniLogsOptions;
   query: string;
+  showLogsPanel?: boolean;
   showLogsVolume?: boolean;
   timeRange?: TimeRange;
   visualizationType?: EmbeddedLogsMiniVisualizationType;
@@ -51,14 +52,13 @@ export class EmbeddedLogsMiniScene extends SceneObjectBase<EmbeddedLogsMiniScene
     datasourceUid,
     logsOptions,
     query,
+    showLogsPanel = true,
     showLogsVolume = true,
     timeRange,
     visualizationType = 'logs',
   }: EmbeddedLogsMiniSceneOptions) {
-    const logsQueryRunner = new SceneQueryRunner({
-      datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
-      queries: [buildLogsQuery(query)],
-    });
+    // Never render nothing: if both panels are turned off, fall back to the logs panel.
+    const renderLogsPanel = showLogsPanel || !showLogsVolume;
 
     // Total log volume, broken down by level; grouping by other fields is a later, configurable step.
     // Skipped entirely (no query, no panel) when the caller doesn't want it.
@@ -69,22 +69,29 @@ export class EmbeddedLogsMiniScene extends SceneObjectBase<EmbeddedLogsMiniScene
         })
       : undefined;
 
-    // logsOptions only applies to the logs view; the table view has no exposed options yet and
-    // always uses buildTablePanel's own good defaults.
-    const contentPanel =
-      visualizationType === 'table' ? buildTablePanel(logsQueryRunner) : buildLogsPanel(logsQueryRunner, logsOptions);
-
     const bodyChildren: SceneFlexItem[] = [];
     if (volumeQueryRunner) {
       bodyChildren.push(
         new SceneFlexItem({
           body: buildVolumePanel(volumeQueryRunner),
-          height: VOLUME_PANEL_HEIGHT,
           minHeight: VOLUME_PANEL_MIN_HEIGHT,
+          // Only pin the volume panel to its preferred size when it shares the layout with the
+          // logs panel; alone, it should fill the whole body.
+          ...(renderLogsPanel ? { height: VOLUME_PANEL_HEIGHT } : {}),
         })
       );
     }
-    bodyChildren.push(new SceneFlexItem({ body: contentPanel, minHeight: LOGS_PANEL_MIN_HEIGHT }));
+    if (renderLogsPanel) {
+      const logsQueryRunner = new SceneQueryRunner({
+        datasource: { uid: VAR_DATASOURCE_MINI_EXPR },
+        queries: [buildLogsQuery(query)],
+      });
+      // logsOptions only applies to the logs view; the table view has no exposed options yet and
+      // always uses buildTablePanel's own good defaults.
+      const contentPanel =
+        visualizationType === 'table' ? buildTablePanel(logsQueryRunner) : buildLogsPanel(logsQueryRunner, logsOptions);
+      bodyChildren.push(new SceneFlexItem({ body: contentPanel, minHeight: LOGS_PANEL_MIN_HEIGHT }));
+    }
 
     super({
       $timeRange: timeRange

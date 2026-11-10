@@ -256,7 +256,9 @@
     },
     "make-embedded-mini-page": {
       "title": {
-        "grafana-logs-drilldown-embedded-mini": "Grafana Logs Drilldown — Embedded (mini)"
+        "grafana-logs-drilldown-embedded-mini": "Grafana Logs Drilldown — Embedded (mini)",
+        "grafana-logs-drilldown-embedded-mini-logs-only": "Grafana Logs Drilldown — Embedded (mini, logs only)",
+        "grafana-logs-drilldown-embedded-mini-volume-only": "Grafana Logs Drilldown — Embedded (mini, volume only)"
       }
     },
     "make-embedded-page": {

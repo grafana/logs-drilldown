@@ -17,6 +17,8 @@ export interface EmbeddedLogsMiniProps {
   query: string;
   // Baseline query to compare `query` against, e.g. for anomaly/outlier detection
   referenceQuery?: string;
+  // Defaults to true. False renders only the volume panel; logsOptions/visualizationType are then ignored.
+  showLogsPanel?: boolean;
   // Defaults to true.
   showLogsVolume?: boolean;
   timeRange?: TimeRange;

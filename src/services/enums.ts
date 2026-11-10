@@ -14,6 +14,8 @@ export enum PageSlugs {
   fields = 'fields',
   embed = 'embed',
   embedMini = 'embed-mini',
+  embedMiniLogsOnly = 'embed-mini-logs-only',
+  embedMiniVolumeOnly = 'embed-mini-volume-only',
 }
 
 export enum ValueSlugs {

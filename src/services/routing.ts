@@ -33,6 +33,8 @@ export type ChildDrilldownSlugs = ValueSlugs.field | ValueSlugs.label;
 export const ROUTES = {
   embed: () => prefixRoute(PageSlugs.embed),
   embedMini: () => prefixRoute(PageSlugs.embedMini),
+  embedMiniLogsOnly: () => prefixRoute(PageSlugs.embedMiniLogsOnly),
+  embedMiniVolumeOnly: () => prefixRoute(PageSlugs.embedMiniVolumeOnly),
   explore: () => prefixRoute(PageSlugs.explore),
   fields: (labelValue: string, labelName = 'service') =>
     prefixRoute(`${PageSlugs.explore}/${labelName}/${escapePrimaryLabel(labelValue)}/${PageSlugs.fields}`),
@@ -58,6 +60,8 @@ export const SUB_ROUTES = {
 export const ROUTE_DEFINITIONS: Record<keyof typeof PageSlugs, string> = {
   embed: `${PageSlugs.embed}/*`,
   embedMini: PageSlugs.embedMini,
+  embedMiniLogsOnly: PageSlugs.embedMiniLogsOnly,
+  embedMiniVolumeOnly: PageSlugs.embedMiniVolumeOnly,
   explore: `${PageSlugs.explore}/*`,
   fields: `:labelName/:labelValue/${PageSlugs.fields}`,
   labels: `:labelName/:labelValue/${PageSlugs.labels}`,

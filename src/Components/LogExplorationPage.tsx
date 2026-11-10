@@ -6,13 +6,13 @@ import { config } from '@grafana/runtime';
 import { SceneApp, useSceneApp } from '@grafana/scenes';
 
 import { plugin } from '../module';
-import { makeEmbeddedMiniPage, makeEmbeddedPage, makeIndexPage, makeRedirectPage } from './Pages';
+import { makeEmbeddedMiniPages, makeEmbeddedPage, makeIndexPage, makeRedirectPage } from './Pages';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { initializeMetadataService } from 'services/metadata';
 
 const getSceneApp = () =>
   new SceneApp({
-    pages: [makeIndexPage(), makeEmbeddedPage(), makeEmbeddedMiniPage(), makeRedirectPage()],
+    pages: [makeIndexPage(), makeEmbeddedPage(), ...makeEmbeddedMiniPages(), makeRedirectPage()],
     urlSyncOptions: {
       createBrowserHistorySteps: true,
       updateUrlOnInit: true,

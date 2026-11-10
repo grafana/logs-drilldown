@@ -8,14 +8,23 @@ export default function EmbeddedLogsMini({
   datasourceUid,
   logsOptions,
   query,
+  showLogsPanel,
   showLogsVolume,
   timeRange,
   visualizationType,
 }: EmbeddedLogsMiniProps) {
   const scene = useMemo(
     () =>
-      new EmbeddedLogsMiniScene({ datasourceUid, logsOptions, query, showLogsVolume, timeRange, visualizationType }),
-    [datasourceUid, logsOptions, query, showLogsVolume, timeRange, visualizationType]
+      new EmbeddedLogsMiniScene({
+        datasourceUid,
+        logsOptions,
+        query,
+        showLogsPanel,
+        showLogsVolume,
+        timeRange,
+        visualizationType,
+      }),
+    [datasourceUid, logsOptions, query, showLogsPanel, showLogsVolume, timeRange, visualizationType]
   );
 
   useEffect(() => scene.activate(), [scene]);
