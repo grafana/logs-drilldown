@@ -11,7 +11,7 @@ import {
 } from '@grafana/scenes';
 import { ButtonGroup, Dropdown, IconName, Menu, MenuGroup, ToolbarButton } from '@grafana/ui';
 
-import { constructAbsoluteUrl, createAndCopyShortLink } from 'services/links';
+import { constructAbsoluteUrl, useCreateAndCopyShortLink } from 'services/links';
 import { copyText } from 'services/text';
 
 interface ShortLinkMenuItemData {
@@ -51,9 +51,9 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
     this.setState({ isOpen });
   }
 
-  public onCopyLink(shorten: boolean, absTime: boolean, url?: string) {
+  public onCopyLink(shorten: boolean, absTime: boolean, copyShortLink: (path: string) => Promise<void>, url?: string) {
     if (shorten) {
-      createAndCopyShortLink(url || global.location.href);
+      copyShortLink(url || global.location.href);
       reportInteraction('grafana_explore_shortened_link_clicked', { isAbsoluteTime: absTime });
     } else {
       copyText(
@@ -69,6 +69,7 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
   }
 
   static MenuActions = ({ model }: SceneComponentProps<ShareButtonScene>) => {
+    const copyShortLink = useCreateAndCopyShortLink();
     const menuOptions: ShortLinkGroupData[] = [
       {
         items: [
@@ -153,7 +154,7 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
                     icon={option.icon}
                     onClick={() => {
                       const url = option.getUrl();
-                      model.onCopyLink(option.shorten, option.absTime, url);
+                      model.onCopyLink(option.shorten, option.absTime, copyShortLink, url);
                       model.setState({
                         lastSelected: option,
                       });
@@ -170,6 +171,7 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
 
   static Component = ({ model }: SceneComponentProps<ShareButtonScene>) => {
     const { isOpen, lastSelected } = model.useState();
+    const copyShortLink = useCreateAndCopyShortLink();
 
     return (
       <ButtonGroup>
@@ -180,7 +182,7 @@ export class ShareButtonScene extends SceneObjectBase<ShareButtonSceneState> {
           narrow={true}
           onClick={() => {
             const url = lastSelected.getUrl();
-            model.onCopyLink(lastSelected.shorten, lastSelected.absTime, url);
+            model.onCopyLink(lastSelected.shorten, lastSelected.absTime, copyShortLink, url);
           }}
           aria-label={t(
             'components.index-scene.share-button-scene.aria-label-copy-shortened-url',

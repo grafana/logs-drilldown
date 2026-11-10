@@ -637,7 +637,17 @@ export class ServiceScene extends SceneObjectBase<ServiceSceneState> {
   }
 
   private subscribeToLineFiltersVariable() {
-    return getLineFiltersVariable(this).subscribeToEvent(SceneVariableValueChangedEvent, () => {
+    const lineFiltersVar = getLineFiltersVariable(this);
+    let prevExpression = lineFiltersVar.state.filterExpression;
+
+    return lineFiltersVar.subscribeToEvent(SceneVariableValueChangedEvent, () => {
+      // Scenes 8.22+ also publishes this event for per-key changes that leave the expression unchanged
+      const { filterExpression } = lineFiltersVar.state;
+      if (filterExpression === prevExpression) {
+        return;
+      }
+      prevExpression = filterExpression;
+
       this.state.$logsCount?.runQueries();
       this.state.$detectedFieldsData?.runQueries();
     });
