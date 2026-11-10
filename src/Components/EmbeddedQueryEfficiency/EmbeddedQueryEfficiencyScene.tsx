@@ -2,37 +2,64 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2, TimeRange } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState, VizPanel } from '@grafana/scenes';
-import { useStyles2 } from '@grafana/ui';
+import { Alert, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
 import { EfficiencyDetails } from './EfficiencyDetails';
 import { buildEfficiencyGaugePanel } from './gaugePanel';
-import { EfficiencyScoreData, getPlaceholderEfficiencyData } from './scoring';
+import { computeEfficiencyScore, EfficiencyScoreData } from './scoring';
+import { fetchIndexStats } from './statsApi';
 
 export interface EmbeddedQueryEfficiencySceneOptions {
+  datasourceUid: string;
   query: string;
+  timeRange: TimeRange;
 }
 
 export interface EmbeddedQueryEfficiencySceneState extends SceneObjectState {
-  data: EfficiencyScoreData;
+  data?: EfficiencyScoreData;
+  datasourceUid: string;
+  error?: string;
   expanded: boolean;
   gauge: VizPanel;
+  isLoading: boolean;
   query: string;
+  timeRange: TimeRange;
 }
 
 // Built from scratch: does not reuse IndexScene/ServiceScene or any other existing scene.
-// `data` is a hardcoded placeholder today; a follow-up wires it to real Loki-stats-based scoring for `query`.
 export class EmbeddedQueryEfficiencyScene extends SceneObjectBase<EmbeddedQueryEfficiencySceneState> {
-  public constructor({ query }: EmbeddedQueryEfficiencySceneOptions) {
-    const data = getPlaceholderEfficiencyData();
+  public constructor({ datasourceUid, query, timeRange }: EmbeddedQueryEfficiencySceneOptions) {
     super({
-      data,
+      datasourceUid,
       expanded: false,
-      gauge: buildEfficiencyGaugePanel(data.score),
+      gauge: buildEfficiencyGaugePanel(0),
+      isLoading: true,
       query,
+      timeRange,
     });
+
+    this.addActivationHandler(() => {
+      this.fetchStats();
+    });
+  }
+
+  private async fetchStats() {
+    const { datasourceUid, query, timeRange } = this.state;
+    this.setState({ error: undefined, isLoading: true });
+
+    try {
+      const stats = await fetchIndexStats(datasourceUid, query, timeRange);
+      const data = computeEfficiencyScore(stats);
+      this.setState({ data, gauge: buildEfficiencyGaugePanel(data.score), isLoading: false });
+    } catch (e) {
+      this.setState({
+        error: e instanceof Error ? e.message : 'Failed to fetch query stats',
+        isLoading: false,
+      });
+    }
   }
 
   public toggleExpanded = () => {
@@ -40,7 +67,7 @@ export class EmbeddedQueryEfficiencyScene extends SceneObjectBase<EmbeddedQueryE
   };
 
   public static Component = ({ model }: SceneComponentProps<EmbeddedQueryEfficiencyScene>) => {
-    const { data, expanded, gauge, query } = model.useState();
+    const { data, error, expanded, gauge, isLoading, query } = model.useState();
     const styles = useStyles2(getStyles);
 
     const onKeyDown = (event: React.KeyboardEvent) => {
@@ -48,6 +75,32 @@ export class EmbeddedQueryEfficiencyScene extends SceneObjectBase<EmbeddedQueryE
         model.toggleExpanded();
       }
     };
+
+    if (isLoading) {
+      return (
+        <LoadingPlaceholder
+          text={t('components.embedded-query-efficiency.embedded-query-efficiency-scene.loading', 'Calculating...')}
+        />
+      );
+    }
+
+    if (error) {
+      return (
+        <Alert
+          severity="error"
+          title={t(
+            'components.embedded-query-efficiency.embedded-query-efficiency-scene.error-title',
+            'Could not fetch query stats'
+          )}
+        >
+          {error}
+        </Alert>
+      );
+    }
+
+    if (!data) {
+      return null;
+    }
 
     return (
       <div>
