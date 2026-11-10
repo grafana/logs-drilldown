@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Varsayılan olarak gösterilecek alanları yapılandırın. Bunlar tam günlük satırının yerini alabilir veya yanında görüntülenebilir.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Yükleniyor..."
         },
         "default-columns": {
           "text-loading": "Yükleniyor..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Logs Drilldown açılış sayfasında varsayılan olarak hangi etiketlerin ve etiket değerlerinin görüneceğini yapılandırın.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Yükleniyor..."
         },
         "context": {
           "text-loading": "Yükleniyor..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Panoya ekle",
-          "add-to-notebook": "",
+          "add-to-notebook": "Not defterine ekle",
           "ai": "Yapay zekâ",
           "ai-divider": "ai_divider",
           "create-alert": "Uyarı oluştur",
@@ -345,7 +345,7 @@
         "title": "Panoya ekle"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Not defterine ekle"
       },
       "alert": {
         "invalid-labels-selected": "Geçersiz etiketler seçildi",
@@ -470,12 +470,12 @@
             "too-old-title": "Desenler yalnızca en yeni {{maxAgeHours}} saatlik veriler için kullanılabilir."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Sayı",
+            "levels-label": "Seviyeler",
             "no-filtered-patterns-message": "Geçerli zaman aralığında veya geçerli düzey filtreleriyle eşleşen desen bulunamadı.",
             "no-patterns-message": "Geçerli zaman aralığında desen bulunamadı.",
             "no-patterns-title": "Görüntülenecek desen yok",
-            "percent-label": ""
+            "percent-label": "Yüzde"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Desenler etikete göre seçilir ve düzeye göre filtrelenebilir. Ayrıştırılmış alanlar, yapılandırılmış meta veriler ve dize filtreleri desen listesi için desteklenmez.",
@@ -735,22 +735,22 @@
         "text-loading": "Yükleniyor..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Sorgu ayrıntıları",
+        "error": "Hata",
+        "loading": "Yükleniyor",
+        "no-data": "Veri yok",
+        "notice-link": "Daha fazla bilgi edinin",
+        "notices": "Bildirimler",
+        "stats": "İstatistikler",
+        "streaming": "Akış",
+        "total-bytes-processed": "İşlenen toplam bayt",
+        "total-bytes-processed-tooltip": "Günlük sorgusu tarafından işlenen baytlar.",
+        "view-details": "Ayrıntıları görüntüleyin"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Günlük satırı bağlantısını kopyala",
-          "group-fields": "",
+          "group-fields": "Diğer alanlar",
           "label-group-by": "Gruplandırma ölçütü"
         },
         "logs-volume-panel": {

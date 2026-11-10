@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Konfigurasikan field untuk ditampilkan secara default. Ini dapat menggantikan baris log lengkap atau ditampilkan di sampingnya.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Memuat..."
         },
         "default-columns": {
           "text-loading": "Memuat..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Konfigurasikan label dan nilai label yang ingin ditampilkan secara default di halaman arahan Logs Drilldown.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Memuat..."
         },
         "context": {
           "text-loading": "Memuat..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Tambahkan ke Dasbor",
-          "add-to-notebook": "",
+          "add-to-notebook": "Tambahkan ke Notebook",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "Buat peringatan",
@@ -345,7 +345,7 @@
         "title": "Tambahkan ke Dasbor"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Tambahkan ke Notebook"
       },
       "alert": {
         "invalid-labels-selected": "Label yang dipilih tidak valid",
@@ -470,12 +470,12 @@
             "too-old-title": "Pola hanya tersedia untuk data {{maxAgeHours}} jam terakhir."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Jumlah",
+            "levels-label": "Level",
             "no-filtered-patterns-message": "Tidak ada pola yang ditemukan dalam rentang waktu saat ini atau yang cocok dengan filter level saat ini.",
             "no-patterns-message": "Tidak ada pola yang ditemukan dalam rentang waktu saat ini.",
             "no-patterns-title": "Tidak ada pola untuk ditampilkan",
-            "percent-label": ""
+            "percent-label": "Persen"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Pola dipilih berdasarkan label dan dapat difilter berdasarkan level. Field yang diurai, metadata terstruktur, dan filter string tidak didukung untuk daftar pola tersebut.",
@@ -735,22 +735,22 @@
         "text-loading": "Memuat..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Detail kueri",
+        "error": "Kesalahan",
+        "loading": "Memuat",
+        "no-data": "Tidak ada data",
+        "notice-link": "Pelajari selengkapnya",
+        "notices": "Pemberitahuan",
+        "stats": "Statistik",
+        "streaming": "Streaming",
+        "total-bytes-processed": "Total byte yang diproses",
+        "total-bytes-processed-tooltip": "Byte yang diproses oleh kueri log.",
+        "view-details": "Lihat detail"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Kelompokkan volume log berdasarkan field",
-          "group-fields": "",
+          "group-fields": "Bidang lainnya",
           "label-group-by": "Kelompokkan menurut"
         },
         "logs-volume-panel": {

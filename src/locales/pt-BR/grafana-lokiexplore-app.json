@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Configure os campos a serem exibidos por padrão. Eles podem substituir a linha de log completa ou ser exibidos ao lado dela.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Carregando…"
         },
         "default-columns": {
           "text-loading": "Carregando…"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Configure quais rótulos e valores de rótulos aparecem por padrão na página inicial do Detalhamento de Logs.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Carregando…"
         },
         "context": {
           "text-loading": "Carregando…"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Adicionar ao painel",
-          "add-to-notebook": "",
+          "add-to-notebook": "Adicionar ao bloco de anotações",
           "ai": "IA",
           "ai-divider": "ai_divider",
           "create-alert": "Criar alerta",
@@ -345,7 +345,7 @@
         "title": "Adicionar ao painel"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Adicionar ao bloco de anotações"
       },
       "alert": {
         "invalid-labels-selected": "Rótulos inválidos selecionados",
@@ -470,12 +470,12 @@
             "too-old-title": "Os padrões só estão disponíveis para as {{maxAgeHours}} horas mais recentes de dados."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Quantidade",
+            "levels-label": "Níveis",
             "no-filtered-patterns-message": "Nenhum padrão encontrado no intervalo de tempo atual ou que corresponda aos filtros de nível atuais.",
             "no-patterns-message": "Nenhum padrão encontrado no intervalo de tempo atual.",
             "no-patterns-title": "Nenhum padrão para exibir",
-            "percent-label": ""
+            "percent-label": "Percentual"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Os padrões são selecionados por rótulo e podem ser filtrados por nível. Campos analisados, metadados estruturados e filtros de string não são compatíveis com a lista de padrões.",
@@ -735,22 +735,22 @@
         "text-loading": "Carregando…"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Detalhes da consulta",
+        "error": "Erro",
+        "loading": "Carregando",
+        "no-data": "Sem dados",
+        "notice-link": "Saiba mais",
+        "notices": "Avisos",
+        "stats": "Estatísticas",
+        "streaming": "Streaming",
+        "total-bytes-processed": "Total de bytes processados",
+        "total-bytes-processed-tooltip": "Bytes processados pela consulta de logs.",
+        "view-details": "Ver detalhes"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Agrupar volume de log por campo",
-          "group-fields": "",
+          "group-fields": "Outros campos",
           "label-group-by": "Agrupar por"
         },
         "logs-volume-panel": {

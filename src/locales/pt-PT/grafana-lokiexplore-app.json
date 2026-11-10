@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Configurar os campos a mostrar por predefinição. Estes podem substituir a linha de registo completa ou ser apresentados junto dela.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "A carregar..."
         },
         "default-columns": {
           "text-loading": "A carregar..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Configure quais as etiquetas e os valores de etiqueta que aparecem por predefinição na página inicial do Logs Drilldown.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "A carregar..."
         },
         "context": {
           "text-loading": "A carregar..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Adicionar ao painel de controlo",
-          "add-to-notebook": "",
+          "add-to-notebook": "Adicionar ao bloco de notas",
           "ai": "IA ",
           "ai-divider": "ai_divider",
           "create-alert": "Criar alerta",
@@ -345,7 +345,7 @@
         "title": "Adicionar ao painel de controlo"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Adicionar ao bloco de notas"
       },
       "alert": {
         "invalid-labels-selected": "Etiquetas inválidas selecionadas",
@@ -470,12 +470,12 @@
             "too-old-title": "Os padrões estão disponíveis apenas para as {{maxAgeHours}} horas de dados mais recentes."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Número",
+            "levels-label": "Níveis",
             "no-filtered-patterns-message": "Nenhum padrão encontrado no intervalo de tempo atual ou que corresponda aos filtros de nível atuais.",
             "no-patterns-message": "Nenhum padrão encontrado no intervalo de tempo atual.",
             "no-patterns-title": "Não há padrões para mostrar",
-            "percent-label": ""
+            "percent-label": "Percentagem"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Os padrões são selecionados por etiqueta e podem ser filtrados por nível. Os campos analisados, os metadados estruturados e os filtros de strings não são suportados para a lista de padrões.",
@@ -735,22 +735,22 @@
         "text-loading": "A carregar..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Detalhes da consulta",
+        "error": "Erro",
+        "loading": "A carregar",
+        "no-data": "Sem dados",
+        "notice-link": "Saiba mais",
+        "notices": "Avisos",
+        "stats": "Estatísticas",
+        "streaming": "Transmissão",
+        "total-bytes-processed": "Total de bytes processados",
+        "total-bytes-processed-tooltip": "Bytes processados pela consulta de registos.",
+        "view-details": "Ver detalhes"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Agrupar volume de registo por campo",
-          "group-fields": "",
+          "group-fields": "Outros domínios",
           "label-group-by": "Agrupar por"
         },
         "logs-volume-panel": {

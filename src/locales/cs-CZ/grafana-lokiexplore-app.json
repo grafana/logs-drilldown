@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Nakonfigurujte pole, která se mají zobrazovat ve výchozím nastavení. Mohou nahradit celý řádek protokolu nebo se zobrazit vedle něj.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Načítání…"
         },
         "default-columns": {
           "text-loading": "Načítání…"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Nastavte, které štítky a hodnoty štítků se ve výchozím nastavení zobrazují na vstupní stránce nástroje Logs Drilldown.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Načítání…"
         },
         "context": {
           "text-loading": "Načítání…"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Přidat na dashboard",
-          "add-to-notebook": "",
+          "add-to-notebook": "Přidat do zápisníku",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "Vytvořit výstrahu",
@@ -345,7 +345,7 @@
         "title": "Přidat na dashboard"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Přidat do zápisníku"
       },
       "alert": {
         "invalid-labels-selected": "Byly vybrány neplatné štítky",
@@ -470,12 +470,12 @@
             "too-old-title": "Vzorce jsou k dispozici pouze pro data z posledních {{maxAgeHours}} hod."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Počet",
+            "levels-label": "Úrovně",
             "no-filtered-patterns-message": "V aktuálním časovém rozsahu nebyly nalezeny žádné vzorce ani vzorce odpovídající aktuálním filtrům úrovně.",
             "no-patterns-message": "V aktuálním časovém rozsahu nebyly nalezeny žádné vzorce.",
             "no-patterns-title": "Žádné vzorce k zobrazení",
-            "percent-label": ""
+            "percent-label": "Procento"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Vzorce jsou vybírány podle štítku a mohou být filtrovány podle úrovně. Analyzovaná pole, strukturovaná metadata a řetězcové filtry nejsou pro seznam vzorců podporovány.",
@@ -735,22 +735,22 @@
         "text-loading": "Načítání…"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Podrobnosti dotazu",
+        "error": "Chyba",
+        "loading": "Načítání",
+        "no-data": "Žádná data",
+        "notice-link": "Další informace",
+        "notices": "Oznámení",
+        "stats": "Statistiky",
+        "streaming": "Streamování",
+        "total-bytes-processed": "Celkový počet zpracovaných bajtů",
+        "total-bytes-processed-tooltip": "Počet bajtů zpracovaných dotazem na protokoly.",
+        "view-details": "Zobrazit podrobnosti"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Seřadit objem protokolu podle pole",
-          "group-fields": "",
+          "group-fields": "Jiná pole",
           "label-group-by": "Seřadit podle"
         },
         "logs-volume-panel": {

@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Configurez les champs à afficher par défaut. Ceux-ci peuvent remplacer la ligne de journal complète ou s’afficher à côté d’elle.",
           "text-beta": "Bêta",
-          "text-loading": ""
+          "text-loading": "Chargement…"
         },
         "default-columns": {
           "text-loading": "Chargement…"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Configurez les étiquettes et les valeurs d’étiquettes qui s’affichent par défaut sur la page d’accueil de Logs Drilldown.",
           "text-beta": "Bêta",
-          "text-loading": ""
+          "text-loading": "Chargement…"
         },
         "context": {
           "text-loading": "Chargement…"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Ajouter au tableau de bord",
-          "add-to-notebook": "",
+          "add-to-notebook": "Ajouter au notebook",
           "ai": "IA",
           "ai-divider": "ai_divider",
           "create-alert": "Créer une alerte",
@@ -345,7 +345,7 @@
         "title": "Ajouter au tableau de bord"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Ajouter au notebook"
       },
       "alert": {
         "invalid-labels-selected": "Étiquettes sélectionnées non valides",
@@ -470,12 +470,12 @@
             "too-old-title": "Les patterns sont uniquement disponibles pour les {{maxAgeHours}} dernières heures de données."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Nombre",
+            "levels-label": "Niveaux",
             "no-filtered-patterns-message": "Aucun pattern trouvé dans la plage de temps actuelle ou correspondant aux filtres de niveau actuels.",
             "no-patterns-message": "Aucun pattern trouvé dans la plage de temps actuelle.",
             "no-patterns-title": "Aucun pattern à afficher",
-            "percent-label": ""
+            "percent-label": "Pourcentage"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Les patterns sont sélectionnés par étiquette et peuvent être filtrés par niveau. Les champs analysés, les métadonnées structurées et les filtres de chaînes ne sont pas pris en charge pour la liste de patterns.",
@@ -735,22 +735,22 @@
         "text-loading": "Chargement…"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Détails de la requête",
+        "error": "Erreur",
+        "loading": "Chargement",
+        "no-data": "Aucune donnée",
+        "notice-link": "En savoir plus",
+        "notices": "Notifications",
+        "stats": "Statistiques",
+        "streaming": "Streaming",
+        "total-bytes-processed": "Nombre total d’octets traités",
+        "total-bytes-processed-tooltip": "Octets traités par la requête de journaux.",
+        "view-details": "Afficher les détails"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Regrouper le volume de journaux par champ",
-          "group-fields": "",
+          "group-fields": "Autres champs",
           "label-group-by": "Regrouper par"
         },
         "logs-volume-panel": {

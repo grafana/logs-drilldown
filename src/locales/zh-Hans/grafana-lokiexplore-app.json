@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "配置默认情况下要显示的字段。这些字段可以替换完整的日志行，也可以显示在日志行旁边。",
           "text-beta": "Beta 测试版",
-          "text-loading": ""
+          "text-loading": "正在加载…"
         },
         "default-columns": {
           "text-loading": "正在加载..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "配置默认情况下在 Logs Drilldown 着陆页上显示的标签和标签值。",
           "text-beta": "Beta 测试版",
-          "text-loading": ""
+          "text-loading": "正在加载…"
         },
         "context": {
           "text-loading": "正在加载..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "添加到数据面板",
-          "add-to-notebook": "",
+          "add-to-notebook": "添加到笔记本",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "创建警报",
@@ -345,7 +345,7 @@
         "title": "添加到数据面板"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "添加到笔记本"
       },
       "alert": {
         "invalid-labels-selected": "选择了无效的标签",
@@ -470,12 +470,12 @@
             "too-old-title": "模式仅适用于最近 {{maxAgeHours}} 小时的数据。"
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "数量",
+            "levels-label": "层级",
             "no-filtered-patterns-message": "在当前时间范围内未找到模式，或未找到匹配当前级别筛选条件的模式。",
             "no-patterns-message": "在当前时间范围内未找到模式。",
             "no-patterns-title": "没有要显示的模式",
-            "percent-label": ""
+            "percent-label": "百分比"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "模式按标签选择，并可按级别筛选。模式列表不支持已解析字段、结构化元数据和字符串筛选器。",
@@ -735,22 +735,22 @@
         "text-loading": "正在加载..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "查询详情",
+        "error": "错误",
+        "loading": "正在加载",
+        "no-data": "无数据",
+        "notice-link": "了解更多",
+        "notices": "通知",
+        "stats": "统计数据",
+        "streaming": "流式传输",
+        "total-bytes-processed": "已处理的总字节数",
+        "total-bytes-processed-tooltip": "日志查询处理的字节数。",
+        "view-details": "查看详情"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "按字段对日志卷进行分组",
-          "group-fields": "",
+          "group-fields": "其他字段",
           "label-group-by": "分组方式"
         },
         "logs-volume-panel": {

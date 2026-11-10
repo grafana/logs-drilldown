@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Configura los campos que se mostrarán de forma predeterminada. Estos pueden sustituir a la línea de log completa o mostrarse junto a ella.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Cargando..."
         },
         "default-columns": {
           "text-loading": "Cargando..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Configurar qué etiquetas y valores de etiquetas aparecen de forma predeterminada en la página de aterrizaje de Logs Drilldown.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Cargando..."
         },
         "context": {
           "text-loading": "Cargando..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Añadir al dashboard",
-          "add-to-notebook": "",
+          "add-to-notebook": "Añadir al cuaderno",
           "ai": "IA",
           "ai-divider": "ai_divider",
           "create-alert": "Crear alerta",
@@ -345,7 +345,7 @@
         "title": "Añadir al dashboard"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Añadir al cuaderno"
       },
       "alert": {
         "invalid-labels-selected": "Se han seleccionado etiquetas no válidas",
@@ -470,12 +470,12 @@
             "too-old-title": "Los patrones solo están disponibles para las {{maxAgeHours}} horas de datos más recientes."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Recuento",
+            "levels-label": "Niveles",
             "no-filtered-patterns-message": "No se han encontrado patrones en el intervalo de tiempo actual ni que coincidan con los filtros de nivel actuales.",
             "no-patterns-message": "No se han encontrado patrones en el intervalo de tiempo actual.",
             "no-patterns-title": "No hay patrones que mostrar",
-            "percent-label": ""
+            "percent-label": "Porcentaje"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Los patrones se seleccionan por etiqueta y se pueden filtrar por nivel. Los campos analizados, los metadatos estructurados y los filtros de cadenas no son compatibles con la lista de patrones.",
@@ -735,22 +735,22 @@
         "text-loading": "Cargando..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Detalles de la consulta",
+        "error": "Error",
+        "loading": "Cargando",
+        "no-data": "No hay datos",
+        "notice-link": "Más información",
+        "notices": "Notificaciones",
+        "stats": "Estadísticas",
+        "streaming": "Transmisión",
+        "total-bytes-processed": "Total de bytes procesados",
+        "total-bytes-processed-tooltip": "Bytes procesados por la consulta de logs.",
+        "view-details": "Ver detalles"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Agrupar el volumen de logs por campo",
-          "group-fields": "",
+          "group-fields": "Otros campos ",
           "label-group-by": "Agrupar por"
         },
         "logs-volume-panel": {

@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Configureer de velden die standaard moeten worden weergegeven. Deze kunnen de volledige logregel vervangen of ernaast worden weergegeven.",
           "text-beta": "Bèta",
-          "text-loading": ""
+          "text-loading": "Aan het laden..."
         },
         "default-columns": {
           "text-loading": "Laden..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Configureer welke labels en labelwaarden standaard worden weergegeven op de landingspagina van Logs Drilldown.",
           "text-beta": "Bèta",
-          "text-loading": ""
+          "text-loading": "Aan het laden..."
         },
         "context": {
           "text-loading": "Laden..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Toevoegen aan dashboard",
-          "add-to-notebook": "",
+          "add-to-notebook": "Aan notitieboek toevoegen",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "Waarschuwing aanmaken",
@@ -345,7 +345,7 @@
         "title": "Toevoegen aan dashboard"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Aan notitieboek toevoegen"
       },
       "alert": {
         "invalid-labels-selected": "Ongeldige labels geselecteerd",
@@ -470,12 +470,12 @@
             "too-old-title": "Patronen zijn alleen beschikbaar voor de meest recente {{maxAgeHours}} uur aan gegevens."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Telling",
+            "levels-label": "Niveaus",
             "no-filtered-patterns-message": "Er zijn geen patronen gevonden in het huidige tijdsbereik of die overeenkomen met de huidige niveaufilters.",
             "no-patterns-message": "Er zijn geen patronen gevonden in het huidige tijdsbereik.",
             "no-patterns-title": "Geen patronen om weer te geven",
-            "percent-label": ""
+            "percent-label": "Procent"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Patronen worden geselecteerd op label en kunnen worden gefilterd op niveau. Geparste velden, gestructureerde metadata en stringfilters worden niet ondersteund voor de patroonlijst.",
@@ -735,22 +735,22 @@
         "text-loading": "Laden..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Querydetails",
+        "error": "Fout",
+        "loading": "Aan het laden",
+        "no-data": "Geen gegevens",
+        "notice-link": "Meer informatie",
+        "notices": "Meldingen",
+        "stats": "Statistieken",
+        "streaming": "Streamen",
+        "total-bytes-processed": "Totaal aantal verwerkte bytes",
+        "total-bytes-processed-tooltip": "Bytes verwerkt door de logquery.",
+        "view-details": "Details bekijken"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Logvolume groeperen op veld",
-          "group-fields": "",
+          "group-fields": "Overige velden",
           "label-group-by": "Groeperen op"
         },
         "logs-volume-panel": {

@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Konfigurálja az alapértelmezés szerint megjelenítendő mezőket. Ezek helyettesíthetik a teljes naplósort, vagy megjeleníthetők mellette.",
           "text-beta": "Béta",
-          "text-loading": ""
+          "text-loading": "Betöltés…"
         },
         "default-columns": {
           "text-loading": "Betöltés…"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Állítsa be, hogy mely címkék és címkeértékek jelenjenek meg alapértelmezés szerint a Logs Drilldown kezdőlapján.",
           "text-beta": "Béta",
-          "text-loading": ""
+          "text-loading": "Betöltés…"
         },
         "context": {
           "text-loading": "Betöltés…"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Hozzáadás az irányítópulthoz",
-          "add-to-notebook": "",
+          "add-to-notebook": "Hozzáadás a jegyzetfüzethez",
           "ai": "MI",
           "ai-divider": "ai_divider",
           "create-alert": "Riasztás létrehozása",
@@ -345,7 +345,7 @@
         "title": "Hozzáadás az irányítópulthoz"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Hozzáadás a jegyzetfüzethez"
       },
       "alert": {
         "invalid-labels-selected": "Érvénytelen címkék vannak kiválasztva",
@@ -470,12 +470,12 @@
             "too-old-title": "A mintázatok csak a legutóbbi {{maxAgeHours}} óra adatainál érhetők el."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Szám",
+            "levels-label": "Szintek",
             "no-filtered-patterns-message": "Nem található mintázat az aktuális időtartományban, sem az aktuális szintszűrőknek megfelelő mintázat.",
             "no-patterns-message": "Nem található mintázat az aktuális időtartományban.",
             "no-patterns-title": "Nincs megjeleníthető mintázat",
-            "percent-label": ""
+            "percent-label": "Százalék"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "A mintázatok címke alapján vannak kiválasztva, és szint szerint szűrhetők. A mintázatlistánál nem támogatottak az elemzett mezők, a strukturált metaadatok és a karakterlánc-szűrők.",
@@ -735,22 +735,22 @@
         "text-loading": "Betöltés…"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Lekérdezés részletei",
+        "error": "Hiba",
+        "loading": "Betöltés",
+        "no-data": "Nincs adat",
+        "notice-link": "További információ",
+        "notices": "Értesítések",
+        "stats": "Statisztika",
+        "streaming": "Adatfolyam",
+        "total-bytes-processed": "Összes feldolgozott bájt",
+        "total-bytes-processed-tooltip": "A naplólekérdezés által feldolgozott bájtok száma.",
+        "view-details": "Részletek megtekintése"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Naplómennyiség csoportosítása mező szerint",
-          "group-fields": "",
+          "group-fields": "Egyéb mezők",
           "label-group-by": "Csoportosítási szempont"
         },
         "logs-volume-panel": {
