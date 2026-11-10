@@ -1,3 +1,4 @@
+import { analyzeQuery } from './queryAnalysis';
 import { IndexStatsResponse } from './statsApi';
 
 export type EfficiencyLevel = 'good' | 'warning' | 'poor';
@@ -12,6 +13,7 @@ export interface EfficiencyCheck {
 export interface EfficiencyScoreData {
   checks: EfficiencyCheck[];
   score: number;
+  summary: string;
 }
 
 // Comfortable below, failing above; log-scaled in between so the score falls off gradually
@@ -33,7 +35,7 @@ function scoreFromRange(value: number, goodMax: number, poorMin: number): number
   return Math.round(100 - t * 90);
 }
 
-function levelForScore(score: number): EfficiencyLevel {
+export function levelForScore(score: number): EfficiencyLevel {
   if (score >= 80) {
     return 'good';
   }
@@ -42,6 +44,12 @@ function levelForScore(score: number): EfficiencyLevel {
   }
   return 'poor';
 }
+
+const SUMMARY_TEXT: Record<EfficiencyLevel, string> = {
+  good: 'Efficient query',
+  poor: 'Inefficient query',
+  warning: 'Needs review',
+};
 
 function formatBytes(bytes: number): string {
   const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
@@ -54,12 +62,16 @@ function formatBytes(bytes: number): string {
   return `${value.toFixed(unitIndex === 0 || value >= 10 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
-// Derives an efficiency score from Loki's index/stats response for the query's stream selector:
-// how much data and how many streams it touches over the selected time range. The overall score
-// is the weaker of the two dimensions, since either one alone can make a query expensive.
-export function computeEfficiencyScore(stats: IndexStatsResponse): EfficiencyScoreData {
+// Derives an efficiency score from Loki's index/stats response (how much data and how many
+// streams the query touches) combined with static analysis of the query's own structure (stream
+// selector matcher type, pipeline stage ordering, parser choice). The overall score is the
+// weakest dimension, since any one of them alone can make a query expensive.
+export function computeEfficiencyScore(stats: IndexStatsResponse, query: string): EfficiencyScoreData {
   const bytesScore = scoreFromRange(stats.bytes, BYTES_GOOD_MAX, BYTES_POOR_MIN);
   const streamsScore = scoreFromRange(stats.streams, STREAMS_GOOD_MAX, STREAMS_POOR_MIN);
+  const queryAnalysis = analyzeQuery(query);
+
+  const score = Math.min(bytesScore, streamsScore, queryAnalysis.score);
 
   return {
     checks: [
@@ -75,7 +87,9 @@ export function computeEfficiencyScore(stats: IndexStatsResponse): EfficiencySco
         status: levelForScore(streamsScore),
         title: 'Stream selector selectivity',
       },
+      ...queryAnalysis.checks,
     ],
-    score: Math.min(bytesScore, streamsScore),
+    score,
+    summary: SUMMARY_TEXT[levelForScore(score)],
   };
 }

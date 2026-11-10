@@ -35,7 +35,7 @@ export class EmbeddedQueryEfficiencyScene extends SceneObjectBase<EmbeddedQueryE
     super({
       datasourceUid,
       expanded: false,
-      gauge: buildEfficiencyGaugePanel(0),
+      gauge: buildEfficiencyGaugePanel(0, ''),
       isLoading: true,
       query,
       timeRange,
@@ -52,8 +52,8 @@ export class EmbeddedQueryEfficiencyScene extends SceneObjectBase<EmbeddedQueryE
 
     try {
       const stats = await fetchIndexStats(datasourceUid, query, timeRange);
-      const data = computeEfficiencyScore(stats);
-      this.setState({ data, gauge: buildEfficiencyGaugePanel(data.score), isLoading: false });
+      const data = computeEfficiencyScore(stats, query);
+      this.setState({ data, gauge: buildEfficiencyGaugePanel(data.score, data.summary), isLoading: false });
     } catch (e) {
       this.setState({
         error: e instanceof Error ? e.message : 'Failed to fetch query stats',
