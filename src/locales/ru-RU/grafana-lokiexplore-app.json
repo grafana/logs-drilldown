@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Настройте поля, которые будут отображаться по умолчанию. Они могут заменять всю строку логов или отображаться рядом с ней.",
           "text-beta": "Бета",
-          "text-loading": ""
+          "text-loading": "Загрузка…"
         },
         "default-columns": {
           "text-loading": "Загрузка…"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Настройте, какие метки и их значения будут отображаться по умолчанию на главной странице Logs Drilldown.",
           "text-beta": "Бета",
-          "text-loading": ""
+          "text-loading": "Загрузка…"
         },
         "context": {
           "text-loading": "Загрузка…"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Добавить на дашборд",
-          "add-to-notebook": "",
+          "add-to-notebook": "Добавить в блокнот",
           "ai": "ИИ",
           "ai-divider": "разделитель_ИИ",
           "create-alert": "Создать оповещение",
@@ -345,7 +345,7 @@
         "title": "Добавление на дашборд"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Добавить в блокнот"
       },
       "alert": {
         "invalid-labels-selected": "Выбраны недопустимые метки",
@@ -470,12 +470,12 @@
             "too-old-title": "Шаблоны доступны только для данных за последние {{maxAgeHours}} ч."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Количество",
+            "levels-label": "Уровни",
             "no-filtered-patterns-message": "В текущем временном диапазоне или для выбранных уровней логов шаблоны не найдены.",
             "no-patterns-message": "В текущем временном диапазоне шаблоны не найдены.",
             "no-patterns-title": "Нет шаблонов для отображения",
-            "percent-label": ""
+            "percent-label": "Процент"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Шаблоны выбираются по меткам и могут фильтроваться по уровню. Проанализированные поля, структурированные метаданные и строковые фильтры не поддерживаются для списка шаблонов.",
@@ -735,22 +735,22 @@
         "text-loading": "Загрузка…"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Сведения о запросе",
+        "error": "Ошибка",
+        "loading": "Загрузка",
+        "no-data": "Нет данных",
+        "notice-link": "Подробнее",
+        "notices": "Уведомления",
+        "stats": "Статистика",
+        "streaming": "Потоковая передача",
+        "total-bytes-processed": "Всего обработано байтов",
+        "total-bytes-processed-tooltip": "Байты, обработанные запросом к логам.",
+        "view-details": "Подробнее"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Группировать объем логов по полю",
-          "group-fields": "",
+          "group-fields": "Прочие поля",
           "label-group-by": "Группировать по"
         },
         "logs-volume-panel": {

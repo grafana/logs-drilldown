@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "デフォルトで表示するフィールドを設定します。ログ行全体の代わりに表示することも、ログ行と並べて表示することもできます。",
           "text-beta": "ベータ版",
-          "text-loading": ""
+          "text-loading": "読み込み中..."
         },
         "default-columns": {
           "text-loading": "読み込み中..."
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Logs Drilldownのランディングページにデフォルトで表示するラベルとラベル値を設定します。",
           "text-beta": "ベータ版",
-          "text-loading": ""
+          "text-loading": "読み込み中..."
         },
         "context": {
           "text-loading": "読み込み中..."
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "ダッシュボードに追加",
-          "add-to-notebook": "",
+          "add-to-notebook": "ノートブックに追加",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "アラートを作成",
@@ -345,7 +345,7 @@
         "title": "ダッシュボードに追加"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "ノートブックに追加"
       },
       "alert": {
         "invalid-labels-selected": "無効なラベルが選択されています",
@@ -470,12 +470,12 @@
             "too-old-title": "パターンを利用できるのは、直近{{maxAgeHours}}時間分のデータのみです。"
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "件数",
+            "levels-label": "レベル",
             "no-filtered-patterns-message": "現在の時間範囲に、または現在のレベルフィルターに一致するパターンが見つかりません。",
             "no-patterns-message": "現在の時間範囲にパターンが見つかりません。",
             "no-patterns-title": "表示するパターンがありません",
-            "percent-label": ""
+            "percent-label": "パーセント"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "パターンはラベルで選択され、レベルで絞り込める場合があります。パターンの一覧では、解析済みフィールド、構造化メタデータ、文字列フィルターはサポートされていません。",
@@ -735,22 +735,22 @@
         "text-loading": "読み込み中..."
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "クエリの詳細",
+        "error": "エラー",
+        "loading": "読み込み中",
+        "no-data": "データがありません",
+        "notice-link": "詳細を見る",
+        "notices": "通知",
+        "stats": "統計情報",
+        "streaming": "ストリーミング",
+        "total-bytes-processed": "処理済みバイト数の合計",
+        "total-bytes-processed-tooltip": "ログクエリによって処理されたバイト数です。",
+        "view-details": "詳細を表示"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "ログ量をフィールドごとにグループ化",
-          "group-fields": "",
+          "group-fields": "その他のフィールド",
           "label-group-by": "グループ化の基準"
         },
         "logs-volume-panel": {

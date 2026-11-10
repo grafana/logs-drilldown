@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "設定預設要顯示的欄位。這些欄位可以取代完整的記錄行，或顯示在記錄行旁邊。",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "正在載入…"
         },
         "default-columns": {
           "text-loading": "正在載入…"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "設定「記錄深入分析」登陸頁面上預設顯示的標籤和標籤值。",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "正在載入…"
         },
         "context": {
           "text-loading": "正在載入…"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "新增至儀表板",
-          "add-to-notebook": "",
+          "add-to-notebook": "新增至筆記本",
           "ai": "AI",
           "ai-divider": "ai_divider",
           "create-alert": "建立警示",
@@ -345,7 +345,7 @@
         "title": "新增至儀表板"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "新增至筆記本"
       },
       "alert": {
         "invalid-labels-selected": "選取的標籤無效",
@@ -470,12 +470,12 @@
             "too-old-title": "模式僅適用於最近 {{maxAgeHours}} 小時的資料。"
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "計數",
+            "levels-label": "等級",
             "no-filtered-patterns-message": "在目前的時間範圍內找不到模式，或找不到符合目前層級篩選條件的模式。",
             "no-patterns-message": "在目前的時間範圍內找不到模式。",
             "no-patterns-title": "沒有要顯示的模式",
-            "percent-label": ""
+            "percent-label": "百分比"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "模式是依標籤選取，並可依層級篩選。模式清單不支援已剖析欄位、結構化中繼資料和字串篩選條件。",
@@ -735,22 +735,22 @@
         "text-loading": "正在載入…"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "查詢詳細資訊",
+        "error": "錯誤",
+        "loading": "正在載入",
+        "no-data": "無資料",
+        "notice-link": "了解詳情",
+        "notices": "注意事項",
+        "stats": "統計資料",
+        "streaming": "串流",
+        "total-bytes-processed": "已處理的總位元組數",
+        "total-bytes-processed-tooltip": "記錄查詢處理的位元組數。",
+        "view-details": "檢視詳細資料"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "依欄位分組記錄量",
-          "group-fields": "",
+          "group-fields": "其他欄位",
           "label-group-by": "分組依據"
         },
         "logs-volume-panel": {

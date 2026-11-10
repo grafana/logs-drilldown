@@ -22,7 +22,7 @@
         "config": {
           "default-columns-description": "Konfigurieren Sie die Felder, die standardmäßig angezeigt werden. Diese können die vollständige Logzeile ersetzen oder neben ihr angezeigt werden.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Wird geladen …"
         },
         "default-columns": {
           "text-loading": "Wird geladen …"
@@ -93,7 +93,7 @@
         "config": {
           "service-selection-description": "Konfigurieren Sie, welche Labels und Labelwerte standardmäßig auf der Landingpage von Logs Drilldown angezeigt werden.",
           "text-beta": "Beta",
-          "text-loading": ""
+          "text-loading": "Wird geladen …"
         },
         "context": {
           "text-loading": "Wird geladen …"
@@ -295,7 +295,7 @@
         },
         "text": {
           "add-to-dashboard": "Zum Dashboard hinzufügen",
-          "add-to-notebook": "",
+          "add-to-notebook": "Zum Notizbuch hinzufügen",
           "ai": "KI",
           "ai-divider": "ai_divider",
           "create-alert": "Warnung erstellen",
@@ -345,7 +345,7 @@
         "title": "Zum Dashboard hinzufügen"
       },
       "add-to-notebook-modal": {
-        "title": ""
+        "title": "Zum Notizbuch hinzufügen"
       },
       "alert": {
         "invalid-labels-selected": "Ungültige Labels ausgewählt",
@@ -470,12 +470,12 @@
             "too-old-title": "Muster sind nur für die letzten {{maxAgeHours}} Stunden an Daten verfügbar."
           },
           "patterns-view-table-scene": {
-            "count-label": "",
-            "levels-label": "",
+            "count-label": "Anzahl",
+            "levels-label": "Level",
             "no-filtered-patterns-message": "Im aktuellen Zeitbereich wurden keine Muster gefunden oder keine Muster entsprechen den aktuellen Stufenfiltern.",
             "no-patterns-message": "Im aktuellen Zeitbereich wurden keine Muster gefunden.",
             "no-patterns-title": "Keine anzuzeigenden Muster",
-            "percent-label": ""
+            "percent-label": "Prozent"
           },
           "patterns-view-text-search": {
             "indexed-labels-only": "Muster werden je nach Label ausgewählt und können je nach Stufe gefiltert werden. Geparste Felder, strukturierte Metadaten und String-Filter werden für die Musterliste nicht unterstützt.",
@@ -735,22 +735,22 @@
         "text-loading": "Wird geladen …"
       },
       "logs-query-footer": {
-        "details-title": "",
-        "error": "",
-        "loading": "",
-        "no-data": "",
-        "notice-link": "",
-        "notices": "",
-        "stats": "",
-        "streaming": "",
-        "total-bytes-processed": "",
-        "total-bytes-processed-tooltip": "",
-        "view-details": ""
+        "details-title": "Abfragedetails",
+        "error": "Fehler",
+        "loading": "Laden",
+        "no-data": "Keine Daten",
+        "notice-link": "Mehr erfahren",
+        "notices": "Hinweise",
+        "stats": "Statistiken",
+        "streaming": "Streaming",
+        "total-bytes-processed": "Gesamte verarbeitete Bytes",
+        "total-bytes-processed-tooltip": "Von der Log-Abfrage verarbeitete Bytes.",
+        "view-details": "Details anzeigen"
       },
       "logs-volume": {
         "logs-volume-actions": {
           "aria-label-group-by": "Log-Volumen nach Feld gruppieren",
-          "group-fields": "",
+          "group-fields": "Andere Felder",
           "label-group-by": "Gruppieren nach"
         },
         "logs-volume-panel": {
