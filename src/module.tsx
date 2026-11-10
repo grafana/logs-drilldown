@@ -7,6 +7,7 @@ import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
   SuspendedEmbeddedLogsMini,
+  SuspendedEmbeddedQueryEfficiency,
   SuspendedLokiFieldDistribution,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
@@ -128,4 +129,12 @@ plugin.exposeComponent({
     'A lightweight logs exploration view, built independently of the main Logs Drilldown scenes, for embedding in other parts of Grafana.',
   id: `grafana-lokiexplore-app/embedded-logs-mini/v1`,
   title: 'Embedded Logs Drilldown (mini)',
+});
+
+plugin.exposeComponent({
+  component: SuspendedEmbeddedQueryEfficiency,
+  description:
+    'A query efficiency score indicator, built independently of the main Logs Drilldown scenes, for embedding in other parts of Grafana.',
+  id: `grafana-lokiexplore-app/embedded-query-efficiency/v1`,
+  title: 'Embedded Query Efficiency Score',
 });

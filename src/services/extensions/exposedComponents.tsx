@@ -6,6 +6,7 @@ import { LinkButton } from '@grafana/ui';
 import type { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
 import type { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
 import type { EmbeddedLogsMiniProps } from 'Components/EmbeddedLogsMini/types';
+import type { EmbeddedQueryEfficiencyProps } from 'Components/EmbeddedQueryEfficiency/types';
 import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 import pluginJson from 'plugin.json';
 
@@ -40,6 +41,11 @@ const LokiFieldDistribution = lazy(async () => {
 const EmbeddedLogsMini = lazy(async () => {
   await initI18n();
   return import('Components/EmbeddedLogsMini/EmbeddedLogsMini');
+});
+
+const EmbeddedQueryEfficiency = lazy(async () => {
+  await initI18n();
+  return import('Components/EmbeddedQueryEfficiency/EmbeddedQueryEfficiency');
 });
 
 export function SuspendedOpenInLogsDrilldownButton(props: OpenInLogsDrilldownButtonProps) {
@@ -100,6 +106,22 @@ export function SuspendedEmbeddedLogsMini(props: EmbeddedLogsMiniProps) {
       }
     >
       <EmbeddedLogsMini {...props} />
+    </Suspense>
+  );
+}
+
+export function SuspendedEmbeddedQueryEfficiency(props: EmbeddedQueryEfficiencyProps) {
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-embedded-query-efficiency.loading-logs-drilldown">
+            Loading Logs Drilldown...
+          </Trans>
+        </div>
+      }
+    >
+      <EmbeddedQueryEfficiency {...props} />
     </Suspense>
   );
 }

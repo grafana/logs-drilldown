@@ -16,6 +16,7 @@ export enum PageSlugs {
   embedMini = 'embed-mini',
   embedMiniLogsOnly = 'embed-mini-logs-only',
   embedMiniVolumeOnly = 'embed-mini-volume-only',
+  embedQueryEfficiency = 'embed-query-efficiency',
 }
 
 export enum ValueSlugs {

@@ -60,6 +60,7 @@
         "grafana-adaptivelogs-app/temporary-exemptions/v1",
         "grafana-lokiexplore-app/embedded-logs-exploration/v1",
         "grafana-lokiexplore-app/embedded-logs-mini/v1",
+        "grafana-lokiexplore-app/embedded-query-efficiency/v1",
         "grafana/add-to-dashboard-form/v1",
         "grafana/query-library-context/v1",
         "grafana/alerting/create-alert-from-panel/v1",
@@ -132,6 +133,11 @@
         "id": "grafana-lokiexplore-app/embedded-logs-mini/v1",
         "title": "Embedded Logs Drilldown (mini)",
         "description": "A modular and lightweight logs exploration view, built independently of the main Logs Drilldown scenes, for embedding in other parts of Grafana."
+      },
+      {
+        "id": "grafana-lokiexplore-app/embedded-query-efficiency/v1",
+        "title": "Embedded Query Efficiency Score",
+        "description": "A query efficiency score indicator, built independently of the main Logs Drilldown scenes, for embedding in other parts of Grafana."
       }
     ]
   }
