@@ -40,7 +40,7 @@ const renderConfig = (logDefaults?: LogDefaults) => {
   return render(<LogDefaultsConfig plugin={plugin} query={{}} />);
 };
 
-const GROUPS = ['Line wrapping', 'Timestamps', 'Font size', 'Sort order'];
+const GROUPS = ['Line wrapping', 'Prettify JSON', 'Timestamps', 'Font size', 'Sort order'];
 const group = (label: string) => within(screen.getAllByRole('radiogroup')[GROUPS.indexOf(label)]);
 
 const savedJsonData = () => jest.mocked(updateAppPluginSettings).mock.calls[0]?.[1].jsonData as Record<string, unknown>;

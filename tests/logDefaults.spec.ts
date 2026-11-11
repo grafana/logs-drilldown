@@ -15,7 +15,7 @@ test.describe('Log defaults', () => {
     await expect(container).toBeVisible();
 
     const groups = container.getByRole('radiogroup');
-    await expect(groups).toHaveCount(4);
+    await expect(groups).toHaveCount(5);
     // Every option starts as "Not set"
     for (const group of await groups.all()) {
       await expect(group.getByLabel('Not set')).toBeChecked();

@@ -18,12 +18,23 @@ describe('log defaults lookup order', () => {
   });
 
   it('uses admin defaults over built-in defaults', () => {
-    setAdminLogDefaults({ wrapLogMessage: true, showTime: false, sortOrder: 'Ascending', fontSize: 'small' });
+    setAdminLogDefaults({
+      wrapLogMessage: true,
+      prettifyLogMessage: true,
+      showTime: false,
+      sortOrder: 'Ascending',
+      fontSize: 'small',
+    });
     expect(getBooleanLogOption('wrapLogMessage', false)).toBe(true);
-    expect(getBooleanLogOption('prettifyLogMessage', false)).toBe(false);
+    expect(getBooleanLogOption('prettifyLogMessage', false)).toBe(true);
     expect(getBooleanLogOption('showTime', true)).toBe(false);
     expect(getLogOption('sortOrder', 'Descending')).toBe('Ascending');
     expect(getLogOption('fontSize', 'default')).toBe('small');
+  });
+
+  it('does not tie prettify to the wrap default', () => {
+    setAdminLogDefaults({ wrapLogMessage: true });
+    expect(getBooleanLogOption('prettifyLogMessage', false)).toBe(false);
   });
 
   it('prefers localStorage over admin defaults', () => {

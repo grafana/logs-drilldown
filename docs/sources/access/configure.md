@@ -144,6 +144,7 @@ The **Log defaults** tab lets administrators set how logs are displayed for user
 You can set a default for each of the following options:
 
 - **Line wrapping**: wrap or don't wrap long log lines
+- **Prettify JSON**: pretty-print JSON log lines or leave them as is
 - **Timestamps**: show or hide the timestamp on each log line
 - **Font size**: default or small
 - **Sort order**: newest first or oldest first

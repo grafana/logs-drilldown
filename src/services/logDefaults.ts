@@ -5,15 +5,17 @@ import { JsonData } from 'Components/AppConfig/AppConfig';
 
 export type LogDefaults = {
   fontSize?: 'default' | 'small';
+  prettifyLogMessage?: boolean;
   showTime?: boolean;
   sortOrder?: 'Ascending' | 'Descending';
   wrapLogMessage?: boolean;
 };
 
-export const LOG_DEFAULTS_KEYS = ['fontSize', 'showTime', 'sortOrder', 'wrapLogMessage'] as const;
+export const LOG_DEFAULTS_KEYS = ['fontSize', 'prettifyLogMessage', 'showTime', 'sortOrder', 'wrapLogMessage'] as const;
 
 export const BUILT_IN_LOG_DEFAULTS = {
   fontSize: 'default',
+  prettifyLogMessage: false,
   showTime: true,
   sortOrder: LogsSortOrder.Descending,
   wrapLogMessage: false,

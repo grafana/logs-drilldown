@@ -65,6 +65,18 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
             />
           </Field>
 
+          <Field label={t('components.app-config.log-defaults.label-prettify-json', 'Prettify JSON')}>
+            <RadioButtonGroup
+              options={[
+                notSet,
+                { label: t('components.app-config.log-defaults.prettify-on', 'On'), value: true },
+                { label: t('components.app-config.log-defaults.prettify-off', 'Off'), value: false },
+              ]}
+              value={defaults.prettifyLogMessage}
+              onChange={(prettifyLogMessage) => update({ ...defaults, prettifyLogMessage })}
+            />
+          </Field>
+
           <Field label={t('components.app-config.log-defaults.label-timestamps', 'Timestamps')}>
             <RadioButtonGroup
               options={[

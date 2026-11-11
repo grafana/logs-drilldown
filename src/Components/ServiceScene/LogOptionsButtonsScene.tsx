@@ -35,6 +35,7 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
     resetLogOptionsToDefaults();
     const options = {
       fontSize: getLogOption('fontSize', BUILT_IN_LOG_DEFAULTS.fontSize),
+      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', BUILT_IN_LOG_DEFAULTS.prettifyLogMessage),
       showTime: getBooleanLogOption('showTime', BUILT_IN_LOG_DEFAULTS.showTime),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', BUILT_IN_LOG_DEFAULTS.sortOrder),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', BUILT_IN_LOG_DEFAULTS.wrapLogMessage),
@@ -43,6 +44,7 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
     const panelScene = sceneGraph.findObject(this, (o) => o instanceof LogsPanelScene);
     if (panelScene instanceof LogsPanelScene) {
       panelScene.setState({
+        prettifyLogMessage: options.prettifyLogMessage,
         sortOrder: options.sortOrder,
         wrapLogMessage: options.wrapLogMessage,
       });
@@ -81,7 +83,7 @@ function ShowDefaultFieldsButtonRenderer({ model }: SceneComponentProps<LogOptio
       <Tooltip
         content={t(
           'components.service-scene.log-options-buttons-scene.tooltip.reset-log-options',
-          'Reset wrapping, timestamps, font size and sort order to the defaults set by your admin'
+          'Reset wrapping, JSON prettifying, timestamps, font size and sort order to the defaults set by your admin'
         )}
       >
         <Button

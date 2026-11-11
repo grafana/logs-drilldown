@@ -71,7 +71,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
       dedupStrategy: LogsDedupStrategy.none,
-      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
+      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', BUILT_IN_LOG_DEFAULTS.prettifyLogMessage),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', BUILT_IN_LOG_DEFAULTS.sortOrder),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', BUILT_IN_LOG_DEFAULTS.wrapLogMessage),
       series: [],
