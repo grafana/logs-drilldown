@@ -4,6 +4,10 @@ export const testIds = {
     apiUrl: 'data-testid ac-api-url',
     container: 'data-testid ac-container',
     submit: 'data-testid ac-submit-form',
+    logDefaults: {
+      container: 'data-testid ac-log-defaults-container',
+      submit: 'data-testid ac-log-defaults-submit',
+    },
     defaultColumns: {
       labels: {
         key: 'data-testid ac-dc-label-name-input',
@@ -69,6 +73,7 @@ export const testIds = {
   },
 
   logsPanelHeader: {
+    resetLogOptions: 'data-testid logs-panel-reset-log-options',
     header: 'data-testid Panel header Logs',
     radio: 'data-testid radio-button',
   },

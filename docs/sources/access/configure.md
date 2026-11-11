@@ -1,6 +1,6 @@
 ---
 canonical: https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/
-description: Describes the plugin configuration settings for Grafana Logs Drilldown, including the Configuration tab, Landing Page default labels, and Default fields.
+description: Describes the plugin configuration settings for Grafana Logs Drilldown, including the Configuration tab, Landing Page default labels, Default fields, and Log defaults.
 keywords:
   - Logs
   - Explore
@@ -12,6 +12,7 @@ keywords:
   - Landing page
   - Default fields
   - Default time range
+  - Log defaults
 menuTitle: Configure
 title: Configure Grafana Logs Drilldown
 weight: 200
@@ -20,7 +21,7 @@ weight: 200
 # Configure Grafana Logs Drilldown
 
 You can use the Configuration page to configure the Grafana Logs Drilldown app like other apps or plugins in Grafana.
-By accessing the app's Administration page, you can view the version history, changelog, configuration, landing page settings, and default fields.
+By accessing the app's Administration page, you can view the version history, changelog, configuration, landing page settings, default fields, and log defaults.
 
 ## Before you begin
 
@@ -133,6 +134,42 @@ To configure Landing Page default labels:
 1. Drag and drop labels using the grip handle to reorder them. The first label in the list becomes the default active tab on the landing page.
 1. To remove a label, click the trash icon next to it. To remove an individual pinned value, expand the label and click the trash icon next to the value.
 1. Click **Save changes** to persist your configuration. Click **Reset** to discard unsaved changes (a confirmation prompt appears before resetting).
+
+## Log defaults
+
+The **Log defaults** tab lets administrators set how logs are displayed for users who haven't changed those options themselves.
+
+### How Log defaults work
+
+You can set a default for each of the following options:
+
+- **Line wrapping**: wrap or don't wrap long log lines
+- **Timestamps**: show or hide the timestamp on each log line
+- **Font size**: default or small
+- **Sort order**: newest first or oldest first
+
+Each option can also be left as **Not set**, in which case the built-in default applies.
+
+Logs Drilldown looks up each option in this order:
+
+1. The user's own choice, stored in the browser's local storage
+1. The admin default set on this tab
+1. The built-in default
+
+In the logs panel, users can click **Reset to defaults** to clear their own choices. The options then fall back to the admin defaults, or to the built-in defaults if no admin default is set.
+
+### Configure Log defaults
+
+To configure Log defaults:
+
+1. Navigate to **Administration** > **Plugins and data** > **Plugins** > **Grafana Logs Drilldown**.
+1. Select the **Log defaults** tab.
+1. For each option, select the value to use as the default, or **Not set**.
+1. Click **Save defaults**.
+
+{{< admonition type="note" >}}
+Active users must reload the app for new defaults to take effect.
+{{< /admonition >}}
 
 ## Related pages
 

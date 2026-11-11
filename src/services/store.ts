@@ -6,6 +6,7 @@ import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x
 import { isEmbeddedLogs } from './extensions/embedding';
 import { escapePrimaryLabel } from './extensions/links';
 import { isDedupStrategy } from './guards';
+import { getAdminLogDefault, LOG_DEFAULTS_KEYS } from './logDefaults';
 import { logger } from './logger';
 import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
@@ -330,8 +331,19 @@ export const LOG_OPTIONS_LOCALSTORAGE_KEY = `grafana.explore.logs`;
 export const LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY = `grafana.explore.logs.patterns`;
 export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
-  // TODO: narrow stored value
-  return localStorageResult ? (localStorageResult as T) : defaultValue;
+  if (localStorageResult) {
+    // TODO: narrow stored value
+    return localStorageResult as T;
+  }
+  const adminDefault = getAdminLogDefault(option);
+  return typeof adminDefault === 'string' ? (adminDefault as T) : defaultValue;
+}
+
+// Clears the user's stored log options so admin defaults, then built-in defaults, apply again
+export function resetLogOptionsToDefaults() {
+  [...LOG_DEFAULTS_KEYS, 'prettifyLogMessage'].forEach((option) => {
+    localStorage.removeItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
+  });
 }
 
 export function getBooleanLogOption(
@@ -340,7 +352,8 @@ export function getBooleanLogOption(
 ): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
-    return defaultValue;
+    const adminDefault = getAdminLogDefault(option);
+    return typeof adminDefault === 'boolean' ? adminDefault : defaultValue;
   }
   return !(localStorageResult === '' || localStorageResult === 'false');
 }

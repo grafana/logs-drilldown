@@ -70,6 +70,11 @@ const ServiceSelectionConfig = lazy(async () => {
   return await import('./Components/AppConfig/ServiceSelection/Config');
 });
 
+const LogDefaultsConfig = lazy(async () => {
+  await initPluginI18n();
+  return await import('./Components/AppConfig/LogDefaults/Config');
+});
+
 export const plugin = new AppPlugin<JsonData>()
   .setRootPage(App)
   // For new config pages, especially if they require feature flags, make sure they are wrapped in a <FeatureFlagContext> component.
@@ -90,6 +95,12 @@ export const plugin = new AppPlugin<JsonData>()
     icon: 'columns',
     id: 'admin-default-fields',
     title: 'Default fields',
+  })
+  .addConfigPage({
+    body: LogDefaultsConfig,
+    icon: 'sliders-v-alt',
+    id: 'admin-log-defaults',
+    title: 'Log defaults',
   });
 
 for (const linkConfig of linkConfigs) {
