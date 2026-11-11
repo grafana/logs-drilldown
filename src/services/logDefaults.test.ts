@@ -1,5 +1,10 @@
-import { setAdminLogDefaults } from './logDefaults';
+import { plugin } from '../module';
+import { LogDefaults } from './logDefaults';
 import { getBooleanLogOption, getLogOption, resetLogOptionsToDefaults, setLogOption } from './store';
+
+const setAdminLogDefaults = (logDefaults?: LogDefaults) => {
+  (plugin.meta as { jsonData?: object }).jsonData = { logDefaults };
+};
 
 describe('log defaults lookup order', () => {
   beforeEach(() => {
