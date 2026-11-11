@@ -52,12 +52,10 @@ describe('log defaults lookup order', () => {
     expect(getBooleanLogOption('wrapLogMessage', false)).toBe(true);
   });
 
-  it('applies the admin wrap default to the table view and reset clears its stored wrapping', () => {
-    setAdminLogDefaults({ wrapLogMessage: true });
-    expect(getBooleanLogOption('wrapText', false)).toBe(true);
+  it('reset clears the stored table wrapping', () => {
     setLogOption('wrapText', false);
     expect(getBooleanLogOption('wrapText', true)).toBe(false);
     resetLogOptionsToDefaults();
-    expect(getBooleanLogOption('wrapText', false)).toBe(true);
+    expect(getBooleanLogOption('wrapText', true)).toBe(true);
   });
 });

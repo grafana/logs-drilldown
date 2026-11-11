@@ -352,8 +352,7 @@ export function getBooleanLogOption(
 ): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
-    // The table view stores wrapping as wrapText, so it shares the admin wrap default
-    const adminDefault = getAdminLogDefault(option === 'wrapText' ? 'wrapLogMessage' : option);
+    const adminDefault = getAdminLogDefault(option);
     return typeof adminDefault === 'boolean' ? adminDefault : defaultValue;
   }
   return !(localStorageResult === '' || localStorageResult === 'false');

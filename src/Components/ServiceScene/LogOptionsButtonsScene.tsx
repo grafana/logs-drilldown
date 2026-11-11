@@ -7,7 +7,6 @@ import { Button, Tooltip } from '@grafana/ui';
 
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
-import { LogsTablePanelScene } from './LogsTablePanelScene';
 import { ServiceScene } from './ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { BUILT_IN_LOG_DEFAULTS } from 'services/logDefaults';
@@ -51,10 +50,6 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
       });
     }
     listScene.setLogsVizOption(options);
-    const tableScene = sceneGraph.findObject(this, (o) => o instanceof LogsTablePanelScene);
-    if (tableScene instanceof LogsTablePanelScene) {
-      tableScene.state.panel?.onOptionsChange({ wrapText: getBooleanLogOption('wrapText', true) });
-    }
   };
 
   clearDisplayedFields = () => {
