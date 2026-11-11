@@ -73,9 +73,9 @@ export const testIds = {
   },
 
   logsPanelHeader: {
-    resetLogOptions: 'data-testid logs-panel-reset-log-options',
     header: 'data-testid Panel header Logs',
     radio: 'data-testid radio-button',
+    resetLogOptions: 'data-testid logs-panel-reset-log-options',
   },
   logsQueryFooter: {
     details: 'data-testid logs-query-footer-details',

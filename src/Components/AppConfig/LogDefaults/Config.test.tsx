@@ -2,9 +2,12 @@ import React, { ReactNode } from 'react';
 
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
+import { AppPluginMeta, GrafanaPlugin, PluginMeta, PluginType } from '@grafana/data';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 
+import { JsonData } from '../AppConfig';
 import LogDefaultsConfig from './Config';
+import { LogDefaults } from 'services/logDefaults';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -14,18 +17,31 @@ jest.mock('@grafana/plugin-compat/apps', () => ({
   updateAppPluginSettings: jest.fn(),
 }));
 
-const renderConfig = (logDefaults?: object) =>
-  render(
-    <LogDefaultsConfig
-      plugin={
-        { meta: { id: 'app', enabled: true, pinned: true, jsonData: { dataSource: 'ds', logDefaults } } } as never
-      }
-      query={{}}
-    />
-  );
+const renderConfig = (logDefaults?: LogDefaults) => {
+  const plugin: GrafanaPlugin<AppPluginMeta<JsonData>> = {
+    meta: {
+      id: 'grafana-lokiexplore-app',
+      type: PluginType.app,
+      name: 'Logs Drilldown',
+      info: {} as PluginMeta['info'],
+      module: '',
+      baseUrl: '',
+      enabled: true,
+      pinned: true,
+      jsonData: { dataSource: 'ds', logDefaults },
+    },
+    addConfigPage: () => {
+      throw new Error('Function not implemented.');
+    },
+    setChannelSupport: () => {
+      throw new Error('Function not implemented.');
+    },
+  };
+  return render(<LogDefaultsConfig plugin={plugin} query={{}} />);
+};
 
 const GROUPS = ['Line wrapping', 'Timestamps', 'Font size', 'Sort order'];
-const group = (label: string) => within(screen.getAllByRole('radiogroup')[GROUPS.indexOf(label)] as HTMLElement);
+const group = (label: string) => within(screen.getAllByRole('radiogroup')[GROUPS.indexOf(label)]);
 
 const savedJsonData = () => jest.mocked(updateAppPluginSettings).mock.calls[0]?.[1].jsonData as Record<string, unknown>;
 

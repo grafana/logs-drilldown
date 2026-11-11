@@ -33,6 +33,7 @@ import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'se
 import { getVariableForLabel } from 'services/fields';
 import { LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { isDedupStrategy, isLogsSortOrder } from 'services/guards';
+import { BUILT_IN_LOG_DEFAULTS } from 'services/logDefaults';
 import { logger } from 'services/logger';
 import { narrowLogsSortOrder } from 'services/narrowing';
 import { logsControlsSupported } from 'services/panel';
@@ -71,8 +72,8 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
     super({
       dedupStrategy: LogsDedupStrategy.none,
       prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', BUILT_IN_LOG_DEFAULTS.sortOrder),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', BUILT_IN_LOG_DEFAULTS.wrapLogMessage),
       series: [],
       ...state,
     });
@@ -341,9 +342,9 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       panel.setOption('showTime', true);
     } else {
       panel
-        .setOption('showTime', getBooleanLogOption('showTime', true))
+        .setOption('showTime', getBooleanLogOption('showTime', BUILT_IN_LOG_DEFAULTS.showTime))
         .setOption('timestampResolution', getLogOption('timestampResolution', 'ms'))
-        .setOption('fontSize', getLogOption<'default' | 'small'>('fontSize', 'default'))
+        .setOption('fontSize', getLogOption('fontSize', BUILT_IN_LOG_DEFAULTS.fontSize))
         .setOption('showControls', true)
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)

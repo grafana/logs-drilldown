@@ -9,6 +9,7 @@ import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { ServiceScene } from './ServiceScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
+import { BUILT_IN_LOG_DEFAULTS } from 'services/logDefaults';
 import { getNormalizedFieldName, LOG_LINE_BODY_FIELD_NAME } from 'services/logFieldNames';
 import { getBooleanLogOption, getLogOption, resetLogOptionsToDefaults } from 'services/store';
 import { testIds } from 'services/testIds';
@@ -33,10 +34,10 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
   resetLogOptions = () => {
     resetLogOptionsToDefaults();
     const options = {
-      fontSize: getLogOption<'default' | 'small'>('fontSize', 'default'),
-      showTime: getBooleanLogOption('showTime', true),
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      fontSize: getLogOption('fontSize', BUILT_IN_LOG_DEFAULTS.fontSize),
+      showTime: getBooleanLogOption('showTime', BUILT_IN_LOG_DEFAULTS.showTime),
+      sortOrder: getLogOption<LogsSortOrder>('sortOrder', BUILT_IN_LOG_DEFAULTS.sortOrder),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', BUILT_IN_LOG_DEFAULTS.wrapLogMessage),
     };
     const listScene = this.getLogsListScene();
     const panelScene = sceneGraph.findObject(this, (o) => o instanceof LogsPanelScene);
