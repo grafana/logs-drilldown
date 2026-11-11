@@ -341,7 +341,7 @@ export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
 
 // Clears the user's stored log options so admin defaults, then built-in defaults, apply again
 export function resetLogOptionsToDefaults() {
-  [...LOG_DEFAULTS_KEYS, 'prettifyLogMessage'].forEach((option) => {
+  LOG_DEFAULTS_KEYS.forEach((option) => {
     localStorage.removeItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   });
 }

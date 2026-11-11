@@ -32,19 +32,16 @@ export class LogOptionsButtonsScene extends SceneObjectBase<ShowDefaultFieldsBut
 
   resetLogOptions = () => {
     resetLogOptionsToDefaults();
-    const wrap = getBooleanLogOption('wrapLogMessage', false);
     const options = {
       fontSize: getLogOption<'default' | 'small'>('fontSize', 'default'),
-      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
       showTime: getBooleanLogOption('showTime', true),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: wrap,
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
     };
     const listScene = this.getLogsListScene();
     const panelScene = sceneGraph.findObject(this, (o) => o instanceof LogsPanelScene);
     if (panelScene instanceof LogsPanelScene) {
       panelScene.setState({
-        prettifyLogMessage: options.prettifyLogMessage,
         sortOrder: options.sortOrder,
         wrapLogMessage: options.wrapLogMessage,
       });

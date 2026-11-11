@@ -13,11 +13,9 @@ export function setAdminLogDefaults(defaults: LogDefaults | undefined) {
   adminLogDefaults = defaults;
 }
 
-// Prettify follows wrap, as the wrap toggle in the UI sets both
 export function getAdminLogDefault(option: string): string | boolean | undefined {
-  const key = option === 'prettifyLogMessage' ? 'wrapLogMessage' : option;
-  if (!adminLogDefaults || !(LOG_DEFAULTS_KEYS as readonly string[]).includes(key)) {
+  if (!adminLogDefaults || !(LOG_DEFAULTS_KEYS as readonly string[]).includes(option)) {
     return undefined;
   }
-  return adminLogDefaults[key as keyof LogDefaults];
+  return adminLogDefaults[option as keyof LogDefaults];
 }
