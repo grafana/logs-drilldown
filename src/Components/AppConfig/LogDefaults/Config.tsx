@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { css } from '@emotion/css';
 
-import { AppPluginMeta, GrafanaTheme2, LogsSortOrder, PluginConfigPageProps } from '@grafana/data';
+import { AppPluginMeta, GrafanaTheme2, PluginConfigPageProps } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { Alert, Button, Field, FieldSet, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
@@ -13,8 +13,6 @@ import { logger } from 'services/logger';
 import { testIds } from 'services/testIds';
 
 type Props = PluginConfigPageProps<AppPluginMeta<JsonData>>;
-
-const UNSET = 'unset';
 
 const LogDefaultsConfig = ({ plugin }: Props) => {
   const styles = useStyles2(getStyles);
@@ -42,7 +40,7 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
     }
   };
 
-  const notSet = { label: t('components.app-config.log-defaults.not-set', 'Not set'), value: UNSET };
+  const notSet = { label: t('components.app-config.log-defaults.not-set', 'Not set'), value: undefined };
 
   return (
     <FeatureFlagContext>
@@ -59,11 +57,11 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
             <RadioButtonGroup
               options={[
                 notSet,
-                { label: t('components.app-config.log-defaults.wrap', 'Wrap'), value: 'true' },
-                { label: t('components.app-config.log-defaults.no-wrap', 'No wrap'), value: 'false' },
+                { label: t('components.app-config.log-defaults.wrap', 'Wrap'), value: true },
+                { label: t('components.app-config.log-defaults.no-wrap', 'No wrap'), value: false },
               ]}
-              value={defaults.wrapLogMessage === undefined ? UNSET : String(defaults.wrapLogMessage)}
-              onChange={(v) => update({ ...defaults, wrapLogMessage: v === UNSET ? undefined : v === 'true' })}
+              value={defaults.wrapLogMessage}
+              onChange={(wrapLogMessage) => update({ ...defaults, wrapLogMessage })}
             />
           </Field>
 
@@ -71,11 +69,11 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
             <RadioButtonGroup
               options={[
                 notSet,
-                { label: t('components.app-config.log-defaults.show', 'Show'), value: 'true' },
-                { label: t('components.app-config.log-defaults.hide', 'Hide'), value: 'false' },
+                { label: t('components.app-config.log-defaults.show', 'Show'), value: true },
+                { label: t('components.app-config.log-defaults.hide', 'Hide'), value: false },
               ]}
-              value={defaults.showTime === undefined ? UNSET : String(defaults.showTime)}
-              onChange={(v) => update({ ...defaults, showTime: v === UNSET ? undefined : v === 'true' })}
+              value={defaults.showTime}
+              onChange={(showTime) => update({ ...defaults, showTime })}
             />
           </Field>
 
@@ -83,13 +81,11 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
             <RadioButtonGroup
               options={[
                 notSet,
-                { label: t('components.app-config.log-defaults.font-default', 'Default'), value: 'default' },
-                { label: t('components.app-config.log-defaults.font-small', 'Small'), value: 'small' },
+                { label: t('components.app-config.log-defaults.font-default', 'Default'), value: 'default' as const },
+                { label: t('components.app-config.log-defaults.font-small', 'Small'), value: 'small' as const },
               ]}
-              value={defaults.fontSize ?? UNSET}
-              onChange={(v) =>
-                update({ ...defaults, fontSize: v === UNSET ? undefined : (v as LogDefaults['fontSize']) })
-              }
+              value={defaults.fontSize}
+              onChange={(fontSize) => update({ ...defaults, fontSize })}
             />
           </Field>
 
@@ -99,17 +95,15 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
                 notSet,
                 {
                   label: t('components.app-config.log-defaults.newest-first', 'Newest first'),
-                  value: LogsSortOrder.Descending,
+                  value: 'Descending' as const,
                 },
                 {
                   label: t('components.app-config.log-defaults.oldest-first', 'Oldest first'),
-                  value: LogsSortOrder.Ascending,
+                  value: 'Ascending' as const,
                 },
               ]}
-              value={defaults.sortOrder ?? UNSET}
-              onChange={(v) =>
-                update({ ...defaults, sortOrder: v === UNSET ? undefined : (v as LogDefaults['sortOrder']) })
-              }
+              value={defaults.sortOrder}
+              onChange={(sortOrder) => update({ ...defaults, sortOrder })}
             />
           </Field>
 
