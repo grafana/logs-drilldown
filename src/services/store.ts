@@ -341,7 +341,7 @@ export function getLogOption<T>(option: keyof Options, defaultValue: T): T {
 
 // Clears the user's stored log options so admin defaults, then built-in defaults, apply again
 export function resetLogOptionsToDefaults() {
-  LOG_DEFAULTS_KEYS.forEach((option) => {
+  [...LOG_DEFAULTS_KEYS, 'wrapText'].forEach((option) => {
     localStorage.removeItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   });
 }
@@ -352,7 +352,8 @@ export function getBooleanLogOption(
 ): boolean {
   const localStorageResult = localStorage.getItem(`${LOG_OPTIONS_LOCALSTORAGE_KEY}.${option}`);
   if (localStorageResult === null) {
-    const adminDefault = getAdminLogDefault(option);
+    // The table view stores wrapping as wrapText, so it shares the admin wrap default
+    const adminDefault = getAdminLogDefault(option === 'wrapText' ? 'wrapLogMessage' : option);
     return typeof adminDefault === 'boolean' ? adminDefault : defaultValue;
   }
   return !(localStorageResult === '' || localStorageResult === 'false');

@@ -10,7 +10,7 @@ import { useStyles2 } from '@grafana/ui';
 
 import { useDefaultColumnsContext } from './Context';
 import { LokiQuery, LokiQueryDirection } from 'services/lokiQuery';
-import { getLogOption } from 'services/store';
+import { getBooleanLogOption, getLogOption } from 'services/store';
 import { DETECTED_FIELDS_MIXED_FORMAT_EXPR_NO_JSON_FIELDS } from 'services/variables';
 
 interface Props {
@@ -38,8 +38,8 @@ export function LogsView({ recordIndex, expr }: Props) {
   const logsPanelOptions: Partial<Options> = {
     enableLogDetails: getLogOption('enableLogDetails', false),
     showLogContextToggle: getLogOption('showLogContextToggle', false),
-    showTime: getLogOption('showTime', false),
-    wrapLogMessage: getLogOption('wrapLogMessage', true),
+    showTime: getBooleanLogOption('showTime', false),
+    wrapLogMessage: getBooleanLogOption('wrapLogMessage', true),
     fontSize: getLogOption('fontSize', 'small'),
     enableInfiniteScrolling: getLogOption('enableInfiniteScrolling', true),
     noInteractions: true,
