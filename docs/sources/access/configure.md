@@ -149,7 +149,7 @@ You can set a default for each of the following options:
 - **Font size**: default or small
 - **Sort order**: newest first or oldest first
 
-Each option can also be left as **Not set**, in which case the built-in default applies.
+Each option starts on its built-in default. Only values you change from the built-in default are saved.
 
 Logs Drilldown looks up each option in this order:
 
@@ -165,7 +165,7 @@ To configure Log defaults:
 
 1. Navigate to **Administration** > **Plugins and data** > **Plugins** > **Grafana Logs Drilldown**.
 1. Select the **Log defaults** tab.
-1. For each option, select the value to use as the default, or **Not set**.
+1. For each option, select the value to use as the default.
 1. Click **Save defaults**.
 
 {{< admonition type="note" >}}

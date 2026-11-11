@@ -8,7 +8,7 @@ import { Alert, Button, Field, FieldSet, RadioButtonGroup, useStyles2 } from '@g
 
 import { JsonData, updatePlugin } from '../AppConfig';
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
-import { LogDefaults } from 'services/logDefaults';
+import { BUILT_IN_LOG_DEFAULTS, LOG_DEFAULTS_KEYS, LogDefaults } from 'services/logDefaults';
 import { logger } from 'services/logger';
 import { testIds } from 'services/testIds';
 
@@ -17,17 +17,19 @@ type Props = PluginConfigPageProps<AppPluginMeta<JsonData>>;
 const LogDefaultsConfig = ({ plugin }: Props) => {
   const styles = useStyles2(getStyles);
   const { enabled, jsonData, pinned } = plugin.meta;
-  const [defaults, setDefaults] = useState<LogDefaults>(jsonData?.logDefaults ?? {});
+  const [defaults, setDefaults] = useState<Required<LogDefaults>>({ ...BUILT_IN_LOG_DEFAULTS, ...jsonData?.logDefaults });
   const [saved, setSaved] = useState(false);
 
-  const update = (next: LogDefaults) => {
+  const update = (next: Required<LogDefaults>) => {
     setSaved(false);
     setDefaults(next);
   };
 
   const onSave = async () => {
-    // Drop unset keys so users fall through to the built-in defaults
-    const logDefaults = Object.fromEntries(Object.entries(defaults).filter(([, v]) => v !== undefined));
+    // Only store values that differ from the built-in default so untouched options keep following it
+    const logDefaults = Object.fromEntries(
+      LOG_DEFAULTS_KEYS.filter((key) => defaults[key] !== BUILT_IN_LOG_DEFAULTS[key]).map((key) => [key, defaults[key]])
+    );
     try {
       await updatePlugin(plugin.meta.id, {
         enabled,
@@ -39,8 +41,6 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
       logger.error(e, { msg: 'Error while updating the log defaults' });
     }
   };
-
-  const notSet = { label: t('components.app-config.log-defaults.not-set', 'Not set'), value: undefined };
 
   return (
     <FeatureFlagContext>
@@ -56,7 +56,6 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
           <Field label={t('components.app-config.log-defaults.label-line-wrapping', 'Line wrapping')}>
             <RadioButtonGroup
               options={[
-                notSet,
                 { label: t('components.app-config.log-defaults.wrap', 'Wrap'), value: true },
                 { label: t('components.app-config.log-defaults.no-wrap', 'No wrap'), value: false },
               ]}
@@ -68,7 +67,6 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
           <Field label={t('components.app-config.log-defaults.label-prettify-json', 'Prettify JSON')}>
             <RadioButtonGroup
               options={[
-                notSet,
                 { label: t('components.app-config.log-defaults.prettify-on', 'On'), value: true },
                 { label: t('components.app-config.log-defaults.prettify-off', 'Off'), value: false },
               ]}
@@ -80,7 +78,6 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
           <Field label={t('components.app-config.log-defaults.label-timestamps', 'Timestamps')}>
             <RadioButtonGroup
               options={[
-                notSet,
                 { label: t('components.app-config.log-defaults.show', 'Show'), value: true },
                 { label: t('components.app-config.log-defaults.hide', 'Hide'), value: false },
               ]}
@@ -92,7 +89,6 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
           <Field label={t('components.app-config.log-defaults.label-font-size', 'Font size')}>
             <RadioButtonGroup
               options={[
-                notSet,
                 { label: t('components.app-config.log-defaults.font-default', 'Default'), value: 'default' as const },
                 { label: t('components.app-config.log-defaults.font-small', 'Small'), value: 'small' as const },
               ]}
@@ -104,7 +100,6 @@ const LogDefaultsConfig = ({ plugin }: Props) => {
           <Field label={t('components.app-config.log-defaults.label-sort-order', 'Sort order')}>
             <RadioButtonGroup
               options={[
-                notSet,
                 {
                   label: t('components.app-config.log-defaults.newest-first', 'Newest first'),
                   value: 'Descending' as const,

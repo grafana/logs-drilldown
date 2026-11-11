@@ -16,15 +16,15 @@ test.describe('Log defaults', () => {
 
     const groups = container.getByRole('radiogroup');
     await expect(groups).toHaveCount(5);
-    // Every option starts as "Not set"
-    for (const group of await groups.all()) {
-      await expect(group.getByLabel('Not set')).toBeChecked();
-    }
+    // Every option starts on the built-in default
+    await expect(groups.nth(0).getByLabel('No wrap')).toBeChecked();
+    await expect(groups.nth(1).getByLabel('Off')).toBeChecked();
+    await expect(groups.nth(2).getByLabel('Show')).toBeChecked();
+    await expect(groups.nth(3).getByLabel('Default')).toBeChecked();
+    await expect(groups.nth(4).getByLabel('Newest first')).toBeChecked();
 
     await groups.nth(0).getByLabel('Wrap', { exact: true }).click();
     await expect(groups.nth(0).getByLabel('Wrap', { exact: true })).toBeChecked();
-    await groups.nth(0).getByLabel('Not set').click();
-    await expect(groups.nth(0).getByLabel('Not set')).toBeChecked();
     // Don't save, or we could break other tests that share the plugin settings
   });
 
