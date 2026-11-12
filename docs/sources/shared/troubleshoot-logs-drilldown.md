@@ -157,7 +157,7 @@ If the **Default fields** tab does not appear in the Logs Drilldown plugin setti
 
 1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
 1. Confirm that you have the Org Admin role in your organization.
-1. Confirm you are running Grafana 12.4 or later. Default fields is not available on earlier Grafana versions.
+1. Confirm you are running Grafana 12.4 or later. The Default fields feature is not available on earlier Grafana versions.
 
 For more information about configuring Default fields, refer to [Configure Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/#default-fields-beta).
 
@@ -167,7 +167,7 @@ If the **Landing Page** tab does not appear in the Logs Drilldown plugin setting
 
 1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
 1. Confirm that you have the Org Admin role in your organization.
-1. Confirm you are running Grafana 13.0 or later. Landing Page default labels is not available on earlier Grafana versions.
+1. Confirm you are running Grafana 13.0 or later. The Landing Page default labels feature is not available on earlier Grafana versions.
 1. After saving changes, verify the correct Loki data source is selected. Landing page label configuration is per data source.
 1. Check that the labels you are configuring exist in the selected Loki data source.
 
