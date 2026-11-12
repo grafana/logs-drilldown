@@ -7,9 +7,10 @@ import { t } from '@grafana/i18n';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Alert, Field, useStyles2 } from '@grafana/ui';
 
-import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+import { PatternsBreakdownScene } from './PatternsBreakdownScene';
 import { SearchInput } from 'Components/ServiceScene/Breakdowns/SearchInput';
 import { areArraysEqual } from 'services/comparison';
+import type { PatternFrame } from 'services/patterns';
 import { debouncedFuzzySearch, fuzzySearch } from 'services/search';
 import { getFieldsVariable, getLineFiltersVariable, getMetadataVariable } from 'services/variableGetters';
 

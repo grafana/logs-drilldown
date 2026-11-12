@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { css } from '@emotion/css';
-import { useResizeObserver } from '@react-aria/utils';
 
 import { LoadingState, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -19,13 +18,26 @@ export function Logs({ datasourceUid, query, timeRange, pattern }: PatternsProps
   const [result, setResult] = useState<Awaited<ReturnType<typeof getPatternLogs>>>();
   const [error, setError] = useState<string>();
 
-  useResizeObserver({ ref, onResize: () => setWidth(ref.current?.clientWidth ?? 0) });
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) {
+        setWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(ref.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
     setResult(undefined);
     setError(undefined);
-    setWidth(ref.current?.clientWidth ?? 0);
     getPatternLogs(datasourceUid, query, pattern, timeRange, controller.signal).then(
       (result) => {
         if (!controller.signal.aborted) {

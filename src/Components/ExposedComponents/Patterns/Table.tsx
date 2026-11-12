@@ -10,8 +10,8 @@ import { AxisPlacement, Column, InteractiveTable, Stack, Text, TooltipDisplayMod
 
 import { Logs } from './Logs';
 import type { PatternsProps } from './types';
-import type { PatternFrame } from 'Components/ServiceScene/Breakdowns/Patterns/PatternsBreakdownScene';
 import { getLevelColor } from 'services/levels';
+import type { PatternFrame } from 'services/patterns';
 import { testIds } from 'services/testIds';
 
 interface TableProps extends PatternsProps {

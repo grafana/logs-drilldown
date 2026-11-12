@@ -1,6 +1,15 @@
 import { filter, firstValueFrom, from, fromEvent, takeUntil } from 'rxjs';
 
-import { createDataFrame, DataQueryRequest, FieldColor, FieldType, LoadingState, TimeRange } from '@grafana/data';
+import {
+  createDataFrame,
+  DataFrame,
+  DataQueryRequest,
+  FieldColor,
+  FieldType,
+  generateUUID,
+  LoadingState,
+  TimeRange,
+} from '@grafana/data';
 import { Selector } from '@grafana/lezer-logql';
 import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
 import { config, DataSourceWithBackend } from '@grafana/runtime';
@@ -12,8 +21,15 @@ import { buildDataQuery, LINE_LIMIT } from './query';
 import { renderPatternFilters } from './renderPatternFilters';
 import { getLevelsVariable } from './variableGetters';
 import { VAR_PATTERNS_EXPR } from './variables';
-import type { PatternFrame } from 'Components/ServiceScene/Breakdowns/Patterns/PatternsBreakdownScene';
 import type { ServiceScene } from 'Components/ServiceScene/ServiceScene';
+
+export type PatternFrame = {
+  dataFrame: DataFrame;
+  levels: string[];
+  pattern: string;
+  status?: 'exclude' | 'include';
+  sum: number;
+};
 
 type SampleTimeStamp = number;
 type SampleCount = number;
@@ -172,7 +188,7 @@ export async function getPatternLogs(
   async function runQuery(expression: string) {
     const request: DataQueryRequest<LokiQuery> = {
       app: '',
-      requestId: `pattern-samples-${encodeURIComponent(pattern)}`,
+      requestId: `pattern-samples-${generateUUID()}`,
       interval: '',
       intervalMs: 0,
       range,

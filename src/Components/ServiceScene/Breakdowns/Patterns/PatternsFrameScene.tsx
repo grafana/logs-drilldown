@@ -18,14 +18,14 @@ import {
 import { LegendDisplayMode, PanelContext, SeriesVisibilityChangeMode } from '@grafana/ui';
 
 import { onPatternClick } from './FilterByPatternsButton';
-import { PatternFrame, PatternsBreakdownScene } from './PatternsBreakdownScene';
+import { PatternsBreakdownScene } from './PatternsBreakdownScene';
 import { PatternsViewTableScene } from './PatternsViewTableScene';
 import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from 'services/comparison';
 import { logger } from 'services/logger';
 import { isOperatorInclusive } from 'services/operatorHelpers';
-import { overrideToFixedColor } from 'services/patterns';
+import { overrideToFixedColor, type PatternFrame } from 'services/patterns';
 import { getLevelsVariable } from 'services/variableGetters';
 
 const PATTERNS_TIMESERIES_HEIGHT = '200px';

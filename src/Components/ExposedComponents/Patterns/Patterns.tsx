@@ -10,10 +10,7 @@ import { Alert, useStyles2 } from '@grafana/ui';
 import { Table } from './Table';
 import type { PatternsProps } from './types';
 import { Volume } from './Volume';
-import {
-  PATTERNS_MAX_AGE_HOURS,
-  type PatternFrame,
-} from 'Components/ServiceScene/Breakdowns/Patterns/PatternsBreakdownScene';
+import { PATTERNS_MAX_AGE_HOURS } from 'Components/ServiceScene/Breakdowns/Patterns/PatternsBreakdownScene';
 import {
   PatternsNoMatchingFilters,
   PatternsNotDetected,
@@ -21,7 +18,7 @@ import {
 } from 'Components/ServiceScene/Breakdowns/Patterns/PatternsNotDetected';
 import { SearchInput } from 'Components/ServiceScene/Breakdowns/SearchInput';
 import { StatusWrapper } from 'Components/ServiceScene/Breakdowns/StatusWrapper';
-import { getEmbededPatterns } from 'services/patterns';
+import { getEmbededPatterns, type PatternFrame } from 'services/patterns';
 import { testIds } from 'services/testIds';
 
 export default function Patterns({ datasourceUid, query, timeRange, onTimeRangeChange }: PatternsProps) {

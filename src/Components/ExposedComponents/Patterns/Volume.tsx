@@ -6,7 +6,7 @@ import { dateTime, FieldType, GrafanaTheme2, LoadingState, TimeRange } from '@gr
 import { PanelRenderer } from '@grafana/runtime';
 import { LegendDisplayMode, useStyles2 } from '@grafana/ui';
 
-import type { PatternFrame } from 'Components/ServiceScene/Breakdowns/Patterns/PatternsBreakdownScene';
+import type { PatternFrame } from 'services/patterns';
 import { testIds } from 'services/testIds';
 
 export function Volume({

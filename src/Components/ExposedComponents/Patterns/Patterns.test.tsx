@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 
-import { DataSourcePluginMeta, dateTime, FieldType, LoadingState, toDataFrame } from '@grafana/data';
+import { DataQueryResponse, DataSourcePluginMeta, dateTime, FieldType, LoadingState, toDataFrame } from '@grafana/data';
 import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
 import { config, DataSourceWithBackend } from '@grafana/runtime';
 
@@ -42,9 +42,27 @@ function setup() {
 }
 
 beforeAll(() => {
-  global.ResizeObserver = jest
-    .fn()
-    .mockImplementation(() => ({ observe: jest.fn(), unobserve: jest.fn(), disconnect: jest.fn() }));
+  global.ResizeObserver = jest.fn().mockImplementation((callback: ResizeObserverCallback) => {
+    const observer: ResizeObserver = {
+      observe: jest.fn((target: Element) =>
+        callback(
+          [
+            {
+              target,
+              contentRect: new DOMRect(0, 0, 300, 300),
+              borderBoxSize: [],
+              contentBoxSize: [],
+              devicePixelContentBoxSize: [],
+            },
+          ],
+          observer
+        )
+      ),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    };
+    return observer;
+  });
 });
 
 afterEach(() => jest.restoreAllMocks());
@@ -167,7 +185,6 @@ const sampleFrame = toDataFrame({
 
 it('loads logs only on expansion, renders the native logs panel, and closes without navigation', async () => {
   setup();
-  jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(300);
   const query = jest
     .spyOn(DataSourceWithBackend.prototype, 'query')
     .mockReturnValue(of({ data: [sampleFrame], state: LoadingState.Done }));
@@ -288,5 +305,29 @@ it('uses the native table columns and count sorting in wide containers', async (
   expect(screen.getAllByTestId(testIds.exposedComponents.patterns.card).map((cell) => cell.textContent)).toEqual([
     pattern,
     'worker <_> ready',
+  ]);
+});
+
+it('keeps concurrent requests for the same pattern independent', async () => {
+  setup();
+  const responses = new Map<string, Subject<DataQueryResponse>>();
+  const query = jest.spyOn(DataSourceWithBackend.prototype, 'query').mockImplementation((request) => {
+    responses.get(request.requestId)?.error(new Error('Cancelled duplicate request ID'));
+    const response = new Subject<DataQueryResponse>();
+    responses.set(request.requestId, response);
+    return response;
+  });
+  const requests = [0, 1].map(() =>
+    getPatternLogs(props.datasourceUid, props.query, pattern, props.timeRange, new AbortController().signal)
+  );
+  const completed = Promise.all(requests);
+  await waitFor(() => expect(query).toHaveBeenCalledTimes(2));
+  expect(responses.size).toBe(2);
+  for (const response of responses.values()) {
+    response.next({ data: [sampleFrame], state: LoadingState.Done });
+  }
+  await expect(completed).resolves.toEqual([
+    { series: [sampleFrame], filtersOmitted: false },
+    { series: [sampleFrame], filtersOmitted: false },
   ]);
 });
