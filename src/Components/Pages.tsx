@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { dateTimeParse, PageLayoutType, TimeRange, urlUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { usePluginComponent } from '@grafana/runtime';
+import { DataSourcePicker, usePluginComponent } from '@grafana/runtime';
 import {
   EmbeddedScene,
   SceneAppPage,
@@ -12,14 +12,16 @@ import {
   SceneRouteMatch,
   SceneTimeRange,
 } from '@grafana/scenes';
-import { LoadingPlaceholder } from '@grafana/ui';
+import { Field, Input, LoadingPlaceholder, Stack } from '@grafana/ui';
 
 import { plugin } from '../module';
 import { EmbeddedLogsExplorationProps } from './EmbeddedLogsExploration/types';
+import { EmbeddedLogsMiniProps } from './EmbeddedLogsMini/types';
+import { EmbeddedQueryEfficiencyProps } from './EmbeddedQueryEfficiency/types';
 import { IndexScene } from './IndexScene/IndexScene';
 import { IndexSceneState } from './IndexScene/types';
 import { PageSlugs, ValueSlugs } from 'services/enums';
-import { getInitialDatasourceInfo } from 'services/initialDatasourceInfo';
+import { getInitialDatasourceInfo, getInitialDatasourceUid } from 'services/initialDatasourceInfo';
 import { getKgSceneProps } from 'services/kgAnnotations';
 import { logger } from 'services/logger';
 import { navigateToIndex } from 'services/navigate';
@@ -137,6 +139,180 @@ function getEmbeddedScene() {
       component: EmbeddedSceneWrapper,
       props,
     }),
+  });
+}
+
+function EmbeddedMiniSceneWrapper(props: EmbeddedLogsMiniProps) {
+  const { component: LogsDrilldownMiniComponent, isLoading } = usePluginComponent<EmbeddedLogsMiniProps>(
+    'grafana-lokiexplore-app/embedded-logs-mini/v1'
+  );
+
+  // We don't want to re-render the entire app every time the props change, only once when the plugin component is done loading
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const Component = useMemo(() => LogsDrilldownMiniComponent, [isLoading]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder text={t('components.embedded-mini-scene-wrapper.text-loading', 'Loading...')} />;
+  }
+  if (Component) {
+    return <Component {...props} />;
+  }
+
+  console.error(
+    'No grafana-lokiexplore-app/embedded-logs-mini/v1 component found in the Grafana registry! You might need to restart your Grafana instance?'
+  );
+
+  return null;
+}
+
+function getEmbeddedMiniScene(propOverrides: Partial<EmbeddedLogsMiniProps> = {}) {
+  const initialStart = 'now-15m';
+  const initialEnd = 'now';
+  const from = dateTimeParse(initialStart);
+  const to = dateTimeParse(initialEnd);
+
+  const timeRange: TimeRange = {
+    from,
+    raw: {
+      from: initialStart,
+      to: initialEnd,
+    },
+    to,
+  };
+
+  const query = '{service_name=~".+"}';
+
+  const props: EmbeddedLogsMiniProps = {
+    // Resolves to a real, configured Loki datasource (plugin setting, last used, or the instance's default) — never a made-up uid.
+    datasourceUid: getInitialDatasourceUid(),
+    embedderName: 'EmbeddedLogsMiniTestPage',
+    query,
+    referenceQuery: query,
+    timeRange,
+    ...propOverrides,
+  };
+
+  return new EmbeddedScene({
+    body: new SceneReactObject({
+      component: EmbeddedMiniSceneWrapper,
+      props,
+    }),
+  });
+}
+
+function makeEmbeddedMiniPage(
+  slug: PageSlugs,
+  title: string,
+  propOverrides?: Partial<EmbeddedLogsMiniProps>
+): SceneAppPage {
+  return new SceneAppPage({
+    getScene: () => getEmbeddedMiniScene(propOverrides),
+    layout: PageLayoutType.Custom,
+    routePath: `${slug}`,
+    title,
+    url: prefixRoute(slug),
+  });
+}
+
+export function makeEmbeddedMiniPages(): SceneAppPage[] {
+  return [
+    makeEmbeddedMiniPage(
+      PageSlugs.embedMini,
+      t(
+        'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini',
+        'Grafana Logs Drilldown — Embedded (mini)'
+      )
+    ),
+    makeEmbeddedMiniPage(
+      PageSlugs.embedMiniLogsOnly,
+      t(
+        'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini-logs-only',
+        'Grafana Logs Drilldown — Embedded (mini, logs only)'
+      ),
+      { showLogsVolume: false }
+    ),
+    makeEmbeddedMiniPage(
+      PageSlugs.embedMiniVolumeOnly,
+      t(
+        'components.make-embedded-mini-page.title.grafana-logs-drilldown-embedded-mini-volume-only',
+        'Grafana Logs Drilldown — Embedded (mini, volume only)'
+      ),
+      { showLogsPanel: false }
+    ),
+  ];
+}
+
+function EmbeddedQueryEfficiencySceneWrapper(props: EmbeddedQueryEfficiencyProps) {
+  const { component: QueryEfficiencyComponent, isLoading } = usePluginComponent<EmbeddedQueryEfficiencyProps>(
+    'grafana-lokiexplore-app/embedded-query-efficiency/v1'
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const Component = useMemo(() => QueryEfficiencyComponent, [isLoading]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder text={t('components.embedded-query-efficiency-scene-wrapper.text-loading', 'Loading...')} />;
+  }
+  if (Component) {
+    return <Component {...props} />;
+  }
+
+  console.error(
+    'No grafana-lokiexplore-app/embedded-query-efficiency/v1 component found in the Grafana registry! You might need to restart your Grafana instance?'
+  );
+
+  return null;
+}
+
+function EmbeddedQueryEfficiencyTestPage(props: EmbeddedQueryEfficiencyProps) {
+  const [query, setQuery] = useState(props.query);
+  const [datasourceUid, setDatasourceUid] = useState(props.datasourceUid);
+
+  return (
+    <Stack direction="column" gap={1}>
+      <Field label="Data source">
+        <DataSourcePicker
+          current={datasourceUid}
+          filter={(ds) => ds.type === 'loki'}
+          onChange={(ds) => setDatasourceUid(ds.uid)}
+          width={40}
+        />
+      </Field>
+      <Field label="Query to test">
+        <Input onChange={(e) => setQuery(e.currentTarget.value)} value={query} width={80} />
+      </Field>
+      <EmbeddedQueryEfficiencySceneWrapper {...props} datasourceUid={datasourceUid} query={query} />
+    </Stack>
+  );
+}
+
+function getEmbeddedQueryEfficiencyScene() {
+  const query = '{service_name=~".+"} | logfmt';
+
+  const props: EmbeddedQueryEfficiencyProps = {
+    datasourceUid: getInitialDatasourceUid(),
+    embedderName: 'EmbeddedQueryEfficiencyTestPage',
+    query,
+  };
+
+  return new EmbeddedScene({
+    body: new SceneReactObject({
+      component: EmbeddedQueryEfficiencyTestPage,
+      props,
+    }),
+  });
+}
+
+export function makeEmbeddedQueryEfficiencyPage(): SceneAppPage {
+  return new SceneAppPage({
+    getScene: () => getEmbeddedQueryEfficiencyScene(),
+    layout: PageLayoutType.Custom,
+    routePath: `${PageSlugs.embedQueryEfficiency}`,
+    title: t(
+      'components.make-embedded-query-efficiency-page.title.grafana-logs-drilldown-embedded-query-efficiency',
+      'Grafana Logs Drilldown — Embedded (query efficiency)'
+    ),
+    url: prefixRoute(PageSlugs.embedQueryEfficiency),
   });
 }
 

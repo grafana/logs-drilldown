@@ -6,6 +6,8 @@ import type { JsonData } from './Components/AppConfig/AppConfig';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
+  SuspendedEmbeddedLogsMini,
+  SuspendedEmbeddedQueryEfficiency,
   SuspendedLokiFieldDistribution,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
@@ -119,4 +121,20 @@ plugin.exposeComponent({
   description: 'An errors analysis view for a given Faro app.',
   id: `grafana-lokiexplore-app/errors-analysis/v1`,
   title: 'Errors Analysis',
+});
+
+plugin.exposeComponent({
+  component: SuspendedEmbeddedLogsMini,
+  description:
+    'A lightweight logs exploration view, built independently of the main Logs Drilldown scenes, for embedding in other parts of Grafana.',
+  id: `grafana-lokiexplore-app/embedded-logs-mini/v1`,
+  title: 'Embedded Logs Drilldown (mini)',
+});
+
+plugin.exposeComponent({
+  component: SuspendedEmbeddedQueryEfficiency,
+  description:
+    'A query efficiency score indicator, built independently of the main Logs Drilldown scenes, for embedding in other parts of Grafana.',
+  id: `grafana-lokiexplore-app/embedded-query-efficiency/v1`,
+  title: 'Embedded Query Efficiency Score',
 });
