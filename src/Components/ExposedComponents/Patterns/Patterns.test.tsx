@@ -8,7 +8,7 @@ import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
 import { config, DataSourceWithBackend } from '@grafana/runtime';
 
 import Patterns from './Patterns';
-import { getEmbededPatterns, getPatternLogs } from 'services/patterns';
+import { getEmbeddedPatterns, getPatternLogs } from 'services/patterns';
 import { testIds } from 'services/testIds';
 
 jest.mock('@grafana/runtime', () => ({
@@ -84,7 +84,7 @@ it('loads independently from the explicit Loki datasource using only the stream 
   });
   const from = dateTime(1000);
   const to = dateTime(2000);
-  const result = await getEmbededPatterns(
+  const result = await getEmbeddedPatterns(
     props.datasourceUid,
     props.query,
     { from, to, raw: { from, to } },
@@ -272,7 +272,7 @@ it('assigns distinct theme palette colors to each pattern before rendering', asy
   getResource.mockResolvedValue({
     data: [...response.data, { pattern: 'worker <_> ready', level: 'info', samples: [[1, 3]] }],
   });
-  const frames = await getEmbededPatterns(
+  const frames = await getEmbeddedPatterns(
     props.datasourceUid,
     props.query,
     props.timeRange,

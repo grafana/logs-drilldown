@@ -176,7 +176,7 @@ export async function getPatternLogs(
 ) {
   const datasource = await getDataSourceInstance({ uid: datasourceUid });
 
-  // Unsubscription cancels sample queries when the row closes or host inputs change.
+  // Closing the row or changing host inputs cancels pending sample queries.
   signal.throwIfAborted();
 
   const [selector] = getNodesFromQuery(query, [Selector]);
@@ -262,7 +262,7 @@ export function getPatternsCount(serviceScene: ServiceScene) {
   return patterns.length;
 }
 
-export async function getEmbededPatterns(datasourceUid: string, query: string, range: TimeRange, signal: AbortSignal) {
+export async function getEmbeddedPatterns(datasourceUid: string, query: string, range: TimeRange, signal: AbortSignal) {
   const [selector] = getNodesFromQuery(query, [Selector]);
 
   if (!selector) {

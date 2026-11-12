@@ -18,7 +18,7 @@ import {
 } from 'Components/ServiceScene/Breakdowns/Patterns/PatternsNotDetected';
 import { SearchInput } from 'Components/ServiceScene/Breakdowns/SearchInput';
 import { StatusWrapper } from 'Components/ServiceScene/Breakdowns/StatusWrapper';
-import { getEmbededPatterns, type PatternFrame } from 'services/patterns';
+import { getEmbeddedPatterns, type PatternFrame } from 'services/patterns';
 import { testIds } from 'services/testIds';
 
 export default function Patterns({ datasourceUid, query, timeRange, onTimeRangeChange }: PatternsProps) {
@@ -30,7 +30,7 @@ export default function Patterns({ datasourceUid, query, timeRange, onTimeRangeC
   useEffect(() => {
     const controller = new AbortController();
     setResult(undefined);
-    getEmbededPatterns(datasourceUid, query, timeRange, controller.signal).then(
+    getEmbeddedPatterns(datasourceUid, query, timeRange, controller.signal).then(
       (patterns) => {
         if (!controller.signal.aborted) {
           setResult({ request, patterns });
