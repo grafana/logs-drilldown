@@ -109,7 +109,7 @@ To fix this:
 
 ### Invalid labels selected
 
-This error occurs when your label filters are in an invalid state, typically when all remaining filters use negative matching (not equal, not regex match).
+This error occurs when the primary label driving the current page (for example, `service_name`) no longer has an inclusive (positive) filter applied, and no other remaining label filter is eligible to take its place as the primary label.
 
 Try the following fixes:
 
@@ -129,7 +129,7 @@ Try the following fixes:
 
 ### No labels/fields match these filters
 
-This message appears when your current filters don't match any available labels or fields.
+This message appears when your current filters don't match any available labels or fields. The exact wording depends on where you see it: "No labels match these filters." appears on the **Labels** tab, and "No fields match these filters." appears on the **Fields** tab.
 
 Try the following fixes:
 
@@ -147,12 +147,17 @@ Try the following fixes:
 1. Verify that your logs contain structured data (JSON, logfmt, or other parsable formats).
 1. Check that [structured metadata](https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/) is enabled in your Loki configuration by setting `allow_structured_metadata: true`.
 
+{{< admonition type="note" >}}
+If you are on the **Fields** tab and extracted fields (parsers) have been turned off for this view, the message includes additional text: "Try enabling extracted fields from the log lines." along with an **Enable extracted fields** button. Click the button to turn parsing back on.
+{{< /admonition >}}
+
 ### Default fields tab not appearing
 
 If the **Default fields** tab does not appear in the Logs Drilldown plugin settings, or if it displays an unsupported message, check the following:
 
 1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
 1. Confirm that you have the Org Admin role in your organization.
+1. Confirm you are running Grafana 12.4 or later. Default fields is not available on earlier Grafana versions.
 
 For more information about configuring Default fields, refer to [Configure Logs Drilldown](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/configure/#default-fields-beta).
 
@@ -162,6 +167,7 @@ If the **Landing Page** tab does not appear in the Logs Drilldown plugin setting
 
 1. Verify that the `kubernetesLogsDrilldown` feature flag is enabled in your Grafana configuration.
 1. Confirm that you have the Org Admin role in your organization.
+1. Confirm you are running Grafana 13.0 or later. Landing Page default labels is not available on earlier Grafana versions.
 1. After saving changes, verify the correct Loki data source is selected. Landing page label configuration is per data source.
 1. Check that the labels you are configuring exist in the selected Loki data source.
 
@@ -177,7 +183,7 @@ This section covers common error messages you may encounter when querying logs.
 
 ### No logs match your search
 
-If you see the message "No logs match your search. Please review your filters or try a different time range." it means your current combination of filters and time range returns no results.
+If you see the message "No logs match your search. Please review your filters or try a different time range." it means your current combination of filters and time range returns no results. If you have no filters that can be cleared, you may instead see "No logs match your search. Please try again with different labels or an alternative time range."
 
 Try the following fixes:
 
@@ -209,7 +215,7 @@ Try the following fixes:
 1. Narrow your time range to reduce the amount of data returned.
 1. Add more specific label filters to target a smaller subset of logs.
 1. Use a line filter to search for specific text, which reduces the response size.
-1. If you're an administrator, consider adjusting the [`max_recv_msg_size`](https://grafana.com/docs/loki/latest/configure/#server) in your Loki server configuration.
+1. If you're an administrator, consider adjusting the [`grpc_server_max_send_msg_size`](https://grafana.com/docs/loki/latest/configure/#server) in your Loki server configuration.
 
 ### Max entries limit per query exceeded
 
@@ -221,6 +227,16 @@ Try the following fixes:
 1. Narrow your time range to return fewer results.
 1. Add more specific filters to reduce the number of matching logs.
 1. If you're an administrator and need higher limits, adjust the [`max_entries_limit_per_query`](https://grafana.com/docs/loki/latest/configure/#limits_config) in your Loki configuration.
+
+### Unexpected error response
+
+If your logs query fails with an error message that doesn't match any of the specific cases above, Logs Drilldown shows a generic message: "Unexpected error response. Please review your filters or try a different time range."
+
+Try the following fixes:
+
+1. Review your filters and time range for anything unusual.
+1. Try the query again. This can sometimes be caused by a transient Loki or network error.
+1. If the issue persists, check your Loki query logs or contact your administrator for the underlying error.
 
 ### Max series limit exceeded
 
@@ -247,13 +263,23 @@ Try the following fixes:
 1. Add more filters to reduce the amount of data being processed.
 1. If timeouts persist, contact your administrator to check Loki query timeout settings.
 
+### Error fetching results for [field]
+
+If you see "Error fetching results for [field]" instead, the query for that field breakdown failed completely and returned no data at all, unlike "Showing partial results," which still displays some data.
+
+Try the following fixes:
+
+1. Check the error message details shown in the alert, including any trace ID, for the specific cause.
+1. Narrow your time range or add more filters to reduce query complexity.
+1. Try again later if the issue is due to a transient Loki or network error.
+
 ## Pattern errors
 
 This section covers error messages related to the Patterns feature.
 
 ### There are no pattern matches
 
-Pattern matching has not been configured.
+This message appears whenever the Patterns query fails for any reason. The most common cause is that pattern matching has not been configured, but the same message can also appear for a temporary Loki error, a network issue, or a multi-tenant/cross-stack data source (see below).
 
 1. Ensure pattern extraction is enabled by setting `pattern_ingester.enabled=true` in your Loki config. [Learn about other necessary config](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/logs/access/).
 1. Ensure the volume endpoint is enabled by setting `volume_enabled=true` within your [Loki configuration file](https://grafana.com/docs/loki/latest/configure/#limits_config).
@@ -266,6 +292,16 @@ If you see a message in the UI on the Patterns tab that says "An error occurred 
 
 - Use a single-stack Loki data source to restore Patterns.
 - Disable log patterns to continue using the other Logs Drilldown features with your multi-tenant or cross-stack data source. Go to **Administration** > **Plugins and data** > **Plugins** > **Grafana Logs Drilldown** and select the **Disable patterns** check box. This will disable use of the Patterns API and hide the **Patterns** tab in the user interface.
+
+### No patterns match these filters
+
+This message appears on the **Patterns** tab when the Patterns API returns no pattern data at all for your current label filters and time range, as distinct from the API returning data with zero detected patterns (see "Sorry, we could not detect any patterns" below).
+
+Try the following fixes:
+
+1. Remove or adjust label filters that may be too restrictive.
+1. Broaden your time range.
+1. Check that your label filters match log streams that actually exist in Loki.
 
 ### Sorry, we could not detect any patterns
 
@@ -319,9 +355,9 @@ To enable filtering:
 
 ### No JSON fields detected
 
-This message appears when viewing the JSON panel but your log lines aren't in JSON format.
+If you see "No JSON fields detected" it means the JSON panel is built for JSON log lines, but none were detected in your current view. This is informational rather than an error.
 
-This is informational rather than an error. If your logs aren't JSON formatted:
+Try the following fixes:
 
 1. Switch to the **Logs** or **Table** view for a better experience.
 1. The JSON view is optimized for JSON-formatted log lines and may not display other formats correctly.
