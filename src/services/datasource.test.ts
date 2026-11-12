@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { filter, firstValueFrom, isObservable, Observable, tap } from 'rxjs';
 
 import {
   DataFrame,
@@ -9,9 +9,10 @@ import {
   LoadingState,
 } from '@grafana/data';
 import { DataSourceWithBackend } from '@grafana/runtime';
+import { SceneTimeRange } from '@grafana/scenes';
 
-import { mergeLokiSamples, WrappedLokiDatasource } from './datasource';
-import { SceneDataQueryResourceRequest } from './datasourceTypes';
+import { WrappedLokiDatasource } from './datasource';
+import { SceneDataQueryRequest, SceneDataQueryResourceRequest } from './datasourceTypes';
 import { DetectedFieldsResponse } from './fields';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 
@@ -169,27 +170,57 @@ describe('datasource', () => {
       });
     });
   });
-  describe('mergeLokiSamples', () => {
-    it('should merge dataframes', () => {
-      expect(
-        mergeLokiSamples(
-          [
-            [100, 10],
-            [110, 20],
-          ],
-          [
-            [90, 3],
-            [100, 7],
-            [110, 11],
-            [120, 13],
-          ]
-        )
-      ).toEqual([
-        [90, 3],
-        [100, 17],
-        [110, 31],
-        [120, 13],
-      ]);
+});
+
+it.each([false, true])('preserves the normal Patterns query lifecycle and options (failure: %s)', async (failing) => {
+  const getResource = jest.spyOn(datasource, 'getResource');
+  if (failing) {
+    getResource.mockRejectedValueOnce(new Error('Loki unavailable'));
+  } else {
+    getResource.mockResolvedValueOnce({ data: [{ pattern: 'request <_>', level: 'info', samples: [[1, 3]] }] });
+  }
+
+  const scene = new SceneTimeRange({ from: 'now-15m', to: 'now' });
+  const sceneVar = { value: scene, valueOf: () => scene };
+  const request: SceneDataQueryRequest = {
+    app: 'test',
+    requestId: 'normal-patterns',
+    interval: '1m',
+    intervalMs: 60000,
+    range: scene.state.value,
+    startTime: Date.now(),
+    timezone: 'utc',
+    scopedVars: { __sceneObject: sceneVar },
+    targets: [{ expr: '{app="api"}', refId: 'patterns-ref', resource: 'patterns' }],
+  };
+  const response = new WrappedLokiDatasource('test', 'wrapped-test').query(request);
+  if (!isObservable(response)) {
+    throw new Error('Expected an observable query response');
+  }
+
+  const states: Array<LoadingState | undefined> = [];
+  const result = await firstValueFrom(
+    response.pipe(
+      tap((value) => states.push(value.state)),
+      filter((value) => value.state === LoadingState.Done || value.state === LoadingState.Error)
+    )
+  );
+
+  expect(states).toEqual([LoadingState.Loading, failing ? LoadingState.Error : LoadingState.Done]);
+  expect(getResource).toHaveBeenCalledWith(
+    'patterns',
+    expect.objectContaining({ query: '{app="api"}', step: '1m' }),
+    expect.objectContaining({ requestId: 'normal-patterns', showErrorAlert: false })
+  );
+  if (failing) {
+    expect(result.data).toEqual([]);
+  } else {
+    expect(result.data[0]).toMatchObject({
+      refId: 'patterns-ref',
+      name: 'request <_>',
+      meta: { custom: { sum: 3, level: ['info'] } },
     });
-  });
+  }
+
+  getResource.mockRestore();
 });

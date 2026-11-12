@@ -2,9 +2,8 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 
-import { ConfigOverrideRule, FieldColor, LoadingState } from '@grafana/data';
+import { ConfigOverrideRule, LoadingState } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
 import {
   PanelBuilders,
   SceneComponentProps,
@@ -26,6 +25,7 @@ import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from 'services/comparison';
 import { logger } from 'services/logger';
 import { isOperatorInclusive } from 'services/operatorHelpers';
+import { overrideToFixedColor } from 'services/patterns';
 import { getLevelsVariable } from 'services/variableGetters';
 
 const PATTERNS_TIMESERIES_HEIGHT = '200px';
@@ -293,14 +293,6 @@ export class PatternsFrameScene extends SceneObjectBase<PatternsFrameSceneState>
       },
     });
   }
-}
-
-export function overrideToFixedColor(index: number): FieldColor {
-  const { palette } = config.theme2.visualization;
-  return {
-    fixedColor: palette[index % palette.length],
-    mode: 'fixed',
-  };
 }
 
 const styles = {

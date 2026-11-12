@@ -5,6 +5,7 @@ import { LinkButton } from '@grafana/ui';
 
 import type { LokiFieldDistributionProps } from 'Components/AttributeDistribution/LokiFieldDistribution';
 import type { EmbeddedLogsExplorationProps } from 'Components/EmbeddedLogsExploration/types';
+import type { PatternsProps } from 'Components/ExposedComponents/Patterns/types';
 import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 import pluginJson from 'plugin.json';
 
@@ -78,6 +79,25 @@ export function SuspendedLokiFieldDistribution(props: LokiFieldDistributionProps
       }
     >
       <LokiFieldDistribution {...props} />
+    </Suspense>
+  );
+}
+
+const Patterns = lazy(async () => {
+  await initI18n();
+  return import('Components/ExposedComponents/Patterns/Patterns');
+});
+
+export function SuspendedPatterns(props: PatternsProps) {
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Trans i18nKey="services.suspended-embedded-patterns.loading">Loading Logs patterns...</Trans>
+        </div>
+      }
+    >
+      <Patterns {...props} />
     </Suspense>
   );
 }

@@ -7,12 +7,13 @@ import { SceneApp, useSceneApp } from '@grafana/scenes';
 
 import { plugin } from '../module';
 import { makeEmbeddedPage, makeIndexPage, makeRedirectPage } from './Pages';
+import { makeExposedPatternsPage } from 'Components/ExposedComponents/ExposedPatternsPage';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { initializeMetadataService } from 'services/metadata';
 
 const getSceneApp = () =>
   new SceneApp({
-    pages: [makeIndexPage(), makeEmbeddedPage(), makeRedirectPage()],
+    pages: [makeIndexPage(), makeEmbeddedPage(), makeRedirectPage(), makeExposedPatternsPage()],
     urlSyncOptions: {
       createBrowserHistorySteps: true,
       updateUrlOnInit: true,
