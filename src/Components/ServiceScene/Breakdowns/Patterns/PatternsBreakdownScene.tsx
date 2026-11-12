@@ -28,6 +28,7 @@ import { IndexScene } from 'Components/IndexScene/IndexScene';
 import { StatusWrapper } from 'Components/ServiceScene/Breakdowns/StatusWrapper';
 import { ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import { areArraysEqual } from 'services/comparison';
+import type { PatternFrame } from 'services/patterns';
 import { VAR_LABEL_GROUP_BY } from 'services/variables';
 
 export interface PatternsBreakdownSceneState extends SceneObjectState {
@@ -45,14 +46,6 @@ export interface PatternsBreakdownSceneState extends SceneObjectState {
   patternFrames?: PatternFrame[];
   value?: string;
 }
-
-export type PatternFrame = {
-  dataFrame: DataFrame;
-  levels: string[];
-  pattern: string;
-  status?: 'exclude' | 'include';
-  sum: number;
-};
 
 export const PATTERNS_MAX_AGE_HOURS = 3;
 

@@ -27,6 +27,7 @@ import { logger } from './logger';
 import { requestSupportsSharding } from './logql';
 import { LokiDatasource, LokiQuery } from './lokiQuery';
 import { getParserEnabled } from './parserToggle';
+import { getPatterns } from './patterns';
 import { PLUGIN_ID } from './plugin';
 import { sanitizeStreamSelector } from './query';
 import { getDataSource } from './scenes';
@@ -59,25 +60,6 @@ type LabelsResponse = {
   status: string;
 };
 
-type SampleTimeStamp = number;
-type SampleCount = number;
-type PatternSample = [SampleTimeStamp, SampleCount];
-
-export interface LokiPattern {
-  level?: string;
-  pattern: string;
-  samples: PatternSample[];
-}
-
-export interface LokiPatternProcessed {
-  levels: string[];
-  samples: PatternSample[];
-}
-
-type PatternsResponse = {
-  data: LokiPattern[];
-};
-
 export const DETECTED_FIELDS_NAME_FIELD = 'name';
 
 export const DETECTED_FIELDS_CARDINALITY_NAME = 'cardinality';
@@ -86,7 +68,6 @@ export const DETECTED_FIELDS_PARSER_NAME = 'parser';
 
 export const DETECTED_FIELDS_TYPE_NAME = 'type';
 export const DETECTED_FIELDS_PATH_NAME = 'jsonPath';
-export const MAX_PATTERNS_LIMIT = 500;
 
 export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
   constructor(pluginId: string, uid: string) {
@@ -196,98 +177,13 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
     subscriber.next({ data: [], state: LoadingState.Loading });
 
     try {
-      const dsResponse = ds.getResource(
-        'patterns',
-        {
-          end: request.range.to.utc().toISOString(),
-          query: expression,
-          start: request.range.from.utc().toISOString(),
-          step: request.interval,
-        },
-        {
-          headers: {
-            'X-Query-Tags': `Source=${PLUGIN_ID}`,
-          },
-          showErrorAlert: false,
-          requestId: request.requestId ?? 'patterns',
-        }
-      );
-      const response: PatternsResponse = await dsResponse;
-      const lokiPatterns = response?.data.slice(0, MAX_PATTERNS_LIMIT);
-
-      let maxValue = -Infinity;
-      let minValue = 0;
-
-      let lokiPatternsProcessed: Record<string, LokiPatternProcessed> = {};
-      lokiPatterns.forEach((pattern) => {
-        if (lokiPatternsProcessed[pattern.pattern]) {
-          if (pattern.level) {
-            // add level
-            lokiPatternsProcessed[pattern.pattern].levels.push(pattern.level);
-          }
-          // merge samples
-          lokiPatternsProcessed[pattern.pattern].samples = mergeLokiSamples(
-            pattern.samples,
-            lokiPatternsProcessed[pattern.pattern].samples
-          );
-        } else {
-          lokiPatternsProcessed[pattern.pattern] = {
-            samples: pattern.samples,
-            levels: pattern.level ? [pattern.level] : [],
-          };
-        }
+      const frames = await getPatterns(ds, {
+        query: expression,
+        range: request.range,
+        step: request.interval,
+        requestId: request.requestId ?? 'patterns',
+        refId: interpolatedTarget.refId,
       });
-
-      const frames = Object.keys(lokiPatternsProcessed).map((key) => {
-        const timeValues: number[] = [];
-        const countValues: number[] = [];
-        let sum = 0;
-        const pattern = lokiPatternsProcessed[key];
-        pattern.samples.forEach(([time, count]) => {
-          timeValues.push(time * 1000);
-          countValues.push(count);
-          if (count > maxValue) {
-            maxValue = count;
-          }
-          if (count < minValue) {
-            minValue = count;
-          }
-          if (count > maxValue) {
-            maxValue = count;
-          }
-          if (count < minValue) {
-            minValue = count;
-          }
-          sum += count;
-        });
-
-        return createDataFrame({
-          fields: [
-            {
-              config: {},
-              name: 'time',
-              type: FieldType.time,
-              values: timeValues,
-            },
-            {
-              config: {},
-              name: key,
-              type: FieldType.number,
-              values: countValues,
-            },
-          ],
-          meta: {
-            custom: {
-              sum,
-              level: pattern.levels,
-            },
-            preferredVisualisationType: 'graph',
-          },
-          name: key,
-          refId: interpolatedTarget.refId,
-        });
-      });
-      frames.sort((a, b) => (b.meta?.custom?.sum as number) - (a.meta?.custom?.sum as number));
       subscriber.next({ data: frames, state: LoadingState.Done });
     } catch (e) {
       subscriber.next({ data: [], state: LoadingState.Error });
@@ -590,28 +486,6 @@ export class WrappedLokiDatasource extends RuntimeDataSource<DataQuery> {
       title: t('services.wrapped-loki-datasource.title.success', 'Success'),
     });
   }
-}
-
-/**
- * Combine multiple Loki pattern samples into one.
- * Note: Pattern samples might not be square (i.e. each dataframe might not have the same time values) like we'd expect from a dataframe processed by a datasource backend
- */
-export function mergeLokiSamples(s1: PatternSample[], s2: PatternSample[]) {
-  const lokiSamplesMap = new Map<number, number>();
-  s1.forEach((value) => {
-    lokiSamplesMap.set(value[0], value[1]);
-  });
-  s2.forEach((value) => {
-    if (lokiSamplesMap.has(value[0])) {
-      const existingValue = lokiSamplesMap.get(value[0]);
-      lokiSamplesMap.set(value[0], value[1] + (existingValue ?? 0));
-    } else {
-      lokiSamplesMap.set(value[0], value[1]);
-    }
-  });
-  const samples = Array.from(lokiSamplesMap);
-  samples.sort((a, b) => a[0] - b[0]);
-  return samples;
 }
 
 let initialized = false;

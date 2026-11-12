@@ -45,6 +45,12 @@ Refer to `.config/AGENTS/instructions.md` for Grafana plugin–specific rules. N
 
 - **Frontend security** — Follow workspace rules for HTML sanitization (DOMPurify), URLs (`textUtil.sanitizeUrl`), and avoiding unsafe DOM APIs.
 
+### Imports
+
+- **Use source-root imports across directories** — Rspack, TypeScript, and Jest resolve imports from `src`. Prefer `services/patterns` or `Components/ServiceScene/...` over parent-relative paths such as `../../../services/patterns`.
+- **Keep local imports relative** — Use `./Logs` or `./types` for files in the same directory.
+- **Preserve type-bundling compatibility** — Keep relative imports in `src/Components/ExposedComponents/types.ts` and wherever required by `tsconfig-for-bundle-types.json`, which does not configure source-root aliases.
+
 ### Code comments
 
 - **One line max** — Keep code comments to a single line. State the constraint or workaround the code can't express by itself; move longer explanations to the commit message or PR description.

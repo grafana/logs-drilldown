@@ -900,6 +900,23 @@
       }
     }
   },
+  "embedded-patterns": {
+    "count-column": "Count",
+    "error": "Unable to load patterns",
+    "levels-column": "Levels",
+    "loading": "Loading...",
+    "logs-empty": "This pattern returns no logs.",
+    "logs-error": "Unable to load pattern logs",
+    "logs-filter-message": "The logs returned by this pattern do not match the current query filters.",
+    "logs-filter-warning": "Showing logs without query filters",
+    "logs-loading": "Loading pattern logs...",
+    "logs-title": "Pattern logs",
+    "pattern-column": "Pattern",
+    "percent-column": "Percent",
+    "search": "Search patterns",
+    "title": "Patterns",
+    "unavailable": "Patterns component or Loki datasource is unavailable"
+  },
   "errors-analysis": {
     "collapse": "Collapse",
     "collapse-extra-fields": "Collapse extra fields",
@@ -1033,6 +1050,9 @@
     },
     "suspended-embedded-logs-exploration": {
       "loading-logs-drilldown": "Loading Logs Drilldown..."
+    },
+    "suspended-embedded-patterns": {
+      "loading": "Loading Logs patterns..."
     },
     "suspended-loki-field-distribution": {
       "loading": "Loading..."
