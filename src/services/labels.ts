@@ -24,7 +24,7 @@ import { getDatasource } from 'Components/AppConfig/DefaultColumns/State';
 import { addToFilters, FilterType } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
 import { DETECTED_LEVEL, LEVEL } from 'Components/Table/constants';
 
-export const LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
+export const LABEL_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))';
 
 export function buildLabelsQuery(sceneRef: SceneObject, optionValue: string, optionName: string) {
   let labelExpressionToAdd = '';

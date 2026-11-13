@@ -46,7 +46,7 @@ import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableH
 import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_FIELDS, VAR_LABELS } from 'services/variables';
 
 export const averageFields = ['duration', 'count', 'total', 'bytes'];
-export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
+export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))';
 
 export interface FieldsBreakdownSceneState extends SceneObjectState {
   blockingMessage?: string;
