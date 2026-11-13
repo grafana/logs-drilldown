@@ -38,6 +38,7 @@ import { navigateToValueBreakdown } from 'services/navigate';
 import { getRouteParams } from 'services/routing';
 import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
+import { testIds } from 'services/testIds';
 import { getLabelGroupByVariable, getLabelsVariable } from 'services/variableGetters';
 import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
 import { ALL_VARIABLE_VALUE, SERVICE_NAME, SERVICE_UI_LABEL, VAR_LABEL_GROUP_BY, VAR_LABELS } from 'services/variables';
@@ -300,7 +301,7 @@ export class LabelBreakdownScene extends SceneObjectBase<LabelBreakdownSceneStat
     body?.useState();
 
     return (
-      <div className={styles.labelsMenuWrapper}>
+      <div className={styles.labelsMenuWrapper} data-testid={testIds.breakdowns.common.toolbar}>
         {body instanceof LabelValuesBreakdownScene && <LabelValuesBreakdownScene.Selector model={body} />}
         {body instanceof LabelsAggregatedBreakdownScene && (
           <>
@@ -385,6 +386,11 @@ function getStyles(theme: GrafanaTheme2) {
       flexGrow: 0,
       gap: theme.spacing(2),
       justifyContent: 'space-between',
+      [theme.breakpoints.down('md')]: {
+        alignItems: 'flex-start',
+        flexDirection: 'column-reverse',
+        flexShrink: 0,
+      },
     }),
     valuesMenuWrapper: css({
       alignItems: 'top',
