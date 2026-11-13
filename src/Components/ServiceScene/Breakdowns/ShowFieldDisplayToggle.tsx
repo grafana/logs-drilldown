@@ -8,6 +8,7 @@ import { FieldsAggregatedBreakdownScene } from './FieldsAggregatedBreakdownScene
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { setParserEnabled, getParserEnabled } from 'services/parserToggle';
 import { setFieldsPanelTypes } from 'services/store';
+import { testIds } from 'services/testIds';
 
 export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggregatedBreakdownScene>) {
   const { fieldsPanelsType } = model.useState();
@@ -41,7 +42,7 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
   const volumeEnabled = fieldsPanelsType === 'timeseries';
 
   return (
-    <Stack gap={2} flex={1}>
+    <Stack direction={{ xs: 'column', md: 'row' }} gap={2} flex={1}>
       <Stack alignItems="center">
         <Tooltip
           content={t(
@@ -49,14 +50,19 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
             'Query time series for each field showing the distribution of values over time'
           )}
         >
-          <label htmlFor="toggle-volume">
+          <label htmlFor="toggle-volume" data-testid={testIds.breakdowns.common.displayVolumeLabel}>
             {t(
               'components.service-scene.breakdowns.show-field-display-toggle.options.label.display-volume',
               'Display volume'
             )}
           </label>
         </Tooltip>
-        <Switch value={volumeEnabled} onChange={toggleVolume} id="toggle-volume" />
+        <Switch
+          value={volumeEnabled}
+          onChange={toggleVolume}
+          id="toggle-volume"
+          data-testid={testIds.breakdowns.common.displayVolumeToggle}
+        />
       </Stack>
 
       <Stack alignItems="center">
@@ -66,14 +72,19 @@ export function ShowFieldDisplayToggle({ model }: SceneComponentProps<FieldsAggr
             'Enable to apply logfmt/JSON parsers to every query and extract fields from the log lines'
           )}
         >
-          <label htmlFor="toggle-parser">
+          <label htmlFor="toggle-parser" data-testid={testIds.breakdowns.fields.extractFieldsLabel}>
             {t(
               'components.service-scene.breakdowns.show-field-display-toggle.options.label.parse-fields',
               'Extract fields from logs'
             )}
           </label>
         </Tooltip>
-        <Switch value={parsersEnabledState} onChange={toggleParser} id="toggle-parser" />
+        <Switch
+          value={parsersEnabledState}
+          onChange={toggleParser}
+          id="toggle-parser"
+          data-testid={testIds.breakdowns.fields.extractFieldsToggle}
+        />
       </Stack>
     </Stack>
   );
