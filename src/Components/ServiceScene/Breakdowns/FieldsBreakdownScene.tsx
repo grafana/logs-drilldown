@@ -40,12 +40,13 @@ import { getParserEnabled } from 'services/parserToggle';
 import { getRouteParams, getUILabelName } from 'services/routing';
 import { DEFAULT_SORT_DIRECTION, getDefaultSortBy } from 'services/sorting';
 import { getSortByPreference } from 'services/store';
+import { testIds } from 'services/testIds';
 import { getFieldGroupByVariable, getLabelsVariable } from 'services/variableGetters';
 import { clearVariables, getVariablesThatCanBeCleared } from 'services/variableHelpers';
 import { ALL_VARIABLE_VALUE, VAR_FIELD_GROUP_BY, VAR_FIELDS, VAR_LABELS } from 'services/variables';
 
 export const averageFields = ['duration', 'count', 'total', 'bytes'];
-export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(400px, 1fr))';
+export const FIELDS_BREAKDOWN_GRID_TEMPLATE_COLUMNS = 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))';
 
 export interface FieldsBreakdownSceneState extends SceneObjectState {
   blockingMessage?: string;
@@ -315,7 +316,6 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
     const { options, value } = variable.useState();
     // Trigger re-render on body state change
     body?.useState();
-    // @todo small viewport support
 
     const parserEnabled = getParserEnabled();
     const tooltip = parserEnabled
@@ -329,10 +329,13 @@ export class FieldsBreakdownScene extends SceneObjectBase<FieldsBreakdownSceneSt
         );
 
     return (
-      <div className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}>
+      <div
+        className={cx(styles.labelsMenuWrapper, hideSearch ? styles.labelsMenuWrapperNoSearch : undefined)}
+        data-testid={testIds.breakdowns.common.toolbar}
+      >
         {body instanceof FieldsAggregatedBreakdownScene && (
           <>
-            <Stack justifyContent="space-between">
+            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between">
               {body.state.fieldsPanelsType !== 'text' && (
                 <>
                   <FieldsAggregatedBreakdownScene.ShowErrorPanelToggle model={body} />
@@ -418,9 +421,16 @@ function getStyles(theme: GrafanaTheme2) {
       flexGrow: 0,
       gap: theme.spacing(2),
       justifyContent: 'space-between',
+      [theme.breakpoints.down('md')]: {
+        alignItems: 'flex-start',
+        flexDirection: 'column-reverse',
+        flexShrink: 0,
+      },
     }),
     labelsMenuWrapperNoSearch: css({
-      flexDirection: 'row',
+      [theme.breakpoints.up('md')]: {
+        flexDirection: 'row',
+      },
     }),
     valuesMenuWrapper: css({
       alignItems: 'top',

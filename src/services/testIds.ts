@@ -13,6 +13,8 @@ export const testIds = {
   },
   breakdowns: {
     common: {
+      displayVolumeLabel: 'data-testid display-volume-label',
+      displayVolumeToggle: 'data-testid display-volume-toggle',
       filterButton: 'data-testid filter-button',
       filterButtonGroup: 'data-testid filter-button-group',
       filterNumericPopover: {
@@ -28,13 +30,18 @@ export const testIds = {
         submitButton: 'data-testid filter-numeric-submit',
       },
       filterSelect: 'data-testid filter-select',
+      layoutSwitcher: 'data-testid layout-switcher',
       /** Primary CTAs that drill into label/field value breakdown (Labels & Fields tabs). */
       selectValueBreakdown: 'data-testid breakdown-select-value',
       sortByDirection: 'data-testid SortBy direction',
       sortByFunction: 'data-testid SortBy function',
+      toolbar: 'data-testid breakdown-toolbar',
     },
     labelFieldSearch: 'data-testid search-label-field',
-    fields: {},
+    fields: {
+      extractFieldsLabel: 'data-testid extract-fields-label',
+      extractFieldsToggle: 'data-testid extract-fields-toggle',
+    },
     labels: {},
   },
   exploreServiceDetails: {

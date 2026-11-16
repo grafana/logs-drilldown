@@ -7,6 +7,7 @@ import { Stack, Switch, Tooltip } from '@grafana/ui';
 import { LabelsAggregatedBreakdownScene } from './LabelsAggregatedBreakdownScene';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { setLabelsPanelType } from 'services/store';
+import { testIds } from 'services/testIds';
 
 export function ShowLabelDisplayToggle({ model }: SceneComponentProps<LabelsAggregatedBreakdownScene>) {
   const { labelsPanelsType } = model.useState();
@@ -35,14 +36,19 @@ export function ShowLabelDisplayToggle({ model }: SceneComponentProps<LabelsAggr
             'Query time series for each label showing the distribution of values over time'
           )}
         >
-          <label htmlFor="toggle-label-volume">
+          <label htmlFor="toggle-label-volume" data-testid={testIds.breakdowns.common.displayVolumeLabel}>
             {t(
               'components.service-scene.breakdowns.show-label-display-toggle.options.label.display-volume',
               'Display volume'
             )}
           </label>
         </Tooltip>
-        <Switch value={volumeEnabled} onChange={toggleVolume} id="toggle-label-volume" />
+        <Switch
+          value={volumeEnabled}
+          onChange={toggleVolume}
+          id="toggle-label-volume"
+          data-testid={testIds.breakdowns.common.displayVolumeToggle}
+        />
       </Stack>
     </Stack>
   );

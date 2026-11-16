@@ -7,6 +7,7 @@ import { RadioButtonGroup } from '@grafana/ui';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { getDrilldownSlug } from 'services/routing';
 import { getSceneLayout, setSceneLayout } from 'services/store';
+import { testIds } from 'services/testIds';
 
 export interface LayoutSwitcherState extends SceneObjectState {
   active: LayoutType;
@@ -75,5 +76,12 @@ export class LayoutSwitcher extends SceneObjectBase<LayoutSwitcherState> {
 function LayoutSwitcherComponent({ model }: { model: LayoutSwitcher }) {
   const { active, options } = model.useState();
 
-  return <RadioButtonGroup options={options} value={active} onChange={model.onLayoutChange} />;
+  return (
+    <RadioButtonGroup
+      data-testid={testIds.breakdowns.common.layoutSwitcher}
+      options={options}
+      value={active}
+      onChange={model.onLayoutChange}
+    />
+  );
 }
