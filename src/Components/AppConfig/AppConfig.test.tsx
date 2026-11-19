@@ -144,6 +144,75 @@ describe('AppConfig', () => {
       expect(screen.getByLabelText('Default data source')).toBeInTheDocument();
     });
 
+    it.each([
+      ['Disabled', false, false],
+      ['Enabled', true, false],
+      ['Enabled with JSON formatting', true, true],
+    ] as const)('saves %s line wrapping and retains the columns preference', async (label, wrap, prettify) => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      const wrapping = screen.getByRole('radiogroup', { name: 'Line wrapping' });
+      const columns = screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' });
+      expect(within(wrapping).getByRole('radio', { name: 'Disabled' })).toBeChecked();
+      expect(within(columns).getByRole('radio', { name: 'Disabled' })).toBeChecked();
+      await user.click(within(columns).getByRole('radio', { name: 'Enabled' }));
+      await user.click(within(wrapping).getByRole('radio', { name: label }));
+      if (wrap) {
+        expect(screen.queryByRole('radiogroup', { name: 'Columns for unwrapped fields' })).not.toBeInTheDocument();
+      }
+      await user.click(screen.getByRole('button', { name: 'Save settings' }));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: expect.objectContaining({
+              defaultWrapLogMessage: wrap,
+              defaultPrettifyLogMessage: prettify,
+              defaultUnwrappedColumns: true,
+            }),
+          })
+        )
+      );
+      await user.click(within(wrapping).getByRole('radio', { name: 'Disabled' }));
+      expect(
+        within(screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' })).getByRole('radio', {
+          name: 'Enabled',
+        })
+      ).toBeChecked();
+    });
+
+    it('initializes Logs panel settings from jsonData and saves explicit false values', async () => {
+      const user = userEvent.setup();
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = {
+        defaultVisualizationType: 'json',
+        defaultWrapLogMessage: true,
+        defaultPrettifyLogMessage: true,
+        defaultUnwrappedColumns: true,
+      };
+      renderAppConfig(plugin);
+      const wrapping = screen.getByRole('radiogroup', { name: 'Line wrapping' });
+      expect(within(wrapping).getByRole('radio', { name: 'Enabled with JSON formatting' })).toBeChecked();
+      await user.click(within(wrapping).getByRole('radio', { name: 'Disabled' }));
+      const columns = screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' });
+      expect(within(columns).getByRole('radio', { name: 'Enabled' })).toBeChecked();
+      await user.click(within(columns).getByRole('radio', { name: 'Disabled' }));
+      await user.click(screen.getByRole('button', { name: 'Save settings' }));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: expect.objectContaining({
+              defaultVisualizationType: 'json',
+              defaultWrapLogMessage: false,
+              defaultPrettifyLogMessage: false,
+              defaultUnwrappedColumns: false,
+            }),
+          })
+        )
+      );
+    });
+
     it('renders maximum time picker interval input', () => {
       renderAppConfig();
       expect(screen.getByText('Maximum time picker interval')).toBeInTheDocument();

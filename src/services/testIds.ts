@@ -8,6 +8,10 @@ export const testIds = {
     defaultTimeRangeTo: 'data-testid ac-default-time-range-to',
     defaultVisualizationType: 'data-testid ac-default-visualization-type',
     interval: 'data-testid ac-interval-input',
+    logsPanel: {
+      wrapping: 'data-testid ac-logs-panel-wrapping',
+      columns: 'data-testid ac-logs-panel-columns',
+    },
     submit: 'data-testid ac-submit-form',
     defaultColumns: {
       labels: {

@@ -18,6 +18,7 @@ import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
+import { plugin } from '../../module';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LineLimitScene } from './LineLimitScene';
@@ -70,9 +71,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
       dedupStrategy: LogsDedupStrategy.none,
-      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
+      prettifyLogMessage: getBooleanLogOption(
+        'prettifyLogMessage',
+        plugin.meta.jsonData?.defaultPrettifyLogMessage ?? false
+      ),
       sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', plugin.meta.jsonData?.defaultWrapLogMessage ?? false),
       series: [],
       ...state,
     });
@@ -348,6 +352,10 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
       .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
+      .setOption(
+        'unwrappedColumns',
+        getBooleanLogOption('unwrappedColumns', plugin.meta.jsonData?.defaultUnwrappedColumns ?? false)
+      )
       .setOption('dedupStrategy', this.state.dedupStrategy);
 
     if (!logsControlsSupported()) {

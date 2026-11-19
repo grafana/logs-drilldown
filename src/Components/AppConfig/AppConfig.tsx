@@ -15,7 +15,7 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 import { DataSourcePicker, locationService } from '@grafana/runtime';
-import { Alert, Button, Checkbox, Field, FieldSet, Input, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Checkbox, Field, FieldSet, Input, Label, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
@@ -26,19 +26,25 @@ import { isValidTimeRange } from 'services/utils';
 
 export type JsonData = {
   dataSource?: string;
+  defaultPrettifyLogMessage?: boolean;
   /** When set, used as the initial time range when opening the app (if URL has no from/to). */
   defaultTimeRange?: { from: string; to: string };
+  defaultUnwrappedColumns?: boolean;
   defaultVisualizationType?: LogsVisualizationType;
+  defaultWrapLogMessage?: boolean;
   interval?: string;
   patternsDisabled?: boolean;
 };
 
 type State = {
   dataSource: string;
+  defaultPrettifyLogMessage: boolean;
   defaultTimeRangeEnabled: boolean;
   defaultTimeRangeFrom: string;
   defaultTimeRangeTo: string;
+  defaultUnwrappedColumns: boolean;
   defaultVisualizationType: LogsVisualizationType;
+  defaultWrapLogMessage: boolean;
   interval: string;
   isValid: boolean;
   patternsDisabled: boolean;
@@ -89,6 +95,9 @@ const AppConfig = ({ plugin }: Props) => {
     defaultTimeRangeFrom: jsonData?.defaultTimeRange?.from ?? 'now-15m',
     defaultTimeRangeTo: jsonData?.defaultTimeRange?.to ?? 'now',
     defaultVisualizationType: jsonData?.defaultVisualizationType ?? 'logs',
+    defaultWrapLogMessage: jsonData?.defaultWrapLogMessage ?? false,
+    defaultPrettifyLogMessage: jsonData?.defaultPrettifyLogMessage ?? false,
+    defaultUnwrappedColumns: jsonData?.defaultUnwrappedColumns ?? false,
   });
   const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(jsonData?.dataSource);
   const isResolvingDefault = isLoading && !state.dataSource;
@@ -309,7 +318,7 @@ const AppConfig = ({ plugin }: Props) => {
           </Field>
 
           <Field
-            label={t('components.app-config.visualization.title', 'Default visualization settings')}
+            label={t('components.app-config.visualization.title', 'Default visualization')}
             description={t(
               'components.app-config.visualization.description',
               'Choose the initial visualization for your organization. URL settings and browser preferences take precedence.'
@@ -329,6 +338,59 @@ const AppConfig = ({ plugin }: Props) => {
             />
           </Field>
 
+          <FieldSet label={<Label>{t('components.app-config.logs-panel.title', 'Logs panel')}</Label>}>
+            <Field
+              label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}
+              description={t(
+                'components.app-config.logs-panel.wrapping-description',
+                'Default line wrapping for the Logs panel. URL settings and browser preferences take precedence.'
+              )}
+            >
+              <RadioButtonGroup
+                aria-label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}
+                data-testid={testIds.appConfig.logsPanel.wrapping}
+                options={[
+                  { label: t('components.app-config.logs-panel.wrapping-disabled', 'Disabled'), value: 'off' },
+                  { label: t('components.app-config.logs-panel.wrapping-enabled', 'Enabled'), value: 'on' },
+                  {
+                    label: t('components.app-config.logs-panel.wrapping-json', 'Enabled with JSON formatting'),
+                    value: 'json',
+                  },
+                ]}
+                value={!state.defaultWrapLogMessage ? 'off' : state.defaultPrettifyLogMessage ? 'json' : 'on'}
+                size="sm"
+                onChange={(wrapping) =>
+                  setState({
+                    ...state,
+                    defaultWrapLogMessage: wrapping !== 'off',
+                    defaultPrettifyLogMessage: wrapping === 'json',
+                  })
+                }
+              />
+            </Field>
+            {!state.defaultWrapLogMessage && (
+              <Field
+                label={t('components.app-config.logs-panel.columns', 'Columns for unwrapped fields')}
+                description={t(
+                  'components.app-config.logs-panel.columns-description',
+                  'Align displayed fields in columns when line wrapping is disabled.'
+                )}
+              >
+                <RadioButtonGroup<boolean>
+                  aria-label={t('components.app-config.logs-panel.columns', 'Columns for unwrapped fields')}
+                  data-testid={testIds.appConfig.logsPanel.columns}
+                  options={[
+                    { label: t('components.app-config.logs-panel.enabled', 'Enabled'), value: true },
+                    { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: false },
+                  ]}
+                  value={state.defaultUnwrappedColumns}
+                  size="sm"
+                  onChange={(defaultUnwrappedColumns) => setState({ ...state, defaultUnwrappedColumns })}
+                />
+              </Field>
+            )}
+          </FieldSet>
+
           <div className={styles.marginTop}>
             <Button
               type="submit"
@@ -338,6 +400,9 @@ const AppConfig = ({ plugin }: Props) => {
                   enabled,
                   jsonData: {
                     defaultVisualizationType: state.defaultVisualizationType,
+                    defaultWrapLogMessage: state.defaultWrapLogMessage,
+                    defaultPrettifyLogMessage: state.defaultPrettifyLogMessage,
+                    defaultUnwrappedColumns: state.defaultUnwrappedColumns,
                     dataSource: state.dataSource,
                     interval: state.interval,
                     patternsDisabled: state.patternsDisabled,

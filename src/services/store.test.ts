@@ -2,9 +2,12 @@ import { DataSourceInstanceListItem } from '@grafana/data';
 import { getDataSourceInstanceList } from '@grafana/plugin-compat/datasources';
 import { SceneObject } from '@grafana/scenes';
 
+import { plugin } from '../module';
 import { isEmbeddedLogs } from './extensions/embedding';
 import { getDefaultDatasourceUid, getExpandedLogsView, getLogsVisualizationType } from './store';
 import pluginJson from 'plugin.json';
+
+jest.mock('../module', () => ({ plugin: { meta: { jsonData: {} } } }));
 
 jest.mock('@grafana/plugin-compat/datasources', () => ({
   getDataSourceInstanceList: jest.fn(),
@@ -31,28 +34,31 @@ function makeDs(overrides: Partial<DataSourceInstanceListItem> & { isDefault?: b
 }
 
 describe('getLogsVisualizationType', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    plugin.meta.jsonData = {};
+  });
 
-  it('uses Logs when neither an administrator default nor a browser preference exists', () => {
+  it('uses Logs when no browser preference or configured default exists', () => {
     expect(getLogsVisualizationType()).toBe('logs');
   });
 
-  it.each(['logs', 'table', 'json'] as const)(
-    'uses the administrator default %s without saving a preference',
-    (type) => {
-      expect(getLogsVisualizationType(type)).toBe(type);
-      expect(localStorage.length).toBe(0);
-    }
-  );
+  it.each(['logs', 'table', 'json'] as const)('uses the saved browser preference %s', (type) => {
+    plugin.meta.jsonData = { defaultVisualizationType: 'table' };
+    localStorage.setItem('grafana.explore.logs.visualisationType', type);
+    expect(getLogsVisualizationType()).toBe(type);
+  });
 
-  it('prefers an existing browser choice over the administrator default', () => {
-    localStorage.setItem('grafana.explore.logs.visualisationType', 'logs');
-    expect(getLogsVisualizationType('json')).toBe('logs');
+  it.each(['logs', 'table', 'json'] as const)('uses the configured default %s without a browser preference', (type) => {
+    plugin.meta.jsonData = { defaultVisualizationType: type };
+    expect(getLogsVisualizationType()).toBe(type);
+    expect(localStorage.length).toBe(0);
   });
 
   it('ignores invalid browser choices', () => {
+    plugin.meta.jsonData = { defaultVisualizationType: 'table' };
     localStorage.setItem('grafana.explore.logs.visualisationType', 'invalid');
-    expect(getLogsVisualizationType('table')).toBe('table');
+    expect(getLogsVisualizationType()).toBe('table');
   });
 });
 

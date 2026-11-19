@@ -86,6 +86,18 @@
       "label-maximum-time-picker-interval": "Maximum time picker interval",
       "label-settings": "Settings",
       "label-to": "To",
+      "logs-panel": {
+        "columns": "Columns for unwrapped fields",
+        "columns-description": "Align displayed fields in columns when line wrapping is disabled.",
+        "disabled": "Disabled",
+        "enabled": "Enabled",
+        "title": "Logs panel",
+        "wrapping": "Line wrapping",
+        "wrapping-description": "Default line wrapping for the Logs panel. URL settings and browser preferences take precedence.",
+        "wrapping-disabled": "Disabled",
+        "wrapping-enabled": "Enabled",
+        "wrapping-json": "Enabled with JSON formatting"
+      },
       "max-interval-description": "The maximum interval that can be selected in the time picker within the Grafana Logs Drilldown app. If empty, users can select any time range interval in Grafana Logs Drilldown. <br/>Example values: 7d, 24h, 2w",
       "patterns-placeholder": "7d",
       "save-settings": "Save settings",
@@ -132,7 +144,7 @@
         "json": "JSON",
         "logs": "Logs",
         "table": "Table",
-        "title": "Default visualization settings",
+        "title": "Default visualization",
         "type": "Default visualization"
       }
     },

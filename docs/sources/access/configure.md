@@ -40,13 +40,14 @@ Refer to [Plugin management](https://grafana.com/docs/grafana/latest/administrat
 
 ## Configuration tab
 
-The **Configuration** tab has four settings, all aimed at an administrator setting up a consistent experience for their team:
+The **Configuration** tab contains settings for administrators to configure a consistent experience for their team:
 
 - **Default data source**: pick which Loki instance users land on when they first open the app
 - **Default time range**: override the built-in 15-minute default with a range that matches your team's workflows
 - **Maximum time picker interval**: cap how far back users can query, typically to match your Loki retention period or protect query performance
 - **Disable Loki patterns**: turn off the Patterns tab and API calls if your Loki instance doesn't have pattern ingestion enabled
 - **Default visualization**: choose Logs, Table, or JSON as the initial view in the logs panel
+- **Logs panel**: choose default line wrapping and columns for unwrapped fields
 
 ### Configure settings
 
@@ -62,6 +63,8 @@ Active users must reload the app for configuration changes to take effect.
 Select a setting to configure it:
 
 - **Default visualization** sets the initial logs panel view for users without a saved browser preference or a visualization in the URL. Select **Logs**, **Table**, or **JSON**, then click **Save settings**. Users can still switch views in the panel header.
+
+- **Logs panel** sets default line wrapping to **Disabled**, **Enabled**, or **Enabled with JSON formatting**. When wrapping is disabled, **Columns for unwrapped fields** controls whether displayed fields are aligned in columns. Saved browser preferences take precedence over these defaults; wrapping and formatting in the URL also take precedence. These settings apply to the Logs visualization.
 
 - **Default data source** sets the Loki data source used when a new user opens Logs Drilldown for the first time. Individual users can override this by selecting a different data source inside the app. Only Loki data sources are supported.
 

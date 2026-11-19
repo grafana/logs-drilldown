@@ -3,11 +3,12 @@ import { getDataSourceInstanceList, getDefaultDataSourceInstanceListItem } from 
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
+import { plugin } from '../module';
 import { isEmbeddedLogs } from './extensions/embedding';
 import { escapePrimaryLabel } from './extensions/links';
 import { isDedupStrategy } from './guards';
 import { logger } from './logger';
-import { narrowLogsVisualizationType, unknownToStrings } from './narrowing';
+import { unknownToStrings } from './narrowing';
 import { getRouteParams } from './routing';
 import { SortBy } from './sorting';
 import { getDataSourceName } from './variableGetters';
@@ -392,12 +393,17 @@ export function setLogsVolumeAggregateBy(sceneRef: SceneObject, value: string | 
 export type LogsVisualizationType = 'json' | 'logs' | 'table';
 
 const VISUALIZATION_TYPE_LOCALSTORAGE_KEY = 'grafana.explore.logs.visualisationType';
-export function getLogsVisualizationType(defaultType?: LogsVisualizationType): LogsVisualizationType {
-  return (
-    narrowLogsVisualizationType(localStorage.getItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY)) ||
-    narrowLogsVisualizationType(defaultType) ||
-    'logs'
-  );
+export function getLogsVisualizationType(): LogsVisualizationType {
+  const storedType = localStorage.getItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY) ?? '';
+  switch (storedType) {
+    case 'table':
+    case 'logs':
+      return storedType;
+    case 'json':
+      return 'json';
+    default:
+      return plugin.meta.jsonData?.defaultVisualizationType ?? 'logs';
+  }
 }
 
 export function setLogsVisualizationType(type: string) {
