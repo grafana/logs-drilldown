@@ -78,6 +78,8 @@ export const USER_EVENTS_ACTIONS = {
     level_in_logs_volume_clicked: 'level_in_logs_volume_clicked',
     // Changing the logs volume group-by field. Props: field, previousField
     logs_volume_aggregate_by_changed: 'logs_volume_aggregate_by_changed',
+    // Switching the logs volume panel between volume and the max or min of a field. Props: view
+    logs_volume_view_changed: 'logs_volume_view_changed',
     // Clear all displayed fields (show original log line)
     logs_clear_displayed_fields: 'logs_clear_displayed_fields',
     // Show default (backend) columns
