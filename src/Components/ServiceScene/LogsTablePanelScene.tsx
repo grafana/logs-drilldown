@@ -37,11 +37,12 @@ import { LogOptionsScene } from './LogOptionsScene';
 import { LogsListScene } from './LogsListScene';
 import { ErrorType, LogsPanelError } from './LogsPanelError';
 import { getLogsPanelFrame, ServiceScene } from './ServiceScene';
+import { applyLogSelectionToLineFilters } from 'Components/IndexScene/LineFilter/LineFilterVariablesScene';
 import { PanelMenu } from 'Components/Panels/PanelMenu';
 import { reportAppInteraction, USER_EVENTS_ACTIONS, USER_EVENTS_PAGES } from 'services/analytics';
 import { areArraysEqual } from 'services/comparison';
 import { getVariableForLabel, isLogsIdField } from 'services/fields';
-import { FilterOp } from 'services/filterTypes';
+import { FilterOp, LineFilterCaseSensitive, LineFilterOp } from 'services/filterTypes';
 import { logger } from 'services/logger';
 import { DATAPLANE_BODY_NAME_LEGACY, DATAPLANE_LINE_NAME } from 'services/logsFrame';
 import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTable';
@@ -55,7 +56,14 @@ import {
   generateLogShortlink,
   getPermalinkLogRowFromDataFrame,
 } from 'services/text';
+import { getLineFiltersVariable } from 'services/variableGetters';
 import { clearVariables } from 'services/variableHelpers';
+
+// The published schema types predate these options, so they are declared here until the schema package includes them.
+type LogsTableOptions = Options & {
+  onClickFilterOutString?: (value: string, refId?: string) => void;
+  onClickFilterString?: (value: string, refId?: string) => void;
+};
 
 interface LogsTablePanelSceneState extends SceneObjectState {
   canClearFilters?: boolean;
@@ -138,9 +146,11 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
 
   public onActivate() {
     const parentScene = this.getParentScene();
-    const panelBuilder = new VizConfigBuilder<Options, {}>('logstable', pluginVersion, () => ({
+    const panelBuilder = new VizConfigBuilder<LogsTableOptions, {}>('logstable', pluginVersion, () => ({
       ...defaultOptions,
       buildLinkToLogLine: this.buildLinkToLogLine,
+      onClickFilterString: this.handleFilterStringClick,
+      onClickFilterOutString: this.handleFilterOutStringClick,
       showCopyLogLink: true,
       sortOrder: this.state.sortOrder,
       displayedFields: parentScene.state.displayedFields,
@@ -242,6 +252,37 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
       );
     };
   };
+  private handleFilterStringClick = (value: string) => {
+    this.applyLineFilter(value, LineFilterOp.match);
+  };
+
+  private handleFilterOutStringClick = (value: string) => {
+    this.applyLineFilter(value, LineFilterOp.negativeMatch);
+  };
+
+  private applyLineFilter(value: string, operator: LineFilterOp) {
+    const lineFiltersVar = getLineFiltersVariable(this);
+    if (!lineFiltersVar) {
+      return;
+    }
+
+    lineFiltersVar.setState({
+      filters: applyLogSelectionToLineFilters(
+        lineFiltersVar.state.filters,
+        value,
+        operator,
+        LineFilterCaseSensitive.caseSensitive
+      ),
+    });
+    reportAppInteraction(
+      USER_EVENTS_PAGES.service_details,
+      USER_EVENTS_ACTIONS.service_details.logs_popover_line_filter,
+      {
+        selectionLength: value.length,
+      }
+    );
+  }
+
   private getParentScene() {
     return sceneGraph.getAncestor(this, LogsListScene);
   }
