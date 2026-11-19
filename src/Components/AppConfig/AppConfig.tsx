@@ -15,7 +15,7 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 import { DataSourcePicker, locationService } from '@grafana/runtime';
-import { Alert, Button, Checkbox, Field, FieldSet, Input, Label, RadioButtonGroup, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Checkbox, Field, FieldSet, Input, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
@@ -309,33 +309,26 @@ const AppConfig = ({ plugin }: Props) => {
             />
           </Field>
 
-          <FieldSet
-            label={
-              <Label
-                description={t(
-                  'components.app-config.visualization.description',
-                  'Choose the initial visualization for your organization. URL settings and browser preferences take precedence.'
-                )}
-              >
-                {t('components.app-config.visualization.title', 'Default visualization settings')}
-              </Label>
-            }
+          <Field
+            label={t('components.app-config.visualization.title', 'Default visualization settings')}
+            description={t(
+              'components.app-config.visualization.description',
+              'Choose the initial visualization for your organization. URL settings and browser preferences take precedence.'
+            )}
           >
-            <Field>
-              <RadioButtonGroup<LogsVisualizationType>
-                aria-label={t('components.app-config.visualization.type', 'Default visualization')}
-                data-testid={testIds.appConfig.defaultVisualizationType}
-                options={[
-                  { label: t('components.app-config.visualization.logs', 'Logs'), value: 'logs' },
-                  { label: t('components.app-config.visualization.table', 'Table'), value: 'table' },
-                  { label: t('components.app-config.visualization.json', 'JSON'), value: 'json' },
-                ]}
-                value={state.defaultVisualizationType}
-                size="sm"
-                onChange={(defaultVisualizationType) => setState({ ...state, defaultVisualizationType })}
-              />
-            </Field>
-          </FieldSet>
+            <RadioButtonGroup<LogsVisualizationType>
+              aria-label={t('components.app-config.visualization.type', 'Default visualization')}
+              data-testid={testIds.appConfig.defaultVisualizationType}
+              options={[
+                { label: t('components.app-config.visualization.logs', 'Logs'), value: 'logs' },
+                { label: t('components.app-config.visualization.table', 'Table'), value: 'table' },
+                { label: t('components.app-config.visualization.json', 'JSON'), value: 'json' },
+              ]}
+              value={state.defaultVisualizationType}
+              size="sm"
+              onChange={(defaultVisualizationType) => setState({ ...state, defaultVisualizationType })}
+            />
+          </Field>
 
           <div className={styles.marginTop}>
             <Button
