@@ -1,23 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
+import { usePluginUserStorage } from '@grafana/runtime';
 import { Alert, useStyles2 } from '@grafana/ui';
 
-export function InterceptBanner(props: { onRemove: () => void }) {
+import { logger } from 'services/logger';
+import { testIds } from 'services/testIds';
+
+const storageKey = 'welcomeBannerDismissed';
+
+export function InterceptBanner() {
   const styles = useStyles2(getStyles);
+  const userStorage = usePluginUserStorage();
+  const [isInterceptBannerVisible, setInterceptBannerVisible] = useState(false);
+
+  useEffect(() => {
+    userStorage.getItem(storageKey).then(
+      (value) => {
+        setInterceptBannerVisible(value !== 'true');
+      },
+      (error) => {
+        logger.error(error, { msg: 'Failed to read welcome banner preference' });
+        setInterceptBannerVisible(true);
+      }
+    );
+  }, [userStorage]);
+
+  const dismiss = async () => {
+    try {
+      await userStorage.setItem(storageKey, 'true');
+      setInterceptBannerVisible(false);
+    } catch (error) {
+      logger.error(error, { msg: 'Failed to save welcome banner preference' });
+    }
+  };
+
+  if (!isInterceptBannerVisible) {
+    return null;
+  }
+
   return (
     <div className={styles.bannerContainer}>
       <Alert
+        data-testid={testIds.index.welcomeBanner}
         className={styles.alert}
         severity={'info'}
         title={t(
           'components.index-scene.intercept-banner.title-welcome-to-grafana-logs-drilldown',
           'Welcome to Grafana Logs Drilldown!'
         )}
-        onRemove={props.onRemove}
+        onRemove={dismiss}
       >
         <div>
           <Trans i18nKey="components.index-scene.intercept-banner.body">
