@@ -31,6 +31,7 @@ import {
 } from '@grafana/schema/dist/esm/raw/composable/logstable/panelcfg/x/LogsTablePanelCfg_types.gen';
 import { AdHocFilterItem, PanelContext, useStyles2 } from '@grafana/ui';
 
+import { plugin } from '../../module';
 import { addToFilters } from './Breakdowns/AddToFiltersButton';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LogOptionsScene } from './LogOptionsScene';
@@ -48,7 +49,7 @@ import { setTableFieldOverrides, storeTableFieldConfig } from 'services/logsTabl
 import { narrowLogsSortOrder, unknownToStrings } from 'services/narrowing';
 import { runSceneQueries } from 'services/query';
 import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
-import { getBooleanLogOption, getLogOption, setDisplayedFieldsInStorage, setLogOption } from 'services/store';
+import { getBooleanLogOption, getLogsSortOrder, setDisplayedFieldsInStorage, setLogOption } from 'services/store';
 import {
   copyText,
   generateLogRowShortlink,
@@ -75,7 +76,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
   constructor(state: Partial<LogsTablePanelSceneState>) {
     super({
       ...state,
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      sortOrder: getLogsSortOrder('table'),
       isDisabledLineState: false,
     });
 
@@ -144,7 +145,7 @@ export class LogsTablePanelScene extends SceneObjectBase<LogsTablePanelSceneStat
       showCopyLogLink: true,
       sortOrder: this.state.sortOrder,
       displayedFields: parentScene.state.displayedFields,
-      wrapText: getBooleanLogOption('wrapText', true),
+      wrapText: getBooleanLogOption('wrapText', plugin.meta.jsonData?.defaultTableWrapText ?? true),
     }));
 
     panelBuilder.setOverrides((builder: FieldConfigOverridesBuilder<FieldConfig>) => {

@@ -47,7 +47,9 @@ The **Configuration** tab contains settings for administrators to configure a co
 - **Maximum time picker interval**: cap how far back users can query, typically to match your Loki retention period or protect query performance
 - **Disable Loki patterns**: turn off the Patterns tab and API calls if your Loki instance doesn't have pattern ingestion enabled
 - **Default visualization**: choose Logs, Table, or JSON as the initial view in the logs panel
-- **Logs panel**: choose default line wrapping and columns for unwrapped fields
+- **Logs panel**: choose default line wrapping, unwrapped columns, timestamps, font size, sort order, details mode, and syntax highlighting
+- **Table panel**: choose default line wrapping and sort order
+- **JSON panel**: choose default sort order, line wrapping, and syntax highlighting
 
 ### Configure settings
 
@@ -64,7 +66,13 @@ Select a setting to configure it:
 
 - **Default visualization** sets the initial logs panel view for users without a saved browser preference or a visualization in the URL. Select **Logs**, **Table**, or **JSON**, then click **Save settings**. Users can still switch views in the panel header.
 
-- **Logs panel** sets default line wrapping to **Disabled**, **Enabled**, or **Enabled with JSON formatting**. When wrapping is disabled, **Columns for unwrapped fields** controls whether displayed fields are aligned in columns. Saved browser preferences take precedence over these defaults; wrapping and formatting in the URL also take precedence. These settings apply to the Logs visualization.
+- **Logs panel** sets default line wrapping to **Disabled**, **Enabled**, or **Enabled with JSON formatting**. When wrapping is disabled, **Columns for unwrapped fields** controls whether displayed fields are aligned in columns. You can also disable timestamps or show them with millisecond or nanosecond resolution, choose **Default** or **Small** font size, set the sort order to **Newest first** or **Oldest first**, open log details **Inline** or in a **Sidebar**, and enable or disable syntax highlighting.
+
+- **Table panel** sets default line wrapping and sort order for the Table visualization.
+
+- **JSON panel** sets default sort order, line wrapping, and syntax highlighting for the JSON visualization.
+
+Saved browser preferences take precedence over panel defaults. Sort order, visualization, wrapping, and formatting options in the URL also take precedence where supported. Changing a default doesn't overwrite browser preferences. Sort order is shared across visualizations once a user changes it; Logs and JSON also share a saved wrapping preference.
 
 - **Default data source** sets the Loki data source used when a new user opens Logs Drilldown for the first time. Individual users can override this by selecting a different data source inside the app. Only Loki data sources are supported.
 

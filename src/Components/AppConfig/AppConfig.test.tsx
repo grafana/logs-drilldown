@@ -6,10 +6,12 @@ import userEvent from '@testing-library/user-event';
 import { AppPluginMeta, GrafanaPlugin, PluginConfigPage, PluginMeta, PluginType } from '@grafana/data';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 import { locationService } from '@grafana/runtime';
+import { LogsSortOrder } from '@grafana/schema';
 
 import AppConfig, { updatePlugin, type JsonData } from './AppConfig';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { getLastUsedDataSourceFromStorage } from 'services/store';
+import { testIds } from 'services/testIds';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -151,7 +153,7 @@ describe('AppConfig', () => {
     ] as const)('saves %s line wrapping and retains the columns preference', async (label, wrap, prettify) => {
       const user = userEvent.setup();
       renderAppConfig();
-      const wrapping = screen.getByRole('radiogroup', { name: 'Line wrapping' });
+      const wrapping = screen.getByTestId(testIds.appConfig.logsPanel.wrapping);
       const columns = screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' });
       expect(within(wrapping).getByRole('radio', { name: 'Disabled' })).toBeChecked();
       expect(within(columns).getByRole('radio', { name: 'Disabled' })).toBeChecked();
@@ -191,7 +193,7 @@ describe('AppConfig', () => {
         defaultUnwrappedColumns: true,
       };
       renderAppConfig(plugin);
-      const wrapping = screen.getByRole('radiogroup', { name: 'Line wrapping' });
+      const wrapping = screen.getByTestId(testIds.appConfig.logsPanel.wrapping);
       expect(within(wrapping).getByRole('radio', { name: 'Enabled with JSON formatting' })).toBeChecked();
       await user.click(within(wrapping).getByRole('radio', { name: 'Disabled' }));
       const columns = screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' });
@@ -211,6 +213,67 @@ describe('AppConfig', () => {
           })
         )
       );
+    });
+
+    it.each([
+      [testIds.appConfig.logsPanel.timestamps, 'Disabled', { defaultShowTime: false }],
+      [
+        testIds.appConfig.logsPanel.timestamps,
+        'Nanoseconds',
+        { defaultShowTime: true, defaultTimestampResolution: 'ns' },
+      ],
+      [testIds.appConfig.logsPanel.fontSize, 'Small', { defaultFontSize: 'small' }],
+      [testIds.appConfig.logsPanel.sortOrder, 'Oldest first', { defaultSortOrder: LogsSortOrder.Ascending }],
+      [testIds.appConfig.logsPanel.detailsMode, 'Sidebar', { defaultDetailsMode: 'sidebar' }],
+      [testIds.appConfig.logsPanel.syntaxHighlighting, 'Disabled', { defaultSyntaxHighlighting: false }],
+      [testIds.appConfig.tablePanel.wrapping, 'Disabled', { defaultTableWrapText: false }],
+      [testIds.appConfig.tablePanel.sortOrder, 'Oldest first', { defaultTableSortOrder: LogsSortOrder.Ascending }],
+      [testIds.appConfig.jsonPanel.sortOrder, 'Oldest first', { defaultJSONSortOrder: LogsSortOrder.Ascending }],
+      [testIds.appConfig.jsonPanel.wrapping, 'Disabled', { defaultJSONWrapLogMessage: false }],
+      [testIds.appConfig.jsonPanel.syntaxHighlighting, 'Enabled', { defaultJSONSyntaxHighlighting: true }],
+    ] as const)('saves %s as %s', async (testId, label, expected) => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      await user.click(within(screen.getByTestId(testId)).getByRole('radio', { name: label }));
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({ jsonData: expect.objectContaining(expected) })
+        )
+      );
+    });
+
+    it('loads all panel defaults from jsonData', () => {
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = {
+        defaultShowTime: false,
+        defaultTimestampResolution: 'ns',
+        defaultFontSize: 'small',
+        defaultSortOrder: LogsSortOrder.Ascending,
+        defaultDetailsMode: 'sidebar',
+        defaultSyntaxHighlighting: false,
+        defaultTableWrapText: false,
+        defaultTableSortOrder: LogsSortOrder.Ascending,
+        defaultJSONSortOrder: LogsSortOrder.Ascending,
+        defaultJSONWrapLogMessage: false,
+        defaultJSONSyntaxHighlighting: true,
+      };
+      renderAppConfig(plugin);
+      for (const [testId, label] of [
+        [testIds.appConfig.logsPanel.timestamps, 'Disabled'],
+        [testIds.appConfig.logsPanel.fontSize, 'Small'],
+        [testIds.appConfig.logsPanel.sortOrder, 'Oldest first'],
+        [testIds.appConfig.logsPanel.detailsMode, 'Sidebar'],
+        [testIds.appConfig.logsPanel.syntaxHighlighting, 'Disabled'],
+        [testIds.appConfig.tablePanel.wrapping, 'Disabled'],
+        [testIds.appConfig.tablePanel.sortOrder, 'Oldest first'],
+        [testIds.appConfig.jsonPanel.sortOrder, 'Oldest first'],
+        [testIds.appConfig.jsonPanel.wrapping, 'Disabled'],
+        [testIds.appConfig.jsonPanel.syntaxHighlighting, 'Enabled'],
+      ]) {
+        expect(within(screen.getByTestId(testId)).getByRole('radio', { name: label })).toBeChecked();
+      }
     });
 
     it('renders maximum time picker interval input', () => {

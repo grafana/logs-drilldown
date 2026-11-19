@@ -11,6 +11,20 @@ export const testIds = {
     logsPanel: {
       wrapping: 'data-testid ac-logs-panel-wrapping',
       columns: 'data-testid ac-logs-panel-columns',
+      timestamps: 'data-testid ac-logs-panel-timestamps',
+      fontSize: 'data-testid ac-logs-panel-font-size',
+      sortOrder: 'data-testid ac-logs-panel-sort-order',
+      detailsMode: 'data-testid ac-logs-panel-details-mode',
+      syntaxHighlighting: 'data-testid ac-logs-panel-syntax-highlighting',
+    },
+    tablePanel: {
+      wrapping: 'data-testid ac-table-panel-wrapping',
+      sortOrder: 'data-testid ac-table-panel-sort-order',
+    },
+    jsonPanel: {
+      sortOrder: 'data-testid ac-json-panel-sort-order',
+      wrapping: 'data-testid ac-json-panel-wrapping',
+      syntaxHighlighting: 'data-testid ac-json-panel-syntax-highlighting',
     },
     submit: 'data-testid ac-submit-form',
     defaultColumns: {

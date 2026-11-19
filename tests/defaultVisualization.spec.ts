@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import { expect, test } from '@grafana/plugin-e2e';
+import { LogsSortOrder } from '@grafana/schema';
 
 import type { JsonData } from '../src/Components/AppConfig/AppConfig';
 import type { LogsVisualizationType } from '../src/services/store';
@@ -133,5 +134,129 @@ test.describe('Default visualization', () => {
     await expect(
       page.getByTestId(testIds.logsPanelHeader.visualizationType).getByRole('radio', { name: 'Logs', exact: true })
     ).toBeChecked();
+  });
+
+  test('applies saved Logs timestamps, font, sort, details mode, and highlighting after clearing localStorage', async ({
+    page,
+  }) => {
+    const saved = await configureDefault(page);
+    await page.goto(`/plugins/${pluginId}/?page=configuration`);
+    for (const [id, name] of [
+      [testIds.appConfig.logsPanel.wrapping, 'Disabled'],
+      [testIds.appConfig.logsPanel.timestamps, 'Nanoseconds'],
+      [testIds.appConfig.logsPanel.fontSize, 'Small'],
+      [testIds.appConfig.logsPanel.sortOrder, 'Oldest first'],
+      [testIds.appConfig.logsPanel.detailsMode, 'Sidebar'],
+      [testIds.appConfig.logsPanel.syntaxHighlighting, 'Disabled'],
+    ]) {
+      await page.getByTestId(id).getByRole('radio', { name, exact: true }).check();
+    }
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().endsWith(`/api/plugins/${pluginId}/settings`) && r.request().method() === 'POST'
+      ),
+      page.getByTestId(testIds.appConfig.submit).click(),
+    ]);
+    await expect(
+      page.getByTestId(testIds.appConfig.logsPanel.fontSize).getByRole('radio', { name: 'Small', exact: true })
+    ).toBeChecked();
+    expect(saved()).toMatchObject({
+      defaultShowTime: true,
+      defaultTimestampResolution: 'ns',
+      defaultFontSize: 'small',
+      defaultSortOrder: LogsSortOrder.Ascending,
+      defaultDetailsMode: 'sidebar',
+      defaultSyntaxHighlighting: false,
+    });
+    await page.evaluate(() => localStorage.clear());
+    await openLogs(page, 'logs');
+    await expect(page.getByRole('button', { name: 'Log timestamps', exact: true })).toHaveText('ns');
+    await expect(page.getByRole('button', { name: 'Set large font', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    await expect(
+      page.getByRole('button', { name: 'Sorted by oldest logs first - Click to show newest first', exact: true })
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Enable highlighting', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    await page.locator('.unwrapped-log-line').first().click();
+    await expect(page.getByRole('button', { name: 'Display inline', exact: true })).toBeVisible();
+  });
+
+  test('applies saved Table wrapping and sort order after clearing localStorage', async ({ page }) => {
+    const saved = await configureDefault(page);
+    await page.goto(`/plugins/${pluginId}/?page=configuration`);
+    await page
+      .getByTestId(testIds.appConfig.tablePanel.wrapping)
+      .getByRole('radio', { name: 'Disabled', exact: true })
+      .check();
+    await page
+      .getByTestId(testIds.appConfig.tablePanel.sortOrder)
+      .getByRole('radio', { name: 'Oldest first', exact: true })
+      .check();
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().endsWith(`/api/plugins/${pluginId}/settings`) && r.request().method() === 'POST'
+      ),
+      page.getByTestId(testIds.appConfig.submit).click(),
+    ]);
+    await expect(
+      page.getByTestId(testIds.appConfig.tablePanel.wrapping).getByRole('radio', { name: 'Disabled', exact: true })
+    ).toBeChecked();
+    expect(saved()).toMatchObject({ defaultTableWrapText: false, defaultTableSortOrder: LogsSortOrder.Ascending });
+    await page.evaluate(() => localStorage.clear());
+    await openLogs(page, 'table');
+    await expect(page.getByRole('button', { name: 'Enable text wrapping', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    await expect(
+      page.getByRole('button', { name: 'Sorted by oldest logs first - Click to show newest first', exact: true })
+    ).toBeVisible();
+  });
+
+  test('applies saved JSON sort order, wrapping, and highlighting after clearing localStorage', async ({ page }) => {
+    const saved = await configureDefault(page);
+    await page.goto(`/plugins/${pluginId}/?page=configuration`);
+    await page
+      .getByTestId(testIds.appConfig.jsonPanel.sortOrder)
+      .getByRole('radio', { name: 'Oldest first', exact: true })
+      .check();
+    await page
+      .getByTestId(testIds.appConfig.jsonPanel.wrapping)
+      .getByRole('radio', { name: 'Disabled', exact: true })
+      .check();
+    await page
+      .getByTestId(testIds.appConfig.jsonPanel.syntaxHighlighting)
+      .getByRole('radio', { name: 'Enabled', exact: true })
+      .check();
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().endsWith(`/api/plugins/${pluginId}/settings`) && r.request().method() === 'POST'
+      ),
+      page.getByTestId(testIds.appConfig.submit).click(),
+    ]);
+    await expect(
+      page.getByTestId(testIds.appConfig.jsonPanel.wrapping).getByRole('radio', { name: 'Disabled', exact: true })
+    ).toBeChecked();
+    expect(saved()).toMatchObject({
+      defaultJSONSortOrder: LogsSortOrder.Ascending,
+      defaultJSONWrapLogMessage: false,
+      defaultJSONSyntaxHighlighting: true,
+    });
+    await page.evaluate(() => localStorage.clear());
+    await openLogs(page, 'json');
+    await expect(page.getByRole('button', { name: 'Set newest logs first', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Wrap lines', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    await expect(page.getByRole('button', { name: 'Disable highlighting', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
   });
 });

@@ -42,6 +42,7 @@ import {
   getBooleanLogOption,
   getDedupStrategy,
   getLogOption,
+  getLogsSortOrder,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
   setDisplayedFieldsInStorage,
@@ -75,7 +76,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
         'prettifyLogMessage',
         plugin.meta.jsonData?.defaultPrettifyLogMessage ?? false
       ),
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      sortOrder: getLogsSortOrder('logs'),
       wrapLogMessage: getBooleanLogOption('wrapLogMessage', plugin.meta.jsonData?.defaultWrapLogMessage ?? false),
       series: [],
       ...state,
@@ -352,6 +353,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
       .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
+      .setOption('fontSize', getLogOption('fontSize', plugin.meta.jsonData?.defaultFontSize ?? 'default'))
+      .setOption('detailsMode', getLogOption('detailsMode', plugin.meta.jsonData?.defaultDetailsMode ?? 'inline'))
+      .setOption(
+        'syntaxHighlighting',
+        getBooleanLogOption('syntaxHighlighting', plugin.meta.jsonData?.defaultSyntaxHighlighting ?? true)
+      )
       .setOption(
         'unwrappedColumns',
         getBooleanLogOption('unwrappedColumns', plugin.meta.jsonData?.defaultUnwrappedColumns ?? false)
@@ -362,8 +369,11 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       panel.setOption('showTime', true);
     } else {
       panel
-        .setOption('showTime', getBooleanLogOption('showTime', true))
-        .setOption('timestampResolution', getLogOption('timestampResolution', 'ms'))
+        .setOption('showTime', getBooleanLogOption('showTime', plugin.meta.jsonData?.defaultShowTime ?? true))
+        .setOption(
+          'timestampResolution',
+          getLogOption('timestampResolution', plugin.meta.jsonData?.defaultTimestampResolution ?? 'ms')
+        )
         .setOption('showControls', true)
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)

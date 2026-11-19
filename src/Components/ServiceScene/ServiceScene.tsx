@@ -75,7 +75,7 @@ import { getPatternsCount } from 'services/patterns';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from 'services/routing';
 import { findObjectOfType } from 'services/scenes';
-import { getLogOption, getMaxLines } from 'services/store';
+import { getLogsSortOrder, getLogsVisualizationType, getMaxLines } from 'services/store';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -1101,8 +1101,7 @@ function getLogsQueryQueryRunner(sceneRef: SceneObject) {
   const query = {
     ...buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID }),
     get direction() {
-      const sortOrder =
-        getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
+      const sortOrder = getLogsPanelSortOrderFromURL() || getLogsSortOrder(getLogsVisualizationType());
       return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
     },
     get maxLines() {
