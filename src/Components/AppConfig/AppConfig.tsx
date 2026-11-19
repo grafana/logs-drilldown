@@ -321,7 +321,7 @@ const AppConfig = ({ plugin }: Props) => {
               </Label>
             }
           >
-            <Field label={t('components.app-config.visualization.type', 'Default visualization')}>
+            <Field>
               <RadioButtonGroup<LogsVisualizationType>
                 aria-label={t('components.app-config.visualization.type', 'Default visualization')}
                 data-testid={testIds.appConfig.defaultVisualizationType}
