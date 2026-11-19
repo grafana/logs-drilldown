@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.3.0](https://github.com/grafana/logs-drilldown/compare/v3.2.0...v3.3.0) (2026-11-19)
+
+
+### 🎉 Features
+
+* **alert:** add go queryless for Loki alert rules ([#2161](https://github.com/grafana/logs-drilldown/issues/2161)) ([559e3e1](https://github.com/grafana/logs-drilldown/commit/559e3e17d6c862f25e9b2635ab4a28c499b7b0e2))
+* **LogsTable:** add popover menu support ([#2194](https://github.com/grafana/logs-drilldown/issues/2194)) ([8761fdf](https://github.com/grafana/logs-drilldown/commit/8761fdf8126b0ddd1314388f5ce81137ecb5b0f2))
+
+
+### 🐛 Bug Fixes
+
+* fit labels and fields layouts on small screens ([#2191](https://github.com/grafana/logs-drilldown/issues/2191)) ([8cfd41a](https://github.com/grafana/logs-drilldown/commit/8cfd41a6b34b7708e793bd2b473cfea638fe0793))
+
+
+### 📝 Documentation
+
+* Update troubleshooting drilldown ([#2189](https://github.com/grafana/logs-drilldown/issues/2189)) ([d95a214](https://github.com/grafana/logs-drilldown/commit/d95a2144890d8b0537f365a7ed49bcc8d6a326e8))
+
 ## [3.2.0](https://github.com/grafana/logs-drilldown/compare/v3.1.0...v3.2.0) (2026-11-10)
 
 
