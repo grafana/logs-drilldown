@@ -29,6 +29,7 @@ import {
   useStyles2,
 } from '@grafana/ui';
 
+import { LogsVolumeViewSwitch } from './LogsVolumeViewSwitch';
 import { LevelsVariableScene } from 'Components/IndexScene/LevelsVariableScene';
 import { getPanelWrapperStyles, PanelMenu } from 'Components/Panels/PanelMenu';
 import { AddFilterEvent } from 'Components/ServiceScene/Breakdowns/AddToFiltersButton';
@@ -335,6 +336,7 @@ export class LogsVolumePanel extends SceneObjectBase<LogsVolumePanelState> {
       .setHeaderActions(
         new LogsVolumeActions({
           aggregateBy: this.state.aggregateBy,
+          viewSwitch: new LogsVolumeViewSwitch({ view: 'volume' }),
           onAggregateByChange: (field) => this.setAggregateBy(field),
         })
       )

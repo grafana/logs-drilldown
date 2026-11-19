@@ -8,6 +8,7 @@ import { usePluginComponent } from '@grafana/runtime';
 import { SceneComponentProps, sceneGraph, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Combobox, ComboboxOption, InlineField, Stack, useStyles2 } from '@grafana/ui';
 
+import type { LogsVolumeViewSwitch } from 'Components/ServiceScene/LogsVolume/LogsVolumeViewSwitch';
 import { getDetectedFieldsFrame, ServiceScene } from 'Components/ServiceScene/ServiceScene';
 import {
   extractFieldTypeFromString,
@@ -29,6 +30,7 @@ interface LogsVolumeActionsState extends SceneObjectState {
   aggregateBy: string;
   onAggregateByChange: (field: string) => void;
   options: Array<ComboboxOption<string>>;
+  viewSwitch?: LogsVolumeViewSwitch;
 }
 
 export class LogsVolumeActions extends SceneObjectBase<LogsVolumeActionsState> {
@@ -83,7 +85,7 @@ type TemporaryExemptionsProps = {
 };
 
 function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
-  const { aggregateBy, options } = model.useState();
+  const { aggregateBy, options, viewSwitch } = model.useState();
   const styles = useStyles2(getStyles);
   const { component: TemporaryExemptionsButton, isLoading } = usePluginComponent<TemporaryExemptionsProps>(
     'grafana-adaptivelogs-app/temporary-exemptions/v1'
@@ -126,6 +128,7 @@ function Component({ model }: SceneComponentProps<LogsVolumeActions>) {
           contextHints={['explorelogs', 'logvolumepanel', 'headeraction']}
         />
       )}
+      {viewSwitch && !logsVolumeCollapsed && <viewSwitch.Component model={viewSwitch} />}
     </Stack>
   );
 }

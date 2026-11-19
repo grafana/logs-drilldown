@@ -30,8 +30,12 @@ export type LogsQueryOptions = {
   labelExpressionToAdd?: string;
   parser?: ParserType;
   queryType?: TimeSeriesQueryType;
+  // Unwrapped range aggregation to use for numeric fields, defaults to avg
+  rangeAggregation?: UnwrapRangeAggregation;
   structuredMetadataToAdd?: string;
 };
+
+export type UnwrapRangeAggregation = 'avg' | 'max' | 'min';
 
 export const VAR_LABELS = 'filters';
 export const VAR_LABELS_EXPR = '${filters}';
