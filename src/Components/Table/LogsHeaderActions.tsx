@@ -8,6 +8,7 @@ import { RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { LineLimitScene } from 'Components/ServiceScene/LineLimitScene';
 import { LogsVisualizationType } from 'services/store';
+import { testIds } from 'services/testIds';
 
 export interface LogsPanelHeaderActionsProps {
   lineLimitScene: LineLimitScene;
@@ -24,6 +25,7 @@ export function LogsPanelHeaderActions({ lineLimitScene, onChange, vizType }: Lo
   return (
     <div className={styles.toolbar}>
       <RadioButtonGroup
+        data-testid={testIds.logsPanelHeader.visualizationType}
         options={[
           {
             description: t(

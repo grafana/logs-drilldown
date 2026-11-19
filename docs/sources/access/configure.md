@@ -46,6 +46,7 @@ The **Configuration** tab has four settings, all aimed at an administrator setti
 - **Default time range**: override the built-in 15-minute default with a range that matches your team's workflows
 - **Maximum time picker interval**: cap how far back users can query, typically to match your Loki retention period or protect query performance
 - **Disable Loki patterns**: turn off the Patterns tab and API calls if your Loki instance doesn't have pattern ingestion enabled
+- **Default visualization**: choose Logs, Table, or JSON as the initial view in the logs panel
 
 ### Configure settings
 
@@ -59,6 +60,8 @@ Active users must reload the app for configuration changes to take effect.
 {{< /admonition >}}
 
 Select a setting to configure it:
+
+- **Default visualization** sets the initial logs panel view for users without a saved browser preference or a visualization in the URL. Select **Logs**, **Table**, or **JSON**, then click **Save settings**. Users can still switch views in the panel header.
 
 - **Default data source** sets the Loki data source used when a new user opens Logs Drilldown for the first time. Individual users can override this by selecting a different data source inside the app. Only Loki data sources are supported.
 

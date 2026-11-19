@@ -19,6 +19,7 @@ import {
 } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
+import { plugin } from '../../module';
 import { ActionBarScene } from './ActionBarScene';
 import { JSONLogsScene } from './JSONLogsScene';
 import { ErrorType } from './LogsPanelError';
@@ -97,7 +98,7 @@ export class LogsListScene extends SceneObjectBase<LogsListSceneState> {
       headerHeight: 48,
       userDisplayedFields: false,
       otelDisplayedFields: [],
-      visualizationType: getLogsVisualizationType(),
+      visualizationType: getLogsVisualizationType(plugin.meta.jsonData?.defaultVisualizationType),
       // @todo true when over 1200? getDefaultControlsExpandedMode(containerElement ?? null)
       controlsExpanded: getBooleanLogOption('controlsExpanded', false),
     });

@@ -126,6 +126,14 @@
           "landing-requires-feature-flag": "Landing Page settings requires <1>kubernetesLogsDrilldown</1> feature flag to be enabled.",
           "landing-settings-requires-grafana-greater": "Landing Page settings requires Grafana 13.0 or greater."
         }
+      },
+      "visualization": {
+        "description": "Choose the initial visualization for your organization. URL settings and browser preferences take precedence.",
+        "json": "JSON",
+        "logs": "Logs",
+        "table": "Table",
+        "title": "Default visualization settings",
+        "type": "Default visualization"
       }
     },
     "buttons": {

@@ -15,18 +15,21 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 import { DataSourcePicker, locationService } from '@grafana/runtime';
-import { Alert, Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Checkbox, Field, FieldSet, Input, Label, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { logger } from 'services/logger';
-import { getLastUsedDataSourceFromStorage } from 'services/store';
+import { narrowLogsVisualizationType } from 'services/narrowing';
+import { getLastUsedDataSourceFromStorage, type LogsVisualizationType } from 'services/store';
+import { testIds } from 'services/testIds';
 import { isValidTimeRange } from 'services/utils';
 
 export type JsonData = {
   dataSource?: string;
   /** When set, used as the initial time range when opening the app (if URL has no from/to). */
   defaultTimeRange?: { from: string; to: string };
+  defaultVisualizationType?: LogsVisualizationType;
   interval?: string;
   patternsDisabled?: boolean;
 };
@@ -36,6 +39,7 @@ type State = {
   defaultTimeRangeEnabled: boolean;
   defaultTimeRangeFrom: string;
   defaultTimeRangeTo: string;
+  defaultVisualizationType: LogsVisualizationType;
   interval: string;
   isValid: boolean;
   patternsDisabled: boolean;
@@ -85,6 +89,7 @@ const AppConfig = ({ plugin }: Props) => {
     defaultTimeRangeEnabled: hasDefaultTimeRange,
     defaultTimeRangeFrom: jsonData?.defaultTimeRange?.from ?? 'now-15m',
     defaultTimeRangeTo: jsonData?.defaultTimeRange?.to ?? 'now',
+    defaultVisualizationType: narrowLogsVisualizationType(jsonData?.defaultVisualizationType) || 'logs',
   });
   const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(jsonData?.dataSource);
   const isResolvingDefault = isLoading && !state.dataSource;
@@ -304,6 +309,34 @@ const AppConfig = ({ plugin }: Props) => {
             />
           </Field>
 
+          <FieldSet
+            label={
+              <Label
+                description={t(
+                  'components.app-config.visualization.description',
+                  'Choose the initial visualization for your organization. URL settings and browser preferences take precedence.'
+                )}
+              >
+                {t('components.app-config.visualization.title', 'Default visualization settings')}
+              </Label>
+            }
+          >
+            <Field label={t('components.app-config.visualization.type', 'Default visualization')}>
+              <RadioButtonGroup<LogsVisualizationType>
+                aria-label={t('components.app-config.visualization.type', 'Default visualization')}
+                data-testid={testIds.appConfig.defaultVisualizationType}
+                options={[
+                  { label: t('components.app-config.visualization.logs', 'Logs'), value: 'logs' },
+                  { label: t('components.app-config.visualization.table', 'Table'), value: 'table' },
+                  { label: t('components.app-config.visualization.json', 'JSON'), value: 'json' },
+                ]}
+                value={state.defaultVisualizationType}
+                size="sm"
+                onChange={(defaultVisualizationType) => setState({ ...state, defaultVisualizationType })}
+              />
+            </Field>
+          </FieldSet>
+
           <div className={styles.marginTop}>
             <Button
               type="submit"
@@ -312,6 +345,7 @@ const AppConfig = ({ plugin }: Props) => {
                 updatePluginAndReload(plugin.meta.id, {
                   enabled,
                   jsonData: {
+                    defaultVisualizationType: state.defaultVisualizationType,
                     dataSource: state.dataSource,
                     interval: state.interval,
                     patternsDisabled: state.patternsDisabled,
@@ -379,19 +413,6 @@ const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<
   } catch (e) {
     logger.error(e, { msg: 'Error while updating the plugin' });
   }
-};
-
-const testIds = {
-  appConfig: {
-    container: 'data-testid ac-container',
-    datasource: 'data-testid ac-datasource-input',
-    interval: 'data-testid ac-interval-input',
-    pattern: 'data-testid ac-patterns-disabled',
-    submit: 'data-testid ac-submit-form',
-    defaultTimeRangeEnabled: 'data-testid ac-default-time-range-enabled',
-    defaultTimeRangeFrom: 'data-testid ac-default-time-range-from',
-    defaultTimeRangeTo: 'data-testid ac-default-time-range-to',
-  },
 };
 
 export const updatePlugin = async (pluginId: string, data: Partial<PluginMeta>) => {

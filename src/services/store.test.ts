@@ -3,7 +3,7 @@ import { getDataSourceInstanceList } from '@grafana/plugin-compat/datasources';
 import { SceneObject } from '@grafana/scenes';
 
 import { isEmbeddedLogs } from './extensions/embedding';
-import { getDefaultDatasourceUid, getExpandedLogsView } from './store';
+import { getDefaultDatasourceUid, getExpandedLogsView, getLogsVisualizationType } from './store';
 import pluginJson from 'plugin.json';
 
 jest.mock('@grafana/plugin-compat/datasources', () => ({
@@ -29,6 +29,32 @@ function makeDs(overrides: Partial<DataSourceInstanceListItem> & { isDefault?: b
     ...overrides,
   } as DataSourceInstanceListItem;
 }
+
+describe('getLogsVisualizationType', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('uses Logs when neither an administrator default nor a browser preference exists', () => {
+    expect(getLogsVisualizationType()).toBe('logs');
+  });
+
+  it.each(['logs', 'table', 'json'] as const)(
+    'uses the administrator default %s without saving a preference',
+    (type) => {
+      expect(getLogsVisualizationType(type)).toBe(type);
+      expect(localStorage.length).toBe(0);
+    }
+  );
+
+  it('prefers an existing browser choice over the administrator default', () => {
+    localStorage.setItem('grafana.explore.logs.visualisationType', 'logs');
+    expect(getLogsVisualizationType('json')).toBe('logs');
+  });
+
+  it('ignores invalid browser choices', () => {
+    localStorage.setItem('grafana.explore.logs.visualisationType', 'invalid');
+    expect(getLogsVisualizationType('table')).toBe('table');
+  });
+});
 
 describe('getDefaultDatasourceUid', () => {
   beforeEach(() => {

@@ -3,6 +3,11 @@ export const testIds = {
     apiKey: 'data-testid ac-api-key',
     apiUrl: 'data-testid ac-api-url',
     container: 'data-testid ac-container',
+    defaultTimeRangeEnabled: 'data-testid ac-default-time-range-enabled',
+    defaultTimeRangeFrom: 'data-testid ac-default-time-range-from',
+    defaultTimeRangeTo: 'data-testid ac-default-time-range-to',
+    defaultVisualizationType: 'data-testid ac-default-visualization-type',
+    interval: 'data-testid ac-interval-input',
     submit: 'data-testid ac-submit-form',
     defaultColumns: {
       labels: {
@@ -80,6 +85,7 @@ export const testIds = {
   logsPanelHeader: {
     header: 'data-testid Panel header Logs',
     radio: 'data-testid radio-button',
+    visualizationType: 'data-testid logs-visualization-type',
   },
   logsQueryFooter: {
     details: 'data-testid logs-query-footer-details',

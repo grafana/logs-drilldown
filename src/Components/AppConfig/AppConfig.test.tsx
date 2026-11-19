@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { AppPluginMeta, GrafanaPlugin, PluginConfigPage, PluginMeta, PluginType } from '@grafana/data';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
@@ -108,6 +109,35 @@ describe('AppConfig', () => {
   });
 
   describe('render', () => {
+    it('starts with Logs when no default visualization is configured', () => {
+      renderAppConfig();
+      const group = screen.getByRole('radiogroup', { name: 'Default visualization' });
+      expect(within(group).getByRole('radio', { name: 'Logs' })).toBeChecked();
+    });
+
+    it('saves the selected default visualization alongside existing settings', async () => {
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = { interval: '24h', patternsDisabled: true, defaultVisualizationType: 'table' };
+      const user = userEvent.setup();
+      renderAppConfig(plugin);
+      const group = screen.getByRole('radiogroup', { name: 'Default visualization' });
+      expect(within(group).getByRole('radio', { name: 'Table' })).toBeChecked();
+      await user.click(within(group).getByRole('radio', { name: 'JSON' }));
+      await user.click(screen.getByRole('button', { name: 'Save settings' }));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: expect.objectContaining({
+              defaultVisualizationType: 'json',
+              interval: '24h',
+              patternsDisabled: true,
+            }),
+          })
+        )
+      );
+    });
+
     it('renders settings section with default data source field', () => {
       renderAppConfig();
       expect(screen.getByText('Settings')).toBeInTheDocument();
