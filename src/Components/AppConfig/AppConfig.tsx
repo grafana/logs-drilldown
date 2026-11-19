@@ -20,7 +20,6 @@ import { Alert, Button, Checkbox, Field, FieldSet, Input, RadioButtonGroup, useS
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { logger } from 'services/logger';
-import { narrowLogsVisualizationType } from 'services/narrowing';
 import { getLastUsedDataSourceFromStorage, type LogsVisualizationType } from 'services/store';
 import { testIds } from 'services/testIds';
 import { isValidTimeRange } from 'services/utils';
@@ -89,7 +88,7 @@ const AppConfig = ({ plugin }: Props) => {
     defaultTimeRangeEnabled: hasDefaultTimeRange,
     defaultTimeRangeFrom: jsonData?.defaultTimeRange?.from ?? 'now-15m',
     defaultTimeRangeTo: jsonData?.defaultTimeRange?.to ?? 'now',
-    defaultVisualizationType: narrowLogsVisualizationType(jsonData?.defaultVisualizationType) || 'logs',
+    defaultVisualizationType: jsonData?.defaultVisualizationType ?? 'logs',
   });
   const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(jsonData?.dataSource);
   const isResolvingDefault = isLoading && !state.dataSource;
