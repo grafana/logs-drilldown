@@ -11,8 +11,12 @@ import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 
 const pluginId = 'grafana-lokiexplore-app';
 
-async function configureDefault(page: Page, preference?: LogsVisualizationType) {
-  let jsonData: JsonData = { defaultVisualizationType: 'table' };
+async function configureDefault(
+  page: Page,
+  preference?: LogsVisualizationType,
+  initialJsonData: JsonData = { defaultVisualizationType: 'table' }
+) {
+  let jsonData: JsonData = initialJsonData;
   await page.route(`**/api/plugins/${pluginId}/settings`, async (route) => {
     if (route.request().method() === 'POST') {
       jsonData = route.request().postDataJSON().jsonData;
@@ -135,6 +139,46 @@ test.describe('Default visualization', () => {
       page.getByTestId(testIds.logsPanelHeader.visualizationType).getByRole('radio', { name: 'Logs', exact: true })
     ).toBeChecked();
   });
+
+  test('applies the configured sort order to the legacy Table and its Loki query', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('grafana.openfeature.logsTablePanelNG', 'false'));
+    await configureDefault(page, undefined, {
+      defaultTableSortOrder: LogsSortOrder.Ascending,
+      defaultSortOrder: LogsSortOrder.Descending,
+    });
+    const directions: string[] = [];
+    page.on('request', (request) => {
+      if (request.url().includes('/api/ds/query') && request.method() === 'POST') {
+        const queries = request.postDataJSON()?.queries;
+        for (const query of queries ?? []) {
+          if (query.refId === 'logsPanelQuery') {
+            directions.push(query.direction);
+          }
+        }
+      }
+    });
+    await openLogs(page, 'table');
+    await expect(page.getByRole('button', { name: 'Set newest logs first', exact: true })).toBeVisible();
+    await expect.poll(() => directions.length).toBeGreaterThan(0);
+    expect(directions.every((direction) => direction === 'forward')).toBe(true);
+  });
+
+  for (const [width, modeButton] of [
+    [2560, 'Display inline'],
+    [1280, 'Anchor to the right'],
+  ] as const) {
+    test(`keeps responsive details mode at width ${width} when no default is configured`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 1100 });
+      await configureDefault(page, undefined, {
+        defaultDetailsMode: undefined,
+        defaultWrapLogMessage: false,
+      });
+      await page.addInitScript(() => localStorage.removeItem('grafana.explore.logs.detailsMode'));
+      await openLogs(page, 'logs');
+      await page.locator('[data-log-index]').first().locator('> div').click();
+      await expect(page.getByRole('button', { name: modeButton, exact: true })).toBeVisible();
+    });
+  }
 
   test('applies saved Logs timestamps, font, sort, details mode, and highlighting after clearing localStorage', async ({
     page,

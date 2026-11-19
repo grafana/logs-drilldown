@@ -354,7 +354,7 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
       .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
       .setOption('fontSize', getLogOption('fontSize', plugin.meta.jsonData?.defaultFontSize ?? 'default'))
-      .setOption('detailsMode', getLogOption('detailsMode', plugin.meta.jsonData?.defaultDetailsMode ?? 'inline'))
+      .setOption('detailsMode', getLogOption('detailsMode', plugin.meta.jsonData?.defaultDetailsMode))
       .setOption(
         'syntaxHighlighting',
         getBooleanLogOption('syntaxHighlighting', plugin.meta.jsonData?.defaultSyntaxHighlighting ?? true)

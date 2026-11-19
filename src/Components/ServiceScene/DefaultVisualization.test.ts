@@ -6,6 +6,7 @@ import { JSONLogsScene } from './JSONLogsScene';
 import { LogsListScene } from './LogsListScene';
 import { LogsPanelScene } from './LogsPanelScene';
 import { LogsTablePanelScene } from './LogsTablePanelScene';
+import { LogsTableScene } from './LogsTableScene';
 
 jest.mock('../../module', () => ({ plugin: { meta: { jsonData: {} } } }));
 
@@ -92,7 +93,22 @@ describe('default visualization', () => {
     localStorage.setItem('grafana.explore.logs.sortOrder', LogsSortOrder.Descending);
     expect(new LogsPanelScene({}).state.sortOrder).toBe(LogsSortOrder.Descending);
     expect(new LogsTablePanelScene({}).state.sortOrder).toBe(LogsSortOrder.Descending);
+    expect(new LogsTableScene({}).state.sortOrder).toBe(LogsSortOrder.Descending);
     expect(new JSONLogsScene({}).state.sortOrder).toBe(LogsSortOrder.Descending);
+  });
+
+  it('applies the configured sort order to the legacy Table without saving a browser preference', () => {
+    plugin.meta.jsonData = { defaultTableSortOrder: LogsSortOrder.Ascending };
+    expect(new LogsTableScene({}).state.sortOrder).toBe(LogsSortOrder.Ascending);
+    expect(localStorage.length).toBe(0);
+  });
+
+  it('keeps the URL sort order ahead of the configured legacy Table default', () => {
+    plugin.meta.jsonData = { defaultTableSortOrder: LogsSortOrder.Ascending };
+    const panel = new LogsTableScene({});
+    expect(panel.state.sortOrder).toBe(LogsSortOrder.Ascending);
+    panel.updateFromUrl({ sortOrder: JSON.stringify(LogsSortOrder.Descending) });
+    expect(panel.state.sortOrder).toBe(LogsSortOrder.Descending);
   });
 
   it('applies JSON wrapping and highlighting defaults without saving browser preferences', () => {

@@ -38,7 +38,7 @@ import { logsControlsSupported } from 'services/panel';
 import { runSceneQueries } from 'services/query';
 import { setControlsExpandedStateFromLocalStorage } from 'services/scenes';
 import {
-  getLogOption,
+  getLogsSortOrder,
   getTableLogLine,
   setDisplayedFieldsInStorage,
   setLogOption,
@@ -68,7 +68,7 @@ export class LogsTableScene extends SceneObjectBase<LogsTableSceneState> {
       ...state,
       isDisabledLineState: false,
       lineLimitScene: state.lineLimitScene ?? new LineLimitScene({}),
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
+      sortOrder: getLogsSortOrder('table'),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
