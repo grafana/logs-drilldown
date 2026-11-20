@@ -168,8 +168,8 @@ describe('AppConfig', () => {
           'grafana-lokiexplore-app',
           expect.objectContaining({
             jsonData: expect.objectContaining({
-              defaultWrapLogMessage: wrap,
-              defaultPrettifyLogMessage: prettify,
+              ...(wrap ? { defaultWrapLogMessage: true } : {}),
+              ...(prettify ? { defaultPrettifyLogMessage: true } : {}),
               defaultUnwrappedColumns: true,
             }),
           })
@@ -217,11 +217,7 @@ describe('AppConfig', () => {
 
     it.each([
       [testIds.appConfig.logsPanel.timestamps, 'Disabled', { defaultShowTime: false }],
-      [
-        testIds.appConfig.logsPanel.timestamps,
-        'Nanoseconds',
-        { defaultShowTime: true, defaultTimestampResolution: 'ns' },
-      ],
+      [testIds.appConfig.logsPanel.timestamps, 'Nanoseconds', { defaultTimestampResolution: 'ns' }],
       [testIds.appConfig.logsPanel.fontSize, 'Small', { defaultFontSize: 'small' }],
       [testIds.appConfig.logsPanel.sortOrder, 'Oldest first', { defaultSortOrder: LogsSortOrder.Ascending }],
       [testIds.appConfig.logsPanel.detailsMode, 'Sidebar', { defaultDetailsMode: 'sidebar' }],
@@ -414,6 +410,78 @@ describe('AppConfig', () => {
   });
 
   describe('Save settings', () => {
+    it('does not create panel overrides when only the default time range changes', async () => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      await user.click(screen.getByTestId(testIds.appConfig.defaultTimeRangeEnabled));
+      fireEvent.change(screen.getByTestId(testIds.appConfig.defaultTimeRangeFrom), { target: { value: 'now-1h' } });
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: {
+              dataSource: '',
+              interval: '',
+              patternsDisabled: false,
+              defaultTimeRange: { from: 'now-1h', to: 'now' },
+            },
+          })
+        )
+      );
+    });
+
+    it('preserves existing explicit defaults, including values equal to the built-ins', async () => {
+      const user = userEvent.setup();
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = {
+        defaultDetailsMode: 'inline',
+        defaultJSONWrapLogMessage: true,
+        defaultFontSize: 'default',
+        defaultSyntaxHighlighting: false,
+      };
+      renderAppConfig(plugin);
+      fireEvent.change(getIntervalInput(), { target: { value: '24h' } });
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: {
+              ...plugin.meta.jsonData,
+              dataSource: '',
+              interval: '24h',
+              patternsDisabled: false,
+              defaultTimeRange: undefined,
+            },
+          })
+        )
+      );
+    });
+
+    it('only creates an override for the changed panel setting', async () => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      await user.click(
+        within(screen.getByTestId(testIds.appConfig.tablePanel.wrapping)).getByRole('radio', { name: 'Disabled' })
+      );
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: {
+              dataSource: '',
+              interval: '',
+              patternsDisabled: false,
+              defaultTimeRange: undefined,
+              defaultTableWrapText: false,
+            },
+          })
+        )
+      );
+    });
+
     it('keeps Save disabled until the default data source has resolved', () => {
       mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: undefined, isLoading: true });
       const plugin = createPluginMeta();

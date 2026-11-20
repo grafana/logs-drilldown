@@ -23,7 +23,7 @@ import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { logger } from 'services/logger';
 import { getLastUsedDataSourceFromStorage, type LogsVisualizationType } from 'services/store';
 import { testIds } from 'services/testIds';
-import { isValidTimeRange } from 'services/utils';
+import { getObjectKeys, isValidTimeRange } from 'services/utils';
 
 export type JsonData = {
   dataSource?: string;
@@ -109,7 +109,7 @@ const AppConfig = ({ plugin }: Props) => {
   const { enabled, jsonData, pinned } = plugin.meta;
 
   const hasDefaultTimeRange = jsonData?.defaultTimeRange != null;
-  const [state, setState] = useState<State>({
+  const initialState: State = {
     dataSource: jsonData?.dataSource ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
@@ -132,7 +132,8 @@ const AppConfig = ({ plugin }: Props) => {
     defaultJSONSortOrder: jsonData?.defaultJSONSortOrder ?? LogsSortOrder.Descending,
     defaultJSONWrapLogMessage: jsonData?.defaultJSONWrapLogMessage ?? true,
     defaultJSONSyntaxHighlighting: jsonData?.defaultJSONSyntaxHighlighting ?? false,
-  });
+  };
+  const [state, setState] = useState<State>(initialState);
   const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(jsonData?.dataSource);
   const isResolvingDefault = isLoading && !state.dataSource;
 
@@ -194,6 +195,29 @@ const AppConfig = ({ plugin }: Props) => {
     : null;
   const isDefaultTimeRangeValid =
     !state.defaultTimeRangeEnabled || (defaultTimeRangeValidation !== null && defaultTimeRangeValidation.valid);
+
+  const panelDefaults = {
+    defaultVisualizationType: state.defaultVisualizationType,
+    defaultWrapLogMessage: state.defaultWrapLogMessage,
+    defaultPrettifyLogMessage: state.defaultPrettifyLogMessage,
+    defaultUnwrappedColumns: state.defaultUnwrappedColumns,
+    defaultShowTime: state.defaultShowTime,
+    defaultTimestampResolution: state.defaultTimestampResolution,
+    defaultFontSize: state.defaultFontSize,
+    defaultSortOrder: state.defaultSortOrder,
+    defaultDetailsMode: state.defaultDetailsMode,
+    defaultSyntaxHighlighting: state.defaultSyntaxHighlighting,
+    defaultTableWrapText: state.defaultTableWrapText,
+    defaultTableSortOrder: state.defaultTableSortOrder,
+    defaultJSONSortOrder: state.defaultJSONSortOrder,
+    defaultJSONWrapLogMessage: state.defaultJSONWrapLogMessage,
+    defaultJSONSyntaxHighlighting: state.defaultJSONSyntaxHighlighting,
+  };
+  const changedPanelDefaults = Object.fromEntries(
+    getObjectKeys(panelDefaults)
+      .filter((key) => panelDefaults[key] !== initialState[key])
+      .map((key) => [key, panelDefaults[key]])
+  );
 
   return (
     <FeatureFlagContext>
@@ -620,21 +644,8 @@ const AppConfig = ({ plugin }: Props) => {
               updatePluginAndReload(plugin.meta.id, {
                 enabled,
                 jsonData: {
-                  defaultVisualizationType: state.defaultVisualizationType,
-                  defaultWrapLogMessage: state.defaultWrapLogMessage,
-                  defaultPrettifyLogMessage: state.defaultPrettifyLogMessage,
-                  defaultUnwrappedColumns: state.defaultUnwrappedColumns,
-                  defaultShowTime: state.defaultShowTime,
-                  defaultTimestampResolution: state.defaultTimestampResolution,
-                  defaultFontSize: state.defaultFontSize,
-                  defaultSortOrder: state.defaultSortOrder,
-                  defaultDetailsMode: state.defaultDetailsMode,
-                  defaultSyntaxHighlighting: state.defaultSyntaxHighlighting,
-                  defaultTableWrapText: state.defaultTableWrapText,
-                  defaultTableSortOrder: state.defaultTableSortOrder,
-                  defaultJSONSortOrder: state.defaultJSONSortOrder,
-                  defaultJSONWrapLogMessage: state.defaultJSONWrapLogMessage,
-                  defaultJSONSyntaxHighlighting: state.defaultJSONSyntaxHighlighting,
+                  ...jsonData,
+                  ...changedPanelDefaults,
                   dataSource: state.dataSource,
                   interval: state.interval,
                   patternsDisabled: state.patternsDisabled,

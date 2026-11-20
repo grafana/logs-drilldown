@@ -1,9 +1,10 @@
-import type { Page } from '@playwright/test';
+import type { Page, Request } from '@playwright/test';
 
 import { expect, test } from '@grafana/plugin-e2e';
 import { LogsSortOrder } from '@grafana/schema';
 
 import type { JsonData } from '../src/Components/AppConfig/AppConfig';
+import type { LokiQuery } from '../src/services/lokiQuery';
 import type { LogsVisualizationType } from '../src/services/store';
 import { testIds } from '../src/services/testIds';
 import { DEFAULT_STATIC_URL_SEARCH_PARAMS } from './config/constants';
@@ -11,12 +12,20 @@ import { skipUnlessLatestGrafana } from './config/grafana-versions-supported';
 
 const pluginId = 'grafana-lokiexplore-app';
 
+function getLogsQuery(request: Request): LokiQuery | undefined {
+  if (!request.url().includes('/api/ds/query') || request.method() !== 'POST') {
+    return undefined;
+  }
+  const queries: LokiQuery[] = request.postDataJSON()?.queries ?? [];
+  return queries.find((query) => query.refId === 'logsPanelQuery');
+}
+
 async function configureDefault(
   page: Page,
   preference?: LogsVisualizationType,
   initialJsonData: JsonData = { defaultVisualizationType: 'table' }
 ) {
-  let jsonData: JsonData = initialJsonData;
+  let jsonData: JsonData = { dataSource: 'gdev-loki', ...initialJsonData };
   await page.route(`**/api/plugins/${pluginId}/settings`, async (route) => {
     if (route.request().method() === 'POST') {
       jsonData = route.request().postDataJSON().jsonData;
@@ -25,7 +34,7 @@ async function configureDefault(
     }
     const response = await route.fetch();
     const settings = await response.json();
-    await route.fulfill({ response, json: { ...settings, jsonData: { ...settings.jsonData, ...jsonData } } });
+    await route.fulfill({ response, json: { ...settings, jsonData } });
   });
   await page.addInitScript((value) => {
     const key = 'grafana.explore.logs.visualisationType';
@@ -87,6 +96,96 @@ test.describe('Default visualization', () => {
     ).toBeChecked();
   });
 
+  test('does not pin panel defaults when only the time range changes', async ({ page }) => {
+    const saved = await configureDefault(page, undefined, {});
+    await page.goto(`/plugins/${pluginId}/?page=configuration`);
+    const checkbox = page.getByTestId(testIds.appConfig.defaultTimeRangeEnabled);
+    const label = page.locator('label').filter({ has: checkbox });
+    await label.click();
+    await page.getByTestId(testIds.appConfig.defaultTimeRangeFrom).fill('now-1h');
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().endsWith(`/api/plugins/${pluginId}/settings`) && r.request().method() === 'POST'
+      ),
+      page.getByTestId(testIds.appConfig.submit).click(),
+    ]);
+    await expect(page.getByTestId(testIds.appConfig.defaultTimeRangeFrom)).toHaveValue('now-1h');
+    expect(saved()).toEqual({
+      dataSource: 'gdev-loki',
+      interval: '',
+      patternsDisabled: false,
+      defaultTimeRange: { from: 'now-1h', to: 'now' },
+    });
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().endsWith(`/api/plugins/${pluginId}/settings`) && r.request().method() === 'POST'
+      ),
+      page.getByTestId(testIds.appConfig.submit).click(),
+    ]);
+    await expect(page.getByTestId(testIds.appConfig.defaultTimeRangeFrom)).toHaveValue('now-1h');
+    expect(Object.keys(saved()).filter((key) => key.startsWith('default'))).toEqual(['defaultTimeRange']);
+  });
+
+  for (const logsTablePanelNG of [true, false]) {
+    test(`refetches capped logs when switching to a different sort default (logsTablePanelNG=${logsTablePanelNG})`, async ({
+      page,
+    }) => {
+      await page.addInitScript(
+        (value) => localStorage.setItem('grafana.openfeature.logsTablePanelNG', String(value)),
+        logsTablePanelNG
+      );
+      await configureDefault(page, undefined, {
+        defaultVisualizationType: 'logs',
+        defaultSortOrder: LogsSortOrder.Descending,
+        defaultTableSortOrder: LogsSortOrder.Ascending,
+        defaultJSONSortOrder: LogsSortOrder.Descending,
+      });
+      const queries: LokiQuery[] = [];
+      page.on('request', (request) => {
+        const query = getLogsQuery(request);
+        if (query) {
+          queries.push(query);
+        }
+      });
+      const selector = page.getByTestId(testIds.logsPanelHeader.visualizationType);
+      for (const type of ['logs', 'json'] as const) {
+        await openLogs(page, type);
+        expect(queries.at(-1)).toMatchObject({ direction: 'backward', maxLines: 1000 });
+        await Promise.all([
+          page.waitForResponse((response) => getLogsQuery(response.request())?.direction === 'forward'),
+          selector.getByRole('radio', { name: 'Table', exact: true }).check(),
+        ]);
+        await expect(selector.getByRole('radio', { name: 'Table', exact: true })).toBeChecked();
+        expect(queries.at(-1)).toMatchObject({ direction: 'forward', maxLines: 1000 });
+      }
+    });
+  }
+
+  test('keeps the existing results when a saved sort preference applies to both visualizations', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('grafana.explore.logs.sortOrder', 'Descending'));
+    await configureDefault(page, undefined, {
+      defaultSortOrder: LogsSortOrder.Descending,
+      defaultTableSortOrder: LogsSortOrder.Ascending,
+    });
+    let requests = 0;
+    page.on('request', (request) => {
+      if (getLogsQuery(request)) {
+        requests++;
+      }
+    });
+    await openLogs(page, 'logs');
+    const initialRequests = requests;
+    await page
+      .getByTestId(testIds.logsPanelHeader.visualizationType)
+      .getByRole('radio', { name: 'Table', exact: true })
+      .check();
+    await expect(
+      page.getByRole('button', { name: 'Sorted by newest logs first - Click to show oldest first', exact: true })
+    ).toBeVisible();
+    await page.waitForTimeout(500);
+    expect(requests).toBe(initialRequests);
+  });
+
   for (const [label, wrap, prettify] of [
     ['Disabled', false, false],
     ['Enabled', true, false],
@@ -115,8 +214,8 @@ test.describe('Default visualization', () => {
         page.getByTestId(testIds.appConfig.submit).click(),
       ]);
       expect(saved()).toMatchObject({
-        defaultWrapLogMessage: wrap,
-        defaultPrettifyLogMessage: prettify,
+        ...(wrap ? { defaultWrapLogMessage: true } : {}),
+        ...(prettify ? { defaultPrettifyLogMessage: true } : {}),
         defaultUnwrappedColumns: true,
       });
       await openLogs(page, 'logs');
@@ -205,7 +304,6 @@ test.describe('Default visualization', () => {
       page.getByTestId(testIds.appConfig.logsPanel.fontSize).getByRole('radio', { name: 'Small', exact: true })
     ).toBeChecked();
     expect(saved()).toMatchObject({
-      defaultShowTime: true,
       defaultTimestampResolution: 'ns',
       defaultFontSize: 'small',
       defaultSortOrder: LogsSortOrder.Ascending,
