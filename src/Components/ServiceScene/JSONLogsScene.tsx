@@ -10,6 +10,7 @@ import {
   SceneObjectUrlValues,
 } from '@grafana/scenes';
 
+import { plugin } from '../../module';
 import { NoMatchingLabelsScene } from './Breakdowns/NoMatchingLabelsScene';
 import { LineLimitScene } from './LineLimitScene';
 import { LogsListScene } from './LogsListScene';
@@ -29,7 +30,7 @@ import {
   getJSONHighlightState,
   getJSONLabelsState,
   getJSONMetadataState,
-  getLogOption,
+  getLogsSortOrder,
   setLogOption,
 } from 'services/store';
 import { clearVariables } from 'services/variableHelpers';
@@ -82,8 +83,8 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       hasMetadata: getJSONMetadataState(),
       JSONFiltersSupported: null,
       lineLimitScene: state.lineLimitScene ?? new LineLimitScene({}),
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', true),
+      sortOrder: getLogsSortOrder('json'),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', plugin.meta.jsonData?.defaultJSONWrapLogMessage ?? true),
     });
 
     this.addActivationHandler(this.onActivate.bind(this));
@@ -108,8 +109,8 @@ export class JSONLogsScene extends SceneObjectBase<JSONLogsSceneState> {
       }
 
       if (typeof values.wrapLogMessage === 'string' && values.wrapLogMessage) {
-        const decodedWrapLogMessage = !!JSON.parse(values.wrapLogMessage);
-        if (decodedWrapLogMessage) {
+        const decodedWrapLogMessage = JSON.parse(values.wrapLogMessage);
+        if (typeof decodedWrapLogMessage === 'boolean') {
           state.wrapLogMessage = decodedWrapLogMessage;
         }
       }

@@ -18,6 +18,7 @@ import { LogsDedupStrategy, LogsSortOrder } from '@grafana/schema';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 import { LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 
+import { plugin } from '../../module';
 import { addToFilters, FilterType } from './Breakdowns/AddToFiltersButton';
 import { CopyLinkButton } from './CopyLinkButton';
 import { LineLimitScene } from './LineLimitScene';
@@ -41,6 +42,7 @@ import {
   getBooleanLogOption,
   getDedupStrategy,
   getLogOption,
+  getLogsSortOrder,
   LOG_OPTIONS_LOCALSTORAGE_KEY,
   setDedupStrategy,
   setDisplayedFieldsInStorage,
@@ -70,9 +72,12 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
   constructor(state: Partial<LogsPanelSceneState>) {
     super({
       dedupStrategy: LogsDedupStrategy.none,
-      prettifyLogMessage: getBooleanLogOption('prettifyLogMessage', false),
-      sortOrder: getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending),
-      wrapLogMessage: getBooleanLogOption('wrapLogMessage', false),
+      prettifyLogMessage: getBooleanLogOption(
+        'prettifyLogMessage',
+        plugin.meta.jsonData?.defaultPrettifyLogMessage ?? false
+      ),
+      sortOrder: getLogsSortOrder('logs'),
+      wrapLogMessage: getBooleanLogOption('wrapLogMessage', plugin.meta.jsonData?.defaultWrapLogMessage ?? false),
       series: [],
       ...state,
     });
@@ -348,14 +353,27 @@ export class LogsPanelScene extends SceneObjectBase<LogsPanelSceneState> {
       .setOption('sortOrder', this.state.sortOrder)
       .setOption('wrapLogMessage', this.state.wrapLogMessage)
       .setOption('prettifyLogMessage', this.state.prettifyLogMessage)
+      .setOption('fontSize', getLogOption('fontSize', plugin.meta.jsonData?.defaultFontSize ?? 'default'))
+      .setOption('detailsMode', getLogOption('detailsMode', plugin.meta.jsonData?.defaultDetailsMode))
+      .setOption(
+        'syntaxHighlighting',
+        getBooleanLogOption('syntaxHighlighting', plugin.meta.jsonData?.defaultSyntaxHighlighting ?? true)
+      )
+      .setOption(
+        'unwrappedColumns',
+        getBooleanLogOption('unwrappedColumns', plugin.meta.jsonData?.defaultUnwrappedColumns ?? false)
+      )
       .setOption('dedupStrategy', this.state.dedupStrategy);
 
     if (!logsControlsSupported()) {
       panel.setOption('showTime', true);
     } else {
       panel
-        .setOption('showTime', getBooleanLogOption('showTime', true))
-        .setOption('timestampResolution', getLogOption('timestampResolution', 'ms'))
+        .setOption('showTime', getBooleanLogOption('showTime', plugin.meta.jsonData?.defaultShowTime ?? true))
+        .setOption(
+          'timestampResolution',
+          getLogOption('timestampResolution', plugin.meta.jsonData?.defaultTimestampResolution ?? 'ms')
+        )
         .setOption('showControls', true)
         .setOption('controlsStorageKey', LOG_OPTIONS_LOCALSTORAGE_KEY)
         .setOption('onLogOptionsChange', this.handleLogOptionsChange)

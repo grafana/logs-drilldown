@@ -3,6 +3,29 @@ export const testIds = {
     apiKey: 'data-testid ac-api-key',
     apiUrl: 'data-testid ac-api-url',
     container: 'data-testid ac-container',
+    defaultTimeRangeEnabled: 'data-testid ac-default-time-range-enabled',
+    defaultTimeRangeFrom: 'data-testid ac-default-time-range-from',
+    defaultTimeRangeTo: 'data-testid ac-default-time-range-to',
+    defaultVisualizationType: 'data-testid ac-default-visualization-type',
+    interval: 'data-testid ac-interval-input',
+    logsPanel: {
+      wrapping: 'data-testid ac-logs-panel-wrapping',
+      columns: 'data-testid ac-logs-panel-columns',
+      timestamps: 'data-testid ac-logs-panel-timestamps',
+      fontSize: 'data-testid ac-logs-panel-font-size',
+      sortOrder: 'data-testid ac-logs-panel-sort-order',
+      detailsMode: 'data-testid ac-logs-panel-details-mode',
+      syntaxHighlighting: 'data-testid ac-logs-panel-syntax-highlighting',
+    },
+    tablePanel: {
+      wrapping: 'data-testid ac-table-panel-wrapping',
+      sortOrder: 'data-testid ac-table-panel-sort-order',
+    },
+    jsonPanel: {
+      sortOrder: 'data-testid ac-json-panel-sort-order',
+      wrapping: 'data-testid ac-json-panel-wrapping',
+      syntaxHighlighting: 'data-testid ac-json-panel-syntax-highlighting',
+    },
     submit: 'data-testid ac-submit-form',
     defaultColumns: {
       labels: {
@@ -65,6 +88,7 @@ export const testIds = {
   },
 
   index: {
+    welcomeBanner: 'data-testid welcome-banner',
     addNewLabelTab: 'data-testid Tab Add label tab',
     aggregatedMetricsMenu: 'data-testid aggregated-metrics-menu',
     aggregatedMetricsToggle: 'data-testid aggregated-metrics-toggle',
@@ -80,6 +104,7 @@ export const testIds = {
   logsPanelHeader: {
     header: 'data-testid Panel header Logs',
     radio: 'data-testid radio-button',
+    visualizationType: 'data-testid logs-visualization-type',
   },
   logsQueryFooter: {
     details: 'data-testid logs-query-footer-details',

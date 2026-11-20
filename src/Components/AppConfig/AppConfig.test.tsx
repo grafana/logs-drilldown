@@ -1,14 +1,17 @@
 import React, { ReactNode } from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { AppPluginMeta, GrafanaPlugin, PluginConfigPage, PluginMeta, PluginType } from '@grafana/data';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 import { locationService } from '@grafana/runtime';
+import { LogsSortOrder } from '@grafana/schema';
 
 import AppConfig, { updatePlugin, type JsonData } from './AppConfig';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { getLastUsedDataSourceFromStorage } from 'services/store';
+import { testIds } from 'services/testIds';
 
 jest.mock('Components/FeatureFlagContext', () => ({
   FeatureFlagContext: ({ children }: { children: ReactNode }) => children,
@@ -108,10 +111,165 @@ describe('AppConfig', () => {
   });
 
   describe('render', () => {
+    it('starts with Logs when no default visualization is configured', () => {
+      renderAppConfig();
+      const group = screen.getByRole('radiogroup', { name: 'Default visualization' });
+      expect(within(group).getByRole('radio', { name: 'Logs' })).toBeChecked();
+    });
+
+    it('saves the selected default visualization alongside existing settings', async () => {
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = { interval: '24h', patternsDisabled: true, defaultVisualizationType: 'table' };
+      const user = userEvent.setup();
+      renderAppConfig(plugin);
+      const group = screen.getByRole('radiogroup', { name: 'Default visualization' });
+      expect(within(group).getByRole('radio', { name: 'Table' })).toBeChecked();
+      await user.click(within(group).getByRole('radio', { name: 'JSON' }));
+      await user.click(screen.getByRole('button', { name: 'Save settings' }));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: expect.objectContaining({
+              defaultVisualizationType: 'json',
+              interval: '24h',
+              patternsDisabled: true,
+            }),
+          })
+        )
+      );
+    });
+
     it('renders settings section with default data source field', () => {
       renderAppConfig();
       expect(screen.getByText('Settings')).toBeInTheDocument();
       expect(screen.getByLabelText('Default data source')).toBeInTheDocument();
+    });
+
+    it.each([
+      ['Disabled', false, false],
+      ['Enabled', true, false],
+      ['Enabled with JSON formatting', true, true],
+    ] as const)('saves %s line wrapping and retains the columns preference', async (label, wrap, prettify) => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      const wrapping = screen.getByTestId(testIds.appConfig.logsPanel.wrapping);
+      const columns = screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' });
+      expect(within(wrapping).getByRole('radio', { name: 'Disabled' })).toBeChecked();
+      expect(within(columns).getByRole('radio', { name: 'Disabled' })).toBeChecked();
+      await user.click(within(columns).getByRole('radio', { name: 'Enabled' }));
+      await user.click(within(wrapping).getByRole('radio', { name: label }));
+      if (wrap) {
+        expect(screen.queryByRole('radiogroup', { name: 'Columns for unwrapped fields' })).not.toBeInTheDocument();
+      }
+      await user.click(screen.getByRole('button', { name: 'Save settings' }));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: expect.objectContaining({
+              ...(wrap ? { defaultWrapLogMessage: true } : {}),
+              ...(prettify ? { defaultPrettifyLogMessage: true } : {}),
+              defaultUnwrappedColumns: true,
+            }),
+          })
+        )
+      );
+      await user.click(within(wrapping).getByRole('radio', { name: 'Disabled' }));
+      expect(
+        within(screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' })).getByRole('radio', {
+          name: 'Enabled',
+        })
+      ).toBeChecked();
+    });
+
+    it('initializes Logs panel settings from jsonData and saves explicit false values', async () => {
+      const user = userEvent.setup();
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = {
+        defaultVisualizationType: 'json',
+        defaultWrapLogMessage: true,
+        defaultPrettifyLogMessage: true,
+        defaultUnwrappedColumns: true,
+      };
+      renderAppConfig(plugin);
+      const wrapping = screen.getByTestId(testIds.appConfig.logsPanel.wrapping);
+      expect(within(wrapping).getByRole('radio', { name: 'Enabled with JSON formatting' })).toBeChecked();
+      await user.click(within(wrapping).getByRole('radio', { name: 'Disabled' }));
+      const columns = screen.getByRole('radiogroup', { name: 'Columns for unwrapped fields' });
+      expect(within(columns).getByRole('radio', { name: 'Enabled' })).toBeChecked();
+      await user.click(within(columns).getByRole('radio', { name: 'Disabled' }));
+      await user.click(screen.getByRole('button', { name: 'Save settings' }));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: expect.objectContaining({
+              defaultVisualizationType: 'json',
+              defaultWrapLogMessage: false,
+              defaultPrettifyLogMessage: false,
+              defaultUnwrappedColumns: false,
+            }),
+          })
+        )
+      );
+    });
+
+    it.each([
+      [testIds.appConfig.logsPanel.timestamps, 'Disabled', { defaultShowTime: false }],
+      [testIds.appConfig.logsPanel.timestamps, 'Nanoseconds', { defaultTimestampResolution: 'ns' }],
+      [testIds.appConfig.logsPanel.fontSize, 'Small', { defaultFontSize: 'small' }],
+      [testIds.appConfig.logsPanel.sortOrder, 'Oldest first', { defaultSortOrder: LogsSortOrder.Ascending }],
+      [testIds.appConfig.logsPanel.detailsMode, 'Sidebar', { defaultDetailsMode: 'sidebar' }],
+      [testIds.appConfig.logsPanel.syntaxHighlighting, 'Disabled', { defaultSyntaxHighlighting: false }],
+      [testIds.appConfig.tablePanel.wrapping, 'Disabled', { defaultTableWrapText: false }],
+      [testIds.appConfig.tablePanel.sortOrder, 'Oldest first', { defaultTableSortOrder: LogsSortOrder.Ascending }],
+      [testIds.appConfig.jsonPanel.sortOrder, 'Oldest first', { defaultJSONSortOrder: LogsSortOrder.Ascending }],
+      [testIds.appConfig.jsonPanel.wrapping, 'Disabled', { defaultJSONWrapLogMessage: false }],
+      [testIds.appConfig.jsonPanel.syntaxHighlighting, 'Enabled', { defaultJSONSyntaxHighlighting: true }],
+    ] as const)('saves %s as %s', async (testId, label, expected) => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      await user.click(within(screen.getByTestId(testId)).getByRole('radio', { name: label }));
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({ jsonData: expect.objectContaining(expected) })
+        )
+      );
+    });
+
+    it('loads all panel defaults from jsonData', () => {
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = {
+        defaultShowTime: false,
+        defaultTimestampResolution: 'ns',
+        defaultFontSize: 'small',
+        defaultSortOrder: LogsSortOrder.Ascending,
+        defaultDetailsMode: 'sidebar',
+        defaultSyntaxHighlighting: false,
+        defaultTableWrapText: false,
+        defaultTableSortOrder: LogsSortOrder.Ascending,
+        defaultJSONSortOrder: LogsSortOrder.Ascending,
+        defaultJSONWrapLogMessage: false,
+        defaultJSONSyntaxHighlighting: true,
+      };
+      renderAppConfig(plugin);
+      for (const [testId, label] of [
+        [testIds.appConfig.logsPanel.timestamps, 'Disabled'],
+        [testIds.appConfig.logsPanel.fontSize, 'Small'],
+        [testIds.appConfig.logsPanel.sortOrder, 'Oldest first'],
+        [testIds.appConfig.logsPanel.detailsMode, 'Sidebar'],
+        [testIds.appConfig.logsPanel.syntaxHighlighting, 'Disabled'],
+        [testIds.appConfig.tablePanel.wrapping, 'Disabled'],
+        [testIds.appConfig.tablePanel.sortOrder, 'Oldest first'],
+        [testIds.appConfig.jsonPanel.sortOrder, 'Oldest first'],
+        [testIds.appConfig.jsonPanel.wrapping, 'Disabled'],
+        [testIds.appConfig.jsonPanel.syntaxHighlighting, 'Enabled'],
+      ]) {
+        expect(within(screen.getByTestId(testId)).getByRole('radio', { name: label })).toBeChecked();
+      }
     });
 
     it('renders maximum time picker interval input', () => {
@@ -252,6 +410,78 @@ describe('AppConfig', () => {
   });
 
   describe('Save settings', () => {
+    it('does not create panel overrides when only the default time range changes', async () => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      await user.click(screen.getByTestId(testIds.appConfig.defaultTimeRangeEnabled));
+      fireEvent.change(screen.getByTestId(testIds.appConfig.defaultTimeRangeFrom), { target: { value: 'now-1h' } });
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: {
+              dataSource: '',
+              interval: '',
+              patternsDisabled: false,
+              defaultTimeRange: { from: 'now-1h', to: 'now' },
+            },
+          })
+        )
+      );
+    });
+
+    it('preserves existing explicit defaults, including values equal to the built-ins', async () => {
+      const user = userEvent.setup();
+      const plugin = createPluginMeta();
+      plugin.meta.jsonData = {
+        defaultDetailsMode: 'inline',
+        defaultJSONWrapLogMessage: true,
+        defaultFontSize: 'default',
+        defaultSyntaxHighlighting: false,
+      };
+      renderAppConfig(plugin);
+      fireEvent.change(getIntervalInput(), { target: { value: '24h' } });
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: {
+              ...plugin.meta.jsonData,
+              dataSource: '',
+              interval: '24h',
+              patternsDisabled: false,
+              defaultTimeRange: undefined,
+            },
+          })
+        )
+      );
+    });
+
+    it('only creates an override for the changed panel setting', async () => {
+      const user = userEvent.setup();
+      renderAppConfig();
+      await user.click(
+        within(screen.getByTestId(testIds.appConfig.tablePanel.wrapping)).getByRole('radio', { name: 'Disabled' })
+      );
+      await user.click(screen.getByTestId(testIds.appConfig.submit));
+      await waitFor(() =>
+        expect(mockUpdateAppPluginSettings).toHaveBeenCalledWith(
+          'grafana-lokiexplore-app',
+          expect.objectContaining({
+            jsonData: {
+              dataSource: '',
+              interval: '',
+              patternsDisabled: false,
+              defaultTimeRange: undefined,
+              defaultTableWrapText: false,
+            },
+          })
+        )
+      );
+    });
+
     it('keeps Save disabled until the default data source has resolved', () => {
       mockUseDefaultDatasourceUid.mockReturnValue({ dsUID: undefined, isLoading: true });
       const plugin = createPluginMeta();

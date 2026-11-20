@@ -13,17 +13,13 @@ import { LineFilterVariablesScene } from './LineFilter/LineFilterVariablesScene'
 import { VariableLayoutScene } from './VariableLayoutScene';
 import { PageSlugs } from 'services/enums';
 import { logger } from 'services/logger';
-import { PLUGIN_ID } from 'services/plugin';
 import { getDrilldownSlug } from 'services/routing';
 
 interface LayoutSceneState extends SceneObjectState {
-  interceptDismissed: boolean;
   levelsRenderer?: LevelsVariableScene;
   lineFilterRenderer?: LineFilterVariablesScene;
   variableLayout?: SceneObject;
 }
-
-const interceptBannerStorageKey = `${PLUGIN_ID}.interceptBannerStorageKey`;
 
 export const CONTROLS_VARS_FIRST_ROW_KEY = 'vars-row__datasource-labels-timepicker-button';
 export const CONTROLS_VARS_METADATA_ROW_KEY = 'vars-metadata';
@@ -39,10 +35,7 @@ export const CONTROLS_VARS_LABELS = 'vars-labels';
 
 export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
   constructor(state: Partial<LayoutSceneState>) {
-    super({
-      ...state,
-      interceptDismissed: !!localStorage.getItem(interceptBannerStorageKey),
-    });
+    super(state);
 
     this.addActivationHandler(this.onActivate.bind(this));
   }
@@ -50,7 +43,7 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
   static Component = ({ model }: SceneComponentProps<LayoutScene>) => {
     const indexScene = sceneGraph.getAncestor(model, IndexScene);
     const { contentScene, embedded } = indexScene.useState();
-    const { interceptDismissed, variableLayout } = model.useState();
+    const { variableLayout } = model.useState();
     const styles = useStyles2(getStyles);
 
     if (!contentScene) {
@@ -60,13 +53,7 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
     return (
       <div className={styles.bodyContainer}>
         <div className={styles.container}>
-          {!embedded && !interceptDismissed && (
-            <InterceptBanner
-              onRemove={() => {
-                model.dismiss();
-              }}
-            />
-          )}
+          {!embedded && <InterceptBanner />}
 
           {variableLayout && <variableLayout.Component model={variableLayout} />}
 
@@ -84,13 +71,6 @@ export class LayoutScene extends SceneObjectBase<LayoutSceneState> {
       lineFilterRenderer: new LineFilterVariablesScene({}),
       variableLayout: new VariableLayoutScene({ position: slug === PageSlugs.explore ? 'sticky' : 'relative' }),
     });
-  }
-
-  public dismiss() {
-    this.setState({
-      interceptDismissed: true,
-    });
-    localStorage.setItem(interceptBannerStorageKey, 'true');
   }
 }
 

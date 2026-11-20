@@ -4,6 +4,7 @@ import { css } from '@emotion/css';
 
 import { AppPluginMeta, LoadingState, PanelData } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { locationService } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   AdHocFilterWithLabels,
@@ -70,12 +71,12 @@ import { migrateLineFilterV1 } from 'services/migrations';
 import { narrowPageOrValueSlug, narrowPageSlug, narrowValueSlug } from 'services/narrowing';
 import { navigateToDrilldownPage, navigateToIndex, navigateToValueBreakdown } from 'services/navigate';
 import { isOperatorInclusive } from 'services/operatorHelpers';
-import { getQueryRunner, getResourceQueryRunner } from 'services/panel';
+import { getQueryRunner, getQueryRunnerFromProvider, getResourceQueryRunner } from 'services/panel';
 import { getPatternsCount } from 'services/patterns';
 import { buildDataQuery, buildResourceQuery } from 'services/query';
 import { getDrilldownSlug, getDrilldownValueSlug, getRouteParams } from 'services/routing';
 import { findObjectOfType } from 'services/scenes';
-import { getLogOption, getMaxLines } from 'services/store';
+import { getLogsSortOrder, getLogsVisualizationType, getMaxLines } from 'services/store';
 import {
   getDataSourceVariable,
   getFieldsAndMetadataVariable,
@@ -1101,8 +1102,7 @@ function getLogsQueryQueryRunner(sceneRef: SceneObject) {
   const query = {
     ...buildDataQuery(LOG_STREAM_SELECTOR_EXPR, { refId: LOGS_PANEL_QUERY_REFID }),
     get direction() {
-      const sortOrder =
-        getLogsPanelSortOrderFromURL() || getLogOption<LogsSortOrder>('sortOrder', LogsSortOrder.Descending);
+      const sortOrder = getLogsPanelSortOrderFromURL() || getLogsSortOrder(getLogsVisualizationType());
       return sortOrder === LogsSortOrder.Descending ? LokiQueryDirection.Backward : LokiQueryDirection.Forward;
     },
     get maxLines() {
@@ -1110,7 +1110,19 @@ function getLogsQueryQueryRunner(sceneRef: SceneObject) {
     },
   };
 
-  return getQueryRunner([query], undefined);
+  const data = getQueryRunner([query], undefined);
+  const queryRunner = getQueryRunnerFromProvider(data);
+  queryRunner.addActivationHandler(() => {
+    let direction = query.direction;
+    return locationService.getHistory().listen(() => {
+      const nextDirection = query.direction;
+      if (nextDirection !== direction) {
+        direction = nextDirection;
+        queryRunner.runQueries();
+      }
+    });
+  });
+  return data;
 }
 
 function getLogCountQueryRunner() {
