@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { css } from '@emotion/css';
 
 import { createAssistantContextItem, isAssistantAvailable, openAssistant } from '@grafana/assistant';
-import { BusEventBase, GrafanaTheme2, PanelMenuItem, rangeUtil, TimeRange } from '@grafana/data';
+import { BusEventBase, GrafanaTheme2, PanelMenuItem, rangeUtil, TimeRange, toIconName } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
 import { reportInteraction, usePluginComponent } from '@grafana/runtime';
@@ -299,7 +299,7 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
             onClick: () => {
               model.publishEvent(new AddToNotebookEvent(getAddToNotebookPayload(model)), true);
             },
-            iconClassName: 'book',
+            iconClassName: toIconName('gf-notebook') ?? 'book',
           },
           'Navigation'
         );
