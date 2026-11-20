@@ -299,7 +299,8 @@ export class PanelMenu extends SceneObjectBase<PanelMenuState> implements VizPan
             onClick: () => {
               model.publishEvent(new AddToNotebookEvent(getAddToNotebookPayload(model)), true);
             },
-            iconClassName: 'book',
+            // gf-notebook is not yet included in the published Grafana icon types.
+            iconClassName: 'gf-notebook' as PanelMenuItem['iconClassName'],
           },
           'Navigation'
         );

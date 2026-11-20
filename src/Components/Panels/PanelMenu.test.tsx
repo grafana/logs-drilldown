@@ -830,7 +830,7 @@ describe('PanelMenu', () => {
       expect(items).not.toContainEqual(
         expect.objectContaining({
           text: 'Add to Notebook',
-          iconClassName: 'book',
+          iconClassName: 'gf-notebook',
         })
       );
     });
@@ -853,7 +853,7 @@ describe('PanelMenu', () => {
       expect(items).not.toContainEqual(
         expect.objectContaining({
           text: 'Add to Notebook',
-          iconClassName: 'book',
+          iconClassName: 'gf-notebook',
         })
       );
     });
@@ -871,7 +871,7 @@ describe('PanelMenu', () => {
       expect(items).toContainEqual(
         expect.objectContaining({
           text: 'Add to Notebook',
-          iconClassName: 'book',
+          iconClassName: 'gf-notebook',
         })
       );
     });
