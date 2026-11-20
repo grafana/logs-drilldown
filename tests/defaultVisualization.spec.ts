@@ -162,6 +162,7 @@ test.describe('Default visualization', () => {
   }
 
   test('keeps the existing results when a saved sort preference applies to both visualizations', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('grafana.openfeature.logsTablePanelNG', 'true'));
     await page.addInitScript(() => localStorage.setItem('grafana.explore.logs.sortOrder', 'Descending'));
     await configureDefault(page, undefined, {
       defaultSortOrder: LogsSortOrder.Descending,
@@ -329,6 +330,7 @@ test.describe('Default visualization', () => {
   });
 
   test('applies saved Table wrapping and sort order after clearing localStorage', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('grafana.openfeature.logsTablePanelNG', 'true'));
     const saved = await configureDefault(page);
     await page.goto(`/plugins/${pluginId}/?page=configuration`);
     await page
