@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { of } from 'rxjs';
 
 import { isAssistantAvailable } from '@grafana/assistant';
-import { PanelMenuItem } from '@grafana/data';
+import { availableIconsIndex, PanelMenuItem } from '@grafana/data';
 import { getDataSourceInstance } from '@grafana/plugin-compat/datasources';
 import { reportInteraction, usePluginComponent } from '@grafana/runtime';
 import {
@@ -830,7 +830,6 @@ describe('PanelMenu', () => {
       expect(items).not.toContainEqual(
         expect.objectContaining({
           text: 'Add to Notebook',
-          iconClassName: 'gf-notebook',
         })
       );
     });
@@ -853,27 +852,44 @@ describe('PanelMenu', () => {
       expect(items).not.toContainEqual(
         expect.objectContaining({
           text: 'Add to Notebook',
-          iconClassName: 'gf-notebook',
         })
       );
     });
 
-    it('should show add to notebook when dashboard.notebooks is enabled', () => {
-      jest.mocked(usePluginComponent).mockReturnValue({ component: () => null, isLoading: false });
-      jest.mocked(getFeatureFlag).mockImplementation((flag) => flag === 'dashboard.notebooks');
+    it.each([
+      { supportsNotebookIcon: true, expectedIcon: 'gf-notebook' },
+      { supportsNotebookIcon: false, expectedIcon: 'book' },
+    ])('uses $expectedIcon for add to notebook when enabled', ({ supportsNotebookIcon, expectedIcon }) => {
+      const originalIcon = Object.getOwnPropertyDescriptor(availableIconsIndex, 'gf-notebook');
+      if (supportsNotebookIcon) {
+        Object.defineProperty(availableIconsIndex, 'gf-notebook', { value: true, configurable: true });
+      } else {
+        Reflect.deleteProperty(availableIconsIndex, 'gf-notebook');
+      }
 
-      const menu = new PanelMenu({});
-      menu.activate();
+      try {
+        jest.mocked(usePluginComponent).mockReturnValue({ component: () => null, isLoading: false });
+        jest.mocked(getFeatureFlag).mockImplementation((flag) => flag === 'dashboard.notebooks');
 
-      render(<PanelMenu.Component model={menu} />);
+        const menu = new PanelMenu({});
+        menu.activate();
 
-      const items = menu.state.body?.state.items;
-      expect(items).toContainEqual(
-        expect.objectContaining({
-          text: 'Add to Notebook',
-          iconClassName: 'gf-notebook',
-        })
-      );
+        render(<PanelMenu.Component model={menu} />);
+
+        const items = menu.state.body?.state.items;
+        expect(items).toContainEqual(
+          expect.objectContaining({
+            text: 'Add to Notebook',
+            iconClassName: expectedIcon,
+          })
+        );
+      } finally {
+        if (originalIcon) {
+          Object.defineProperty(availableIconsIndex, 'gf-notebook', originalIcon);
+        } else {
+          Reflect.deleteProperty(availableIconsIndex, 'gf-notebook');
+        }
+      }
     });
   });
 });
