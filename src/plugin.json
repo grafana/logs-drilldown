@@ -95,6 +95,11 @@
     "addedComponents": [],
     "addedFunctions": [
       {
+        "targets": ["grafana-assistant-app/extension/v1"],
+        "title": "assistant-extension",
+        "description": "Contributes chits, starters, skills, artifact kinds, and prompt contributions to the Grafana Assistant."
+      },
+      {
         "targets": ["grafana-exploretraces-app/get-logs-drilldown-link/v1"],
         "title": "Open Logs Drilldown",
         "description": "Returns url to logs drilldown app"

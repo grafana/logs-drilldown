@@ -9,7 +9,7 @@ import type { PatternsProps } from 'Components/ExposedComponents/Patterns/types'
 import type { OpenInLogsDrilldownButtonProps } from 'Components/OpenInLogsDrilldownButton/types';
 import pluginJson from 'plugin.json';
 
-const initI18n = async () => {
+export const initI18n = async () => {
   const { lt } = await import('semver');
   const { config } = await import('@grafana/runtime');
   const { initPluginTranslations } = await import('@grafana/i18n');

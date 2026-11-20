@@ -1,4 +1,8 @@
 {
+  "assistant": {
+    "patterns-loading": "Loading Log Patterns...",
+    "patterns-query-required": "Run a Loki log query with an explicit time range to show patterns."
+  },
   "components": {
     "app": {
       "text-loading": "Loading..."
