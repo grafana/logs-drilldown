@@ -23,6 +23,7 @@ jest.mock('./variableGetters', () => ({
 
 // Mock relevant assistant sdk functions
 jest.mock('@grafana/assistant', () => ({
+  ...jest.requireActual('@grafana/assistant'),
   createAssistantContextItem: jest.fn((_, data) => ({
     node: {
       data,

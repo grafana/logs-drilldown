@@ -3,9 +3,12 @@ import { lazy } from 'react';
 import { AppPlugin } from '@grafana/data';
 
 import type { JsonData } from './Components/AppConfig/AppConfig';
+import { getAssistantExtensionConfig } from 'assistant/extensionConfig';
+import { assistantExtensionManifest } from 'assistant/patterns/patternsExtension';
 import pluginJson from 'plugin.json';
 import {
   SuspendedEmbeddedLogsExploration,
+  SuspendedPatterns,
   SuspendedLokiFieldDistribution,
   SuspendedOpenInLogsDrilldownButton,
 } from 'services/extensions/exposedComponents';
@@ -72,6 +75,7 @@ const ServiceSelectionConfig = lazy(async () => {
 
 export const plugin = new AppPlugin<JsonData>()
   .setRootPage(App)
+  .addFunction(getAssistantExtensionConfig(assistantExtensionManifest))
   // For new config pages, especially if they require feature flags, make sure they are wrapped in a <FeatureFlagContext> component.
   .addConfigPage({
     body: AppConfig,
@@ -119,4 +123,11 @@ plugin.exposeComponent({
   description: 'An errors analysis view for a given Faro app.',
   id: `grafana-lokiexplore-app/errors-analysis/v1`,
   title: 'Errors Analysis',
+});
+
+plugin.exposeComponent({
+  component: SuspendedPatterns,
+  description: 'An independently embeddable patterns breakdown for Logs.',
+  id: 'grafana-lokiexplore-app/patterns/v1',
+  title: 'Log Patterns',
 });
