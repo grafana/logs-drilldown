@@ -1,8 +1,10 @@
-import { DataSourceInstanceListItem, LogsDedupStrategy } from '@grafana/data';
+import { DataSourceInstanceListItem, LogsDedupStrategy, LogsSortOrder } from '@grafana/data';
 import { getDataSourceInstanceList, getDefaultDataSourceInstanceListItem } from '@grafana/plugin-compat/datasources';
+import { locationService } from '@grafana/runtime';
 import { sceneGraph, SceneObject, VariableValue } from '@grafana/scenes';
 import { Options } from '@grafana/schema/dist/esm/raw/composable/logs/panelcfg/x/LogsPanelCfg_types.gen';
 
+import { plugin } from '../module';
 import { isEmbeddedLogs } from './extensions/embedding';
 import { escapePrimaryLabel } from './extensions/links';
 import { isDedupStrategy } from './guards';
@@ -391,8 +393,27 @@ export function setLogsVolumeAggregateBy(sceneRef: SceneObject, value: string | 
 // Log visualization options
 export type LogsVisualizationType = 'json' | 'logs' | 'table';
 
+export function getLogsSortOrder(visualizationType: LogsVisualizationType): LogsSortOrder {
+  const jsonData = plugin.meta.jsonData;
+  const defaultSortOrder =
+    visualizationType === 'table'
+      ? jsonData?.defaultTableSortOrder
+      : visualizationType === 'json'
+        ? jsonData?.defaultJSONSortOrder
+        : jsonData?.defaultSortOrder;
+  return getLogOption('sortOrder', defaultSortOrder ?? LogsSortOrder.Descending);
+}
+
 const VISUALIZATION_TYPE_LOCALSTORAGE_KEY = 'grafana.explore.logs.visualisationType';
 export function getLogsVisualizationType(): LogsVisualizationType {
+  const visualizationTypeFromURL = new URLSearchParams(locationService.getLocation().search).get('visualizationType');
+  const visualizationType = (['logs', 'table', 'json'] as const).find(
+    (type) => JSON.stringify(type) === visualizationTypeFromURL
+  );
+  if (visualizationType) {
+    return visualizationType;
+  }
+
   const storedType = localStorage.getItem(VISUALIZATION_TYPE_LOCALSTORAGE_KEY) ?? '';
   switch (storedType) {
     case 'table':
@@ -401,7 +422,7 @@ export function getLogsVisualizationType(): LogsVisualizationType {
     case 'json':
       return 'json';
     default:
-      return 'logs';
+      return plugin.meta.jsonData?.defaultVisualizationType ?? 'logs';
   }
 }
 
@@ -438,7 +459,8 @@ export function setJSONMetadataVisibility(state: boolean) {
 // JSON viz metadata node visibility
 const JSON_VIZ_HIGHLIGHT_VISIBLE_KEY = `${pluginJson.id}.jsonViz.highlight`;
 export function getJSONHighlightState(): boolean {
-  return !!localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
+  const storedValue = localStorage.getItem(JSON_VIZ_HIGHLIGHT_VISIBLE_KEY);
+  return storedValue === null ? (plugin.meta.jsonData?.defaultJSONSyntaxHighlighting ?? false) : !!storedValue;
 }
 
 export function setJSONHighlightVisibility(state: boolean) {

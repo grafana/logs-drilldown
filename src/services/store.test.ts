@@ -1,10 +1,14 @@
 import { DataSourceInstanceListItem } from '@grafana/data';
 import { getDataSourceInstanceList } from '@grafana/plugin-compat/datasources';
+import { locationService } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
 
+import { plugin } from '../module';
 import { isEmbeddedLogs } from './extensions/embedding';
-import { getDefaultDatasourceUid, getExpandedLogsView } from './store';
+import { getDefaultDatasourceUid, getExpandedLogsView, getLogsVisualizationType } from './store';
 import pluginJson from 'plugin.json';
+
+jest.mock('../module', () => ({ plugin: { meta: { jsonData: {} } } }));
 
 jest.mock('@grafana/plugin-compat/datasources', () => ({
   getDataSourceInstanceList: jest.fn(),
@@ -29,6 +33,59 @@ function makeDs(overrides: Partial<DataSourceInstanceListItem> & { isDefault?: b
     ...overrides,
   } as DataSourceInstanceListItem;
 }
+
+describe('getLogsVisualizationType', () => {
+  beforeEach(() => {
+    locationService.replace('/a/grafana-lokiexplore-app/explore');
+    localStorage.clear();
+    plugin.meta.jsonData = {};
+  });
+
+  afterEach(() => {
+    locationService.replace('/a/grafana-lokiexplore-app/explore');
+  });
+
+  it('uses Logs when no browser preference or configured default exists', () => {
+    expect(getLogsVisualizationType()).toBe('logs');
+  });
+
+  it.each(['logs', 'table', 'json'] as const)('uses the saved browser preference %s', (type) => {
+    plugin.meta.jsonData = { defaultVisualizationType: 'table' };
+    localStorage.setItem('grafana.explore.logs.visualisationType', type);
+    expect(getLogsVisualizationType()).toBe(type);
+  });
+
+  it.each(['logs', 'table', 'json'] as const)('uses the configured default %s without a browser preference', (type) => {
+    plugin.meta.jsonData = { defaultVisualizationType: type };
+    expect(getLogsVisualizationType()).toBe(type);
+    expect(localStorage.length).toBe(0);
+  });
+
+  it('ignores invalid browser choices', () => {
+    plugin.meta.jsonData = { defaultVisualizationType: 'table' };
+    localStorage.setItem('grafana.explore.logs.visualisationType', 'invalid');
+    expect(getLogsVisualizationType()).toBe('table');
+  });
+
+  it.each(['logs', 'table', 'json'] as const)('prefers the %s visualization in the URL', (type) => {
+    plugin.meta.jsonData = { defaultVisualizationType: 'table' };
+    localStorage.setItem('grafana.explore.logs.visualisationType', 'json');
+    const params = new URLSearchParams({ visualizationType: JSON.stringify(type) });
+    locationService.replace(`/a/grafana-lokiexplore-app/explore?${params}`);
+    expect(getLogsVisualizationType()).toBe(type);
+    expect(localStorage.getItem('grafana.explore.logs.visualisationType')).toBe('json');
+  });
+
+  it.each(['invalid', '"invalid"', '{}', 'null', ''])('ignores an invalid URL visualization %s', (value) => {
+    plugin.meta.jsonData = { defaultVisualizationType: 'table' };
+    localStorage.setItem('grafana.explore.logs.visualisationType', 'json');
+    const params = new URLSearchParams({ visualizationType: value });
+    locationService.replace(`/a/grafana-lokiexplore-app/explore?${params}`);
+    expect(getLogsVisualizationType()).toBe('json');
+    localStorage.removeItem('grafana.explore.logs.visualisationType');
+    expect(getLogsVisualizationType()).toBe('table');
+  });
+});
 
 describe('getDefaultDatasourceUid', () => {
   beforeEach(() => {

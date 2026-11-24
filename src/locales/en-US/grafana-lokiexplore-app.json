@@ -77,6 +77,9 @@
       "disable-patterns-description": "Disables Logs Drilldown's usage of the <2>Loki Patterns API</2> endpoint, and removes the Patterns tab.",
       "interval-invalid-error": "Interval is invalid. Please enter an interval longer than \"60m\". For example: 3d, 1w, 1m",
       "interval-placeholder": "7d",
+      "json-panel": {
+        "title": "JSON panel"
+      },
       "label-default-data-source": "Default data source",
       "label-default-time-range": "Default time range",
       "label-disable-loki-patterns": "Disable Loki patterns",
@@ -86,6 +89,26 @@
       "label-maximum-time-picker-interval": "Maximum time picker interval",
       "label-settings": "Settings",
       "label-to": "To",
+      "logs-panel": {
+        "columns": "Columns for unwrapped fields",
+        "columns-description": "Align displayed fields in columns when line wrapping is disabled.",
+        "details-inline": "Inline",
+        "details-mode": "Details mode",
+        "details-sidebar": "Sidebar",
+        "disabled": "Disabled",
+        "enabled": "Enabled",
+        "font-default": "Default",
+        "font-size": "Font size",
+        "font-small": "Small",
+        "milliseconds": "Milliseconds",
+        "nanoseconds": "Nanoseconds",
+        "timestamps": "Timestamps",
+        "title": "Logs panel",
+        "wrapping": "Line wrapping",
+        "wrapping-disabled": "Disabled",
+        "wrapping-enabled": "Enabled",
+        "wrapping-json": "Enabled with JSON formatting"
+      },
       "max-interval-description": "The maximum interval that can be selected in the time picker within the Grafana Logs Drilldown app. If empty, users can select any time range interval in Grafana Logs Drilldown. <br/>Example values: 7d, 24h, 2w",
       "patterns-placeholder": "7d",
       "save-settings": "Save settings",
@@ -126,6 +149,21 @@
           "landing-requires-feature-flag": "Landing Page settings requires <1>kubernetesLogsDrilldown</1> feature flag to be enabled.",
           "landing-settings-requires-grafana-greater": "Landing Page settings requires Grafana 13.0 or greater."
         }
+      },
+      "table-panel": {
+        "title": "Table panel"
+      },
+      "visualization": {
+        "description": "Choose the initial visualization for your organization. URL settings and browser preferences take precedence.",
+        "json": "JSON",
+        "logs": "Logs",
+        "newest-first": "Newest first",
+        "oldest-first": "Oldest first",
+        "sort-order": "Sort order",
+        "syntax-highlighting": "Syntax highlighting",
+        "table": "Table",
+        "title": "Default visualization",
+        "type": "Default visualization"
       }
     },
     "buttons": {

@@ -8,6 +8,7 @@ import {
   DataSourceInstanceSettings,
   getTimeZone,
   GrafanaTheme2,
+  LogsSortOrder,
   PluginConfigPageProps,
   PluginMeta,
   rangeUtil,
@@ -15,27 +16,58 @@ import {
 import { t, Trans } from '@grafana/i18n';
 import { updateAppPluginSettings } from '@grafana/plugin-compat/apps';
 import { DataSourcePicker, locationService } from '@grafana/runtime';
-import { Alert, Button, Checkbox, Field, FieldSet, Input, useStyles2 } from '@grafana/ui';
+import { Box, Button, Checkbox, Field, FieldSet, Input, RadioButtonGroup, Text, useStyles2 } from '@grafana/ui';
 
 import { FeatureFlagContext } from 'Components/FeatureFlagContext';
 import { useDefaultDatasourceUid } from 'services/initialDatasourceInfo';
 import { logger } from 'services/logger';
-import { getLastUsedDataSourceFromStorage } from 'services/store';
-import { isValidTimeRange } from 'services/utils';
+import { getLastUsedDataSourceFromStorage, type LogsVisualizationType } from 'services/store';
+import { testIds } from 'services/testIds';
+import { getObjectKeys, isValidTimeRange } from 'services/utils';
 
 export type JsonData = {
   dataSource?: string;
+  defaultDetailsMode?: 'inline' | 'sidebar';
+  defaultFontSize?: 'default' | 'small';
+  defaultJSONSortOrder?: LogsSortOrder;
+  defaultJSONSyntaxHighlighting?: boolean;
+  defaultJSONWrapLogMessage?: boolean;
+  defaultPrettifyLogMessage?: boolean;
+  defaultShowTime?: boolean;
+  defaultSortOrder?: LogsSortOrder;
+  defaultSyntaxHighlighting?: boolean;
+  defaultTableSortOrder?: LogsSortOrder;
+  defaultTableWrapText?: boolean;
   /** When set, used as the initial time range when opening the app (if URL has no from/to). */
   defaultTimeRange?: { from: string; to: string };
+  defaultTimestampResolution?: 'ms' | 'ns';
+  defaultUnwrappedColumns?: boolean;
+  defaultVisualizationType?: LogsVisualizationType;
+  defaultWrapLogMessage?: boolean;
   interval?: string;
   patternsDisabled?: boolean;
 };
 
 type State = {
   dataSource: string;
+  defaultDetailsMode: 'inline' | 'sidebar';
+  defaultFontSize: 'default' | 'small';
+  defaultJSONSortOrder: LogsSortOrder;
+  defaultJSONSyntaxHighlighting: boolean;
+  defaultJSONWrapLogMessage: boolean;
+  defaultPrettifyLogMessage: boolean;
+  defaultShowTime: boolean;
+  defaultSortOrder: LogsSortOrder;
+  defaultSyntaxHighlighting: boolean;
+  defaultTableSortOrder: LogsSortOrder;
+  defaultTableWrapText: boolean;
   defaultTimeRangeEnabled: boolean;
   defaultTimeRangeFrom: string;
   defaultTimeRangeTo: string;
+  defaultTimestampResolution: 'ms' | 'ns';
+  defaultUnwrappedColumns: boolean;
+  defaultVisualizationType: LogsVisualizationType;
+  defaultWrapLogMessage: boolean;
   interval: string;
   isValid: boolean;
   patternsDisabled: boolean;
@@ -77,7 +109,7 @@ const AppConfig = ({ plugin }: Props) => {
   const { enabled, jsonData, pinned } = plugin.meta;
 
   const hasDefaultTimeRange = jsonData?.defaultTimeRange != null;
-  const [state, setState] = useState<State>({
+  const initialState: State = {
     dataSource: jsonData?.dataSource ?? '',
     interval: jsonData?.interval ?? '',
     isValid: isValid(jsonData?.interval ?? ''),
@@ -85,7 +117,23 @@ const AppConfig = ({ plugin }: Props) => {
     defaultTimeRangeEnabled: hasDefaultTimeRange,
     defaultTimeRangeFrom: jsonData?.defaultTimeRange?.from ?? 'now-15m',
     defaultTimeRangeTo: jsonData?.defaultTimeRange?.to ?? 'now',
-  });
+    defaultVisualizationType: jsonData?.defaultVisualizationType ?? 'logs',
+    defaultWrapLogMessage: jsonData?.defaultWrapLogMessage ?? false,
+    defaultPrettifyLogMessage: jsonData?.defaultPrettifyLogMessage ?? false,
+    defaultUnwrappedColumns: jsonData?.defaultUnwrappedColumns ?? false,
+    defaultShowTime: jsonData?.defaultShowTime ?? true,
+    defaultTimestampResolution: jsonData?.defaultTimestampResolution ?? 'ms',
+    defaultFontSize: jsonData?.defaultFontSize ?? 'default',
+    defaultSortOrder: jsonData?.defaultSortOrder ?? LogsSortOrder.Descending,
+    defaultDetailsMode: jsonData?.defaultDetailsMode ?? 'inline',
+    defaultSyntaxHighlighting: jsonData?.defaultSyntaxHighlighting ?? true,
+    defaultTableWrapText: jsonData?.defaultTableWrapText ?? true,
+    defaultTableSortOrder: jsonData?.defaultTableSortOrder ?? LogsSortOrder.Descending,
+    defaultJSONSortOrder: jsonData?.defaultJSONSortOrder ?? LogsSortOrder.Descending,
+    defaultJSONWrapLogMessage: jsonData?.defaultJSONWrapLogMessage ?? true,
+    defaultJSONSyntaxHighlighting: jsonData?.defaultJSONSyntaxHighlighting ?? false,
+  };
+  const [state, setState] = useState<State>(initialState);
   const { dsUID: defaultUid, isLoading } = useDefaultDatasourceUid(jsonData?.dataSource);
   const isResolvingDefault = isLoading && !state.dataSource;
 
@@ -147,6 +195,29 @@ const AppConfig = ({ plugin }: Props) => {
     : null;
   const isDefaultTimeRangeValid =
     !state.defaultTimeRangeEnabled || (defaultTimeRangeValidation !== null && defaultTimeRangeValidation.valid);
+
+  const panelDefaults = {
+    defaultVisualizationType: state.defaultVisualizationType,
+    defaultWrapLogMessage: state.defaultWrapLogMessage,
+    defaultPrettifyLogMessage: state.defaultPrettifyLogMessage,
+    defaultUnwrappedColumns: state.defaultUnwrappedColumns,
+    defaultShowTime: state.defaultShowTime,
+    defaultTimestampResolution: state.defaultTimestampResolution,
+    defaultFontSize: state.defaultFontSize,
+    defaultSortOrder: state.defaultSortOrder,
+    defaultDetailsMode: state.defaultDetailsMode,
+    defaultSyntaxHighlighting: state.defaultSyntaxHighlighting,
+    defaultTableWrapText: state.defaultTableWrapText,
+    defaultTableSortOrder: state.defaultTableSortOrder,
+    defaultJSONSortOrder: state.defaultJSONSortOrder,
+    defaultJSONWrapLogMessage: state.defaultJSONWrapLogMessage,
+    defaultJSONSyntaxHighlighting: state.defaultJSONSyntaxHighlighting,
+  };
+  const changedPanelDefaults = Object.fromEntries(
+    getObjectKeys(panelDefaults)
+      .filter((key) => panelDefaults[key] !== initialState[key])
+      .map((key) => [key, panelDefaults[key]])
+  );
 
   return (
     <FeatureFlagContext>
@@ -304,40 +375,295 @@ const AppConfig = ({ plugin }: Props) => {
             />
           </Field>
 
-          <div className={styles.marginTop}>
-            <Button
-              type="submit"
-              data-testid={testIds.appConfig.submit}
-              onClick={() =>
-                updatePluginAndReload(plugin.meta.id, {
-                  enabled,
-                  jsonData: {
-                    dataSource: state.dataSource,
-                    interval: state.interval,
-                    patternsDisabled: state.patternsDisabled,
-                    defaultTimeRange:
-                      state.defaultTimeRangeEnabled &&
-                      state.defaultTimeRangeFrom.trim() &&
-                      state.defaultTimeRangeTo.trim()
-                        ? { from: state.defaultTimeRangeFrom.trim(), to: state.defaultTimeRangeTo.trim() }
-                        : undefined,
-                  },
-                  pinned,
-                })
-              }
-              disabled={isResolvingDefault || !isValid(state.interval) || !isDefaultTimeRangeValid}
-            >
-              <Trans i18nKey="components.app-config.save-settings">Save settings</Trans>
-            </Button>
-          </div>
-          <div className={styles.note}>
-            <Alert severity="info" title="">
-              <Trans i18nKey="components.app-config.active-users-reload-reflect-configuration-changes">
-                Active users must reload the app to reflect configuration changes.
-              </Trans>
-            </Alert>
-          </div>
+          <Field
+            label={t('components.app-config.visualization.title', 'Default visualization')}
+            description={t(
+              'components.app-config.visualization.description',
+              'Choose the initial visualization for your organization. URL settings and browser preferences take precedence.'
+            )}
+          >
+            <RadioButtonGroup<LogsVisualizationType>
+              aria-label={t('components.app-config.visualization.type', 'Default visualization')}
+              data-testid={testIds.appConfig.defaultVisualizationType}
+              options={[
+                { label: t('components.app-config.visualization.logs', 'Logs'), value: 'logs' },
+                { label: t('components.app-config.visualization.table', 'Table'), value: 'table' },
+                { label: t('components.app-config.visualization.json', 'JSON'), value: 'json' },
+              ]}
+              value={state.defaultVisualizationType}
+              size="sm"
+              onChange={(defaultVisualizationType) => setState({ ...state, defaultVisualizationType })}
+            />
+          </Field>
+
+          <Box
+            backgroundColor="primary"
+            borderColor="weak"
+            borderStyle="solid"
+            borderRadius="default"
+            marginBottom={4}
+            padding={2}
+          >
+            <FieldSet label={<Text element="h5">{t('components.app-config.logs-panel.title', 'Logs panel')}</Text>}>
+              <Field label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}>
+                <RadioButtonGroup
+                  aria-label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}
+                  data-testid={testIds.appConfig.logsPanel.wrapping}
+                  options={[
+                    { label: t('components.app-config.logs-panel.wrapping-disabled', 'Disabled'), value: 'off' },
+                    { label: t('components.app-config.logs-panel.wrapping-enabled', 'Enabled'), value: 'on' },
+                    {
+                      label: t('components.app-config.logs-panel.wrapping-json', 'Enabled with JSON formatting'),
+                      value: 'json',
+                    },
+                  ]}
+                  value={!state.defaultWrapLogMessage ? 'off' : state.defaultPrettifyLogMessage ? 'json' : 'on'}
+                  size="sm"
+                  onChange={(wrapping) =>
+                    setState({
+                      ...state,
+                      defaultWrapLogMessage: wrapping !== 'off',
+                      defaultPrettifyLogMessage: wrapping === 'json',
+                    })
+                  }
+                />
+              </Field>
+              {!state.defaultWrapLogMessage && (
+                <Field
+                  label={t('components.app-config.logs-panel.columns', 'Columns for unwrapped fields')}
+                  description={t(
+                    'components.app-config.logs-panel.columns-description',
+                    'Align displayed fields in columns when line wrapping is disabled.'
+                  )}
+                >
+                  <RadioButtonGroup<boolean>
+                    aria-label={t('components.app-config.logs-panel.columns', 'Columns for unwrapped fields')}
+                    data-testid={testIds.appConfig.logsPanel.columns}
+                    options={[
+                      { label: t('components.app-config.logs-panel.enabled', 'Enabled'), value: true },
+                      { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: false },
+                    ]}
+                    value={state.defaultUnwrappedColumns}
+                    size="sm"
+                    onChange={(defaultUnwrappedColumns) => setState({ ...state, defaultUnwrappedColumns })}
+                  />
+                </Field>
+              )}
+              <Field label={t('components.app-config.logs-panel.timestamps', 'Timestamps')}>
+                <RadioButtonGroup<'ms' | 'ns' | 'off'>
+                  aria-label={t('components.app-config.logs-panel.timestamps', 'Timestamps')}
+                  data-testid={testIds.appConfig.logsPanel.timestamps}
+                  options={[
+                    { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: 'off' },
+                    { label: t('components.app-config.logs-panel.milliseconds', 'Milliseconds'), value: 'ms' },
+                    { label: t('components.app-config.logs-panel.nanoseconds', 'Nanoseconds'), value: 'ns' },
+                  ]}
+                  value={state.defaultShowTime ? state.defaultTimestampResolution : 'off'}
+                  size="sm"
+                  onChange={(resolution) =>
+                    setState({
+                      ...state,
+                      defaultShowTime: resolution !== 'off',
+                      defaultTimestampResolution: resolution === 'off' ? state.defaultTimestampResolution : resolution,
+                    })
+                  }
+                />
+              </Field>
+              <Field label={t('components.app-config.logs-panel.font-size', 'Font size')}>
+                <RadioButtonGroup<State['defaultFontSize']>
+                  aria-label={t('components.app-config.logs-panel.font-size', 'Font size')}
+                  data-testid={testIds.appConfig.logsPanel.fontSize}
+                  options={[
+                    { label: t('components.app-config.logs-panel.font-default', 'Default'), value: 'default' },
+                    { label: t('components.app-config.logs-panel.font-small', 'Small'), value: 'small' },
+                  ]}
+                  value={state.defaultFontSize}
+                  size="sm"
+                  onChange={(defaultFontSize) => setState({ ...state, defaultFontSize })}
+                />
+              </Field>
+              <Field label={t('components.app-config.visualization.sort-order', 'Sort order')}>
+                <RadioButtonGroup
+                  aria-label={t('components.app-config.visualization.sort-order', 'Sort order')}
+                  data-testid={testIds.appConfig.logsPanel.sortOrder}
+                  options={[
+                    {
+                      label: t('components.app-config.visualization.newest-first', 'Newest first'),
+                      value: LogsSortOrder.Descending,
+                    },
+                    {
+                      label: t('components.app-config.visualization.oldest-first', 'Oldest first'),
+                      value: LogsSortOrder.Ascending,
+                    },
+                  ]}
+                  value={state.defaultSortOrder}
+                  size="sm"
+                  onChange={(defaultSortOrder) => setState({ ...state, defaultSortOrder })}
+                />
+              </Field>
+              <Field label={t('components.app-config.logs-panel.details-mode', 'Details mode')}>
+                <RadioButtonGroup<State['defaultDetailsMode']>
+                  aria-label={t('components.app-config.logs-panel.details-mode', 'Details mode')}
+                  data-testid={testIds.appConfig.logsPanel.detailsMode}
+                  options={[
+                    { label: t('components.app-config.logs-panel.details-inline', 'Inline'), value: 'inline' },
+                    { label: t('components.app-config.logs-panel.details-sidebar', 'Sidebar'), value: 'sidebar' },
+                  ]}
+                  value={state.defaultDetailsMode}
+                  size="sm"
+                  onChange={(defaultDetailsMode) => setState({ ...state, defaultDetailsMode })}
+                />
+              </Field>
+              <Field label={t('components.app-config.visualization.syntax-highlighting', 'Syntax highlighting')}>
+                <RadioButtonGroup<boolean>
+                  aria-label={t('components.app-config.visualization.syntax-highlighting', 'Syntax highlighting')}
+                  data-testid={testIds.appConfig.logsPanel.syntaxHighlighting}
+                  options={[
+                    { label: t('components.app-config.logs-panel.enabled', 'Enabled'), value: true },
+                    { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: false },
+                  ]}
+                  value={state.defaultSyntaxHighlighting}
+                  size="sm"
+                  onChange={(defaultSyntaxHighlighting) => setState({ ...state, defaultSyntaxHighlighting })}
+                />
+              </Field>
+            </FieldSet>
+          </Box>
+
+          <Box
+            backgroundColor="primary"
+            borderColor="weak"
+            borderStyle="solid"
+            borderRadius="default"
+            marginBottom={4}
+            padding={2}
+          >
+            <FieldSet label={<Text element="h5">{t('components.app-config.table-panel.title', 'Table panel')}</Text>}>
+              <Field label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}>
+                <RadioButtonGroup<boolean>
+                  aria-label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}
+                  data-testid={testIds.appConfig.tablePanel.wrapping}
+                  options={[
+                    { label: t('components.app-config.logs-panel.enabled', 'Enabled'), value: true },
+                    { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: false },
+                  ]}
+                  value={state.defaultTableWrapText}
+                  size="sm"
+                  onChange={(defaultTableWrapText) => setState({ ...state, defaultTableWrapText })}
+                />
+              </Field>
+              <Field label={t('components.app-config.visualization.sort-order', 'Sort order')}>
+                <RadioButtonGroup
+                  aria-label={t('components.app-config.visualization.sort-order', 'Sort order')}
+                  data-testid={testIds.appConfig.tablePanel.sortOrder}
+                  options={[
+                    {
+                      label: t('components.app-config.visualization.newest-first', 'Newest first'),
+                      value: LogsSortOrder.Descending,
+                    },
+                    {
+                      label: t('components.app-config.visualization.oldest-first', 'Oldest first'),
+                      value: LogsSortOrder.Ascending,
+                    },
+                  ]}
+                  value={state.defaultTableSortOrder}
+                  size="sm"
+                  onChange={(defaultTableSortOrder) => setState({ ...state, defaultTableSortOrder })}
+                />
+              </Field>
+            </FieldSet>
+          </Box>
+
+          <Box
+            backgroundColor="primary"
+            borderColor="weak"
+            borderStyle="solid"
+            borderRadius="default"
+            marginBottom={4}
+            padding={2}
+          >
+            <FieldSet label={<Text element="h5">{t('components.app-config.json-panel.title', 'JSON panel')}</Text>}>
+              <Field label={t('components.app-config.visualization.sort-order', 'Sort order')}>
+                <RadioButtonGroup
+                  aria-label={t('components.app-config.visualization.sort-order', 'Sort order')}
+                  data-testid={testIds.appConfig.jsonPanel.sortOrder}
+                  options={[
+                    {
+                      label: t('components.app-config.visualization.newest-first', 'Newest first'),
+                      value: LogsSortOrder.Descending,
+                    },
+                    {
+                      label: t('components.app-config.visualization.oldest-first', 'Oldest first'),
+                      value: LogsSortOrder.Ascending,
+                    },
+                  ]}
+                  value={state.defaultJSONSortOrder}
+                  size="sm"
+                  onChange={(defaultJSONSortOrder) => setState({ ...state, defaultJSONSortOrder })}
+                />
+              </Field>
+              <Field label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}>
+                <RadioButtonGroup<boolean>
+                  aria-label={t('components.app-config.logs-panel.wrapping', 'Line wrapping')}
+                  data-testid={testIds.appConfig.jsonPanel.wrapping}
+                  options={[
+                    { label: t('components.app-config.logs-panel.enabled', 'Enabled'), value: true },
+                    { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: false },
+                  ]}
+                  value={state.defaultJSONWrapLogMessage}
+                  size="sm"
+                  onChange={(defaultJSONWrapLogMessage) => setState({ ...state, defaultJSONWrapLogMessage })}
+                />
+              </Field>
+              <Field label={t('components.app-config.visualization.syntax-highlighting', 'Syntax highlighting')}>
+                <RadioButtonGroup<boolean>
+                  aria-label={t('components.app-config.visualization.syntax-highlighting', 'Syntax highlighting')}
+                  data-testid={testIds.appConfig.jsonPanel.syntaxHighlighting}
+                  options={[
+                    { label: t('components.app-config.logs-panel.enabled', 'Enabled'), value: true },
+                    { label: t('components.app-config.logs-panel.disabled', 'Disabled'), value: false },
+                  ]}
+                  value={state.defaultJSONSyntaxHighlighting}
+                  size="sm"
+                  onChange={(defaultJSONSyntaxHighlighting) => setState({ ...state, defaultJSONSyntaxHighlighting })}
+                />
+              </Field>
+            </FieldSet>
+          </Box>
         </FieldSet>
+        <footer className={styles.footer}>
+          <Text color="secondary" variant="bodySmall">
+            <Trans i18nKey="components.app-config.active-users-reload-reflect-configuration-changes">
+              Active users must reload the app to reflect configuration changes.
+            </Trans>
+          </Text>
+          <Button
+            type="submit"
+            data-testid={testIds.appConfig.submit}
+            onClick={() =>
+              updatePluginAndReload(plugin.meta.id, {
+                enabled,
+                jsonData: {
+                  ...jsonData,
+                  ...changedPanelDefaults,
+                  dataSource: state.dataSource,
+                  interval: state.interval,
+                  patternsDisabled: state.patternsDisabled,
+                  defaultTimeRange:
+                    state.defaultTimeRangeEnabled &&
+                    state.defaultTimeRangeFrom.trim() &&
+                    state.defaultTimeRangeTo.trim()
+                      ? { from: state.defaultTimeRangeFrom.trim(), to: state.defaultTimeRangeTo.trim() }
+                      : undefined,
+                },
+                pinned,
+              })
+            }
+            disabled={isResolvingDefault || !isValid(state.interval) || !isDefaultTimeRangeValid}
+          >
+            <Trans i18nKey="components.app-config.save-settings">Save settings</Trans>
+          </Button>
+        </footer>
       </div>
     </FeatureFlagContext>
   );
@@ -364,8 +690,19 @@ const getStyles = (theme: GrafanaTheme2) => ({
   marginTopXl: css`
     margin-top: ${theme.spacing(6)};
   `,
-  note: css({
-    marginTop: theme.spacing(2),
+  footer: css({
+    display: 'flex',
+    gap: theme.spacing(1),
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    position: 'sticky',
+    bottom: 0,
+    left: 0,
+    background: theme.colors.background.secondary,
+    zIndex: theme.zIndex.navbarFixed,
+    padding: theme.spacing(1, 2),
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.sm,
   }),
 });
 
@@ -379,19 +716,6 @@ const updatePluginAndReload = async (pluginId: string, data: Partial<PluginMeta<
   } catch (e) {
     logger.error(e, { msg: 'Error while updating the plugin' });
   }
-};
-
-const testIds = {
-  appConfig: {
-    container: 'data-testid ac-container',
-    datasource: 'data-testid ac-datasource-input',
-    interval: 'data-testid ac-interval-input',
-    pattern: 'data-testid ac-patterns-disabled',
-    submit: 'data-testid ac-submit-form',
-    defaultTimeRangeEnabled: 'data-testid ac-default-time-range-enabled',
-    defaultTimeRangeFrom: 'data-testid ac-default-time-range-from',
-    defaultTimeRangeTo: 'data-testid ac-default-time-range-to',
-  },
 };
 
 export const updatePlugin = async (pluginId: string, data: Partial<PluginMeta>) => {
