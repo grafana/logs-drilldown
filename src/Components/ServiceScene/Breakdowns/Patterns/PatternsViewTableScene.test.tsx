@@ -5,8 +5,8 @@ import { render, screen } from '@testing-library/react';
 import { createTheme, DataFrame, dateTime } from '@grafana/data';
 import { sceneGraph } from '@grafana/scenes';
 
-import { PatternFrame } from './PatternsBreakdownScene';
 import { PatternsTableCellData, PatternsViewTableScene } from './PatternsViewTableScene';
+import type { PatternFrame } from 'services/patterns';
 import { testIds } from 'services/testIds';
 
 jest.mock('./PatternNameLabel', () => ({

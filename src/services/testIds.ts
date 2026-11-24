@@ -1,4 +1,13 @@
 export const testIds = {
+  exposedComponents: {
+    patterns: {
+      search: 'data-testid patterns-search',
+      volume: 'data-testid patterns-volume',
+      card: 'data-testid patterns-card',
+      table: 'data-testid patterns-table',
+      logs: 'data-testid patterns-logs',
+    },
+  },
   appConfig: {
     apiKey: 'data-testid ac-api-key',
     apiUrl: 'data-testid ac-api-url',

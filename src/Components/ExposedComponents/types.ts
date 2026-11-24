@@ -5,3 +5,5 @@
 // Keep these relative: the types bundler's tsconfig has no baseUrl to resolve src-rooted imports.
 export { EmbeddedLogsExplorationProps } from '../EmbeddedLogsExploration/types';
 export { OpenInLogsDrilldownButtonProps } from '../OpenInLogsDrilldownButton/types';
+
+export type { PatternsProps } from './Patterns/types';

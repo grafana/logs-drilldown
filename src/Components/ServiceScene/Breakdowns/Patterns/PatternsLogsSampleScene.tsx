@@ -19,18 +19,12 @@ import { Alert, Button } from '@grafana/ui';
 import { PatternsViewTableScene } from './PatternsViewTableScene';
 import { emptyStateStyles } from 'Components/ServiceScene/Breakdowns/FieldsBreakdownScene';
 import { logger } from 'services/logger';
-import { LokiQuery } from 'services/lokiQuery';
 import { getQueryRunner } from 'services/panel';
+import { buildPatternLogsQuery } from 'services/patterns';
 import { buildDataQuery } from 'services/query';
-import { renderPatternFilters } from 'services/renderPatternFilters';
 import { LOG_OPTIONS_PATTERNS_LOCALSTORAGE_KEY } from 'services/store';
 import { getFieldsVariable, getLevelsVariable, getLineFiltersVariable } from 'services/variableGetters';
-import {
-  AppliedPattern,
-  LOG_STREAM_SELECTOR_EXPR,
-  PATTERNS_SAMPLE_SELECTOR_EXPR,
-  VAR_PATTERNS_EXPR,
-} from 'services/variables';
+import { LOG_STREAM_SELECTOR_EXPR, PATTERNS_SAMPLE_SELECTOR_EXPR, VAR_PATTERNS_EXPR } from 'services/variables';
 
 interface PatternsLogsSampleSceneState extends SceneObjectState {
   body?: SceneFlexLayout;
@@ -49,8 +43,9 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
     }
 
     // We start by querying with the users current query context
-    const queryWithFilters = buildDataQuery(LOG_STREAM_SELECTOR_EXPR);
-    this.replacePatternsInQuery(queryWithFilters);
+    const queryWithFilters = buildDataQuery(
+      buildPatternLogsQuery(LOG_STREAM_SELECTOR_EXPR, this.state.pattern, VAR_PATTERNS_EXPR)
+    );
 
     // but if that fails to return results, we fire the query without the filters, instead of showing no-data in the viz
     const queryRunnerWithFilters = getQueryRunner([queryWithFilters]);
@@ -82,15 +77,6 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
         direction: 'column',
       }),
     });
-  }
-
-  private replacePatternsInQuery(queryWithFilters: LokiQuery) {
-    const pendingPattern: AppliedPattern = {
-      pattern: this.state.pattern,
-      type: 'include',
-    };
-    const patternsLine = renderPatternFilters([pendingPattern]);
-    queryWithFilters.expr = queryWithFilters.expr.replace(VAR_PATTERNS_EXPR, patternsLine);
   }
 
   private clearFilters = () => {
@@ -218,8 +204,9 @@ export class PatternsLogsSampleScene extends SceneObjectBase<PatternsLogsSampleS
    * @param value
    */
   private onQueryWithFiltersResult = (value: SceneDataProviderResult) => {
-    const queryWithoutFilters = buildDataQuery(PATTERNS_SAMPLE_SELECTOR_EXPR);
-    this.replacePatternsInQuery(queryWithoutFilters);
+    const queryWithoutFilters = buildDataQuery(
+      buildPatternLogsQuery(PATTERNS_SAMPLE_SELECTOR_EXPR, this.state.pattern, VAR_PATTERNS_EXPR)
+    );
 
     const queryRunnerWithoutFilters = getQueryRunner([queryWithoutFilters]);
 
