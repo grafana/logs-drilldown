@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { OpenAssistantButton } from '@grafana/assistant';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Box, Button, EmptyState, Stack } from '@grafana/ui';
@@ -20,15 +20,7 @@ export class EmptyLayoutScene extends SceneObjectBase<EmptyLayoutSceneState> {
 
 function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) {
   const sharedStyles = useSharedStyles();
-  const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
   const { type } = model.useState();
-
-  useEffect(() => {
-    const sub = isAssistantAvailable().subscribe((isAvailable: boolean) => {
-      setAssistantAvailable(isAvailable);
-    });
-    return () => sub.unsubscribe();
-  }, []);
 
   const embeddedOptions = getEmptyStateOptions(type, model);
 
@@ -72,16 +64,18 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
         {t('components.service-scene.breakdowns.empty-layout-scene.suffix', 'if you think this is a mistake.')}
         <Box marginTop={1} justifyContent="center">
           <Stack gap={1}>
-            {assistantAvailable && (
-              <Button
-                variant="secondary"
-                onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
-                icon="ai-sparkle"
-              >
-                {embeddedOptions?.promptCTA ??
-                  t('components.service-scene.breakdowns.empty-layout-scene.ask-assistant', 'Ask Grafana Assistant')}
-              </Button>
-            )}
+            <OpenAssistantButton
+              size="md"
+              origin="logs-drilldown-empty-results"
+              prompt={
+                embeddedOptions?.customPrompt ??
+                `Investigate why there are no ${type} to display with the current filters and time range.`
+              }
+              title={
+                embeddedOptions?.promptCTA ??
+                t('components.service-scene.breakdowns.empty-layout-scene.ask-assistant', 'Ask Grafana Assistant')
+              }
+            />
             {noFieldsAndParsersDisabled && (
               <Button variant="primary" onClick={enableParsers}>
                 {t('components.service-scene.breakdowns.empty-layout-scene.enable-parsers', 'Enable extracted fields')}
@@ -92,14 +86,4 @@ function EmptyLayoutComponent({ model }: SceneComponentProps<EmptyLayoutScene>) 
       </EmptyState>
     </div>
   );
-}
-
-function solveWithAssistant(
-  type: 'fields' | 'labels',
-  prompt = `Investigate why there are no ${type} to display with the current filters and time range.`
-) {
-  openAssistant({
-    origin: 'logs-drilldown-empty-results',
-    prompt,
-  });
 }

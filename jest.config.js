@@ -27,6 +27,12 @@ module.exports = {
     '^.+\\.svg$': '<rootDir>/.config/svgTransform.js',
   },
   transformIgnorePatterns: [
-    nodeModulesToTransform([...grafanaESModules, '@bsull/augurs', '@react-hookz/web', '@ver0/deep-equal']),
+    nodeModulesToTransform([
+      ...grafanaESModules,
+      '@bsull/augurs',
+      '@grafana/assistant',
+      '@react-hookz/web',
+      '@ver0/deep-equal',
+    ]),
   ],
 };
