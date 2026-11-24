@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.3.0](https://github.com/grafana/logs-drilldown/compare/v3.2.0...v3.3.0) (2026-11-24)
+
+
+### 🎉 Features
+
+* **alert:** add go queryless for Loki alert rules ([#2161](https://github.com/grafana/logs-drilldown/issues/2161)) ([559e3e1](https://github.com/grafana/logs-drilldown/commit/559e3e17d6c862f25e9b2635ab4a28c499b7b0e2))
+* **LogsTable:** add popover menu support ([#2194](https://github.com/grafana/logs-drilldown/issues/2194)) ([8761fdf](https://github.com/grafana/logs-drilldown/commit/8761fdf8126b0ddd1314388f5ce81137ecb5b0f2))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** bump pnpm overrides for CVE remediation ([#2202](https://github.com/grafana/logs-drilldown/issues/2202)) ([66685db](https://github.com/grafana/logs-drilldown/commit/66685db4e53eb8799a6cbad4409a74187a44b441))
+* fit labels and fields layouts on small screens ([#2191](https://github.com/grafana/logs-drilldown/issues/2191)) ([8cfd41a](https://github.com/grafana/logs-drilldown/commit/8cfd41a6b34b7708e793bd2b473cfea638fe0793))
+* use Grafana notebook icon in panel menu ([#2200](https://github.com/grafana/logs-drilldown/issues/2200)) ([9c13233](https://github.com/grafana/logs-drilldown/commit/9c13233eff22d7f41b418cffacb5a37eca6c0ee7))
+* use OpenAssistantButton for empty state Assistant buttons ([#2203](https://github.com/grafana/logs-drilldown/issues/2203)) ([936122e](https://github.com/grafana/logs-drilldown/commit/936122e73e360bd0945c2f3bedd444b0920bf123))
+
+
+### 📝 Documentation
+
+* Update troubleshooting drilldown ([#2189](https://github.com/grafana/logs-drilldown/issues/2189)) ([d95a214](https://github.com/grafana/logs-drilldown/commit/d95a2144890d8b0537f365a7ed49bcc8d6a326e8))
+
 ## [3.2.0](https://github.com/grafana/logs-drilldown/compare/v3.1.0...v3.2.0) (2026-11-10)
 
 
