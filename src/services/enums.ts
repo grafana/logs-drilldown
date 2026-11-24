@@ -13,6 +13,10 @@ export enum PageSlugs {
   patterns = 'patterns',
   fields = 'fields',
   embed = 'embed',
+  embedMini = 'embed-mini',
+  embedMiniLogsOnly = 'embed-mini-logs-only',
+  embedMiniVolumeOnly = 'embed-mini-volume-only',
+  embedQueryEfficiency = 'embed-query-efficiency',
 }
 
 export enum ValueSlugs {
