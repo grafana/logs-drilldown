@@ -1,20 +1,17 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { of } from 'rxjs';
+import { render, screen } from '@testing-library/react';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { OpenAssistantButton } from '@grafana/assistant';
 
 import { EmptyLayoutScene } from './EmptyLayoutScene';
 import { getEmptyStateOptions } from 'services/extensions/embedding';
 
 // Mock dependencies
-jest.mock('@grafana/assistant');
+jest.mock('@grafana/assistant', () => ({ OpenAssistantButton: jest.fn(() => null) }));
 jest.mock('services/extensions/embedding');
 
-const mockIsAssistantAvailable = jest.mocked(isAssistantAvailable);
-const mockOpenAssistant = jest.mocked(openAssistant);
+const mockOpenAssistantButton = jest.mocked(OpenAssistantButton);
 const mockGetEmptyStateOptions = jest.mocked(getEmptyStateOptions);
 
 const types: Array<'fields' | 'labels'> = ['labels', 'fields'];
@@ -33,78 +30,44 @@ describe('EmptyLayoutScene', () => {
     });
 
     test('renders empty state message for fields', () => {
-      mockIsAssistantAvailable.mockReturnValue(of(false));
-
       render(<scene.Component model={scene} />);
 
       expect(screen.getByText(new RegExp(`We did not find any ${type} for the given time range`))).toBeInTheDocument();
     });
 
-    test('does not show assistant button when assistant is not available', () => {
-      mockIsAssistantAvailable.mockReturnValue(of(false));
-
+    test('renders the assistant button with the default prompt and title', () => {
       render(<scene.Component model={scene} />);
 
-      expect(screen.queryByText('Ask Grafana Assistant')).not.toBeInTheDocument();
-    });
-
-    test('shows assistant button when assistant is available', async () => {
-      mockIsAssistantAvailable.mockReturnValue(of(true));
-
-      render(<scene.Component model={scene} />);
-
-      await waitFor(() => {
-        expect(screen.getByText('Ask Grafana Assistant')).toBeInTheDocument();
-      });
-    });
-
-    test('calls openAssistant with correct parameters when assistant button is clicked', async () => {
-      mockIsAssistantAvailable.mockReturnValue(of(true));
-
-      render(<scene.Component model={scene} />);
-
-      const assistantButton = await waitFor(() => screen.getByText('Ask Grafana Assistant'));
-      await userEvent.click(assistantButton);
-
-      expect(mockOpenAssistant).toHaveBeenCalledWith({
+      expect(mockOpenAssistantButton.mock.calls[0]?.[0]).toMatchObject({
         origin: 'logs-drilldown-empty-results',
         prompt: `Investigate why there are no ${type} to display with the current filters and time range.`,
+        title: 'Ask Grafana Assistant',
+        size: 'md',
       });
     });
 
-    test('uses custom prompt from embedded options when available', async () => {
+    test('uses custom prompt from embedded options when available', () => {
       const customPrompt = 'Custom investigation prompt for fields';
       mockGetEmptyStateOptions.mockReturnValue({ customPrompt });
-      mockIsAssistantAvailable.mockReturnValue(of(true));
 
       render(<scene.Component model={scene} />);
 
-      const assistantButton = await waitFor(() => screen.getByText('Ask Grafana Assistant'));
-      await userEvent.click(assistantButton);
-
-      expect(mockOpenAssistant).toHaveBeenCalledWith({
+      expect(mockOpenAssistantButton.mock.calls[0]?.[0]).toMatchObject({
         origin: 'logs-drilldown-empty-results',
         prompt: customPrompt,
       });
     });
 
-    test('uses custom CTA text from embedded options when available', async () => {
+    test('uses custom CTA text from embedded options when available', () => {
       const customCTA = 'Custom Assistant CTA';
       mockGetEmptyStateOptions.mockReturnValue({ promptCTA: customCTA });
-      mockIsAssistantAvailable.mockReturnValue(of(true));
 
       render(<scene.Component model={scene} />);
 
-      await waitFor(() => {
-        expect(screen.getByText(customCTA)).toBeInTheDocument();
-      });
-
-      expect(screen.queryByText('Ask Grafana Assistant')).not.toBeInTheDocument();
+      expect(mockOpenAssistantButton.mock.calls[0]?.[0]).toMatchObject({ title: customCTA });
     });
 
     test('calls getEmptyStateOptions with correct parameters', () => {
-      mockIsAssistantAvailable.mockReturnValue(of(false));
-
       render(<scene.Component model={scene} />);
 
       expect(mockGetEmptyStateOptions).toHaveBeenCalledWith(type, scene);

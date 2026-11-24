@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { OpenAssistantButton } from '@grafana/assistant';
 import { t } from '@grafana/i18n';
 import { SceneObject } from '@grafana/scenes';
 import { Button, EmptyState, Stack } from '@grafana/ui';
@@ -19,16 +19,6 @@ export type ErrorType = 'no-logs' | 'other';
 
 export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Props) => {
   const sharedStyles = useSharedStyles();
-  const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
-
-  useEffect(() => {
-    if (errorType !== 'no-logs') {
-      return;
-    }
-    isAssistantAvailable().subscribe((isAvailable: boolean) => {
-      setAssistantAvailable(isAvailable);
-    });
-  }, [errorType]);
 
   const embeddedOptions = getEmptyStateOptions('logs', sceneRef);
   const message = error || t('components.service-scene.logs-panel-error.default', 'An error occurred');
@@ -42,26 +32,22 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
               {t('components.service-scene.logs-panel-error.clear-filters', 'Clear filters')}
             </Button>
           )}
-          {errorType === 'no-logs' && assistantAvailable && (
-            <Button
-              variant="secondary"
-              onClick={() => solveWithAssistant(embeddedOptions?.customPrompt)}
-              icon="ai-sparkle"
-            >
-              {embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
-            </Button>
+          {errorType === 'no-logs' && (
+            <OpenAssistantButton
+              size="md"
+              origin="logs-drilldown-empty-results"
+              prompt={
+                embeddedOptions?.customPrompt ??
+                'Investigate why there are no logs to display with the current filters and time range.'
+              }
+              title={
+                embeddedOptions?.promptCTA ??
+                t('components.service-scene.logs-panel-error.ask-assistant', 'Ask Grafana Assistant')
+              }
+            />
           )}
         </Stack>
       </EmptyState>
     </div>
   );
 };
-
-function solveWithAssistant(
-  prompt = 'Investigate why there are no logs to display with the current filters and time range.'
-) {
-  openAssistant({
-    origin: 'logs-drilldown-empty-results',
-    prompt,
-  });
-}

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { OpenAssistantButton } from '@grafana/assistant';
 import { t } from '@grafana/i18n';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState } from '@grafana/scenes';
 import { Button, EmptyState, Stack } from '@grafana/ui';
@@ -19,14 +19,7 @@ export class NoMatchingLabelsScene extends SceneObjectBase<ClearFiltersLayoutSce
 
 function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabelsScene>) {
   const sharedStyles = useSharedStyles();
-  const [assistantAvailable, setAssistantAvailable] = useState<boolean | undefined>(undefined);
   const { clearCallback, type = 'labels' } = model.useState();
-
-  useEffect(() => {
-    isAssistantAvailable().subscribe((isAvailable: boolean) => {
-      setAssistantAvailable(isAvailable);
-    });
-  }, []);
 
   const embeddedOptions = getEmptyStateOptions(type, model);
 
@@ -46,27 +39,20 @@ function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabe
           <Button className={emptyStateStyles.button} onClick={() => clearCallback()}>
             {t('components.service-scene.breakdowns.no-matching-labels-scene.clear-filters', 'Clear filters')}
           </Button>
-          {assistantAvailable && (
-            <Button
-              variant="secondary"
-              onClick={() => solveWithAssistant(type, embeddedOptions?.customPrompt)}
-              icon="ai-sparkle"
-            >
-              {embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
-            </Button>
-          )}
+          <OpenAssistantButton
+            size="md"
+            origin="logs-drilldown-empty-results"
+            prompt={
+              embeddedOptions?.customPrompt ??
+              `Investigate why there are no ${type} to display with the current filters and time range.`
+            }
+            title={
+              embeddedOptions?.promptCTA ??
+              t('components.service-scene.breakdowns.no-matching-labels-scene.ask-assistant', 'Ask Grafana Assistant')
+            }
+          />
         </Stack>
       </EmptyState>
     </div>
   );
-}
-
-function solveWithAssistant(
-  type: 'fields' | 'labels',
-  prompt = `Investigate why there are no ${type} to display with the current filters and time range.`
-) {
-  openAssistant({
-    origin: 'logs-drilldown-empty-results',
-    prompt,
-  });
 }

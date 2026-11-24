@@ -1,18 +1,14 @@
 import React from 'react';
 
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BehaviorSubject, of } from 'rxjs';
 
-import { isAssistantAvailable, openAssistant } from '@grafana/assistant';
+import { OpenAssistantButton } from '@grafana/assistant';
 import { sceneGraph, SceneObject } from '@grafana/scenes';
 
 import { LogsPanelError } from './LogsPanelError';
 
-jest.mock('@grafana/assistant', () => ({
-  isAssistantAvailable: jest.fn(),
-  openAssistant: jest.fn(),
-}));
+jest.mock('@grafana/assistant', () => ({ OpenAssistantButton: jest.fn(() => null) }));
 
 jest.mock('@grafana/scenes', () => ({
   sceneGraph: {
@@ -24,8 +20,7 @@ jest.mock('Components/IndexScene/IndexScene', () => ({
   IndexScene: {},
 }));
 
-const mockIsAssistantAvailable = isAssistantAvailable as jest.MockedFunction<typeof isAssistantAvailable>;
-const mockOpenAssistant = openAssistant as jest.MockedFunction<typeof openAssistant>;
+const mockOpenAssistantButton = jest.mocked(OpenAssistantButton);
 const mockGetAncestor = sceneGraph.getAncestor as jest.MockedFunction<typeof sceneGraph.getAncestor>;
 
 describe('LogsPanelError', () => {
@@ -85,102 +80,54 @@ describe('LogsPanelError', () => {
     expect(mockClearFilters).toHaveBeenCalledTimes(1);
   });
 
-  it('checks assistant availability when errorType is no-logs', async () => {
-    const assistantSubject = new BehaviorSubject(true);
-    mockIsAssistantAvailable.mockReturnValue(assistantSubject);
-
+  it('renders the assistant button with the default prompt and title when errorType is no-logs', () => {
     render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
 
-    expect(mockIsAssistantAvailable).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not check assistant availability when errorType is not no-logs', () => {
-    render(<LogsPanelError error="Other error" errorType="other" sceneRef={mockSceneRef} />);
-
-    expect(mockIsAssistantAvailable).not.toHaveBeenCalled();
-  });
-
-  it('renders assistant button when errorType is no-logs and assistant is available', async () => {
-    mockIsAssistantAvailable.mockReturnValue(of(true));
-
-    render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
-
-    await waitFor(() => expect(mockIsAssistantAvailable).toHaveBeenCalled());
-
-    await waitFor(() => expect(screen.getByText('Ask Grafana Assistant')).toBeInTheDocument());
-  });
-
-  it('does not render assistant button when assistant is not available', async () => {
-    const assistantSubject = new BehaviorSubject(false);
-    mockIsAssistantAvailable.mockReturnValue(assistantSubject);
-
-    render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
-
-    expect(screen.queryByText('Ask Grafana Assistant')).not.toBeInTheDocument();
-  });
-
-  it('does not render assistant button when errorType is not no-logs', () => {
-    render(<LogsPanelError error="Other error" errorType="other" sceneRef={mockSceneRef} />);
-
-    expect(screen.queryByText('Ask Grafana Assistant')).not.toBeInTheDocument();
-  });
-
-  it('calls openAssistant with default prompt when assistant button is clicked (non-embedded)', async () => {
-    const user = userEvent.setup();
-    mockIsAssistantAvailable.mockReturnValue(of(true));
-
-    render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
-
-    expect(screen.getByText('Ask Grafana Assistant')).toBeInTheDocument();
-
-    await user.click(screen.getByText('Ask Grafana Assistant'));
-
-    expect(mockOpenAssistant).toHaveBeenCalledWith({
+    expect(mockOpenAssistantButton.mock.calls[0]?.[0]).toMatchObject({
       origin: 'logs-drilldown-empty-results',
       prompt: 'Investigate why there are no logs to display with the current filters and time range.',
+      title: 'Ask Grafana Assistant',
+      size: 'md',
     });
   });
 
-  it('calls openAssistant with custom prompt when assistant button is clicked (embedded)', async () => {
-    const user = userEvent.setup();
-    mockIsAssistantAvailable.mockReturnValue(of(true));
+  it('does not render the assistant button when errorType is not no-logs', () => {
+    render(<LogsPanelError error="Other error" errorType="other" sceneRef={mockSceneRef} />);
 
+    expect(mockOpenAssistantButton).not.toHaveBeenCalled();
+  });
+
+  it('does not render the assistant button when errorType is not set', () => {
+    render(<LogsPanelError error="Other error" sceneRef={mockSceneRef} />);
+
+    expect(mockOpenAssistantButton).not.toHaveBeenCalled();
+  });
+
+  it('uses the custom prompt and title from embedded options', () => {
     mockGetAncestor.mockReturnValue(mockEmbeddedIndexScene);
 
     render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
 
-    expect(screen.getByText('Custom CTA')).toBeInTheDocument();
-
-    await user.click(screen.getByText('Custom CTA'));
-
-    expect(mockOpenAssistant).toHaveBeenCalledWith({
+    expect(mockOpenAssistantButton.mock.calls[0]?.[0]).toMatchObject({
       origin: 'logs-drilldown-empty-results',
       prompt: 'Custom embedded prompt',
+      title: 'Custom CTA',
     });
   });
 
-  it('handles missing indexScene gracefully', async () => {
-    const user = userEvent.setup();
-    const assistantSubject = new BehaviorSubject(true);
-    mockIsAssistantAvailable.mockReturnValue(assistantSubject);
+  it('handles missing indexScene gracefully', () => {
     mockGetAncestor.mockReturnValue(null);
 
     render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
 
-    expect(screen.getByText('Ask Grafana Assistant')).toBeInTheDocument();
-
-    await user.click(screen.getByText('Ask Grafana Assistant'));
-
-    expect(mockOpenAssistant).toHaveBeenCalledWith({
+    expect(mockOpenAssistantButton.mock.calls[0]?.[0]).toMatchObject({
       origin: 'logs-drilldown-empty-results',
       prompt: 'Investigate why there are no logs to display with the current filters and time range.',
+      title: 'Ask Grafana Assistant',
     });
   });
 
-  it('renders both buttons when both clearFilters and assistant are available', async () => {
-    const assistantSubject = new BehaviorSubject(true);
-    mockIsAssistantAvailable.mockReturnValue(assistantSubject);
-
+  it('renders both buttons when clearFilters is provided and errorType is no-logs', () => {
     render(
       <LogsPanelError
         error="No logs found"
@@ -191,27 +138,6 @@ describe('LogsPanelError', () => {
     );
 
     expect(screen.getByText('Clear filters')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.getByText('Ask Grafana Assistant')).toBeInTheDocument();
-    });
-  });
-
-  it('handles assistant availability changes', async () => {
-    const assistantSubject = new BehaviorSubject(false);
-    mockIsAssistantAvailable.mockReturnValue(assistantSubject);
-
-    render(<LogsPanelError error="No logs found" errorType="no-logs" sceneRef={mockSceneRef} />);
-
-    expect(screen.queryByText('Ask Grafana Assistant')).not.toBeInTheDocument();
-
-    // Simulate assistant becoming available
-    act(() => {
-      assistantSubject.next(true);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Ask Grafana Assistant')).toBeInTheDocument();
-    });
+    expect(mockOpenAssistantButton).toHaveBeenCalled();
   });
 });
