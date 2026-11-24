@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "Clear line filter"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "Ask Grafana Assistant",
           "clear-filters": "Clear filters",
           "title": "No {{type}} match these filters."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "Ask Grafana Assistant",
         "clear-filters": "Clear filters",
         "default": "An error occurred"
       },

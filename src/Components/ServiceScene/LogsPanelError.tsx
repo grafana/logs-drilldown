@@ -40,7 +40,10 @@ export const LogsPanelError = ({ clearFilters, error, errorType, sceneRef }: Pro
                 embeddedOptions?.customPrompt ??
                 'Investigate why there are no logs to display with the current filters and time range.'
               }
-              title={embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
+              title={
+                embeddedOptions?.promptCTA ??
+                t('components.service-scene.logs-panel-error.ask-assistant', 'Ask Grafana Assistant')
+              }
             />
           )}
         </Stack>

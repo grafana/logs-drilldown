@@ -46,7 +46,10 @@ function NoMatchingLabelsComponent({ model }: SceneComponentProps<NoMatchingLabe
               embeddedOptions?.customPrompt ??
               `Investigate why there are no ${type} to display with the current filters and time range.`
             }
-            title={embeddedOptions?.promptCTA ?? 'Ask Grafana Assistant'}
+            title={
+              embeddedOptions?.promptCTA ??
+              t('components.service-scene.breakdowns.no-matching-labels-scene.ask-assistant', 'Ask Grafana Assistant')
+            }
           />
         </Stack>
       </EmptyState>
