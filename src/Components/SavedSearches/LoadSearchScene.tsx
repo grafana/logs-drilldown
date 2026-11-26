@@ -74,18 +74,15 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
       () => (
         <>
           <ToolbarButton
-            icon="folder-open"
+            icon="book-open"
             variant="canvas"
             disabled={!hasSavedSearches}
             onClick={model.toggleOpen}
             className={styles.button}
             tooltip={
               hasSavedSearches
-                ? t('components.saved-searches.load-search-button.button-tooltip', 'Load saved search')
-                : t(
-                    'components.saved-searches.load-search-button.button-no-search-tooltip',
-                    'No saved searches to load'
-                  )
+                ? t('components.saved-searches.load-search-button.button-tooltip', 'Use saved query')
+                : t('components.saved-searches.load-search-button.button-no-search-tooltip', 'No saved queries')
             }
           />
           {isOpen && <LoadSearchModal sceneRef={model} onClose={model.toggleClosed} />}
@@ -150,9 +147,9 @@ export class LoadSearchScene extends SceneObjectBase<LoadSearchSceneState> {
         className={styles.button}
         context="drilldown"
         datasourceFilters={[dsName]}
-        icon="folder-open"
+        icon="book-open"
         onSelectQuery={onSelectQuery}
-        tooltip={t('components.saved-searches.load-search-button.saved-query-button-tooltip', 'Load Saved query')}
+        tooltip={t('components.saved-searches.load-search-button.saved-query-button-tooltip', 'Use saved query')}
       />
     );
   };

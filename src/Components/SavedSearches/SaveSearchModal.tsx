@@ -45,7 +45,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         setState('saved');
 
         appEvents.publish({
-          payload: [t('components.saved-searches.save-search-modal.success', 'Search successfully saved.')],
+          payload: [t('components.saved-searches.save-search-modal.success', 'Query successfully saved.')],
           type: AppEvents.alertSuccess.name,
         });
 
@@ -57,7 +57,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
         setState('error');
 
         appEvents.publish({
-          payload: [t('components.saved-searches.save-search-modal.error', 'Unexpected error saving this search.')],
+          payload: [t('components.saved-searches.save-search-modal.error', 'Unexpected error saving this query.')],
           type: AppEvents.alertError.name,
         });
       }
@@ -67,14 +67,14 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
 
   return (
     <Modal
-      title={t('components.saved-searches.save-search-modal.modal-title', 'Save current search')}
+      title={t('components.saved-searches.save-search-modal.modal-title', 'Save query')}
       isOpen={true}
       onDismiss={onClose}
     >
       <Alert title="" severity="info">
         {t(
           'components.saved-searches.save-search-modal.modal-alert',
-          'Saved searches are stored locally in your browser and will only be available on this device.'
+          'Saved queries are stored locally in your browser and will only be available on this device.'
         )}
       </Alert>
       <Box marginBottom={2}>
@@ -88,7 +88,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
                 <Alert title="" severity="warning">
                   {t(
                     'components.saved-searches.save-search-modal.already-exists-alert',
-                    'There is a previously saved search with the same query: {{title}}',
+                    'There is a previously saved query with the same expression: {{title}}',
                     {
                       title: existingSearch.title,
                     }
@@ -136,7 +136,7 @@ export function SaveSearchModal({ dsUid, onClose, sceneRef }: Props) {
       ) : (
         <>
           <Alert title={t('components.saved-searches.save-search-modal.title-success', 'Success')} severity="success">
-            {t('components.saved-searches.save-search-modal.success', 'Search successfully saved.')}
+            {t('components.saved-searches.save-search-modal.success', 'Query successfully saved.')}
           </Alert>
           <Modal.ButtonRow>
             <Button variant="secondary" fill="outline" onClick={onClose}>

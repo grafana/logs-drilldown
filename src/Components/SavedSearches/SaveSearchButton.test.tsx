@@ -44,15 +44,15 @@ describe('SaveSearchButton', () => {
   test('Opens the modal when the button is clicked', () => {
     render(<SaveSearchButton sceneRef={mockSceneRef} />);
 
-    expect(screen.queryByText('Save current search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Save query')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Save/i }));
 
-    expect(screen.getByText('Save current search')).toBeInTheDocument();
+    expect(screen.getByText('Save query')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
 
-    expect(screen.queryByText('Save current search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Save query')).not.toBeInTheDocument();
   });
 
   test('Returns null when the scene is embedded', () => {

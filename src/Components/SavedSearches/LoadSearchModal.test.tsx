@@ -74,7 +74,7 @@ describe('LoadSearchModal', () => {
 
     render(<LoadSearchModal onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
-    expect(screen.getByText('No saved searches to display.')).toBeInTheDocument();
+    expect(screen.getByText('No saved queries to display.')).toBeInTheDocument();
   });
 
   test('Selects a search when clicked', () => {

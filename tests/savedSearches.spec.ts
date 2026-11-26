@@ -42,12 +42,12 @@ test.describe('saved searches', () => {
     const selectedServiceText = (await serviceChip.textContent()) ?? '';
 
     // Step 2: Click the save search button
-    const saveSearchButton = page.getByRole('button', { name: 'Save search' });
+    const saveSearchButton = page.getByRole('button', { name: 'Save query' });
     await expect(saveSearchButton).toBeVisible();
     await saveSearchButton.click();
 
     // Step 3: Verify the save search modal is open and fill in the form
-    await expect(page.getByRole('heading', { name: 'Save current search' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Save query' })).toBeVisible();
 
     // Fill in the title field
     const titleInput = page.getByLabel('Title');
@@ -67,7 +67,7 @@ test.describe('saved searches', () => {
 
     // Step 4: Verify the search was saved successfully
     // The modal should close automatically after saving
-    await expect(page.getByRole('heading', { name: 'Save current search' })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Save query' })).not.toBeVisible();
 
     // Step 5: Go back to the landing page
     const removeServiceButton = page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel);
@@ -78,12 +78,12 @@ test.describe('saved searches', () => {
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
     // Step 6: Click the load search button
-    const loadSearchButton = page.getByRole('button', { name: 'Load saved search' });
+    const loadSearchButton = page.getByRole('button', { name: 'Use saved query' });
     await expect(loadSearchButton).toBeEnabled();
     await loadSearchButton.click();
 
     // Step 7: Verify the load search modal is open
-    await expect(page.getByRole('heading', { name: 'Load a previously saved search' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Saved queries' })).toBeVisible();
 
     // Step 8: Select the saved search we just created
     // The search should be in the list
@@ -112,7 +112,7 @@ test.describe('saved searches', () => {
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
     // The load search button should be disabled when there are no saved searches
-    const loadSearchButton = page.getByRole('button', { name: 'No saved searches to load' });
+    const loadSearchButton = page.getByRole('button', { name: 'No saved queries' });
     await expect(loadSearchButton).toBeDisabled();
   });
 
@@ -127,7 +127,7 @@ test.describe('saved searches', () => {
     await explorePage.clickShowLogs();
 
     // Save the search
-    const saveSearchButton = page.getByRole('button', { name: 'Save search' });
+    const saveSearchButton = page.getByRole('button', { name: 'Save query' });
     await saveSearchButton.click();
 
     const searchTitle = `Deletable Search ${Date.now()}`;
@@ -135,14 +135,14 @@ test.describe('saved searches', () => {
     await page.getByRole('button', { name: 'Save', exact: true }).click();
 
     // Wait for modal to close
-    await expect(page.getByRole('heading', { name: 'Save current search' })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Save query' })).not.toBeVisible();
 
     // Navigate back to landing page
     await page.getByLabel(E2EComboboxStrings.labels.removeServiceLabel).click();
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
     // Open load search modal
-    const loadSearchButton = page.getByRole('button', { name: 'Load saved search' });
+    const loadSearchButton = page.getByRole('button', { name: 'Use saved query' });
     await loadSearchButton.click();
 
     // Select the saved search
@@ -157,20 +157,20 @@ test.describe('saved searches', () => {
     }
 
     // Click the delete button - scope to modal to avoid matching favorite "Remove X from favorites" button
-    const loadSearchModal = page.getByRole('dialog', { name: /Load a previously saved search/ });
+    const loadSearchModal = page.getByRole('dialog', { name: /Saved queries/ });
     const deleteButton = loadSearchModal.getByRole('button', { name: 'Remove' });
     await expect(deleteButton).toBeVisible();
     await deleteButton.click();
 
     // Verify the search is removed from the list
     await expect(savedSearchItem).not.toBeVisible();
-    await expect(page.getByText('No saved searches to display.')).toBeVisible();
+    await expect(page.getByText('No saved queries to display.')).toBeVisible();
 
     // Close the modal
     await page.keyboard.press('Escape');
 
     // Wait for modal to close
-    await expect(page.getByRole('heading', { name: 'Load a previously saved search' })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Saved queries' })).not.toBeVisible();
   });
 
   test('should warn when saving a duplicate search', async ({ page }) => {
@@ -184,24 +184,24 @@ test.describe('saved searches', () => {
     await explorePage.clickShowLogs();
 
     // Save the search
-    const saveSearchButton = page.getByRole('button', { name: 'Save search' });
+    const saveSearchButton = page.getByRole('button', { name: 'Save query' });
     await saveSearchButton.click();
 
     const searchTitle = `Duplicate Search ${Date.now()}`;
     await page.getByLabel('Title').fill(searchTitle);
     await page.getByRole('button', { name: 'Save', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Save current search' })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Save query' })).not.toBeVisible();
 
     // Try to save the same search again (same query, different title)
     await saveSearchButton.click();
-    await expect(page.getByRole('heading', { name: 'Save current search' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Save query' })).toBeVisible();
 
     // Should show a warning about existing search
-    await expect(page.getByText(/There is a previously saved search with the same query/i)).toBeVisible();
+    await expect(page.getByText(/There is a previously saved query with the same expression/i)).toBeVisible();
 
     // Close the modal
     await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page.getByRole('heading', { name: 'Save current search' })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Save query' })).not.toBeVisible();
   });
 
   test('should navigate to service selection from breakdown and load search', async ({ page }) => {
@@ -222,7 +222,7 @@ test.describe('saved searches', () => {
     const selectedServiceText = (await serviceChip.textContent()) ?? '';
 
     // Save a search from the breakdown view
-    const saveSearchButton = page.getByRole('button', { name: 'Save search' });
+    const saveSearchButton = page.getByRole('button', { name: 'Save query' });
     await saveSearchButton.click();
 
     const searchTitle = `Nav Test Search ${Date.now()}`;
@@ -237,7 +237,7 @@ test.describe('saved searches', () => {
     await expect(page.getByText(serviceSelectionPaginationTextMatch)).toBeVisible();
 
     // Load the saved search
-    const loadSearchButton = page.getByRole('button', { name: 'Load saved search' });
+    const loadSearchButton = page.getByRole('button', { name: 'Use saved query' });
     await loadSearchButton.click();
 
     const savedSearchItem = page.getByRole('radio', { name: searchTitle });
