@@ -89,8 +89,8 @@ export class ActionBarScene extends SceneObjectBase<ActionBarSceneState> {
         <div className={styles.actions}>
           <Stack gap={1}>
             {shareButtonScene && <shareButtonScene.Component model={shareButtonScene} />}
-            <SaveSearchButton sceneRef={model} />
             {loadSearchScene && <loadSearchScene.Component model={loadSearchScene} />}
+            <SaveSearchButton sceneRef={model} />
           </Stack>
         </div>
 
