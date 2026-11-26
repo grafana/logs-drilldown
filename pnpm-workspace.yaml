@@ -11,6 +11,10 @@ minimumReleaseAge: 4320
 # Remove once the version is older than minimumReleaseAge (published 2026-11-04).
 minimumReleaseAgeExclude:
   - '@grafana/scenes@9.2.2'
+  # Faro routing is only available in this alpha release.
+  - '@grafana/faro-core@2.15.0-alpha.0'
+  - '@grafana/faro-web-sdk@2.15.0-alpha.0'
+  - '@grafana/faro-web-tracing@2.15.0-alpha.0'
 # Fail install if a package's trust evidence is weaker than an earlier release (e.g. lost trusted publisher).
 trustPolicy: no-downgrade
 # Exemptions for entries that cannot resolve to an attested version: each is a
@@ -38,6 +42,9 @@ overrides:
   # v6.30.6 has no package fix for GHSA-wrjc-x8rr-h8h6; this browser plugin only uses static internal routes.
   # GHSA-337j-9hxr-rhxg affects SSR hydration, which this browser plugin does not use.
   'react-router@^6': ^6.30.6
+  # Keep Grafana runtime and UI Faro consumers aligned with the plugin's tracing instance.
+  '@grafana/faro-core': 2.15.0-alpha.0
+  '@grafana/faro-web-sdk': 2.15.0-alpha.0
   js-cookie: ^3.0.7
   csv-parse: ^7.0.2
   basic-ftp: '^6.2.4'

@@ -41,7 +41,10 @@ export const initFaro = async () => {
           ...getWebInstrumentations({
             captureConsole: false,
           }),
-          new TracingInstrumentation(),
+          new TracingInstrumentation({
+            mode: 'routing',
+            pageRouteMatchers: [{ pattern: new RegExp(`^${PLUGIN_BASE_URL}(?:/|$)`), target: 'pathname' }],
+          }),
         ],
         isolate: true,
         // Benign browser noise; Grafana core's faro config ignores the same messages

@@ -1,8 +1,10 @@
 import { getWebInstrumentations, initializeFaro } from '@grafana/faro-web-sdk';
+import { TracingInstrumentation } from '@grafana/faro-web-tracing';
 
 import { initFaro } from 'faro/faroInit';
 import { setFaro } from 'faro/faroInstance';
 import { getFaroEnvironment } from 'faro/getFaroEnv';
+import { PLUGIN_BASE_URL } from 'services/plugin';
 
 jest.mock('faro/getFaroEnv');
 jest.mock('@grafana/faro-web-sdk');
@@ -110,6 +112,39 @@ describe('initFaro()', () => {
 
       expect(isolate).toBe(true);
       expect(beforeSend).toBeInstanceOf(Function);
+    });
+
+    test('configures tracing for the plugin route and its subroutes', async () => {
+      mockedGetFaroEnvironment.mockReturnValue({
+        environment: 'prod',
+        faroUrl: PROD_URL,
+        appName: 'grafana-logsdrilldown-app-prod',
+      });
+
+      await initFaro();
+
+      const tracingCalls = jest.mocked(TracingInstrumentation).mock.calls;
+      const lastTracingCall = tracingCalls[tracingCalls.length - 1];
+      if (lastTracingCall == null) {
+        throw new Error('expected tracing instrumentation to be initialized');
+      }
+
+      const tracingOptions = lastTracingCall[0];
+      if (tracingOptions == null) {
+        throw new Error('expected tracing instrumentation options');
+      }
+
+      expect(tracingOptions.mode).toBe('routing');
+
+      const routeMatcher = tracingOptions.pageRouteMatchers?.[0];
+      if (routeMatcher == null || !(routeMatcher.pattern instanceof RegExp)) {
+        throw new Error('expected a regex page route matcher');
+      }
+
+      expect(routeMatcher.target).toBe('pathname');
+      expect(routeMatcher.pattern.test(PLUGIN_BASE_URL)).toBe(true);
+      expect(routeMatcher.pattern.test(`${PLUGIN_BASE_URL}/logs`)).toBe(true);
+      expect(routeMatcher.pattern.test(`${PLUGIN_BASE_URL}-other`)).toBe(false);
     });
 
     test('omits user when bootData has no email', async () => {
