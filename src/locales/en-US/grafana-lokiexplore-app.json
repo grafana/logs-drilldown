@@ -308,13 +308,13 @@
     },
     "saved-searches": {
       "load-search-button": {
-        "button-no-search-tooltip": "No saved searches to load",
-        "button-tooltip": "Load saved search",
-        "saved-query-button-tooltip": "Load Saved query"
+        "button-no-search-tooltip": "No saved queries",
+        "button-tooltip": "Use saved query",
+        "saved-query-button-tooltip": "Use saved query"
       },
       "load-search-modal": {
-        "empty": "No saved searches to display.",
-        "modal-title": "Load a previously saved search",
+        "empty": "No saved queries to display.",
+        "modal-title": "Saved queries",
         "remove": "Remove",
         "select": "Select"
       },
@@ -323,19 +323,19 @@
         "load-type-error": "Please select a Loki query."
       },
       "save-search-button": {
-        "button-tooltip": "Save search",
-        "button-tooltip-saved-queries": "Save in Saved queries"
+        "button-tooltip": "Save query",
+        "button-tooltip-saved-queries": "Save query"
       },
       "save-search-modal": {
-        "already-exists-alert": "There is a previously saved search with the same query: {{title}}",
+        "already-exists-alert": "There is a previously saved query with the same expression: {{title}}",
         "cancel": "Cancel",
         "close": "Close",
         "description": "Description",
-        "error": "Unexpected error saving this search.",
-        "modal-alert": "Saved searches are stored locally in your browser and will only be available on this device.",
-        "modal-title": "Save current search",
+        "error": "Unexpected error saving this query.",
+        "modal-alert": "Saved queries are stored locally in your browser and will only be available on this device.",
+        "modal-title": "Save query",
         "save": "Save",
-        "success": "Search successfully saved.",
+        "success": "Query successfully saved.",
         "title": "Title",
         "title-success": "Success"
       }

@@ -97,15 +97,15 @@ describe('LoadSearchScene', () => {
     const scene = new LoadSearchScene();
     render(<scene.Component model={scene} />);
 
-    expect(screen.queryByText('Load a previously saved search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved queries')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button'));
 
-    expect(screen.queryByText('Load a previously saved search')).toBeInTheDocument();
+    expect(screen.queryByText('Saved queries')).toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText('Close'));
 
-    expect(screen.queryByText('Load a previously saved search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved queries')).not.toBeInTheDocument();
   });
 
   test('Returns null when the scene is embedded', () => {

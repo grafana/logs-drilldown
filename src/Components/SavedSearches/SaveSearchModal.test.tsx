@@ -45,7 +45,7 @@ describe('SaveSearchModal', () => {
   test('renders the modal with query', () => {
     render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
-    expect(screen.getByText('Save current search')).toBeInTheDocument();
+    expect(screen.getByText('Save query')).toBeInTheDocument();
     expect(screen.getByText('{job="test"}')).toBeInTheDocument();
   });
 
@@ -82,7 +82,7 @@ describe('SaveSearchModal', () => {
 
     render(<SaveSearchModal dsUid="test-ds" onClose={mockOnClose} sceneRef={mockSceneRef} />);
 
-    expect(screen.getByText(/previously saved search/i)).toBeInTheDocument();
+    expect(screen.getByText(/previously saved query/i)).toBeInTheDocument();
     expect(screen.getByText(/existing search/i)).toBeInTheDocument();
   });
 
