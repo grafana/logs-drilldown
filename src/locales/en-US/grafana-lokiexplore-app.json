@@ -750,6 +750,19 @@
         "view-details": "View details"
       },
       "logs-volume": {
+        "field-extremes": {
+          "annotation-max": "Max: {{value}}",
+          "annotation-min": "Min: {{value}}",
+          "aria-label-field": "Numeric field",
+          "group-numeric": "Numeric fields",
+          "group-other": "Other fields",
+          "label-field": "Field",
+          "no-value": "No numeric values found for this field",
+          "placeholder": "Select a numeric field",
+          "title": "Field extremes",
+          "title-max": "Max of {{field}}",
+          "title-min": "Min of {{field}}"
+        },
         "logs-volume-actions": {
           "aria-label-group-by": "Group log volume by field",
           "group-fields": "Other fields",
@@ -758,6 +771,15 @@
         "logs-volume-panel": {
           "title": "Log volume",
           "title-with-count": "Log volume ({{formattedCount}})"
+        },
+        "view-switch": {
+          "aria-label": "Logs volume view",
+          "description-max": "Highest value of a field over time",
+          "description-min": "Lowest value of a field over time",
+          "description-volume": "Number of logs over time",
+          "max": "Max",
+          "min": "Min",
+          "volume": "Volume"
         }
       },
       "text-loading": "Loading..."

@@ -388,6 +388,18 @@ export function setLogsVolumeAggregateBy(sceneRef: SceneObject, value: string | 
   localStorage.setItem(key, value);
 }
 
+function getLogsFieldExtremesFieldKey(sceneRef: SceneObject) {
+  return `${pluginJson.id}.${getExplorationPrefix(sceneRef)}.logsVolume.fieldExtremesField`;
+}
+
+export function getLogsFieldExtremesField(sceneRef: SceneObject) {
+  return localStorage.getItem(getLogsFieldExtremesFieldKey(sceneRef));
+}
+
+export function setLogsFieldExtremesField(sceneRef: SceneObject, value: string) {
+  localStorage.setItem(getLogsFieldExtremesFieldKey(sceneRef), value);
+}
+
 // Log visualization options
 export type LogsVisualizationType = 'json' | 'logs' | 'table';
 
