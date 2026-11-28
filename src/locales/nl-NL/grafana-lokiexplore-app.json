@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "Regelfilter wissen"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "Filters wissen",
           "title": "Er zijn geen {{type}} die aan deze filters voldoen."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "Filters wissen",
         "default": "Er is een fout opgetreden"
       },

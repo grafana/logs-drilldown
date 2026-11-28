@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "줄 필터 초기화"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "필터 초기화",
           "title": "이 필터와 일치하는 {{type}}이(가) 없습니다."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "필터 초기화",
         "default": "오류 발생"
       },

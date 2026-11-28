@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "Satır filtresini temizle"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "Filtreleri temizle",
           "title": "Bu filtrelerle eşleşen {{type}} yok."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "Filtreleri temizle",
         "default": "Bir hata oluştu"
       },
