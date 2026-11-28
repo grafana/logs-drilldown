@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "Limpar filtro de linha"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "Limpar filtros",
           "title": "Nenhum {{type}} corresponde a estes filtros."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "Limpar filtros",
         "default": "Ocorreu um erro"
       },

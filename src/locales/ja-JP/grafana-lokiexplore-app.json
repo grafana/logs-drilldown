@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "行フィルターをクリア"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "フィルターをクリア",
           "title": "これらのフィルターに一致する{{type}}はありません。"
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "フィルターをクリア",
         "default": "エラーが発生しました"
       },

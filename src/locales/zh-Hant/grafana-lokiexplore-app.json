@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "清除行篩選條件"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "清除篩選條件",
           "title": "沒有符合這些篩選條件的 {{type}}。"
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "清除篩選條件",
         "default": "發生錯誤"
       },

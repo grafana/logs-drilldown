@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "Vymazat filtr řádků"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "Vymazat filtry",
           "title": "Těmto filtrům neodpovídají žádné {{type}}."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "Vymazat filtry",
         "default": "Došlo k chybě"
       },

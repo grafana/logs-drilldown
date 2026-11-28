@@ -420,6 +420,7 @@
           "tooltip-clear-line-filter": "Cancella filtro riga"
         },
         "no-matching-labels-scene": {
+          "ask-assistant": "",
           "clear-filters": "Cancella i filtri",
           "title": "Nessun {{type}} corrisponde a questi filtri."
         },
@@ -725,6 +726,7 @@
         }
       },
       "logs-panel-error": {
+        "ask-assistant": "",
         "clear-filters": "Cancella i filtri",
         "default": "Si è verificato un errore"
       },
